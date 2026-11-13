@@ -116,6 +116,8 @@ implementations or incomplete integrations. Do your best work."
 - **The drunk-grandma test.** All copy and UX (every editor, the site, the game's screens) must let a drunk grandma
   tell what is happening and what to press. A screen that fails it is a defect.
 - No subagents unless the Owner says so.
+- **CLI first.** If something can be done with a CLI (gh, npm, wrangler and the like), do it with the CLI, and give
+  the Owner CLI commands rather than click-through steps.
 - **No AI attribution anywhere.** No `Co-Authored-By: Claude`, no session-link trailer and no "Generated with Claude Code" in
   commits, pull request bodies or docs (the Owner, 2026-11-13). Before any commit, set the author with
   `git config --global user.name "Dawson McThay" && git config --global user.email "107786093+mcthaydt@users.noreply.github.com"`.
