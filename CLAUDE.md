@@ -46,8 +46,12 @@ package.
   layouts; languages.
 - **Editors:** all nine old 2D editors plus the figure and environment builders, which make 2D art only. In the
   browser, and as a Tauri app for iPad, Android and desktop.
+- **Agents working on the code are the primary way a game is made.** The editors are for the authorable content
+  only: the JSON files the coding agents produce.
 - **Edits live in the game's GitHub repo.** Save makes a commit; edits that collide merge the way GitHub does.
   Sign-in runs through a Cloudflare Pages Function; the site is on Cloudflare Pages.
+- **Anyone can use the editors freely without signing in,** and keep a copy of what they made. Saving into a game
+  and working with others need a sign-in.
 - **Collaboration between technical and non-technical people is non-negotiable.** The editors are for teams: people
   get levels of what they may do, like Google Docs, set on a Share screen, and need GitHub only to sign in.
 - **Onboarding is one of the most important parts of the product.**
@@ -123,6 +127,11 @@ implementations or incomplete integrations. Do your best work."
 
 - **The editors are for other teams**, working together on their own games in their own repos. Nothing here may
   assume this project's repos or its merge workflow. AutomataFrameworkExamples is only the test game.
+- **An editor changes authorable content and nothing else.** It opens, writes and exports only the content files
+  (JSON) a game's `automata.toml` lists. It never shows or touches a game's code.
+- **Signing in is asked for only when it is needed:** to save, to see or approve waiting changes, to share, to list
+  your own games. Someone who has not signed in can open a public game (one whose sharing file lets everyone look),
+  change it on the screen and keep a copy of a level; the API reads for them and writes nothing.
 - **People sign in with GitHub and then never need it.** The editor's own GitHub App does every piece of GitHub
   work. The page talks only to this site's `/api`; the API (Cloudflare Pages Functions) acts as the App.
 - **Who may do what is a file in the game's repo**, `automata.access.toml`: Look, Suggest, Approve, Edit, Owner.
@@ -133,7 +142,7 @@ implementations or incomplete integrations. Do your best work."
   every byte written is `writeContent`'s, so an agent editing the same file by hand makes the same bytes.
 - **Nothing an editor does is hidden from an agent.** Every action ends as a change to a documented file; a waiting
   change is an ordinary branch and pull request. A screen that keeps state anywhere else (but an unsaved draft and
-  the first-run tips, on the device) is a defect.
+  the first-run tips, on the device) is a defect. A kept copy is the content file itself, byte for byte.
 - **Touch first.** Every screen is designed and tested at iPad size, upright and sideways, then at phone size. Touch
   targets are at least 44 px, primary actions 48 px. Anything that can be dragged can also be moved with buttons and
   with the keyboard.

@@ -22,12 +22,16 @@ is 10, stage 6 is 12, stage 7 is 6)
 
 ### Waiting on the Owner
 
-One question is open and blocks nothing: whether a person can try the editor on a sample level before signing in
-(the plan's "Open with the Owner"). The accounts the real iPad check needs (Cloudflare, the GitHub App) are in the
+No question is open. The accounts the real iPad check needs (Cloudflare, the GitHub App) are in the
 plan's "Before starting".
 
 ### Log
 
+- 2026-11-13: Stage 2, added to after the first plan merged. The Owner: agents working on the code are the primary
+  way a game is made, and the editors change authorable content only (the JSON files); anyone can use the editor
+  freely without signing in and keep a copy, and saving or working with others needs a sign-in. The plan is now 21
+  tasks: the API lets a visitor read a public game, the page asks for sign-in only when it is needed, and a new
+  Task 18 adds "Try it now", "Keep a copy" and the visitor's journeys. The plan audit reads this version.
 - 2026-11-13: Stage 2. The Editors' M1 plan written: 20 tasks. The Owner's decisions the same day widened M1 for this
   repo: the editors are for teams; every access level (Look, Suggest, Approve, Edit, Owner) with a Share screen;
   the editor's own GitHub App does the GitHub work through an API on Cloudflare Pages Functions, so people need
