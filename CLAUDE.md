@@ -130,8 +130,9 @@ implementations or incomplete integrations. Do your best work."
 - **An editor changes authorable content and nothing else.** It opens, writes and exports only the content files
   (JSON) a game's `automata.toml` lists. It never shows or touches a game's code.
 - **Signing in is asked for only when it is needed:** to save, to see or approve waiting changes, to share, to list
-  your own games. Someone who has not signed in can open a public game (one whose sharing file lets everyone look),
-  change it on the screen and keep a copy of a level; the API reads for them and writes nothing.
+  your own games. Someone who has not signed in can open only the demo game (the Owner, 2026-11-13; every other
+  game is its team's), change it on the screen and keep a copy of a level as its JSON, to paste back into an agent
+  or a game's files; the API reads for them and writes nothing.
 - **People sign in with GitHub and then never need it.** The editor's own GitHub App does every piece of GitHub
   work. The page talks only to this site's `/api`; the API (Cloudflare Pages Functions) acts as the App.
 - **Who may do what is a file in the game's repo**, `automata.access.toml`: Look, Suggest, Approve, Edit, Owner.
