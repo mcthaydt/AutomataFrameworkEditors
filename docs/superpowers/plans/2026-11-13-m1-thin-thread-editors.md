@@ -3,9 +3,11 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task, in
 > one session, with no subagents (project rule). Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A team works on its game together in the browser, on an iPad: each person signs in with GitHub, opens the
-game, drags the crate and presses Save. What Save does follows from the person's level (Look, Suggest, Approve, Edit,
-Owner), which the game's Owner sets on a Share screen. Nobody but the Owner, once, has to touch GitHub.
+**Goal:** A team works on its game together in the browser, on an iPad. Anyone can open a game and change it
+freely without signing in, and keep a copy of what they made; saving it into the game and working with others
+needs a sign-in with GitHub. What Save then does follows from the person's level (Look, Suggest, Approve, Edit,
+Owner), which the game's Owner sets on a Share screen. Nobody but the Owner, once, has to touch GitHub. The editors
+change a game's authorable content only (the JSON files the coding agents produce); the code stays the agents' work.
 
 **Architecture:** One private package in two halves. The page is Svelte 5, built by Vite into static files; it never
 talks to GitHub, only to this site's own `/api`. The other half is that API: Cloudflare Pages Functions that act as
@@ -44,10 +46,15 @@ sign-in; the spec in AutomataFramework needs a follow-up edit, which is the coor
   makes the App merge it; an Edit-level save goes straight in. Guests do not fork: the App writes their suggestion
   branch in the team's repo.
 - **People still sign in with a GitHub account**, "just so they know" who they are to each other.
+- **Agents working on the code are the primary way a game is made.** The editors are for the authorable content
+  only: "exclusively the JSON stuff produced by the coding agents". An editor never opens or changes code.
+- **Anyone can use the editor without signing in.** "They should be able to use the editor freely, they just can't
+  save their work, export sure, but no saving or collaborating unless they sign in." A "Change this game" link on a
+  site opens that game in the editor, straight away. A person who has not signed in is called a **visitor** below.
 - **The App asks for as little as it can:** repository contents, pull requests, checks (read) and metadata. No
   Administration permission.
 - **Onboarding is not to be neglected:** "one of the most important things for any product". The first run of each
-  kind of person is its own task (Task 18), with its own journeys.
+  kind of person, visitors first, is its own task (Task 19), with its own journeys.
 - **The browser editor gets its own Cloudflare Pages project**, connected to this repo by Cloudflare's GitHub
   integration. No deploy job, no token in GitHub.
 - **Four development dependencies outside the spec's stack table are approved** (the Tech Stack line).
@@ -89,17 +96,24 @@ The rules, which Task 3 builds and the API enforces on every call:
 - The file is only ever read from the default branch. A suggestion that changes it changes nothing until it is
   approved, and the editor never approves a suggestion that touches it (that one is approved on GitHub).
 
+**Visitors.** A person who has not signed in can open a game only if its repo is public and `everyone` is not
+`nothing`; the API then reads it for them as Look, and never more, whatever `everyone` says. They can change
+anything on the screen, and keep a copy of a level on their device (Task 18), and that is all: every route that
+writes, lists waiting changes or shows the sharing list answers `signed-out` without a sign-in. Trying is not a
+level in the file; it is what the editor does on the device, for everyone who can open a game, Look included.
+
 **What GitHub is asked to guard.** With this design ordinary people have no rights on GitHub, so the sharing file is
 the gate. A team that also wants GitHub to stop its own GitHub collaborators pushing to the default branch adds a
 branch rule ("require a pull request with one approval") with Automata Editors on its bypass list; `docs/teams.md`
-(Task 20) shows how. The editor works with or without the rule. If a rule blocks the App itself, the API answers
+(Task 21) shows how. The editor works with or without the rule. If a rule blocks the App itself, the API answers
 `blocked` and the Owner is told what to change.
 
 ## What this plan covers, and what it does not
 
 In: the API (sign-in, who you are, open, save, waiting changes, approve, share), the suite's screens (welcome, pick
-a game, the game's page, the Levels editor, waiting changes, Share), the first run for each kind of person, CI,
-journeys, and the deploy steps.
+a game, the game's page, the Levels editor, waiting changes, Share), using all of it without signing in up to the
+moment of saving, keeping a copy of a level, the first run for each kind of person, CI, journeys, and the deploy
+steps.
 
 Not in, because M1 does not use it, each with where it arrives:
 
@@ -109,6 +123,7 @@ Not in, because M1 does not use it, each with where it arrives:
 | Placing or deleting things, painting tiles, moving start points | M3 |
 | Playing the game inside the suite | M3 |
 | The other eight editors and the two builders | M3 |
+| Opening a game, or a level file, straight from the device with no GitHub at all. In M1 a visitor opens a public game the editor has been added to | M3, if the Owner wants it |
 | Languages. M1 is English, with every word in one file so Paraglide can take it over | M3 |
 | The Tauri app and GitHub's device flow | M4 |
 | Applying a branch rule for the team (it needs the Administration permission; see above) | not planned |
@@ -120,20 +135,13 @@ Stop and report to the coordinator if one is not true. Do not work around one.
 
 1. `main` is protected in this repo, and GitHub-hosted runners accept its jobs (Task 1's first push shows it).
 2. **The accounts** (spec, open item 1): a Cloudflare account with a Pages project for this repo, and the GitHub
-   App. `docs/deploy.md` (Task 20) is the step-by-step. *Blocks:* only the real iPad check; CI goes green without
+   App. `docs/deploy.md` (Task 21) is the step-by-step. *Blocks:* only the real iPad check; CI goes green without
    them.
 
 **Could not be checked while planning:** this session's network refused `docs.github.com`, so the GitHub calls in
 Tasks 4 and 5 are written from memory of GitHub's REST documentation. The plan audit, or failing that the first step
 of each of those tasks, checks every call (path, body, the permission it needs) against the documentation, and
 reports any that differ before building on it.
-
-## Open with the Owner
-
-Asked through the coordinator on 2026-11-13; not in this plan unless the Owner says so, and nothing here waits for
-it. **Trying the editor before signing in:** (A, what this plan does) the first screen asks for sign-in; (B) a "Try
-it first" button opens a built-in sample level with no account, and Save then asks the person to sign in. B is one
-more task.
 
 ## Global Constraints
 
@@ -155,6 +163,12 @@ more task.
   must stay small enough for a Cloudflare Function (Task 7 measures it).
 - **The page never talks to GitHub.** It calls `/api` on its own origin and nothing else; the only GitHub address a
   browser is sent to is the sign-in page and, for an Owner, the page that adds the editor to a game.
+- **The editors change authorable content only.** A game's content files (JSON, listed in its `automata.toml`) are
+  the only part of a game an editor opens for changing, writes or exports. No screen shows, and no route reads or
+  writes, a game's code, its `automata.toml` (read to find the content, never written) or anything else in the repo.
+  The sharing file is the one other file written, and it says who may change the content, not what the game is.
+- **Signing in is asked for only when it is needed:** to save, to see or approve waiting changes, to share, and to
+  list your own games. Opening a game, changing it on the screen and keeping a copy never ask.
 - **The API trusts nothing the page says about who someone is or what they may do.** Every call works out the
   person from their sign-in token, and their level from the sharing file on the default branch, afresh.
 - **The API writes only two kinds of file:** a content file listed in the game's `automata.toml`, as
@@ -171,7 +185,7 @@ more task.
   centre (the framework's contract).
 - **The drunk-grandma test.** Every word on a screen comes from `src/features/words/words.ts`, pinned in the task
   that adds it. No screen says repo, repository, commit, branch, pull request, token, OAuth, JSON, sync, push, merge
-  or conflict. One primary action per screen. Task 19 uploads a picture of every screen at every size; the
+  or conflict. One primary action per screen. Task 20 uploads a picture of every screen at every size; the
   implementation audit reads them and treats a screen that fails as a defect.
 - **No AI attribution** in commits, pull request bodies or docs. Set the author first:
   `git config --global user.name "Dawson McThay" && git config --global user.email "107786093+mcthaydt@users.noreply.github.com"`.
@@ -188,7 +202,7 @@ session's GitHub tools.
 - **Three kinds of test**, by file suffix: `*.test.ts` runs in Node; `*.browser.test.ts` runs in Chromium, WebKit and
   Firefox (Vitest browser mode: real layout, real pointer events); `*.journey.test.ts` runs in Node and drives the
   built page in one real browser, once per engine.
-- After each task: tick its boxes here, update `docs/superpowers/progress.md` (each finished task is 5% of stage 4),
+- After each task: tick its boxes here, update `docs/superpowers/progress.md` (stage 4 is the finished tasks out of 21),
   and send the coordinator one line: commit, test count, surprises.
 - Stop rules (project): a failing check you cannot explain, a third fix for the same failure, an access refusal, a
   missing tool, or an item under "Before starting" that is not true. Stop that task and report at once. Hand off at
@@ -201,7 +215,7 @@ repos in memory and answers the GitHub calls the API makes, the way GitHub's RES
 them, including checking the App's signed token with the test's public key. From Task 7 on, the API's own tests run
 the real API code against it over HTTP, and from Task 11 the journeys run the built page against that same API. What
 only the real GitHub can prove (its sign-in and "add to a game" screens, a real branch rule, real checks) is the
-iPad check in Task 20.
+iPad check in Task 21.
 
 Its people: `grandma` (owns the game `grandma/crate-game`), `grandpa`, `kid` and `stranger`. A test says who is at
 the keyboard with `fake.person`.
@@ -229,7 +243,7 @@ src/features/service/             service.ts (entry, the router)  enter.ts  game
 src/features/ui/                  ui.ts (entry)  Button.svelte  Screen.svelte  Notice.svelte  Choice.svelte  ui.css
 src/features/api/                 api.ts (entry): calls /api
 src/features/session/             session.ts (entry)
-src/features/game/                game.ts (entry)  open.ts  save.ts  draft.ts  recent.ts
+src/features/game/                game.ts (entry)  open.ts  save.ts  draft.ts  recent.ts  copy.ts
 src/features/levels/              levels.ts (entry)  place.ts  edit.ts  level-canvas.ts  Levels.svelte
 src/features/suite/               suite.ts (entry)  route.ts  guide.ts  App.svelte  Welcome.svelte  PickGame.svelte
                                   AddEditor.svelte  GameHome.svelte  LevelScreen.svelte  Waiting.svelte
@@ -257,16 +271,18 @@ What the spec does not name but a person, or someone unkind, will try. Each has 
 code.
 
 1. **Someone gives themselves a higher level:** by sending a level in a request, by suggesting a change to the
-   sharing file, by saving to a path that is not a content file, or by showing up with a GitHub token from some
-   other app. Each must change nothing and be refused in plain words. Tasks 3, 4, 7, 8, 9, 10.
+   sharing file, by saving to a path that is not a content file, by showing up with a GitHub token from some
+   other app, or with no token at all (a visitor reads a public game and nothing else, and writes nothing). Each
+   must change nothing and be refused in plain words. Tasks 3, 4, 7, 8, 9, 10.
 2. **Someone else changes the level between open and Save** (an agent, another device, an approved suggestion): the
    person's change must never overwrite theirs, never vanish silently, and the screen must say what happened and
    what to press. Tasks 8, 15.
 3. **A change approved before it is safe:** while the game's checks are still running or have failed, or a person
    approving their own. Tasks 9, 16.
 4. **The sign-in runs out, or the internet drops, in the middle of an edit:** the unsaved change is still there after
-   signing in again or pressing Save again, and a Save that failed halfway does not leave two commits. Tasks 8, 11,
-   15.
+   signing in again or pressing Save again, and a Save that failed halfway does not leave two commits. The same
+   holds for a visitor's first sign-in: what they made before signing in is there when they come back. Tasks 8,
+   11, 15, 18.
 5. **A drag that never ends** (the system cancels the touch, a second finger lands, the iPad is turned mid-drag),
    or a box dropped where it cannot be: the box goes back or stays inside, with one sentence saying why. Tasks 13,
    14.
@@ -417,7 +433,7 @@ them to `WORDS`, and adds them to `words.test.ts`:
 - [ ] **Step 1: Write the failing tests.** `words.test.ts`: every row above equals `WORDS[key]` (functions called
   with `'crate-1'`); and no value, lower-cased, contains any of `repo`, `commit`, `branch`, `token`, `oauth`, `json`,
   `toml`, `sync`, `push`, `pull`, `merge`, `conflict`, `schema`, `sha`, `api`, `fork`, `error` as a whole word (the test
-  exports this list as `BANNED`, for Task 19). `ui.browser.test.ts`
+  exports this list as `BANNED`, for Task 20). `ui.browser.test.ts`
   mounts each piece with Svelte's `mount` into a 390 px wide box: a `primary` Button's box is at least 48 px tall and
   44 wide, a `plain` one at least 44 by 44; pressing a disabled Button does not call `onpress`; Enter and Space on a
   focused Button call it once; a `problem` Notice has `role="alert"` and the others `role="status"`; a Screen has one
@@ -753,6 +769,7 @@ export interface FakeGitHub {
   tokensRunOut(): void                       // every sign-in token stops working; a refresh gives a new one
   signedOutEverywhere(): void                // tokens and refreshes all stop working
   down: boolean                              // true: every call is dropped
+  readonly log: readonly { readonly method: string; readonly path: string }[]   // every request it was sent, oldest first; emptied by reset()
   clock: number                              // ms; the time on new commits and pulls
   reset(): void                              // back to: grandma, allow, up, repos = crate-game and not-a-game
   close(): Promise<void>
@@ -817,7 +834,7 @@ export interface WireFile { readonly path: string; readonly text: string; readon
 export interface Waiting { readonly number: number; readonly title: string; readonly by: string; readonly mine: boolean; readonly checks: Checks }
 export interface OpenAnswer {
   readonly game: GameRef
-  readonly login: string                       // who the API says you are
+  readonly login: string | undefined           // who the API says you are; undefined for a visitor
   readonly level: AccessLevel                  // what the API says you may do
   readonly branch: string                      // where these files were read from
   readonly mine: Waiting | undefined           // your own waiting change, if you have one
@@ -830,16 +847,18 @@ export interface OpenAnswer {
 export function handleApi(request: Request, env: AppEnv, deps?: Partial<Deps>): Promise<Response>
 
 // enter.ts: the door every route but /api/token goes through
-export interface Entered { readonly who: Who; readonly token: string; readonly repo: Repo; readonly access: AccessFile; readonly accessVersion: string | undefined; readonly level: AccessLevel }
+export interface Entered { readonly who: Who | undefined; readonly token: string | undefined; readonly repo: Repo; readonly access: AccessFile; readonly accessVersion: string | undefined; readonly level: AccessLevel }
 export function suggestionBranch(login: string): string    // 'automata/' + the login in lower case
 /** Who is asking (from the Bearer token), the repo, the sharing file from the default branch, and their level. Refuses unless they may do `action`. */
-export function enter(deps: Deps, request: Request, game: GameRef, action: Action): Promise<Answer<Entered>>
+export function enter(deps: Deps, request: Request, game: GameRef, action: Action, opts?: { visitors: boolean }): Promise<Answer<Entered>>
+/** What someone who has not signed in may do: 'look' at a public game whose `everyone` is not 'nothing'; otherwise 'nothing'. */
+export function visitorLevel(repo: Repo, access: AccessFile): 'nothing' | 'look'
 
 // tests/fixtures/api.ts
 export interface TestApi {
   readonly fake: FakeGitHub
   /** Calls the real handleApi as `person`, from the site's own origin. */
-  call<T>(person: (typeof PEOPLE)[number], method: 'GET' | 'POST', path: string, body?: unknown): Promise<{ status: number; answer: Answer<T> }>
+  call<T>(person: (typeof PEOPLE)[number] | 'visitor', method: 'GET' | 'POST', path: string, body?: unknown): Promise<{ status: number; answer: Answer<T> }>   // 'visitor' sends no token
   close(): Promise<void>
 }
 export function startTestApi(): Promise<TestApi>
@@ -854,15 +873,19 @@ The routes so far (Tasks 8 to 10 add the rest):
 |---|---|---|
 | `POST /api/token` | `handleTokenRequest` (Task 4) | nothing |
 | `GET /api/games` | `reposOf` with the person's token: the games they own that have the editor | signed in |
-| `GET /api/game?owner=&name=` | Opens the game: `OpenAnswer` | `look` |
+| `GET /api/game?owner=&name=` | Opens the game: `OpenAnswer` | `look`, or a visitor (the only route that passes `visitors: true`) |
 
-The rules of the door, in order: not `sameOrigin`, `not-allowed`; no Bearer token, `signed-out`; `whoIs`;
+The rules of the door, in order: not `sameOrigin`, `not-allowed`; no `Authorization` header at all, `signed-out`
+unless the route takes visitors, in which case there is no `who` and the level below is `visitorLevel` instead of
+`levelOf` (a header that is there but empty or wrong is always `signed-out`, so a sign-in that ran out is renewed
+and not quietly turned into a visit); `whoIs`;
 `owner` and `name` that are not `[A-Za-z0-9._-]{1,100}`, `bad-request`; `openRepo` (`not-found` when the editor has
 not been added); the sharing file read from the default branch (`defaultAccess` when there is none, `CLOSED` when it
 will not parse); `levelOf`; if the level is `nothing`, `not-found` (a private game's existence is not given away);
 if they may not do `action`, `not-allowed`.
 
-Opening: if the person has an open pull whose head is `suggestionBranch(login)`, the files are read from that
+Opening: a visitor always gets the default branch, `mine` undefined and `waiting` 0 (how busy a team is, is the
+team's business). Otherwise, if the person has an open pull whose head is `suggestionBranch(login)`, the files are read from that
 branch, so they see their own waiting change; otherwise from the default branch. `automata.toml` missing is
 `not-a-game`; one that will not parse is still sent (the page shows the framework's sentences). Every file it lists
 is read; one that is missing is left out (the page's `loadGame` then names it). `waiting` counts the open pulls
@@ -873,7 +896,8 @@ whose head starts `automata/` and is in this repo.
 ```ts
 // enter.test.ts
 test('a call from another origin is refused before GitHub is asked anything', ...)
-test('no token, a made-up token, and a token from before signedOutEverywhere() are all signed-out', ...)
+test('an empty token, a made-up token, and a token from before signedOutEverywhere() are all signed-out, on every route', ...)
+test('with no token, every route but GET /api/game is signed-out, and GitHub is asked nothing', ...)
 test('a real GitHub token that this App did not make is signed-out', ...)       // Review Focus 1
 test('the level comes from the sharing file on main, never from the request', ...)
   // kid calls /api/game?owner=grandma&name=crate-game&level=owner with header x-level: owner -> level is 'look'
@@ -885,6 +909,10 @@ test('names with a slash or a space are bad-request', ...)
 test('GitHub down is busy', ...)
 
 // open.test.ts
+test('a visitor opens a public game: look, no login, from main, the same files grandma gets', ...)
+test('a visitor gets look even where everyone = "suggest"', ...)
+test('a visitor sees none of kid\'s waiting change: main\'s files, mine undefined, waiting 0', ...)
+test('a visitor is told not-found for a private game, for everyone = "nothing", for a broken sharing file, and for a game with no editor', ...)
 test('grandma opens her game: owner, from main, with automata.toml and its three files', ...)
 test('each file\'s text and version are GitHub\'s', ...)
 test('kid has a change waiting: the files come from automata/kid, and mine names it', ...)
@@ -1001,6 +1029,9 @@ test('a body that is not a SaveAsk is bad-request', ...)
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Push; all jobs pass.**
 - [ ] **Step 5: Commit** (`feat(service): Save, straight in or as a suggestion, by level`).
+
+**A visitor at these routes.** Tasks 8, 9 and 10 each add one test to their own file: with no token, every route
+the task adds answers `signed-out`, the pretend GitHub's log shows no request, and no repo changed.
 
 ### Task 9: The API: waiting changes, approve and turn down
 
@@ -1220,8 +1251,8 @@ export function dragByTouch(page: Page, thing: string, by: { dx: number; dy: num
 export function picture(page: Page, name: string): Promise<void>        // tests/journeys/__screenshots__/<name>.png
 ```
 
-  `createApi`: every call carries `Authorization: Bearer <token>`. With no token the answer is `signed-out` and
-  nothing is sent. A `signed-out` answer makes it call `auth.renew()` once and, if that says yes, make the call once
+  `createApi`: every call carries `Authorization: Bearer <token>`. With no token, `open` is sent with no such
+  header (a visit) and every other method answers `signed-out` with nothing sent. A `signed-out` answer makes it call `auth.renew()` once and, if that says yes, make the call once
   more. A request that throws is `offline`. An answer that is not the `Answer` shape is `unknown`.
 
   `Session.renew()` swaps the kept `refresh` for new Tokens and says whether it worked; with no `refresh`, or a
@@ -1238,10 +1269,16 @@ export function picture(page: Page, name: string): Promise<void>        // tests
 
 Screen: **Welcome.** `appName` as the title, `welcomeLine`, one primary Button `signIn`, and under it `signInWhy`.
 With no client id: `signInNotReady` as a problem Notice and the Button disabled. After `cancelled` or `failed`: that
-Notice above the Button. Signed in, every screen's top bar has a plain `signOut` Button.
+Notice above the Button. Signed in, every screen's top bar has a plain `signOut` Button; not signed in, the same
+spot has a plain `signIn` Button, which calls `begin` with the screen the person is on, so they come back to it.
+(Task 18 adds the "try it" Button to Welcome.)
+
+**Which screens ask for sign-in.** A visitor is shown Welcome only for the routes that need a person: `games`,
+`waiting`, `change` and `share`. The `game` and `level` routes open for a visitor without a word about signing in.
 
 - [ ] **Step 1: Write the failing tests.** `api.test.ts`, with a made-up `fetcher`: each method's verb, path, query
-  or body, and the Bearer header; no token is `signed-out` with nothing sent; a `signed-out` answer then a
+  or body, and the Bearer header; with no token `open` is sent with no `Authorization` header and every other method is `signed-out` with nothing
+  sent; a `signed-out` answer then a
   `renew()` that says yes makes the call again with the new token, and a second `signed-out` is final (no third
   call); a throw is `offline`; HTML where JSON was expected is `unknown`. `session.test.ts`: `begin` stores a fresh
   state and the return hash, then calls `go` with `signInUrl` carrying that state and no `scope`; `finish` with no
@@ -1257,13 +1294,14 @@ Notice above the Button. Signed in, every screen's top bar has a plain `signOut`
   zero, is `games`. `sign-in.journey.test.ts`: at iPad upright, Welcome shows its pieces and the Button is at least
   48 px tall; pressing it ends on the "Pick a game" title with a clean URL (no `code`); a reload stays signed in;
   `signOut` returns to Welcome and a reload stays there; with `fake.signIn = 'deny'` the person lands on Welcome
-  reading `signInCancelled`; opening `#/game/grandma/crate-game` signed out, then signing in, lands on that game,
-  not on the list; after `fake.tokensRunOut()` a reload still shows "Pick a game" (renewed without the person
+  reading `signInCancelled`; opening `#/game/grandma/crate-game` signed out shows no Welcome and asks for nothing,
+  and pressing the top bar's `signIn` there comes back to that game, not to the list; opening
+  `#/game/grandma/crate-game/share` signed out shows Welcome, and signing in lands on Share; after `fake.tokensRunOut()` a reload still shows "Pick a game" (renewed without the person
   noticing); during the whole journey the page made no request to any address but its own origin and the sign-in
   page (the journey records every request).
 - [ ] **Step 2: Push; `check` and the journeys fail.**
-- [ ] **Step 3: Implement.** `App.svelte` shows Welcome when there is no token and otherwise the screen for the
-  route; until Task 12 the `games` screen is only its title.
+- [ ] **Step 3: Implement.** `App.svelte` shows Welcome when there is no token and the route needs a person, and
+  otherwise the screen for the route; until Task 12 the `games` and `game` screens are only their titles.
 - [ ] **Step 4: Push; all jobs pass.**
 - [ ] **Step 5: Commit** (`feat(session): the page signs in, and talks only to its own API`).
 
@@ -1284,7 +1322,7 @@ Notice above the Button. Signed in, every screen's top bar has a plain `signOut`
 // open.ts
 export interface OpenGame {
   readonly ref: GameRef
-  readonly login: string
+  readonly login: string | undefined                    // undefined: a visitor
   readonly level: AccessLevel
   readonly mine: Waiting | undefined                    // my own waiting change
   readonly waiting: number                              // how many changes wait in all
@@ -1323,6 +1361,8 @@ More words, exactly:
 | `notAGame` | This isn't an Automata game. Pick another one. |
 | `brokenGame` | This game has problems that need fixing first: |
 | `cantFindGame` | We can't find that game, or it hasn't been shared with you. Ask its owner. |
+| `cantFindVisitor` | We can't find that game. If someone shared it with you, sign in to open it. |
+| `visitorCan` | Try anything you like. To save your changes into the game, sign in. |
 | `cantReach` | Can't reach the game right now. Check the internet and try again. |
 | `tryAgain` | Try again |
 | `gameLevels` | Levels |
@@ -1336,10 +1376,12 @@ the games `api.games()` gives and the remembered ones, without doubles, each a r
 name and, smaller, its owner; `pickNoMatch` when the filter leaves nothing; `loading` while asking; at the bottom
 a plain Button `pickAdd`, to `addToGameUrl`. **No games** (`AddEditor.svelte`, in place of an empty list):
 `pickEmpty`, `pickEmptyLink`, and one primary Button `pickAdd`. **The game's page:** the game's name
-(`project.name`) as the title, Back to the list; `youAre(level)` as an info Notice; `mineWaiting` as a second one
+(`project.name`) as the title, Back to the list (for a visitor, Back goes to Welcome); `youAre(level)` as an info
+Notice, or `visitorCan` for a visitor; `mineWaiting` as a second one
 when the person has a change waiting; under `gameLevels`, one row per level, by id; then `gameMoreSoon`. (Tasks 16
 and 17 add the waiting-changes row and the Share button.) For `not-a-game`: `notAGame`. For `not-found` and
-`not-allowed`: `cantFindGame`. For `broken`: `brokenGame` and each `formatDiagnostic` line in a list. Each with a
+`not-allowed`: `cantFindGame`; for a visitor `cantFindVisitor` with a primary `signIn` Button, which comes back to
+this game. For `broken`: `brokenGame` and each `formatDiagnostic` line in a list. Each with a
 Button back to the list. For `signed-out`: sign out and show Welcome with `signedOutAgain`. For `offline`, `busy`
 and anything else: `cantReach` with a `tryAgain` Button that asks again.
 
@@ -1357,7 +1399,9 @@ and anything else: `cantReach` with a `tryAgain` Button that asks again.
   `cantReach`, and after `fake.down = false` pressing `tryAgain` shows the game. As `kid`, opening the link
   `#/game/grandma/crate-game`: the game opens with `youAre('look')`; back on the list, `crate-game` is there
   (remembered), and after a reload it still is. As `stranger` with the game made private: `cantFindGame`, and the
-  list does not remember it. As `grandma` with no repo `installed`: `pickEmpty` and the `pickAdd` Button.
+  list does not remember it. Not signed in, opening the link: the game opens with `visitorCan`, a `level-1` row and
+  a `signIn` Button in the top bar, and the page asked for nothing. Not signed in, with the game made private:
+  `cantFindVisitor`; pressing `signIn` as `grandma` comes back to the game, open, with `youAre('owner')`. As `grandma` with no repo `installed`: `pickEmpty` and the `pickAdd` Button.
 - [ ] **Step 2: Push; `check` and the journeys fail.**
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Push; all jobs pass.**
@@ -1568,7 +1612,8 @@ More words, exactly:
 | `statusSaving` | Saving… |
 | `savedDirect` | Saved. Your game has the change. |
 | `savedSuggestion` | Saved. Your change is waiting for approval. |
-| `lookOnly` | You can look and try things, but you can't save changes to this game. |
+| `lookOnly` | You can look and try things, but you can't save changes to this game. Ask its owner to let you. |
+| `signInToSave` | Sign in to save this into the game. Your change will still be here when you come back. |
 | `changedElsewhere` | Someone changed this level while you were working, so your change wasn't saved. |
 | `takeTheirs` | Show their version (drop my change) |
 | `keepMine` | Keep my change for now |
@@ -1582,12 +1627,15 @@ More words, exactly:
 | `draftDropped` | This level changed while you were away, so your unsaved change was dropped. |
 
 **The level screen** (`#/game/<owner>/<name>/level/<id>`) opens the game, takes a draft if there is one (`draftBack`
-as a good Notice, or `draftDropped` as an info Notice), and shows `Levels` with `canSave` as `can(level, 'save')`.
+as a good Notice, or `draftDropped` as an info Notice), and shows `Levels` with `canSave` as `can(level, 'save')`,
+or as true for a visitor (whose Save asks them to sign in).
 Its rules:
 
 | When | What the person sees | What happens |
 |---|---|---|
-| Opened at `look` | `lookOnly`; things can be moved to try, Save never lights | No draft is kept |
+| Opened at `look`, signed in | `lookOnly`; things can be moved to try, Save never lights | The draft is kept, so a reload does not undo their trying |
+| Opened by a visitor | `visitorCan`; things can be moved, and Save lights like anyone's | The draft is kept |
+| Save pressed by a visitor | `signInToSave` as an info Notice with a primary `signIn` Button; Save stays lit | Nothing is sent. `signIn` calls `begin` with this level. Back from GitHub, the level opens with `draftBack` and the person's real level; Save then does what that level allows (`lookOnly` if it allows nothing) |
 | Opened with my change waiting | `mineWaiting` | The level shown is my own version |
 | A move | `statusDirty`; Save lights up | The draft is kept |
 | Save pressed | `statusSaving`; Save off | One `saveLevel`. A second press while saving does nothing |
@@ -1660,6 +1708,11 @@ test('a reload with an unsaved change brings it back, and says so', ...)
 test('a reload after someone else changed the level drops my change, and says so', ...)
 test('Back with an unsaved change asks first; Stay stays; Leave without saving leaves', ...)
 test('someone who may only look can try a move, never sees Save light up, and nothing is written', ...)   // as kid, everyone = "look"
+test('a visitor moves the crate and presses Save: asked to sign in, and the API was never asked to save', ...)
+test('the visitor signs in as grandma: back on the level, the crate is where they put it, and Save puts it in the game', ...)   // one commit on main, by grandma
+test('the visitor signs in as kid (everyone = "suggest"): the same, and it waits for approval', ...)
+test('the visitor signs in as stranger (everyone = "look"): the crate is still where they put it, and Save says lookOnly', ...)
+test('the visitor cancels on GitHub: back on the level, the crate still where they put it, signInCancelled', ...)
 test('my level was lowered while I worked: Save says lookOnly and my crate stays on screen', ...)
 test('a rule on GitHub blocks the editor: blockedOwner, and my crate stays on screen', ...)  // rule = 'blocks-app'
 ```
@@ -1858,11 +1911,109 @@ test('every level picker and every Remove is at least 44 px, on a phone too', ..
 - [ ] **Step 4: Push; all jobs pass in all three engines.**
 - [ ] **Step 5: Commit** (`feat(suite): share a game, and choose what each person may do`).
 
-### Task 18: The first run, for each kind of person
+### Task 18: Try it without signing in, and keep a copy
 
-Nobody reads a manual. An Owner who has never used the editor gets from the first screen to a saved change and a
-shared game; a person who was sent a link gets from the link to their first change (or their first approval)
-knowing what they may do. At every step the screen says what is happening and what to press.
+A visitor has, so far, been able to open a game by its link and change it on the screen. This task gives them a
+front door (a "try it" Button on Welcome, for a site that names a game to try) and something to walk away with (a
+copy of the level, on their device), and proves the whole visit end to end.
+
+**Files:**
+- Create: `src/features/game/copy.ts`
+- Modify: `src/features/words/words.ts`, `src/index.ts`, `src/main.ts`, `.env.journeys`, `Welcome.svelte`,
+  `Levels.svelte`, `LevelScreen.svelte`
+- Test: `tests/features/game/copy.test.ts`, `tests/features/levels/levels.browser.test.ts` (two more),
+  `tests/journeys/visitor.journey.test.ts`
+
+**Interfaces:**
+- Consumes: `OpenGame`, `levelPath` (Task 12); `Levels` (Task 14); the level screen (Task 15); `Route`, `routeHash`
+  (Task 11); the framework's `writeContent`.
+- Produces:
+
+```ts
+// copy.ts: a level as a file a person can keep. The bytes are the framework's, so an agent can drop the file
+// into the game and it is exactly what Save would have written.
+export interface LevelCopy { readonly name: string; readonly text: string }   // name: the last part of the level's path, e.g. 'level-1.json'
+export function levelCopy(game: OpenGame, level: Level): LevelCopy | undefined // text: writeContent('level', level); undefined for a level not in the project
+/** Hands the copy to the browser as a download (a Blob, an <a download>, a click), and frees the Blob's address. */
+export function keepCopy(doc: Document, copy: LevelCopy): void
+
+// src/index.ts
+export interface SuiteConfig extends SessionConfig { readonly sample: GameRef | undefined }   // the game "try it" opens
+
+// Levels.svelte, one more prop
+oncopy: () => void
+```
+
+  `main.ts` reads `VITE_SAMPLE_GAME` (`owner/name`; anything else, or nothing, is `undefined`). `.env.journeys` sets
+  it to `grandma/crate-game`. The site that runs the editor chooses the game; nothing in `src/` names one.
+
+More words, exactly:
+
+| Key | Words |
+|---|---|
+| `tryIt` | Try it now |
+| `tryItLine` | No account needed. Open the example game and change it. |
+| `copyKeep` | Keep a copy |
+| `copyKept` | A copy of this level is on your device. |
+
+What changes on the screens:
+
+- **Welcome, on a site with a sample game:** the primary Button is `tryIt`, with `tryItLine` under it; it goes to
+  the sample game's page. Sign-in stays the `signIn` Button, now plain, with `signInWhy` under it
+  (`sign-in.journey.test.ts`'s size line changes with it: `tryIt` at least 48 px, `signIn` at least 44). On a site with no
+  sample game Welcome is as Task 11 left it. When Welcome is shown because a screen needs a person (Task 11), the
+  primary Button is `signIn` and `tryIt` is plain: there is always exactly one primary.
+- **The level screen:** a plain `copyKeep` Button in the bar under the stage, for everyone who can open the level,
+  always on. Pressing it downloads the level as it is on the screen now, saved or not, and shows `copyKept` as a
+  good Notice. It never asks for sign-in and never calls the API.
+
+- [ ] **Step 1: Write the failing tests.** `copy.test.ts`: `levelCopy` for the fixture game with the crate moved is
+  named `level-1.json` and its text equals `writeContent('level', moved)`, byte for byte; a level whose id is not in
+  the project is `undefined`; `keepCopy`, given a made-up document, makes one link whose `download` is the name,
+  clicks it once and removes it. `levels.browser.test.ts`: the `copyKeep` Button is at least 44 px, is on with
+  `canSave` false and with `status` `clean`, and pressing it calls `oncopy` once. `visitor.journey.test.ts`, at iPad
+  upright and phone, never signing in unless the line says so:
+
+```ts
+test('a visitor tries the example game: Welcome, Try it now, the level, a drag, and a copy on the device', async () => {
+  await page.getByRole('button', { name: WORDS.tryIt }).tap()
+  await expect(page.getByText(WORDS.visitorCan)).toBeVisible()
+  await page.getByRole('button', { name: 'level-1' }).tap()
+  await dragByTouch(page, 'crate-1', { dx: 2, dy: 0 })
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: WORDS.copyKeep }).tap()
+  const file = await download
+  expect(file.suggestedFilename()).toBe('level-1.json')
+  expect(await readText(file)).toBe(writeContent('level', moved))            // byte for byte what Save would write
+  await expect(page.getByText(WORDS.copyKept)).toBeVisible()
+  expect(fake.log.filter((r) => r.method !== 'GET')).toEqual([])             // the visit wrote nothing, anywhere
+  expect(fake.repos.get('grandma/crate-game').commits).toEqual([])
+})
+test('a "Change this game" link opens the game with no Welcome and no sign-in screen', ...)   // #/game/grandma/crate-game
+test('the visitor reloads: the crate is still where they put it, and the screen says so', ...)       // draftBack
+test('the visitor presses Save, signs in, and saves: the game holds exactly the copy they kept', ...)
+  // as grandma: the commit's text equals the downloaded file's text
+test('a visitor never sees the waiting changes, the Share button, or anyone\'s name', ...)
+test('a visitor who opens the Share address is asked to sign in, and lands on Share after', ...)
+test('on a site with no sample game, Welcome has one primary Button, Sign in, and no Try it', ...)   // the site started without VITE_SAMPLE_GAME
+test('Welcome with a sample game: Try it now is the one primary, at least 48 px; Sign in is plain, at least 44 px', ...)
+test('the whole visit made no request to any address but the page\'s own', ...)
+```
+
+  (The "no sample game" line needs a second build: `global-setup.ts` builds once more with `VITE_SAMPLE_GAME` empty
+  into `dist-plain/` and serves it on port 4802.)
+- [ ] **Step 2: Push; `check`, the engines and the journeys fail.**
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Push; all jobs pass in all three engines.** If WebKit does not raise a `download` event for a Blob
+  link, stop and report with the log: the fix is chosen with the coordinator, not worked around.
+- [ ] **Step 5: Commit** (`feat(game): try the editor without signing in, and keep a copy`).
+
+### Task 19: The first run, for each kind of person
+
+Nobody reads a manual. A visitor gets from the first screen to their first change without being asked for
+anything, and learns that signing in is how it is saved; an Owner who has never used the editor gets from the first
+screen to a saved change and a shared game; a person who was sent a link gets from the link to their first change
+(or their first approval) knowing what they may do. At every step the screen says what is happening and what to press.
 
 **Files:**
 - Create: `src/features/suite/guide.ts`, `src/features/suite/Guide.svelte`
@@ -1876,16 +2027,18 @@ knowing what they may do. At every step the screen says what is happening and wh
 
 ```ts
 // guide.ts: which step of the first run a person is on, worked out from facts, so it cannot get out of step
-export type GuideStep = 'sign-in' | 'add-editor' | 'pick-game' | 'move' | 'save' | 'done'
+export type GuideStep = 'start' | 'add-editor' | 'pick-game' | 'move' | 'save' | 'done'
 export function guideStep(facts: {
-  signedIn: boolean
+  signedIn: boolean              // only decides between 'start' and what follows it, when no game is open
   games: number | undefined      // how many games are in the person's list; undefined while asking
   inGame: boolean                // a game is open (they picked one, or came by a link)
   inLevel: boolean
   dirty: boolean
   savedOnce: boolean
+  keptCopy: boolean              // a visitor pressed "Keep a copy" after a change: also 'done'
 }): GuideStep
-/** The steps this person will count: someone who came by a link never adds the editor or picks a game. */
+/** The steps this person will count; `start` is never one of them. An Owner: add the editor, pick a game, move,
+ *  save. In a game they did not pick from their own list (a link, or "try it"): pick a level, move, save. */
 export function guideSteps(cameByLink: boolean): readonly GuideStep[]
 export function guideWanted(store: Storage): boolean         // true until the guide is finished or hidden
 export function finishGuide(store: Storage): void            // localStorage 'af.guide.done'
@@ -1899,10 +2052,13 @@ More words, exactly:
 
 | Key | Words |
 |---|---|
-| `signInWhy` | It's only so people know who you are. You won't need GitHub after that. |
+| `signInWhy` | Signing in is how your changes get saved and shared. It's only so people know who you are. You won't need GitHub after that. |
 | `noAccount` | No GitHub account? Make one, it's free. |
 | `guideCount(n, of)` | Step *n* of *of* |
-| `guideSignIn` | First, sign in. |
+| `guideStart` | Try the example game, or sign in to open your own. |
+| `guideStartPlain` | First, sign in. |
+| `guideSaveVisitor` | Nice. To put it in the game, press Save and sign in. Or keep a copy. |
+| `guideDoneCopy` | You did it. You have a copy. Sign in whenever you want to save into a game. |
 | `guideAdd` | Next, let the editor open your game. Press the button, choose your game on GitHub, and you'll come back here. You only do this once. |
 | `guidePick` | Now pick your game. |
 | `guidePickLevel` | Pick a level to change. |
@@ -1918,13 +2074,18 @@ More words, exactly:
 
 What changes on the screens:
 
-- **Welcome** shows the strip at step 1, `signInWhy` under the Button, and `noAccount` as a link to
-  `{webUrl}/signup`.
-- **The no-games screen** is the Owner's step 2: `guideAdd` and the primary `pickAdd` Button. Coming back from
+- **Welcome** shows the strip with no count, only its sentence (`guideStart`, or `guideStartPlain` on a site with
+  no sample game), so the count a person then sees never changes under them,
+  `signInWhy` under the sign-in Button, and `noAccount` as a link to `{webUrl}/signup`.
+- **A visitor** (by "try it" or by a link) is never asked to sign in by the strip before they have made a change:
+  it counts three steps (pick a level, move, save). At the save step it says `guideSaveVisitor`. Keeping a copy
+  finishes the guide with `guideDoneCopy`; signing in and saving finishes it like anyone's.
+- **The no-games screen** is the Owner's first counted step: `guideAdd` and the primary `pickAdd` Button. Coming back from
   GitHub (the `setup_action` return, Task 11), the games are asked for again; with exactly one game it is opened
   for them, with more they pick.
-- **A person who came by a link** (the page was opened on a game's address) goes straight from sign-in to that
-  game: their strip counts three steps (sign in, move, save) and the game's page shows `youAre(level)`.
+- **A person who came by a link and is signed in** (the page was opened on a game's address) is in that game at
+  once: their strip counts the same three steps (pick a level, move, save) and the game's page shows
+  `youAre(level)`.
 - **In a level** the strip says `guideMove` until the first move, `guideSave` until the first save, then
   `guideDoneDirect` or `guideDoneSuggestion` with one Button, `guideHide`, which finishes the guide. At `look` the
   strip says `guideLook` and finishes when hidden.
@@ -1933,22 +2094,23 @@ What changes on the screens:
   `tipApprove` on the game's page the first time someone who may approve sees a change waiting.
 - Hiding the tips at any step finishes the guide. A person who has finished it never sees the strip again.
 
-- [ ] **Step 1: Write the failing tests.** `guide.test.ts`: `guideStep` for each row of facts (signed out is
-  `sign-in`; signed in with `games` 0 and no game open is `add-editor`; `games` undefined is `pick-game`, so the
+- [ ] **Step 1: Write the failing tests.** `guide.test.ts`: `guideStep` for each row of facts (signed out with no game open is
+  `start`; signed out with a game open is `pick-game`, in a level `move`, dirty `save`: a visitor is never sent back
+  to `start`; signed in with `games` 0 and no game open is `add-editor`; `games` undefined is `pick-game`, so the
   strip does not flash "add the editor" while asking; a game open and no level is `pick-game`; in a level, clean,
-  is `move`; dirty is `save`; `savedOnce` is `done` whatever else); `guideSteps(false)` is five steps and
-  `guideSteps(true)` is three; `guideWanted` is true on a fresh store, false after `finishGuide`, and true (never
+  is `move`; dirty is `save`; `savedOnce` is `done` whatever else, and so is `keptCopy` when not signed in); `guideSteps(false)` is `add-editor`, `pick-game`, `move`, `save` and
+  `guideSteps(true)` is `pick-game`, `move`, `save`; `guideWanted` is true on a fresh store, false after `finishGuide`, and true (never
   a throw) on a store that throws. `first-run.journey.test.ts`, at iPad upright and phone, each in a fresh browser:
 
 ```ts
 test('an Owner, from nothing to a saved change, following only what the screen says', async () => {
   // as grandma, with no repo installed
-  await expect(strip).toContainText('Step 1 of 5')
+  await expect(strip).toContainText(WORDS.guideStart)
   await page.getByRole('button', { name: WORDS.signIn }).tap()
-  await expect(strip).toContainText('Step 2 of 5')
+  await expect(strip).toContainText('Step 1 of 4')
   await expect(strip).toContainText('You only do this once')
   await page.getByRole('button', { name: WORDS.pickAdd }).tap()        // to the pretend GitHub and back
-  await expect(strip).toContainText('Step 3 of 5')
+  await expect(strip).toContainText('Step 2 of 4')
   await page.getByRole('button', { name: 'crate-game' }).tap()
   await page.getByRole('button', { name: 'level-1' }).tap()
   await expect(strip).toContainText(WORDS.guideMove)
@@ -1963,18 +2125,23 @@ test('an Owner, from nothing to a saved change, following only what the screen s
   await page.reload()
   await expect(strip).toBeHidden()                                      // the tips do not come back
 })
-test('someone sent a link (suggest): sign in, land in the game, three steps, ends "waiting for someone to approve it"', ...)
+test('a visitor, from nothing to a change and a copy, following only what the screen says', ...)
+  // Welcome with guideStart and no count; Try it now; 'Step 1 of 3'; level-1; guideMove; drag; guideSaveVisitor;
+  // Keep a copy; guideDoneCopy. Never a sign-in screen.
+test('a visitor who presses Save instead: asked to sign in, comes back, saves, and the strip ends like anyone\'s', ...)
+test('someone sent a link (suggest), not signed in: lands in the game, three steps, signs in at Save, ends "waiting for someone to approve it"', ...)
 test('someone sent a link (edit): the same, ending "the change is in your game"', ...)
 test('someone sent a link (look): told they can look around and who to ask; no step asks them to save', ...)
 test('someone sent a link they may not open: told to ask the owner, with no strip and no dead end', ...)   // a way back to "Pick a game"
 test('an approver\'s first visit with a change waiting: the tip points at it, once', ...)
 test('at every step there is exactly one primary button, at least 48 px tall, and the strip is on screen without scrolling', ...)
 test('with only one game, coming back from GitHub opens it without asking', ...)
-test('"Hide these tips" at step 1 hides them for good; the screens still work', ...)
-test('an Owner whose game already has the editor skips step 2', ...)
-test('cancelling on GitHub at step 1 comes back to step 1 with signInCancelled', ...)
-test('coming back from GitHub without adding the editor stays on step 2', ...)
-test('the welcome screen says why it asks for GitHub, and has a way to make an account', ...)
+test('"Hide these tips" on Welcome hides them for good; the screens still work', ...)
+test('an Owner whose game already has the editor goes from signing in straight to "Step 2 of 4"', ...)
+test('cancelling on GitHub comes back to Welcome with signInCancelled and the same sentence in the strip', ...)
+test('coming back from GitHub without adding the editor stays on "Step 1 of 4"', ...)
+test('the welcome screen says what signing in is for, and has a way to make an account', ...)
+test('no screen a visitor can reach has a button that does nothing or a dead end: each has a way on and a way back', ...)
 test('a returning person, signed in and with the guide finished, lands on "Pick a game" with no strip', ...)
 ```
 
@@ -1983,7 +2150,7 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
 - [ ] **Step 4: Push; all jobs pass in all three engines.**
 - [ ] **Step 5: Commit** (`feat(suite): a first run for owners and for the people they share with`).
 
-### Task 19: Every screen at every size, pictured
+### Task 20: Every screen at every size, pictured
 
 **Files:**
 - Create: `tests/journeys/screens.journey.test.ts`, `tests/features/suite/words-used.test.ts`
@@ -1992,8 +2159,10 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
 **Interfaces:**
 - Consumes: `openPage`, `SIZES`, `picture` (Task 11) and every screen.
 
-- [ ] **Step 1: Write the failing tests.** `screens.journey.test.ts`: for each of the three sizes, walk Welcome,
-  Welcome after a cancelled sign-in, the "add the editor" step, Pick a game, the game's page at each of the five
+- [ ] **Step 1: Write the failing tests.** `screens.journey.test.ts`: for each of the three sizes, walk Welcome with
+  "try it" and without, Welcome when a screen needs a person, the game's page and the level as a visitor, the
+  "sign in to save" Notice, the "copy is on your device" Notice, a game a visitor can't open, Welcome after a
+  cancelled sign-in, the "add the editor" step, Pick a game, the game's page at each of the five
   levels, the game's page with changes waiting, a game that can't be opened, a broken game, the level as opened,
   with the crate selected, with unsaved changes, saved straight in, saved as a suggestion, the "someone changed
   this level" Notice, the "Leave anyway?" question, the waiting list, one waiting change as an approver, as its
@@ -2020,14 +2189,14 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   Write one line per screen in the pull request's description. A screen that fails is fixed in this task.
 - [ ] **Step 5: Commit** (`test: every screen pictured and measured at iPad and phone sizes`).
 
-### Task 20: Setting it up, the README and the close
+### Task 21: Setting it up, the README and the close
 
 **Files:**
 - Create: `docs/deploy.md`, `docs/teams.md`, `tests/docs/docs.test.ts`
 - Modify: `README.md`, `CLAUDE.md` (Structure, if it moved), `docs/superpowers/progress.md`
 
 - [ ] **Step 1: Write the failing test.** `docs.test.ts` reads `docs/deploy.md` and expects it to name every
-  setting the code reads: `VITE_GITHUB_CLIENT_ID` and `VITE_GITHUB_APP_SLUG` (build), `GITHUB_CLIENT_ID`,
+  setting the code reads: `VITE_GITHUB_CLIENT_ID`, `VITE_GITHUB_APP_SLUG` and `VITE_SAMPLE_GAME` (build), `GITHUB_CLIENT_ID`,
   `GITHUB_CLIENT_SECRET`, `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY` (the Function), the build command
   `pnpm build`, the output folder `dist`, the callback and setup addresses, and the App's four permissions; that
   nothing in the repo but `.env.journeys` and tests sets a value for any of them; and that `docs/teams.md` names
@@ -2038,7 +2207,8 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   update" on); repository permissions Contents read and write, Pull requests read and write, Checks read, Metadata
   read, and nothing else; no account permissions; no webhook; "any account" may install it; make a client secret
   and a private key; (3) back in Cloudflare, set the six values (the secret and the key as secrets, the key pasted
-  whole as GitHub gave it) and redeploy; (4) the check below. It also says plainly that preview addresses cannot
+  whole as GitHub gave it) and, to give visitors a game to try, `VITE_SAMPLE_GAME` as `owner/name` of a public game
+  the editor has been added to; redeploy; (4) the check below. It also says plainly that preview addresses cannot
   sign in, because the App has one callback address.
 - [ ] **Step 3: Write `docs/teams.md`,** for a team's Owner, in plain words: add the editor to your game (one
   button, once); share it from the Share screen; what each level can do (the table from this plan); that the list
@@ -2046,7 +2216,8 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   example; and, for teams that want GitHub itself to guard the game against their own GitHub collaborators, the
   optional branch rule, step by step: require a pull request with one approval on the default branch, and put
   Automata Editors on the rule's bypass list, or Save and Approve will say the editor is blocked.
-- [ ] **Step 4: Rewrite `README.md`:** what the suite is, how a team starts (two links: the site, `docs/teams.md`),
+- [ ] **Step 4: Rewrite `README.md`:** what the suite is (it changes a game's authorable content, the JSON files;
+  the code is the agents'), that anyone can try it and keep a copy without signing in, how a team starts (two links: the site, `docs/teams.md`),
   the levels in one table, what Save does at each, the link form `#/game/<owner>/<name>`, the fact that an agent
   can make every change the editor makes by editing the same files, how the page and the API are split, and that
   tests run only in CI.
@@ -2056,7 +2227,8 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   means" needs it:
 
   1. Do the steps in `docs/deploy.md`.
-  2. On the iPad, in a browser that has never opened the editor, open the Pages address and follow the tips: sign
+  2. On the iPad, in a browser that has never opened the editor, open the Pages address. Without signing in, press
+     "Try it now", drag the crate and press "Keep a copy": the level's file is in Files. Then follow the tips: sign
      in, add the editor to AutomataFrameworkExamples, open `level-1`, drag the crate, press Save. It should say
      "Saved. Your game has the change." The commit is on the Examples repo's `main`, changes only
      `content/levels/level-1.json`, and its checks run green in all four engines. (If it says GitHub is set to stop
@@ -2068,9 +2240,9 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
 
 ## Self-review notes
 
-- **Spec coverage, M1's Editors line.** The suite shell: Tasks 2, 11, 12, 18. GitHub sign-in through a Pages
+- **Spec coverage, M1's Editors line.** The suite shell: Tasks 2, 11, 12, 18, 19. GitHub sign-in through a Pages
   Function: Tasks 4, 11. Save: Tasks 8, 15. The Levels editor moving the crate: Tasks 13, 14. In the browser at iPad
-  size: Tasks 14 to 19, with phone size too (the spec's CI section). "Opening a game" reads the project file through
+  size: Tasks 14 to 20, with phone size too (the spec's CI section). "Opening a game" reads the project file through
   `loadGame`. "Problems" in M1 are the framework's diagnostics shown when a game opens, and the API's when a save
   is refused; listing them as you edit is M3.
 - **Where this plan departs from the spec, on the Owner's word (2026-11-13):** sign-in is a GitHub App, not an
@@ -2078,14 +2250,22 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   sharing file in the game's repo, with a Share screen; Save goes straight into the game only for Edit and Owner
   levels and is otherwise a suggestion that someone approves in the editor. The spec needs the same edits, and the
   sharing file's schema belongs in the framework from M2.
+- **Added on the Owner's word, later the same day:** anyone can use the editor without signing in and keep a copy
+  (the door in Task 7, the page in Tasks 11, 12 and 15, the front door and the copy in Task 18, the first run in
+  Task 19); and the editors change authorable content only, which the plan already did and now says (Global
+  Constraints).
+- **A visitor reads through the App.** The API reads a public game for someone it cannot name. That is only ever
+  a game the editor was added to, only its content files, and only what anyone can already read on GitHub; the
+  plan audit should still weigh whether the route wants a limit on how often one address may ask.
 - **Anti-goals.** "An editor action an agent can't do by editing files": every action ends as a change to a content
-  file or to `automata.access.toml`, both documented, written by one writer each; a waiting change is an ordinary
+  file or to `automata.access.toml`, both documented, written by one writer each (a kept copy is that same content
+  file, on the device); a waiting change is an ordinary
   branch and pull request. "An iPad editor that only works when a computer is on": static files and one Function.
   "Four repos that each work but don't meet": the journeys prove this repo's half of the join byte for byte, and
-  Task 20's list is the other half.
+  Task 21's list is the other half.
 - **For the Examples repo:** the editor commits to its `main` as the App (an Owner's save), and leaves
   `automata/<login>` branches while a suggestion waits. Its CI must run on those pull requests and pushes; if its
   `main` has a branch rule, the App must be on the bypass list.
 - **Not provable in CI:** GitHub's real sign-in and "add to a game" screens, a real branch rule, real checks,
-  Cloudflare's build of the Function, and the calls written from memory (see "Before starting"). Task 20 hands the
+  Cloudflare's build of the Function, and the calls written from memory (see "Before starting"). Task 21 hands the
   first four to the Owner's check.
