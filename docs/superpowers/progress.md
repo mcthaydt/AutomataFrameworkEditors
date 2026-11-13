@@ -7,14 +7,14 @@ The tracker every stage reads first and updates last. One section per cycle; new
 Spec: [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
 in the AutomataFramework repo (milestone M1, the Editors line).
 
-Overall: **8%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
+Overall: **12%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
 is 10, stage 6 is 12, stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Done (in AutomataFramework, PR 1) | the spec above |
-| 2. Plan | Done, in review | [`plans/2026-11-13-m1-thin-thread-editors.md`](plans/2026-11-13-m1-thin-thread-editors.md) |
-| 3. Plan audit | Not started | `audits/2026-11-13-m1-editors-plan-audit.md` |
+| 2. Plan | Done | [`plans/2026-11-13-m1-thin-thread-editors.md`](plans/2026-11-13-m1-thin-thread-editors.md) |
+| 3. Plan audit | Done, in review | [`audits/2026-11-13-m1-editors-plan-audit.md`](audits/2026-11-13-m1-editors-plan-audit.md) |
 | 4. Execution | Not started | the plan, ticked as it goes |
 | 5. Implementation audit | Not started | `audits/2026-11-13-m1-editors-implementation-audit.md` |
 | 6. Fixes | Not started | |
@@ -22,11 +22,20 @@ is 10, stage 6 is 12, stage 7 is 6)
 
 ### Waiting on the Owner
 
-No question is open. The accounts the real iPad check needs (Cloudflare, the GitHub App) are in the
-plan's "Before starting".
+Two questions from the plan audit: Q1 (who is the Owner of a game an organisation owns) and Q2 (may an Edit or
+Owner level approve their own waiting change). The steps they touch wait for the answers. The accounts the real
+iPad check needs (Cloudflare, the GitHub App) are in the plan's "Before starting".
 
 ### Log
 
+- 2026-11-13: Stage 3. The plan audit: not ready as written. Seven blocking findings: two from the Owner's answers
+  the same day (visitors open only the demo game; "Keep a copy" gives the level's JSON to paste back, on the
+  clipboard as well as a file), and five that would stop a task or fail on the real GitHub (the rule tests' double
+  violation, the door refusing same-origin GETs, `userExists` with the App's JWT, journeys that cannot reach a
+  pretend GitHub started in global setup, and the merge answers 405 and 409). Fourteen should-fix, twelve notes, two
+  Owner questions. GitHub's calls were checked against GitHub's own API description, read from
+  raw.githubusercontent.com; the Function bundle was measured at 181 KB (Vite) and 495 KB (esbuild), with no Rapier
+  or Pixi. Execution applies the findings.
 - 2026-11-13: Stage 2, added to after the first plan merged. The Owner: agents working on the code are the primary
   way a game is made, and the editors change authorable content only (the JSON files); anyone can use the editor
   freely without signing in and keep a copy, and saving or working with others needs a sign-in. The plan is now 21
