@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@automataframework/framework':
-        specifier: github:mcthaydt/AutomataFramework#ec4fddd96d0f1e39365ff807306faf9b42ac3190
-        version: https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/ec4fddd96d0f1e39365ff807306faf9b42ac3190
+        specifier: github:mcthaydt/AutomataFramework#9109fa357193f57e2d12271c6e6b58dbd783b427
+        version: https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/9109fa357193f57e2d12271c6e6b58dbd783b427
       pixi.js:
         specifier: 8.22.0
         version: 8.22.0
@@ -57,8 +57,8 @@ importers:
 
 packages:
 
-  '@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/ec4fddd96d0f1e39365ff807306faf9b42ac3190':
-    resolution: {gitHosted: true, integrity: sha512-rkVdO9QXLiPALkHFs8JExY6HQWoXizNp6Kkx8jzfzBelTAAF3jCwoHpvOQiUbPMqBZqPFVgs+gSgLkm4YweX6A==, tarball: https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/ec4fddd96d0f1e39365ff807306faf9b42ac3190}
+  '@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/9109fa357193f57e2d12271c6e6b58dbd783b427':
+    resolution: {gitHosted: true, integrity: sha512-xZQ6tVHgNPDHhFiojZOmJAJh5cYVU+cka8XGUZQdXgspXudBfDdugoWnDJN4moPil75zq1ywzTA1Ge4s42o9ig==, tarball: https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/9109fa357193f57e2d12271c6e6b58dbd783b427}
     version: 0.1.0
     engines: {node: '>=24.21.0'}
 
@@ -1081,7 +1081,7 @@ packages:
 
 snapshots:
 
-  '@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/ec4fddd96d0f1e39365ff807306faf9b42ac3190':
+  '@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/9109fa357193f57e2d12271c6e6b58dbd783b427':
     dependencies:
       '@dimforge/rapier2d-deterministic-compat': 0.21.0
       koota: 0.6.6

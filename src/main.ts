@@ -1,6 +1,4 @@
 // The page's entry: mounts the suite on the page, with the sign-in settings Vite was given at build time.
-// First, so that the framework turns off the eval its schemas would otherwise try: the page's rules forbid eval.
-import '@automataframework/framework'
 import { mountSuite } from './index.ts'
 
 const target = document.getElementById('app')

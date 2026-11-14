@@ -24,7 +24,7 @@
     "test:journeys": "vitest run --passWithNoTests --project journeys"
   },
   "dependencies": {
-    "@automataframework/framework": "github:mcthaydt/AutomataFramework#ec4fddd96d0f1e39365ff807306faf9b42ac3190",
+    "@automataframework/framework": "github:mcthaydt/AutomataFramework#9109fa357193f57e2d12271c6e6b58dbd783b427",
     "pixi.js": "8.22.0",
     "smol-toml": "1.9.0",
     "svelte": "5.57.1",
@@ -44,7 +44,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/ec4fddd96d0f1e39365ff807306faf9b42ac3190"
+      "@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/9109fa357193f57e2d12271c6e6b58dbd783b427"
     ]
   }
 }
