@@ -202,12 +202,11 @@ keeps its minimum height and the floating parts may overlap the level's edges bu
 │ ┌ card as a bottom sheet ┐ │
 │ MOVE  ADD  ERASE  PLAY  ↶ ↷ │
 └────────────────────────────┘
-   (page scrolls below the level's minimum height: notes switch, title block)
 ```
 
 The top-right button is Save for someone signed in and Export for a visitor; the other one is in the pill's menu.
-The level keeps a minimum height worth touching; below it the page scrolls to the title block and the notes'
-switch. Find opens from the pill's menu and from the keyboard. Notes collapse to one chip by the picked thing that
+Nothing scrolls (the Owner, 2026-11-14): the level takes every touch on it, so the notes' switch and the title block
+float in one row above the tools, as at every other size, and close and open like the other panels. Find opens from the pill's menu and from the keyboard. Notes collapse to one chip by the picked thing that
 opens the card, so a small thing is never buried.
 
 ### Every size
@@ -215,6 +214,13 @@ opens the card, so a small thing is never buried.
 - Touch targets 44 px or more, Save and other main buttons 48 px, tools 56 px.
 - Long names wrap; Save and the tools never shrink or get cut with an ellipsis.
 - Picking a thing, a stamp arriving or a notice appearing never refits the level under a finger.
+- **Pinch to zoom, two fingers to move** (the Owner, 2026-11-14, after the plan audit showed a level on a phone held
+  upright is only about 210 px tall). At every size the level opens whole; a pinch makes it bigger and two fingers
+  move it, as drawing apps do. One finger never moves the level: it still drags a thing. On a trackpad two fingers move
+  and a pinch zooms; a mouse wheel moves, and zooms with Ctrl or Cmd. Three buttons (smaller, bigger, the whole level),
+  the keys `+`, `-` and `0` and the find bar do the same, so nothing needs a gesture. The level is redrawn sharp at
+  every zoom, never stretched; the floating parts stay where they are and the level slides under them; the level can
+  never be lost off the screen. The first visit teaches none of this: it is still one drag and one press.
 
 ## The level and its art
 
@@ -407,6 +413,9 @@ Unchanged in what it does; restyled in what it says:
 - **Words:** every language has every word; no banned word ("repo", "commit", "branch", "pull request", "token") in
   any language.
 - **Commands:** the find bar's list and `docs/commands.md` match.
+- **Zoom:** a pinch, a two-finger move, the wheel, the buttons and the keys, at the five sizes in the three browsers;
+  a drag while zoomed saves the right place; a second finger calls a drag off without a change; the art is the same
+  after zooming in and back; the browser never zooms or scrolls the page from the level.
 - **Tests run only in GitHub-hosted CI**, as always.
 
 ## Review: pictures, then two audits

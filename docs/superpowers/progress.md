@@ -49,6 +49,21 @@ amendment; the coordinator's C1 (what a stage may run locally this cycle). PRs 1
 
 Nothing was run: this stage wrote documents.
 
+### Task 7's amendment: pinch to zoom (2026-11-14, plan stage)
+
+The Owner answered the plan audit's Q1 with C, so Task 7 has its amendment:
+[`plans/2026-11-14-blueprint-redesign-task-7-zoom.md`](plans/2026-11-14-blueprint-redesign-task-7-zoom.md). At every
+size a pinch zooms the level and two fingers move it; one finger still drags a thing; three buttons, three keys and
+the find bar do the same. It adds one small call to the framework (`LevelPicture.setView`, its own pull request there,
+Task 7a) and one more pin move (Task 7b), both before pull request 5, then four steps inside Task 7 and a few lines
+each for Tasks 9, 10, 12, 13, 16, 18 and 19. The spec's "Phone upright", "Every size" and "Testing" say so now.
+
+**The Owner's answer O1 (2026-11-14): A.** On a phone held upright nothing scrolls any more; the notes' switch and the
+title block float in a row above the tools and close like the other panels.
+
+**Next:** the plan audit reads the amendment; Task 7 starts when that audit is merged. The overall number does not
+move for this. Nothing was run: this stage wrote documents.
+
 ### Stage 2 finished (2026-11-14)
 
 The plan has 19 tasks in ten pull requests: the framework pin; a still picture of a level in the framework (one
