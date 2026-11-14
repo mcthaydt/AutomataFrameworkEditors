@@ -8,18 +8,58 @@ Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14
 It replaces Cycle 2's restyle: the Owner saw PR 12's screens and they did not match the agreed mockup. Cycle 2's plan
 and audit stay for the record; PR 12 is not merged, and the new plan names the parts it takes from it.
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **8%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
-| 2. Plan | Not started | |
+| 2. Plan | Done | [`plans/2026-11-14-editors-blueprint-redesign.md`](plans/2026-11-14-editors-blueprint-redesign.md) |
 | 3. Plan audit | Not started | |
-| 4. Execution | Not started | |
+| 4. Execution | Not started; Play (Task 19) waits for a framework cycle | |
 | 5. Implementation audit | Not started; two audits after the build (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 2 finished (2026-11-14)
+
+The plan has 19 tasks in ten pull requests: the framework pin; a still picture of a level in the framework (one
+pull request in AutomataFramework) and a second pin; real art in the editors; the look's parts and the words as a
+table; the level screen (the frame, the card, the notes, Add and Erase, Save and Export, the first visit); the find
+bar and faces; the other screens; nine languages with no default; every screen pictured and the docs; and, last,
+Play. Every task has end-to-end journeys at five sizes (phone upright and sideways, tablet upright and sideways,
+desktop) in three engines, and every pull request that changes a screen ends with its pictures in a review
+artifact.
+
+**The Owner's answer on Play (2026-11-14): B.** The framework alone cannot move a hero today (that is each game's
+own code), so Play is real play, built as the last slice, after a framework cycle adds a built-in walk-and-jump a
+game turns on in its files. Task 19 holds everything the editors decide and names the two things only that
+framework cycle can (how a game's files say the hero is on, and the call that plays it). It does not start until
+that cycle is merged and a short amendment to the task is too. Until then no screen shows a Play button.
+
+**Found on the way, for the plan audit to check:**
+
+- The framework's renderer draws only from a running sim and keeps room clear only at the bottom, so a still level
+  between four floating panels needs a small addition to the framework (Task 2), then a second pin move. The
+  coordinator said this is fine.
+- The demo game has no art yet, so a visitor's first level shows boxes on sky until the demo game gets its art.
+  The editors' own test game gets art in Task 3, so real art is proven here either way.
+- A character has no name or description in the framework's formats, so the card shows the id as words and leaves
+  the "what it is" line out.
+
+**Rulings the plan makes** (16, each in the plan's "Rulings" for the audit to challenge): the three layouts and
+their sizes; the room kept clear on each; names from ids; start points picked and moved like things; faces through
+this site's API; translations written by the builder and read in full by the drunk-grandma audit, with no native
+reader; the editors draw their own nine flags; a game that has not turned the built-in hero on gets a plain notice
+from Play; the two audits do not wait for Play.
+
+**Added by the Owner after the spec was merged (2026-11-14):** every panel can be closed and opened, to hide
+things when overwhelmed and show everything as a power user. It is ruling 17 and part of Task 7: the tools, the
+card, the title block and the notes' switch each close to a small handle, one control hides or shows them all, the
+level never moves when they do, and what is closed is remembered on the device. It extends the spec; the spec's
+page has not been changed.
+
+Nothing was run: this stage wrote a document.
 
 ## Cycle 2: the editors wear Blueprint (replaced by Cycle 3)
 
