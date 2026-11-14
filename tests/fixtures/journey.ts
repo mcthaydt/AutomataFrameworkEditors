@@ -156,6 +156,15 @@ export async function picture(page: Page, name: string): Promise<void> {
   const refusedBefore = await page.evaluate(
     () => (window as unknown as { __refused?: string[] }).__refused?.length ?? 0,
   )
+  // The drawing notes draw themselves in; the picture is of them at rest, not half drawn. (The stamp is let alone: it
+  // comes and goes on its own, and the scenes that picture it wait for it.)
+  await page.evaluate(() =>
+    Promise.all(
+      (document.querySelector('.notes')?.getAnimations({ subtree: true }) ?? []).map((a) =>
+        a.finished.catch(() => undefined),
+      ),
+    ),
+  )
   await page.screenshot({ path: join(dir, `${name}.png`), fullPage: true })
   // Reports of a refusal arrive a moment after it; two frames later they have all arrived.
   await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))))

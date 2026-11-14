@@ -20,6 +20,9 @@ export const WORDS = Object.freeze({
   appOnGitHub: APP_ON_GITHUB,
   wordmark: 'automata',
   welcomeLine: 'Change your game by touch, together.',
+  welcomeStep1: 'Open the example game.',
+  welcomeStep2: 'Touch a box and drag it.',
+  welcomeStep3: 'Press Save. Your game has the change.',
   signIn: 'Sign in with GitHub',
   signInWhy:
     "Signing in is how your changes get saved and shared. It's only so people know who you are. You won't need GitHub after that.",

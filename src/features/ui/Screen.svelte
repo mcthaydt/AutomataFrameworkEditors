@@ -9,14 +9,16 @@
     /** A word set over the title (the first screen's `automata`). */
     kicker?: string
     back?: { label: string; onpress: () => void }
+    /** The first screen has room for a picture beside its words. */
+    wide?: boolean
     children: Snippet
   }
-  let { title, kicker, back, children }: Props = $props()
+  let { title, kicker, back, wide = false, children }: Props = $props()
   let heading: HTMLHeadingElement | undefined = $state()
   $effect(() => heading?.focus())
 </script>
 
-<main class="screen">
+<main class="screen" class:wide>
   {#if kicker !== undefined}<span class="wordmark">{kicker}</span>{/if}
   <header>
     <h1 tabindex="-1" bind:this={heading}>{title}</h1>
@@ -34,6 +36,9 @@
     max-width: 48rem;
     margin: 0 auto;
     padding: var(--space-3);
+  }
+  .screen.wide {
+    max-width: 64rem;
   }
   header {
     display: flex;
