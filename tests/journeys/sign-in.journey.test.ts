@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
 import { type JourneyPage, openPage, picture, setupJourneys, signIn } from '../fixtures/journey.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 

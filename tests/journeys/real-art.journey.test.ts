@@ -1,7 +1,6 @@
 // The demo game's level as a visitor sees it: drawn in the game's own art, not as boxes. The buttons over the picture
 // prove where a thing is for a finger; these read the picture itself, at every size.
 import { afterEach, describe, expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
 import {
   dragByTouch,
   type JourneyPage,
@@ -12,6 +11,7 @@ import {
   setupJourneys,
   thingNamed,
 } from '../fixtures/journey.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 

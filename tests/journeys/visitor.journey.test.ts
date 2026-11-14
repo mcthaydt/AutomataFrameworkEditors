@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -15,6 +14,7 @@ import {
   thingNamed,
 } from '../fixtures/journey.ts'
 import { type Site, startSite } from '../fixtures/serve.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 

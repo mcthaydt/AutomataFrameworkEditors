@@ -164,3 +164,6 @@ export interface SharingAsk {
   readonly access: AccessFile
   readonly version: string | undefined
 }
+
+/** The name the editors' GitHub App goes by on GitHub: what a person sees there, and in the words that name it. */
+export const APP_ON_GITHUB = 'Automata Framework Editors'

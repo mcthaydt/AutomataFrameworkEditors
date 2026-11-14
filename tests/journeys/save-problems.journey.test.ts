@@ -1,7 +1,6 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -14,6 +13,7 @@ import {
   statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 

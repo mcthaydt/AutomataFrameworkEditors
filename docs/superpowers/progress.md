@@ -38,6 +38,14 @@ the pull request's CI.
   backdrop, figures for the hero and the crate); `plain-game` is the old boxes. `pixi.js` is out of `package.json`
   (the lockfile entry was removed by hand), and no file here imports it.
 
+- Task 5 (words as a table): every word is in `src/features/words/en.ts` and read through one reactive `WORDS`
+  (`words.svelte.ts`), so a screen follows the language when Task 17 adds the others. Ruling: `words.ts` stays as the
+  feature's entry (the plan said delete it; the architecture rules need an entry). The API side does not read the
+  words; the App's name in a waiting change's note is `APP_ON_GITHUB` in `wire.ts`, and a test holds the screen's
+  words to it. Tests read the plain English table through `tests/fixtures/words.ts`, so Node never loads a rune file.
+  `measure.ts` and `live.svelte.ts` from the plan's Task 4 are not copied yet: nothing imports them, so knip would
+  flag them; they arrive with the first test that uses them.
+
 ### Stage 3 finished (2026-11-14)
 
 The plan audit found nothing blocking and eleven important findings, each now written into the plan and marked

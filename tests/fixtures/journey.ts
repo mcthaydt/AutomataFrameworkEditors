@@ -5,10 +5,10 @@ import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { type Browser, type BrowserContext, chromium, firefox, type Page, webkit } from 'playwright'
 import { afterAll, beforeAll } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
 import { DEMO } from './api.ts'
 import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/server.ts'
 import { type Site, startSite } from './serve.ts'
+import { WORDS } from './words.ts'
 
 export const SIZES = {
   ipadUpright: { width: 820, height: 1180 },
