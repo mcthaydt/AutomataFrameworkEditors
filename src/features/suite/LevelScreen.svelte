@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDiagnostic, type Level } from '@automataframework/framework/headless'
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import {
@@ -15,7 +15,14 @@
     saveLevel,
     takeDraft,
   } from '../game/game.ts'
-  import { describeChange, Levels, type LevelEdit } from '../levels/levels.ts'
+  import {
+    describeChange,
+    keepNotesMode,
+    type LevelEdit,
+    Levels,
+    type NotesMode,
+    readNotesMode,
+  } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameOpened } from './opened.ts'
   import type { GameRef } from '../wire/wire.ts'
@@ -69,6 +76,12 @@
   let saving = $state(false)
   let saved = $state<'direct' | 'suggestion' | undefined>(undefined)
   let events = $state.raw<readonly Event[]>([])
+  // The drawing notes' switch is a setting of this device, kept beside the other things the device remembers.
+  let notes = $state<NotesMode>(untrack(() => readNotesMode(remembered)))
+  const setNotes = (mode: NotesMode): void => {
+    notes = mode
+    keepNotesMode(remembered, mode)
+  }
 
   const same = (a: Level | undefined, b: Level | undefined): boolean => JSON.stringify(a) === JSON.stringify(b)
   const visitor = $derived(game?.login === undefined)
@@ -296,6 +309,8 @@
         {statusText}
         standing={standing !== '' ? standingNote : undefined}
         said={events.length > 0 ? saidNow : undefined}
+        {notes}
+        onnotes={setNotes}
         title={levelId}
         back={{ label: WORDS.back, onpress: leave }}
         onchange={changed}

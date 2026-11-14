@@ -350,6 +350,31 @@ const SCENES: readonly Scene[] = [
     stage: true,
   },
   {
+    name: 'level-notes-faded',
+    reach: async (size) => {
+      const j = await levelAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      await text(j, WORDS.hintSelected('crate-1'))
+      await j.page.getByRole('button', { name: WORDS.notesOn, exact: true }).click()
+      await j.page.locator('[data-notes="faded"]').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'level-notes-hidden',
+    reach: async (size) => {
+      const j = await levelAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      await text(j, WORDS.hintSelected('crate-1'))
+      await j.page.getByRole('button', { name: WORDS.notesOn, exact: true }).click()
+      await j.page.getByRole('button', { name: WORDS.notesFaded, exact: true }).click()
+      await j.page.getByRole('button', { name: WORDS.notesHidden, exact: true }).waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
     name: 'level-unsaved',
     reach: async (size) => {
       const j = await levelAs(size, 'grandma')

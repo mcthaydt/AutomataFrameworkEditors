@@ -4,7 +4,7 @@
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import { type Opened, openGame } from '../game/game.ts'
-  import { compareLevels, Levels } from '../levels/levels.ts'
+  import { compareLevels, Levels, readNotesMode } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
@@ -14,12 +14,14 @@
     api: Api
     game: GameRef
     number: number
+    /** What this device remembers: the drawing notes' setting, which it only reads here. */
+    remembered: Storage
     onsignedout: () => void
     onback: () => void
     /** To the game's page. */
     onhome: () => void
   }
-  let { api, game: ref, number, onsignedout, onback, onhome }: Props = $props()
+  let { api, game: ref, number, remembered, onsignedout, onback, onhome }: Props = $props()
 
   let opened = $state.raw<Opened | undefined>(undefined)
   let change = $state.raw<WaitingChange | undefined>(undefined)
@@ -163,6 +165,8 @@
           status="clean"
           statusText=""
           title={shown.level.id}
+          notes={readNotesMode(remembered)}
+          onnotes={() => {}}
           onchange={() => {}}
           onsave={() => {}}
         />

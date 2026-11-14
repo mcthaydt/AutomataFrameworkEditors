@@ -5,7 +5,10 @@
   import { WORDS } from '../words/words.ts'
   import { type LevelEdit, moveThing, nudgeThing, redo, startEdit, undo } from './edit.ts'
   import { createLevelCanvas, type LevelCanvas } from './level-canvas.ts'
-  import { fitInside, type Inset, toScreen, toWorld } from './place.ts'
+  import { fitInside, type Inset, type Size, toScreen, toWorld } from './place.ts'
+  import { type Box, notesFor } from './notes.ts'
+  import { type NotesMode, nextNotesMode } from './notes-mode.ts'
+  import NotesLayer from './Notes.svelte'
   import ThingCard from './ThingCard.svelte'
 
   // The levels editor on the screen. The level fills the screen edge to edge and the tools float over it: the title,
@@ -35,6 +38,9 @@
     said?: Snippet | undefined
     /** The words on the stamp that lands over the level's corner after a save, if there is one. */
     stamp?: string | undefined
+    /** The drawing notes' switch: a setting of this device, kept by the screen above. */
+    notes?: NotesMode
+    onnotes?: (mode: NotesMode) => void
     /** The level's id: the editor's heading, and what the stage is called to a screen reader. */
     title: string
     /** The way out. Not needed read only: the screen around it has the heading and the way back. */
@@ -47,7 +53,7 @@
     /** Hands the level over as a file. */
     oncopyfile?: () => void
   }
-  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, standing, said, stamp = undefined, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
+  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, standing, said, stamp = undefined, notes = 'on', onnotes = () => {}, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -69,6 +75,44 @@
   // nothing floats and the level has the whole stage.
   let inset = $state.raw<Inset>(NO_INSET)
   const fit = $derived(fitInside(size, inset, levelSize(edit.now)))
+
+  const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
+    const thing = edit.now.things.find((t) => t.id === id)
+    if (thing === undefined) return undefined
+    const c = characters[thing.character]
+    const at = toScreen(fit, thing)
+    const w = Math.max(MIN_TOUCH, (c?.size.w ?? 1) * fit.scale)
+    const h = Math.max(MIN_TOUCH, (c?.size.h ?? 1) * fit.scale)
+    return { x: at.x - w / 2, y: at.y - h / 2, w, h }
+  }
+
+  // The drawing notes: where they go depends on the clear cell, the picked thing's button and the block's own size.
+  let blockSize = $state.raw<Size>({ w: 180, h: 96 })
+  /** Counts every Undo and Redo, so the notes are written again at the new place. */
+  let again = $state(0)
+  /** Which pair of arrows a pressed note is pointing at, until the next press anywhere. */
+  let asked = $state<'x' | 'y' | undefined>(undefined)
+  let card: HTMLElement | undefined = $state()
+  const clearBounds = $derived<Box>({
+    x: inset.left,
+    y: inset.top,
+    w: Math.max(0, size.w - inset.left - inset.right),
+    h: Math.max(0, size.h - inset.top - inset.bottom),
+  })
+  const pickedThing = $derived(
+    selected === undefined || readOnly ? undefined : edit.now.things.find((t) => t.id === selected),
+  )
+  const placed = $derived(
+    notesFor({
+      level: edit.now,
+      fit,
+      thing: pickedThing === undefined ? undefined : thingBox(pickedThing.id),
+      clear: clearBounds,
+      block: blockSize,
+    }),
+  )
+  /** The clear cell is under 30 rem wide (rem is this page's own type size): one note holds both numbers. */
+  const joined = $derived(clearBounds.w < 30 * 18)
 
   /** The drag a finger is in the middle of. */
   interface Drag {
@@ -112,6 +156,8 @@
     solid = false
     // A second finger cancels the drag in progress.
     if (drag !== undefined && e.pointerId !== drag.pointer) return cancelDrag()
+    // A press on a note is for the note, not for the stage: the picked thing stays picked.
+    if ((e.target as HTMLElement).closest('.note') !== null) return
     const button = (e.target as HTMLElement).closest<HTMLElement>('[data-thing]')
     const id = button?.dataset.thing
     if (button === null || id === undefined) {
@@ -194,11 +240,21 @@
 
   function takeBack(): void {
     solid = false
+    again += 1
     change(undo(edit))
   }
   function giveBack(): void {
     solid = false
+    again += 1
     change(redo(edit))
+  }
+
+  /** A pressed note: the keyboard goes to the arrows that change it, and a finger is shown where they are. */
+  function ask(axis: 'x' | 'y'): void {
+    asked = axis
+    const first = card?.querySelector<HTMLElement>(`[data-move="${axis === 'x' ? 'left' : 'up'}"]`)
+    first?.focus({ preventScroll: true })
+    first?.scrollIntoView({ block: 'nearest' })
   }
 
   /** Measures the stage and the clear cell. Whole pixels would hide a half-pixel change, so the numbers are kept. */
@@ -217,6 +273,13 @@
 
   onMount(() => {
     let alive = true
+    // The mark that points at a pair of arrows goes at the next press anywhere. A note's own press comes after this one
+    // (a press, then a click), so it sets the mark again.
+    const unmark = (): void => {
+      asked = undefined
+    }
+    window.addEventListener('pointerdown', unmark, true)
+    window.addEventListener('keydown', unmark, true)
     const watcher = new ResizeObserver(() => {
       if (stage === undefined) return
       // Turning the iPad changes the stage's width and cancels a drag; everything is fitted again. A change of height
@@ -240,6 +303,8 @@
     })
     return () => {
       alive = false
+      window.removeEventListener('pointerdown', unmark, true)
+      window.removeEventListener('keydown', unmark, true)
       watcher.disconnect()
       picture?.destroy()
     }
@@ -257,15 +322,6 @@
     picture?.show(now, characters, hero)
   })
 
-  const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
-    const thing = edit.now.things.find((t) => t.id === id)
-    if (thing === undefined) return undefined
-    const c = characters[thing.character]
-    const at = toScreen(fit, thing)
-    const w = Math.max(MIN_TOUCH, (c?.size.w ?? 1) * fit.scale)
-    const h = Math.max(MIN_TOUCH, (c?.size.h ?? 1) * fit.scale)
-    return { x: at.x - w / 2, y: at.y - h / 2, w, h }
-  }
 </script>
 
 <div class="editor">
@@ -281,6 +337,17 @@
       onpointerup={up}
       onpointercancel={cancelled}
     >
+      <NotesLayer
+        notes={placed}
+        mode={notes}
+        picked={pickedThing}
+        {joined}
+        {again}
+        onnote={ask}
+        onblock={(measured) => {
+          if (measured.w !== blockSize.w || measured.h !== blockSize.h) blockSize = measured
+        }}
+      />
       {#each edit.now.things as thing (thing.id)}
         {@const box = thingBox(thing.id)}
         {#if box !== undefined}
@@ -330,10 +397,15 @@
           {#if standing !== undefined}{@render standing()}{/if}
         </section>
         <div class="tools" data-panel>
+          <Tool
+            label={{ on: WORDS.notesOn, faded: WORDS.notesFaded, hidden: WORDS.notesHidden }[notes]}
+            icon="notes"
+            onpress={() => onnotes(nextNotesMode(notes))}
+          />
           {#if oncopytext !== undefined}<Tool label={WORDS.copyLevel} icon="copy" onpress={oncopytext} />{/if}
           {#if oncopyfile !== undefined}<Tool label={WORDS.copyKeep} icon="file" onpress={oncopyfile} />{/if}
         </div>
-        <section class="panel card" data-panel>
+        <section class="panel card" data-panel data-asked={asked} bind:this={card}>
           <ThingCard
             thing={selected === undefined ? undefined : edit.now.things.find((t) => t.id === selected)}
             {solid}
@@ -374,6 +446,7 @@
   .stage {
     position: absolute;
     inset: 0;
+    z-index: 0;
     overflow: hidden;
     touch-action: none;
   }
@@ -390,11 +463,14 @@
     touch-action: none;
     cursor: grab;
   }
-  /* The ring round a picked thing, and round a thing a waiting change moved, is the thing's own button: the canvas
-     draws the game's art and nothing else. */
+  /* The ring round a picked thing, and round a thing a waiting change moved, is the thing's own button: touch-coloured
+     dashes over a ground band, so it shows on any art, and the canvas draws the game's art and nothing else. It is also
+     the sign that a thing has the keyboard's focus: this rule outranks `:focus-visible`. */
   .thing[aria-pressed='true'],
   .thing[data-marked] {
-    border-color: var(--touch);
+    border-color: var(--ground);
+    outline: 2px dashed var(--touch);
+    outline-offset: 0;
   }
 
   /* The floating panels are a grid with fixed tracks, so picking a thing never refits the level under a finger. */
@@ -474,6 +550,15 @@
   .status {
     min-height: 2.8em;
     color: var(--quiet);
+  }
+  /* A pressed note points at its pair of arrows with the words-coloured ring, since after a touch no browser draws the
+     focus ring on a button that script focused. */
+  .card[data-asked='x'] :global([data-move='left']),
+  .card[data-asked='x'] :global([data-move='right']),
+  .card[data-asked='y'] :global([data-move='up']),
+  .card[data-asked='y'] :global([data-move='down']) {
+    outline: 3px solid var(--words);
+    outline-offset: 3px;
   }
   .tools,
   .turns {

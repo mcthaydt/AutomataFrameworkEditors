@@ -13,6 +13,8 @@ export {
   undo,
 } from './edit.ts'
 export { default as Levels } from './Levels.svelte'
+export { type Box, type Line, type Notes, notesFor } from './notes.ts'
+export { keepNotesMode, NOTES_KEY, type NotesMode, nextNotesMode, readNotesMode } from './notes-mode.ts'
 export {
   fitInside,
   type Inset,

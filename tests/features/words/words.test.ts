@@ -144,6 +144,11 @@ const PINNED: Readonly<Record<string, string>> = {
   editorWorld: 'World',
   noteAcross: 'Across',
   noteDown: 'Down',
+  notesOn: 'Notes on',
+  notesFaded: 'Notes faded',
+  notesHidden: 'Notes hidden',
+  noteTiles: 'crate-1 tiles',
+  noteChange: 'crate-1 undefined. Press to change it.',
   draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
 }
 
@@ -188,4 +193,14 @@ test('waiting changes are counted in the singular and the plural', () => {
 
 test('the step count says which step of how many', () => {
   expect(WORDS.guideCount(2, 4)).toBe('Step 2 of 4')
+})
+
+test('tiles are counted in the singular and the plural', () => {
+  expect(WORDS.noteTiles(1)).toBe('1 tile')
+  expect(WORDS.noteTiles(6.5)).toBe('6.5 tiles')
+  expect(WORDS.noteTiles(0)).toBe('0 tiles')
+})
+
+test('a note says what it is and that pressing it changes it', () => {
+  expect(WORDS.noteChange('Across', '6.5 tiles')).toBe('Across 6.5 tiles. Press to change it.')
 })

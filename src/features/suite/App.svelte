@@ -251,6 +251,7 @@
         {api}
         game={here}
         number={route.number}
+        {remembered}
         onsignedout={signedOut}
         onback={() => (location.hash = routeHash({ screen: 'waiting', ...here }))}
         onhome={() => (location.hash = routeHash({ screen: 'game', ...here }))}

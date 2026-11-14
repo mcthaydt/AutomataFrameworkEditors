@@ -389,11 +389,15 @@ test('picking a thing changes nothing in the picture', async () => {
 test('a picked thing is ringed by its button', async () => {
   await show()
   await drawn()
-  expect(getComputedStyle(crate()).borderTopColor).toBe('rgba(0, 0, 0, 0)')
+  expect(getComputedStyle(crate()).outlineStyle).not.toBe('dashed')
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(238, 180, 128)')
+  // Touch-coloured dashes over a 2 px band of the ground colour, so the ring shows on any art.
+  expect(getComputedStyle(crate()).outlineStyle).toBe('dashed')
+  expect(getComputedStyle(crate()).outlineColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).outlineWidth).toBe('2px')
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(37, 49, 34)')
   expect(getComputedStyle(crate()).borderTopWidth).toBe('2px')
 })
 
@@ -417,8 +421,9 @@ test('read only, a marked thing is ringed by its button', async () => {
   await tick()
   await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
   expect(crate().hasAttribute('data-marked')).toBe(true)
-  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(238, 180, 128)')
-  expect(getComputedStyle(crate()).borderTopWidth).toBe('2px')
+  expect(getComputedStyle(crate()).outlineStyle).toBe('dashed')
+  expect(getComputedStyle(crate()).outlineColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(37, 49, 34)')
 })
 
 test('turning mid-drag cancels the drag', async () => {
