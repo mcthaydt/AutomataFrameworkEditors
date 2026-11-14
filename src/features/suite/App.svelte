@@ -72,7 +72,7 @@
   // That the person has saved once, and how, is kept with the guide's own key: a reload after their first save shows
   // "You did it", not "Step 2 of 4" again, until they hide the tips. The old value was a plain "1", which meant direct.
   const SAVED = 'af.saved'
-  const savedBefore_ = (): 'direct' | 'suggestion' | undefined => {
+  const keptSaved = (): 'direct' | 'suggestion' | undefined => {
     try {
       const kept = remembered.getItem(SAVED)
       return kept === null ? undefined : kept === 'suggestion' ? 'suggestion' : 'direct'
@@ -81,7 +81,7 @@
     }
   }
   // svelte-ignore state_referenced_locally
-  let savedHow = $state<'direct' | 'suggestion' | undefined>(savedBefore_())
+  let savedHow = $state<'direct' | 'suggestion' | undefined>(keptSaved())
   function saved(how: 'direct' | 'suggestion'): void {
     savedHow = how
     try {
