@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "biome check .",
     "format": "biome check --write .",
-    "typecheck": "svelte-check --tsconfig ./tsconfig.json --threshold error",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
     "knip": "knip",
     "build": "vite build",
     "build:journeys": "vite build --mode journeys",
