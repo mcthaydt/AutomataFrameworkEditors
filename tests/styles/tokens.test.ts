@@ -56,16 +56,16 @@ describe("the editors' colours", () => {
   test('no colour is written any other way', () => {
     expect(ALL_CSS).not.toMatch(/\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(/)
     expect(ALL_CSS).not.toContain('prefers-color-scheme')
-    // A colour keyword in a colour property: only these three stand for no colour of their own.
+    // A colour keyword in a colour property: only these stand for no colour of their own (`srgb` is the space a
+    // `color-mix(in srgb, …)` mixes in).
+    const NOT_A_COLOUR = ['transparent', 'currentcolor', 'none', 'solid', 'dashed', 'dotted', 'inherit', 'srgb']
     const keyword =
       /(?:^|[;{\s])(?:color|background|background-color|border|border-color|outline|fill|stroke)\s*:\s*([^;}]*)/gm
     for (const [, value = ''] of ALL_CSS.matchAll(keyword)) {
       const words = value.replace(/var\([^)]*\)/g, ' ').split(/[\s,]+/)
       for (const word of words) {
         if (!/^[a-z]+$/.test(word)) continue
-        expect(['transparent', 'currentcolor', 'none', 'solid', 'dashed', 'dotted', 'inherit']).toContain(
-          word.toLowerCase(),
-        )
+        expect(NOT_A_COLOUR).toContain(word.toLowerCase())
       }
     }
     // The old screens still ask for the old names (until Task 16): each is only ever an alias of a new one.
