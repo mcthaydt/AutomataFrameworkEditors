@@ -19,8 +19,9 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    /* Turned a little, a stamp's corners reach past its box; the margin keeps them inside a phone's width. */
+    /* Turned a little, a stamp's corners reach past its box; the margin keeps them inside a phone's width and height. */
     max-width: calc(100% - var(--space-3));
+    margin: var(--space-3) var(--space-2);
     padding: var(--space-2) var(--space-3);
     border: 2px solid var(--mark);
     border-radius: var(--corner);

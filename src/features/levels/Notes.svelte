@@ -37,11 +37,12 @@
     }
   })
 
-  let block: HTMLDivElement | undefined = $state()
+  let block: HTMLDivElement | undefined | null = $state()
   // The block is measured on the page, since its width depends on the words, and the layout waits for the answer.
   $effect(() => {
     const watched = block
-    if (watched === undefined) return
+    // `bind:this` hands back null when the block is taken away.
+    if (!watched) return
     const tell = (): void => onblock({ w: watched.offsetWidth, h: watched.offsetHeight })
     const watcher = new ResizeObserver(tell)
     watcher.observe(watched)

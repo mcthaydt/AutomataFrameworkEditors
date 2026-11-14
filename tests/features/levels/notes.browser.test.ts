@@ -270,6 +270,8 @@ test('the lines draw in and the notes fade in', async () => {
 })
 
 test("a note is above another thing's button", async () => {
+  // A press can only land on what is in the window, so the editor is given the window.
+  sized(window.innerWidth, window.innerHeight)
   await show()
   await pick()
   // The hero stands near the crate; whichever button is under a note's middle, the note is on top.
