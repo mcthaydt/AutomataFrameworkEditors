@@ -60,6 +60,8 @@ export interface Repo {
   mergePull(number: number, m: { title: string; message: string; headCommit: string }): Promise<Answer<true>>
   closePull(number: number): Promise<Answer<true>>
   checks(commit: string): Promise<Answer<Checks>>
+  /** When a commit was made, in milliseconds: checks start after it, not after the pull that holds it was opened. */
+  commitTime(commit: string): Promise<Answer<number>>
   /** Whether GitHub shows this person (by their own sign-in) as an admin of the repo. Anything else is false. */
   isAdmin(personToken: string): Promise<Answer<boolean>>
   /** Whether a GitHub account of that name exists. Asked as the installation: GitHub refuses the App's own pass here. */
@@ -321,6 +323,13 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
             : ('passing' as const)
         },
       ),
+
+    commitTime: (commit) =>
+      ask(call({ method: 'GET', path: `${root}/commits/${enc(commit)}` }), (r) => {
+        const when = Date.parse(str(obj(obj(obj(r.body).commit).committer).date))
+        // A commit with no readable date counts as made just now, so its checks get their full grace.
+        return Number.isNaN(when) ? deps.now() : when
+      }),
 
     isAdmin: async (personToken) => {
       // Asked with the person's own sign-in: GitHub shows each person the rights they themselves have here.
