@@ -34,13 +34,16 @@ type Person = Parameters<typeof openPage>[1]
 const windows: JourneyPage[] = []
 const cleanups: Array<() => Promise<void>> = []
 afterEach(async () => {
+  // Everything is closed even when a window found a problem, so one red screen never leaves its state to the next.
+  const found: string[] = []
   for (const j of windows) {
-    expect(await j.problems()).toEqual([])
+    found.push(...(await j.problems()))
     await j.close()
   }
   windows.length = 0
   for (const cleanup of cleanups) await cleanup()
   cleanups.length = 0
+  expect(found).toEqual([])
 })
 
 /** One more window of the same pretend GitHub (everything the first one set up is kept). */

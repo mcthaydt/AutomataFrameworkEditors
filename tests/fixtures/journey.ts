@@ -123,11 +123,24 @@ export async function signIn(page: Page): Promise<void> {
   )
 }
 
-/** Saves a picture a person can look at: `tests/journeys/__screenshots__/<name>.png`. */
+/**
+ * Saves a picture a person can look at: `tests/journeys/__screenshots__/<name>.png`. WebKit takes a full-page picture by
+ * adding a style element of its own, which the page's policy refuses and reports; that report is the camera's, not the
+ * page's, so it is taken off the list of what the page refused (a real refusal before the picture stays on it).
+ */
 export async function picture(page: Page, name: string): Promise<void> {
   const dir = join(import.meta.dirname, '../journeys/__screenshots__')
   mkdirSync(dir, { recursive: true })
+  const refusedBefore = await page.evaluate(
+    () => (window as unknown as { __refused?: string[] }).__refused?.length ?? 0,
+  )
   await page.screenshot({ path: join(dir, `${name}.png`), fullPage: true })
+  // Reports of a refusal arrive a moment after it; two frames later they have all arrived.
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))))
+  await page.evaluate((keep) => {
+    const w = window as unknown as { __refused?: string[] }
+    if (w.__refused !== undefined) w.__refused.length = keep
+  }, refusedBefore)
 }
 
 /** The line under the editor's title that says whether there is something to save. */
