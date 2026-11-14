@@ -16,7 +16,7 @@ stage 7 is 6)
 | 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
 | 2. Plan | Done | [`plans/2026-11-14-editors-blueprint-redesign.md`](plans/2026-11-14-editors-blueprint-redesign.md) |
 | 3. Plan audit | Done; 11 important and 12 minor findings applied to the plan; Owner Q1 blocks Task 7, Q2 blocks Task 19's amendment; coordinator C1 open | [`audits/2026-11-14-blueprint-redesign-plan-audit.md`](audits/2026-11-14-blueprint-redesign-plan-audit.md) |
-| 4. Execution | In progress (Task 1 of 19); Play (Task 19) waits for a framework cycle | [Stage 4 log](#stage-4-log) |
+| 4. Execution | In progress (Task 3 of 19); Play (Task 19) waits for a framework cycle | [Stage 4 log](#stage-4-log) |
 | 5. Implementation audit | Not started; two audits after the build (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
@@ -31,6 +31,12 @@ the pull request's CI.
   TypeScript, which Node will not run under `node_modules`), then to `b57d00a`, the merge of AutomataFramework pull
   request 95 (the fix, and the level picture Task 3 needs). The lockfile gained the framework's new Colyseus peer
   packages; the new tarball's checksum was worked out from the downloaded file, the same way that gave the old one.
+- Task 3 (pull request 3, real art): the editors draw the level with the framework's `createLevelPicture`, in the game's
+  own art. A new `GET /api/picture` hands a game's `.png` to the page as base64 (kept five minutes by the browser, and
+  for a visitor at the demo game in Cloudflare's cache); the page loads a level's art through it before the picture is
+  made, and a missing picture shows boxes with a notice. The test game has art (`G` tiles, a meadow tileset, a valley
+  backdrop, figures for the hero and the crate); `plain-game` is the old boxes. `pixi.js` is out of `package.json`
+  (the lockfile entry was removed by hand), and no file here imports it.
 
 ### Stage 3 finished (2026-11-14)
 

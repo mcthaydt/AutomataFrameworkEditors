@@ -92,7 +92,7 @@ test('a visitor is told busy when less than a quarter of the allowance is left, 
   expect((await opened('visitor')).level).toBe('look')
 })
 
-test('grandma opens her game: owner, from main, with automata.toml and its three files', async () => {
+test('grandma opens her game: owner, from main, with automata.toml and every file it lists', async () => {
   const game = await opened('grandma')
   expect(game).toMatchObject({
     login: 'grandma',
@@ -101,7 +101,7 @@ test('grandma opens her game: owner, from main, with automata.toml and its three
     waiting: 0,
   })
   expect(game.mine).toBeUndefined()
-  expect(game.files.map((f) => f.path)).toEqual(Object.keys(fixtureFiles))
+  expect(game.files.map((f) => f.path).sort()).toEqual(Object.keys(fixtureFiles).sort())
 })
 
 test("each file's text and version are GitHub's", async () => {

@@ -69,6 +69,19 @@ export interface WireFile {
   readonly version: string
 }
 
+/** One picture of a game (a `.png`), as GitHub has it: the path, and the file's bytes as base64. */
+export interface WirePicture {
+  readonly path: string
+  readonly base64: string
+}
+
+/** Which picture of a game: the branch it is read from, and its path from the game's root. */
+export interface PictureAsk {
+  readonly game: GameRef
+  readonly branch: string
+  readonly path: string
+}
+
 /** A change that is waiting for someone to approve it. */
 export interface Waiting {
   readonly number: number

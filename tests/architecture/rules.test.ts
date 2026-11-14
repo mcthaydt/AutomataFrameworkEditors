@@ -37,18 +37,18 @@ test('a Svelte file is read like any other', () =>
     }),
   ).toEqual(['imports-go-down']))
 
-test('Pixi stays in the level canvas', () =>
+test('no file imports Pixi: the framework draws the level', () =>
   expect(one({ 'src/features/levels/levels.ts': "import { Graphics } from 'pixi.js'" })).toEqual([
     'package-confined',
   ]))
 
-test('Pixi is welcome in the level canvas', () =>
+test('not even the file that opens the level picture imports Pixi', () =>
   expect(
     one({
       'src/features/levels/levels.ts': '',
-      'src/features/levels/level-canvas.ts': "import { Graphics } from 'pixi.js'",
+      'src/features/levels/level-picture.ts': "import 'pixi.js/unsafe-eval'",
     }),
-  ).toEqual([]))
+  ).toEqual(['package-confined']))
 
 test('TOML is read only by the sharing file', () =>
   expect(one({ 'src/features/game/game.ts': "import { parse } from 'smol-toml'" })).toEqual([

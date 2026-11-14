@@ -1,8 +1,8 @@
 // The edit a person is in the middle of: the level as it was opened, as it is now, and the steps back. Every function
 // returns a new edit; the opened level is never changed.
-import type { Character, Level } from '@automataframework/framework/headless'
+import type { Character, GameContent, Level } from '@automataframework/framework/headless'
 import { compareLevels } from './compare.ts'
-import { keepInside, onSolid, type Point, STEP } from './place.ts'
+import { keepInside, onSolid, type Point, STEP, solidOf } from './place.ts'
 
 export interface LevelEdit {
   readonly opened: Level
@@ -15,18 +15,32 @@ export type Moved =
   | { readonly edit: LevelEdit; readonly moved: false; readonly why: 'solid' | 'same' | 'no-such-thing' }
 export type Characters = Readonly<Record<string, Character>>
 
+/** What a change to a level must know about the game it is in. */
+export interface LevelRules {
+  readonly characters: Characters
+  /** The project's hero, whose size a start point takes. */
+  readonly hero: string
+  /** Which tile letters are solid in this level. */
+  readonly solid: (letter: string) => boolean
+}
+
+/** The rules of `level` in `content`. */
+export function rulesOf(content: GameContent, level: Level): LevelRules {
+  return { characters: content.characters, hero: content.project.hero, solid: solidOf(content, level) }
+}
+
 export const startEdit = (level: Level): LevelEdit => ({ opened: level, now: level, past: [] })
 
 /** A thing with a character the game lacks is still one box, so it can be moved while the game is being fixed. */
 const FALLBACK_SIZE = { w: 1, h: 1 }
 
-export function moveThing(edit: LevelEdit, characters: Characters, thingId: string, to: Point): Moved {
+export function moveThing(edit: LevelEdit, rules: LevelRules, thingId: string, to: Point): Moved {
   const thing = edit.now.things.find((t) => t.id === thingId)
   if (thing === undefined) return { edit, moved: false, why: 'no-such-thing' }
-  const size = characters[thing.character]?.size ?? FALLBACK_SIZE
+  const size = rules.characters[thing.character]?.size ?? FALLBACK_SIZE
   const at = keepInside(edit.now, size, to)
   if (at.x === thing.x && at.y === thing.y) return { edit, moved: false, why: 'same' }
-  if (onSolid(edit.now, size, at)) return { edit, moved: false, why: 'solid' }
+  if (onSolid(edit.now, size, at, rules.solid)) return { edit, moved: false, why: 'solid' }
   const now: Level = {
     ...edit.now,
     things: edit.now.things.map((t) => (t.id === thingId ? { ...t, x: at.x, y: at.y } : t)),
@@ -44,13 +58,13 @@ const WAYS = {
 /** A move by one `STEP`. */
 export function nudgeThing(
   edit: LevelEdit,
-  characters: Characters,
+  rules: LevelRules,
   thingId: string,
   way: keyof typeof WAYS,
 ): Moved {
   const thing = edit.now.things.find((t) => t.id === thingId)
   if (thing === undefined) return { edit, moved: false, why: 'no-such-thing' }
-  return moveThing(edit, characters, thingId, { x: thing.x + WAYS[way].x, y: thing.y + WAYS[way].y })
+  return moveThing(edit, rules, thingId, { x: thing.x + WAYS[way].x, y: thing.y + WAYS[way].y })
 }
 
 /** One step back; with no past, the same edit. */
