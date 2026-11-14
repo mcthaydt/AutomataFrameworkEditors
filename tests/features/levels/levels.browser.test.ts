@@ -1,0 +1,313 @@
+// The levels editor in each real browser, driven with real touch pointer events on the real layout.
+import { fitWorld } from '@automataframework/framework'
+import type { Character, Level } from '@automataframework/framework/headless'
+import { mount, tick, unmount } from 'svelte'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
+import { WORDS } from '#src/features/words/words.ts'
+import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+
+const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
+const characters: Record<string, Character> = {
+  crate: JSON.parse(fixtureFiles['content/characters/crate.json'] ?? '{}'),
+  hero: JSON.parse(fixtureFiles['content/characters/hero.json'] ?? '{}'),
+}
+
+let box: HTMLDivElement
+let mounted: ReturnType<typeof mount> | undefined
+let edits: LevelEdit[]
+let onchange: (edit: LevelEdit) => void
+
+beforeEach(() => {
+  box = document.createElement('div')
+  box.style.cssText =
+    'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column'
+  document.body.append(box)
+  edits = []
+  onchange = (edit) => edits.push(edit)
+})
+afterEach(() => {
+  if (mounted) void unmount(mounted)
+  mounted = undefined
+  box.remove()
+})
+
+type Status = 'clean' | 'dirty' | 'saving' | 'saved'
+async function show(over: { canSave?: boolean; status?: Status; onsave?: () => void } = {}): Promise<void> {
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      level,
+      characters,
+      hero: 'hero',
+      canSave: over.canSave ?? true,
+      status: over.status ?? 'dirty',
+      statusText: 'Nothing has changed yet.',
+      title: 'level-1',
+      back: { label: WORDS.back, onpress: () => {} },
+      onchange,
+      onsave: over.onsave ?? (() => {}),
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
+}
+
+const stage = (): HTMLElement => {
+  const found = box.querySelector<HTMLElement>('.stage')
+  if (!found) throw new Error('no stage')
+  return found
+}
+const crate = (): HTMLButtonElement => {
+  const found = box.querySelector<HTMLButtonElement>('[data-thing="crate-1"]')
+  if (!found) throw new Error('no crate')
+  return found
+}
+const named = (label: string): HTMLButtonElement => {
+  const found = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === label)
+  if (!found) throw new Error(`no button ${label}`)
+  return found
+}
+const centre = (el: Element): { x: number; y: number } => {
+  const r = el.getBoundingClientRect()
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+}
+/** Where the crate should be on the page: from the stage's own fit, the way the framework fits a level. */
+function expectedCentre(tileX: number, tileY: number): { x: number; y: number } {
+  const s = stage()
+  const rect = s.getBoundingClientRect()
+  const fit = fitWorld({ w: s.clientWidth, h: s.clientHeight }, { w: 16, h: 9 })
+  return { x: rect.left + fit.left + tileX * fit.scale, y: rect.top + fit.top + tileY * fit.scale }
+}
+const scale = (): number => Number(stage().dataset.scale)
+
+function touch(el: Element, type: string, at: { x: number; y: number }, id = 1): void {
+  el.dispatchEvent(
+    new PointerEvent(type, {
+      pointerId: id,
+      pointerType: 'touch',
+      isPrimary: id === 1,
+      clientX: at.x,
+      clientY: at.y,
+      bubbles: true,
+      cancelable: true,
+    }),
+  )
+}
+/** Presses on the crate and drags it to `to`, in steps of at most half a tile so it passes every spot on the way. */
+function dragTo(to: { x: number; y: number }, finish = true): void {
+  const from = centre(crate())
+  touch(crate(), 'pointerdown', from)
+  const steps = Math.max(2, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (scale() / 2)))
+  for (let i = 1; i <= steps; i++) {
+    touch(crate(), 'pointermove', {
+      x: from.x + ((to.x - from.x) * i) / steps,
+      y: from.y + ((to.y - from.y) * i) / steps,
+    })
+  }
+  if (finish) touch(crate(), 'pointerup', to)
+}
+const place = (): [string | undefined, string | undefined] => [crate().dataset.x, crate().dataset.y]
+const last = (): LevelEdit => {
+  const edit = edits.at(-1)
+  if (!edit) throw new Error('onchange was not called')
+  return edit
+}
+
+test('the crate has a button a finger can hit, centred on the crate', async () => {
+  await show()
+  const r = crate().getBoundingClientRect()
+  expect(r.width).toBeGreaterThanOrEqual(48)
+  expect(r.height).toBeGreaterThanOrEqual(48)
+  const want = expectedCentre(6.5, 7.5)
+  expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
+  expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+})
+
+test('a tap selects and shows the arrows; nothing moved', async () => {
+  await show()
+  const at = centre(crate())
+  touch(crate(), 'pointerdown', at)
+  touch(crate(), 'pointerup', at)
+  await tick()
+  expect(crate().getAttribute('aria-pressed')).toBe('true')
+  expect(box.textContent).toContain(WORDS.hintSelected('crate-1'))
+  expect(named(WORDS.moveLeft)).toBeTruthy()
+  expect(edits).toEqual([])
+})
+
+test('tapping the stage where no thing is unselects', async () => {
+  await show()
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  const s = stage().getBoundingClientRect()
+  touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
+  await tick()
+  expect(crate().getAttribute('aria-pressed')).toBe('false')
+  expect(box.textContent).toContain(WORDS.hintIdle)
+})
+
+test('dragging two tiles right moves it two tiles', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y })
+  await tick()
+  expect(place()).toEqual(['8.5', '7.5'])
+  expect(isDirty(last())).toBe(true)
+})
+
+test('a whole drag is one undo step', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y })
+  await tick()
+  named(WORDS.undo).click()
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+  expect(isDirty(last())).toBe(false)
+})
+
+test('a cancelled touch puts the crate back', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y }, false)
+  await tick()
+  expect(place()[0]).toBe('8.5')
+  touch(crate(), 'pointercancel', from)
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+  expect(isDirty(last())).toBe(false)
+})
+
+test('a second finger cancels the drag', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y }, false)
+  touch(stage(), 'pointerdown', { x: from.x, y: from.y - 100 }, 2)
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+})
+
+test('dragging far off the stage keeps the crate inside the walls', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 40 * scale(), y: from.y })
+  await tick()
+  expect(place()).toEqual(['14.5', '7.5'])
+})
+
+test('dragging down into the floor leaves it on the floor and says why', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x, y: from.y + 2 * scale() })
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+  expect(box.textContent).toContain(WORDS.solid)
+})
+
+test('each arrow button moves half a tile; so does each arrow key', async () => {
+  await show()
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  named(WORDS.moveRight).click()
+  await tick()
+  expect(place()).toEqual(['7', '7.5'])
+  named(WORDS.moveUp).click()
+  await tick()
+  expect(place()).toEqual(['7', '7'])
+  named(WORDS.moveLeft).click()
+  named(WORDS.moveLeft).click()
+  await tick()
+  expect(place()).toEqual(['6', '7'])
+  named(WORDS.moveDown).click()
+  await tick()
+  expect(place()).toEqual(['6', '7.5'])
+  const key = (name: string): void => {
+    crate().dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }))
+  }
+  key('ArrowRight')
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+  key('ArrowUp')
+  await tick()
+  expect(place()).toEqual(['6.5', '7'])
+  key('Escape')
+  await tick()
+  expect(crate().getAttribute('aria-pressed')).toBe('false')
+})
+
+test('Save is off until something changed, and off while saving', async () => {
+  await show({ status: 'clean' })
+  expect(named(WORDS.save).disabled).toBe(true)
+  void unmount(mounted as object)
+  box.replaceChildren()
+  await show({ status: 'dirty' })
+  expect(named(WORDS.save).disabled).toBe(false)
+  void unmount(mounted as object)
+  box.replaceChildren()
+  await show({ status: 'saving' })
+  expect(named(WORDS.save).disabled).toBe(true)
+})
+
+test('with canSave false, Save stays off after a move', async () => {
+  await show({ canSave: false })
+  expect(named(WORDS.save).disabled).toBe(true)
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  named(WORDS.moveRight).click()
+  await tick()
+  expect(named(WORDS.save).disabled).toBe(true)
+})
+
+test('pressing Save calls onsave once', async () => {
+  const onsave = vi.fn()
+  await show({ onsave })
+  named(WORDS.save).click()
+  expect(onsave).toHaveBeenCalledTimes(1)
+})
+
+async function turn(width: number, height: number): Promise<void> {
+  const before = scale()
+  box.style.width = `${width}px`
+  box.style.height = `${height}px`
+  await vi.waitFor(() => expect(scale()).not.toBe(before))
+  await tick()
+}
+
+test('turning the box sideways refits: the button is still on the crate', async () => {
+  await show()
+  await turn(1180, 820)
+  const want = expectedCentre(6.5, 7.5)
+  expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
+  expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+})
+
+test('turning mid-drag cancels the drag', async () => {
+  await show()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y }, false)
+  await tick()
+  expect(place()[0]).toBe('8.5')
+  await turn(1180, 820)
+  expect(place()).toEqual(['6.5', '7.5'])
+})
+
+test('at 390 by 844 every button is at least 44 px and nothing runs off the side', async () => {
+  box.style.width = '390px'
+  box.style.height = '844px'
+  await show()
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  for (const b of box.querySelectorAll('button')) {
+    const r = b.getBoundingClientRect()
+    expect(r.width, b.textContent ?? '').toBeGreaterThanOrEqual(44)
+    expect(r.height, b.textContent ?? '').toBeGreaterThanOrEqual(44)
+    expect(r.right).toBeLessThanOrEqual(390 + 0.5)
+    expect(r.left).toBeGreaterThanOrEqual(-0.5)
+  }
+  expect(box.scrollWidth).toBeLessThanOrEqual(box.clientWidth)
+})
