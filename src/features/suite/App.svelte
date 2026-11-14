@@ -4,8 +4,9 @@
   import type { Session } from '../session/session.ts'
   import { Button, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
-  import { needsPerson, parseRoute } from './route.ts'
+  import { needsPerson, parseRoute, routeHash } from './route.ts'
   import GameHome from './GameHome.svelte'
+  import LevelScreen from './LevelScreen.svelte'
   import PickGame from './PickGame.svelte'
   import Welcome from './Welcome.svelte'
 
@@ -22,8 +23,10 @@
     addUrl: string
     /** The games this device has opened. */
     remembered: Storage
+    /** Where a change that is not saved yet is kept. */
+    drafts: Storage
   }
-  let { api, session, ready, start, addUrl, remembered }: Props = $props()
+  let { api, session, ready, start, addUrl, remembered, drafts }: Props = $props()
 
   let route = $state(parseRoute(location.hash))
   // Both start from what the page was given; after that the person's own presses change them.
@@ -82,6 +85,21 @@
         onsignin={begin}
         onsignedout={signedOut}
         onback={goBack}
+      />
+    {/key}
+  {:else if route.screen === 'level'}
+    {@const here = { owner: route.owner, name: route.name }}
+    {#key `${route.owner}/${route.name}/${route.level}`}
+      <LevelScreen
+        {api}
+        game={{ owner: route.owner, name: route.name }}
+        levelId={route.level}
+        {remembered}
+        {drafts}
+        {signedIn}
+        onsignin={begin}
+        onsignedout={signedOut}
+        onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
       />
     {/key}
   {:else}

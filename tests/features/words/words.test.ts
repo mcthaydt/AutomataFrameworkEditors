@@ -41,6 +41,27 @@ const PINNED: Readonly<Record<string, string>> = {
   undo: 'Undo',
   save: 'Save',
   solid: 'That spot is solid ground. Try another spot.',
+  statusClean: 'Nothing to save.',
+  statusDirty: "You have changes that aren't saved.",
+  statusSaving: 'Saving…',
+  savedDirect: 'Saved. Your game has the change.',
+  savedSuggestion: 'Saved. Your change is waiting for approval.',
+  lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
+  signInToSave: 'Sign in to save this into the game. Your change will still be here when you come back.',
+  changedElsewhere: "Someone changed this level while you were working, so your change wasn't saved.",
+  takeTheirs: 'Show their version (drop my change)',
+  keepMine: 'Keep my change for now',
+  offline:
+    "Can't reach the game right now. Your change is still here. Check the internet and press Save again.",
+  busy: 'Things are busy. Your change is still here. Wait a minute and press Save again.',
+  saveFailed: "Something went wrong and your change wasn't saved. Press Save again.",
+  blockedOwner:
+    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
+  leaveAsk: "You have changes that aren't saved. Leave anyway?",
+  leaveYes: 'Leave without saving',
+  leaveNo: 'Stay',
+  draftBack: "We brought back the change you hadn't saved.",
+  draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
 }
 
 const read = (key: string): string => {

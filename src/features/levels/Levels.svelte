@@ -17,6 +17,8 @@
     /** The character a start point shows. */
     hero?: string | undefined
     canSave: boolean
+    /** `plain` while another button on the screen is the one thing to press. */
+    saveKind?: 'primary' | 'plain'
     /** Owned by the screen that saves. */
     status: 'clean' | 'dirty' | 'saving' | 'saved'
     /** The words for `status`. */
@@ -28,7 +30,7 @@
     onchange: (edit: LevelEdit) => void
     onsave: () => void
   }
-  let { level, characters, hero, canSave, status, statusText, title, back, onchange, onsave }: Props = $props()
+  let { level, characters, hero, canSave, saveKind = 'primary', status, statusText, title, back, onchange, onsave }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -210,8 +212,8 @@
     <h1>{title}</h1>
     <Button
       label={WORDS.save}
-      kind="primary"
-      disabled={!canSave || status === 'clean' || status === 'saving'}
+      kind={saveKind}
+      disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
       onpress={onsave}
     />
   </header>

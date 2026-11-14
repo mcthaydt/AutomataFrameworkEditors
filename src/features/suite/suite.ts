@@ -40,6 +40,7 @@ export function mountSuite(target: HTMLElement, config: SuiteConfig): { destroy(
         start: result === 'cancelled' || result === 'failed' ? result : undefined,
         addUrl: addToGameUrl(config),
         remembered: localStorage,
+        drafts: sessionStorage,
       },
     })
   })
