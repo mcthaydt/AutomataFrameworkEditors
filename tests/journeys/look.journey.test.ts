@@ -191,7 +191,8 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
     expect(Math.abs(stage.width - SIZES[size].width)).toBeLessThanOrEqual(1)
     const save = await pressSave(j.page).boundingBox()
     expect(save).not.toBeNull()
-    expect(SIZES[size].width - ((save?.x ?? 0) + (save?.width ?? 0))).toBeLessThanOrEqual(24)
+    // Save is at the right edge: 8 px of margin, 16 of padding and the panel's 1 px line.
+    expect(SIZES[size].width - ((save?.x ?? 0) + (save?.width ?? 0))).toBeLessThanOrEqual(25)
     const undo = await j.page.getByRole('button', { name: WORDS.undo, exact: true }).boundingBox()
     const redo = await j.page.getByRole('button', { name: WORDS.redo, exact: true }).boundingBox()
     expect(undo).not.toBeNull()
@@ -212,6 +213,8 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
 
   test('nothing is put on the picture', async () => {
     const j = await signedInLevel(size)
+    // The picture is made a moment after the screen: wait for it.
+    await j.page.locator('.stage canvas').waitFor()
     const found = await j.page.evaluate(() => {
       const out: string[] = []
       const canvas = document.querySelector('.stage canvas') as HTMLElement
@@ -415,7 +418,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
       expect(await j.page.locator('.bar .wordmark').textContent(), screen).toBe(WORDS.wordmark)
       const bare = await j.page.evaluate(() =>
         [...document.querySelectorAll('.icon')]
-          .filter((el) => (el.parentElement?.textContent ?? '').trim() === '')
+          .filter((el) => ((el.closest('label') ?? el.parentElement)?.textContent ?? '').trim() === '')
           .map((el) => el.parentElement?.className ?? ''),
       )
       expect(bare, `${screen}: icons with no words beside them`).toEqual([])

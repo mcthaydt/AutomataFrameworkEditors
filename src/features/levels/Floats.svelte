@@ -186,6 +186,8 @@
   /* Save never shrinks: it is the one thing the screen is for. */
   .save {
     flex: none;
+    /* On its own line when the row wraps, it is still at the right. */
+    margin-left: auto;
   }
   /* Always two lines tall, so the words coming and going never change the height of the panel. */
   .status {
