@@ -288,9 +288,12 @@ test fails when a find-bar action is missing from that list or the list names on
   first: the picker shows them in a fixed order the plan sets that does not lead with English, and every list of
   languages in this repo follows the same order.
 - **Pickers show just the flag** (the Owner, 2026-11-14): no language names on screen, no words around them. Each
-  language has one flag, the same one the framework's language picker uses for the games' six; the plan takes the
-  framework's table (from the framework's language spec, once it lands) and extends it with the same rule for French,
-  Russian and German, so a language's flag is the same everywhere in the product. Each flag button still has the
+  language has one flag, the same everywhere in the product (the games' six as the framework's language picker has
+  them): English the United States, Spanish Spain, Portuguese Brazil, Chinese China (the Owner, 2026-11-14), Korean
+  South Korea and Japanese Japan; for the editors' three, French France, Russian Russia and German Germany (this
+  spec's call, by the same rule: the flag of the place the variant is from).
+- **Variants follow the flags:** English words use US spelling, Spanish is Spain's, Portuguese is Brazil's, Chinese is
+  Simplified (the Owner, 2026-11-14, for English and the flags). Each flag button still has the
   language's own name as its accessible name, for screen readers and for the find bar, but that name is never drawn.
 - **Which one shows:** the language the person last chose on this device (`af.language`, a new device setting added
   to `CLAUDE.md`'s allowed list); else the first of the device's preferred languages that is one of the nine; else
