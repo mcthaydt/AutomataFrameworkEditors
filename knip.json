@@ -1,5 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6.39.0/schema.json",
+  "ignoreDependencies": [
+    "@fontsource-variable/fraunces",
+    "@fontsource-variable/onest",
+    "@fontsource/jetbrains-mono"
+  ],
   "ignoreExportsUsedInFile": true,
   "entry": ["functions/**/*.ts", "src/index.ts", "tests/**/*.test.ts"],
   "project": ["src/**/*.{ts,svelte}", "functions/**/*.ts", "tests/**/*.ts"],

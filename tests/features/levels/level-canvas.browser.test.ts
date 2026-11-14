@@ -67,7 +67,7 @@ test('a start point shows as the hero at half strength, only when the hero is na
   if (start === undefined) throw new Error('the fixture has a start')
   picture.show(level, characters)
   const without = colourAt(picture, start.x * TILE, start.y * TILE)
-  picture.show(level, characters, undefined, 'hero')
+  picture.show(level, characters, 'hero')
   const withHero = colourAt(picture, start.x * TILE, start.y * TILE)
   expect(withHero).not.toBe(without)
 })
@@ -91,4 +91,26 @@ test('destroy twice throws nothing, and nothing is drawn after it', async () => 
     picture.resize(10, 10)
   }).not.toThrow()
   made = undefined
+})
+
+test('fitTo draws the level inside the inset and the sky outside it', async () => {
+  const picture = await drawn()
+  picture.resize(480, 270)
+  picture.show(level, characters)
+  // A band 120 px wide on the left is covered by tools: the level is fitted into the other 360 by 270, at 22.5 px a
+  // tile, 33.75 px down. The band is still sky, because the sky fills the whole canvas.
+  picture.fitTo({ top: 0, right: 0, bottom: 0, left: 120 })
+  expect(colourAt(picture, 60, 135)).toBe('#9fd3f0')
+  expect(colourAt(picture, 120 + 8.5 * 22.5, 33.75 + 8.5 * 22.5)).toBe('#3b4a5a')
+  // With no inset again the level is back where it was.
+  picture.fitTo({ top: 0, right: 0, bottom: 0, left: 0 })
+  expect(colourAt(picture, ...at(8, 8))).toBe('#3b4a5a')
+})
+
+test('with no room between the tools only the sky is drawn, and nothing throws', async () => {
+  const picture = await drawn()
+  picture.resize(480, 270)
+  picture.show(level, characters)
+  expect(() => picture.fitTo({ top: 0, right: 300, bottom: 0, left: 300 })).not.toThrow()
+  expect(colourAt(picture, ...at(8, 8))).toBe('#9fd3f0')
 })

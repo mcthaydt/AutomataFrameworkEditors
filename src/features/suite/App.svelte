@@ -178,11 +178,12 @@
   <Welcome {notice} {ready} {demo} {signupUrl} landing={route.screen === 'games' && notice !== 'signed-out'} onsignin={begin} />
 {:else}
   <div class="bar">
+    <span class="wordmark">{WORDS.wordmark}</span>
     {#if signedIn}
-      <Button label={WORDS.signOut} onpress={signOut} />
+      <Button label={WORDS.signOut} icon="signOut" onpress={signOut} />
     {:else if !(known !== undefined && known.askSignIn)}
       <!-- Not on a screen whose own primary button already says Sign in: two of them a hand apart is one too many. -->
-      <Button label={WORDS.signIn} onpress={begin} />
+      <Button label={WORDS.signIn} icon="signIn" onpress={begin} />
     {/if}
   </div>
   {#if !signedIn && (notice === 'cancelled' || notice === 'failed')}
@@ -251,6 +252,7 @@
         {api}
         game={here}
         number={route.number}
+        {remembered}
         onsignedout={signedOut}
         onback={() => (location.hash = routeHash({ screen: 'waiting', ...here }))}
         onhome={() => (location.hash = routeHash({ screen: 'game', ...here }))}
@@ -287,9 +289,14 @@
   .said {
     padding: var(--space-2) var(--space-3) 0;
   }
+  /* The bar is 56 px tall on the ground: the name at the left, and the one way in or out at the right. */
   .bar {
     display: flex;
-    justify-content: flex-end;
-    padding: var(--space-2) var(--space-3) 0;
+    flex: none;
+    gap: var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    padding: 0 var(--space-3);
   }
 </style>

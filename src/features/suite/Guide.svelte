@@ -16,7 +16,7 @@
 <div class="guide" role="status">
   {#if count !== undefined}
     <div class="count">
-      <span>{WORDS.guideCount(count.n, count.of)}</span>
+      <span class="label">{WORDS.guideCount(count.n, count.of)}</span>
       <span class="dots" aria-hidden="true">
         {#each { length: count.of } as _, i (i)}
           <span class="dot" class:filled={i < count.n}></span>
@@ -25,7 +25,7 @@
     </div>
   {/if}
   <p class="text">{text}</p>
-  <Button label={WORDS.guideHide} onpress={onhide} />
+  <Button label={WORDS.guideHide} icon="hide" onpress={onhide} />
 </div>
 
 <style>
@@ -36,9 +36,9 @@
     align-items: center;
     margin: var(--space-2) var(--space-3) 0;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--info);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
   }
   .count {
     display: flex;
@@ -53,11 +53,12 @@
   .dot {
     width: 12px;
     height: 12px;
-    border: 2px solid var(--fg);
-    border-radius: 50%;
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
   }
   .filled {
-    background: var(--fg);
+    background: var(--touch);
+    border-color: var(--touch);
   }
   .text {
     flex: 1 1 14rem;

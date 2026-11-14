@@ -9,13 +9,15 @@ export interface LevelEdit {
   readonly now: Level
   /** Older levels, the nearest last. */
   readonly past: readonly Level[]
+  /** Levels an undo stepped back from, the nearest last: what Redo puts back. A new move forgets them. */
+  readonly future: readonly Level[]
 }
 export type Moved =
   | { readonly edit: LevelEdit; readonly moved: true }
   | { readonly edit: LevelEdit; readonly moved: false; readonly why: 'solid' | 'same' | 'no-such-thing' }
 export type Characters = Readonly<Record<string, Character>>
 
-export const startEdit = (level: Level): LevelEdit => ({ opened: level, now: level, past: [] })
+export const startEdit = (level: Level): LevelEdit => ({ opened: level, now: level, past: [], future: [] })
 
 /** A thing with a character the game lacks is still one box, so it can be moved while the game is being fixed. */
 const FALLBACK_SIZE = { w: 1, h: 1 }
@@ -31,7 +33,7 @@ export function moveThing(edit: LevelEdit, characters: Characters, thingId: stri
     ...edit.now,
     things: edit.now.things.map((t) => (t.id === thingId ? { ...t, x: at.x, y: at.y } : t)),
   }
-  return { edit: { opened: edit.opened, now, past: [...edit.past, edit.now] }, moved: true }
+  return { edit: { opened: edit.opened, now, past: [...edit.past, edit.now], future: [] }, moved: true }
 }
 
 const WAYS = {
@@ -56,7 +58,17 @@ export function nudgeThing(
 /** One step back; with no past, the same edit. */
 export function undo(edit: LevelEdit): LevelEdit {
   const before = edit.past.at(-1)
-  return before === undefined ? edit : { opened: edit.opened, now: before, past: edit.past.slice(0, -1) }
+  return before === undefined
+    ? edit
+    : { opened: edit.opened, now: before, past: edit.past.slice(0, -1), future: [...edit.future, edit.now] }
+}
+
+/** One step forward again, after an undo; with nothing to put back, the same edit. */
+export function redo(edit: LevelEdit): LevelEdit {
+  const after = edit.future.at(-1)
+  return after === undefined
+    ? edit
+    : { opened: edit.opened, now: after, past: [...edit.past, edit.now], future: edit.future.slice(0, -1) }
 }
 
 /** Does the level now differ from the one that was opened, by value? Moving a thing away and back is not a change. */

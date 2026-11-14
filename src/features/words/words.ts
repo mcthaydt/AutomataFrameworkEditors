@@ -3,6 +3,9 @@
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
+/** The GitHub App's name, written once: a person looks for it by name in a list on GitHub. */
+const APP_ON_GITHUB = 'Automata Framework Editors'
+
 const YOU_ARE: Readonly<Record<string, string>> = {
   look: 'You can look at this game.',
   suggest: 'You can change this game. Someone will approve your changes.',
@@ -12,7 +15,10 @@ const YOU_ARE: Readonly<Record<string, string>> = {
 }
 
 export const WORDS = Object.freeze({
-  appName: 'Automata Editors',
+  /** The product's name, as a person sees it. */
+  appName: 'Automata Framework editors',
+  appOnGitHub: APP_ON_GITHUB,
+  wordmark: 'automata',
   welcomeLine: 'Change your game by touch, together.',
   signIn: 'Sign in with GitHub',
   signInWhy:
@@ -51,6 +57,17 @@ export const WORDS = Object.freeze({
   moveUp: 'Move up',
   moveDown: 'Move down',
   undo: 'Undo',
+  redo: 'Redo',
+  editorWorld: 'World',
+  noteAcross: 'Across',
+  noteDown: 'Down',
+  notesOn: 'Notes on',
+  notesFaded: 'Notes faded',
+  notesHidden: 'Notes hidden',
+  noteTiles: (n: number): string => (n === 1 ? '1 tile' : `${n} tiles`),
+  noteChange: (name: string, amount: string): string => `${name} ${amount}. Press to change it.`,
+  stampSaved: (name: string): string => `Saved by ${name}`,
+  stampApproved: 'Approved',
   save: 'Save',
   statusClean: 'Nothing to save.',
   statusDirty: "You have changes that aren't saved.",
@@ -66,8 +83,7 @@ export const WORDS = Object.freeze({
     "Can't reach the game right now. Your change is still here. Check the internet and press Save again.",
   busy: 'Things are busy. Your change is still here. Wait a minute and press Save again.',
   saveFailed: "Something went wrong and your change wasn't saved. Press Save again.",
-  blockedOwner:
-    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
+  blockedOwner: `GitHub is set to stop the editor changing this game. The game's owner needs to let ${APP_ON_GITHUB} past that rule.`,
   leaveAsk: "You have changes that aren't saved. Leave anyway?",
   leaveYes: 'Leave without saving',
   leaveNo: 'Stay',

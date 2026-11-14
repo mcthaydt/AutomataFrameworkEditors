@@ -4,7 +4,7 @@
   import { formatDiagnostic } from '@automataframework/framework/headless'
   import type { Api } from '../api/api.ts'
   import { forgetGame, type Opened, openGame, rememberGame } from '../game/game.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
+  import { Button, Icon, Notice, Row, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import type { GameRef } from '../wire/wire.ts'
   import type { GameOpened } from './opened.ts'
@@ -83,20 +83,20 @@
       <div><Button label={WORDS.tipGotIt} onpress={() => dismiss('af.tip.approve')} /></div>
     {/if}
     {#if opened.game.level === 'owner' && opened.game.login !== undefined}
-      <div>
-        <a class="row" href={routeHash({ screen: 'share', owner: game.owner, name: game.name })}>{WORDS.share}</a>
-      </div>
+      <Row href={routeHash({ screen: 'share', owner: game.owner, name: game.name })} name={WORDS.share} icon="share" />
     {/if}
     {#if opened.game.waiting > 0}
-      <a class="row" href={routeHash({ screen: 'waiting', owner: game.owner, name: game.name })}>
-        {WORDS.waitingRow(opened.game.waiting)}
-      </a>
+      <Row
+        href={routeHash({ screen: 'waiting', owner: game.owner, name: game.name })}
+        name={WORDS.waitingRow(opened.game.waiting)}
+        icon="waiting"
+      />
     {/if}
-    <h2>{WORDS.gameLevels}</h2>
+    <h2 class="label"><Icon name="world" /> {WORDS.gameLevels}</h2>
     <ul class="levels">
       {#each levelIds as id (id)}
         <li>
-          <a class="row" href={routeHash({ screen: 'level', owner: game.owner, name: game.name, level: id })}>{id}</a>
+          <Row href={routeHash({ screen: 'level', owner: game.owner, name: game.name, level: id })} name={id} />
         </li>
       {/each}
     </ul>
@@ -125,14 +125,17 @@
 {:else}
   <Screen title={`${game.owner}/${game.name}`} {back}>
     <Notice kind="problem" text={WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <div><Button label={WORDS.tryAgain} icon="again" kind="primary" onpress={() => void load()} /></div>
   </Screen>
 {/if}
 
 <style>
   h2 {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
     margin: 0;
-    font-size: var(--font-size);
+    color: var(--quiet);
   }
   .levels,
   .problems {
@@ -148,21 +151,8 @@
     list-style: disc;
     overflow-wrap: anywhere;
   }
-  .row {
-    display: flex;
-    align-items: center;
-    min-height: 56px;
-    padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
-    font-weight: 600;
-    text-decoration: none;
-    overflow-wrap: anywhere;
-  }
   .soon {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

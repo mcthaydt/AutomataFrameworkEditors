@@ -5,6 +5,7 @@ import {
   isDirty,
   moveThing,
   nudgeThing,
+  redo,
   startEdit,
   undo,
 } from '#src/features/levels/levels.ts'
@@ -99,4 +100,42 @@ test('a thing whose character the game lacks still moves, as a one-tile box', ()
 test('the edited level still passes the framework: writeContent does not throw', () => {
   const m = moveThing(startEdit(level), characters, 'crate-1', { x: 8.6, y: 7.4 })
   expect(() => writeContent('level', m.edit.now)).not.toThrow()
+})
+
+const xOf = (edit: ReturnType<typeof startEdit>): number | undefined =>
+  edit.now.things.find((t) => t.id === 'crate-1')?.x
+
+test('redo after undo puts the move back', () => {
+  const moved = moveThing(startEdit(level), characters, 'crate-1', { x: 8.5, y: 7.5 }).edit
+  const back = undo(moved)
+  expect(xOf(back)).toBe(6.5)
+  const again = redo(back)
+  expect(xOf(again)).toBe(8.5)
+  expect(again.past).toHaveLength(1)
+  expect(again.future).toEqual([])
+})
+
+test('redo with nothing to redo is the same edit', () => {
+  const start = startEdit(level)
+  expect(redo(start)).toBe(start)
+  const moved = moveThing(start, characters, 'crate-1', { x: 8.5, y: 7.5 }).edit
+  expect(redo(moved)).toBe(moved)
+})
+
+test('a new move after an undo forgets what could be redone', () => {
+  const moved = moveThing(startEdit(level), characters, 'crate-1', { x: 8.5, y: 7.5 }).edit
+  const back = undo(moved)
+  expect(back.future).toHaveLength(1)
+  const other = moveThing(back, characters, 'crate-1', { x: 10.5, y: 7.5 }).edit
+  expect(other.future).toEqual([])
+  expect(redo(other)).toBe(other)
+})
+
+test('undo, redo, undo ends where one undo ends', () => {
+  const moved = moveThing(startEdit(level), characters, 'crate-1', { x: 8.5, y: 7.5 }).edit
+  const once = undo(moved)
+  const thrice = undo(redo(undo(moved)))
+  expect(thrice.now).toEqual(once.now)
+  expect(thrice.past).toEqual(once.past)
+  expect(thrice.future).toHaveLength(1)
 })

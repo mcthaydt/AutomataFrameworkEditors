@@ -1,7 +1,7 @@
 // Where a box may be: positions snap to half a tile so the files stay tidy, stay inside the level, and never rest in
 // a wall. Plain functions; nothing here knows about a screen or a finger.
 
-import type { Fit } from '@automataframework/framework'
+import { type Fit, fitWorld } from '@automataframework/framework'
 import type { Level } from '@automataframework/framework/headless'
 import { levelSize } from '@automataframework/framework/headless'
 
@@ -48,6 +48,25 @@ export function onSolid(level: Level, size: Size, at: Point): boolean {
     }
   }
   return false
+}
+
+/** How much of the stage the floating tools cover on each side, in CSS pixels. */
+export interface Inset {
+  readonly top: number
+  readonly right: number
+  readonly bottom: number
+  readonly left: number
+}
+
+/**
+ * Where the world goes in the space the tools leave clear: the framework's own fit of the box less its inset, moved
+ * right and down by the inset so it sits in the clear cell. No room left is `{ scale: 0, left: 0, top: 0 }`, never NaN.
+ */
+export function fitInside(box: Size, inset: Inset, world: Size): Fit {
+  const clear = { w: box.w - inset.left - inset.right, h: box.h - inset.top - inset.bottom }
+  const fit = fitWorld(clear, world)
+  if (!(fit.scale > 0)) return { scale: 0, left: 0, top: 0 }
+  return { scale: fit.scale, left: fit.left + inset.left, top: fit.top + inset.top }
 }
 
 /** Tiles to CSS pixels inside the stage. */

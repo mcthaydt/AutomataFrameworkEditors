@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDiagnostic, type Level } from '@automataframework/framework/headless'
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import {
@@ -15,7 +15,14 @@
     saveLevel,
     takeDraft,
   } from '../game/game.ts'
-  import { describeChange, Levels, type LevelEdit } from '../levels/levels.ts'
+  import {
+    describeChange,
+    keepNotesMode,
+    type LevelEdit,
+    Levels,
+    type NotesMode,
+    readNotesMode,
+  } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameOpened } from './opened.ts'
   import type { GameRef } from '../wire/wire.ts'
@@ -69,6 +76,12 @@
   let saving = $state(false)
   let saved = $state<'direct' | 'suggestion' | undefined>(undefined)
   let events = $state.raw<readonly Event[]>([])
+  // The drawing notes' switch is a setting of this device, kept beside the other things the device remembers.
+  let notes = $state<NotesMode>(untrack(() => readNotesMode(remembered)))
+  const setNotes = (mode: NotesMode): void => {
+    notes = mode
+    keepNotesMode(remembered, mode)
+  }
 
   const same = (a: Level | undefined, b: Level | undefined): boolean => JSON.stringify(a) === JSON.stringify(b)
   const visitor = $derived(game?.login === undefined)
@@ -136,6 +149,8 @@
     if (game === undefined) return
     current = edit.now
     saved = undefined
+    // The next move takes away what was said and asked nothing; an ask stays until it is answered.
+    if (events.some((e) => e.ask === undefined)) events = events.filter((e) => e.ask !== undefined)
     if (same(edit.now, savedLevel)) dropDraft(drafts, game, levelId)
     else keepDraft(drafts, game, edit.now)
   }
@@ -148,7 +163,7 @@
     }
     saving = true
     events = []
-    const message = describeChange({ opened: savedLevel ?? current, now: current, past: [] })
+    const message = describeChange({ opened: savedLevel ?? current, now: current, past: [], future: [] })
     const result = await saveLevel(api, game, current, message)
     saving = false
     if (result.ok) {
@@ -195,6 +210,10 @@
   }
   const keepMine = (): void => {
     events = []
+  }
+  /** "Got it": takes away a sentence that asked nothing. */
+  const dismiss = (event: Event): void => {
+    events = events.filter((e) => e !== event)
   }
 
   /** The level as it is on the screen now, saved or not. */
@@ -246,12 +265,16 @@
   <Screen {title} {back}><p>{WORDS.loading}</p></Screen>
 {:else if opened.ok && game !== undefined && start !== undefined && current !== undefined}
   <div class="level">
-    <div class="notices">
-      {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
+    <!-- The sentence that is true for as long as the level is open sits in the top panel. -->
+    {#snippet standingNote()}
+      <Notice kind="info" text={standing} />
+    {/snippet}
+    <!-- What just happened floats over the level until it is answered. A sentence that asks nothing has "Got it". -->
+    {#snippet saidNow()}
       {#each events as event (event.text)}
         <Notice kind={event.kind} text={event.text} />
         {#if event.box !== undefined}
-          <textarea class="box" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
+          <textarea class="box measure" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
         {/if}
         {#if event.details !== undefined && event.details.length > 0}
           <ul class="details">
@@ -259,7 +282,7 @@
           </ul>
         {/if}
         {#if event.ask === 'sign-in'}
-          <div class="actions"><Button label={WORDS.signIn} kind="primary" onpress={onsignin} /></div>
+          <div class="actions"><Button label={WORDS.signIn} icon="signIn" kind="primary" onpress={onsignin} /></div>
         {:else if event.ask === 'changed-elsewhere'}
           <div class="actions">
             <Button label={WORDS.takeTheirs} onpress={() => void takeTheirs()} />
@@ -270,9 +293,11 @@
             <Button label={WORDS.leaveNo} kind="primary" onpress={keepMine} />
             <Button label={WORDS.leaveYes} onpress={leaveForGood} />
           </div>
+        {:else}
+          <div class="actions"><Button label={WORDS.tipGotIt} onpress={() => dismiss(event)} /></div>
         {/if}
       {/each}
-    </div>
+    {/snippet}
     {#key generation}
       <Levels
         level={start}
@@ -282,6 +307,11 @@
         saveKind={asked ? 'plain' : 'primary'}
         {status}
         {statusText}
+        standing={standing !== '' ? standingNote : undefined}
+        said={events.length > 0 ? saidNow : undefined}
+        stamp={saved !== undefined && game?.login !== undefined ? WORDS.stampSaved(game.login) : undefined}
+        {notes}
+        onnotes={setNotes}
         title={levelId}
         back={{ label: WORDS.back, onpress: leave }}
         onchange={changed}
@@ -312,7 +342,7 @@
 {:else}
   <Screen {title} {back}>
     <Notice kind="problem" text={WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <div><Button label={WORDS.tryAgain} icon="again" kind="primary" onpress={() => void load()} /></div>
   </Screen>
 {/if}
 
@@ -323,15 +353,6 @@
     flex-direction: column;
     min-height: 0;
   }
-  .notices {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3) 0;
-  }
-  .notices:empty {
-    display: none;
-  }
   .actions {
     display: flex;
     flex-wrap: wrap;
@@ -340,11 +361,10 @@
   .box {
     width: 100%;
     box-sizing: border-box;
-    font: 0.85rem monospace;
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
   }
   .details {
     margin: 0;

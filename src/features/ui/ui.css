@@ -1,46 +1,36 @@
-/* The suite's few tokens. One type scale starting at 18 px, one spacing scale, a light and a dark set of colours
-   chosen by the device, and a focus ring that can always be seen. There is no component library. */
+/* The editors' look, which the spec calls Blueprint, in palette No. 310 of "A Dictionary of Color Combinations".
+   This is the only file that names a colour: four from the palette and two shades of them, then three fonts, one
+   corner, one shadow and one type scale. A screen asks for a token by name and never writes a colour of its own.
+   Dark is the only theme, whatever the device is set to. There is no component library. */
+@import "@fontsource-variable/fraunces/wght.css";
+@import "@fontsource-variable/onest/wght.css";
+@import "@fontsource/jetbrains-mono/400.css";
+
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
+  /* The palette. `touch` means "you can touch this" and is used for nothing else; `mark` is an edge or an icon and
+     never carries words (3.24 to 1 on the ground, 2.75 to 1 on raised). */
+  --ground: #253122; /* Deep Slate Olive */
+  --words: #f5ecc2; /* Sulphur Yellow */
+  --touch: #eeb480; /* Pinkish Cinnamon */
+  --mark: #837e31; /* Olive */
+  /* Two shades, the words colour let into the ground: 6% for what floats, rows and fields; 70% for hints. */
+  --raised: #313c2c;
+  --quiet: #b7b492;
+  /* Fraunces has no Cyrillic, so a title in another script falls to Onest. The device's own fonts come last, so a
+     blocked or slow font file never leaves a screen unreadable. */
+  --title: "Fraunces Variable", "Onest Variable", Georgia, "Times New Roman", serif;
+  --label: "Onest Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --measure: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --corner: 2px;
+  --float-shadow: 0 6px 20px color-mix(in srgb, var(--ground) 70%, transparent);
   --font-size: 18px;
-  --font-size-small: 16px;
+  --font-size-small: 13px; /* labels only */
   --font-size-big: 24px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 16px;
   --space-4: 24px;
-  --radius: 10px;
-  --bg: #ffffff;
-  --fg: #1b1b24;
-  --muted: #4b4b5a;
-  --line: #c9c9d4;
-  --surface: #f3f3f7;
-  --primary: #1d4ed8;
-  --primary-fg: #ffffff;
-  --danger: #b42318;
-  --danger-fg: #ffffff;
-  --info: #e8f0fe;
-  --good: #e3f6e8;
-  --problem: #fde8e6;
-  --focus: #1d4ed8;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14141c;
-    --fg: #f1f1f6;
-    --muted: #b4b4c2;
-    --line: #3a3a4a;
-    --surface: #1f1f2b;
-    --primary: #6d93ff;
-    --primary-fg: #0b0b12;
-    --danger: #ff8a80;
-    --danger-fg: #0b0b12;
-    --info: #1e2a45;
-    --good: #173525;
-    --problem: #43201d;
-    --focus: #9db8ff;
-  }
 }
 
 *,
@@ -58,19 +48,55 @@ body,
 html,
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font:
-    var(--font-size) / 1.4 system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  background: var(--ground);
+  color: var(--words);
+  font: var(--font-size) / 1.4 var(--label);
+  font-variant-numeric: tabular-nums;
   /* The iPad may not zoom into a screen by accident, and a turn never shrinks the text. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
+h1 {
+  font-family: var(--title);
+  font-weight: 500;
+}
+
+/* A label: the word under a tool's icon, a note, a stamp, a small heading. Capitals are made here, never typed. */
+.label {
+  font-family: var(--label);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The word `automata`, as typed: the name on every bar and over the first screen's title. It is not a link. */
+.wordmark {
+  font-family: var(--title);
+  font-size: var(--font-size-big);
+  line-height: 1;
+  color: var(--words);
+}
+
+/* A number or a measure. */
+.measure {
+  font-family: var(--measure);
+  font-size: 15px;
+}
+
+a {
+  color: var(--touch);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
 :focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
+  outline: 3px solid var(--words);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--words);
+  color: var(--ground);
 }

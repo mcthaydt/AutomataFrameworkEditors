@@ -28,7 +28,7 @@
   } as const
 </script>
 
-<Screen title={WORDS.appName}>
+<Screen title={WORDS.appName} kicker={WORDS.wordmark}>
   <p class="line">{WORDS.welcomeLine}</p>
   {#if !ready}<Notice kind="problem" text={WORDS.signInNotReady} />{/if}
   {#if notice !== undefined}<Notice kind="problem" text={NOTICE_WORDS[notice]} />{/if}
@@ -36,6 +36,7 @@
     <div class="action">
       <Button
         label={WORDS.tryIt}
+        icon="tryIt"
         kind={tryFirst ? 'primary' : 'plain'}
         onpress={() => (location.hash = routeHash({ screen: 'game', ...demo }))}
       />
@@ -43,7 +44,7 @@
     <p class="why">{WORDS.tryItLine}</p>
   {/if}
   <div class="action">
-    <Button label={WORDS.signIn} kind={tryFirst ? 'plain' : 'primary'} disabled={!ready} onpress={onsignin} />
+    <Button label={WORDS.signIn} icon="signIn" kind={tryFirst ? 'plain' : 'primary'} disabled={!ready} onpress={onsignin} />
   </div>
   <p class="why">{WORDS.signInWhy}</p>
   <p class="why"><a href={signupUrl}>{WORDS.noAccount}</a></p>
@@ -59,7 +60,7 @@
   }
   .why {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
   /* A link is pressed with a finger like a button, so it is as tall as one. */
   .why a {

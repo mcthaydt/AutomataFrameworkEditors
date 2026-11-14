@@ -1,11 +1,11 @@
 // The levels editor in each real browser, driven with real touch pointer events on the real layout.
-import { fitWorld } from '@automataframework/framework'
 import type { Character, Level } from '@automataframework/framework/headless'
-import { mount, tick, unmount } from 'svelte'
+import { createRawSnippet, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
+import { fitInside, isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
 import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+import { live } from '../../fixtures/live.svelte.ts'
 
 const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
 const characters: Record<string, Character> = {
@@ -21,7 +21,7 @@ let onchange: (edit: LevelEdit) => void
 beforeEach(() => {
   box = document.createElement('div')
   box.style.cssText =
-    'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column'
+    'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column;overflow:auto;scrollbar-width:none'
   document.body.append(box)
   edits = []
   onchange = (edit) => edits.push(edit)
@@ -72,11 +72,23 @@ const centre = (el: Element): { x: number; y: number } => {
   const r = el.getBoundingClientRect()
   return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
 }
+/** The clear cell the floating panels leave, as the level is fitted to it: its box against the stage's. */
+function insetOfClear(): { top: number; right: number; bottom: number; left: number } {
+  const s = stage().getBoundingClientRect()
+  const clear = box.querySelector('[data-clear]')?.getBoundingClientRect()
+  if (clear === undefined) return { top: 0, right: 0, bottom: 0, left: 0 }
+  return {
+    top: clear.top - s.top,
+    right: s.right - clear.right,
+    bottom: s.bottom - clear.bottom,
+    left: clear.left - s.left,
+  }
+}
 /** Where the crate should be on the page: from the stage's own fit, the way the framework fits a level. */
 function expectedCentre(tileX: number, tileY: number): { x: number; y: number } {
   const s = stage()
   const rect = s.getBoundingClientRect()
-  const fit = fitWorld({ w: s.clientWidth, h: s.clientHeight }, { w: 16, h: 9 })
+  const fit = fitInside({ w: s.clientWidth, h: s.clientHeight }, insetOfClear(), { w: 16, h: 9 })
   return { x: rect.left + fit.left + tileX * fit.scale, y: rect.top + fit.top + tileY * fit.scale }
 }
 const scale = (): number => Number(stage().dataset.scale)
@@ -103,9 +115,10 @@ function pictureAt(at: { x: number; y: number }): string {
 }
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
-const RING = '#ffffff'
 /** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
-const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
+// Pixi starts after the page does; on a busy runner that can take longer than waitFor's default second.
+const drawn = (): Promise<void> =>
+  vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE), { timeout: 5000 })
 
 function touch(el: Element, type: string, at: { x: number; y: number }, id = 1): void {
   el.dispatchEvent(
@@ -349,28 +362,70 @@ test('the picture refits when the box turns: the crate is still drawn under its 
   expect(Math.abs(centre(crate()).y - where.y)).toBeLessThanOrEqual(1)
 })
 
-test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
+/** The whole picture, read as one data address: equal before and after only if not one pixel changed. */
+const wholePicture = (): string => {
+  const canvas = stage().querySelector('canvas')
+  if (canvas === null) throw new Error('no picture')
+  return canvas.toDataURL()
+}
+
+test('picking a thing changes nothing in the picture', async () => {
   await show()
   await drawn()
-  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
-  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
-  const middle = expectedCentre(6.5, 7.5)
-  const edge = middle.x - scale() / 2
-  const near = [
-    { x: edge - 2, y: middle.y },
-    { x: edge + 2, y: middle.y },
-  ]
-  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
-  expect(ringed()).toBe(false)
+  const before = wholePicture()
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(ringed()).toBe(true)
+  expect(crate().getAttribute('aria-pressed')).toBe('true')
+  expect(wholePicture()).toBe(before)
+  // And no pixel at the crate's edge is the white the picture used to ring it in.
+  const middle = expectedCentre(6.5, 7.5)
+  const edge = middle.x - scale() / 2
+  for (const dx of [-3, -2, -1, 1, 2, 3]) expect(pictureAt({ x: edge + dx, y: middle.y })).not.toBe('#ffffff')
   const s = stage().getBoundingClientRect()
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(wholePicture()).toBe(before)
+})
+
+test('a picked thing is ringed by its button', async () => {
+  await show()
+  await drawn()
+  expect(getComputedStyle(crate()).outlineStyle).not.toBe('dashed')
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  // Touch-coloured dashes over a 2 px band of the ground colour, so the ring shows on any art.
+  expect(getComputedStyle(crate()).outlineStyle).toBe('dashed')
+  expect(getComputedStyle(crate()).outlineColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).outlineWidth).toBe('2px')
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(37, 49, 34)')
+  expect(getComputedStyle(crate()).borderTopWidth).toBe('2px')
+})
+
+test('read only, a marked thing is ringed by its button', async () => {
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      readOnly: true,
+      marked: ['crate-1'],
+      level,
+      characters,
+      hero: 'hero',
+      canSave: false,
+      status: 'clean' as const,
+      statusText: '',
+      title: 'level-1',
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
+  expect(crate().hasAttribute('data-marked')).toBe(true)
+  expect(getComputedStyle(crate()).outlineStyle).toBe('dashed')
+  expect(getComputedStyle(crate()).outlineColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(37, 49, 34)')
 })
 
 test('turning mid-drag cancels the drag', async () => {
@@ -466,4 +521,225 @@ test('the two copy buttons are at least 44 px, on with canSave false and status 
     button.click()
     expect(handler).toHaveBeenCalledTimes(1)
   }
+})
+
+// The floating layout: the stage reaches every edge, the tools float, and nothing refits under a finger.
+const SIZES = [
+  [1180, 820],
+  [390, 844],
+] as const
+const resize = async (width: number, height: number): Promise<void> => {
+  box.style.width = `${width}px`
+  box.style.height = `${height}px`
+  await tick()
+}
+const within = (inner: DOMRect, outer: DOMRect, slack = 0.5): boolean =>
+  inner.left >= outer.left - slack &&
+  inner.right <= outer.right + slack &&
+  inner.top >= outer.top - slack &&
+  inner.bottom <= outer.bottom + slack
+const clearCell = (): DOMRect => {
+  const found = box.querySelector('[data-clear]')
+  if (found === null) throw new Error('no clear cell')
+  return found.getBoundingClientRect()
+}
+const pick = async (): Promise<void> => {
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+}
+
+test.each(SIZES)(
+  'the stage reaches every edge and the level sits in the clear cell at %i by %i',
+  async (w, h) => {
+    await resize(w, h)
+    await show()
+    const edge = box.getBoundingClientRect()
+    const s = stage().getBoundingClientRect()
+    for (const [got, want] of [
+      [s.left, edge.left],
+      [s.top, edge.top],
+      [s.right, edge.right],
+    ] as const)
+      expect(Math.abs(got - want)).toBeLessThanOrEqual(1)
+    // The stage is as tall as the box, or, when the tools need more room than a phone has, taller (the screen scrolls).
+    expect(s.bottom).toBeGreaterThanOrEqual(edge.bottom - 1)
+    if (w > h) expect(s.bottom - edge.bottom).toBeLessThanOrEqual(1)
+    expect(within(crate().getBoundingClientRect(), clearCell())).toBe(true)
+  },
+)
+
+test.each(SIZES)('picking a thing does not move the level at %i by %i', async (w, h) => {
+  await resize(w, h)
+  await show()
+  const before = { scale: scale(), at: centre(crate()) }
+  await pick()
+  expect(crate().getAttribute('aria-pressed')).toBe('true')
+  expect(scale()).toBe(before.scale)
+  expect(centre(crate())).toEqual(before.at)
+})
+
+test('Redo puts back what Undo took, by the button', async () => {
+  await show()
+  await pick()
+  const redoButton = (): HTMLButtonElement => named(WORDS.redo)
+  expect(redoButton().disabled).toBe(true)
+  const x = (): string | undefined => crate().dataset.x
+  expect(x()).toBe('6.5')
+  named(WORDS.moveRight).click()
+  await tick()
+  expect(x()).toBe('7')
+  expect(redoButton().disabled).toBe(true)
+  named(WORDS.undo).click()
+  await tick()
+  expect(x()).toBe('6.5')
+  expect(redoButton().disabled).toBe(false)
+  redoButton().click()
+  await tick()
+  expect(x()).toBe('7')
+  expect(redoButton().disabled).toBe(true)
+})
+
+test('the card says where the picked thing is, and its arrows move it', async () => {
+  await show()
+  expect(box.querySelector('.card')?.textContent).toContain(WORDS.hintIdle)
+  await pick()
+  const card = box.querySelector('.card')?.textContent ?? ''
+  expect(card).toContain(WORDS.noteAcross)
+  expect(card).toContain(WORDS.noteDown)
+  const numbers = [...(box.querySelectorAll('.card .measure') ?? [])].map((n) => n.textContent)
+  expect(numbers).toEqual(['6.5', '7.5'])
+  box.querySelector<HTMLButtonElement>('[data-move="right"]')?.click()
+  await tick()
+  expect(place()).toEqual(['7', '7.5'])
+  expect([...box.querySelectorAll('.card .measure')].map((n) => n.textContent)).toEqual(['7', '7.5'])
+})
+
+test('a level with a 60-letter name keeps Save whole', async () => {
+  const name = 'long-level-name-'.repeat(4).slice(0, 60)
+  await resize(390, 844)
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      level,
+      characters,
+      hero: 'hero',
+      canSave: true,
+      status: 'dirty' as const,
+      statusText: '',
+      title: name,
+      back: { label: WORDS.back, onpress: () => {} },
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(scale()).toBeGreaterThan(0))
+  const save = named(WORDS.save).getBoundingClientRect()
+  expect(save.right).toBeLessThanOrEqual(390)
+  expect(save.left).toBeGreaterThanOrEqual(0)
+  expect(save.height).toBeGreaterThanOrEqual(48)
+  const heading = box.querySelector('h1') as HTMLElement
+  expect(heading.textContent).toBe(name)
+  expect(getComputedStyle(heading).textOverflow).not.toBe('ellipsis')
+  expect(heading.scrollWidth).toBeLessThanOrEqual(heading.clientWidth + 1)
+})
+
+test('read only, nothing floats', async () => {
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      readOnly: true,
+      marked: ['crate-1'],
+      level,
+      characters,
+      hero: 'hero',
+      canSave: false,
+      status: 'clean' as const,
+      statusText: '',
+      title: 'level-1',
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(scale()).toBeGreaterThan(0))
+  expect(box.querySelector('.floats')).toBeNull()
+  expect(box.querySelector('[data-clear]')).toBeNull()
+  const s = stage()
+  const fit = fitInside(
+    { w: s.clientWidth, h: s.clientHeight },
+    { top: 0, right: 0, bottom: 0, left: 0 },
+    { w: 16, h: 9 },
+  )
+  expect(scale()).toBeCloseTo(fit.scale, 3)
+})
+
+test.each(SIZES)('saving and the first move after it do not move the level at %i by %i', async (w, h) => {
+  await resize(w, h)
+  const props = live({
+    level,
+    characters,
+    hero: 'hero',
+    canSave: true,
+    status: 'dirty' as 'dirty' | 'saved' | 'saving' | 'clean',
+    statusText: WORDS.statusDirty as string,
+    stamp: undefined as string | undefined,
+    title: 'level-1',
+    back: { label: WORDS.back, onpress: () => {} },
+    onchange,
+    onsave: () => {},
+  })
+  mounted = mount(Levels, { target: box, props })
+  await tick()
+  await vi.waitFor(() => expect(scale()).toBeGreaterThan(0))
+  const before = { scale: scale(), at: centre(crate()), clear: clearCell().toJSON() }
+  props.status = 'saved'
+  props.statusText = WORDS.savedDirect
+  props.stamp = 'Saved by grandma'
+  await tick()
+  expect(box.querySelector('[data-stamp]')).not.toBeNull()
+  expect(scale()).toBe(before.scale)
+  expect(centre(crate())).toEqual(before.at)
+  expect(clearCell().toJSON()).toEqual(before.clear)
+  props.status = 'dirty'
+  props.statusText = WORDS.statusDirty
+  props.stamp = undefined
+  await tick()
+  expect(box.querySelector('[data-stamp]')).toBeNull()
+  expect(scale()).toBe(before.scale)
+  expect(centre(crate())).toEqual(before.at)
+})
+
+test('the standing sentence is in the top panel and not over the level', async () => {
+  const standing = createRawSnippet(() => ({
+    render: () =>
+      '<p class="standing">Try anything you like. To save your changes into the game, sign in.</p>',
+  }))
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      level,
+      characters,
+      hero: 'hero',
+      canSave: true,
+      status: 'dirty' as const,
+      statusText: '',
+      title: 'level-1',
+      standing,
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(scale()).toBeGreaterThan(0))
+  const sentence = (box.querySelector('.standing') as HTMLElement).getBoundingClientRect()
+  const clear = clearCell()
+  const meets =
+    sentence.left < clear.right &&
+    sentence.right > clear.left &&
+    sentence.top < clear.bottom &&
+    sentence.bottom > clear.top
+  expect(meets).toBe(false)
+  expect(box.querySelector('.top')?.contains(box.querySelector('.standing'))).toBe(true)
 })

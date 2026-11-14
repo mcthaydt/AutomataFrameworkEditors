@@ -12,7 +12,7 @@
 <div class="empty">
   <p>{WORDS.pickEmpty}</p>
   <p class="link">{WORDS.pickEmptyLink}</p>
-  <div><Button label={WORDS.pickAdd} kind="primary" onpress={onadd} /></div>
+  <div><Button label={WORDS.pickAdd} icon="add" kind="primary" onpress={onadd} /></div>
 </div>
 
 <style>
@@ -25,6 +25,6 @@
     margin: 0;
   }
   .link {
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

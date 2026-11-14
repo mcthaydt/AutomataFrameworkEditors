@@ -1,4 +1,4 @@
-# A team's guide to the editors
+# A team's guide to the Automata Framework editors
 
 For the person who owns a game and wants their team to change it by touch.
 
@@ -58,7 +58,7 @@ game's settings:
 
 1. Open Branches and add a rule for the default branch.
 2. Turn on "Require a pull request before merging" and set "Required approvals" to 1.
-3. In the rule's bypass list, add **Automata Editors**.
+3. In the rule's bypass list, add **Automata Framework Editors**.
 4. In the game's settings, under General, leave "Allow merge commits" on. Approve merges with a merge commit, and a
    game that allows only squash or rebase merges makes Approve say that GitHub is stopping the editor.
 

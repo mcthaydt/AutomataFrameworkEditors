@@ -4,8 +4,8 @@
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import { type Opened, openGame } from '../game/game.ts'
-  import { compareLevels, Levels } from '../levels/levels.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
+  import { compareLevels, Levels, readNotesMode } from '../levels/levels.ts'
+  import { Button, Notice, Screen, Stamp } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
 
@@ -14,12 +14,14 @@
     api: Api
     game: GameRef
     number: number
+    /** What this device remembers: the drawing notes' setting, which it only reads here. */
+    remembered: Storage
     onsignedout: () => void
     onback: () => void
     /** To the game's page. */
     onhome: () => void
   }
-  let { api, game: ref, number, onsignedout, onback, onhome }: Props = $props()
+  let { api, game: ref, number, remembered, onsignedout, onback, onhome }: Props = $props()
 
   let opened = $state.raw<Opened | undefined>(undefined)
   let change = $state.raw<WaitingChange | undefined>(undefined)
@@ -131,6 +133,7 @@
 {:else if done !== undefined}
   <Screen title={change?.title ?? WORDS.waitingTitle}>
     <Notice kind="good" text={done === 'approved' ? WORDS.approved : WORDS.turnedDown} />
+    {#if done === 'approved'}<div><Stamp text={WORDS.stampApproved} /></div>{/if}
     <div><Button label={WORDS.back} kind="primary" onpress={onhome} /></div>
   </Screen>
 {:else if gone}
@@ -146,7 +149,7 @@
         {#each trouble.lines as line (line)}<li>{line}</li>{/each}
       </ul>
     {/if}
-    {#if trouble.again}<div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>{/if}
+    {#if trouble.again}<div><Button label={WORDS.tryAgain} icon="again" kind="primary" onpress={() => void load()} /></div>{/if}
   </Screen>
 {:else}
   <Screen title={change.title} {back}>
@@ -163,6 +166,8 @@
           status="clean"
           statusText=""
           title={shown.level.id}
+          notes={readNotesMode(remembered)}
+          onnotes={() => {}}
           onchange={() => {}}
           onsave={() => {}}
         />
@@ -188,17 +193,18 @@
         {#if change.here}
           <Button
             label={WORDS.approve}
+            icon="approve"
             kind="primary"
             disabled={busy || change.checks === 'running' || change.checks === 'failing'}
             onpress={() => void act('approve')}
           />
         {/if}
-        <Button label={WORDS.turnDown} disabled={busy} onpress={() => void act('turn-down')} />
+        <Button label={WORDS.turnDown} icon="turnDown" disabled={busy} onpress={() => void act('turn-down')} />
       </div>
     {:else if role === 'own-approver' || role === 'own'}
       {#if role === 'own-approver'}<Notice kind="info" text={WORDS.ownChange} />{/if}
       <div class="actions">
-        <Button label={WORDS.takeBack} disabled={busy} onpress={() => void act('turn-down')} />
+        <Button label={WORDS.takeBack} icon="turnDown" disabled={busy} onpress={() => void act('turn-down')} />
       </div>
     {:else}
       <Notice kind="info" text={WORDS.cantApprove} />
@@ -209,13 +215,14 @@
 <style>
   .by {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
   /* The read-only picture needs a height of its own: it is made to fill what it is given. */
   .picture {
     display: flex;
     flex-direction: column;
     height: min(60vh, 28rem);
+    border: 1px solid var(--words);
   }
   .lines {
     margin: 0;

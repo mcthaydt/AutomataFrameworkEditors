@@ -176,10 +176,10 @@
     {#if said.length === 0}<p>{WORDS.loading}</p>{/if}
   {:else if loaded !== undefined}
     <div class="block">
-      <label for="share-link">{WORDS.shareLinkLabel}</label>
+      <label class="label" for="share-link">{WORDS.shareLinkLabel}</label>
       <div class="linkrow">
         <input id="share-link" class="link" readonly value={linkText} bind:this={link} />
-        <Button label={WORDS.copyLink} onpress={() => void copy()} />
+        <Button label={WORDS.copyLink} icon="link" onpress={() => void copy()} />
       </div>
       {#if copied}<Notice kind="good" text={WORDS.linkCopied} />{/if}
     </div>
@@ -209,7 +209,7 @@
                 {#each GIVEN as level (level)}<option value={level}>{NAMES[level].label}</option>{/each}
               </select>
               <span class="hint">{NAMES[person.level].hint}</span>
-              <Button label={WORDS.remove(person.github)} kind="danger" onpress={() => remove(person.github)} />
+              <Button label={WORDS.remove(person.github)} icon="remove" kind="danger" onpress={() => remove(person.github)} />
             </li>
           {/each}
         </ul>
@@ -223,14 +223,14 @@
         add()
       }}
     >
-      <label for="share-name">{WORDS.addName}</label>
+      <label class="label" for="share-name">{WORDS.addName}</label>
       <input id="share-name" class="name" autocomplete="off" autocapitalize="off" spellcheck="false" bind:value={newName} />
       <p class="hint">{WORDS.addNameHint}</p>
       <select aria-label={WORDS.addName} bind:value={newLevel}>
         {#each GIVEN as level (level)}<option value={level}>{NAMES[level].label}</option>{/each}
       </select>
       {#if nameProblem !== undefined}<Notice kind="problem" text={nameProblem} />{/if}
-      <div><Button label={WORDS.addPerson} onpress={add} /></div>
+      <div><Button label={WORDS.addPerson} icon="addPerson" onpress={add} /></div>
     </form>
 
     {#each said as line (line.text)}<Notice kind={line.kind} text={line.text} />{/each}
@@ -269,7 +269,7 @@
     font-size: var(--font-size);
   }
   .hint {
-    color: var(--muted);
+    color: var(--quiet);
   }
   .linkrow {
     display: flex;
@@ -281,10 +281,10 @@
   select {
     min-height: 44px;
     padding: var(--space-1) var(--space-2);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
     font: inherit;
   }
   .link {
@@ -305,8 +305,8 @@
     gap: var(--space-2);
     align-items: center;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
   }
   .who {
     flex: 1 1 8rem;

@@ -6,18 +6,21 @@
   // the top. `back` is the way out, always the first thing after the title.
   interface Props {
     title: string
+    /** A word set over the title (the first screen's `automata`). */
+    kicker?: string
     back?: { label: string; onpress: () => void }
     children: Snippet
   }
-  let { title, back, children }: Props = $props()
+  let { title, kicker, back, children }: Props = $props()
   let heading: HTMLHeadingElement | undefined = $state()
   $effect(() => heading?.focus())
 </script>
 
 <main class="screen">
+  {#if kicker !== undefined}<span class="wordmark">{kicker}</span>{/if}
   <header>
     <h1 tabindex="-1" bind:this={heading}>{title}</h1>
-    {#if back}<Button label={back.label} onpress={back.onpress} />{/if}
+    {#if back}<Button label={back.label} icon="back" onpress={back.onpress} />{/if}
   </header>
   {@render children()}
 </main>
@@ -41,6 +44,7 @@
   }
   h1 {
     margin: 0;
+    font-family: var(--title);
     font-size: var(--font-size-big);
     overflow-wrap: anywhere;
   }

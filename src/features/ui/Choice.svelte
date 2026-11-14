@@ -13,8 +13,10 @@
     onchange: (value: string) => void
   }
   let { label, options, value, onchange }: Props = $props()
-  // One group name for each choice on the page, so two of them never share the arrow keys.
-  const group = `choice-${Math.random().toString(36).slice(2, 10)}`
+  // One group name for each choice on the page, so two of them never share the arrow keys. Svelte numbers each
+  // component's `$props.id()` by where it is in the page, so the name is the same on every visit and nothing is random.
+  const id = $props.id()
+  const group = `choice-${id}`
 </script>
 
 <div class="choice" role="radiogroup" aria-label={label}>
@@ -42,25 +44,23 @@
     flex-direction: column;
     gap: var(--space-2);
   }
-  .label {
-    font-weight: 600;
-  }
   .row {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     min-height: 48px;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
     cursor: pointer;
   }
   .on {
-    border-color: var(--primary);
+    border-color: var(--touch);
   }
   input {
     flex: none;
+    accent-color: var(--touch);
     width: 24px;
     height: 24px;
     margin: 0;
@@ -75,6 +75,6 @@
     font-weight: 600;
   }
   .hint {
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

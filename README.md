@@ -1,6 +1,6 @@
 # AutomataFrameworkEditors
 
-The editors for games made with [AutomataFramework](https://github.com/mcthaydt/AutomataFramework). A team opens its
+The Automata Framework editors, for games made with [AutomataFramework](https://github.com/mcthaydt/AutomataFramework). A team opens its
 game from its GitHub repository and changes its authorable content, the JSON files, by touch on an iPad. The code is
 the agents' work; the editors never show it or touch it.
 
