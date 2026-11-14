@@ -14,6 +14,8 @@ export const SIZES = {
   ipadUpright: { width: 820, height: 1180 },
   ipadSideways: { width: 1180, height: 820 },
   phone: { width: 390, height: 844 },
+  phoneSideways: { width: 844, height: 390 },
+  desktop: { width: 1440, height: 900 },
 } as const
 
 const SITE_PORT = 4800

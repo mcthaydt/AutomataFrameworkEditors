@@ -1,5 +1,5 @@
-// Every screen a person can reach, at iPad upright, iPad sideways and phone size: measured against the touch and
-// layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
+// Every screen a person can reach, at every size in SIZES (a phone and an iPad held either way, and a desktop
+// window): measured against the touch and layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
 // no sideways scroll; every button, link, field and picker at least 44 px each way, the primary Button at least
 // 48 tall; none overlapping; one heading; at most one Back; one primary Button; no text off the side or cut with an
 // ellipsis; and on the level screens a stage as wide as the window with a clear cell for the level (the rules are
