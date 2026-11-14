@@ -44,10 +44,19 @@
     // `bind:this` hands back null when the block is taken away.
     if (!watched) return
     const tell = (): void => onblock({ w: watched.offsetWidth, h: watched.offsetHeight })
-    const watcher = new ResizeObserver(tell)
+    // Answered after the resize is delivered: the answer moves the notes, and a change made while a browser is still
+    // delivering changes is reported as an error ("loop completed with undelivered notifications").
+    let later: ReturnType<typeof setTimeout> | undefined
+    const watcher = new ResizeObserver(() => {
+      clearTimeout(later)
+      later = setTimeout(tell, 0)
+    })
     watcher.observe(watched)
     tell()
-    return () => watcher.disconnect()
+    return () => {
+      clearTimeout(later)
+      watcher.disconnect()
+    }
   })
 
   const lines = $derived.by(() => {

@@ -120,10 +120,11 @@
     inset: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(10rem, 1fr) auto 11rem;
+    grid-template-rows: auto minmax(10rem, 1fr) 11rem auto 11rem;
     grid-template-areas:
       'top top'
       'clear clear'
+      'said said'
       'tools turns'
       'card card';
     pointer-events: none;
@@ -247,8 +248,12 @@
   }
 
   /* What just happened lies over the clear cell, never over a panel, and scrolls inside itself beyond the cell. */
+  /* On a narrow screen what was said has a row of its own under the level, always there and empty until something is
+     said, so it never covers a thing a finger must reach and its coming never refits the level. Sideways it lies over
+     the clear cell instead. The stamp lies over the level in both. */
   .over {
-    grid-area: clear;
+    grid-row: 2 / 4;
+    grid-column: 1 / -1;
     position: relative;
     min-width: 0;
     min-height: 0;
@@ -256,13 +261,13 @@
   }
   .said {
     position: absolute;
-    top: var(--space-2);
     right: var(--space-2);
+    bottom: var(--space-2);
     left: var(--space-2);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    max-height: calc(100% - 2 * var(--space-2));
+    max-height: calc(11rem - 2 * var(--space-2));
     padding: var(--space-2);
     overflow: auto;
     border: 1px solid var(--words);
@@ -277,5 +282,15 @@
     right: var(--space-2);
     max-width: calc(100% - 2 * var(--space-2));
     pointer-events: none;
+  }
+  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
+    .over {
+      grid-area: clear;
+    }
+    .said {
+      top: var(--space-2);
+      bottom: auto;
+      max-height: calc(100% - 2 * var(--space-2));
+    }
   }
 </style>
