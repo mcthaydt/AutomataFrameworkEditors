@@ -1,15 +1,14 @@
 <script lang="ts">
   import { type Character, type Level, levelSize } from '@automataframework/framework/headless'
   import { onMount, type Snippet, untrack } from 'svelte'
-  import { Button, Icon, Stamp, Tool } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import { type LevelEdit, moveThing, nudgeThing, redo, startEdit, undo } from './edit.ts'
   import { createLevelCanvas, type LevelCanvas } from './level-canvas.ts'
   import { fitInside, type Inset, type Size, toScreen, toWorld } from './place.ts'
   import { type Box, notesFor } from './notes.ts'
-  import { type NotesMode, nextNotesMode } from './notes-mode.ts'
+  import type { NotesMode } from './notes-mode.ts'
   import NotesLayer from './Notes.svelte'
-  import ThingCard from './ThingCard.svelte'
+  import Floats from './Floats.svelte'
 
   // The levels editor on the screen. The level fills the screen edge to edge and the tools float over it: the title,
   // Save and the status on top, copy tools at the side, the picked thing's card, and Undo and Redo. The level is fitted
@@ -68,7 +67,7 @@
   let size = $state({ w: 0, h: 0 })
   let picture: LevelCanvas | undefined
   /** The empty cell the floating panels leave: it only measures, and the level is fitted inside it. */
-  let clearBox: HTMLDivElement | undefined = $state()
+  let clearBox: HTMLElement | undefined = $state()
 
   const NO_INSET: Inset = { top: 0, right: 0, bottom: 0, left: 0 }
   // How much of the stage the floating panels cover: the clear cell's box measured against the stage's. Read only,
@@ -374,55 +373,32 @@
     </div>
     <!-- A level only to look at has nothing floating over it: the screen around it has the heading and the way back. -->
     {#if !readOnly}
-      <div class="floats">
-        <div class="clear" data-clear bind:this={clearBox}></div>
-        <section class="panel top" data-panel>
-          <div class="row">
-            {#if back !== undefined}<Button label={back.label} icon="back" onpress={back.onpress} />{/if}
-            <div class="heading">
-              <span class="label"><Icon name="world" /> {WORDS.editorWorld}</span>
-              <h1 class="title">{title}</h1>
-            </div>
-            <div class="save">
-              <Button
-                label={WORDS.save}
-                icon="save"
-                kind={saveKind}
-                disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
-                onpress={onsave}
-              />
-            </div>
-          </div>
-          <div class="status" role="status">{statusText}</div>
-          {#if standing !== undefined}{@render standing()}{/if}
-        </section>
-        <div class="tools" data-panel>
-          <Tool
-            label={{ on: WORDS.notesOn, faded: WORDS.notesFaded, hidden: WORDS.notesHidden }[notes]}
-            icon="notes"
-            onpress={() => onnotes(nextNotesMode(notes))}
-          />
-          {#if oncopytext !== undefined}<Tool label={WORDS.copyLevel} icon="copy" onpress={oncopytext} />{/if}
-          {#if oncopyfile !== undefined}<Tool label={WORDS.copyKeep} icon="file" onpress={oncopyfile} />{/if}
-        </div>
-        <section class="panel card" data-panel data-asked={asked} bind:this={card}>
-          <ThingCard
-            thing={selected === undefined ? undefined : edit.now.things.find((t) => t.id === selected)}
-            {solid}
-            onnudge={(way) => selected !== undefined && nudge(selected, way)}
-          />
-        </section>
-        <div class="turns" data-panel>
-          <Tool label={WORDS.undo} icon="undo" disabled={edit.past.length === 0} onpress={takeBack} />
-          <Tool label={WORDS.redo} icon="redo" disabled={edit.future.length === 0} onpress={giveBack} />
-        </div>
-        <!-- What just happened, and the stamp. Both lie over the clear cell and out of the grid's flow, so their coming
-             and going never changes a track and the level never refits under a finger. -->
-        <div class="over">
-          {#if said !== undefined}<div class="said" data-said>{@render said()}</div>{/if}
-          {#if stamp !== undefined}<div class="stamp-place"><Stamp text={stamp} /></div>{/if}
-        </div>
-      </div>
+      <Floats
+        bind:clearBox
+        bind:card
+        {back}
+        {title}
+        {canSave}
+        {saveKind}
+        {status}
+        {statusText}
+        {standing}
+        {said}
+        {stamp}
+        {notes}
+        {onnotes}
+        {oncopytext}
+        {oncopyfile}
+        {asked}
+        thing={selected === undefined ? undefined : edit.now.things.find((t) => t.id === selected)}
+        {solid}
+        onnudge={(way) => selected !== undefined && nudge(selected, way)}
+        canUndo={edit.past.length > 0}
+        canRedo={edit.future.length > 0}
+        onundo={takeBack}
+        onredo={giveBack}
+        {onsave}
+      />
     {/if}
   </div>
 </div>
@@ -471,168 +447,5 @@
     border-color: var(--ground);
     outline: 2px dashed var(--touch);
     outline-offset: 0;
-  }
-
-  /* The floating panels are a grid with fixed tracks, so picking a thing never refits the level under a finger. */
-  .floats {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(0, 1fr) auto 11rem;
-    grid-template-areas:
-      'top top'
-      'clear clear'
-      'tools turns'
-      'card card';
-    pointer-events: none;
-  }
-  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
-    .floats {
-      grid-template-columns: 5.5rem minmax(0, 1fr) 17rem;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      grid-template-areas:
-        'top top top'
-        'tools clear card'
-        'tools clear turns';
-    }
-  }
-  .clear {
-    grid-area: clear;
-    min-width: 0;
-    min-height: 0;
-  }
-  .panel {
-    margin: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--words);
-    border-radius: var(--corner);
-    background: var(--raised);
-    box-shadow: var(--float-shadow);
-    pointer-events: auto;
-  }
-  .top {
-    grid-area: top;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    min-width: 0;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
-    align-items: center;
-    justify-content: space-between;
-  }
-  .heading {
-    display: flex;
-    flex: 1 1 8ch;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .heading .label {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    color: var(--quiet);
-  }
-  .title {
-    margin: 0;
-    font-size: var(--font-size-big);
-    overflow-wrap: anywhere;
-  }
-  /* Save never shrinks: it is the one thing the screen is for. */
-  .save {
-    flex: none;
-  }
-  /* Always two lines tall, so the words coming and going never change the height of the panel. */
-  .status {
-    min-height: 2.8em;
-    color: var(--quiet);
-  }
-  /* A pressed note points at its pair of arrows with the words-coloured ring, since after a touch no browser draws the
-     focus ring on a button that script focused. */
-  .card[data-asked='x'] :global([data-move='left']),
-  .card[data-asked='x'] :global([data-move='right']),
-  .card[data-asked='y'] :global([data-move='up']),
-  .card[data-asked='y'] :global([data-move='down']) {
-    outline: 3px solid var(--words);
-    outline-offset: 3px;
-  }
-  .tools,
-  .turns {
-    display: flex;
-    gap: var(--space-2);
-    margin: var(--space-2);
-    pointer-events: none;
-  }
-  .tools :global(.tool),
-  .turns :global(.tool) {
-    pointer-events: auto;
-  }
-  .tools {
-    grid-area: tools;
-    flex-wrap: wrap;
-    align-self: end;
-    align-items: flex-end;
-  }
-  .turns {
-    grid-area: turns;
-    align-self: end;
-    justify-self: end;
-  }
-  .card {
-    grid-area: card;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    min-height: 0;
-    overflow: auto;
-  }
-  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
-    .tools {
-      flex-direction: column;
-      flex-wrap: nowrap;
-      align-self: start;
-      align-items: stretch;
-    }
-    .card {
-      align-self: start;
-      max-height: calc(100% - 2 * var(--space-2));
-    }
-  }
-
-  /* What just happened lies over the clear cell, never over a panel, and scrolls inside itself beyond the cell. */
-  .over {
-    grid-area: clear;
-    position: relative;
-    min-width: 0;
-    min-height: 0;
-    pointer-events: none;
-  }
-  .said {
-    position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
-    left: var(--space-2);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    max-height: calc(100% - 2 * var(--space-2));
-    padding: var(--space-2);
-    overflow: auto;
-    border: 1px solid var(--words);
-    border-radius: var(--corner);
-    background: var(--ground);
-    box-shadow: var(--float-shadow);
-    pointer-events: auto;
-  }
-  .stamp-place {
-    position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
-    max-width: calc(100% - 2 * var(--space-2));
-    pointer-events: none;
   }
 </style>
