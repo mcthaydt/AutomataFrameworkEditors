@@ -506,13 +506,8 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
         const second = shown[b]!.getBoundingClientRect()
         const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
         const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
-        if (
-          across > 1 &&
-          down > 1 &&
-          !touchable[a]!.contains(touchable[b]!) &&
-          !touchable[b]!.contains(touchable[a]!)
-        )
-          found.push(`${named(touchable[a]!)} overlaps ${named(touchable[b]!)}`)
+        if (across > 1 && down > 1 && !shown[a]!.contains(shown[b]!) && !shown[b]!.contains(shown[a]!))
+          found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
       }
     }
     const headings = [...document.querySelectorAll('h1')].filter(seen)
