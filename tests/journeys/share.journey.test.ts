@@ -54,6 +54,9 @@ async function shareScreen(size: Size = 'ipadUpright', keep = false): Promise<Jo
   await openGame(g.page)
   await g.page.getByRole('link', { name: WORDS.share }).click()
   await g.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('grandma/crate-game') }).waitFor()
+  // The heading shows before the page has finished asking; a reload in the middle of that makes WebKit report the
+  // cancelled request as an error of the new page.
+  await g.page.waitForLoadState('networkidle')
   return g
 }
 const level = (j: JourneyPage, words: string) => j.page.getByRole('radio', { name: new RegExp(`^${words}`) })
