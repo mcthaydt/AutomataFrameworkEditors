@@ -19,11 +19,11 @@ It breaks none: 2D only, its own repo, and no dependency the Owner has not said 
 ## Why
 
 The Owner saw the editors as Cycle 2 built them (PR 12) and said they look nothing like the Blueprint mockup that
-was agreed. They were right. PR 12 changed the colours, the fonts and the icons, but kept Cycle 1's frame:
+was agreed. They were right. PR 12 changed the colors, the fonts and the icons, but kept Cycle 1's frame:
 
 - a tips banner and a header bar across the top, in the flow, taking about 200 px of an iPad's height;
 - the level as a small box in the middle, with sky round it, instead of across the whole screen;
-- coloured squares where the game's art should be (the editors still draw each thing as its character's box);
+- colored squares where the game's art should be (the editors still draw each thing as its character's box);
 - the picked thing's card and the notes saying "ACROSS 6.5" and "DOWN 7.5", with four "Move" buttons;
 - a tool strip of Notes, Copy this level and Save it as a file, instead of Move, Add, Paint, Erase and Play;
 - the welcome, game and share screens as plain lists in one column.
@@ -59,9 +59,9 @@ always know what is happening and what to press.
 
 ## Anti-goals (a failure even if it works)
 
-- A screen that keeps Cycle 1's frame with new colours on it.
-- Any colour, filter, tint, outline or rounded corner put on the game's art.
-- A button, tool or editor name that does nothing when pressed, or a greyed-out control a person must guess about.
+- A screen that keeps Cycle 1's frame with new colors on it.
+- Any color, filter, tint, outline or rounded corner put on the game's art.
+- A button, tool or editor name that does nothing when pressed, or a grayed-out control a person must guess about.
 - English, or any one language, assumed for a person whose device asks for another.
 - A first visit that starts with a page of words, a sign-in wall or a tour of panels.
 - A screen that fits only because something was made smaller than 44 px, or hidden.
@@ -98,9 +98,9 @@ where a person joins that, Export is where anyone takes a copy away.
 ## Approaches considered
 
 1. **Keep PR 12 and adjust it** (move the panels, add the missing tools). Cheapest, but PR 12's layout grid, its
-   in-flow banner and bar, and its canvas of coloured boxes are the very things that are wrong. Every screen would be
+   in-flow banner and bar, and its canvas of colored boxes are the very things that are wrong. Every screen would be
    reworked anyway, on top of a structure that fights it. Rejected.
-2. **Start again from `main`, reusing PR 12's sound parts** (chosen). The colours, fonts, icons, stamp, the notes'
+2. **Start again from `main`, reusing PR 12's sound parts** (chosen). The colors, fonts, icons, stamp, the notes'
    geometry, the notes' switch and redo are right and tested; they come over. The frame, the screens and the canvas are
    built new to the mockup.
 3. **Only the level screen now, the other screens later.** Smaller, but the Owner asked for every screen, and the
@@ -109,7 +109,7 @@ where a person joins that, Export is where anyone takes a copy away.
 ### What happens to PR 12
 
 PR 12 is not merged. The new plan names the parts it takes from PR 12's branch (by file, with their tests): the six
-colours and `ui.css`'s tokens, the font set-up (`assetsInlineLimit: 0`, knip's ignores, `licences.txt`), `icons.ts`,
+colors and `ui.css`'s tokens, the font set-up (`assetsInlineLimit: 0`, knip's ignores, `licences.txt`), `icons.ts`,
 `Icon.svelte`, `Tool.svelte`, `Stamp.svelte`, `notes.ts`, `notes-mode.ts`, redo in `edit.ts`, `fitInside` in
 `place.ts`, the contrast and measure helpers, and the five-size journey set-up from its screens branch. Everything
 else (its `Levels.svelte`, `Floats.svelte`, `LevelScreen.svelte`, the guide strip, the list screens and the canvas)
@@ -120,7 +120,7 @@ is replaced. PR 12 is closed when the new execution branch opens, and its branch
 The palette, fonts and icons are as decided above and as the first-layer spec's "Visual direction" says. These rules
 make it Blueprint and not just dark:
 
-- **Ground and paper.** The page is the ground colour. Floating panels are the raised shade (6% words in the ground)
+- **Ground and paper.** The page is the ground color. Floating panels are the raised shade (6% words in the ground)
   at 94% opacity with a 10 px backdrop blur, a 1 px edge of words at 35%, 3 px corners and one soft shadow. Nothing
   else has a shadow.
 - **Touchable means touchable.** Pinkish Cinnamon is only on what a finger can act on: the main button's fill, the
@@ -175,7 +175,7 @@ The level screen is the product. Every other screen borrows its frame.
 - **Bottom right:** the title block (game, level, World, "Saved by Sam, 2 minutes ago" or "Not saved yet"), then
   undo and redo together in the corner.
 - **Words never lie on the art.** Anything written over the level has its own ground: a panel, a chip or the tip.
-- **What just happened** floats: the stamp near the top centre, a notice as a small panel under the cluster. Nothing
+- **What just happened** floats: the stamp near the top center, a notice as a small panel under the cluster. Nothing
   that just happened moves the level.
 
 ### iPad upright and phone sideways
@@ -236,8 +236,8 @@ As the first-layer spec says, with these choices for what a level holds today:
   or a rope with its note. The grid shows over the whole level.
 - **Each note is a control.** Tapping a measure note opens the same − and + as the card for that measure; tapping
   the name chip opens the card.
-- **Notes read over any art:** chips are the ground colour with a 1 px words edge and touchable values; lines are
-  the ground colour with a 1 px words halo.
+- **Notes read over any art:** chips are the ground color with a 1 px words edge and touchable values; lines are
+  the ground color with a 1 px words halo.
 - **The switch** (on, faded, hidden) is a device setting (`af.notes`, already on the allowed list once this lands);
   Play always hides the notes; the find bar has "Hide notes" and "Show notes".
 
@@ -254,7 +254,7 @@ What a level file holds for a thing, in plain words, and nothing it does not:
 - **What it is:** the character, as a choice of the game's own characters, each shown with its real art. Changing
   it changes the thing's `character` in the level file.
 - **What comes later:** one quiet line, "How heavy, how bouncy and the rest: in Characters and Feel, coming soon".
-- **Erase** at the foot of the card, as a plain button with the touch colour's words and an olive edge.
+- **Erase** at the foot of the card, as a plain button with the touch color's words and an olive edge.
 - A start point's card is the same, titled "Player 1 starts here", with its place and no Erase if it is the last.
 
 ## The tools
@@ -289,12 +289,15 @@ test fails when a find-bar action is missing from that list or the list names on
   languages in this repo follows the same order.
 - **Pickers show just the flag** (the Owner, 2026-11-14): no language names on screen, no words around them. Each
   language has one flag, the same everywhere in the product (the games' six as the framework's language picker has
-  them): English the United States, Spanish Spain, Portuguese Brazil, Chinese China (the Owner, 2026-11-14), Korean
+  them): English the United States, Spanish Mexico, Portuguese Brazil, Chinese China (the Owner, 2026-11-14), Korean
   South Korea and Japanese Japan; for the editors' three, French France, Russian Russia and German Germany (this
-  spec's call, by the same rule: the flag of the place the variant is from).
-- **Variants follow the flags:** English words use US spelling, Spanish is Spain's, Portuguese is Brazil's, Chinese is
-  Simplified (the Owner, 2026-11-14, for English and the flags). Each flag button still has the
-  language's own name as its accessible name, for screen readers and for the find bar, but that name is never drawn.
+  spec's call, by the same rule: the flag of the place the variant is from). Each flag button still has the language's own
+  name as its accessible name, for screen readers and for the find bar, but that name is never drawn.
+- **Variants follow the flags:** English uses US spelling, never UK spelling; Spanish is Mexico's, Portuguese is
+  Brazil's, Chinese is Simplified (the Owner, 2026-11-14, for English, Spanish and the flags). US spelling holds for
+  every English word a person reads in the editors and for this repo's new docs from this spec on; the plan lists the
+  existing UK spellings in shown words (for example "colour") and changes them. File names that already exist (such
+  as `licences.txt`) keep their names unless the plan says otherwise.
 - **Which one shows:** the language the person last chose on this device (`af.language`, a new device setting added
   to `CLAUDE.md`'s allowed list); else the first of the device's preferred languages that is one of the nine; else
   the language picker, before anything else, full screen: nine large flags, with no words in any one language
@@ -318,7 +321,7 @@ The path, for someone who has never been here, on any device:
 1. **They open the editors' address.** If their device's language is not one of the nine, the picker comes first:
    one tap. Otherwise nothing comes first.
 2. **The demo game's first level opens, full screen, with its real art.** No welcome page, no sign-in. One tip, in
-   the touch colour, points at the crate: **"Drag the crate anywhere"**. The crate's ring gently draws itself in.
+   the touch color, points at the crate: **"Drag the crate anywhere"**. The crate's ring gently draws itself in.
    Nothing else asks for attention; the tools, Save and the rest are there, quiet.
 3. **They drag the crate.** The notes draw themselves in as it moves, showing where it is. When they let go the tip
    moves on. For a visitor it points at Export: **"Nice. Now press Export to keep it."** For someone signed in
@@ -400,7 +403,7 @@ Unchanged in what it does; restyled in what it says:
   thing picked, and finds them equal.
 - **Layout rules as tests:** no two floating parts overlap; nothing a person can press is under 44 px (48 for main
   buttons, 56 for tools); no word is cut; the level never moves when a thing is picked, a stamp lands or a notice
-  shows; every word on screen comes from the words tables; every pair of colours a person reads passes contrast.
+  shows; every word on screen comes from the words tables; every pair of colors a person reads passes contrast.
 - **Words:** every language has every word; no banned word ("repo", "commit", "branch", "pull request", "token") in
   any language.
 - **Commands:** the find bar's list and `docs/commands.md` match.
