@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
 import { WORDS } from '#src/features/words/words.ts'
+import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
@@ -178,7 +179,7 @@ test('a game that is missing, broken or not a game says so without a first-run s
   await j.page.goto(`${j.site}/#/game/grandma/not-a-game`)
   await text(j, WORDS.notAGame)
   expect(await strip(j).count()).toBe(0)
-  repoOf(j).put('main', 'content/levels/level-1.json', '{')
+  repoOf(j).put('main', LEVEL_PATH, '{')
   await j.page.goto(`${j.site}/${GAME}`)
   await text(j, WORDS.brokenGame)
   expect(await strip(j).count()).toBe(0)

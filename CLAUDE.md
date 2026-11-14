@@ -151,8 +151,11 @@ implementations or incomplete integrations. Do your best work."
 - **An editor knows only the framework's content formats.** It reads a game with the framework's `loadGame`, and
   every byte written is `writeContent`'s, so an agent editing the same file by hand makes the same bytes.
 - **Nothing an editor does is hidden from an agent.** Every action ends as a change to a documented file; a waiting
-  change is an ordinary branch and pull request. A screen that keeps state anywhere else (but an unsaved draft and
-  the first-run tips, on the device) is a defect. A kept copy is the content file itself, byte for byte.
+  change is an ordinary branch and pull request. A screen that keeps state anywhere else is a defect. The
+  device may keep only these, and none is something an agent needs: an unsaved draft (`af.draft:…`), the first-run tips
+  and what they have counted (`af.guide.done`, `af.tip.*`, and `af.saved`, that the person has saved once and how), the
+  sign-in (`af.tokens`, and the short-lived `af.signin.*`) and the games this device has opened (`af.recent`). A kept
+  copy is the content file itself, byte for byte.
 - **Touch first.** Every screen is designed and tested at iPad size, upright and sideways, then at phone size. Touch
   targets are at least 44 px, primary actions 48 px. Anything that can be dragged can also be moved with buttons and
   with the keyboard.

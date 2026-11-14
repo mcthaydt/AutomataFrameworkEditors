@@ -341,8 +341,28 @@ test('mergePull 405: a pull that cannot merge cleanly is clashes; otherwise a ru
   expect(problem(await repo.mergePull(3, ask))).toBe('clashes')
   mergeable = true
   expect(problem(await repo.mergePull(3, ask))).toBe('blocked')
-  mergeable = null
+})
+
+// M1: `mergeable: null` is GitHub still working it out. Look once more; only a still-unknown answer is "busy".
+test('mergePull 405 while GitHub is still working out mergeable: looked at again, then busy if it still has not', async () => {
+  const answers: (boolean | null)[] = [null, true]
+  const seen: (boolean | null)[] = []
+  const { open } = harness({
+    [`PUT ${REPO}/pulls/3/merge`]: () => json({ message: 'not mergeable' }, 405),
+    [`GET ${REPO}/pulls/3`]: () => {
+      const next = answers.shift() ?? null
+      seen.push(next)
+      return json({ ...PULL, mergeable: next })
+    },
+  })
+  const repo = await open()
+  const ask = { title: 't', message: 'm', headCommit: 'abc123' }
+  // null, then true: a rule, not a clash.
   expect(problem(await repo.mergePull(3, ask))).toBe('blocked')
+  // null, then null: still working it out.
+  answers.push(null, null)
+  expect(problem(await repo.mergePull(3, ask))).toBe('busy')
+  expect(seen).toEqual([null, true, null, null])
 })
 
 test('mergePull 409 is a head that moved: changed-elsewhere', async () => {
