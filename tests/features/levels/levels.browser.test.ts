@@ -6,9 +6,9 @@ import { type GameContent, type Level, levelSize, loadGame } from '@automatafram
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
-import { WORDS } from '#src/features/words/words.ts'
 import { readFrom } from '../../fixtures/game/read.ts'
 import { plainFiles } from '../../fixtures/plain-game/read.ts'
+import { WORDS } from '../../fixtures/words.ts'
 
 const LEVEL_FILE = 'content/levels/level-1.json'
 const level = JSON.parse(plainFiles[LEVEL_FILE] ?? '{}') as Level

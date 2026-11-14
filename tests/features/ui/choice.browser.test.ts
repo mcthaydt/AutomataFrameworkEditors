@@ -1,6 +1,6 @@
 // The Choice in each real browser: rows a finger can hit, taps, arrow keys, one checked, and the hints shown.
 import { mount, tick, unmount } from 'svelte'
-import { afterEach, beforeEach, expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
 import { Choice } from '#src/features/ui/ui.ts'
 
@@ -65,4 +65,41 @@ test('the arrow keys move the choice', async () => {
   expect(chosen.at(-1)).toBe('suggest')
   await userEvent.keyboard('{ArrowUp}')
   expect(chosen.at(-1)).toBe('look')
+})
+
+const TWO = {
+  label: 'Who may',
+  options: [
+    { value: 'a', label: 'A' },
+    { value: 'b', label: 'B' },
+  ],
+  value: 'a',
+  onchange: () => {},
+}
+const groupName = (group: Element | undefined): string | null =>
+  group?.querySelector('input')?.getAttribute('name') ?? null
+
+/** Mounts a Choice in a box of its own, so a page can hold two. */
+function another(): ReturnType<typeof mount> {
+  const target = document.createElement('div')
+  box.append(target)
+  return mount(Choice, { target, props: TWO })
+}
+
+test('two Choices on a page do not share a group', async () => {
+  const both = [another(), another()]
+  await tick()
+  const [first, second] = [...box.querySelectorAll('[role="radiogroup"]')]
+  expect(groupName(first)).not.toBeNull()
+  expect(groupName(first)).not.toBe(groupName(second))
+  for (const one of both) void unmount(one)
+})
+
+test('a Choice gets its group name without Math.random', async () => {
+  const random = vi.spyOn(Math, 'random')
+  const both = [another(), another()]
+  await tick()
+  expect(random).not.toHaveBeenCalled()
+  random.mockRestore()
+  for (const one of both) void unmount(one)
 })

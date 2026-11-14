@@ -1,22 +1,22 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  OLD_SIZES,
   openLevel,
   openPage,
   pictureColourBeside,
   pictureColourUnder,
   pressSave,
-  SIZES,
   setupJourneys,
   signIn,
   statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 
@@ -44,7 +44,7 @@ const CRATE_BOX = '#c9a227'
 const says = (j: JourneyPage, words: string) =>
   expect.poll(async () => (await statusLine(j.page).textContent())?.trim()).toBe(words)
 
-describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
+describe.each(OLD_SIZES)('at %s', (size) => {
   test('the owner drags the crate and saves: it is in the game, written as the framework writes it', async () => {
     const j = await open(size)
     await signIn(j.page)

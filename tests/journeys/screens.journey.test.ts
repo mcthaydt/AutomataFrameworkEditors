@@ -9,22 +9,23 @@ import { type Level, writeContent } from '@automataframework/framework/headless'
 import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  OLD_SIZES,
   openGame,
   openLevel,
   openPage,
   picture,
   pressSave,
-  SIZES,
+  type SIZES,
   setupJourneys,
   signIn,
   thingNamed,
 } from '../fixtures/journey.ts'
 import { type Site, startSite } from '../fixtures/serve.ts'
+import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 
@@ -581,7 +582,7 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
   )
 }
 
-describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
+describe.each(OLD_SIZES)('at %s', (size) => {
   for (const scene of SCENES) {
     test(`${scene.name}: pictured, then measured`, async () => {
       const j = await scene.reach(size)
