@@ -209,9 +209,15 @@
     }
   })
 
+  // Redraws the picture after every move, selection and resize. The state is read before the optional calls: `picture`
+  // is still unset when this first runs (Pixi starts later), and an optional call that short-circuits never evaluates
+  // its arguments, so reading them inside it left the effect with no dependencies and the picture drawn once only.
   $effect(() => {
-    picture?.resize(size.w, size.h)
-    picture?.show(edit.now, characters, readOnly ? marked : selected, hero)
+    const { w, h } = size
+    const now = edit.now
+    const ringed = readOnly ? marked : selected
+    picture?.resize(w, h)
+    picture?.show(now, characters, ringed, hero)
   })
 
   const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
