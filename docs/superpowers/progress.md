@@ -8,18 +8,38 @@ Spec: the "Visual direction" section of
 [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
 in the AutomataFramework repo, and Cycle 1's implementation audit for the three minors it left (M4, M5, M9).
 
-Overall: **8%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
+Overall: **12%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
 is 10, stage 6 is 12, stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Done (in AutomataFramework) | the section above |
-| 2. Plan | Done, in review | [`plans/2026-11-14-editors-restyle.md`](plans/2026-11-14-editors-restyle.md) |
-| 3. Plan audit | Not started | |
+| 2. Plan | Done (pull request 10) | [`plans/2026-11-14-editors-restyle.md`](plans/2026-11-14-editors-restyle.md) |
+| 3. Plan audit | Done, in review: four blocking findings, all written into the plan; one question for the Owner | [`audits/2026-11-14-editors-restyle-plan-audit.md`](audits/2026-11-14-editors-restyle-plan-audit.md) |
 | 4. Execution | Not started | |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 3 finished (2026-11-14)
+
+The plan audit read the plan against the spec's "Visual direction", the code on `main` and the four packages. The
+plan is sound; every colour figure and file name in it was checked and holds. Nothing was run but a script that
+recomputes the contrast figures.
+
+**Four blocking findings, all fixed in the plan:** two words were used a task before they existed, which the words
+test would have failed (B1); the screen's sentences would have lain over the level for good, on a phone over half of
+a visitor's first level (B2); the tile grid could not be seen on the demo game's sky, at 1.07 to 1 (B3); pressing a
+note did nothing a finger could see (B4). Eleven should-fix findings are in the plan too (the level could still move
+under a finger when a stamp left; a waiting change lost its ring for two tasks; three tests could pass without
+proving anything; and others), and eleven notes.
+
+**Rulings the audit made** (each with its cost in the audit): the standing sentence sits in the top panel and only
+what just happened floats, with "Got it" on a notice that asks nothing; the grid is a pair of strokes; a pressed note
+marks the card's arrows; the stamp lies over the clear cell's corner.
+
+**Waiting on the Owner, Q1:** should Share be on the level screen? The spec lists it among what floats over the
+canvas; the plan keeps it on the game's page. Not defaulted. Tasks 1 to 6 do not depend on it; Task 7 waits.
 
 ### Stage 2 finished (2026-11-14)
 
@@ -141,6 +161,8 @@ are in the plan's "Before starting".
 
 ### Log
 
+- 2026-11-14: Cycle 2, Stage 3. The plan audit of the restyle plan: four blocking findings, eleven should-fix and
+  eleven notes, all written into the plan; one question for the Owner (Share on the level screen). No tests run.
 - 2026-11-14: Cycle 2, Stage 2. The restyle plan written: nine tasks, the Owner's answer on the name, the audit's M4,
   M5 and M9 placed. Nothing run but an install and a build in a throwaway copy.
 - 2026-11-14: Stage 6. B1, S1 to S10 and the cheap minors applied, with the tests the audit asked for; S7 is AutomataFramework pull request 27. Nothing run locally.
