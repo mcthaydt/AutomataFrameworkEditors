@@ -352,18 +352,25 @@ test('the picture refits when the box turns: the crate is still drawn under its 
 test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
   await show()
   await drawn()
-  // The ring is drawn just outside the crate's edge, so look half a tile out and a little more, level with its middle.
+  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
+  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
   const middle = expectedCentre(6.5, 7.5)
-  const outside = { x: middle.x - scale() / 2 - 2, y: middle.y }
-  expect(pictureAt(outside)).toBe(SKY)
+  const edge = middle.x - scale() / 2
+  const near = [
+    { x: edge - 2, y: middle.y },
+    { x: edge + 2, y: middle.y },
+  ]
+  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(ringed()).toBe(false)
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(pictureAt(outside)).toBe(RING)
+  expect(ringed()).toBe(true)
   const s = stage().getBoundingClientRect()
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
-  expect(pictureAt(outside)).toBe(SKY)
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
 })
 
 test('turning mid-drag cancels the drag', async () => {
