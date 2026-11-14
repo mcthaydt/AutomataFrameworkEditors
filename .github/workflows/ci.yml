@@ -34,6 +34,9 @@ jobs:
 
   engines:
     runs-on: ubuntu-latest
+    # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
+    # failures (`--bail`), so a red run is read in minutes.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
