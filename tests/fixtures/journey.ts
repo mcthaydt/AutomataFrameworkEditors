@@ -82,7 +82,12 @@ export async function openPage(
   page.on('pageerror', (error) => errors.push(`page error: ${error.message}`))
   page.on('console', (message) => {
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
-    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource')) {
+    // WebKit also says so, in the console, when Playwright's own screenshot style is turned away by the page's policy;
+    // a real refusal is caught by the `securitypolicyviolation` listener above, in every engine.
+    const own =
+      message.text().startsWith('Failed to load resource') ||
+      message.text().startsWith('Refused to apply a stylesheet')
+    if (message.type() === 'error' && !own) {
       errors.push(`console: ${message.text()}`)
     }
   })
@@ -104,7 +109,7 @@ export async function openPage(
 
 /** Presses the sign-in Button wherever it is, and waits until the page has finished signing in and cleaned its address. */
 export async function signIn(page: Page): Promise<void> {
-  await page.getByRole('button', { name: WORDS.signIn }).click()
+  await page.getByRole('button', { name: WORDS.signIn }).first().click()
   await page.waitForFunction(() => location.search === '' && localStorage.getItem('af.tokens') !== null)
 }
 

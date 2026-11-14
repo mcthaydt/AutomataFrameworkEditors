@@ -64,11 +64,11 @@ test('a sign-in that is turned down lands on Welcome saying so', async () => {
 test('a game opens signed out with no word about signing in, and the top bar signIn comes back to that game', async () => {
   const j = await open('ipadUpright')
   await j.page.goto(`${j.site}/#/game/grandma/crate-game`)
-  await title(j, 'grandma/crate-game')
+  await title(j, 'Crate Game')
   expect(await j.page.getByText(WORDS.welcomeLine).count()).toBe(0)
   expect(j.requests.filter((r) => /\/api\/(games|token)/.test(r))).toEqual([])
   await signIn(j.page)
-  await title(j, 'grandma/crate-game')
+  await title(j, 'Crate Game')
   expect(new URL(j.page.url()).hash).toBe('#/game/grandma/crate-game')
 })
 

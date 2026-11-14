@@ -5,6 +5,8 @@
   import { Button, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import { needsPerson, parseRoute } from './route.ts'
+  import GameHome from './GameHome.svelte'
+  import PickGame from './PickGame.svelte'
   import Welcome from './Welcome.svelte'
 
   // The whole page: which screen the address asks for, and the bar at the top with the one sign-in button. A person
@@ -16,8 +18,12 @@
     ready: boolean
     /** How the last sign-in ended, if it was one. */
     start: 'cancelled' | 'failed' | undefined
+    /** Where an Owner adds the editor to a game. */
+    addUrl: string
+    /** The games this device has opened. */
+    remembered: Storage
   }
-  let { api, session, ready, start }: Props = $props()
+  let { api, session, ready, start, addUrl, remembered }: Props = $props()
 
   let route = $state(parseRoute(location.hash))
   // Both start from what the page was given; after that the person's own presses change them.
@@ -34,18 +40,15 @@
     return () => window.removeEventListener('hashchange', follow)
   })
 
-  // The list of games is asked for as soon as it is shown: that is what notices a sign-in that ran out, renews it, or
-  // (when it cannot be renewed) sends the person back to Welcome.
-  $effect(() => {
-    if (route.screen !== 'games' || !signedIn) return
-    void api.games().then((answer) => {
-      if (!answer.ok && answer.problem === 'signed-out') {
-        session.signOut()
-        signedIn = false
-        notice = 'signed-out'
-      }
-    })
-  })
+  // A sign-in that cannot be renewed: the person is signed out, and shown Welcome wherever they were.
+  function signedOut(): void {
+    session.signOut()
+    signedIn = false
+    notice = 'signed-out'
+  }
+  const goBack = (): void => {
+    location.hash = '#/'
+  }
 
   const begin = (): void => session.begin(location.hash === '' ? '#/' : location.hash)
   const signOut = (): void => {
@@ -57,7 +60,7 @@
   const asksForPerson = $derived(needsPerson(route))
 </script>
 
-{#if !signedIn && asksForPerson}
+{#if !signedIn && (asksForPerson || notice === 'signed-out')}
   <Welcome {notice} {ready} onsignin={begin} />
 {:else}
   <div class="bar">
@@ -68,7 +71,19 @@
     {/if}
   </div>
   {#if route.screen === 'games'}
-    <Screen title={WORDS.pickTitle}><p>{WORDS.loading}</p></Screen>
+    <PickGame {api} {remembered} onadd={() => location.assign(addUrl)} onsignedout={signedOut} />
+  {:else if route.screen === 'game'}
+    {#key `${route.owner}/${route.name}`}
+      <GameHome
+        {api}
+        game={{ owner: route.owner, name: route.name }}
+        {remembered}
+        visitor={!signedIn}
+        onsignin={begin}
+        onsignedout={signedOut}
+        onback={goBack}
+      />
+    {/key}
   {:else}
     <Screen title={`${route.owner}/${route.name}`}><p>{WORDS.loading}</p></Screen>
   {/if}

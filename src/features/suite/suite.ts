@@ -1,7 +1,7 @@
 // The suite on a page: finishes a sign-in GitHub sent back, then mounts the app.
 import { mount, unmount } from 'svelte'
 import { createApi, swapTokens } from '../api/api.ts'
-import { createSession, type SessionConfig } from '../session/session.ts'
+import { addToGameUrl, createSession, type SessionConfig } from '../session/session.ts'
 import App from './App.svelte'
 
 export type SuiteConfig = SessionConfig
@@ -38,6 +38,8 @@ export function mountSuite(target: HTMLElement, config: SuiteConfig): { destroy(
         session,
         ready: config.clientId !== '',
         start: result === 'cancelled' || result === 'failed' ? result : undefined,
+        addUrl: addToGameUrl(config),
+        remembered: localStorage,
       },
     })
   })
