@@ -418,7 +418,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
       expect(await j.page.locator('.bar .wordmark').textContent(), screen).toBe(WORDS.wordmark)
       const bare = await j.page.evaluate(() =>
         [...document.querySelectorAll('.icon')]
-          .filter((el) => ((el.closest('label') ?? el.parentElement)?.textContent ?? '').trim() === '')
+          .filter((el) => ((el.closest('label, button, a') ?? el.parentElement)?.textContent ?? '').trim() === '')
           .map((el) => el.parentElement?.className ?? ''),
       )
       expect(bare, `${screen}: icons with no words beside them`).toEqual([])
