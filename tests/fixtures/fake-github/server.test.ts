@@ -590,7 +590,7 @@ test('the real openRepo and each Repo method work against the pretend GitHub', a
   const opened = await openRepo(deps, { owner: 'grandma', name: 'crate-game' })
   if (!opened.ok) throw new Error(opened.problem)
   const repo = opened.value
-  expect(repo.facts).toEqual({ branch: 'main', isPublic: true, ownerLogin: 'grandma' })
+  expect(repo.facts).toEqual({ branch: 'main', isPublic: true, ownerLogin: 'grandma', ownerIsOrg: false })
   const head = await repo.branchHead('main')
   if (!head.ok) throw new Error(head.problem)
   const file = await repo.readFile('main', LEVEL_PATH)
@@ -646,4 +646,18 @@ test('the real openRepo and each Repo method work against the pretend GitHub', a
     ok: true,
     value: expect.arrayContaining([{ owner: 'grandma', name: 'crate-game' }]),
   })
+})
+
+test("a person's own token sees a repo's owner type and whether they are an admin, as GitHub shows each person", async () => {
+  const repo = fake.repos.get('grandma/crate-game')!
+  repo.ownerType = 'Organization'
+  repo.admins.add('grandpa')
+  const deps = { env: fake.env, fetcher: fetch, now: () => Date.now() }
+  const opened = await openRepo(deps, { owner: 'grandma', name: 'crate-game' })
+  if (!opened.ok) throw new Error(opened.problem)
+  expect(opened.value.facts.ownerIsOrg).toBe(true)
+  expect(await opened.value.isAdmin(fake.tokenFor('grandpa'))).toEqual({ ok: true, value: true })
+  expect(await opened.value.isAdmin(fake.tokenFor('kid'))).toEqual({ ok: true, value: false })
+  // grandma owns it as a person's account would; as an organisation's, she is no admin unless listed.
+  expect(await opened.value.isAdmin(fake.tokenFor('grandma'))).toEqual({ ok: true, value: false })
 })

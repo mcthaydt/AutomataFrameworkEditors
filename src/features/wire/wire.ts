@@ -1,5 +1,6 @@
 // What the page and the API say to each other. The two sides meet only here (and in `access`), so a change to what
 // one says is a change to this file, which both can read. Later tasks add the rest of the messages.
+import type { AccessLevel } from '../access/access.ts'
 
 export type ProblemKind =
   | 'signed-out'
@@ -59,4 +60,39 @@ export const STATUS: Readonly<Record<ProblemKind, number>> = {
 export interface Tokens {
   readonly token: string
   readonly refresh?: string
+}
+
+/** One file of a game, as GitHub has it: its text, and the version that changes exactly when the text does. */
+export interface WireFile {
+  readonly path: string
+  readonly text: string
+  readonly version: string
+}
+
+/** A change that is waiting for someone to approve it. */
+export interface Waiting {
+  readonly number: number
+  readonly title: string
+  /** The person it came from, in lower case. */
+  readonly by: string
+  /** True when it is the asking person's own. */
+  readonly mine: boolean
+  readonly checks: Checks
+}
+
+/** What opening a game gives the page. */
+export interface OpenAnswer {
+  readonly game: GameRef
+  /** Who the API says you are; undefined for a visitor. */
+  readonly login: string | undefined
+  /** What the API says you may do. */
+  readonly level: AccessLevel
+  /** Where these files were read from. */
+  readonly branch: string
+  /** Your own waiting change, if you have one. */
+  readonly mine: Waiting | undefined
+  /** How many changes wait in all. */
+  readonly waiting: number
+  /** `automata.toml` and every file it lists (one that is missing is left out). */
+  readonly files: readonly WireFile[]
 }

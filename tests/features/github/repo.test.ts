@@ -59,7 +59,7 @@ const last = (calls: Call[]): Call => {
 test("openRepo asks as the App, then as the installation, and gives the repo's facts", async () => {
   const { calls, open } = harness()
   const repo = await open()
-  expect(repo.facts).toEqual({ branch: 'main', isPublic: true, ownerLogin: 'grandma' })
+  expect(repo.facts).toEqual({ branch: 'main', isPublic: true, ownerLogin: 'grandma', ownerIsOrg: false })
   expect(calls.map((c) => `${c.method} ${new URL(c.url).pathname}`)).toEqual([
     `GET ${REPO}/installation`,
     'POST /app/installations/77/access_tokens',
@@ -88,7 +88,12 @@ test('a private repo says so', async () => {
   const { open } = harness({
     [`GET ${REPO}`]: () => json({ default_branch: 'trunk', private: true, owner: { login: 'Grandma' } }),
   })
-  expect((await open()).facts).toEqual({ branch: 'trunk', isPublic: false, ownerLogin: 'Grandma' })
+  expect((await open()).facts).toEqual({
+    branch: 'trunk',
+    isPublic: false,
+    ownerLogin: 'Grandma',
+    ownerIsOrg: false,
+  })
 })
 
 test('a key or id that is missing is not-set-up and GitHub is never asked', async () => {
@@ -403,6 +408,37 @@ test("userExists: asked with the installation's token, true for 200 and false fo
   expect(value(await repo.userExists('grandpa'))).toBe(true)
   expect(last(harnessed.calls).headers.get('authorization')).toBe('Bearer ghs_install')
   expect(value(await repo.userExists('nobody'))).toBe(false)
+})
+
+test("an organisation as the owner is said so, and isAdmin asks with the person's own token", async () => {
+  const harnessed = harness({
+    [`GET ${REPO}`]: (call) =>
+      call.headers.get('authorization') === 'Bearer ghu_person'
+        ? json({
+            default_branch: 'main',
+            owner: { login: 'acme', type: 'Organization' },
+            permissions: { admin: true },
+          })
+        : json({ default_branch: 'main', private: false, owner: { login: 'acme', type: 'Organization' } }),
+  })
+  const repo = await harnessed.open()
+  expect(repo.facts.ownerIsOrg).toBe(true)
+  expect(value(await repo.isAdmin('ghu_person'))).toBe(true)
+  expect(last(harnessed.calls).headers.get('authorization')).toBe('Bearer ghu_person')
+})
+
+test('isAdmin is false for a person without admin, and for a repo GitHub does not show them', async () => {
+  const seen = harness({
+    [`GET ${REPO}`]: (call) =>
+      call.headers.get('authorization') === 'Bearer ghu_a'
+        ? json({ permissions: { admin: false, push: true } })
+        : call.headers.get('authorization') === 'Bearer ghu_b'
+          ? json({ message: 'Not Found' }, 404)
+          : json({ default_branch: 'main', private: false, owner: { login: 'grandma' } }),
+  })
+  const repo = await seen.open()
+  expect(value(await repo.isAdmin('ghu_a'))).toBe(false)
+  expect(value(await repo.isAdmin('ghu_b'))).toBe(false)
 })
 
 test('the allowance left is read from what GitHub says, as a share of the whole', async () => {

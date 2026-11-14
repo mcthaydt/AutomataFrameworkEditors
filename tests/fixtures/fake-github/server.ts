@@ -51,7 +51,6 @@ export interface FakeGitHub {
 const CLIENT_ID = 'fake-client'
 const CLIENT_SECRET = 'fake-secret'
 const APP_ID = '4242'
-const APP_SLUG = 'journey-editor'
 const START = Date.UTC(2026, 10, 13, 12, 0, 0)
 
 type Json = Record<string, unknown>
@@ -163,7 +162,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
   const installationId = (owner: string): number => PEOPLE.indexOf(owner as Person) + 1
   const ownerOf = (id: number): string | undefined => PEOPLE[id - 1]
   const reachable = (repo: FakeRepo, who: Person): boolean =>
-    repo.installed && (repo.owner === who || repo.collaborators.has(who))
+    repo.installed && (repo.owner === who || repo.collaborators.has(who) || repo.admins.has(who))
 
   /** What a pull changes: its branch's files against the files the branch started from. */
   const changesOf = (repo: FakeRepo, branch: string): Change[] => {
@@ -318,6 +317,21 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       return NOT_FOUND
     }
 
+    // A person's own view of one repo: what they may do there, as GitHub shows each person (the one call a person's
+    // token makes on a repo).
+    if (method === 'GET' && who?.kind === 'person' && (m = /^\/repos\/([^/]+)\/([^/]+)$/.exec(path))) {
+      const repo = repos.get(`${m[1]}/${m[2]}`)
+      if (repo === undefined || !reachable(repo, who.person)) return NOT_FOUND
+      return send(200, {
+        default_branch: repo.defaultBranch,
+        private: !repo.isPublic,
+        owner: { login: repo.owner, type: repo.ownerType },
+        permissions: {
+          admin: repo.admins.has(who.person) || (repo.ownerType === 'User' && repo.owner === who.person),
+        },
+      })
+    }
+
     // Everything else is the installation's.
     if (method === 'GET' && (m = /^\/users\/([^/]+)$/.exec(path))) {
       if (who?.kind !== 'installation') return BAD_CREDENTIALS
@@ -338,7 +352,11 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     const main = repo.defaultBranch
     let m: RegExpExecArray | null
     if (method === 'GET' && rest === '') {
-      return send(200, { default_branch: main, private: !repo.isPublic, owner: { login: repo.owner } })
+      return send(200, {
+        default_branch: main,
+        private: !repo.isPublic,
+        owner: { login: repo.owner, type: repo.ownerType },
+      })
     }
 
     if (method === 'GET' && (m = /^\/git\/ref\/heads\/(.+)$/.exec(rest))) {

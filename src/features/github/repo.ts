@@ -11,6 +11,8 @@ export interface RepoFacts {
   readonly branch: string
   readonly isPublic: boolean
   readonly ownerLogin: string
+  /** True when an organisation owns the repo, whose GitHub admins are its Owners here. */
+  readonly ownerIsOrg: boolean
 }
 export interface FileRead {
   readonly path: string
@@ -58,6 +60,8 @@ export interface Repo {
   mergePull(number: number, m: { title: string; message: string; headCommit: string }): Promise<Answer<true>>
   closePull(number: number): Promise<Answer<true>>
   checks(commit: string): Promise<Answer<Checks>>
+  /** Whether GitHub shows this person (by their own sign-in) as an admin of the repo. Anything else is false. */
+  isAdmin(personToken: string): Promise<Answer<boolean>>
   /** Whether a GitHub account of that name exists. Asked as the installation: GitHub refuses the App's own pass here. */
   userExists(login: string): Promise<Answer<boolean>>
 }
@@ -141,6 +145,7 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
     branch: str(facts.default_branch),
     isPublic: facts.private === false,
     ownerLogin: str(obj(facts.owner).login),
+    ownerIsOrg: str(obj(facts.owner).type) === 'Organization',
   }
   if (repoFacts.branch === '') return { ok: false, problem: 'unknown' }
 
@@ -316,6 +321,18 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
             : ('passing' as const)
         },
       ),
+
+    isAdmin: async (personToken) => {
+      // Asked with the person's own sign-in: GitHub shows each person the rights they themselves have here.
+      const got = await send(deps, {
+        method: 'GET',
+        path: root,
+        as: { kind: 'person', token: personToken },
+        pass: [403, 404],
+      })
+      if (!got.ok) return got
+      return { ok: true, value: obj(obj(got.value.body).permissions).admin === true }
+    },
 
     userExists: async (login) => {
       const got = await call({ method: 'GET', path: `/users/${enc(login)}`, pass: [404] })

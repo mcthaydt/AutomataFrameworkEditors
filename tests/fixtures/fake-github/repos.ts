@@ -33,6 +33,10 @@ export interface FakeRepo {
   readonly name: string
   readonly defaultBranch: string
   isPublic: boolean
+  /** Whether a person or an organisation owns it. */
+  ownerType: 'User' | 'Organization'
+  /** People GitHub shows as admins of the repo besides its owner (an organisation's admins, say). */
+  readonly admins: Set<string>
   /** Has the editor been added to this repo? */
   installed: boolean
   /** The branch rule on the default branch. */
@@ -53,6 +57,8 @@ export interface FakeRepo {
   readonly renames: Map<string, Map<string, string>>
   /** As when someone else changes the game: writes a file on a branch without going through the API. */
   put(branch: string, path: string, text: string): void
+  /** As when a suggestion was saved: a branch from `main`, with a pull open for it. */
+  addPull(head: string, title?: string): FakePull
   /** Makes a pull from a fork, named like a suggestion's branch. */
   addForkPull(head: string, fork: string): FakePull
   /** Moves a file on a branch to a new path, so a pull shows it as renamed. */
@@ -77,11 +83,22 @@ export function nextSha(seed: string): string {
 function makeRepo(owner: string, name: string, files: Map<string, string>): FakeRepo {
   const defaultBranch = 'main'
   const heads = new Map<string, string>([[defaultBranch, nextSha(`${owner}/${name}`)]])
+  const openPull = (head: string, title: string, fork: string | undefined): FakePull => {
+    const pull: FakePull = { number: repo.pulls.length + 1, title, head, base: defaultBranch, state: 'open' }
+    repo.pulls.push(pull)
+    repo.pullFacts.set(pull.number, { createdAt: repo.clock(), body: '', fork })
+    repo.branches.set(head, new Map(files))
+    repo.bases.set(head, new Map(files))
+    heads.set(head, nextSha(`${fork === undefined ? 'pull' : 'fork'}:${head}`))
+    return pull
+  }
   const repo: FakeRepo = {
     owner,
     name,
     defaultBranch,
     isPublic: true,
+    ownerType: 'User',
+    admins: new Set(),
     installed: true,
     rule: 'none',
     checks: 'passing',
@@ -100,20 +117,11 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
       files.set(path, text)
       heads.set(branch, nextSha(`put:${branch}:${path}`))
     },
+    addPull(head, title = head) {
+      return openPull(head, title, undefined)
+    },
     addForkPull(head, fork) {
-      const pull: FakePull = {
-        number: repo.pulls.length + 1,
-        title: head,
-        head,
-        base: defaultBranch,
-        state: 'open',
-      }
-      repo.pulls.push(pull)
-      repo.pullFacts.set(pull.number, { createdAt: repo.clock(), body: '', fork })
-      repo.branches.set(head, new Map(files))
-      repo.bases.set(head, new Map(files))
-      heads.set(head, nextSha(`fork:${head}`))
-      return pull
+      return openPull(head, head, fork)
     },
     rename(branch, from, to) {
       const files = repo.branches.get(branch)

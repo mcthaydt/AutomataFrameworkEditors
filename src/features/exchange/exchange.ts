@@ -3,7 +3,7 @@
 import type { Answer, Tokens } from '../wire/wire.ts'
 import { STATUS } from '../wire/wire.ts'
 
-export { whoIs } from './who.ts'
+export { type Who, whoIs } from './who.ts'
 
 export interface ExchangeEnv {
   readonly GITHUB_CLIENT_ID?: string
