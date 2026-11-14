@@ -330,16 +330,8 @@
   /* The shape of this box, not of the device, decides whether the tools sit under the stage or beside it. */
   .area {
     flex: 1;
-    /* Never smaller than a stage worth touching: when notices or a short window leave less room, the screen scrolls
-       instead of squeezing the picture to a strip. A window wider than tall (a phone held sideways) needs less,
-       because the tools sit beside the stage there. */
-    min-height: 26rem;
+    min-height: 0;
     container-type: size;
-  }
-  @media (min-aspect-ratio: 1/1) {
-    .area {
-      min-height: 18rem;
-    }
   }
   .body {
     display: flex;
