@@ -22,7 +22,7 @@ const ask = (path: string, over: { name?: string; branch?: string } = {}): strin
 const asked = (path: string): number =>
   api.fake.log.filter((r) => r.path.endsWith(`/contents/${path}`)).length
 const problem = (r: { answer: { ok: boolean } }): string | undefined =>
-  r.answer.ok ? undefined : (r.answer as { problem: string }).problem
+  r.answer.ok ? undefined : (r.answer as unknown as { problem: string }).problem
 
 test('the fixture game has the picture these tests read', async () => {
   expect(Object.keys(await fixturePictures())).toContain(HERO)
