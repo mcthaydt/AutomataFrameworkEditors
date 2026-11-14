@@ -13,6 +13,7 @@ const YOU_ARE: Readonly<Record<string, string>> = {
 
 export const WORDS = Object.freeze({
   appName: 'Automata Editors',
+  wordmark: 'automata',
   welcomeLine: 'Change your game by touch, together.',
   signIn: 'Sign in with GitHub',
   signInWhy:

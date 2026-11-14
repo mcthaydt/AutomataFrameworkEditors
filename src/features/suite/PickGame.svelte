@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import type { Api } from '../api/api.ts'
   import { recentGames } from '../game/game.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
+  import { Button, Icon, Notice, Row, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import type { GameRef } from '../wire/wire.ts'
   import AddEditor from './AddEditor.svelte'
@@ -64,14 +64,17 @@
     {#if trouble}
       <Notice kind="problem" text={WORDS.cantReach} />
       <!-- Not being able to ask GitHub is not "you have no games": the way on is to try again. -->
-      <div><Button label={WORDS.tryAgain} kind={games.length === 0 ? 'primary' : 'plain'} onpress={() => void load()} /></div>
+      <div><Button label={WORDS.tryAgain} icon="again" kind={games.length === 0 ? 'primary' : 'plain'} onpress={() => void load()} /></div>
     {/if}
     {#if games.length === 0}
       {#if !trouble}<AddEditor {onadd} />{/if}
     {:else}
       <label class="find">
-        <span>{WORDS.pickFind}</span>
-        <input type="search" bind:value={filter} autocomplete="off" />
+        <span class="label">{WORDS.pickFind}</span>
+        <span class="field">
+          <Icon name="find" />
+          <input type="search" bind:value={filter} autocomplete="off" />
+        </span>
       </label>
       {#if shown.length === 0}
         <p>{WORDS.pickNoMatch}</p>
@@ -79,15 +82,16 @@
         <ul class="games">
           {#each shown as game (`${game.owner}/${game.name}`)}
             <li>
-              <a class="row" href={routeHash({ screen: 'game', owner: game.owner, name: game.name })}>
-                <span class="name">{game.name}</span>
-                <span class="owner">{game.owner}</span>
-              </a>
+              <Row
+                href={routeHash({ screen: 'game', owner: game.owner, name: game.name })}
+                name={game.name}
+                detail={game.owner}
+              />
             </li>
           {/each}
         </ul>
       {/if}
-      <div><Button label={WORDS.pickAdd} onpress={onadd} /></div>
+      <div><Button label={WORDS.pickAdd} icon="add" onpress={onadd} /></div>
     {/if}
   {/if}
 </Screen>
@@ -98,14 +102,32 @@
     flex-direction: column;
     gap: var(--space-1);
   }
-  input {
-    min-height: 48px;
-    padding: var(--space-2) var(--space-3);
+  /* A field: raised, a words-coloured line round it, the icon that says what it is for before it. */
+  .field {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    padding-left: var(--space-3);
     border: 1px solid var(--words);
     border-radius: var(--corner);
     background: var(--raised);
+  }
+  .field:focus-within {
+    outline: 3px solid var(--words);
+    outline-offset: 3px;
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    border: 0;
+    background: transparent;
     color: var(--words);
     font: inherit;
+  }
+  input:focus-visible {
+    outline: none;
   }
   .games {
     display: flex;
@@ -114,25 +136,5 @@
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .row {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 56px;
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--words);
-    border-radius: var(--corner);
-    background: var(--raised);
-    color: var(--words);
-    text-decoration: none;
-    overflow-wrap: anywhere;
-  }
-  .name {
-    font-weight: 600;
-  }
-  .owner {
-    color: var(--quiet);
-    font-size: var(--font-size);
   }
 </style>

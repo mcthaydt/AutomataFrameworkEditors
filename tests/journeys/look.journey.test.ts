@@ -398,4 +398,54 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
     await j.page.getByText(WORDS.signInToSave, { exact: false }).first().waitFor()
     expect(await j.page.locator('[data-stamp]').count()).toBe(0)
   })
+  test('the wordmark, the icons and the touch colour are on every screen', async () => {
+    // A first-time visitor's Welcome has the word over its title and no bar.
+    const first = await open(size)
+    await first.page.locator('h1').waitFor()
+    expect(await first.page.locator('main .wordmark').textContent()).toBe(WORDS.wordmark)
+    expect(await first.page.locator('.bar').count()).toBe(0)
+
+    const kid = await kidHasSaved(size)
+    await kid.page.getByText(WORDS.savedSuggestion, { exact: false }).first().waitFor()
+    const j = await openPage(size, 'grandma', true)
+    windows.push(j)
+    await signIn(j.page)
+    const heading = (name: string) => j.page.getByRole('heading', { level: 1, name }).waitFor()
+    const checks = async (screen: string): Promise<void> => {
+      expect(await j.page.locator('.bar .wordmark').textContent(), screen).toBe(WORDS.wordmark)
+      const bare = await j.page.evaluate(() =>
+        [...document.querySelectorAll('.icon')]
+          .filter((el) => (el.parentElement?.textContent ?? '').trim() === '')
+          .map((el) => el.parentElement?.className ?? ''),
+      )
+      expect(bare, `${screen}: icons with no words beside them`).toEqual([])
+      const plain = await j.page.evaluate(
+        (touch) =>
+          [...document.querySelectorAll('button:not([data-thing]), a[href]')]
+            .filter((el) => {
+              const style = getComputedStyle(el)
+              return style.color !== touch && style.backgroundColor !== touch
+            })
+            .map((el) => (el.textContent ?? '').trim()),
+        TOUCH,
+      )
+      expect(plain, `${screen}: things to press that are not touch-coloured`).toEqual([])
+    }
+    await heading(WORDS.pickTitle)
+    await checks('the list of games')
+    await openGame(j.page)
+    await checks("a game's page")
+    await j.page.getByRole('link', { name: /waiting/ }).click()
+    await heading(WORDS.waitingTitle)
+    await checks('waiting changes')
+    await j.page.locator('a.row').first().click()
+    await thingNamed(j.page, 'crate-1').waitFor()
+    await checks('one change')
+    await openGame(j.page)
+    await j.page.getByRole('link', { name: WORDS.share, exact: true }).click()
+    await heading(WORDS.shareTitle('Crate Game'))
+    await checks('share')
+    await openLevel(j.page)
+    await checks('a level')
+  })
 })

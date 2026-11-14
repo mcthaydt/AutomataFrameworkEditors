@@ -16,7 +16,7 @@
 <div class="guide" role="status">
   {#if count !== undefined}
     <div class="count">
-      <span>{WORDS.guideCount(count.n, count.of)}</span>
+      <span class="label">{WORDS.guideCount(count.n, count.of)}</span>
       <span class="dots" aria-hidden="true">
         {#each { length: count.of } as _, i (i)}
           <span class="dot" class:filled={i < count.n}></span>
@@ -25,7 +25,7 @@
     </div>
   {/if}
   <p class="text">{text}</p>
-  <Button label={WORDS.guideHide} onpress={onhide} />
+  <Button label={WORDS.guideHide} icon="hide" onpress={onhide} />
 </div>
 
 <style>

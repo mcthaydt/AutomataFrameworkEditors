@@ -71,6 +71,14 @@ h1 {
   text-transform: uppercase;
 }
 
+/* The word `automata`, as typed: the name on every bar and over the first screen's title. It is not a link. */
+.wordmark {
+  font-family: var(--title);
+  font-size: var(--font-size-big);
+  line-height: 1;
+  color: var(--words);
+}
+
 /* A number or a measure. */
 .measure {
   font-family: var(--measure);

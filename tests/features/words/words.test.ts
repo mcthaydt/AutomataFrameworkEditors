@@ -142,6 +142,7 @@ const PINNED: Readonly<Record<string, string>> = {
   tipGotIt: 'Got it',
   redo: 'Redo',
   editorWorld: 'World',
+  wordmark: 'automata',
   noteAcross: 'Across',
   noteDown: 'Down',
   notesOn: 'Notes on',

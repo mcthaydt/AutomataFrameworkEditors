@@ -2,7 +2,7 @@
 import { createRawSnippet, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
-import { Button, Choice, Notice, Screen, Stamp, Tool } from '#src/features/ui/ui.ts'
+import { Button, Choice, Notice, Row, Screen, Stamp, Tool } from '#src/features/ui/ui.ts'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -260,4 +260,24 @@ test('every corner is 2 px', async () => {
     mounted = undefined
     box.replaceChildren()
   }
+})
+
+test('a Row is a link at least 56 px tall, with its name in the touch colour, a quieter second line and a caret', async () => {
+  mounted = mount(Row, { target: box, props: { href: '#/somewhere', name: 'crate-game', detail: 'grandma' } })
+  await tick()
+  const row = box.querySelector('a.row') as HTMLAnchorElement
+  expect(row.getAttribute('href')).toBe('#/somewhere')
+  expect(row.getBoundingClientRect().height).toBeGreaterThanOrEqual(56)
+  expect(style(row.querySelector('.name') as Element).color).toBe('rgb(238, 180, 128)')
+  expect(style(row.querySelector('.detail') as Element).color).toBe('rgb(183, 180, 146)')
+  expect(row.querySelectorAll('.icon').length).toBe(1)
+  expect(row.textContent?.trim()).toBe('crate-gamegrandma')
+})
+
+test('a Row with an icon of its own has two, and a long name wraps inside it', async () => {
+  mounted = mount(Row, { target: box, props: { href: '#/x', name: 'g'.repeat(60), icon: 'share' } })
+  await tick()
+  const row = box.querySelector('a.row') as HTMLElement
+  expect(row.querySelectorAll('.icon').length).toBe(2)
+  expect(row.getBoundingClientRect().right).toBeLessThanOrEqual(box.getBoundingClientRect().right)
 })

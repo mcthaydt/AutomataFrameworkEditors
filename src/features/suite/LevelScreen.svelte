@@ -342,7 +342,7 @@
 {:else}
   <Screen {title} {back}>
     <Notice kind="problem" text={WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <div><Button label={WORDS.tryAgain} icon="again" kind="primary" onpress={() => void load()} /></div>
   </Screen>
 {/if}
 

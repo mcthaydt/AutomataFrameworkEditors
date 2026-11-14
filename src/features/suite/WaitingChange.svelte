@@ -149,7 +149,7 @@
         {#each trouble.lines as line (line)}<li>{line}</li>{/each}
       </ul>
     {/if}
-    {#if trouble.again}<div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>{/if}
+    {#if trouble.again}<div><Button label={WORDS.tryAgain} icon="again" kind="primary" onpress={() => void load()} /></div>{/if}
   </Screen>
 {:else}
   <Screen title={change.title} {back}>
@@ -193,17 +193,18 @@
         {#if change.here}
           <Button
             label={WORDS.approve}
+            icon="approve"
             kind="primary"
             disabled={busy || change.checks === 'running' || change.checks === 'failing'}
             onpress={() => void act('approve')}
           />
         {/if}
-        <Button label={WORDS.turnDown} disabled={busy} onpress={() => void act('turn-down')} />
+        <Button label={WORDS.turnDown} icon="turnDown" disabled={busy} onpress={() => void act('turn-down')} />
       </div>
     {:else if role === 'own-approver' || role === 'own'}
       {#if role === 'own-approver'}<Notice kind="info" text={WORDS.ownChange} />{/if}
       <div class="actions">
-        <Button label={WORDS.takeBack} disabled={busy} onpress={() => void act('turn-down')} />
+        <Button label={WORDS.takeBack} icon="turnDown" disabled={busy} onpress={() => void act('turn-down')} />
       </div>
     {:else}
       <Notice kind="info" text={WORDS.cantApprove} />
@@ -221,6 +222,8 @@
     display: flex;
     flex-direction: column;
     height: min(60vh, 28rem);
+    border: 1px solid var(--words);
+    border-radius: 0;
   }
   .lines {
     margin: 0;
