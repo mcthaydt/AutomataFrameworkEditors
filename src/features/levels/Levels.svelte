@@ -279,12 +279,17 @@
     }
     window.addEventListener('pointerdown', unmark, true)
     window.addEventListener('keydown', unmark, true)
+    let frame = 0
     const watcher = new ResizeObserver(() => {
       if (stage === undefined) return
       // Turning the iPad changes the stage's width and cancels a drag; everything is fitted again. A change of height
       // alone is a line of text above wrapping or unwrapping (the status, the tip), and must not drop a finger's drag.
       if (stage.clientWidth !== size.w) cancelDrag()
-      measure()
+      // Measured a frame later: fitting the level can change the page's scroll bar and so the stage again, and a browser
+      // reports a change made while it is still delivering changes as an error ("loop completed with undelivered
+      // notifications") that nothing in the page can catch.
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(measure)
     })
     if (stage !== undefined) {
       watcher.observe(stage)
@@ -304,6 +309,7 @@
       alive = false
       window.removeEventListener('pointerdown', unmark, true)
       window.removeEventListener('keydown', unmark, true)
+      cancelAnimationFrame(frame)
       watcher.disconnect()
       picture?.destroy()
     }
