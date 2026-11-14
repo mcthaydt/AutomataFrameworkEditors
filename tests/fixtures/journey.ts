@@ -114,7 +114,13 @@ export async function openPage(
 /** Presses the sign-in Button wherever it is, and waits until the page has finished signing in and cleaned its address. */
 export async function signIn(page: Page): Promise<void> {
   await page.getByRole('button', { name: WORDS.signIn }).first().click()
-  await page.waitForFunction(() => location.search === '' && localStorage.getItem('af.tokens') !== null)
+  await page.waitForFunction(
+    () => location.search === '' && localStorage.getItem('af.tokens') !== null,
+    undefined,
+    {
+      timeout: 30_000,
+    },
+  )
 }
 
 /** Saves a picture a person can look at: `tests/journeys/__screenshots__/<name>.png`. */

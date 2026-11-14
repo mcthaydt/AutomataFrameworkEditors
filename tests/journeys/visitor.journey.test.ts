@@ -77,10 +77,11 @@ test('Copy this level puts the level text where it can be pasted (the clipboard 
     await text(j, WORDS.copyCopied)
     expect(await j.page.evaluate(() => navigator.clipboard.readText())).toBe(moved)
   } else {
-    // The other engines refuse the clipboard in a test: the page shows the text instead, ready to copy.
+    // The other engines either let the page write to the clipboard (Firefox does, with no way to read it back here) and
+    // it says "copied", or refuse, and the page shows the text instead, ready to copy. Either is a person able to paste.
     const box = j.page.locator('textarea.box')
-    await box.waitFor()
-    expect(await box.inputValue()).toBe(moved)
+    await box.or(j.page.getByText(WORDS.copyCopied, { exact: false }).first()).waitFor()
+    if ((await box.count()) > 0) expect(await box.inputValue()).toBe(moved)
   }
 })
 

@@ -280,8 +280,11 @@ const SCENES: readonly Scene[] = [
     name: 'game-cant-be-reached',
     reach: async (size) => {
       const j = await listAs(size, 'grandma')
+      // The list is on the screen before GitHub goes away, so what fails is opening the game.
+      const link = j.page.getByRole('link', { name: 'crate-game' })
+      await link.waitFor()
       j.fake.down = true
-      await j.page.getByRole('link', { name: 'crate-game' }).click()
+      await link.click()
       await text(j, WORDS.cantReach)
       return j
     },
