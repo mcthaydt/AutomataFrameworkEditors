@@ -105,9 +105,12 @@ export async function openPage(
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
     // WebKit also says so, in the console, when Playwright's own screenshot style is turned away by the page's policy;
     // a real refusal is caught by the `securitypolicyviolation` listener above, in every engine.
+    // A font file that cannot be fetched (the line is down, or a blocker refuses it) is also an answer the page lives
+    // with: every screen reads in the device's own font (Firefox says so as a console error).
     const own =
       message.text().startsWith('Failed to load resource') ||
-      message.text().startsWith('Refused to apply a stylesheet')
+      message.text().startsWith('Refused to apply a stylesheet') ||
+      message.text().includes('downloadable font: download failed')
     if (message.type() === 'error' && !own) {
       errors.push(`console: ${message.text()}`)
     }

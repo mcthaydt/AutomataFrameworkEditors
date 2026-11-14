@@ -48,6 +48,8 @@
   /* The one thing a screen most wants pressed: touch-coloured, with ground words (words on touch would be 1.5 to 1). */
   .primary {
     min-height: 48px;
+    /* Tall by its own padding as well as by `min-height`, so no engine rounds it to a hair under 48. */
+    padding-block: 12px;
     border-color: var(--touch);
     background: var(--touch);
     color: var(--ground);
