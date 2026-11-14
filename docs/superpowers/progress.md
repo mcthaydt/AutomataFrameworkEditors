@@ -62,9 +62,10 @@ waiting-change screen had two top headings; the sign-up link on Welcome was unde
 
 ### Waiting on the Owner
 
-Two questions from the plan audit: Q1 (who is the Owner of a game an organisation owns) and Q2 (may an Edit or
-Owner level approve their own waiting change). The steps they touch wait for the answers. The accounts the real
-iPad check needs (Cloudflare, the GitHub App) are in the plan's "Before starting".
+Nothing is waiting. The plan audit's Q1 and Q2 were answered: organisation admins count as Owners, and Edit and Owner
+levels can approve their own changes. The visual direction (Blueprint, in the private notes) is not applied here yet;
+no screen is restyled until the Owner says so. The accounts the real iPad check needs (Cloudflare, the GitHub App)
+are in the plan's "Before starting".
 
 ### Log
 
