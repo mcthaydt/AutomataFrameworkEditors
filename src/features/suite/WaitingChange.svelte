@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Level, parseContent } from '@automataframework/framework/headless'
+  import { formatDiagnostic, type Level, parseContent } from '@automataframework/framework/headless'
   import { onMount } from 'svelte'
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
@@ -27,6 +27,8 @@
   let busy = $state(false)
   let done = $state<'approved' | 'turned-down' | undefined>(undefined)
   let said = $state<string | undefined>(undefined)
+  /** The change was waiting a moment ago and is not any more (someone else approved it, or turned it down). */
+  let wentAway = $state(false)
 
   async function load(): Promise<void> {
     opened = undefined
@@ -42,6 +44,23 @@
   onMount(() => void load())
 
   const back = $derived({ label: WORDS.back, onpress: onback })
+  /** The game opened, and the change is not there: followed an old link, or someone else was quicker. */
+  const gone = $derived(wentAway || (failed === 'not-found' && opened?.ok === true))
+  /** What is wrong when the game itself could not be opened, in the words the game's own page uses. */
+  const trouble = $derived.by((): { text: string; again: boolean; lines?: readonly string[] } => {
+    if (opened === undefined || opened.ok) return { text: WORDS.cantReach, again: true }
+    switch (opened.problem) {
+      case 'broken':
+        return { text: WORDS.brokenGame, again: false, lines: opened.diagnostics.map(formatDiagnostic) }
+      case 'not-a-game':
+        return { text: WORDS.notAGame, again: false }
+      case 'not-found':
+      case 'not-allowed':
+        return { text: WORDS.cantFindGame, again: false }
+      default:
+        return { text: WORDS.cantReach, again: true }
+    }
+  })
 
   /** The level this change is about, as it was and as it would be, with the sentence for each move. */
   const shown = $derived.by(() => {
@@ -98,6 +117,11 @@
       busy: WORDS.busy,
     }
     if (answer.problem === 'signed-out') return onsignedout()
+    // The game is fine; the change is gone. Pressing the button again can only fail again.
+    if (answer.problem === 'not-found') {
+      wentAway = true
+      return
+    }
     said = WORDS_FOR[answer.problem] ?? WORDS.saveFailed
   }
 </script>
@@ -109,10 +133,20 @@
     <Notice kind="good" text={done === 'approved' ? WORDS.approved : WORDS.turnedDown} />
     <div><Button label={WORDS.back} kind="primary" onpress={onhome} /></div>
   </Screen>
+{:else if gone}
+  <Screen title={WORDS.waitingTitle}>
+    <Notice kind="info" text={WORDS.changeGone} />
+    <div><Button label={WORDS.back} kind="primary" onpress={onhome} /></div>
+  </Screen>
 {:else if change === undefined || opened === undefined || !opened.ok}
   <Screen title={WORDS.waitingTitle} {back}>
-    <Notice kind="problem" text={failed === 'not-found' ? WORDS.cantFindGame : WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <Notice kind="problem" text={trouble.text} />
+    {#if trouble.lines !== undefined}
+      <ul class="lines">
+        {#each trouble.lines as line (line)}<li>{line}</li>{/each}
+      </ul>
+    {/if}
+    {#if trouble.again}<div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>{/if}
   </Screen>
 {:else}
   <Screen title={change.title} {back}>
@@ -129,7 +163,6 @@
           status="clean"
           statusText=""
           title={shown.level.id}
-          back={{ label: WORDS.back, onpress: onback }}
           onchange={() => {}}
           onsave={() => {}}
         />
@@ -138,6 +171,9 @@
         {#each shown.moved as move (move.id)}<li>{WORDS.changeMoved(move.id)}</li>{/each}
         {#if shown.other > 0}<li>{WORDS.changeOther}</li>{/if}
       </ul>
+    {:else}
+      <!-- A change that moves nothing in a level (another kind of file, or a level taken away): say so. -->
+      <p>{WORDS.changeOther}</p>
     {/if}
     {#if said !== undefined}<Notice kind="problem" text={said} />{/if}
     {#if role === 'approver'}

@@ -42,7 +42,8 @@
       }
     }
     games = all
-    ongames(all.length)
+    // A list that could not be fetched and has nothing on this device says nothing about whether there are games.
+    if (!(trouble && all.length === 0)) ongames(all.length)
     // Back from adding the editor to exactly one game: open it, nothing more to choose.
     const only = all[0]
     if (justAdded && all.length === 1 && only !== undefined) {
@@ -60,9 +61,13 @@
   {#if games === undefined}
     <p>{WORDS.loading}</p>
   {:else}
-    {#if trouble}<Notice kind="problem" text={WORDS.cantReach} />{/if}
+    {#if trouble}
+      <Notice kind="problem" text={WORDS.cantReach} />
+      <!-- Not being able to ask GitHub is not "you have no games": the way on is to try again. -->
+      <div><Button label={WORDS.tryAgain} kind={games.length === 0 ? 'primary' : 'plain'} onpress={() => void load()} /></div>
+    {/if}
     {#if games.length === 0}
-      <AddEditor {onadd} />
+      {#if !trouble}<AddEditor {onadd} />{/if}
     {:else}
       <label class="find">
         <span>{WORDS.pickFind}</span>

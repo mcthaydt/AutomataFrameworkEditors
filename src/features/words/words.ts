@@ -81,6 +81,7 @@ export const WORDS = Object.freeze({
   waitingMine: 'From you',
   changeMoved: (id: string): string => `${id} was moved. The ring shows where it is now.`,
   changeOther: 'This change does more than move things.',
+  changeGone: "This change isn't waiting any more. Someone may have approved it or turned it down.",
   approve: 'Approve',
   turnDown: 'Turn it down',
   takeBack: 'Take my change back',
