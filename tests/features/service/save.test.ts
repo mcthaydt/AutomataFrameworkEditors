@@ -2,6 +2,7 @@ import { writeContent } from '@automataframework/framework/headless'
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
 import type { Answer, SaveAnswer, SaveAsk } from '#src/features/wire/wire.ts'
+import { WORDS } from '#src/features/words/words.ts'
 import { startTestApi, type TestApi } from '../../fixtures/api.ts'
 import { blobSha } from '../../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
@@ -72,6 +73,12 @@ test('kid (suggest) saves: one commit on automata/kid, one pull into main, main 
     { number: 1, title: 'Move crate-1 in level-1', head: 'automata/kid', base: 'main', state: 'open' },
   ])
   expect(main().get(LEVEL_PATH)).toBe(fixtureFiles[LEVEL_PATH])
+})
+
+test("the suggestion's pull says it was made with the App, by name", async () => {
+  await save('kid', ask())
+  expect(repo().pullFacts.get(1)?.body).toBe(`Made with ${WORDS.appOnGitHub} by kid.`)
+  expect(repo().pullFacts.get(1)?.body).toBe('Made with Automata Framework Editors by kid.')
 })
 
 test('kid saves again: a second commit on the same branch, still one pull', async () => {

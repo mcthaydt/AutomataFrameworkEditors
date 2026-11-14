@@ -1,4 +1,4 @@
-# Setting the editors up
+# Setting the Automata Framework editors up
 
 This is for whoever runs the site. It takes four steps and nothing here needs a computer of your own: Cloudflare builds
 and hosts the page and its one Function, and GitHub keeps the games.
@@ -17,6 +17,8 @@ Cloudflare builds the Function in `functions/` by itself. There is nothing else 
 
 On GitHub, in the settings of the account that will own the editor, make a new GitHub App.
 
+- **Name:** Automata Framework Editors. People see it in the list of apps on their GitHub account, and the game's owner
+  looks for it by this name in a branch rule's bypass list.
 - **Home page:** the address from step 1.
 - **Callback address:** the same address, with a `/` at the end. Sign-in comes back here.
 - **Setup address:** the same address again. Turn on "Redirect on update". This is where a game's owner lands after
@@ -30,6 +32,9 @@ On GitHub, in the settings of the account that will own the editor, make a new G
 Then make a client secret and a private key. Keep both for step 3.
 
 The App has one callback address, so a preview address cannot sign in. Only the address you gave works.
+
+If the App was already made under another name, rename it on GitHub, or change `appOnGitHub` in
+`src/features/words/words.ts` to the name it has, and nothing else.
 
 ## 3. Give Cloudflare the settings
 

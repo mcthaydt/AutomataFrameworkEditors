@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
 import { parseAccess } from '#src/features/access/access.ts'
+import { WORDS } from '#src/features/words/words.ts'
 
 const ROOT = join(import.meta.dirname, '../..')
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8')
@@ -66,4 +67,27 @@ test('docs/teams.md says what the code does about organisations, own changes and
   expect(teams).toContain('check runs')
   expect(teams).toContain('commit statuses')
   expect(teams).toContain('two minutes')
+})
+
+test('the docs call the App by its one name', () => {
+  expect(teams).toContain(WORDS.appOnGitHub)
+  expect(deploy).toContain(WORDS.appOnGitHub)
+  expect(teams).not.toContain('Automata Editors')
+  expect(deploy).not.toContain('Automata Editors')
+})
+
+test('nothing calls the product by its old name', () => {
+  const found: string[] = []
+  const walk = (folder: string): void => {
+    for (const entry of readdirSync(join(ROOT, folder), { withFileTypes: true })) {
+      const path = `${folder}/${entry.name}`
+      if (path === 'docs/superpowers') continue
+      if (entry.isDirectory()) walk(path)
+      else if (read(path).includes('Automata Editors')) found.push(path)
+    }
+  }
+  for (const folder of ['src', 'functions', 'docs']) walk(folder)
+  for (const file of ['index.html', 'README.md'])
+    if (read(file).includes('Automata Editors')) found.push(file)
+  expect(found).toEqual([])
 })

@@ -4,7 +4,8 @@ import { bannedIn } from '../../fixtures/banned.ts'
 
 // The first words, exactly as the plan pins them (Task 2). Later tasks add their own rows to this list.
 const PINNED: Readonly<Record<string, string>> = {
-  appName: 'Automata Editors',
+  appName: 'Automata Framework editors',
+  appOnGitHub: 'Automata Framework Editors',
   welcomeLine: 'Change your game by touch, together.',
   signIn: 'Sign in with GitHub',
   signInNotReady: "Sign-in isn't ready on this site yet.",
@@ -58,7 +59,7 @@ const PINNED: Readonly<Record<string, string>> = {
   busy: 'Things are busy. Your change is still here. Wait a minute and press Save again.',
   saveFailed: "Something went wrong and your change wasn't saved. Press Save again.",
   blockedOwner:
-    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
+    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Framework Editors past that rule.",
   leaveAsk: "You have changes that aren't saved. Leave anyway?",
   leaveYes: 'Leave without saving',
   leaveNo: 'Stay',
