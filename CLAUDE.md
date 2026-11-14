@@ -154,8 +154,20 @@ implementations or incomplete integrations. Do your best work."
   change is an ordinary branch and pull request. A screen that keeps state anywhere else is a defect. The
   device may keep only these, and none is something an agent needs: an unsaved draft (`af.draft:…`), the first-run tips
   and what they have counted (`af.guide.done`, `af.tip.*`, and `af.saved`, that the person has saved once and how), the
-  sign-in (`af.tokens`, and the short-lived `af.signin.*`) and the games this device has opened (`af.recent`). A kept
-  copy is the content file itself, byte for byte.
+  sign-in (`af.tokens`, and the short-lived `af.signin.*`), the games this device has opened (`af.recent`) and the
+  drawing notes' switch (`af.notes`: on, faded or hidden). A kept copy is the content file itself, byte for byte.
+- **The look** (the Owner, 2026-11-14): Blueprint, dark only, whatever the device is set to. Six colours, from palette
+  No. 310 of *A Dictionary of Color Combinations*, are named in `src/features/ui/ui.css` and nowhere else
+  (`tests/styles/` fails on any other): `ground`, `words`, `touch` (only for what can be touched), `mark` (an edge or
+  an icon, never words), and two shades of them, `raised` and `quiet`. Three fonts: Fraunces for titles and the
+  wordmark, Onest for words and labels, JetBrains Mono for numbers and measures. Icons are Phosphor's regular
+  drawings, always beside their words. The level fills the screen and the tools float over it; the game's art is
+  never restyled, tinted or covered but by the tools' own boxes, and the drawing notes (a grid, measure lines, notes)
+  are ordinary page elements over the canvas, never in it. Four packages carry the look, each approved by the Owner:
+  `@fontsource-variable/fraunces`, `@fontsource-variable/onest`, `@fontsource/jetbrains-mono` and
+  `@phosphor-icons/core`. Knip is told to ignore the three font packages (it does not read CSS `@import`s).
+  `public/licences.txt` holds each package's licence notice; move a package's version and copy its `LICENSE` there
+  again (`tests/workflows/licences.test.ts` fails until you do).
 - **Touch first.** Every screen is designed and tested at iPad size, upright and sideways, then at phone size. Touch
   targets are at least 44 px, primary actions 48 px. Anything that can be dragged can also be moved with buttons and
   with the keyboard.
@@ -183,6 +195,7 @@ tests/features/<feature>/     mirrors src/features
 tests/lib/                    tests of src/lib
 tests/fixtures/               the example game's files, the pretend GitHub, the journey server
 tests/journeys/               end-to-end journeys in real browsers
+tests/styles/                 checks that read the stylesheet and every component's style: the six colours, contrast
 tests/workflows/, tests/docs/ checks that read a workflow, package.json, the bundle or the docs
 docs/superpowers/             plans/, audits/, progress.md
 ```

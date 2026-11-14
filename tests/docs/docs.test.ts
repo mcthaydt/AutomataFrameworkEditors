@@ -91,3 +91,19 @@ test('nothing calls the product by its old name', () => {
     if (read(file).includes('Automata Editors')) found.push(file)
   expect(found).toEqual([])
 })
+
+test('CLAUDE.md names everything the device may keep', () => {
+  const claude = read('CLAUDE.md')
+  const kept = new Set<string>()
+  const walk = (folder: string): void => {
+    for (const entry of readdirSync(join(ROOT, folder), { withFileTypes: true })) {
+      const path = `${folder}/${entry.name}`
+      if (entry.isDirectory()) walk(path)
+      else for (const key of read(path).matchAll(/['"`](af\.[a-z]+)/g)) kept.add(key[1] ?? '')
+    }
+  }
+  walk('src')
+  // The code does keep some, and every key it names is in the list of what the device may keep.
+  expect(kept.size).toBeGreaterThan(0)
+  for (const key of kept) expect(claude, key).toContain(key)
+})
