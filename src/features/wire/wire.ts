@@ -116,3 +116,23 @@ export interface SaveAnswer {
   /** The waiting change the save is part of; undefined when it went straight in. */
   readonly mine: Waiting | undefined
 }
+
+/** One content file a waiting change touches: as the game has it now, and as it would be. */
+export interface FileChange {
+  readonly path: string
+  /** Undefined when the game has no such file. */
+  readonly before: string | undefined
+  /** Undefined when the change takes the file away. */
+  readonly after: string | undefined
+}
+export interface WaitingChange extends Waiting {
+  /** Each content file it changes. */
+  readonly changes: readonly FileChange[]
+  /** Can it be approved in the editor at all? False when it touches anything but this game's content files. */
+  readonly here: boolean
+}
+/** Which waiting change an approve or a turn-down is about. */
+export interface ChangeAsk {
+  readonly game: GameRef
+  readonly number: number
+}

@@ -28,12 +28,12 @@ test('a visitor opens the demo game: look, no login, from main, the same files g
   const grandma = await opened('grandma')
   expect(visitor).toMatchObject({
     game: { owner: 'grandma', name: 'crate-game' },
-    login: undefined,
     level: 'look',
     branch: 'main',
-    mine: undefined,
     waiting: 0,
   })
+  expect(visitor.login).toBeUndefined()
+  expect(visitor.mine).toBeUndefined()
   expect(visitor.files).toEqual(grandma.files)
 })
 
@@ -98,9 +98,9 @@ test('grandma opens her game: owner, from main, with automata.toml and its three
     login: 'grandma',
     level: 'owner',
     branch: 'main',
-    mine: undefined,
     waiting: 0,
   })
+  expect(game.mine).toBeUndefined()
   expect(game.files.map((f) => f.path)).toEqual(Object.keys(fixtureFiles))
 })
 
@@ -184,4 +184,16 @@ test('/api/games lists what the person can reach that has the editor, and nothin
 
 test('the demo game is the one named in the setting', () => {
   expect(DEMO).toBe('grandma/crate-game')
+})
+
+test('a collaborator on GitHub finds the game in their list and opens it at the level their row gives', async () => {
+  crate().collaborators.add('grandpa')
+  crate().put(
+    'main',
+    'automata.access.toml',
+    writeAccess({ format: 1, everyone: 'look', people: [{ github: 'grandpa', level: 'approve' }] }),
+  )
+  const list = await api.call<readonly { name: string }[]>('grandpa', 'GET', '/api/games')
+  expect(list.answer.ok && list.answer.value.map((g) => g.name)).toContain('crate-game')
+  expect((await opened('grandpa')).level).toBe('approve')
 })

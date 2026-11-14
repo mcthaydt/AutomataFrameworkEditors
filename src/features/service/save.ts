@@ -1,19 +1,14 @@
 // Save: one level, straight into the game for someone who may, or as a waiting change for someone who may not. The
 // API trusts nothing the page says: it picks the file from the game's own project file, writes the framework's
 // bytes, and checks the whole game still loads before anything is written.
-import {
-  formatDiagnostic,
-  loadGame,
-  PROJECT_FILE,
-  parseProject,
-  writeContent,
-} from '@automataframework/framework/headless'
+import { PROJECT_FILE, parseProject, writeContent } from '@automataframework/framework/headless'
 import { can } from '../access/access.ts'
 import type { Pull } from '../github/github.ts'
 import type { Answer, SaveAnswer, SaveAsk, Waiting } from '../wire/wire.ts'
 import { type Json, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
 import { ownPull, toWaiting } from './pulls.ts'
+import { wholeGameLoads } from './whole.ts'
 
 const MESSAGE_LENGTH = 72
 
@@ -69,22 +64,8 @@ export async function saveLevel(deps: ApiDeps, request: Request): Promise<Answer
   }
 
   // The whole game, with this level in place, must still load: a thing's character has to exist, say.
-  const files = new Map<string, string>([[PROJECT_FILE, project.value.text]])
-  for (const ref of listed) {
-    if (ref.path === ask.path) {
-      files.set(ref.path, text)
-      continue
-    }
-    const read = await repo.readFile(main, ref.path)
-    if (read.ok) files.set(ref.path, read.value.text)
-    else if (read.problem !== 'not-found') return read
-  }
-  const game = await loadGame(async (path) => {
-    const found = files.get(path)
-    if (found === undefined) throw new Error(`${path}: no such file`)
-    return found
-  })
-  if (!game.ok) return { ok: false, problem: 'broken', details: game.diagnostics.map(formatDiagnostic) }
+  const whole = await wholeGameLoads(repo, main, project.value, listed, new Map([[ask.path, text]]))
+  if (!whole.ok) return whole
 
   // 3. The message.
   const message = oneLine(ask.message, ask.path)

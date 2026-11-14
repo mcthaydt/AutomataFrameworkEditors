@@ -2,25 +2,34 @@
 // of it in the body.
 import { answer, handleTokenRequest } from '../exchange/exchange.ts'
 import type { Deps } from '../github/github.ts'
-import type { Answer } from '../wire/wire.ts'
+import type { Answer, GameRef } from '../wire/wire.ts'
+import { approveChange, turnDownChange } from './approve.ts'
 import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
 import { saveLevel } from './save.ts'
+import { listWaiting, showChange } from './waiting.ts'
 
 export type { ApiEnv } from './enter.ts'
 
 type Route = (deps: ApiDeps, request: Request, url: URL) => Promise<Answer<unknown>>
 
+/** The game a GET names: `?owner=&name=`. Whatever is not there is empty, and the door says bad-request. */
+const gameOf = (url: URL): GameRef => ({
+  owner: url.searchParams.get('owner') ?? '',
+  name: url.searchParams.get('name') ?? '',
+})
+
 /** The routes: each is a method and a path, and what it does. */
 const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/games': (deps, request) => listGames(deps, request),
   'POST /api/save': (deps, request) => saveLevel(deps, request),
-  'GET /api/game': (deps, request, url) => {
-    const owner = url.searchParams.get('owner') ?? ''
-    const name = url.searchParams.get('name') ?? ''
-    return openGame(deps, request, { owner, name })
-  },
+  'POST /api/approve': (deps, request) => approveChange(deps, request),
+  'POST /api/turn-down': (deps, request) => turnDownChange(deps, request),
+  'GET /api/waiting': (deps, request, url) => listWaiting(deps, request, gameOf(url)),
+  'GET /api/change': (deps, request, url) =>
+    showChange(deps, request, gameOf(url), Number(url.searchParams.get('number'))),
+  'GET /api/game': (deps, request, url) => openGame(deps, request, gameOf(url)),
 }
 const PATHS = new Set(['/api/token', ...Object.keys(ROUTES).map((key) => key.split(' ')[1] ?? '')])
 

@@ -41,7 +41,7 @@ export interface FakeGitHub {
   failing: ((method: string, path: string) => boolean) | undefined
   /** Every request it was sent, oldest first; emptied by `reset()`. */
   readonly log: readonly { readonly method: string; readonly path: string }[]
-  /** Milliseconds: the time on new pulls. */
+  /** Milliseconds: the time on new pulls. It starts at the real time, so a pull is as young as it really is. */
   clock: number
   /** What it says is left of GitHub's allowance, on every answer. */
   rate: { remaining: number; limit: number }
@@ -53,7 +53,6 @@ export interface FakeGitHub {
 const CLIENT_ID = 'fake-client'
 const CLIENT_SECRET = 'fake-secret'
 const APP_ID = '4242'
-const START = Date.UTC(2026, 10, 13, 12, 0, 0)
 
 type Json = Record<string, unknown>
 const obj = (value: unknown): Json => (typeof value === 'object' && value !== null ? (value as Json) : {})
@@ -89,7 +88,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
   const keys = makeKeys()
   const repos = new Map<string, FakeRepo>()
   const log: { method: string; path: string }[] = []
-  const state = { clock: START, rate: { remaining: 4900, limit: 5000 } }
+  const state = { clock: Date.now(), rate: { remaining: 4900, limit: 5000 } }
   let person: Person = 'grandma'
   let signIn: 'allow' | 'deny' = 'allow'
   let down = false
@@ -116,7 +115,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     signIn = 'allow'
     down = false
     failing = undefined
-    state.clock = START
+    state.clock = Date.now()
     state.rate = { remaining: 4900, limit: 5000 }
     for (const store of [codes, refreshes, access, installTokens]) store.clear()
     live.clear()
