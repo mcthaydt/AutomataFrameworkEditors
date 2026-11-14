@@ -202,14 +202,15 @@
       onsignedout={signedOut}
     />
   {:else if route.screen === 'game'}
+    {@const here = { owner: route.owner, name: route.name }}
     {#key `${route.owner}/${route.name}`}
       <GameHome
         {api}
-        game={{ owner: route.owner, name: route.name }}
+        game={here}
         {remembered}
         visitor={!signedIn}
         savedBefore={savedHow !== undefined}
-        onopened={(said) => told({ owner: route.owner, name: route.name }, said)}
+        onopened={(said) => told(here, said)}
         onsignin={begin}
         onsignedout={signedOut}
         onback={goBack}
