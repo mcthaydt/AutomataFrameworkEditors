@@ -64,6 +64,17 @@ title block float in a row above the tools and close like the other panels.
 **Next:** the plan audit reads the amendment; Task 7 starts when that audit is merged. The overall number does not
 move for this. Nothing was run: this stage wrote documents.
 
+### Task 7's amendment: plan audit (2026-11-14, stage 3)
+
+[`audits/2026-11-14-blueprint-redesign-task-7-zoom-plan-audit.md`](audits/2026-11-14-blueprint-redesign-task-7-zoom-plan-audit.md):
+no blocking findings, seven important and twelve minor, all written into the amendment. The main ones: the page itself
+can no longer be zoomed or moved from the level screen (ruling 29), a press's focus never slides the level, a Ctrl
+mouse wheel zooms one step a notch, the phone's new row is measured and fits in every language, the zoom buttons close
+like the other panels, and Task 7 is built with the Owner's O1 from its first step. No question for the Owner.
+
+**Next:** Task 7a in AutomataFramework, then the pin (Task 7b), before pull request 5. The overall number does not
+move. Nothing was run.
+
 ### Stage 2 finished (2026-11-14)
 
 The plan has 19 tasks in ten pull requests: the framework pin; a still picture of a level in the framework (one

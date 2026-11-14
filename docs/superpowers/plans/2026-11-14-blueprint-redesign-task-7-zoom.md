@@ -24,7 +24,9 @@ and principle 1 (nothing gesture-only: every gesture has a button, a key and a f
 Task 7, as that task asks. The Owner answered the plan audit's Q1 with **C** on 2026-11-14: "pinch to zoom and drag
 with two fingers at every size, like Figma". Everything in the plan stands unless this page says it changes; where the
 two differ, this page wins. Its Global Constraints, stop rules, sizes, test hooks and review pictures all apply here.
-The plan audit reads this page before Task 7 starts.
+The plan audit read this page before Task 7 starts
+([`audits/2026-11-14-blueprint-redesign-task-7-zoom-plan-audit.md`](../audits/2026-11-14-blueprint-redesign-task-7-zoom-plan-audit.md));
+its findings are written in below, marked `(audit I<n>)` and `(audit M<n>)`.
 
 ## The Owner's answer on a phone held upright (2026-11-14): O1, A
 
@@ -55,8 +57,10 @@ Numbered on from the plan's. The plan audit may challenge each.
     Shift, sideways); Ctrl or Cmd with the wheel zooms about the pointer. A person with only a mouse also has the
     buttons and the keys.
 23. **Three zoom buttons** (smaller, bigger, the whole level) are on screen at every size, in their own panel
-    (`data-part="zoom"`). Like undo and redo it never closes (ruling 17 names the four that do), so "Hide everything"
-    leaves the pill, the cluster, the handles, undo and redo and the zoom buttons.
+    (`data-part="zoom"`). It closes and opens like the other panels (audit I7: the Owner's "every editor panel can be
+    closed and opened"; a pinch, the wheel, the keys and the find bar still zoom while it is closed): `PanelName` gains
+    `zoom`, its handle sits where it was, and "Hide everything" leaves the pill, the cluster, the handles and undo and
+    redo, as ruling 17 has it. A tip whose target is the closed zoom panel points at its handle (Task 12's rule).
 24. **The view is not kept.** Every level opens whole, and a reload shows the whole level. The device keeps nothing
     new for it but one tip's "seen" (`af.tip.zoom`, which `CLAUDE.md`'s `af.tip.*` already allows).
 25. **A second framework addition** (after the plan's ruling 13): `LevelPicture.setView`. The merged `setRoom` refuses
@@ -64,16 +68,33 @@ Numbered on from the plan's. The plan audit may challenge each.
     bigger canvas passes a phone's WebGL limits at four times a 390 × 844 screen. It is its own pull request in
     AutomataFramework and one more pin move, both before pull request 5.
 26. **The first visit is still one drag and one press.** Nothing about zoom is taught before the first change. Two
-    tips exist beside it: if a first-time visitor moves the crate out of sight before dragging it, the tip points at
-    the whole-level button ("Press here to see the whole level."); and the first time someone on a touch screen zooms
-    in, after the first run, one tip by the zoom buttons says "Use two fingers to move the level. Pinch to zoom.",
-    once.
+    tips exist beside it: if a first-time visitor zooms or moves the level so the crate is out of sight before
+    dragging it, the tip points at the whole-level button ("Press here to see the whole level."); and the first time
+    someone on a touch screen zooms in **with the buttons, a key or the find bar**, after the first run, one tip by the
+    zoom buttons says "Use two fingers to move the level. Pinch to zoom.", once. Someone who zoomed with their fingers
+    already knows: that zoom sets `af.tip.zoom` and shows nothing (audit M4).
 27. **A thing you are working on is never left out of sight.** Dragging a thing to the clear cell's edge slides the
     level under it; a thing that takes keyboard focus, is nudged, is picked from the find bar or is changed by undo or
-    redo is brought into the clear cell by the least move that shows it.
+    redo is brought into the clear cell by the least move that shows it. Focus from a finger or the mouse never moves
+    the level (audit I2): Chromium and Firefox focus a button on press, and a reveal there would slide the level out
+    from under the finger that is starting a drag (the spec: nothing refits under a finger).
 28. **(O1, the Owner's answer A)** On `narrow` the frame is the window, as on `wide` and `mid`; nothing scrolls, and
     the switch and the block float in a row above the tools and close and open like the rest. This replaces the plan's
-    ruling 3 and the last sentence of its ruling 17, and `LEAST_LEVEL_HEIGHT` is not made.
+    ruling 3 and the last sentence of its ruling 17, and `LEAST_LEVEL_HEIGHT` is not made. Task 7 is built this way
+    from its first step (audit I6): it never builds the scroll only for this page to take it out.
+29. **Nothing on the level screen lets the browser zoom or scroll the page** (audit I1). A pinch with one finger on a
+    panel and one on the level, a trackpad pinch over the pill, or a swipe on the tools would otherwise zoom or move
+    the whole page, which breaks the frame's own measuring. So, while the level screen is open: the frame has
+    `touch-action: none`, and only the declared scroll regions (the sheet's body, a menu's list, the find bar's list,
+    the tray) say `touch-action: pan-y`, which holds because the browser intersects `touch-action` only up to the
+    nearest scrolling box; `document` listens to `gesturestart` and `gesturechange` (Safari) and `window` to `wheel`
+    with Ctrl or Cmd, all `{ passive: false }`, and calls `preventDefault()` on each; `overscroll-behavior: none` is
+    set on `html` and `body` by a class the level screen adds and removes, so every other screen keeps the browser's
+    own pull to refresh. Ctrl or Cmd with `+`, `-` or `0` is left to the browser: a person who needs the page bigger
+    keeps that.
+30. **The frame keeps clear of the phone's own edges** (audit M12). The page asks for `viewport-fit=cover`, so on a
+    phone with a home bar the bottom row would sit in the band the system's swipe takes. The frame's 16 px margin is
+    `max(16px, env(safe-area-inset-<side>) + 8px)` on each side, and the least room of ruling 2 is measured inside it.
 
 ## Review Focus
 
@@ -90,7 +111,11 @@ Inputs a person will meet that the rules above imply. Each has its test in the s
 5. **Two kinds of pinch at once** (iOS sends Safari's gesture events during a finger pinch): the zoom is applied
    once. Step 2.
 6. **One finger on a panel and one on the level:** only fingers that went down on the level count, so this is a
-   one-finger touch and the level does not zoom. Step 2.
+   one-finger touch and the level does not zoom, and the page does not zoom either (ruling 29). Step 2, Step 4.
+7. **A mouse wheel with Ctrl** (Chromium on Windows and Linux sends `deltaY` 100 a notch): one notch zooms about as
+   much as one press of a button, never two and a half times. Step 2 (audit I3).
+8. **A press on a thing near the clear cell's edge:** the level does not move until the edge slide starts. Step 2
+   (audit I2).
 
 ---
 
@@ -152,7 +177,10 @@ setView(view: Fit | undefined): void
     transparent;
   - `setView(undefined)` gives back the first `fit()`, and `toDataURL()` equals the one taken before any view;
   - `setRoom(...)` and a mount resized to 500 × 300 while a view is set leave `fit()` the view;
-  - `setView({ scale: Number.NaN, left: 0, top: 0 })` and a scale of 0 act as `undefined`.
+  - `setView({ scale: Number.NaN, left: 0, top: 0 })` and a scale of 0 act as `undefined`;
+  - `show(level)` with a view set keeps `fit()` the view and draws the changed level in it (audit M7);
+  - on the stage, a `draw` with a shot places the level by the camera whatever view is set, and `fit(shot)` answers
+    the camera's placement: the view is only for a level drawn without a shot (a running game never meets it).
 - [ ] **Step 2:** Push; red. **Step 3:** Implement: the stage keeps `view: Fit | undefined`; `fitFor` with no shot
       answers it (offsets through `snap`) before the room; no cover strip is drawn while it is set.
 - [ ] **Step 4:** Push; every check green, the parity jobs and goldens unmoved (no golden file is in the diff).
@@ -169,14 +197,19 @@ setView(view: Fit | undefined): void
 
 ## Task 7, with zoom
 
-Task 7's files, interfaces, layout table and steps stand. These steps are added to it and run **after its Step 4**
-(the frame is green) and before its commit, in the same branch. Each ends with its own commit.
+Task 7's files, interfaces, layout table and steps stand, with the O1 lines (ruling 28) and the changed test lines of
+Step 3 below written into its own Step 1, so the frame is built without the `narrow` scroll from the start (audit I6).
+These steps are added to it and run **after its Step 5** (the frame's commit, green), in the same branch. Each ends
+with its own commit, and Task 7's report waits for Step 5 below.
 
 **Files:**
 - Create: `src/features/levels/view.ts`, `src/features/levels/ZoomButtons.svelte`
 - Modify: `src/features/levels/Stage.svelte`, `Levels.svelte`, `layout.ts`, `src/features/ui/icons.ts`
-  (`zoomIn: magnifyingGlassPlus`, `zoomOut: magnifyingGlassMinus`, `zoomWhole: cornersIn`),
-  `src/features/ui/ui.css` (`html, body { overscroll-behavior: none }`; panels `touch-action: manipulation`),
+  (`zoomIn: magnifyingGlassPlus`, `zoomOut: magnifyingGlassMinus`, `zoomWhole: frameCorners`; audit M11:
+  `cornersIn` beside "zoom out" reads as "smaller"; if `@phosphor-icons/core` 2.1.1 has no `frame-corners`, Task 4's
+  icon test says so and `cornersIn` stays), `src/features/ui/panels.ts` (`PanelName` gains `zoom`, audit I7),
+  `src/features/ui/ui.css` (ruling 29: `html.level-screen, html.level-screen body { overscroll-behavior: none }`; the
+  frame `touch-action: none`, the scroll regions `pan-y`; ruling 30: the frame's margins),
   `src/features/words/en.ts`, `tests/fixtures/journey.ts`
 - Test: `tests/features/levels/view.test.ts`, `tests/features/levels/stage.browser.test.ts` (more cases),
   `tests/features/levels/levels.browser.test.ts` (more cases), `tests/features/levels/layout.test.ts` (changed
@@ -250,28 +283,33 @@ finger on the stage at any time between.
 
 | On a desktop | What it does |
 |---|---|
-| `wheel` with Ctrl or Cmd (a trackpad pinch in Chromium and Firefox; a mouse wheel with the key) | `zoomAbout(view, …, pointer, exp(−deltaY × 0.01))` |
+| `wheel` with Ctrl or Cmd (a trackpad pinch in Chromium and Firefox; a mouse wheel with the key) | `zoomAbout(view, …, pointer, exp(−clamp(deltaY, −40, 40) × 0.01))`: a trackpad's small steps pass whole, and a mouse notch is at most × 1.49, about one press of a button (audit I3). Ignored between `gesturestart` and `gestureend`, so Safari can never zoom twice (audit M6) |
 | `wheel` without (two fingers on a trackpad; a mouse wheel) | `panBy(view, …, −deltaX, −deltaY)`; with Shift and no `deltaX`, `deltaY` moves it sideways |
 | `gesturestart`, `gesturechange` (Safari's trackpad pinch) | `zoomAbout(the view at gesturestart, …, pointer, event.scale)`; ignored while a finger is down on the stage |
 | `+` or `=`, `-`, `0`, no modifier, focus in the level screen and not in a text field | `zoom('in')`, `zoom('out')`, `zoom('whole')` |
+| an arrow key with nothing picked, the same focus (audit M3) | `panBy` one tile the other way, so a keyboard can reach every part of a zoomed level, empty ground too (where Add then adds); with Shift, half the clear cell. At zoom 1 nothing moves. With a thing picked the arrows nudge it, as the plan has it |
 
 `deltaY` in lines is 16 px a line; in pages, the clear cell's height. The wheel and gesture listeners are added with
 `addEventListener(..., { passive: false })` and always call `preventDefault()`, so the browser never zooms or swipes
-the page from the level. The stage has `touch-action: none`.
+the page from the level. The stage has `touch-action: none`, and ruling 29 covers the rest of the frame.
 
 **Buttons and keys** zoom about the picked thing's middle when it is in the clear cell, else the clear cell's middle,
 moving there over 150 ms, ease-out (`whole`: 200 ms); under reduced motion the view changes at once. Fingers and the
 wheel are never eased: the level is under the fingers on the same frame. All drawing is once a frame: pointer moves
-are kept and one `requestAnimationFrame` calls `setView` and places the buttons and the layer (by CSS custom
-properties `--scale`, `--left`, `--top` set with Svelte `style:` directives, so a pinch re-renders no component).
+are kept and one `requestAnimationFrame` calls `setView` and sets the stage's `Fit`, a `$state`. The hit buttons are
+placed by CSS custom properties `--scale`, `--left`, `--top` (Svelte `style:` directives); the layer's snippet gets
+the new `Fit` and only what reads it updates (Task 9's chips need their places worked out, so the layer is not
+CSS-only; audit M9).
 
 **The edge slide (ruling 27):** while a thing is dragged and the finger is within `EDGE_PX` of the clear cell's edge,
-each frame moves the view by `edgeSlide(finger, clear, frame's seconds)` and moves the thing to stay under the
-finger. It stops at the level's edge, when the finger leaves the band, and when the drag ends.
+each frame applies `edgeSlide(finger, clear, frame's seconds)` as `panBy(view, …, −dx, −dy)` (near the right edge
+the level slides left and the view's `x` grows; audit M1) and moves the thing to stay under the finger. It stops at the level's edge, when the finger leaves the band, and when the drag ends.
 
 **Reveal (ruling 27):** `Stage.reveal(id)` sets `reveal(view, …, the thing's box)` over 150 ms. `Stage` calls it when
-a `[data-thing]` takes focus from the keyboard; `Levels` calls it after `nudge`, after `pick(id)` from outside the
-stage, and after `undo` or `redo` for the first thing `compareLevels` says moved, was added or was retyped.
+a `[data-thing]` takes focus and `matches(':focus-visible')` (the keyboard's focus; a press's focus is not, audit
+I2); `Levels` calls it after `nudge`, after `pick(id)` from outside the stage, and after `undo` or `redo` for the
+first id of `compareLevels(the level before, the level after)`'s `moved`, then `added`, then `retyped` (an undone
+erase is an add; audit M2).
 
 **When the room or the window changes** (a turn of the device, another language, a panel measured again), `home` and
 `clear` are worked out again and the view is clamped: the same point of the level is still in the middle. Closing
@@ -284,11 +322,13 @@ One more row in the plan's "Where each part sits":
 | Part | `wide` | `mid` | `narrow` |
 |---|---|---|---|
 | zoom | bottom row, right of the switch | right edge, a column, centered on the clear cell's height | a row just above the tools' left end, level with undo and redo at the right end |
-| switch, block (O1) | as the plan | as the plan | one row above zoom and undo: the switch at the left, the block (`compact`) at the right; they close and open as on the other shapes |
+| switch, block (O1) | as the plan | as the plan | one row above zoom and undo: the switch at the left, the block (`compact`) at the right; they close and open as on the other shapes. When the two do not fit side by side in a language at 390 px, the block shows its saved cell only (the pill already names the level), as ruling 18 does on `mid`; the row never wraps and no word shrinks (audit I4) |
 
 Least room (the plan's ruling 2), changed numbers only: `mid` right 16 becomes 92 (the 60 px column, its 16 px
 margin, 16 more); `narrow` bottom 144 becomes 232 (O1: the row of switch and block, 72 px, and its 16 px gap). `wide`
-is unchanged.
+is unchanged. On `narrow` the measured bottom (the plan's `roomWith`) is the frame's height less the top of the
+highest part in the bottom stack (the switch and block row while either is open, else the zoom and undo row), so a
+taller row in a language never lies over the level (audit I4).
 
 ### Steps
 
@@ -335,8 +375,12 @@ is unchanged.
     `data-moving`, and the next one-finger drag works. Focus 5: a `gesturechange` with `scale: 3` while two fingers
     are down changes nothing. Focus 6: a finger down on an element outside the stage and one on the stage, spread
     apart: `data-zoom` stays `1`.
-  - `wheel` with `ctrlKey` and `deltaY: -100` at a point: `data-zoom` grew, the level's point under the pointer
-    moved less than 1 px, and the event is `defaultPrevented`; the same with `metaKey`. `wheel` with `deltaX: 50` at
+  - `wheel` with `ctrlKey` and `deltaY: -100` at a point: `data-zoom` is `1.49` (Focus 7), the level's point under
+    the pointer moved less than 1 px, and the event is `defaultPrevented`; the same with `metaKey`; `deltaY: -5`
+    gives `1.05`; a Ctrl wheel between `gesturestart` and `gestureend` changes nothing.
+  - Focus 8: at zoom 2 with `crate-1` half outside `[data-clear]`, a finger down on it and moved 3 px: `data-view` is
+    unchanged; Tab to it (`:focus-visible`) then reveals it.
+  - Arrow keys with nothing picked at zoom 2: ArrowRight moves `data-view`'s x by one tile; at zoom 1 nothing. `wheel` with `deltaX: 50` at
     zoom 2: the view's x grew by 50 / scale. `wheel` with `shiftKey` and `deltaY: 50`: the same. A plain wheel at
     zoom 1 changes nothing and is still `defaultPrevented`.
   - `gesturestart` then `gesturechange` (plain `Event`s given `scale: 2`, `clientX`, `clientY`) with no finger down:
@@ -345,6 +389,9 @@ is unchanged.
     is inside `[data-clear]` within 200 ms.
   - the edge slide: at zoom 2, a finger holding `crate-1` 10 px inside the clear cell's right edge for 600 ms:
     `data-view`'s x grew and `ondrag` was called with an x past 8.
+  - (ruling 29) the frame's computed `touch-action` is `none` and a menu list's is `pan-y`; a `gesturestart` on
+    `document` and a Ctrl `wheel` on the pill are `defaultPrevented`; `html` has the class while the level screen is
+    mounted and not after.
   - the canvas's `toDataURL()` is the same whole, and again after zooming in and pressing whole (the art is
     untouched and comes back exactly); the stage's computed `touch-action` is `none`.
   - `zoom('in')` under reduced motion (`matchMedia` stubbed) sets `data-zoom` to `1.5` by the next frame; without,
@@ -356,21 +403,26 @@ is unchanged.
     case still holds at the five sizes.
   - `levels.browser.test.ts`, at each of the five sizes: `[data-part="zoom"]` is where the table says and overlaps
     no part; its three buttons are 44 px or more each way; out and whole are `disabled` at first and in is not;
-    pressing in three times ends with in `disabled` on `desktop` (its most is 2) and `data-zoom` never over
-    `mostZoom`; whole puts `data-zoom` back to `1` and `crate-1`'s box back within 1 px of its first box; the keys
+    pressing in twice ends with `data-zoom` `2` and in `disabled` on `desktop` (its most is 2: 1.5, then 2; audit M8),
+    and `data-zoom` is never over `mostZoom` at any size; whole puts `data-zoom` back to `1` and `crate-1`'s box back within 1 px of its first box; the keys
     `+`, `-` and `0` do what the buttons do, and do nothing while a text field has focus; with `crate-1` picked and in
     view, zooming in keeps its middle within 1 px; arrow keys that take a picked thing past the clear cell's edge
     keep it inside (`reveal`); after a move, zooming elsewhere and Undo, the thing is inside `[data-clear]`;
     `LevelState.zoom` and `whole` follow. (O1) On `phone`, `[data-part="switch"]` and `[data-part="block"]` are in
     the frame above the tools, the frame's box is the window's, and `document.scrollingElement.scrollHeight` equals
-    the window's height.
-  - Changed lines in the plan's Task 7 tests: `frame.journey.test.ts` reads "`[data-scale]`'s box is the window's"
-    at all five sizes (O1); `panels.journey.test.ts`'s "hide all" leaves the pill, the cluster, the handles, undo and
-    redo **and the zoom buttons**, and on `phone` the block and the switch close and open like the rest (O1). The
+    the window's height; with the plan's 40%-longer test words the row is one row, the block shows its saved cell
+    only, no part overlaps another and `[data-clear]`'s bottom is above the row's top (audit I4).
+  - `panels.test.ts`: `PANEL_NAMES` has `zoom`; closing it leaves `[data-handle="zoom"]` and `data-zoom` unchanged,
+    and a pinch still zooms (audit I7).
+  - ruling 30: `ui.css` gives the frame's margins with `env(safe-area-inset-…)` on all four sides (a check that reads
+    the sheet, as `tests/features/ui/` does).
+  - Changed lines in the plan's Task 7 tests, written so in Task 7's own Step 1 (audit I6): `frame.journey.test.ts`
+    reads "`[data-scale]`'s box is the window's" at all five sizes (O1); `panels.journey.test.ts`'s "hide all" leaves
+    the pill, the cluster, the handles and undo and redo (the zoom buttons close too, audit I7), and on `phone` the
+    block and the switch close and open like the rest (O1). The
     plan's "every `[data-thing]` lies inside `[data-clear]`" cases, here and in Task 18's `measure.ts`, hold when
     `data-zoom` is `1`.
-  - Push, red; implement (`LEAST_LEVEL_HEIGHT` and the `narrow` scroll go, O1); push, green. Commit
-    `feat(levels): zoom buttons at every size`.
+  - Push, red; implement; push, green. Commit `feat(levels): zoom buttons at every size`.
 
 - [ ] **Step 4: The journeys.** `tests/fixtures/journey.ts` gains `pinch(page, { at, by })` (two fingers about a page
       point, their distance multiplied by `by`), `twoFingerMove(page, { from, dx, dy })`, `wheel(page, { at, dx?, dy?,
@@ -393,14 +445,16 @@ is unchanged.
   8. **Wheel:** `wheel` with `ctrl` zooms, `wheel` without moves the level, and the page never scrolls or zooms
      (`visualViewport.scale` is 1).
   9. **Panels and turning:** at zoom 2, closing and opening the tools leaves `data-zoom` and `data-view` as they
-     were; "Hide everything" leaves the zoom buttons working; setting the window from `phone` to `phoneSideways`
+     were; "Hide everything" closes the zoom buttons too, a pinch still zooms and their handle opens them (audit I7); setting the window from `phone` to `phoneSideways`
      keeps the crate inside `[data-clear]` when it was in the middle before.
   10. **A reload shows the whole level** (ruling 24), and `localStorage` holds no key this page does not name.
   11. **Real fingers (Chromium only, five sizes):** `realPinch` by 2 gives `data-zoom` over 1.5 and
-      `visualViewport.scale` 1: the browser did not take the gesture for itself.
+      `visualViewport.scale` 1: the browser did not take the gesture for itself. A `realPinch` with one finger on the
+      tools and one on the level, and one wholly over the pill, leave `visualViewport.scale` 1 and `data-zoom` `1`
+      (ruling 29, Focus 6).
   - Push, red; implement what is missing; push, green in three engines.
-- [ ] **Step 5:** Commit `feat: zoom journeys at five sizes`. Task 7's own Step 5 (its commit and report) follows;
-      the report's line for Task 7 names both test counts.
+- [ ] **Step 5:** Commit `feat: zoom journeys at five sizes`. Then report `Task 7`; the line names both test counts
+      (the frame's and the zoom's).
 
 ---
 
@@ -416,6 +470,9 @@ Each line is added to the task named; its test goes in that task's own test file
   and still reads "FROM THE LEFT 6.5 TILES"; the grid's stroke width is the same at zoom 1 and 2; the canvas's
   `toDataURL()` at zoom 2 is the same with the notes on and hidden. `notes.journey.test.ts`: after `pinch` by 2 no
   words lie on the art (`broken`).
+- **Task 8 (the card).** On `mid` and `narrow` the sheet rises only once a pick lasts (the finger lifts, or the drag
+  starts), so a pinch that begins on a thing never flashes the sheet up and down (audit M5). Test added to its
+  journey: a `pinch` that starts on the crate at `phone` never shows `[data-part="sheet"]` above its title.
 - **Task 10 (Add, Erase).** `ontouch` and the Erase tool's erase fire on a clean tap's finger up (the table above).
   A thing is added at the level's point under the tap by the view's `Fit`; Enter on a tray button adds at the level's
   point in the middle of the clear cell, which is the middle of what the person is looking at. Tests added to
@@ -431,13 +488,15 @@ Each line is added to the task named; its test goes in that task's own test file
   // true when zoomed and touched and not seen and step is 'done' or 'none'
   ```
 
-  `touched` is true once the frame has had a `pointerdown` with `pointerType: 'touch'`. The tip is `Tip` with
+  `zoomed` is a zoom in by the buttons, a key or the find bar; a zoom by fingers sets `af.tip.zoom` instead (ruling
+  26, audit M4). `touched` is true once the frame has had a `pointerdown` with `pointerType: 'touch'`. The tip is `Tip` with
   `WORDS.tipTwoFingers` at `[data-part="zoom"]` and a `WORDS.tipGotIt` button; "Got it", the first two-finger move
   and "Hide tips" each set `af.tip.zoom`, and it never shows again. Tests added: `guide.test.ts`, every row of
   `zoomTip` and "`drag` out of view points at the whole-level button"; `first-run.journey.test.ts`: a first-time
   visitor who pinches and moves the crate out of sight sees "Press here to see the whole level." by that button,
   presses it, sees "Drag the crate anywhere" again, and finishes with one drag and one press; a first visit with no
-  zooming never shows the two-finger tip; after the first run, `touchPress` on `[data-zoom-in]` shows it, overlapping
+  zooming never shows the two-finger tip; after the first run, a `pinch` does not show it either and sets
+  `af.tip.zoom`; after the first run, `touchPress` on `[data-zoom-in]` shows it, overlapping
   no part, a `twoFingerMove` ends it, and a reload and another zoom do not bring it back; with the mouse it never
   shows.
 - **Task 13 (the find bar).** Three commands, in `COMMAND_KINDS` and `docs/commands.md`: `zoom-in` (`WORDS.zoomIn`),
@@ -445,8 +504,10 @@ Each line is added to the task named; its test goes in that task's own test file
   `whole-level` are absent when the level is whole, `zoom-in` at the most. A `move-*` or `erase` command on a thing
   out of sight reveals it first. `find.journey.test.ts`: typing "whole" after a pinch and pressing Enter shows the
   whole level.
-- **Task 16 (one waiting change).** The before and after stages share one view (`bind:view` on both), with one
-  `ZoomButtons` under them, so a pinch on either shows the same place in both. Its browser test has the case.
+- **Task 16 (one waiting change).** The waiting change is one stage with a Before / After switch (the plan's Task
+  16), so the stage keeps its view when the switch redraws the other version, and the marks, ghosts and chips are
+  laid by the same `Fit`. Its journey: pinch by 2 on the crate, press Before, and `data-zoom` and `data-view` are
+  unchanged and the ghost is still by the crate (audit I5).
 - **Task 18 (every screen).** Appendix B gains `level-zoomed` (stage; zoom 2, the crate picked, notes on),
   `level-zoomed-out-of-view` (the first visit's whole-level tip) and `level-two-finger-tip`. `measure.ts`: "every
   thing inside the clear cell" is checked when `data-zoom` is `1`; when it is not, every `[data-thing]` whose middle
@@ -477,4 +538,5 @@ Each line is added to the task named; its test goes in that task's own test file
 - **Numbers checked by hand:** the phone's `home` is `fitInRoom({ w: 390, h: 844 }, { top: 64, right: 8, bottom: 232,
   left: 8 }, { w: 16, h: 9 })`: scale 374 / 16 = 23.375, top 64 + (548 − 210.375) / 2 = 232.8125.
 - **Not in this amendment, on purpose:** a glide after the fingers lift, a double tap, turning the level, a zoom
-  kept between visits, a hand tool. Each is a ruling above that the audits after the build may reopen.
+  kept between visits, a hand tool. Each is a ruling above that the audits after the build may reopen; the plan
+  audit asks the Fable visual audit to judge the glide in particular, since a phone's own lists glide.
