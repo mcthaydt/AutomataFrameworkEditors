@@ -7,7 +7,7 @@ The tracker every stage reads first and updates last. One section per cycle; new
 Spec: [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
 in the AutomataFramework repo (milestone M1, the Editors line).
 
-Overall: **72%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
+Overall: **82%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
 is 10, stage 6 is 12, stage 7 is 6)
 
 | Stage | State | Output |
@@ -16,7 +16,7 @@ is 10, stage 6 is 12, stage 7 is 6)
 | 2. Plan | Done | [`plans/2026-11-13-m1-thin-thread-editors.md`](plans/2026-11-13-m1-thin-thread-editors.md) |
 | 3. Plan audit | Done, in review | [`audits/2026-11-13-m1-editors-plan-audit.md`](audits/2026-11-13-m1-editors-plan-audit.md) |
 | 4. Execution | Done: all 21 tasks, journeys green in three engines (pull request 4) | the plan, ticked |
-| 5. Implementation audit | Not started | `audits/2026-11-13-m1-editors-implementation-audit.md` |
+| 5. Implementation audit | Done, in review: one blocking finding (the level's picture never redraws) | [`audits/2026-11-13-m1-editors-implementation-audit.md`](audits/2026-11-13-m1-editors-implementation-audit.md) |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
 
@@ -69,6 +69,13 @@ are in the plan's "Before starting".
 
 ### Log
 
+- 2026-11-14: Stage 5. The implementation audit of pull request 4: one blocking finding, B1, the level's picture
+  is drawn once and never again (the effect that redraws it records no dependencies), so a dragged crate's button moves
+  but the crate on screen does not, in all three engines; the tests read only the buttons. Ten should-fix (checks timed
+  from the pull, not the commit; a blip while renewing signs the person out; the first-run strip on seven screens it
+  does not fit; two Back buttons; a gone change called a missing game; four gaps in `docs/teams.md`; the spec's "nobody
+  approves their own"; two first-run journeys narrowed; the approve tip counting your own change; the games list
+  offline), ten minors, and the build's rulings and deferred minors reviewed. No Owner questions. No tests run.
 - 2026-11-13: Stage 3. The plan audit: not ready as written. Seven blocking findings: two from the Owner's answers
   the same day (visitors open only the demo game; "Keep a copy" gives the level's JSON to paste back, on the
   clipboard as well as a file), and five that would stop a task or fail on the real GitHub (the rule tests' double
