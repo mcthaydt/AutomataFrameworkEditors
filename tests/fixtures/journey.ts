@@ -197,11 +197,16 @@ export async function pictureColourUnder(page: Page, id: string): Promise<string
   return pictureColourAt(page, { x: box.x + box.width / 2, y: box.y + box.height / 2 })
 }
 
-/** The page position of a tile-sized step from a thing's middle, for looking at the place it left. */
-export async function middleOf(page: Page, id: string): Promise<{ x: number; y: number }> {
+/**
+ * The colour of the picture `tiles` to the right of the middle of a thing's button (left if negative), on the same
+ * row. Looked at after the layout may have changed (a line of text wrapping moves the stage), so it is measured from
+ * where the thing is now, not from where it was.
+ */
+export async function pictureColourBeside(page: Page, id: string, tiles: number): Promise<string> {
   const box = await thingNamed(page, id).boundingBox()
-  if (box === null) throw new Error(`No ${id} on this page.`)
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+  if (box === null || !(scale > 0)) throw new Error(`No ${id} on this page.`)
+  return pictureColourAt(page, { x: box.x + box.width / 2 + tiles * scale, y: box.y + box.height / 2 })
 }
 
 /**

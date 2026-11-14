@@ -6,10 +6,9 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
-  middleOf,
   openLevel,
   openPage,
-  pictureColourAt,
+  pictureColourBeside,
   pictureColourUnder,
   pressSave,
   SIZES,
@@ -50,14 +49,13 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
     const j = await open(size)
     await signIn(j.page)
     await openLevel(j.page)
-    const before = await middleOf(j.page, 'crate-1')
-    expect(await pictureColourAt(j.page, before)).toBe(CRATE)
+    expect(await pictureColourUnder(j.page, 'crate-1')).toBe(CRATE)
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await says(j, WORDS.statusDirty)
     // What the person sees: the crate is drawn at its new place and the place it left is sky again. The buttons moving
     // proves nothing about the picture (the first build moved the buttons and never redrew).
     await expect.poll(() => pictureColourUnder(j.page, 'crate-1')).toBe(CRATE)
-    await expect.poll(() => pictureColourAt(j.page, before)).toBe(SKY)
+    await expect.poll(() => pictureColourBeside(j.page, 'crate-1', -2)).toBe(SKY)
     await pressSave(j.page).click()
     await says(j, WORDS.savedDirect)
 

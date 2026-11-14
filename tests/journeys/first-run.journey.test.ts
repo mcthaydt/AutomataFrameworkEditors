@@ -271,7 +271,8 @@ test('no screen a visitor can reach is a dead end: each has a way on and a way b
 
   // A game they may not open: a way on (Sign in), a way back, and the way back works.
   repoOf(j).isPublic = false
-  await j.page.goto(`${j.site}/${GAME}`)
+  // The address is the same one, so only a reload asks again.
+  await j.page.reload()
   await text(j, WORDS.cantFindVisitor)
   expect(await j.page.getByRole('button', { name: WORDS.signIn }).isEnabled()).toBe(true)
   expect(await back.count()).toBe(1)
