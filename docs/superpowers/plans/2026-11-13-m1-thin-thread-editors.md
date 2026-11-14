@@ -188,7 +188,7 @@ reports any that differ before building on it.
   or conflict. One primary action per screen. Task 20 uploads a picture of every screen at every size; the
   implementation audit reads them and treats a screen that fails as a defect.
 - **No AI attribution** in commits, pull request bodies or docs. Set the author first:
-  `git config --global user.name "Dawson McThay" && git config --global user.email "107786093+mcthaydt@users.noreply.github.com"`.
+  `git config --global user.name "McThayDT" && git config --global user.email "107786093+mcthaydt@users.noreply.github.com"`.
 - Structure: as in `CLAUDE.md`. A feature imports only itself, `src/lib/` and features below it, and another feature
   only through its entry file.
 
