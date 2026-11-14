@@ -1,6 +1,7 @@
 // The edit a person is in the middle of: the level as it was opened, as it is now, and the steps back. Every function
 // returns a new edit; the opened level is never changed.
 import type { Character, Level } from '@automataframework/framework/headless'
+import { compareLevels } from './compare.ts'
 import { keepInside, onSolid, type Point, STEP } from './place.ts'
 
 export interface LevelEdit {
@@ -63,13 +64,10 @@ export const isDirty = (edit: LevelEdit): boolean => JSON.stringify(edit.now) !=
 
 /** The few words that say what changed: what a saved change is called in the game's history. */
 export function describeChange(edit: LevelEdit): string {
-  const was = new Map(edit.opened.things.map((t) => [t.id, t] as const))
-  const moved = edit.now.things.filter((t) => {
-    const before = was.get(t.id)
-    return before !== undefined && (before.x !== t.x || before.y !== t.y)
-  })
-  if (moved.length === 0) return ''
+  const { moved } = compareLevels(edit.opened, edit.now)
   const only = moved[0]
-  if (moved.length === 1 && only !== undefined) return `Move ${only.id} in ${edit.now.id}`
-  return `Move ${moved.length} things in ${edit.now.id}`
+  if (only === undefined) return ''
+  return moved.length === 1
+    ? `Move ${only.id} in ${edit.now.id}`
+    : `Move ${moved.length} things in ${edit.now.id}`
 }

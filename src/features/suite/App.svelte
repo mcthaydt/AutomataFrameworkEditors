@@ -8,6 +8,8 @@
   import GameHome from './GameHome.svelte'
   import LevelScreen from './LevelScreen.svelte'
   import PickGame from './PickGame.svelte'
+  import Waiting from './Waiting.svelte'
+  import WaitingChange from './WaitingChange.svelte'
   import Welcome from './Welcome.svelte'
 
   // The whole page: which screen the address asks for, and the bar at the top with the one sign-in button. A person
@@ -104,6 +106,26 @@
         onsignin={begin}
         onsignedout={signedOut}
         onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
+      />
+    {/key}
+  {:else if route.screen === 'waiting'}
+    {@const here = { owner: route.owner, name: route.name }}
+    <Waiting
+      {api}
+      game={here}
+      onsignedout={signedOut}
+      onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
+    />
+  {:else if route.screen === 'change'}
+    {@const here = { owner: route.owner, name: route.name }}
+    {#key route.number}
+      <WaitingChange
+        {api}
+        game={here}
+        number={route.number}
+        onsignedout={signedOut}
+        onback={() => (location.hash = routeHash({ screen: 'waiting', ...here }))}
+        onhome={() => (location.hash = routeHash({ screen: 'game', ...here }))}
       />
     {/key}
   {:else}

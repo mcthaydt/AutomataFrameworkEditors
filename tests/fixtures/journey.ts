@@ -61,10 +61,12 @@ export interface JourneyPage {
 export async function openPage(
   size: keyof typeof SIZES,
   person: (typeof PEOPLE)[number] = 'grandma',
+  /** True: another person at another window of the same pretend GitHub, with everything it holds kept. */
+  keep = false,
 ): Promise<JourneyPage> {
   if (running === undefined) throw new Error('Call setupJourneys() at the top of the journey file.')
   const { fake, site, browser } = running
-  fake.reset()
+  if (!keep) fake.reset()
   fake.person = person
   const context: BrowserContext = await browser.newContext({ viewport: SIZES[size], hasTouch: true })
   // The browser reports every rule it refused to obey; a journey fails on any.

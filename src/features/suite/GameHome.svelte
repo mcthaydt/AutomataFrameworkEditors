@@ -46,6 +46,11 @@
       text={opened.game.login === undefined ? WORDS.visitorCan : WORDS.youAre(opened.game.level)}
     />
     {#if opened.game.mine !== undefined}<Notice kind="info" text={WORDS.mineWaiting} />{/if}
+    {#if opened.game.waiting > 0}
+      <a class="row" href={routeHash({ screen: 'waiting', owner: game.owner, name: game.name })}>
+        {WORDS.waitingRow(opened.game.waiting)}
+      </a>
+    {/if}
     <h2>{WORDS.gameLevels}</h2>
     <ul class="levels">
       {#each levelIds as id (id)}

@@ -17,6 +17,10 @@
     /** The character a start point shows. */
     hero?: string | undefined
     canSave: boolean
+    /** Only to look at: nothing moves, and there are no arrows, Undo or Save. */
+    readOnly?: boolean
+    /** Things to ring (a change being looked at). */
+    marked?: readonly string[]
     /** `plain` while another button on the screen is the one thing to press. */
     saveKind?: 'primary' | 'plain'
     /** Owned by the screen that saves. */
@@ -30,7 +34,7 @@
     onchange: (edit: LevelEdit) => void
     onsave: () => void
   }
-  let { level, characters, hero, canSave, saveKind = 'primary', status, statusText, title, back, onchange, onsave }: Props = $props()
+  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -81,6 +85,7 @@
   }
 
   function down(e: PointerEvent): void {
+    if (readOnly) return
     solid = false
     // A second finger cancels the drag in progress.
     if (drag !== undefined && e.pointerId !== drag.pointer) return cancelDrag()
@@ -148,6 +153,7 @@
 
   const KEYS = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' } as const
   function key(e: KeyboardEvent, id: string): void {
+    if (readOnly) return
     if (e.key === 'Escape') {
       selected = undefined
       solid = false
@@ -181,7 +187,7 @@
       picture = made
       stage?.prepend(made.canvas)
       made.resize(size.w, size.h)
-      made.show(edit.now, characters, selected, hero)
+      made.show(edit.now, characters, readOnly ? marked : selected, hero)
     })
     return () => {
       alive = false
@@ -192,7 +198,7 @@
 
   $effect(() => {
     picture?.resize(size.w, size.h)
-    picture?.show(edit.now, characters, selected, hero)
+    picture?.show(edit.now, characters, readOnly ? marked : selected, hero)
   })
 
   const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
@@ -210,14 +216,16 @@
   <header class="top">
     <Button label={back.label} onpress={back.onpress} />
     <h1>{title}</h1>
-    <Button
-      label={WORDS.save}
-      kind={saveKind}
-      disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
-      onpress={onsave}
-    />
+    {#if !readOnly}
+      <Button
+        label={WORDS.save}
+        kind={saveKind}
+        disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
+        onpress={onsave}
+      />
+    {/if}
   </header>
-  <div class="status" role="status">{statusText}</div>
+  {#if !readOnly}<div class="status" role="status">{statusText}</div>{/if}
   <div class="area">
     <div class="body">
       <div class="stage" role="group" aria-label={title} bind:this={stage} data-scale={fit.scale} onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={cancelled}>
@@ -230,18 +238,22 @@
               data-thing={thing.id}
               data-x={thing.x}
               data-y={thing.y}
-              aria-label={WORDS.thingLabel(thing.id)}
-              aria-pressed={selected === thing.id}
+              aria-label={readOnly ? thing.id : WORDS.thingLabel(thing.id)}
+              aria-pressed={readOnly ? undefined : selected === thing.id}
+              data-marked={marked.includes(thing.id) ? '' : undefined}
               style:left="{box.x}px"
               style:top="{box.y}px"
               style:width="{box.w}px"
               style:height="{box.h}px"
-              onfocus={() => (selected = thing.id)}
+              onfocus={() => {
+                if (!readOnly) selected = thing.id
+              }}
               onkeydown={(e) => key(e, thing.id)}
             ></button>
           {/if}
         {/each}
       </div>
+      {#if !readOnly}
       <div class="tools">
         <p class="hint">{selected === undefined ? WORDS.hintIdle : WORDS.hintSelected(selected)}</p>
         {#if solid}<Notice kind="info" text={WORDS.solid} />{/if}
@@ -256,6 +268,7 @@
           <Button label={WORDS.undo} disabled={edit.past.length === 0} onpress={takeBack} />
         </div>
       </div>
+      {/if}
     </div>
   </div>
 </div>

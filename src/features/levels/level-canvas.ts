@@ -16,7 +16,7 @@ const FALLBACK_COLOR = '#888888'
 export interface LevelCanvas {
   readonly canvas: HTMLCanvasElement
   /** Draws the level. `hero` names the character a start point shows. */
-  show(level: Level, characters: Characters, selected?: string, hero?: string): void
+  show(level: Level, characters: Characters, ringed?: string | readonly string[], hero?: string): void
   /** In CSS pixels. A size not above zero is ignored; the last picture is redrawn. */
   resize(w: number, h: number): void
   /** Safe to call twice. */
@@ -45,13 +45,19 @@ export async function createLevelCanvas(): Promise<LevelCanvas> {
 
   let box = { w: 0, h: 0 }
   let last:
-    | { level: Level; characters: Characters; selected: string | undefined; hero: string | undefined }
+    | {
+        level: Level
+        characters: Characters
+        selected: string | readonly string[] | undefined
+        hero: string | undefined
+      }
     | undefined
   let gone = false
 
   function redraw(): void {
     if (gone || last === undefined || box.w <= 0 || box.h <= 0) return
     const { level, characters, selected, hero } = last
+    const ringed = typeof selected === 'string' ? [selected] : (selected ?? [])
     const fit = fitWorld(box, levelSize(level))
     world.scale.set(fit.scale)
     world.position.set(fit.left, fit.top)
@@ -89,7 +95,7 @@ export async function createLevelCanvas(): Promise<LevelCanvas> {
     if (hero !== undefined) {
       for (const start of level.starts) drawBox(`start-${start.player}`, start, hero, 0.5, false)
     }
-    for (const thing of level.things) drawBox(thing.id, thing, thing.character, 1, thing.id === selected)
+    for (const thing of level.things) drawBox(thing.id, thing, thing.character, 1, ringed.includes(thing.id))
     app.render()
   }
 

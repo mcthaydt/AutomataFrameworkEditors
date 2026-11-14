@@ -61,11 +61,30 @@ const PINNED: Readonly<Record<string, string>> = {
   leaveYes: 'Leave without saving',
   leaveNo: 'Stay',
   draftBack: "We brought back the change you hadn't saved.",
+  waitingRow: 'crate-1 changes are waiting',
+  waitingTitle: 'Waiting changes',
+  waitingNone: 'Nothing is waiting.',
+  waitingBy: 'From crate-1',
+  waitingMine: 'From you',
+  changeMoved: 'crate-1 was moved. The ring shows where it is now.',
+  changeOther: 'This change does more than move things.',
+  approve: 'Approve',
+  turnDown: 'Turn it down',
+  takeBack: 'Take my change back',
+  approved: 'Approved. The change is in the game now.',
+  turnedDown: 'Turned down. The game stays as it was.',
+  checksRunning: 'This change is still being checked. Try again in a minute.',
+  checksFailed: "The checks found a problem with this change, so it can't be approved.",
+  ownChange: 'Someone else has to approve your own change.',
+  clashes:
+    "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
+  notHere: "This change touches more than the game's levels, so it can't be approved here.",
+  cantApprove: "You can look at this change, but you can't approve it.",
   draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
 }
 
 const read = (key: string): string => {
-  const value = (WORDS as Readonly<Record<string, string | ((name: string) => string)>>)[key]
+  const value = (WORDS as unknown as Readonly<Record<string, string | ((name: string) => string)>>)[key]
   if (value === undefined) throw new Error(`WORDS has no ${key}`)
   return typeof value === 'function' ? value('crate-1') : value
 }
@@ -96,4 +115,9 @@ test.each([
   ['nothing', 'You can look at this game.'],
 ])('youAre(%s) says exactly what the plan says', (level, words) => {
   expect(WORDS.youAre(level)).toBe(words)
+})
+
+test('waiting changes are counted in the singular and the plural', () => {
+  expect(WORDS.waitingRow(1)).toBe('1 change is waiting')
+  expect(WORDS.waitingRow(3)).toBe('3 changes are waiting')
 })

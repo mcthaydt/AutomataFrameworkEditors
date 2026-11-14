@@ -311,3 +311,37 @@ test('at 390 by 844 every button is at least 44 px and nothing runs off the side
   }
   expect(box.scrollWidth).toBeLessThanOrEqual(box.clientWidth)
 })
+
+test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a marked thing says so', async () => {
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      readOnly: true,
+      marked: ['crate-1'],
+      level,
+      characters,
+      hero: 'hero',
+      canSave: false,
+      status: 'clean' as const,
+      statusText: '',
+      title: 'level-1',
+      back: { label: WORDS.back, onpress: () => {} },
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
+  const from = centre(crate())
+  touch(crate(), 'pointerdown', from)
+  touch(crate(), 'pointermove', { x: from.x + 100, y: from.y })
+  touch(crate(), 'pointerup', { x: from.x + 100, y: from.y })
+  await tick()
+  expect(place()).toEqual(['6.5', '7.5'])
+  expect(edits).toEqual([])
+  const labels = [...box.querySelectorAll('button')].map((b) => b.textContent?.trim())
+  for (const word of [WORDS.save, WORDS.undo, WORDS.moveLeft, WORDS.moveRight]) {
+    expect(labels).not.toContain(word)
+  }
+  expect(crate().hasAttribute('data-marked')).toBe(true)
+})

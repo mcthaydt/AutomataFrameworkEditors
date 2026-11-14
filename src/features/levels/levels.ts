@@ -1,4 +1,5 @@
 // The levels editor: moving a thing in a level, as plain functions. The screens come after.
+export { compareLevels, type ThingMove } from './compare.ts'
 export {
   type Characters,
   describeChange,
