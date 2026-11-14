@@ -15,8 +15,15 @@ for (const suite of results.testResults ?? []) {
   const where = String(suite.name).replace(/^.*\/tests\//, 'tests/')
   for (const test of suite.assertionResults ?? []) {
     if (test.status !== 'failed') continue
-    const why = String(test.failureMessages?.[0] ?? '').split('\n')[0]
-    failed.push(`${where} > ${test.fullName}\n    ${why.slice(0, 220)}`)
+    // The first lines of the message, without colour codes: what was expected and what the page said instead.
+    const why = String(test.failureMessages?.[0] ?? '')
+      .replace(/\u001b\[[0-9;]*m/g, '')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .slice(0, 6)
+      .map((line) => `    ${line.slice(0, 200)}`)
+      .join('\n')
+    failed.push(`${where} > ${test.fullName}\n${why}`)
   }
 }
 console.log(`${failed.length} failed of ${results.numTotalTests} journeys.`)

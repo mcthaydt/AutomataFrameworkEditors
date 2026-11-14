@@ -220,7 +220,8 @@
 <div class="editor">
   <header class="top">
     <Button label={back.label} onpress={back.onpress} />
-    <h1>{title}</h1>
+    <!-- On a screen that already has its own heading (a change being looked at) this one is the next one down. -->
+    <svelte:element this={readOnly ? 'h2' : 'h1'} class="title">{title}</svelte:element>
     {#if !readOnly}
       <Button
         label={WORDS.save}
@@ -300,7 +301,7 @@
     align-items: center;
     justify-content: space-between;
   }
-  h1 {
+  .title {
     flex: 1 1 8ch;
     margin: 0;
     font-size: var(--font-size-big);
@@ -361,7 +362,9 @@
     flex-wrap: wrap;
     gap: var(--space-2);
   }
-  @container (min-aspect-ratio: 1/1) {
+  /* Beside each other only when the box is wide enough for a stage worth dragging in: on a phone held upright the
+     stage keeps the full width and the tools go under it, even when the box is nearly square. */
+  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
     .body {
       flex-direction: row;
     }

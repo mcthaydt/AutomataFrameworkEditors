@@ -61,4 +61,10 @@
     margin: 0;
     color: var(--muted);
   }
+  /* A link is pressed with a finger like a button, so it is as tall as one. */
+  .why a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 </style>
