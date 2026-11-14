@@ -2,7 +2,7 @@
 // returns a new edit; the opened level is never changed.
 import type { Character, GameContent, Level } from '@automataframework/framework/headless'
 import { compareLevels } from './compare.ts'
-import { keepInside, onSolid, type Point, solidOf, STEP } from './place.ts'
+import { keepInside, onSolid, type Point, STEP, solidOf } from './place.ts'
 
 export interface LevelEdit {
   readonly opened: Level

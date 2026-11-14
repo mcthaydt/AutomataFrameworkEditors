@@ -51,8 +51,16 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
     // Each picture was asked for once, and the first visit loaded no physics.
     const asks = pictureAsks(j)
     expect(new Set(asks).size).toBe(asks.length)
-    for (const name of ['figures/crate.png', 'figures/hero.png', 'figures/meadow.png', 'backdrops/valley.png'])
-      expect(asks.some((ask) => decodeURIComponent(ask).includes(`content/${name}`)), name).toBe(true)
+    for (const name of [
+      'figures/crate.png',
+      'figures/hero.png',
+      'figures/meadow.png',
+      'backdrops/valley.png',
+    ])
+      expect(
+        asks.some((ask) => decodeURIComponent(ask).includes(`content/${name}`)),
+        name,
+      ).toBe(true)
     expect(j.requests.filter((r) => r.includes('.wasm'))).toEqual([])
   })
 })

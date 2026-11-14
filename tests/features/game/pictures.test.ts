@@ -34,9 +34,10 @@ async function opened(): Promise<OpenGame> {
 }
 
 /** An API that answers pictures from the painted fixture, and counts each ask. */
-function apiWithPictures(
-  answerFor: (ask: PictureAsk) => Promise<Answer<WirePicture>>,
-): { api: Api; picture: ReturnType<typeof vi.fn> } {
+function apiWithPictures(answerFor: (ask: PictureAsk) => Promise<Answer<WirePicture>>): {
+  api: Api
+  picture: ReturnType<typeof vi.fn>
+} {
   const picture = vi.fn(answerFor)
   return { api: { picture } as unknown as Api, picture }
 }

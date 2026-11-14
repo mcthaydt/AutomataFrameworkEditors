@@ -19,7 +19,8 @@ const HERO = 'content/figures/hero.png'
 const ask = (path: string, over: { name?: string; branch?: string } = {}): string =>
   `/api/picture?owner=grandma&name=${over.name ?? 'crate-game'}&branch=${over.branch ?? 'main'}&path=${path}`
 /** How many times the pretend GitHub was asked for the file itself. */
-const asked = (path: string): number => api.fake.log.filter((r) => r.path.endsWith(`/contents/${path}`)).length
+const asked = (path: string): number =>
+  api.fake.log.filter((r) => r.path.endsWith(`/contents/${path}`)).length
 const problem = (r: { answer: { ok: boolean } }): string | undefined =>
   r.answer.ok ? undefined : (r.answer as { problem: string }).problem
 

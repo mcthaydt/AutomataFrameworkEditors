@@ -14,8 +14,8 @@ import {
   gameRepo,
   nextSha,
   notAGameRepo,
-  plainGameRepo,
   type PullFacts,
+  plainGameRepo,
 } from './repos.ts'
 
 export const PEOPLE = ['grandma', 'grandpa', 'kid', 'stranger'] as const

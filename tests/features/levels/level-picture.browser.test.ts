@@ -41,7 +41,8 @@ async function open(files: Readonly<Record<string, string>>, withArt: boolean): 
     ? await loadArt({
         content,
         level: LEVEL,
-        readPicture: async (path) => new Blob([(pictures[path] ?? new Uint8Array()).slice()], { type: 'image/png' }),
+        readPicture: async (path) =>
+          new Blob([(pictures[path] ?? new Uint8Array()).slice()], { type: 'image/png' }),
       })
     : undefined
   mount = document.createElement('div')
@@ -79,8 +80,7 @@ function colourAt(tile: { x: number; y: number }): string {
 function coloursIn(box: { x: number; y: number; w: number; h: number }): Set<string> {
   const found = new Set<string>()
   for (let dy = 0; dy <= box.h; dy += 0.125)
-    for (let dx = 0; dx <= box.w; dx += 0.125)
-      found.add(colourAt({ x: box.x + dx, y: box.y + dy }))
+    for (let dx = 0; dx <= box.w; dx += 0.125) found.add(colourAt({ x: box.x + dx, y: box.y + dy }))
   return found
 }
 
