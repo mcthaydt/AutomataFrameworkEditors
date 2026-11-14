@@ -103,7 +103,6 @@ function pictureAt(at: { x: number; y: number }): string {
 }
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
-const RING = '#ffffff'
 /** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
 const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
 
@@ -349,28 +348,65 @@ test('the picture refits when the box turns: the crate is still drawn under its 
   expect(Math.abs(centre(crate()).y - where.y)).toBeLessThanOrEqual(1)
 })
 
-test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
+/** The whole picture, read as one data address: equal before and after only if not one pixel changed. */
+const wholePicture = (): string => {
+  const canvas = stage().querySelector('canvas')
+  if (canvas === null) throw new Error('no picture')
+  return canvas.toDataURL()
+}
+
+test('picking a thing changes nothing in the picture', async () => {
   await show()
   await drawn()
-  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
-  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
-  const middle = expectedCentre(6.5, 7.5)
-  const edge = middle.x - scale() / 2
-  const near = [
-    { x: edge - 2, y: middle.y },
-    { x: edge + 2, y: middle.y },
-  ]
-  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
-  expect(ringed()).toBe(false)
+  const before = wholePicture()
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(ringed()).toBe(true)
+  expect(crate().getAttribute('aria-pressed')).toBe('true')
+  expect(wholePicture()).toBe(before)
+  // And no pixel at the crate's edge is the white the picture used to ring it in.
+  const middle = expectedCentre(6.5, 7.5)
+  const edge = middle.x - scale() / 2
+  for (const dx of [-3, -2, -1, 1, 2, 3]) expect(pictureAt({ x: edge + dx, y: middle.y })).not.toBe('#ffffff')
   const s = stage().getBoundingClientRect()
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(wholePicture()).toBe(before)
+})
+
+test('a picked thing is ringed by its button', async () => {
+  await show()
+  await drawn()
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgba(0, 0, 0, 0)')
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).borderTopWidth).toBe('2px')
+})
+
+test('read only, a marked thing is ringed by its button', async () => {
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      readOnly: true,
+      marked: ['crate-1'],
+      level,
+      characters,
+      hero: 'hero',
+      canSave: false,
+      status: 'clean' as const,
+      statusText: '',
+      title: 'level-1',
+      onchange,
+      onsave: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
+  expect(crate().hasAttribute('data-marked')).toBe(true)
+  expect(getComputedStyle(crate()).borderTopColor).toBe('rgb(238, 180, 128)')
+  expect(getComputedStyle(crate()).borderTopWidth).toBe('2px')
 })
 
 test('turning mid-drag cancels the drag', async () => {

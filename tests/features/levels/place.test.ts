@@ -1,6 +1,7 @@
+import { fitWorld } from '@automataframework/framework'
 import type { Level } from '@automataframework/framework/headless'
 import { expect, test } from 'vitest'
-import { keepInside, onSolid, snap, toScreen, toWorld } from '#src/features/levels/levels.ts'
+import { fitInside, keepInside, onSolid, snap, toScreen, toWorld } from '#src/features/levels/levels.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
 
 const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
@@ -48,4 +49,34 @@ test('toWorld undoes toScreen', () => {
 test('a stage with no size gives the origin, not NaN', () => {
   expect(toWorld({ scale: 0, left: 0, top: 0 }, { x: 10, y: 10 })).toEqual({ x: 0, y: 0 })
   expect(toWorld({ scale: Number.NaN, left: 0, top: 0 }, { x: 10, y: 10 })).toEqual({ x: 0, y: 0 })
+})
+
+const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
+
+test('fitInside with no inset is fitWorld', () => {
+  const box = { w: 1000, h: 600 }
+  const world = { w: 16, h: 9 }
+  expect(fitInside(box, NONE, world)).toEqual(fitWorld(box, world))
+})
+
+test('fitInside moves the level by the inset', () => {
+  const fit = fitInside({ w: 1000, h: 600 }, { top: 100, right: 200, bottom: 100, left: 0 }, { w: 16, h: 9 })
+  expect(fit.scale).toBeCloseTo(44.4444, 4)
+  expect(fit.left).toBeCloseTo(44.4444, 4)
+  expect(fit.top).toBeCloseTo(100, 4)
+})
+
+test('fitInside with an inset bigger than the box is scale 0, left 0, top 0, never NaN', () => {
+  const world = { w: 16, h: 9 }
+  expect(fitInside({ w: 300, h: 300 }, { top: 0, right: 200, bottom: 0, left: 200 }, world)).toEqual({
+    scale: 0,
+    left: 0,
+    top: 0,
+  })
+  expect(fitInside({ w: 300, h: 300 }, { top: 150, right: 0, bottom: 150, left: 0 }, world)).toEqual({
+    scale: 0,
+    left: 0,
+    top: 0,
+  })
+  expect(fitInside({ w: Number.NaN, h: 300 }, NONE, world)).toEqual({ scale: 0, left: 0, top: 0 })
 })

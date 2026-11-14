@@ -1,22 +1,24 @@
-// The picture of a level, drawn with Pixi: sky, solid tiles, each thing as its character's coloured box, the chosen
-// one ringed in white, and each start point as the hero's box at half strength. It only draws; it knows nothing of
-// fingers. The fit is the framework's own, so a level sits here exactly as it does in the game. This is the one file
+// The picture of a level, drawn with Pixi: sky, solid tiles, each thing as its character's coloured box, and each
+// start point as the hero's box at half strength. It draws the game's art and nothing else: no ring, no grid, no
+// tint. What the editor adds to a level is a layer of page elements above this canvas. It knows nothing of fingers. The fit is the framework's own, so a level sits here exactly as it does in the game. This is the one file
 // that imports Pixi, and the no-eval entry comes first because the page's security policy forbids `eval`.
 import 'pixi.js/unsafe-eval'
-import { fitWorld } from '@automataframework/framework'
 import { type Level, levelSize, SKY_COLOR, TILE_COLOR, tileRuns } from '@automataframework/framework/headless'
 import { Application, Container, Graphics, loadTextures } from 'pixi.js'
 import type { Characters } from './edit.ts'
+import { fitInside, type Inset } from './place.ts'
 
 /** The framework's dark edge round every box. */
 const EDGE = 0x1b1b24
-const RING = 0xffffff
 const FALLBACK_COLOR = '#888888'
 
 export interface LevelCanvas {
   readonly canvas: HTMLCanvasElement
   /** Draws the level. `hero` names the character a start point shows. */
-  show(level: Level, characters: Characters, ringed?: string | readonly string[], hero?: string): void
+  show(level: Level, characters: Characters, hero?: string): void
+  /** Fits the level inside the space the tools leave clear, in CSS pixels, and draws it again. The sky still fills
+   *  the whole canvas. */
+  fitTo(inset: Inset): void
   /** In CSS pixels. A size not above zero is ignored; the last picture is redrawn. */
   resize(w: number, h: number): void
   /** Safe to call twice. */
@@ -47,24 +49,22 @@ export async function createLevelCanvas(): Promise<LevelCanvas> {
   app.stage.addChild(world)
 
   let box = { w: 0, h: 0 }
-  let last:
-    | {
-        level: Level
-        characters: Characters
-        selected: string | readonly string[] | undefined
-        hero: string | undefined
-      }
-    | undefined
+  let inset: Inset = { top: 0, right: 0, bottom: 0, left: 0 }
+  let last: { level: Level; characters: Characters; hero: string | undefined } | undefined
   let gone = false
 
   function redraw(): void {
     if (gone || last === undefined || box.w <= 0 || box.h <= 0) return
-    const { level, characters, selected, hero } = last
-    const ringed = typeof selected === 'string' ? [selected] : (selected ?? [])
-    const fit = fitWorld(box, levelSize(level))
+    const { level, characters, hero } = last
+    const fit = fitInside(box, inset, levelSize(level))
     world.scale.set(fit.scale)
     world.position.set(fit.left, fit.top)
     for (const child of world.removeChildren()) child.destroy()
+    // No room left between the tools: only the sky is drawn, and nothing divides by zero.
+    if (!(fit.scale > 0)) {
+      app.render()
+      return
+    }
     const edge = 1 / fit.scale
 
     const ground = new Graphics()
@@ -72,40 +72,31 @@ export async function createLevelCanvas(): Promise<LevelCanvas> {
     ground.fill(TILE_COLOR)
     world.addChild(ground)
 
-    const drawBox = (
-      id: string,
-      at: { x: number; y: number },
-      character: string,
-      alpha: number,
-      ring: boolean,
-    ): void => {
+    const drawBox = (id: string, at: { x: number; y: number }, character: string, alpha: number): void => {
       const c = characters[character]
       const g = new Graphics()
       g.rect(-(c?.size.w ?? 1) / 2, -(c?.size.h ?? 1) / 2, c?.size.w ?? 1, c?.size.h ?? 1)
         .fill({ color: c?.color ?? FALLBACK_COLOR, alpha })
         .stroke({ width: edge, color: EDGE, alpha, alignment: 1 })
-      if (ring) {
-        g.rect(-(c?.size.w ?? 1) / 2, -(c?.size.h ?? 1) / 2, c?.size.w ?? 1, c?.size.h ?? 1).stroke({
-          width: 4 * edge,
-          color: RING,
-          alignment: 1,
-        })
-      }
       g.position.set(at.x, at.y)
       g.label = id
       world.addChild(g)
     }
     if (hero !== undefined) {
-      for (const start of level.starts) drawBox(`start-${start.player}`, start, hero, 0.5, false)
+      for (const start of level.starts) drawBox(`start-${start.player}`, start, hero, 0.5)
     }
-    for (const thing of level.things) drawBox(thing.id, thing, thing.character, 1, ringed.includes(thing.id))
+    for (const thing of level.things) drawBox(thing.id, thing, thing.character, 1)
     app.render()
   }
 
   return {
     canvas,
-    show(level, characters, selected, hero) {
-      last = { level, characters, selected, hero }
+    show(level, characters, hero) {
+      last = { level, characters, hero }
+      redraw()
+    },
+    fitTo(next) {
+      inset = next
       redraw()
     },
     resize(w, h) {

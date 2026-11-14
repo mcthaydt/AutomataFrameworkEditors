@@ -148,7 +148,7 @@
     }
     saving = true
     events = []
-    const message = describeChange({ opened: savedLevel ?? current, now: current, past: [] })
+    const message = describeChange({ opened: savedLevel ?? current, now: current, past: [], future: [] })
     const result = await saveLevel(api, game, current, message)
     saving = false
     if (result.ok) {

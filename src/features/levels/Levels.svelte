@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { fitWorld } from '@automataframework/framework'
   import { type Character, type Level, levelSize } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import { Button, Notice } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import { type LevelEdit, moveThing, nudgeThing, startEdit, undo } from './edit.ts'
   import { createLevelCanvas, type LevelCanvas } from './level-canvas.ts'
-  import { toScreen, toWorld } from './place.ts'
+  import { fitInside, type Inset, toScreen, toWorld } from './place.ts'
 
   // The levels editor on the screen. A thing is a real button laid over the picture, so a finger, a keyboard and a
   // screen reader all reach it; the picture only draws. Every move is a plain function from `edit.ts`, so what a
@@ -54,7 +53,9 @@
   let size = $state({ w: 0, h: 0 })
   let picture: LevelCanvas | undefined
 
-  const fit = $derived(fitWorld(size, levelSize(edit.now)))
+  // How much of the stage the floating tools cover. All zeros until the tools float (Task 4 measures the clear cell).
+  const inset: Inset = { top: 0, right: 0, bottom: 0, left: 0 }
+  const fit = $derived(fitInside(size, inset, levelSize(edit.now)))
 
   /** The drag a finger is in the middle of. */
   interface Drag {
@@ -201,7 +202,8 @@
       picture = made
       stage?.prepend(made.canvas)
       made.resize(size.w, size.h)
-      made.show(edit.now, characters, readOnly ? marked : selected, hero)
+      made.fitTo(inset)
+      made.show(edit.now, characters, hero)
     })
     return () => {
       alive = false
@@ -216,9 +218,9 @@
   $effect(() => {
     const { w, h } = size
     const now = edit.now
-    const ringed = readOnly ? marked : selected
     picture?.resize(w, h)
-    picture?.show(now, characters, ringed, hero)
+    picture?.fitTo(inset)
+    picture?.show(now, characters, hero)
   })
 
   const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
@@ -361,7 +363,10 @@
     touch-action: none;
     cursor: grab;
   }
-  .thing[aria-pressed='true'] {
+  /* The ring round a picked thing, and round a thing a waiting change moved, is the thing's own button: the canvas
+     draws the game's art and nothing else. */
+  .thing[aria-pressed='true'],
+  .thing[data-marked] {
     border-color: var(--touch);
   }
   /* Under the stage the tools have a height of their own and scroll inside it, so the stage keeps its size when the
