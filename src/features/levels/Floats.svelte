@@ -82,19 +82,20 @@
         <span class="label"><Icon name="world" /> {WORDS.editorWorld}</span>
         <h1 class="title">{title}</h1>
       </div>
-      <div class="save">
-        <Button
-          label={WORDS.save}
-          icon="save"
-          kind={saveKind}
-          disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
-          onpress={onsave}
-        />
-      </div>
     </div>
     <div class="status" role="status">{statusText}</div>
     {#if standing !== undefined}{@render standing()}{/if}
   </section>
+  <!-- Save is a panel of its own, at the top right, so it is where a thumb expects it whatever the title's length. -->
+  <div class="panel savebox" data-panel>
+    <Button
+      label={WORDS.save}
+      icon="save"
+      kind={saveKind}
+      disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
+      onpress={onsave}
+    />
+  </div>
   <div class="tools" data-panel>
     <Tool
       label={{ on: WORDS.notesOn, faded: WORDS.notesFaded, hidden: WORDS.notesHidden }[notes]}
@@ -128,7 +129,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto minmax(10rem, 1fr) 16rem auto 11rem;
     grid-template-areas:
-      'top top'
+      'top save'
       'clear clear'
       'said said'
       'tools turns'
@@ -140,9 +141,14 @@
       grid-template-columns: 5.5rem minmax(0, 1fr) 17rem;
       grid-template-rows: auto minmax(0, 1fr) auto;
       grid-template-areas:
-        'top top top'
+        'top top save'
         'tools clear card'
         'tools clear turns';
+    }
+    /* The title and its sentence are a pill at the corner, as wide as its words, and the level shows beside it. */
+    .top {
+      justify-self: start;
+      max-width: calc(100% - 2 * var(--space-2));
     }
   }
   .clear {
@@ -190,11 +196,10 @@
     font-size: var(--font-size-big);
     overflow-wrap: anywhere;
   }
-  /* Save never shrinks: it is the one thing the screen is for. */
-  .save {
-    flex: none;
-    /* On its own line when the row wraps, it is still at the right. */
-    margin-left: auto;
+  .savebox {
+    grid-area: save;
+    align-self: start;
+    padding: var(--space-1);
   }
   /* Always two lines tall, so the words coming and going never change the height of the panel. */
   .status {
@@ -210,16 +215,24 @@
     outline: 3px solid var(--words);
     outline-offset: 3px;
   }
+  /* The tools are one panel each, as in the drawing: a strip of tools, and Undo and Redo together. */
   .tools,
   .turns {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--space-1);
     margin: var(--space-2);
-    pointer-events: none;
+    padding: var(--space-1);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    box-shadow: var(--float-shadow);
+    pointer-events: auto;
   }
   .tools :global(.tool),
   .turns :global(.tool) {
-    pointer-events: auto;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
   }
   .tools {
     grid-area: tools;
@@ -244,7 +257,7 @@
     .tools {
       flex-direction: column;
       flex-wrap: nowrap;
-      align-self: start;
+      align-self: center;
       align-items: stretch;
     }
     .card {
