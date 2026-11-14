@@ -68,6 +68,8 @@ export function takeDraft(
     }
     return { level: parsed.value }
   } catch {
+    // Text that is not JSON at all, or a store that throws: no draft, and no leftover.
+    dropDraft(store, game, levelId)
     return undefined
   }
 }
