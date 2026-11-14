@@ -160,24 +160,31 @@ test('pressing the Across note puts the focus on Move left, and Down on Move up'
 })
 
 test('pressing a note by touch marks its pair of arrows in the card, in view, until the next press', async () => {
+  // In view means in the window, so the editor is given the window.
+  sized(window.innerWidth, window.innerHeight)
   await show()
   await pick()
   const card = box.querySelector<HTMLElement>('.card')
-  note('y')?.click()
+  // A narrow window has one joined note, which leads to the Across arrows; a wide one has a Down note.
+  const axis = note('y') === null ? 'x' : 'y'
+  note(axis)?.click()
   await tick()
-  expect(card?.dataset.asked).toBe('y')
-  const up = getComputedStyle(named(WORDS.moveUp))
-  expect(up.outlineStyle).toBe('solid')
-  expect(up.outlineWidth).toBe('3px')
-  const view = window.innerHeight
-  for (const label of [WORDS.moveUp, WORDS.moveDown]) {
+  expect(card?.dataset.asked).toBe(axis)
+  const [first, second, other] =
+    axis === 'x'
+      ? [WORDS.moveLeft, WORDS.moveRight, WORDS.moveUp]
+      : [WORDS.moveUp, WORDS.moveDown, WORDS.moveLeft]
+  const marked = getComputedStyle(named(first))
+  expect(marked.outlineStyle).toBe('solid')
+  expect(marked.outlineWidth).toBe('3px')
+  for (const label of [first, second]) {
     const r = named(label).getBoundingClientRect()
     expect(r.top).toBeGreaterThanOrEqual(0)
-    expect(r.bottom).toBeLessThanOrEqual(view)
+    expect(r.bottom).toBeLessThanOrEqual(window.innerHeight)
   }
   // The other pair is not marked.
-  expect(getComputedStyle(named(WORDS.moveLeft)).outlineWidth).not.toBe('3px')
-  touch(named(WORDS.moveUp), 'pointerdown', centre(named(WORDS.moveUp)))
+  expect(getComputedStyle(named(other)).outlineWidth).not.toBe('3px')
+  touch(named(first), 'pointerdown', centre(named(first)))
   await tick()
   expect(card?.dataset.asked).toBeUndefined()
 })
@@ -275,8 +282,9 @@ test("a note is above another thing's button", async () => {
   await show()
   await pick()
   // The hero stands near the crate; whichever button is under a note's middle, the note is on top.
-  for (const axis of ['x', 'y'] as const) {
-    const el = note(axis) as HTMLElement
+  const notes = [...box.querySelectorAll<HTMLElement>('.note')]
+  expect(notes.length).toBeGreaterThan(0)
+  for (const el of notes) {
     const at = centre(el)
     expect(document.elementFromPoint(at.x, at.y)?.closest('.note')).toBe(el)
   }

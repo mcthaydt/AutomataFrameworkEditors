@@ -271,7 +271,7 @@ test('a Row is a link at least 56 px tall, with its name in the touch colour, a 
   expect(style(row.querySelector('.name') as Element).color).toBe('rgb(238, 180, 128)')
   expect(style(row.querySelector('.detail') as Element).color).toBe('rgb(183, 180, 146)')
   expect(row.querySelectorAll('.icon').length).toBe(1)
-  expect(row.textContent?.trim()).toBe('crate-gamegrandma')
+  expect(row.textContent?.replace(/\s+/g, ' ').trim()).toBe('crate-game grandma')
 })
 
 test('a Row with an icon of its own has two, and a long name wraps inside it', async () => {
