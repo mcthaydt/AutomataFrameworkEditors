@@ -17,11 +17,17 @@ import type {
 } from '../wire/wire.ts'
 import { STATUS } from '../wire/wire.ts'
 
+/**
+ * How a renewal ended. Only `refused` means the sign-in is really over: GitHub said no to the refresh. `busy` and
+ * `offline` mean the question could not be asked or answered, which says nothing about the sign-in, so it is kept.
+ */
+export type Renewal = 'renewed' | 'refused' | 'busy' | 'offline'
+
 export interface Auth {
   /** The sign-in the page keeps, if any. */
   token(): string | undefined
-  /** Swaps the kept refresh for a new sign-in; says whether it worked. */
-  renew(): Promise<boolean>
+  /** Swaps the kept refresh for a new sign-in. */
+  renew(): Promise<Renewal>
 }
 
 export interface Api {
@@ -91,8 +97,11 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
     if (token === undefined && !visit) return { ok: false, problem: 'signed-out' }
     const first = await once<T>(method, path, body, token)
     if (first.ok || first.problem !== 'signed-out' || token === undefined) return first
-    // The sign-in ran out: renew it once, and ask again with the new one. A second refusal is final.
-    if (!(await auth.renew())) return first
+    // The sign-in ran out: renew it once, and ask again with the new one. A second refusal is final. A renewal that
+    // could not be asked (the internet dropped, GitHub is busy) is that problem, not a sign-out: the sign-in is kept.
+    const renewed = await auth.renew()
+    if (renewed === 'refused') return first
+    if (renewed !== 'renewed') return { ok: false, problem: renewed }
     return once<T>(method, path, body, auth.token())
   }
 
@@ -109,22 +118,34 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
   }
 }
 
-/** POST /api/token. Undefined when it fails for any reason. */
+/**
+ * POST /api/token. The tokens, or the problem: `signed-out` when GitHub refused the code or refresh, `busy` when
+ * GitHub or this site could not answer, `offline` when the page could not ask at all.
+ */
 export async function swapTokens(
   ask: { code: string } | { refresh: string },
   fetcher: Fetcher = wrapped,
-): Promise<Tokens | undefined> {
+): Promise<Answer<Tokens>> {
+  let res: Response
   try {
-    const res = await fetcher('/api/token', {
+    res = await fetcher('/api/token', {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify(ask),
     })
-    const parsed: unknown = await res.json()
-    if (!isAnswer(parsed) || !parsed.ok) return undefined
-    const tokens = parsed.value as Tokens
-    return typeof tokens.token === 'string' && tokens.token !== '' ? tokens : undefined
   } catch {
-    return undefined
+    return { ok: false, problem: 'offline' }
   }
+  let parsed: unknown
+  try {
+    parsed = await res.json()
+  } catch {
+    return { ok: false, problem: 'unknown' }
+  }
+  if (!isAnswer(parsed)) return { ok: false, problem: 'unknown' }
+  if (!parsed.ok) return parsed
+  const tokens = parsed.value as Tokens
+  return typeof tokens.token === 'string' && tokens.token !== ''
+    ? { ok: true, value: tokens }
+    : { ok: false, problem: 'unknown' }
 }
