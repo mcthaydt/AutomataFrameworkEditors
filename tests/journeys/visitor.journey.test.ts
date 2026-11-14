@@ -136,7 +136,7 @@ test('a visitor who opens the Share address is asked to sign in, and lands on Sh
   await j.page.goto(`${j.site}/${GAME}/share`)
   await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).waitFor()
   await signIn(j.page)
-  await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('grandma/crate-game') }).waitFor()
+  await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
 })
 
 test('Welcome with a sample game: Try it now is the one primary, at least 48 px; Sign in is plain, at least 44 px', async () => {

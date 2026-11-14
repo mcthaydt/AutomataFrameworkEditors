@@ -83,7 +83,7 @@ test('a screen about a person shows Welcome, and signing in lands on that screen
   await j.page.goto(`${j.site}/#/game/grandma/crate-game/share`)
   await title(j, WORDS.appName)
   await signIn(j.page)
-  await title(j, 'grandma/crate-game')
+  await title(j, 'Crate Game')
   expect(new URL(j.page.url()).hash).toBe('#/game/grandma/crate-game/share')
 })
 
@@ -98,4 +98,23 @@ test('when the sign-in has run out, a reload still shows the list of games (rene
   await j.page.waitForFunction((was) => localStorage.getItem('af.tokens') !== was, before)
   await j.page.waitForTimeout(100)
   expect(await j.page.getByText(WORDS.signedOutAgain).count()).toBe(0)
+})
+
+test('a sign-in that runs out while GitHub cannot be asked is kept: the person is not sent back to Welcome', async () => {
+  const j = await open('ipadUpright')
+  await signIn(j.page)
+  await title(j, WORDS.pickTitle)
+  const before = await j.page.evaluate(() => localStorage.getItem('af.tokens'))
+  // The train goes through a tunnel: the sign-in has run out, and the renewing question gets no answer.
+  j.fake.tokensRunOut()
+  j.fake.failing = (_method, path) => path === '/login/oauth/access_token'
+  await j.page.reload()
+  await j.page.getByText(WORDS.cantReach).waitFor()
+  expect(await j.page.getByText(WORDS.signedOutAgain).count()).toBe(0)
+  expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
+  expect(await j.page.evaluate(() => localStorage.getItem('af.tokens'))).toBe(before)
+  // Out of the tunnel, one press and the list is there, with no new sign-in.
+  j.fake.failing = undefined
+  await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
+  await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
 })

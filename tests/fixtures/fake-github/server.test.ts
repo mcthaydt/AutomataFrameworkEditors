@@ -515,6 +515,15 @@ test('check-runs: one run that matches what the repo says, none for none', async
   expect(await runs()).toEqual([expect.objectContaining({ status: 'completed', conclusion: 'failure' })])
 })
 
+test('a commit has the date its repo stamped when the head moved, and an unknown one is not found', async () => {
+  const token = await installation()
+  const sha = (await gh(`${REPO}/git/ref/heads/main`, { as: token })).body.object.sha
+  main().commitDates.set(sha, Date.parse('2026-01-02T03:04:05Z'))
+  const found = await gh(`${REPO}/commits/${sha}`, { as: token })
+  expect(found.body.commit.committer.date).toBe('2026-01-02T03:04:05.000Z')
+  expect((await gh(`${REPO}/commits/${'0'.repeat(40)}`, { as: token })).status).toBe(404)
+})
+
 // ---- the server's own behaviour ------------------------------------------------------------------------------
 
 test('a token of the wrong kind, or none, or one that no longer works, is 401', async () => {

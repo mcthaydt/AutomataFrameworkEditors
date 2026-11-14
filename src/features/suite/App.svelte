@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import type { Api } from '../api/api.ts'
   import type { GameRef } from '../wire/wire.ts'
+  import type { GameOpened } from './opened.ts'
   import type { Session } from '../session/session.ts'
   import { Button, Notice } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
@@ -52,28 +53,41 @@
   let guideOn = $state(guideWanted(remembered))
   let games = $state<number | undefined>(undefined)
   let level = $state({ dirty: false, look: false })
-  let savedHow = $state<'direct' | 'suggestion' | undefined>(undefined)
   let keptCopy = $state(false)
+  /**
+   * What the game on screen said when it was opened: its project name, or that it could not be opened (and whether a
+   * visitor is better off signing in). The first-run strip, the sign-in on the bar and the titles are all worked out
+   * from it, so none of them speaks about a game that is not there.
+   */
+  let opened = $state<{ game: string; name: string | undefined; askSignIn: boolean } | undefined>(undefined)
+  const told = (game: GameRef, said: GameOpened): void => {
+    opened = { game: `${game.owner}/${game.name}`.toLowerCase(), name: said.name, askSignIn: said.askSignIn }
+  }
   /** True once the person has been shown their own list of games; a link or "Try it now" never shows it. */
   let sawList = $state(false)
   const hideGuide = (): void => {
     finishGuide(remembered)
     guideOn = false
   }
+  // That the person has saved once, and how, is kept with the guide's own key: a reload after their first save shows
+  // "You did it", not "Step 2 of 4" again, until they hide the tips. The old value was a plain "1", which meant direct.
   const SAVED = 'af.saved'
-  const everSaved = (): boolean => {
+  const keptSaved = (): 'direct' | 'suggestion' | undefined => {
     try {
-      return remembered.getItem(SAVED) !== null
+      const kept = remembered.getItem(SAVED)
+      return kept === null ? undefined : kept === 'suggestion' ? 'suggestion' : 'direct'
     } catch {
-      return false
+      return undefined
     }
   }
+  // svelte-ignore state_referenced_locally
+  let savedHow = $state<'direct' | 'suggestion' | undefined>(keptSaved())
   function saved(how: 'direct' | 'suggestion'): void {
     savedHow = how
     try {
-      remembered.setItem(SAVED, '1')
+      remembered.setItem(SAVED, how)
     } catch {
-      // The tip about Share simply does not show.
+      // The tip about Share simply does not show, and the strip forgets after a reload.
     }
   }
 
@@ -104,8 +118,18 @@
     location.hash = '#/'
   }
   const asksForPerson = $derived(needsPerson(route))
-  const savedBefore = $derived(savedHow !== undefined || everSaved())
 
+  const gameKey = $derived(
+    route.screen === 'games' ? undefined : `${route.owner}/${route.name}`.toLowerCase(),
+  )
+  /** What the open said about the game on screen now; undefined until it has said, or on a screen with no game. */
+  const known = $derived(opened !== undefined && opened.game === gameKey ? opened : undefined)
+  const gameName = $derived(known?.name)
+  /** A game that did not open has nothing to say a first-run step about, and neither do the screens beside it. */
+  const guided = $derived(
+    route.screen === 'games' ||
+      ((route.screen === 'game' || route.screen === 'level') && (known === undefined || known.name !== undefined)),
+  )
   const inGame = $derived(route.screen !== 'games')
   const step = $derived(
     guideStep({
@@ -146,7 +170,7 @@
 </script>
 
 <div class="page">
-{#if guideOn}
+{#if guideOn && guided}
   <Guide count={level.look && step === 'move' ? undefined : count} text={guideText} onhide={hideGuide} />
 {/if}
 <div class="content">
@@ -156,7 +180,8 @@
   <div class="bar">
     {#if signedIn}
       <Button label={WORDS.signOut} onpress={signOut} />
-    {:else}
+    {:else if !(known !== undefined && known.askSignIn)}
+      <!-- Not on a screen whose own primary button already says Sign in: two of them a hand apart is one too many. -->
       <Button label={WORDS.signIn} onpress={begin} />
     {/if}
   </div>
@@ -177,13 +202,15 @@
       onsignedout={signedOut}
     />
   {:else if route.screen === 'game'}
+    {@const here = { owner: route.owner, name: route.name }}
     {#key `${route.owner}/${route.name}`}
       <GameHome
         {api}
-        game={{ owner: route.owner, name: route.name }}
+        game={here}
         {remembered}
         visitor={!signedIn}
-        {savedBefore}
+        savedBefore={savedHow !== undefined}
+        onopened={(said) => told(here, said)}
         onsignin={begin}
         onsignedout={signedOut}
         onback={goBack}
@@ -199,6 +226,8 @@
         {remembered}
         {drafts}
         {signedIn}
+        {gameName}
+        onopened={(said) => told(here, said)}
         onfacts={(f) => (level = { dirty: f.dirty, look: f.look })}
         onsaved={saved}
         onkept={() => (keptCopy = true)}

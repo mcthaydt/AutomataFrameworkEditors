@@ -165,6 +165,51 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
 }
 
 /**
+ * The colour of the level's picture at a point of the page (CSS pixels), as `#rrggbb`: what a person sees there. The
+ * buttons over the picture prove where a thing is for a finger and a screen reader; this proves the picture agrees.
+ */
+export async function pictureColourAt(page: Page, at: { x: number; y: number }): Promise<string> {
+  return page.evaluate(({ x, y }) => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas')
+    if (canvas === null) throw new Error('No picture of a level on this page.')
+    const rect = canvas.getBoundingClientRect()
+    const ratio = canvas.width / rect.width
+    const copy = document.createElement('canvas')
+    copy.width = canvas.width
+    copy.height = canvas.height
+    const context = copy.getContext('2d')
+    if (context === null) throw new Error('No 2D canvas to read the picture with.')
+    context.drawImage(canvas, 0, 0)
+    const [r = 0, g = 0, b = 0] = context.getImageData(
+      Math.round((x - rect.left) * ratio),
+      Math.round((y - rect.top) * ratio),
+      1,
+      1,
+    ).data
+    return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+  }, at)
+}
+
+/** The colour of the picture at the middle of a thing's button: the thing itself, if the picture agrees with it. */
+export async function pictureColourUnder(page: Page, id: string): Promise<string> {
+  const box = await thingNamed(page, id).boundingBox()
+  if (box === null) throw new Error(`No ${id} on this page.`)
+  return pictureColourAt(page, { x: box.x + box.width / 2, y: box.y + box.height / 2 })
+}
+
+/**
+ * The colour of the picture `tiles` to the right of the middle of a thing's button (left if negative), on the same
+ * row. Looked at after the layout may have changed (a line of text wrapping moves the stage), so it is measured from
+ * where the thing is now, not from where it was.
+ */
+export async function pictureColourBeside(page: Page, id: string, tiles: number): Promise<string> {
+  const box = await thingNamed(page, id).boundingBox()
+  const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+  if (box === null || !(scale > 0)) throw new Error(`No ${id} on this page.`)
+  return pictureColourAt(page, { x: box.x + box.width / 2 + tiles * scale, y: box.y + box.height / 2 })
+}
+
+/**
  * Opens a game's own page by its address, the way a link someone was sent does. Someone who does not own the game
  * (grandpa, kid) has no list to pick it from until they have opened it once, so a journey that is not about the list
  * goes straight to the game.

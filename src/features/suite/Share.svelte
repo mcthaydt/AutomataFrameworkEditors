@@ -30,6 +30,8 @@
     owner: { label: WORDS.levelOwner, hint: WORDS.levelOwnerHint },
   }
 
+  /** The game's own name, once it has opened; `owner/name` only until then. */
+  let gameName = $state<string | undefined>(undefined)
   let loaded = $state.raw<SharingAnswer | undefined>(undefined)
   let everyone = $state<AccessFile['everyone']>('look')
   let people = $state.raw<readonly Person[]>([])
@@ -60,6 +62,7 @@
     if (!opened.ok && opened.problem === 'signed-out') return onsignedout()
     // Anyone but an Owner has nothing to do here.
     if (!opened.ok || opened.game.level !== 'owner') return onhome()
+    gameName = opened.game.content.project.name
     const answer = await api.sharing(ref)
     if (!answer.ok) {
       if (answer.problem === 'signed-out') return onsignedout()
@@ -167,7 +170,7 @@
   const needsSave = $derived(dirty || (loaded?.broken ?? false))
 </script>
 
-<Screen title={WORDS.shareTitle(`${ref.owner}/${ref.name}`)} {back}>
+<Screen title={WORDS.shareTitle(gameName ?? `${ref.owner}/${ref.name}`)} {back}>
   {#if !ready}
     {#each said as line (line.text)}<Notice kind={line.kind} text={line.text} />{/each}
     {#if said.length === 0}<p>{WORDS.loading}</p>{/if}

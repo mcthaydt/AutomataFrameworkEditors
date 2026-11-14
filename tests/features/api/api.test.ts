@@ -15,16 +15,19 @@ const path = (url: string): string => url.replace(SITE, '')
 const GAME = { owner: 'grandma', name: 'crate-game' }
 const ok = (value: unknown) => json({ ok: true, value })
 
-function auth(tokens: (string | undefined)[], renews: boolean[] = []): Auth & { renewed: number } {
+function auth(
+  tokens: (string | undefined)[],
+  renews: (boolean | 'busy' | 'offline')[] = [],
+): Auth & { renewed: number } {
   let at = 0
   const state = {
     renewed: 0,
     token: () => tokens[Math.min(at, tokens.length - 1)],
     renew: async () => {
       state.renewed++
-      const worked = renews.shift() ?? false
-      if (worked) at++
-      return worked
+      const result = renews.shift() ?? false
+      if (result === true) at++
+      return result === true ? ('renewed' as const) : result === false ? ('refused' as const) : result
     },
   }
   return state
@@ -112,6 +115,15 @@ test('a renew that says no ends it after one call', async () => {
   expect(calls).toHaveLength(1)
 })
 
+test('a renew that could not be asked is busy or offline, not signed-out, and the sign-in is not given up', async () => {
+  for (const why of ['busy', 'offline'] as const) {
+    const { fetcher, calls } = recorder(() => json({ ok: false, problem: 'signed-out' }, 401))
+    const a = auth(['old'], [why])
+    expect(await createApi(a, fetcher).games()).toEqual({ ok: false, problem: why })
+    expect(calls).toHaveLength(1)
+  }
+})
+
 test('a visitor whose open is refused is not asked to renew anything', async () => {
   const { fetcher } = recorder(() => json({ ok: false, problem: 'not-found' }, 404))
   const a = auth([undefined])
@@ -159,8 +171,11 @@ test('a problem the API names is passed on as it is, with its details', async ()
 
 test('swapTokens posts the code or the refresh to /api/token and gives the tokens', async () => {
   const { fetcher, calls } = recorder(() => ok({ token: 'a', refresh: 'b' }))
-  expect(await swapTokens({ code: 'c1' }, fetcher)).toEqual({ token: 'a', refresh: 'b' })
-  expect(await swapTokens({ refresh: 'r1' }, fetcher)).toEqual({ token: 'a', refresh: 'b' })
+  expect(await swapTokens({ code: 'c1' }, fetcher)).toEqual({ ok: true, value: { token: 'a', refresh: 'b' } })
+  expect(await swapTokens({ refresh: 'r1' }, fetcher)).toEqual({
+    ok: true,
+    value: { token: 'a', refresh: 'b' },
+  })
   expect(calls.map((c) => [c.method, path(c.url), c.body])).toEqual([
     ['POST', '/api/token', { code: 'c1' }],
     ['POST', '/api/token', { refresh: 'r1' }],
@@ -168,16 +183,21 @@ test('swapTokens posts the code or the refresh to /api/token and gives the token
   expect(calls[0]?.headers.has('authorization')).toBe(false)
 })
 
-test('swapTokens is undefined for a refusal, a throw, nonsense, or an empty token', async () => {
-  for (const make of [
-    () => json({ ok: false, problem: 'signed-out' }, 401),
-    () => {
-      throw new Error('offline')
-    },
-    () => new Response('nope'),
-    () => ok({ token: '' }),
-    () => ok({}),
-  ]) {
-    expect(await swapTokens({ code: 'x' }, recorder(make).fetcher)).toBeUndefined()
+test('swapTokens tells a refusal from a call that could not be made, and nonsense from both', async () => {
+  const problems: [() => Response, string][] = [
+    [() => json({ ok: false, problem: 'signed-out' }, 401), 'signed-out'],
+    [() => json({ ok: false, problem: 'busy' }, 503), 'busy'],
+    [
+      () => {
+        throw new Error('offline')
+      },
+      'offline',
+    ],
+    [() => new Response('nope'), 'unknown'],
+    [() => ok({ token: '' }), 'unknown'],
+    [() => ok({}), 'unknown'],
+  ]
+  for (const [make, problem] of problems) {
+    expect(await swapTokens({ code: 'x' }, recorder(make).fetcher)).toEqual({ ok: false, problem })
   }
 })
