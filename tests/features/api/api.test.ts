@@ -172,7 +172,10 @@ test('a problem the API names is passed on as it is, with its details', async ()
 test('swapTokens posts the code or the refresh to /api/token and gives the tokens', async () => {
   const { fetcher, calls } = recorder(() => ok({ token: 'a', refresh: 'b' }))
   expect(await swapTokens({ code: 'c1' }, fetcher)).toEqual({ ok: true, value: { token: 'a', refresh: 'b' } })
-  expect(await swapTokens({ refresh: 'r1' }, fetcher)).toEqual({ ok: true, value: { token: 'a', refresh: 'b' } })
+  expect(await swapTokens({ refresh: 'r1' }, fetcher)).toEqual({
+    ok: true,
+    value: { token: 'a', refresh: 'b' },
+  })
   expect(calls.map((c) => [c.method, path(c.url), c.body])).toEqual([
     ['POST', '/api/token', { code: 'c1' }],
     ['POST', '/api/token', { refresh: 'r1' }],

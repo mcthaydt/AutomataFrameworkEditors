@@ -6,8 +6,8 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
-  openLevel,
   middleOf,
+  openLevel,
   openPage,
   pictureColourAt,
   pictureColourUnder,

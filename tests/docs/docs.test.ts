@@ -58,7 +58,7 @@ test('docs/teams.md has the branch rule as a setup step, with the editor on its 
   expect(teams).toContain('Allow merge commits')
 })
 
-test("docs/teams.md says what the code does about organisations, own changes and the kind of checks it reads", () => {
+test('docs/teams.md says what the code does about organisations, own changes and the kind of checks it reads', () => {
   // Organisation admins count as Owners (enter.ts); Edit and Owner approve their own (approve.ts); check runs only.
   expect(teams).toContain('organisation')
   expect(teams).toContain('admins')
