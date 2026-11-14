@@ -6,6 +6,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  openGame,
   openLevel,
   openPage,
   pressSave,
@@ -72,7 +73,7 @@ async function kidHasSaved(size: Size): Promise<JourneyPage> {
 async function gameAs(size: Size, person: Person): Promise<JourneyPage> {
   const j = await window_(size, person, true)
   await signIn(j.page)
-  await j.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(j.page)
   return j
 }
 async function openFirstChange(j: JourneyPage): Promise<void> {

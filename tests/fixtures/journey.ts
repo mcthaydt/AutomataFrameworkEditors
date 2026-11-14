@@ -77,6 +77,8 @@ export async function openPage(
       w.__refused.push(`${event.violatedDirective}: ${event.blockedURI}`)
     })
   })
+  // A click that cannot happen says so in seconds, not half a minute.
+  context.setDefaultTimeout(10_000)
   const page = await context.newPage()
   const requests: string[] = []
   const errors: string[] = []
@@ -143,9 +145,21 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
   await page.mouse.up()
 }
 
-/** From the list of games: opens `game`, then its level. */
+/**
+ * Opens a game's own page by its address, the way a link someone was sent does. Someone who does not own the game
+ * (grandpa, kid) has no list to pick it from until they have opened it once, so a journey that is not about the list
+ * goes straight to the game.
+ */
+export async function openGame(page: Page, game = 'crate-game'): Promise<void> {
+  await page.evaluate((hash) => {
+    location.hash = hash
+  }, `#/game/grandma/${game}`)
+  await page.getByRole('link', { name: 'level-1' }).waitFor()
+}
+
+/** Opens `game`, then its level. */
 export async function openLevel(page: Page, game = 'crate-game', level = 'level-1'): Promise<void> {
-  await page.getByRole('link', { name: game }).click()
+  await openGame(page, game)
   await page.getByRole('link', { name: level }).click()
   await thingNamed(page, 'crate-1').waitFor()
 }

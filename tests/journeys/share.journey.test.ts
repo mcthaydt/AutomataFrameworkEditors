@@ -6,7 +6,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
-  openLevel,
+  openGame,
   openPage,
   pressSave,
   type SIZES,
@@ -48,7 +48,7 @@ const file = (over: Partial<AccessFile>): string =>
 async function shareScreen(size: Size = 'ipadUpright', keep = false): Promise<JourneyPage> {
   const g = await window_(size, 'grandma', keep)
   await signIn(g.page)
-  await g.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(g.page)
   await g.page.getByRole('link', { name: WORDS.share }).click()
   await g.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('grandma/crate-game') }).waitFor()
   return g
@@ -114,7 +114,7 @@ test("only an Owner sees Share; anyone else who opens the Share address lands on
   const g = await window_('ipadUpright', 'grandpa')
   repoOf(g).put('main', ACCESS, file({ people: [{ github: 'grandpa', level: 'approve' }] }))
   await signIn(g.page)
-  await g.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(g.page)
   await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
   expect(await g.page.getByRole('link', { name: WORDS.share }).count()).toBe(0)
   await g.page.goto(`${g.site}/#/game/grandma/crate-game/share`)
@@ -135,7 +135,7 @@ test('changing grandpa from Approve to Look, and saving: his next visit says he 
   await text(g, WORDS.sharingSaved)
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
-  await grandpa.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(grandpa.page)
   await text(grandpa, WORDS.youAre('look'))
 })
 
@@ -152,7 +152,7 @@ test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
   await text(g, WORDS.sharingSaved)
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
-  await grandpa.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(grandpa.page)
   await text(grandpa, WORDS.youAre('suggest'))
 })
 
@@ -205,7 +205,7 @@ test('a damaged sharing file: the screen says so, and saving mends it', async ()
   const g = await window_('ipadUpright', 'grandma')
   repoOf(g).put('main', ACCESS, 'format = [')
   await signIn(g.page)
-  await g.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(g.page)
   await g.page.getByRole('link', { name: WORDS.share }).click()
   await text(g, WORDS.sharingBroken)
   await saveSharing(g).click()

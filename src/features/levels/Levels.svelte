@@ -178,8 +178,9 @@
     let alive = true
     const watcher = new ResizeObserver(() => {
       if (stage === undefined) return
-      // Turning the iPad cancels a drag, and everything is fitted again.
-      cancelDrag()
+      // Turning the iPad changes the stage's width and cancels a drag; everything is fitted again. A change of height
+      // alone is a line of text above wrapping or unwrapping (the status, the tip), and must not drop a finger's drag.
+      if (stage.clientWidth !== size.w) cancelDrag()
       size = { w: stage.clientWidth, h: stage.clientHeight }
     })
     if (stage !== undefined) {

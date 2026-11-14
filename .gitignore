@@ -7,3 +7,4 @@ coverage/
 __screenshots__/
 .svelte-kit/
 .wrangler/
+journeys-result.json
