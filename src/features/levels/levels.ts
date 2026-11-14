@@ -15,7 +15,6 @@ export {
 } from './edit.ts'
 export { default as Levels } from './Levels.svelte'
 export {
-  fitInRoom,
   keepInside,
   onSolid,
   type Point,
