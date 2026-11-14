@@ -1,9 +1,9 @@
 // `WORDS` on a screen: reading a key in markup follows the language and a swapped table, and a screen can't write to it.
-import { createRawSnippet, mount, tick, unmount } from 'svelte'
+import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test } from 'vitest'
-import { Panel } from '#src/features/ui/ui.ts'
 import { EN } from '#src/features/words/en.ts'
 import { language, setLanguage, useTables, WORDS } from '#src/features/words/words.svelte.ts'
+import WordsLine from '../../fixtures/WordsLine.svelte'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -20,10 +20,9 @@ afterEach(() => {
   setLanguage('en')
 })
 
-/** A panel whose one line reads `WORDS.back` the way a screen's markup does. */
+/** A line whose words are read the way a screen's markup reads them. */
 function mountLine(): void {
-  const children = createRawSnippet(() => ({ render: () => `<p>${WORDS.back}</p>` }))
-  mounted = mount(Panel, { target: box, props: { part: 'test', children } })
+  mounted = mount(WordsLine, { target: box })
 }
 
 test('a screen shows the words of the table', async () => {

@@ -4,7 +4,7 @@
 import { PROJECT_FILE, parseProject, writeContent } from '@automataframework/framework/headless'
 import { can } from '../access/access.ts'
 import type { Pull } from '../github/github.ts'
-import { APP_ON_GITHUB, type Answer, type SaveAnswer, type SaveAsk, type Waiting } from '../wire/wire.ts'
+import { type Answer, APP_ON_GITHUB, type SaveAnswer, type SaveAsk, type Waiting } from '../wire/wire.ts'
 import { type Json, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
 import { ownPull, toWaiting } from './pulls.ts'

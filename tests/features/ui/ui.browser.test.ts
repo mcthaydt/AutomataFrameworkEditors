@@ -291,12 +291,15 @@ test('a panel is raised at 94% with a 10 px blur and a 35% edge', async () => {
   expect(panel.dataset.part).toBe('tools')
   const css = style(panel)
   // 94% of the raised colour over nothing: the colour with an alpha of 0.94.
-  expect(css.backgroundColor).toMatch(/^(rgba\(49, 60, 44, 0\.94\)|color\(srgb 0\.19\d* 0\.23\d* 0\.17\d* \/ 0\.94\))$/)
+  expect(css.backgroundColor).toMatch(
+    /^(rgba\(49, 60, 44, 0\.94\)|color\(srgb 0\.19\d* 0\.23\d* 0\.17\d* \/ 0\.94\))$/,
+  )
   expect(css.backdropFilter || css.getPropertyValue('-webkit-backdrop-filter')).toBe('blur(10px)')
   expect(css.borderTopWidth).toBe('1px')
   expect(css.borderTopColor).toMatch(/0\.35\)$/)
   expect(css.boxShadow).not.toBe('none')
-  expect(css.animationName).toBe('arrive')
+  // Svelte puts its component's own prefix on a keyframe's name.
+  expect(css.animationName).toMatch(/arrive$/)
 })
 
 test('a panel with a mark edge has a 2 px mark edge', async () => {
