@@ -110,7 +110,6 @@ function pictureAt(at: { x: number; y: number }): string {
 }
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
-const RING = '#ffffff'
 /** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
 const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
 
@@ -356,28 +355,23 @@ test('the picture refits when the box turns: the crate is still drawn under its 
   expect(Math.abs(centre(crate()).y - where.y)).toBeLessThanOrEqual(1)
 })
 
-test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
+// The ring is the button laid over the thing, not part of the picture: the picture is the game's own art and is never
+// marked on. A selected thing's button takes the focus color as its edge, and unselecting gives it back.
+test('a selected thing is ringed by its button, and unselecting takes the ring away', async () => {
   await show()
   await drawn()
-  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
-  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
-  const middle = expectedCentre(6.5, 7.5)
-  const edge = middle.x - scale() / 2
-  const near = [
-    { x: edge - 2, y: middle.y },
-    { x: edge + 2, y: middle.y },
-  ]
-  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
-  expect(ringed()).toBe(false)
+  const edge = (): string => getComputedStyle(crate()).borderTopColor
+  const resting = edge()
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(ringed()).toBe(true)
+  expect(crate().getAttribute('aria-pressed')).toBe('true')
+  expect(edge()).not.toBe(resting)
   const s = stage().getBoundingClientRect()
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
-  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(crate().getAttribute('aria-pressed')).toBe('false')
+  expect(edge()).toBe(resting)
 })
 
 test('turning mid-drag cancels the drag', async () => {
