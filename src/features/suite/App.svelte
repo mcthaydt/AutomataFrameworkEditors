@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import type { Api } from '../api/api.ts'
   import type { Session } from '../session/session.ts'
-  import { Button, Screen } from '../ui/ui.ts'
+  import { Button, Notice, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import { needsPerson, parseRoute, routeHash } from './route.ts'
   import GameHome from './GameHome.svelte'
@@ -73,6 +73,10 @@
       <Button label={WORDS.signIn} onpress={begin} />
     {/if}
   </div>
+  {#if !signedIn && (notice === 'cancelled' || notice === 'failed')}
+    <!-- A sign-in that did not happen, on a screen that does not need one: say so, and the way to try again is the bar. -->
+    <div class="said"><Notice kind="problem" text={notice === 'failed' ? WORDS.signInFailed : WORDS.signInCancelled} /></div>
+  {/if}
   {#if route.screen === 'games'}
     <PickGame {api} {remembered} onadd={() => location.assign(addUrl)} onsignedout={signedOut} />
   {:else if route.screen === 'game'}
@@ -108,6 +112,9 @@
 {/if}
 
 <style>
+  .said {
+    padding: var(--space-2) var(--space-3) 0;
+  }
   .bar {
     display: flex;
     justify-content: flex-end;

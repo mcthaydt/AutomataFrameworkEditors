@@ -27,10 +27,11 @@ export function mountSuite(target: HTMLElement, config: SuiteConfig): { destroy(
   let app: ReturnType<typeof mount> | undefined
   let destroyed = false
 
-  // A sign-in that GitHub sent back is finished first, so the app opens already signed in, on the place the person was.
+  // A sign-in that GitHub sent back is finished first, so the app opens on the place the person was.
   void session.finish(new URL(location.href)).then(({ result, returnTo }) => {
     if (destroyed) return
-    if (result === 'signed-in') location.hash = returnTo
+    // Cancelled or not, the person lands where they were: a level they were trying stays on screen.
+    if (result !== 'nothing-to-do') location.hash = returnTo
     app = mount(App, {
       target,
       props: {

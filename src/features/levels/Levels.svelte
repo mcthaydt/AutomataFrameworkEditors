@@ -236,6 +236,7 @@
               style:top="{box.y}px"
               style:width="{box.w}px"
               style:height="{box.h}px"
+              onfocus={() => (selected = thing.id)}
               onkeydown={(e) => key(e, thing.id)}
             ></button>
           {/if}

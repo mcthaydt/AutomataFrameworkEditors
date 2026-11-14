@@ -119,3 +119,34 @@ export async function picture(page: Page, name: string): Promise<void> {
   mkdirSync(dir, { recursive: true })
   await page.screenshot({ path: join(dir, `${name}.png`), fullPage: true })
 }
+
+/** The line under the editor's title that says whether there is something to save. */
+export const statusLine = (page: Page) => page.locator('.status')
+
+/** A thing in the level, by its id: a button laid over the picture, with its place in tiles. */
+export const thingNamed = (page: Page, id: string) => page.locator(`[data-thing="${id}"]`)
+
+/** Drags a thing by `dx` and `dy` tiles with one finger, the way a person does: down, a path across, up. */
+export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: number }): Promise<void> {
+  const box = await thingNamed(page, id).boundingBox()
+  const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+  if (box === null || !(scale > 0)) throw new Error(`No ${id} to drag on this page.`)
+  const from = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  const steps = 8
+  for (let step = 1; step <= steps; step += 1) {
+    await page.mouse.move(from.x + (by.dx * scale * step) / steps, from.y + (by.dy * scale * step) / steps)
+  }
+  await page.mouse.up()
+}
+
+/** From the list of games: opens `game`, then its level. */
+export async function openLevel(page: Page, game = 'crate-game', level = 'level-1'): Promise<void> {
+  await page.getByRole('link', { name: game }).click()
+  await page.getByRole('link', { name: level }).click()
+  await thingNamed(page, 'crate-1').waitFor()
+}
+
+/** Presses Save. */
+export const pressSave = (page: Page) => page.getByRole('button', { name: WORDS.save, exact: true })
