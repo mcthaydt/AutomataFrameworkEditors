@@ -10,4 +10,4 @@ export {
   startEdit,
   undo,
 } from './edit.ts'
-export { keepInside, onSolid, type Point, type Size, STEP, snap, toScreen, toWorld } from './place.ts'
+export { keepInside, onSolid, type Point, type Size, snap, toScreen, toWorld } from './place.ts'
