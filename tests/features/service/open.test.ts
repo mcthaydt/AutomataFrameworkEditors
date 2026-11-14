@@ -46,7 +46,8 @@ test("a visitor sees none of kid's waiting change: main's files, mine undefined,
   crate().addPull('automata/kid')
   crate().put('automata/kid', LEVEL_PATH, '{"changed":true}\n')
   const visitor = await opened('visitor')
-  expect(visitor).toMatchObject({ branch: 'main', mine: undefined, waiting: 0 })
+  expect(visitor).toMatchObject({ branch: 'main', waiting: 0 })
+  expect(visitor.mine).toBeUndefined()
   expect(visitor.files.find((f) => f.path === LEVEL_PATH)?.text).toBe(fixtureFiles[LEVEL_PATH])
 })
 
@@ -131,7 +132,8 @@ test('grandpa sees the same game from main, and waiting is 1', async () => {
   crate().put('automata/kid', LEVEL_PATH, '{"moved":1}\n')
   crate().put('main', 'automata.access.toml', writeAccess({ format: 1, everyone: 'look', people: [] }))
   const game = await opened('grandpa')
-  expect(game).toMatchObject({ branch: 'main', mine: undefined, waiting: 1 })
+  expect(game).toMatchObject({ branch: 'main', waiting: 1 })
+  expect(game.mine).toBeUndefined()
   expect(game.files.find((f) => f.path === LEVEL_PATH)?.text).toBe(fixtureFiles[LEVEL_PATH])
 })
 

@@ -96,3 +96,23 @@ export interface OpenAnswer {
   /** `automata.toml` and every file it lists (one that is missing is left out). */
   readonly files: readonly WireFile[]
 }
+
+/** What the page sends to save a level. */
+export interface SaveAsk {
+  readonly game: GameRef
+  /** Which content file. */
+  readonly path: string
+  /** The level, as data; the API writes the bytes. */
+  readonly value: unknown
+  /** The version of the file the person opened. */
+  readonly version: string
+  /** What changed, in a few words. */
+  readonly message: string
+}
+export interface SaveAnswer {
+  readonly how: 'direct' | 'suggestion'
+  /** The file's new version. */
+  readonly version: string
+  /** The waiting change the save is part of; undefined when it went straight in. */
+  readonly mine: Waiting | undefined
+}

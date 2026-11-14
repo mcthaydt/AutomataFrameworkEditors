@@ -37,6 +37,8 @@ export interface FakeGitHub {
   signedOutEverywhere(): void
   /** True: every call is dropped. */
   down: boolean
+  /** When it says true for a call (method and path), that one call fails with a 503 and changes nothing. */
+  failing: ((method: string, path: string) => boolean) | undefined
   /** Every request it was sent, oldest first; emptied by `reset()`. */
   readonly log: readonly { readonly method: string; readonly path: string }[]
   /** Milliseconds: the time on new pulls. */
@@ -91,6 +93,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
   let person: Person = 'grandma'
   let signIn: 'allow' | 'deny' = 'allow'
   let down = false
+  let failing: FakeGitHub['failing']
   let counter = 0
   const codes = new Map<string, Person>()
   const refreshes = new Map<string, Person>()
@@ -112,6 +115,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     person = 'grandma'
     signIn = 'allow'
     down = false
+    failing = undefined
     state.clock = START
     state.rate = { remaining: 4900, limit: 5000 }
     for (const store of [codes, refreshes, access, installTokens]) store.clear()
@@ -556,7 +560,11 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       const url = new URL(request.url ?? '/', 'http://pretend.github')
       const method = request.method ?? 'GET'
       log.push({ method, path: url.pathname })
-      const reply = handle(method, url, await readBody(request), request)
+      const asked = await readBody(request)
+      const reply =
+        failing?.(method, url.pathname) === true
+          ? send(503, { message: 'Service Unavailable' })
+          : handle(method, url, asked, request)
       response.writeHead(reply.status, {
         ...(reply.body === undefined ? {} : { 'content-type': 'application/json; charset=utf-8' }),
         'x-ratelimit-remaining': String(state.rate.remaining),
@@ -599,6 +607,12 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     },
     set down(value) {
       down = value
+    },
+    get failing() {
+      return failing
+    },
+    set failing(value) {
+      failing = value
     },
     get clock() {
       return state.clock

@@ -16,7 +16,7 @@ const problem = (r: { answer: Answer<unknown> }): string | undefined =>
   r.answer.ok ? undefined : r.answer.problem
 
 test('a call from another origin is refused before GitHub is asked anything', async () => {
-  const post = await api.raw('POST', GAME, { headers: { origin: 'https://evil.test' } })
+  const post = await api.raw('POST', '/api/save', { headers: { origin: 'https://evil.test' } })
   const get = await api.raw('GET', GAME, { headers: { origin: 'https://evil.test' } })
   expect([problem(post), problem(get)]).toEqual(['not-allowed', 'not-allowed'])
   expect(api.fake.log).toEqual([])
@@ -61,15 +61,16 @@ test('a real GitHub token that this App did not make is signed-out', async () =>
 })
 
 test('the level comes from the sharing file on main, never from the request', async () => {
-  const res = await api.raw<OpenAnswer>(`GET`, `${GAME}&level=owner`, {
-    headers: { authorization: `Bearer ${api.fake.tokenFor('kid')}`, 'x-level': 'owner' },
+  const ask = { headers: { authorization: `Bearer ${api.fake.tokenFor('kid')}`, 'x-level': 'owner' } }
+  // No sharing file on a public game: everyone may look, so kid is at look, whatever the request says.
+  expect(await api.raw<OpenAnswer>('GET', `${GAME}&level=owner`, ask)).toMatchObject({
+    answer: { ok: true, value: { level: 'look' } },
   })
-  expect(res.answer).toMatchObject({ ok: false, problem: 'not-found' })
-  crate().put('main', 'automata.access.toml', writeAccess({ format: 1, everyone: 'look', people: [] }))
-  const again = await api.raw<OpenAnswer>('GET', `${GAME}&level=owner`, {
-    headers: { authorization: `Bearer ${api.fake.tokenFor('kid')}`, 'x-level': 'owner' },
+  crate().put('main', 'automata.access.toml', writeAccess({ format: 1, everyone: 'nothing', people: [] }))
+  expect((await api.raw<OpenAnswer>('GET', `${GAME}&level=owner`, ask)).answer).toMatchObject({
+    ok: false,
+    problem: 'not-found',
   })
-  expect(again.answer).toMatchObject({ ok: true, value: { level: 'look' } })
 })
 
 test("a sharing file on a suggestion branch changes nobody's level", async () => {

@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest'
 import { handleApi } from '#src/features/service/service.ts'
 import { SITE, startTestApi, type TestApi } from '../../fixtures/api.ts'
-import { recorder } from '../../fixtures/fetcher.ts'
 
 let api: TestApi
 beforeAll(async () => {
@@ -30,20 +29,13 @@ test('every answer is JSON with cache-control: no-store', async () => {
 })
 
 test('a thrown error inside a route is 500 unknown and its message is not in the body', async () => {
-  const boom = recorder(() => {
-    throw new Error('secret-in-the-message')
-  })
-  // A fetcher that throws is GitHub being down (busy); a bug in the code is what reaches the catch-all.
-  const res = await handleApi(
-    new Request(`${SITE}/api/games`, { headers: { authorization: 'Bearer x' } }),
-    { ...api.fake.env },
-    {
-      fetcher: boom.fetcher,
-      now: () => {
-        throw new Error('secret-in-the-message')
-      },
+  // A request whose address cannot be read: nothing the routes catch, so it reaches the catch-all.
+  const broken = {
+    get url(): string {
+      throw new Error('secret-in-the-message')
     },
-  )
+  } as unknown as Request
+  const res = await handleApi(broken, { ...api.fake.env })
   expect(res.status).toBe(500)
   const text = await res.text()
   expect(JSON.parse(text)).toEqual({ ok: false, problem: 'unknown' })

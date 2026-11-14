@@ -240,7 +240,8 @@ test('access_tokens: the repo must be named, and must be installed', async () =>
 })
 
 test("a person's token is refused where an installation's is wanted, and the other way round", async () => {
-  expect((await gh(REPO, { as: fake.tokenFor('grandma') })).status).toBe(401)
+  // The one call a person's token makes on a repo is the look at its own rights; the rest are the installation's.
+  expect((await gh(`${REPO}/pulls`, { as: fake.tokenFor('grandma') })).status).toBe(401)
   expect((await gh('/user/installations', { as: await installation() })).status).toBe(401)
 })
 

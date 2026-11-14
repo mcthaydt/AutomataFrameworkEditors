@@ -6,6 +6,7 @@ import type { Answer } from '../wire/wire.ts'
 import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
+import { saveLevel } from './save.ts'
 
 export type { ApiEnv } from './enter.ts'
 
@@ -14,6 +15,7 @@ type Route = (deps: ApiDeps, request: Request, url: URL) => Promise<Answer<unkno
 /** The routes: each is a method and a path, and what it does. */
 const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/games': (deps, request) => listGames(deps, request),
+  'POST /api/save': (deps, request) => saveLevel(deps, request),
   'GET /api/game': (deps, request, url) => {
     const owner = url.searchParams.get('owner') ?? ''
     const name = url.searchParams.get('name') ?? ''
