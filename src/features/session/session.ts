@@ -1,7 +1,7 @@
 // Signing in, as the page lives it. GitHub only says who a person is: the page sends them to GitHub's sign-in page,
 // GitHub sends them back with a one-time code, and this site's API swaps the code for a sign-in that the page keeps.
 // Nothing here reads a screen, and the only thing kept on the device is the sign-in itself.
-import type { Auth, swapTokens } from '../api/api.ts'
+import type { Auth, Renewal, swapTokens } from '../api/api.ts'
 import type { Tokens } from '../wire/wire.ts'
 
 export type SignInResult = 'nothing-to-do' | 'signed-in' | 'cancelled' | 'failed'
@@ -88,23 +88,28 @@ export function createSession(deps: Deps): Session {
 
   /** The sign-in the page last used for a call, so a renewal can tell whether another tab has already renewed. */
   let lastUsed: string | undefined
-  let renewing: Promise<boolean> | undefined
+  let renewing: Promise<Renewal> | undefined
 
-  async function renewNow(): Promise<boolean> {
+  async function renewNow(): Promise<Renewal> {
     const current = read()
     // Another tab renewed first (GitHub gives out a new refresh each time, so the old one is dead): use theirs.
-    if (current !== undefined && lastUsed !== undefined && current.token !== lastUsed) return true
+    if (current !== undefined && lastUsed !== undefined && current.token !== lastUsed) return 'renewed'
     if (current?.refresh === undefined) {
       forget()
-      return false
+      return 'refused'
     }
     const next = await deps.swap({ refresh: current.refresh })
-    if (next === undefined) {
-      forget()
-      return false
+    if (next.ok) {
+      keep(next.value)
+      return 'renewed'
     }
-    keep(next)
-    return true
+    // Only GitHub saying no ends the sign-in. A dropped connection or a busy GitHub keeps it, so a person whose train
+    // goes through a tunnel is not sent back to Welcome.
+    if (next.problem === 'signed-out') {
+      forget()
+      return 'refused'
+    }
+    return next.problem === 'offline' ? 'offline' : 'busy'
   }
 
   return {
@@ -149,8 +154,8 @@ export function createSession(deps: Deps): Session {
       if (state === null || expected === null || expected === undefined || state !== expected)
         return done('failed')
       const tokens = await deps.swap({ code })
-      if (tokens === undefined) return done('failed')
-      keep(tokens)
+      if (!tokens.ok) return done('failed')
+      keep(tokens.value)
       return done('signed-in')
     },
 

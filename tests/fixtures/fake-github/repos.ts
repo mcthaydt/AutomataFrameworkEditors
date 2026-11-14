@@ -51,6 +51,8 @@ export interface FakeRepo {
   /** The time, for new pulls. The server sets it to its own clock. */
   clock: () => number
   readonly heads: Map<string, string>
+  /** When each commit was made, stamped by the repo's clock whenever a head moves; a test may set one by hand. */
+  readonly commitDates: Map<string, number>
   readonly bases: Map<string, Map<string, string>>
   readonly pullFacts: Map<number, PullFacts>
   /** `branch` -> new path -> old path, for files a pull renamed. */
@@ -82,7 +84,16 @@ export function nextSha(seed: string): string {
 
 function makeRepo(owner: string, name: string, files: Map<string, string>): FakeRepo {
   const defaultBranch = 'main'
-  const heads = new Map<string, string>([[defaultBranch, nextSha(`${owner}/${name}`)]])
+  const commitDates = new Map<string, number>()
+  const first = nextSha(`${owner}/${name}`)
+  const heads = new Map<string, string>([[defaultBranch, first]])
+  commitDates.set(first, Date.now())
+  // Every later move of a head is a commit: remember when, so a commit's date can be asked for.
+  const move = heads.set.bind(heads)
+  heads.set = (branch, sha) => {
+    commitDates.set(sha, repo.clock())
+    return move(branch, sha)
+  }
   const openPull = (head: string, title: string, fork: string | undefined): FakePull => {
     const pull: FakePull = { number: repo.pulls.length + 1, title, head, base: defaultBranch, state: 'open' }
     repo.pulls.push(pull)
@@ -108,6 +119,7 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
     pulls: [],
     clock: () => Date.now(),
     heads,
+    commitDates,
     bases: new Map(),
     pullFacts: new Map(),
     renames: new Map(),

@@ -17,6 +17,7 @@
   } from '../game/game.ts'
   import { describeChange, Levels, type LevelEdit } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
+  import type { GameOpened } from './opened.ts'
   import type { GameRef } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
 
@@ -31,6 +32,10 @@
     signedIn: boolean
     /** Where an unsaved change is kept on this device. */
     drafts: Storage
+    /** The game's own name when the page already knows it: the loading screen says it instead of `owner/name`. */
+    gameName?: string | undefined
+    /** Told whenever the game has been asked for: its name, or that it could not be opened. */
+    onopened: (said: GameOpened) => void
     /** Where the person is in the first run: told whenever it changes. */
     onfacts: (facts: { dirty: boolean; look: boolean }) => void
     /** Told once a save has gone in, and how. */
@@ -41,7 +46,7 @@
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game: ref, levelId, remembered, signedIn, drafts, onfacts, onsaved, onkept, onsignin, onsignedout, onback }: Props = $props()
+  let { api, game: ref, levelId, remembered, signedIn, drafts, gameName, onopened, onfacts, onsaved, onkept, onsignin, onsignedout, onback }: Props = $props()
 
   /** A sentence about what just happened, with the buttons it needs. */
   interface Event {
@@ -111,6 +116,11 @@
     if (!result.ok && result.problem === 'signed-out') return onsignedout()
     if (result.ok) rememberGame(remembered, ref)
     show(result)
+    const refused = !result.ok && (result.problem === 'not-found' || result.problem === 'not-allowed')
+    onopened({
+      name: result.ok ? result.game.content.project.name : undefined,
+      askSignIn: refused && !signedIn,
+    })
   }
   onMount(() => {
     void load()
@@ -225,7 +235,7 @@
     onback()
   }
 
-  const title = $derived(`${ref.owner}/${ref.name}`)
+  const title = $derived(opened?.ok ? (game?.content.project.name ?? `${ref.owner}/${ref.name}`) : (gameName ?? `${ref.owner}/${ref.name}`))
   const back = $derived({ label: WORDS.back, onpress: onback })
   const standing = $derived(
     visitor ? WORDS.visitorCan : !can(level, 'save') ? WORDS.lookOnly : game?.mine !== undefined ? WORDS.mineWaiting : '',

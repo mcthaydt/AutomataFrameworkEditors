@@ -27,9 +27,10 @@
     status: 'clean' | 'dirty' | 'saving' | 'saved'
     /** The words for `status`. */
     statusText: string
-    /** The title: the level's id. */
+    /** The level's id: the editor's heading, and what the stage is called to a screen reader. */
     title: string
-    back: { label: string; onpress: () => void }
+    /** The way out. Not needed read only: the screen around it has the heading and the way back. */
+    back?: { label: string; onpress: () => void }
     /** After every move and undo. */
     onchange: (edit: LevelEdit) => void
     onsave: () => void
@@ -209,9 +210,15 @@
     }
   })
 
+  // Redraws the picture after every move, selection and resize. The state is read before the optional calls: `picture`
+  // is still unset when this first runs (Pixi starts later), and an optional call that short-circuits never evaluates
+  // its arguments, so reading them inside it left the effect with no dependencies and the picture drawn once only.
   $effect(() => {
-    picture?.resize(size.w, size.h)
-    picture?.show(edit.now, characters, readOnly ? marked : selected, hero)
+    const { w, h } = size
+    const now = edit.now
+    const ringed = readOnly ? marked : selected
+    picture?.resize(w, h)
+    picture?.show(now, characters, ringed, hero)
   })
 
   const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
@@ -226,19 +233,19 @@
 </script>
 
 <div class="editor">
-  <header class="top">
-    <Button label={back.label} onpress={back.onpress} />
-    <!-- On a screen that already has its own heading (a change being looked at) this one is the next one down. -->
-    <svelte:element this={readOnly ? 'h2' : 'h1'} class="title">{title}</svelte:element>
-    {#if !readOnly}
+  <!-- A level only to look at has no header: the screen around it has the heading and the one way back. -->
+  {#if !readOnly}
+    <header class="top">
+      {#if back !== undefined}<Button label={back.label} onpress={back.onpress} />{/if}
+      <h1 class="title">{title}</h1>
       <Button
         label={WORDS.save}
         kind={saveKind}
         disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
         onpress={onsave}
       />
-    {/if}
-  </header>
+    </header>
+  {/if}
   {#if !readOnly}<div class="status" role="status">{statusText}</div>{/if}
   <div class="area">
     <div class="body">

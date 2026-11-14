@@ -7,6 +7,7 @@
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import type { GameRef } from '../wire/wire.ts'
+  import type { GameOpened } from './opened.ts'
   import { routeHash } from './route.ts'
 
   // A game's page: who you are in it, and its levels. Every way it can go wrong says what to press next.
@@ -18,11 +19,13 @@
     visitor: boolean
     /** Has the person saved a change before? Then an Owner is pointed at Share, once. */
     savedBefore: boolean
+    /** Told whenever the game has been asked for: its name, or that it could not be opened. */
+    onopened: (said: GameOpened) => void
     onsignin: () => void
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game, remembered, visitor, savedBefore, onsignin, onsignedout, onback }: Props = $props()
+  let { api, game, remembered, visitor, savedBefore, onopened, onsignin, onsignedout, onback }: Props = $props()
 
   let opened = $state<Opened | undefined>(undefined)
 
@@ -33,6 +36,8 @@
     else if (result.problem === 'not-found' || result.problem === 'not-allowed') forgetGame(remembered, game)
     if (!result.ok && result.problem === 'signed-out') return onsignedout()
     opened = result
+    const refused = !result.ok && (result.problem === 'not-found' || result.problem === 'not-allowed')
+    onopened({ name: result.ok ? result.game.content.project.name : undefined, askSignIn: refused && visitor })
   }
   onMount(() => void load())
 
@@ -73,7 +78,7 @@
       <Notice kind="info" text={WORDS.tipShare} />
       <div><Button label={WORDS.tipGotIt} onpress={() => dismiss('af.tip.share')} /></div>
     {/if}
-    {#if can(opened.game.level, 'approve') && opened.game.waiting > 0 && !approveTipGone}
+    {#if can(opened.game.level, 'approve') && opened.game.waiting - (opened.game.mine === undefined ? 0 : 1) > 0 && !approveTipGone}
       <Notice kind="info" text={WORDS.tipApprove} />
       <div><Button label={WORDS.tipGotIt} onpress={() => dismiss('af.tip.approve')} /></div>
     {/if}

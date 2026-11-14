@@ -50,7 +50,20 @@ test("docs/teams.md names the sharing file and its example passes the editor's o
   expect(parseAccess(example ?? '')).toMatchObject({ ok: true })
 })
 
-test('docs/teams.md has the optional branch rule, with the editor on its bypass list', () => {
+test('docs/teams.md has the branch rule as a setup step, with the editor on its bypass list and merge commits on', () => {
+  expect(teams).toContain("Set up your game's main branch")
+  expect(teams).not.toContain('If your game guards')
   expect(teams).toContain('Require a pull request before merging')
   expect(teams).toContain('bypass list')
+  expect(teams).toContain('Allow merge commits')
+})
+
+test('docs/teams.md says what the code does about organisations, own changes and the kind of checks it reads', () => {
+  // Organisation admins count as Owners (enter.ts); Edit and Owner approve their own (approve.ts); check runs only.
+  expect(teams).toContain('organisation')
+  expect(teams).toContain('admins')
+  expect(teams).toContain('their own included')
+  expect(teams).toContain('check runs')
+  expect(teams).toContain('commit statuses')
+  expect(teams).toContain('two minutes')
 })

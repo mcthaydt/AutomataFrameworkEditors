@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { addToGameUrl, createSession, type SessionConfig, signInUrl } from '#src/features/session/session.ts'
-import type { Tokens } from '#src/features/wire/wire.ts'
+import type { Answer, Tokens } from '#src/features/wire/wire.ts'
 
 const config: SessionConfig = { webUrl: 'https://gh.test', clientId: 'cid', appSlug: 'my app' }
 
@@ -41,7 +41,7 @@ function make(
   over: {
     kept?: Storage
     brief?: Storage
-    swap?: (ask: { code: string } | { refresh: string }) => Promise<Tokens | undefined>
+    swap?: (ask: { code: string } | { refresh: string }) => Promise<Answer<Tokens>>
   } = {},
 ) {
   const gone: string[] = []
@@ -58,7 +58,7 @@ function make(
     clean: () => cleaned++,
     swap: async (ask) => {
       swaps.push(ask)
-      return over.swap ? over.swap(ask) : { token: 'new-token', refresh: 'new-refresh' }
+      return over.swap ? over.swap(ask) : { ok: true, value: { token: 'new-token', refresh: 'new-refresh' } }
     },
     random: () => 'a'.repeat(32),
   })
@@ -131,7 +131,7 @@ test('error=access_denied is cancelled; any other error is failed', async () => 
 })
 
 test('when swap gives nothing it is failed and nothing is kept', async () => {
-  const { session, kept } = make({ swap: async () => undefined })
+  const { session, kept } = make({ swap: async () => ({ ok: false, problem: 'signed-out' }) })
   session.begin('#/')
   expect((await session.finish(url('?code=c1&state=' + 'a'.repeat(32)))).result).toBe('failed')
   expect(kept.getItem('af.tokens')).toBeNull()
@@ -148,24 +148,34 @@ test('renew with a kept refresh swaps it, keeps the new tokens and says yes', as
   const { session, kept, swaps } = make()
   kept.setItem('af.tokens', JSON.stringify({ token: 'old', refresh: 'r-old' }))
   expect(session.token()).toBe('old')
-  expect(await session.renew()).toBe(true)
+  expect(await session.renew()).toBe('renewed')
   expect(swaps).toEqual([{ refresh: 'r-old' }])
   expect(session.token()).toBe('new-token')
 })
 
-test('a refused renew forgets everything and says no; with no refresh it says no and forgets', async () => {
-  const refused = make({ swap: async () => undefined })
+test('a refused renew forgets everything and says refused; with no refresh it says refused and forgets', async () => {
+  const refused = make({ swap: async () => ({ ok: false, problem: 'signed-out' }) })
   refused.kept.setItem('af.tokens', JSON.stringify({ token: 'old', refresh: 'r' }))
   refused.session.token()
-  expect(await refused.session.renew()).toBe(false)
+  expect(await refused.session.renew()).toBe('refused')
   expect(refused.session.token()).toBeUndefined()
 
   const none = make()
   none.kept.setItem('af.tokens', JSON.stringify({ token: 'old' }))
   none.session.token()
-  expect(await none.session.renew()).toBe(false)
+  expect(await none.session.renew()).toBe('refused')
   expect(none.swaps).toEqual([])
   expect(none.session.token()).toBeUndefined()
+})
+
+test('a renew that could not be asked keeps the sign-in: busy or offline, and the tokens stay', async () => {
+  for (const problem of ['busy', 'offline', 'unknown'] as const) {
+    const tunnel = make({ swap: async () => ({ ok: false, problem }) })
+    tunnel.kept.setItem('af.tokens', JSON.stringify({ token: 'old', refresh: 'r' }))
+    tunnel.session.token()
+    expect(await tunnel.session.renew()).toBe(problem === 'offline' ? 'offline' : 'busy')
+    expect(tunnel.session.token()).toBe('old')
+  }
 })
 
 test('two renew() calls at once make one swap', async () => {
@@ -173,7 +183,7 @@ test('two renew() calls at once make one swap', async () => {
   kept.setItem('af.tokens', JSON.stringify({ token: 'old', refresh: 'r' }))
   session.token()
   const [a, b] = await Promise.all([session.renew(), session.renew()])
-  expect([a, b]).toEqual([true, true])
+  expect([a, b]).toEqual(['renewed', 'renewed'])
   expect(swaps).toHaveLength(1)
 })
 
@@ -182,7 +192,7 @@ test('another tab that renewed first is used, not swapped over (GitHub replaces 
   kept.setItem('af.tokens', JSON.stringify({ token: 'old', refresh: 'r1' }))
   session.token()
   kept.setItem('af.tokens', JSON.stringify({ token: 'other-tab', refresh: 'r2' }))
-  expect(await session.renew()).toBe(true)
+  expect(await session.renew()).toBe('renewed')
   expect(swaps).toEqual([])
   expect(session.token()).toBe('other-tab')
 })
@@ -200,7 +210,7 @@ test('a Storage that throws (private mode) makes token() undefined and never thr
   expect(session.token()).toBeUndefined()
   session.begin('#/')
   expect((await session.finish(url('?code=c&state=s'))).result).toBe('failed')
-  expect(await session.renew()).toBe(false)
+  expect(await session.renew()).toBe('refused')
   session.signOut()
 })
 

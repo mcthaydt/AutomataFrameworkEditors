@@ -7,7 +7,7 @@ import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
 import { listedContent, waitingPull } from './waiting.ts'
 import { wholeGameLoads } from './whole.ts'
 
-/** Checks may not have started on a change this young, so "none yet" is not yet "no checks". */
+/** Checks may not have started on a commit this young, so "none yet" is not yet "no checks". */
 const CHECKS_GRACE_MS = 2 * 60_000
 
 async function readAsk(request: Request): Promise<Answer<ChangeAsk>> {
@@ -69,8 +69,14 @@ export async function approveChange(deps: ApiDeps, request: Request): Promise<An
   if (!checks.ok) return checks
   if (checks.value === 'failing') return { ok: false, problem: 'checks-failed' }
   if (checks.value === 'running') return { ok: false, problem: 'not-ready' }
-  if (checks.value === 'none' && deps.now() - change.createdAt < CHECKS_GRACE_MS) {
-    return { ok: false, problem: 'not-ready' }
+  if (checks.value === 'none') {
+    // Checks start after a commit, not after the pull was opened: a second save on an old pull puts a new commit there
+    // whose checks are not queued yet. One more call, and only when the checks say `none`.
+    const made = await repo.commitTime(change.headCommit)
+    if (!made.ok) return made
+    if (deps.now() - Math.max(made.value, change.createdAt) < CHECKS_GRACE_MS) {
+      return { ok: false, problem: 'not-ready' }
+    }
   }
 
   // 6. Merge that commit and no other: if the branch moved since it was looked at, GitHub refuses.

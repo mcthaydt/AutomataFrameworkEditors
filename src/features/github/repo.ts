@@ -60,11 +60,16 @@ export interface Repo {
   mergePull(number: number, m: { title: string; message: string; headCommit: string }): Promise<Answer<true>>
   closePull(number: number): Promise<Answer<true>>
   checks(commit: string): Promise<Answer<Checks>>
+  /** When a commit was made, in milliseconds: checks start after it, not after the pull that holds it was opened. */
+  commitTime(commit: string): Promise<Answer<number>>
   /** Whether GitHub shows this person (by their own sign-in) as an admin of the repo. Anything else is false. */
   isAdmin(personToken: string): Promise<Answer<boolean>>
   /** Whether a GitHub account of that name exists. Asked as the installation: GitHub refuses the App's own pass here. */
   userExists(login: string): Promise<Answer<boolean>>
 }
+
+/** How long to wait before asking GitHub again whether a pull can merge, when it has not worked that out yet. */
+const MERGEABLE_WAIT_MS = 1_200
 
 const enc = (part: string): string => encodeURIComponent(part)
 /** A path or branch name, encoded segment by segment so its slashes stay slashes. */
@@ -289,7 +294,15 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
       if (got.value.status === 409) return { ok: false, problem: 'changed-elsewhere' }
       if (got.value.status === 405) {
         // GitHub's 405 is "cannot be merged": a clash, or a rule the App is not past. Look at the pull to tell which.
-        const again = await call({ method: 'GET', path: `${root}/pulls/${number}` })
+        const look = (): ReturnType<typeof call> => call({ method: 'GET', path: `${root}/pulls/${number}` })
+        let again = await look()
+        // GitHub works out `mergeable` after it is asked; `null` means "not yet", which is neither a clash nor a rule.
+        // Wait a moment and look once more, and if it is still working it out, say so and let the person press again.
+        if (again.ok && obj(again.value.body).mergeable === null) {
+          await new Promise((done) => setTimeout(done, MERGEABLE_WAIT_MS))
+          again = await look()
+          if (again.ok && obj(again.value.body).mergeable === null) return { ok: false, problem: 'busy' }
+        }
         const clash = again.ok && obj(again.value.body).mergeable === false
         return { ok: false, problem: clash ? 'clashes' : 'blocked' }
       }
@@ -321,6 +334,13 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
             : ('passing' as const)
         },
       ),
+
+    commitTime: (commit) =>
+      ask(call({ method: 'GET', path: `${root}/commits/${enc(commit)}` }), (r) => {
+        const when = Date.parse(str(obj(obj(obj(r.body).commit).committer).date))
+        // A commit with no readable date counts as made just now, so its checks get their full grace.
+        return Number.isNaN(when) ? deps.now() : when
+      }),
 
     isAdmin: async (personToken) => {
       // Asked with the person's own sign-in: GitHub shows each person the rights they themselves have here.

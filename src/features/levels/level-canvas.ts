@@ -37,6 +37,9 @@ export async function createLevelCanvas(): Promise<LevelCanvas> {
     autoStart: false,
     sharedTicker: false,
     preference: 'webgl',
+    // So the picture can be read back after it is shown: a test, or a person's screenshot, sees what was drawn and not
+    // a cleared buffer.
+    preserveDrawingBuffer: true,
   })
   const { canvas } = app
   canvas.style.cssText = 'display:block;width:100%;height:100%'

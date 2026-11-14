@@ -169,6 +169,30 @@ test('no checks at all: not-ready for the first two minutes, approved after', as
   expect(old.answer).toEqual({ ok: true, value: true })
 })
 
+test('no checks: the two minutes run from the new commit, not from when the pull was opened', async () => {
+  api.fake.reset()
+  repo().put(
+    'main',
+    'automata.access.toml',
+    writeAccess({ format: 1, everyone: 'look', people: [{ github: 'grandpa', level: 'approve' }] }),
+  )
+  repo().checks = 'none'
+  // A pull opened an hour ago...
+  api.fake.clock = Date.now() - 60 * 60_000
+  repo().addPull('automata/kid')
+  // ...and a commit put on it a moment ago: its checks have not been queued yet.
+  api.fake.clock = Date.now() - 10_000
+  repo().put('automata/kid', LEVEL_PATH, writeContent('level', moved))
+  const fresh = await api.call('grandpa', 'POST', '/api/approve', { game: GAME, number: 1 })
+  expect(problem(fresh)).toBe('not-ready')
+  expect(repo().pulls[0]?.state).toBe('open')
+  // The same pull, with that commit three minutes old, goes in.
+  api.fake.clock = Date.now() - 3 * 60_000
+  repo().put('automata/kid', LEVEL_PATH, writeContent('level', moved))
+  const settled = await api.call('grandpa', 'POST', '/api/approve', { game: GAME, number: 1 })
+  expect(settled.answer).toEqual({ ok: true, value: true })
+})
+
 test('a change that also edits automata.access.toml: here is false, approve is not-allowed, nothing merges', async () => {
   repo().put(
     'automata/kid',

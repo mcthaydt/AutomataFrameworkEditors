@@ -81,6 +81,32 @@ function expectedCentre(tileX: number, tileY: number): { x: number; y: number } 
 }
 const scale = (): number => Number(stage().dataset.scale)
 
+/** The colour of the level's picture at a point of the page, as `#rrggbb`: what a person sees there. */
+function pictureAt(at: { x: number; y: number }): string {
+  const canvas = stage().querySelector('canvas')
+  if (canvas === null) throw new Error('no picture')
+  const rect = canvas.getBoundingClientRect()
+  const ratio = canvas.width / rect.width
+  const copy = document.createElement('canvas')
+  copy.width = canvas.width
+  copy.height = canvas.height
+  const context = copy.getContext('2d')
+  if (context === null) throw new Error('no 2D canvas')
+  context.drawImage(canvas, 0, 0)
+  const [r = 0, g = 0, b = 0] = context.getImageData(
+    Math.round((at.x - rect.left) * ratio),
+    Math.round((at.y - rect.top) * ratio),
+    1,
+    1,
+  ).data
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+}
+const SKY = '#9fd3f0'
+const CRATE = '#c9a227'
+const RING = '#ffffff'
+/** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
+const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
+
 function touch(el: Element, type: string, at: { x: number; y: number }, id = 1): void {
   el.dispatchEvent(
     new PointerEvent(type, {
@@ -283,6 +309,68 @@ test('turning the box sideways refits: the button is still on the crate', async 
   const want = expectedCentre(6.5, 7.5)
   expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
   expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+})
+
+// The picture, not only the buttons over it: the first build moved the buttons and never redrew the crate.
+test('the picture follows a drag: the crate is drawn at its new place and the old place is sky', async () => {
+  await show()
+  await drawn()
+  const from = centre(crate())
+  dragTo({ x: from.x + 2 * scale(), y: from.y })
+  await tick()
+  expect(pictureAt(expectedCentre(8.5, 7.5))).toBe(CRATE)
+  expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(SKY)
+})
+
+test('the picture follows an arrow button and Undo', async () => {
+  await show()
+  await drawn()
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  for (let step = 0; step < 4; step += 1) named(WORDS.moveRight).click()
+  await tick()
+  expect(pictureAt(expectedCentre(8.5, 7.5))).toBe(CRATE)
+  expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(SKY)
+  for (let step = 0; step < 4; step += 1) named(WORDS.undo).click()
+  await tick()
+  expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE)
+  expect(pictureAt(expectedCentre(8.5, 7.5))).toBe(SKY)
+})
+
+test('the picture refits when the box turns: the crate is still drawn under its button', async () => {
+  await show()
+  await drawn()
+  await turn(1180, 820)
+  const where = expectedCentre(6.5, 7.5)
+  await vi.waitFor(() => expect(pictureAt(where)).toBe(CRATE))
+  // Under the button, and not in the place the first fit would have left it.
+  expect(Math.abs(centre(crate()).x - where.x)).toBeLessThanOrEqual(1)
+  expect(Math.abs(centre(crate()).y - where.y)).toBeLessThanOrEqual(1)
+})
+
+test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
+  await show()
+  await drawn()
+  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
+  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
+  const middle = expectedCentre(6.5, 7.5)
+  const edge = middle.x - scale() / 2
+  const near = [
+    { x: edge - 2, y: middle.y },
+    { x: edge + 2, y: middle.y },
+  ]
+  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(ringed()).toBe(false)
+  touch(crate(), 'pointerdown', centre(crate()))
+  touch(crate(), 'pointerup', centre(crate()))
+  await tick()
+  expect(ringed()).toBe(true)
+  const s = stage().getBoundingClientRect()
+  touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
+  await tick()
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
 })
 
 test('turning mid-drag cancels the drag', async () => {

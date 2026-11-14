@@ -495,6 +495,12 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       if (m[2] === '/merge' && method === 'PUT') return merge(repo, pull, body)
     }
 
+    if (method === 'GET' && (m = /^\/commits\/([^/]+)$/.exec(rest))) {
+      const made = repo.commitDates.get(m[1] ?? '')
+      if (made === undefined) return NOT_FOUND
+      return send(200, { sha: m[1], commit: { committer: { date: new Date(made).toISOString() } } })
+    }
+
     if (method === 'GET' && (m = /^\/commits\/([^/]+)\/check-runs$/.exec(rest))) {
       const runs = {
         none: [],
