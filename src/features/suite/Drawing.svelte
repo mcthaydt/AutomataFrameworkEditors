@@ -30,17 +30,20 @@
     border-radius: var(--corner);
     background-color: var(--raised);
     background-image:
-      linear-gradient(color-mix(in srgb, var(--words) 22%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--words) 22%, transparent) 1px, transparent 1px);
+      linear-gradient(var(--gridline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
     background-size: 12.5% 18.2%;
     box-shadow: var(--float-shadow);
+    /* Mixed here, in custom properties, since a mix is not one of the six colours written in a colour property. */
+    --gridline: color-mix(in srgb, var(--words) 22%, transparent);
+    --slab: color-mix(in srgb, var(--words) 18%, var(--ground));
   }
   .ground {
     position: absolute;
     inset: auto 0 0;
     height: 18.2%;
     border-top: 1px solid var(--words);
-    background: color-mix(in srgb, var(--words) 18%, var(--ground));
+    background: var(--slab);
   }
   .crate {
     position: absolute;
