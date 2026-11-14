@@ -489,10 +489,21 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
       if (el.getBoundingClientRect().height < 47.5)
         found.push(`${named(el)} is a primary Button under 48 tall`)
     }
-    for (let a = 0; a < touchable.length; a += 1) {
-      for (let b = a + 1; b < touchable.length; b += 1) {
-        const first = touchable[a]!.getBoundingClientRect()
-        const second = touchable[b]!.getBoundingClientRect()
+    // Two things cannot overlap if one has been scrolled out of the screen's own scrolling area: it is not on show.
+    const area = document.querySelector('.content')?.getBoundingClientRect()
+    const onShow = (el: Element): boolean => {
+      const box = el.getBoundingClientRect()
+      return (
+        area === undefined ||
+        !el.closest('.content') ||
+        (box.top >= area.top - 1 && box.bottom <= area.bottom + 1)
+      )
+    }
+    const shown = touchable.filter(onShow)
+    for (let a = 0; a < shown.length; a += 1) {
+      for (let b = a + 1; b < shown.length; b += 1) {
+        const first = shown[a]!.getBoundingClientRect()
+        const second = shown[b]!.getBoundingClientRect()
         const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
         const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
         if (

@@ -65,6 +65,10 @@
     readonly from: LevelEdit
     /** Where in the thing the finger took hold, in tiles, so the thing does not jump to the finger. */
     readonly grab: { x: number; y: number }
+    /** Where the stage was, and how the level was fitted to it, when the finger went down. A line of text above
+     *  wrapping or unwrapping while the finger is down moves the stage; the drag keeps counting from where it began. */
+    readonly rect: { readonly left: number; readonly top: number }
+    readonly fit: typeof fit
     active: boolean
   }
   let drag: Drag | undefined
@@ -83,10 +87,10 @@
     if (edit !== from) change(from)
   }
 
-  const stagePoint = (e: PointerEvent): { x: number; y: number } => {
-    const rect = stage?.getBoundingClientRect()
-    return { x: e.clientX - (rect?.left ?? 0), y: e.clientY - (rect?.top ?? 0) }
-  }
+  const stagePoint = (e: PointerEvent, rect: { left: number; top: number }): { x: number; y: number } => ({
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+  })
 
   function down(e: PointerEvent): void {
     if (readOnly) return
@@ -107,7 +111,9 @@
     } catch {
       // A pointer that is already gone cannot be captured; the drag still works from the events it gets.
     }
-    const finger = toWorld(fit, stagePoint(e))
+    const box = stage?.getBoundingClientRect()
+    const rect = { left: box?.left ?? 0, top: box?.top ?? 0 }
+    const finger = toWorld(fit, stagePoint(e, rect))
     drag = {
       id,
       pointer: e.pointerId,
@@ -115,6 +121,8 @@
       y: e.clientY,
       from: edit,
       grab: { x: finger.x - thing.x, y: finger.y - thing.y },
+      rect,
+      fit,
       active: false,
     }
   }
@@ -125,7 +133,7 @@
       if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) <= DRAG_START_PX) return
       drag.active = true
     }
-    const finger = toWorld(fit, stagePoint(e))
+    const finger = toWorld(drag.fit, stagePoint(e, drag.rect))
     const result = moveThing(drag.from, characters, drag.id, {
       x: finger.x - drag.grab.x,
       y: finger.y - drag.grab.y,

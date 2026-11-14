@@ -5,6 +5,7 @@ import { WORDS } from '#src/features/words/words.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  openGame,
   openPage,
   pressSave,
   type SIZES,
@@ -160,7 +161,7 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
   await text(kid, WORDS.savedSuggestion)
   const g = await window_('ipadUpright', 'grandpa', true)
   await signIn(g.page)
-  await g.page.getByRole('link', { name: 'crate-game' }).click()
+  await openGame(g.page)
   await text(g, WORDS.tipApprove)
   await g.page.getByRole('button', { name: WORDS.tipGotIt }).click()
   await g.page.reload()
