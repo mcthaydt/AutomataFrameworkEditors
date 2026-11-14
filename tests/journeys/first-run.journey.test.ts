@@ -18,11 +18,14 @@ setupJourneys()
 
 const windows: JourneyPage[] = []
 afterEach(async () => {
+  // Close every window first: a window left open by a failing test would carry its problems into the next one.
+  const found: string[][] = []
   for (const j of windows) {
-    expect(await j.problems()).toEqual([])
+    found.push(await j.problems())
     await j.close()
   }
   windows.length = 0
+  expect(found.flat()).toEqual([])
 })
 type Size = keyof typeof SIZES
 type Person = Parameters<typeof openPage>[1]

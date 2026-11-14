@@ -19,9 +19,10 @@ setupJourneys()
 
 let journey: JourneyPage | undefined
 afterEach(async () => {
-  if (journey !== undefined) expect(await journey.problems()).toEqual([])
+  const found = (await journey?.problems()) ?? []
   await journey?.close()
   journey = undefined
+  expect(found).toEqual([])
 })
 const open = async (...args: Parameters<typeof openPage>): Promise<JourneyPage> => {
   journey = await openPage(...args)
