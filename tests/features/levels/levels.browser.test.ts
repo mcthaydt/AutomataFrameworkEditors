@@ -158,9 +158,12 @@ test('the crate has a button a finger can hit, centred on the crate', async () =
   const r = crate().getBoundingClientRect()
   expect(r.width).toBeGreaterThanOrEqual(48)
   expect(r.height).toBeGreaterThanOrEqual(48)
-  const want = expectedCentre(6.5, 7.5)
-  expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
-  expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+  // The clear cell is measured a moment after the box changes, so the button settles on the crate a moment later.
+  await vi.waitFor(() => {
+    const want = expectedCentre(6.5, 7.5)
+    expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
+    expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+  })
 })
 
 test('a tap selects and shows the arrows; nothing moved', async () => {
