@@ -18,6 +18,9 @@ export const SIZES = {
   desktop: { width: 1440, height: 900 },
 } as const
 
+/** The sizes every journey runs at: a phone and an iPad held either way. The screens check also runs phoneSideways and desktop. */
+export const JOURNEY_SIZES = ['ipadUpright', 'ipadSideways', 'phone'] as const satisfies readonly (keyof typeof SIZES)[]
+
 const SITE_PORT = 4800
 const FAKE_PORT = 4801
 const ENGINES = { chromium, firefox, webkit } as const

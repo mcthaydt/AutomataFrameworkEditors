@@ -11,7 +11,7 @@ import {
   pictureColourBeside,
   pictureColourUnder,
   pressSave,
-  SIZES,
+  JOURNEY_SIZES,
   setupJourneys,
   signIn,
   statusLine,
@@ -44,7 +44,7 @@ const CRATE = '#c9a227'
 const says = (j: JourneyPage, words: string) =>
   expect.poll(async () => (await statusLine(j.page).textContent())?.trim()).toBe(words)
 
-describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
+describe.each(JOURNEY_SIZES)('at %s', (size) => {
   test('the owner drags the crate and saves: it is in the game, written as the framework writes it', async () => {
     const j = await open(size)
     await signIn(j.page)
