@@ -1,14 +1,17 @@
 <script lang="ts">
   import { type Character, type Level, levelSize } from '@automataframework/framework/headless'
-  import { onMount, untrack } from 'svelte'
-  import { Button, Notice } from '../ui/ui.ts'
+  import { onMount, type Snippet, untrack } from 'svelte'
+  import { Button, Icon, Stamp, Tool } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
-  import { type LevelEdit, moveThing, nudgeThing, startEdit, undo } from './edit.ts'
+  import { type LevelEdit, moveThing, nudgeThing, redo, startEdit, undo } from './edit.ts'
   import { createLevelCanvas, type LevelCanvas } from './level-canvas.ts'
   import { fitInside, type Inset, toScreen, toWorld } from './place.ts'
+  import ThingCard from './ThingCard.svelte'
 
-  // The levels editor on the screen. A thing is a real button laid over the picture, so a finger, a keyboard and a
-  // screen reader all reach it; the picture only draws. Every move is a plain function from `edit.ts`, so what a
+  // The levels editor on the screen. The level fills the screen edge to edge and the tools float over it: the title,
+  // Save and the status on top, copy tools at the side, the picked thing's card, and Undo and Redo. The level is fitted
+  // into the clear cell the tools leave, so it never lies under one. A thing is a real button laid over the picture,
+  // so a finger, a keyboard and a screen reader all reach it; the picture only draws. Every move is a plain function from `edit.ts`, so what a
   // finger does and what the arrow buttons do are the same thing. The edit is kept here until the screen above saves.
   interface Props {
     level: Level
@@ -16,7 +19,7 @@
     /** The character a start point shows. */
     hero?: string | undefined
     canSave: boolean
-    /** Only to look at: nothing moves, and there are no arrows, Undo or Save. */
+    /** Only to look at: nothing moves, nothing floats, and there are no arrows, Undo or Save. */
     readOnly?: boolean
     /** Things to ring (a change being looked at). */
     marked?: readonly string[]
@@ -26,6 +29,12 @@
     status: 'clean' | 'dirty' | 'saving' | 'saved'
     /** The words for `status`. */
     statusText: string
+    /** A sentence that is true for as long as the level is open (what this person may do); it sits in the top panel. */
+    standing?: Snippet | undefined
+    /** What just happened, with the buttons it needs: floated over the clear cell until it is answered. */
+    said?: Snippet | undefined
+    /** The words on the stamp that lands over the level's corner after a save, if there is one. */
+    stamp?: string | undefined
     /** The level's id: the editor's heading, and what the stage is called to a screen reader. */
     title: string
     /** The way out. Not needed read only: the screen around it has the heading and the way back. */
@@ -38,7 +47,7 @@
     /** Hands the level over as a file. */
     oncopyfile?: () => void
   }
-  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
+  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, standing, said, stamp = undefined, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -52,9 +61,13 @@
   let stage: HTMLDivElement | undefined = $state()
   let size = $state({ w: 0, h: 0 })
   let picture: LevelCanvas | undefined
+  /** The empty cell the floating panels leave: it only measures, and the level is fitted inside it. */
+  let clearBox: HTMLDivElement | undefined = $state()
 
-  // How much of the stage the floating tools cover. All zeros until the tools float (Task 4 measures the clear cell).
-  const inset: Inset = { top: 0, right: 0, bottom: 0, left: 0 }
+  const NO_INSET: Inset = { top: 0, right: 0, bottom: 0, left: 0 }
+  // How much of the stage the floating panels cover: the clear cell's box measured against the stage's. Read only,
+  // nothing floats and the level has the whole stage.
+  let inset = $state.raw<Inset>(NO_INSET)
   const fit = $derived(fitInside(size, inset, levelSize(edit.now)))
 
   /** The drag a finger is in the middle of. */
@@ -183,6 +196,24 @@
     solid = false
     change(undo(edit))
   }
+  function giveBack(): void {
+    solid = false
+    change(redo(edit))
+  }
+
+  /** Measures the stage and the clear cell. Whole pixels would hide a half-pixel change, so the numbers are kept. */
+  function measure(): void {
+    if (stage === undefined) return
+    size = { w: stage.clientWidth, h: stage.clientHeight }
+    if (clearBox === undefined) {
+      inset = NO_INSET
+      return
+    }
+    const s = stage.getBoundingClientRect()
+    const c = clearBox.getBoundingClientRect()
+    const next = { top: c.top - s.top, right: s.right - c.right, bottom: s.bottom - c.bottom, left: c.left - s.left }
+    if (JSON.stringify(next) !== JSON.stringify(inset)) inset = next
+  }
 
   onMount(() => {
     let alive = true
@@ -191,11 +222,13 @@
       // Turning the iPad changes the stage's width and cancels a drag; everything is fitted again. A change of height
       // alone is a line of text above wrapping or unwrapping (the status, the tip), and must not drop a finger's drag.
       if (stage.clientWidth !== size.w) cancelDrag()
-      size = { w: stage.clientWidth, h: stage.clientHeight }
+      measure()
     })
     if (stage !== undefined) {
       watcher.observe(stage)
-      size = { w: stage.clientWidth, h: stage.clientHeight }
+      // The top row wrapping changes the clear cell and not the stage, so the cell is watched itself.
+      if (clearBox !== undefined) watcher.observe(clearBox)
+      measure()
     }
     void createLevelCanvas().then((made) => {
       if (!alive) return made.destroy()
@@ -218,8 +251,9 @@
   $effect(() => {
     const { w, h } = size
     const now = edit.now
+    const cell = inset
     picture?.resize(w, h)
-    picture?.fitTo(inset)
+    picture?.fitTo(cell)
     picture?.show(now, characters, hero)
   })
 
@@ -235,70 +269,89 @@
 </script>
 
 <div class="editor">
-  <!-- A level only to look at has no header: the screen around it has the heading and the one way back. -->
-  {#if !readOnly}
-    <header class="top">
-      {#if back !== undefined}<Button label={back.label} onpress={back.onpress} />{/if}
-      <h1 class="title">{title}</h1>
-      <Button
-        label={WORDS.save}
-        kind={saveKind}
-        disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
-        onpress={onsave}
-      />
-    </header>
-  {/if}
-  {#if !readOnly}<div class="status" role="status">{statusText}</div>{/if}
   <div class="area">
-    <div class="body">
-      <div class="stage" role="group" aria-label={title} bind:this={stage} data-scale={fit.scale} onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={cancelled}>
-        {#each edit.now.things as thing (thing.id)}
-          {@const box = thingBox(thing.id)}
-          {#if box !== undefined}
-            <button
-              type="button"
-              class="thing"
-              data-thing={thing.id}
-              data-x={thing.x}
-              data-y={thing.y}
-              aria-label={readOnly ? thing.id : WORDS.thingLabel(thing.id)}
-              aria-pressed={readOnly ? undefined : selected === thing.id}
-              data-marked={marked.includes(thing.id) ? '' : undefined}
-              style:left="{box.x}px"
-              style:top="{box.y}px"
-              style:width="{box.w}px"
-              style:height="{box.h}px"
-              onfocus={() => {
-                if (!readOnly) selected = thing.id
-              }}
-              onkeydown={(e) => key(e, thing.id)}
-            ></button>
-          {/if}
-        {/each}
-      </div>
-      {#if !readOnly}
-      <div class="tools">
-        <p class="hint">{selected === undefined ? WORDS.hintIdle : WORDS.hintSelected(selected)}</p>
-        {#if solid}<Notice kind="info" text={WORDS.solid} />{/if}
-        <div class="buttons">
-          {#if selected !== undefined}
-            {@const id = selected}
-            <Button label={WORDS.moveLeft} onpress={() => nudge(id, 'left')} />
-            <Button label={WORDS.moveRight} onpress={() => nudge(id, 'right')} />
-            <Button label={WORDS.moveUp} onpress={() => nudge(id, 'up')} />
-            <Button label={WORDS.moveDown} onpress={() => nudge(id, 'down')} />
-          {/if}
-          <Button label={WORDS.undo} disabled={edit.past.length === 0} onpress={takeBack} />
-        </div>
-        {#if oncopytext !== undefined || oncopyfile !== undefined}
-          <div class="buttons">
-            {#if oncopytext !== undefined}<Button label={WORDS.copyLevel} onpress={oncopytext} />{/if}
-            {#if oncopyfile !== undefined}<Button label={WORDS.copyKeep} onpress={oncopyfile} />{/if}
-          </div>
+    <div
+      class="stage"
+      role="group"
+      aria-label={title}
+      bind:this={stage}
+      data-scale={fit.scale}
+      onpointerdown={down}
+      onpointermove={move}
+      onpointerup={up}
+      onpointercancel={cancelled}
+    >
+      {#each edit.now.things as thing (thing.id)}
+        {@const box = thingBox(thing.id)}
+        {#if box !== undefined}
+          <button
+            type="button"
+            class="thing"
+            data-thing={thing.id}
+            data-x={thing.x}
+            data-y={thing.y}
+            aria-label={readOnly ? thing.id : WORDS.thingLabel(thing.id)}
+            aria-pressed={readOnly ? undefined : selected === thing.id}
+            data-marked={marked.includes(thing.id) ? '' : undefined}
+            style:left="{box.x}px"
+            style:top="{box.y}px"
+            style:width="{box.w}px"
+            style:height="{box.h}px"
+            onfocus={() => {
+              if (!readOnly) selected = thing.id
+            }}
+            onkeydown={(e) => key(e, thing.id)}
+          ></button>
         {/if}
-      </div>
-      {/if}
+      {/each}
     </div>
+    <!-- A level only to look at has nothing floating over it: the screen around it has the heading and the way back. -->
+    {#if !readOnly}
+      <div class="floats">
+        <div class="clear" data-clear bind:this={clearBox}></div>
+        <section class="panel top" data-panel>
+          <div class="row">
+            {#if back !== undefined}<Button label={back.label} icon="back" onpress={back.onpress} />{/if}
+            <div class="heading">
+              <span class="label"><Icon name="world" /> {WORDS.editorWorld}</span>
+              <h1 class="title">{title}</h1>
+            </div>
+            <div class="save">
+              <Button
+                label={WORDS.save}
+                icon="save"
+                kind={saveKind}
+                disabled={!canSave || status === 'clean' || status === 'saving' || status === 'saved'}
+                onpress={onsave}
+              />
+            </div>
+          </div>
+          <div class="status" role="status">{statusText}</div>
+          {#if standing !== undefined}{@render standing()}{/if}
+        </section>
+        <div class="tools" data-panel>
+          {#if oncopytext !== undefined}<Tool label={WORDS.copyLevel} icon="copy" onpress={oncopytext} />{/if}
+          {#if oncopyfile !== undefined}<Tool label={WORDS.copyKeep} icon="file" onpress={oncopyfile} />{/if}
+        </div>
+        <section class="panel card" data-panel>
+          <ThingCard
+            thing={selected === undefined ? undefined : edit.now.things.find((t) => t.id === selected)}
+            {solid}
+            onnudge={(way) => selected !== undefined && nudge(selected, way)}
+          />
+        </section>
+        <div class="turns" data-panel>
+          <Tool label={WORDS.undo} icon="undo" disabled={edit.past.length === 0} onpress={takeBack} />
+          <Tool label={WORDS.redo} icon="redo" disabled={edit.future.length === 0} onpress={giveBack} />
+        </div>
+        <!-- What just happened, and the stamp. Both lie over the clear cell and out of the grid's flow, so their coming
+             and going never changes a track and the level never refits under a finger. -->
+        <div class="over">
+          {#if said !== undefined}<div class="said" data-said>{@render said()}</div>{/if}
+          {#if stamp !== undefined}<div class="stamp-place"><Stamp text={stamp} /></div>{/if}
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -308,46 +361,20 @@
     flex: 1;
     flex-direction: column;
     min-height: 0;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
   }
-  .top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    align-items: center;
-    justify-content: space-between;
-  }
-  .title {
-    flex: 1 1 8ch;
-    margin: 0;
-    font-size: var(--font-size-big);
-    text-align: center;
-    overflow-wrap: anywhere;
-  }
-  .status {
-    min-height: 1.4em;
-    color: var(--quiet);
-  }
-  /* The shape of this box, not of the device, decides whether the tools sit under the stage or beside it. */
+  /* The shape of this box, not of the device, decides how the tools are laid out. It is a size container so the
+     floating grid can ask it. The stage fills it edge to edge, and the tools float above. */
   .area {
+    position: relative;
     flex: 1;
     min-height: 0;
     container-type: size;
   }
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    height: 100%;
-  }
+  /* The game's art is never rounded, tinted or covered by anything but the tools' own boxes. */
   .stage {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-    border-radius: var(--corner);
     touch-action: none;
   }
   .stage :global(canvas) {
@@ -369,32 +396,158 @@
   .thing[data-marked] {
     border-color: var(--touch);
   }
-  /* Under the stage the tools have a height of their own and scroll inside it, so the stage keeps its size when the
-     arrows appear or a note comes and goes: a drag in progress must not see the picture shrink under the finger. */
-  .tools {
+
+  /* The floating panels are a grid with fixed tracks, so picking a thing never refits the level under a finger. */
+  .floats {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto 11rem;
+    grid-template-areas:
+      'top top'
+      'clear clear'
+      'tools turns'
+      'card card';
+    pointer-events: none;
+  }
+  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
+    .floats {
+      grid-template-columns: 5.5rem minmax(0, 1fr) 17rem;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'top top top'
+        'tools clear card'
+        'tools clear turns';
+    }
+  }
+  .clear {
+    grid-area: clear;
+    min-width: 0;
+    min-height: 0;
+  }
+  .panel {
+    margin: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    box-shadow: var(--float-shadow);
+    pointer-events: auto;
+  }
+  .top {
+    grid-area: top;
     display: flex;
-    flex: 0 0 clamp(10rem, 38cqh, 20rem);
     flex-direction: column;
     gap: var(--space-2);
-    overflow-y: auto;
+    min-width: 0;
   }
-  .hint {
-    margin: 0;
-  }
-  .buttons {
+  .row {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    justify-content: space-between;
   }
-  /* Beside each other only when the box is wide enough for a stage worth dragging in: on a phone held upright the
-     stage keeps the full width and the tools go under it, even when the box is nearly square. */
+  .heading {
+    display: flex;
+    flex: 1 1 8ch;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .heading .label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--quiet);
+  }
+  .title {
+    margin: 0;
+    font-size: var(--font-size-big);
+    overflow-wrap: anywhere;
+  }
+  /* Save never shrinks: it is the one thing the screen is for. */
+  .save {
+    flex: none;
+  }
+  /* Always two lines tall, so the words coming and going never change the height of the panel. */
+  .status {
+    min-height: 2.8em;
+    color: var(--quiet);
+  }
+  .tools,
+  .turns {
+    display: flex;
+    gap: var(--space-2);
+    margin: var(--space-2);
+    pointer-events: none;
+  }
+  .tools :global(.tool),
+  .turns :global(.tool) {
+    pointer-events: auto;
+  }
+  .tools {
+    grid-area: tools;
+    flex-wrap: wrap;
+    align-self: end;
+    align-items: flex-end;
+  }
+  .turns {
+    grid-area: turns;
+    align-self: end;
+    justify-self: end;
+  }
+  .card {
+    grid-area: card;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: 0;
+    overflow: auto;
+  }
   @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
-    .body {
-      flex-direction: row;
-    }
     .tools {
-      flex: 0 0 14rem;
-      overflow-y: auto;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-self: start;
+      align-items: stretch;
     }
+    .card {
+      align-self: start;
+      max-height: calc(100% - 2 * var(--space-2));
+    }
+  }
+
+  /* What just happened lies over the clear cell, never over a panel, and scrolls inside itself beyond the cell. */
+  .over {
+    grid-area: clear;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    pointer-events: none;
+  }
+  .said {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    left: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: calc(100% - 2 * var(--space-2));
+    padding: var(--space-2);
+    overflow: auto;
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--ground);
+    box-shadow: var(--float-shadow);
+    pointer-events: auto;
+  }
+  .stamp-place {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    max-width: calc(100% - 2 * var(--space-2));
+    pointer-events: none;
   }
 </style>

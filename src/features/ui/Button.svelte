@@ -10,12 +10,14 @@
     kind?: 'primary' | 'plain' | 'danger'
     icon?: IconName
     disabled?: boolean
+    /** Plain attributes for the button itself (a screen's `data-move`), for a test or a script to find it by. */
+    attrs?: Readonly<Record<string, string>>
     onpress: () => void
   }
-  let { label, kind = 'plain', icon, disabled = false, onpress }: Props = $props()
+  let { label, kind = 'plain', icon, disabled = false, attrs = {}, onpress }: Props = $props()
 </script>
 
-<button type="button" class="button {kind}" {disabled} onclick={() => onpress()}>
+<button type="button" class="button {kind}" {disabled} {...attrs} onclick={() => onpress()}>
   {#if icon !== undefined}<Icon name={icon} />{/if}
   <span class="words">{label}</span>
 </button>

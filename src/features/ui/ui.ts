@@ -4,6 +4,7 @@ import './ui.css'
 
 export { default as Button } from './Button.svelte'
 export { default as Choice } from './Choice.svelte'
+export { default as Icon } from './Icon.svelte'
 export type { IconName } from './icons.ts'
 export { default as Notice } from './Notice.svelte'
 export { default as Screen } from './Screen.svelte'
