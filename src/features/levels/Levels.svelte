@@ -349,10 +349,14 @@
   .thing[aria-pressed='true'] {
     border-color: var(--focus);
   }
+  /* Under the stage the tools have a height of their own and scroll inside it, so the stage keeps its size when the
+     arrows appear or a note comes and goes: a drag in progress must not see the picture shrink under the finger. */
   .tools {
     display: flex;
+    flex: 0 0 clamp(10rem, 38cqh, 20rem);
     flex-direction: column;
     gap: var(--space-2);
+    overflow-y: auto;
   }
   .hint {
     margin: 0;

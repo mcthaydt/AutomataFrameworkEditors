@@ -538,10 +538,11 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
 
 describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
   for (const scene of SCENES) {
-    test(`${scene.name}: measured, then pictured`, async () => {
+    test(`${scene.name}: pictured, then measured`, async () => {
       const j = await scene.reach(size)
-      expect(await broken(j.page, scene.stage === true)).toEqual([])
+      // The picture first, so a screen that breaks a rule can still be looked at.
       await picture(j.page, `${size}-${scene.name}`)
+      expect(await broken(j.page, scene.stage === true)).toEqual([])
     })
   }
 })

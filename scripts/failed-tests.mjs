@@ -10,6 +10,8 @@ try {
   console.log('No results file to read.')
   process.exit(0)
 }
+// The escape character that starts a colour code, written so that no control character sits in a pattern.
+const COLOUR = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g')
 const failed = []
 for (const suite of results.testResults ?? []) {
   const where = String(suite.name).replace(/^.*\/tests\//, 'tests/')
@@ -17,7 +19,7 @@ for (const suite of results.testResults ?? []) {
     if (test.status !== 'failed') continue
     // The first lines of the message, without colour codes: what was expected and what the page said instead.
     const why = String(test.failureMessages?.[0] ?? '')
-      .replace(/\u001b\[[0-9;]*m/g, '')
+      .replace(COLOUR, '')
       .split('\n')
       .filter((line) => line.trim() !== '')
       .slice(0, 6)
