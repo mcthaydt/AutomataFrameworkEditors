@@ -1,7 +1,7 @@
 // Every screen a person can reach, at iPad upright, iPad sideways and phone size: measured against the touch and
 // layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
 // no sideways scroll; every button, link, field and picker at least 44 px each way, the primary Button at least
-// 48 tall; none overlapping; one heading; one primary Button; no text off the side or cut with an ellipsis; and on
+// 48 tall; none overlapping; one heading; at most one Back; one primary Button; no text off the side or cut with an ellipsis; and on
 // the level screens a stage that is at least half the shorter side of the window wide.
 // The pictures land in `tests/journeys/__screenshots__/` and, from CI, on the `ci-screens` branch.
 
@@ -144,7 +144,7 @@ async function openFirstChange(j: JourneyPage): Promise<void> {
 async function shareScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
   const j = await gameAs(size, 'grandma', ready)
   await j.page.getByRole('link', { name: WORDS.share }).click()
-  await heading(j, WORDS.shareTitle('grandma/crate-game'))
+  await heading(j, WORDS.shareTitle('Crate Game'))
   return j
 }
 
@@ -255,6 +255,19 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await listAs(size, 'grandma', noEditorYet)
       await text(j, WORDS.pickEmpty)
+      return j
+    },
+  },
+  {
+    name: 'pick-a-game-cant-reach',
+    reach: async (size) => {
+      const j = await window_(size, 'grandma')
+      await j.page.getByRole('button', { name: WORDS.signIn }).click()
+      await heading(j, WORDS.pickTitle)
+      // The list was fine; GitHub goes away before a second look.
+      j.fake.down = true
+      await j.page.reload()
+      await text(j, WORDS.cantReach)
       return j
     },
   },
@@ -428,6 +441,18 @@ const SCENES: readonly Scene[] = [
     },
     stage: true,
   },
+  {
+    name: 'waiting-change-gone',
+    reach: async (size) => {
+      const j = await suggestionWaiting(size, 'grandpa')
+      await openFirstChange(j)
+      // Someone else was quicker: the change is not waiting any more.
+      repoOf(j).pulls[0]!.state = 'closed'
+      await j.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
+      await text(j, WORDS.changeGone)
+      return j
+    },
+  },
   // Share.
   { name: 'share-empty', reach: (size) => shareScreen(size) },
   {
@@ -463,7 +488,7 @@ const SCENES: readonly Scene[] = [
 
 /** What a drunk grandma's finger and eye need: measured in the page itself. Returns a sentence per broken rule. */
 async function broken(page: Page, stage: boolean): Promise<string[]> {
-  return page.evaluate((withStage) => {
+  return page.evaluate(([withStage, backWord]) => {
     const found: string[] = []
     const seen = (el: Element): boolean => {
       const style = getComputedStyle(el)
@@ -516,6 +541,11 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
           found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
       }
     }
+    // One way back, never two: a grandma asks which one.
+    const backs = [...document.querySelectorAll('button')].filter(
+      (el) => seen(el) && (el.textContent ?? '').trim() === backWord,
+    )
+    if (backs.length > 1) found.push(`${backs.length} buttons named ${backWord}`)
     const headings = [...document.querySelectorAll('h1')].filter(seen)
     if (headings.length !== 1) found.push(`${headings.length} headings (h1), not one`)
 
@@ -545,7 +575,7 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
         found.push(`the stage is ${Math.round(box?.width ?? 0)} wide, under ${half}`)
     }
     return [...new Set(found)]
-  }, stage)
+  }, [stage, WORDS.back] as const)
 }
 
 describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {

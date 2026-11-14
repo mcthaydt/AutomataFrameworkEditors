@@ -131,7 +131,10 @@ test('not signed in, a private game says it cannot be found, and signing in as i
   crate(j).isPublic = false
   await j.page.goto(`${j.site}/${GAME}`)
   await text(j, WORDS.cantFindVisitor)
-  await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+  // One Sign in, the screen's own: the bar does not offer a second one a hand away.
+  expect(await j.page.getByRole('button', { name: WORDS.signIn }).count()).toBe(1)
+  expect(await j.page.locator('.guide').count()).toBe(0)
+  await j.page.getByRole('button', { name: WORDS.signIn }).click()
   await title(j, 'Crate Game')
   await text(j, WORDS.youAre('owner'))
 })
@@ -143,4 +146,29 @@ test('a person with no game the editor was added to is shown what to do', async 
   await text(j, WORDS.pickEmpty)
   await text(j, WORDS.pickEmptyLink)
   await j.page.getByRole('button', { name: WORDS.pickAdd }).waitFor()
+})
+
+test('a list of games that cannot be fetched says so and offers Try again, not "add the editor"', async () => {
+  const j = await open('ipadUpright')
+  await signIn(j.page)
+  await title(j, WORDS.pickTitle)
+  j.fake.down = true
+  await j.page.reload()
+  await text(j, WORDS.cantReach)
+  expect(await j.page.getByText(WORDS.pickEmpty).count()).toBe(0)
+  expect(await j.page.getByRole('button', { name: WORDS.pickAdd }).count()).toBe(0)
+  const again = j.page.getByRole('button', { name: WORDS.tryAgain })
+  expect((await again.boundingBox())?.height).toBeGreaterThanOrEqual(48)
+  j.fake.down = false
+  await again.click()
+  await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
+})
+
+test('a game that is open shows its own name everywhere, and the way into Share does too', async () => {
+  const j = await open('ipadUpright')
+  await signIn(j.page)
+  await j.page.getByRole('link', { name: 'crate-game' }).click()
+  await title(j, 'Crate Game')
+  await j.page.getByRole('link', { name: WORDS.share }).click()
+  await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
 })

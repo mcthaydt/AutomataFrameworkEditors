@@ -186,6 +186,9 @@ test('grandpa cannot approve his own: the words say someone else must', async ()
   await pressSave(me.page).click()
   await text(me, WORDS.savedSuggestion)
   await me.page.getByRole('button', { name: WORDS.back }).click()
+  // The only change waiting is his own: the page does not tell him someone made a change for him to look at.
+  await text(me, WORDS.waitingRow(1))
+  expect(await me.page.getByText(WORDS.tipApprove).count()).toBe(0)
   await openFirstChange(me)
   await text(me, WORDS.ownChange)
   expect(await button(me, WORDS.approve).count()).toBe(0)
@@ -239,4 +242,42 @@ test('a person who may only look sees the list and the change, and no buttons th
   await text(s, WORDS.cantApprove)
   for (const name of [WORDS.approve, WORDS.turnDown, WORDS.takeBack])
     expect(await button(s, name).count()).toBe(0)
+})
+
+test('someone else was quicker: Approve says the change is not waiting any more, with a way back to the game', async () => {
+  await kidHasSaved('ipadUpright')
+  const slow = await gameAs('ipadUpright', 'grandpa')
+  await openFirstChange(slow)
+  const quick = await gameAs('ipadUpright', 'grandma')
+  await openFirstChange(quick)
+  await button(quick, WORDS.approve).click()
+  await text(quick, WORDS.approved)
+
+  await button(slow, WORDS.approve).click()
+  await text(slow, WORDS.changeGone)
+  // The game is fine and is not blamed; the one button goes back to it.
+  expect(await slow.page.getByText(WORDS.cantFindGame).count()).toBe(0)
+  expect(await button(slow, WORDS.tryAgain).count()).toBe(0)
+  await button(slow, WORDS.back).click()
+  await slow.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+})
+
+test('an old link to a change that is gone says so, and not that the game is missing', async () => {
+  const g = await gameAs('ipadUpright', 'grandma')
+  await g.page.goto(`${g.site}/#/game/grandma/crate-game/waiting/99`)
+  await text(g, WORDS.changeGone)
+  expect(await g.page.getByText(WORDS.cantFindGame).count()).toBe(0)
+})
+
+test('a change that moves nothing in a level says it does more than move things', async () => {
+  await kidHasSaved('ipadUpright')
+  const g = await gameAs('ipadUpright', 'grandpa')
+  // The level goes back to how it was, and a character changes instead: nothing in a level moved.
+  repoOf(g).put('automata/kid', LEVEL_PATH, fixtureFiles[LEVEL_PATH] ?? '')
+  const crate = fixtureFiles['content/characters/crate.json'] ?? ''
+  repoOf(g).put('automata/kid', 'content/characters/crate.json', crate.replace('#c9a227', '#c9a228'))
+  await g.page.getByRole('link', { name: /waiting/ }).click()
+  await g.page.locator('a.row').first().click()
+  await text(g, WORDS.changeOther)
+  expect(await g.page.locator('[data-thing]').count()).toBe(0)
 })

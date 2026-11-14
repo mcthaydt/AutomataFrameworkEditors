@@ -149,8 +149,39 @@ test('someone sent a link they may not open: told to ask the owner, with a way b
   await j.page.goto(`${j.site}/${GAME}`)
   await signIn(j.page)
   await text(j, WORDS.cantFindGame)
+  // No "Step 1 of 3, pick a level" over a game that is not there.
+  expect(await strip(j).count()).toBe(0)
   await j.page.getByRole('button', { name: WORDS.back, exact: true }).click()
   await j.page.getByRole('heading', { level: 1, name: WORDS.pickTitle }).waitFor()
+})
+
+test('the screens that are not a step carry no first-run strip: waiting changes and Share', async () => {
+  const j = await window_('ipadUpright', 'grandma')
+  await signIn(j.page)
+  await j.page.goto(`${j.site}/${GAME}/waiting`)
+  await j.page.getByRole('heading', { level: 1, name: WORDS.waitingTitle }).waitFor()
+  expect(await strip(j).count()).toBe(0)
+  await j.page.goto(`${j.site}/${GAME}/share`)
+  await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
+  expect(await strip(j).count()).toBe(0)
+  await j.page.goto(`${j.site}/${GAME}/waiting/99`)
+  await text(j, WORDS.changeGone)
+  expect(await strip(j).count()).toBe(0)
+})
+
+test('a game that is missing, broken or not a game says so without a first-run step', async () => {
+  const j = await window_('ipadUpright', 'grandma')
+  await signIn(j.page)
+  await j.page.goto(`${j.site}/#/game/grandma/nope`)
+  await text(j, WORDS.cantFindGame)
+  expect(await strip(j).count()).toBe(0)
+  await j.page.goto(`${j.site}/#/game/grandma/not-a-game`)
+  await text(j, WORDS.notAGame)
+  expect(await strip(j).count()).toBe(0)
+  repoOf(j).put('main', 'content/levels/level-1.json', '{')
+  await j.page.goto(`${j.site}/${GAME}`)
+  await text(j, WORDS.brokenGame)
+  expect(await strip(j).count()).toBe(0)
 })
 
 test("an approver's first visit with a change waiting: the tip points at it, once", async () => {
@@ -172,22 +203,99 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
   expect(await g.page.getByText(WORDS.tipApprove).count()).toBe(0)
 })
 
-test('at the first screens there is at most one primary button, at least 48 px tall, and the strip is on screen', async () => {
+test('at every step of the first run: one primary where the next thing is a button, never two, 48 px, and the strip on screen', async () => {
   const j = await window_('phone', 'grandma')
   noEditorYet(j)
-  const check = async (): Promise<void> => {
-    const primaries = j.page.locator('button.primary')
-    expect(await primaries.count()).toBeLessThanOrEqual(1)
-    for (const button of await primaries.all())
+  const check = async (primaries: 'one' | 'at most one'): Promise<void> => {
+    const found = j.page.locator('button.primary')
+    const count = await found.count()
+    expect(count).toBeLessThanOrEqual(1)
+    if (primaries === 'one') expect(count).toBe(1)
+    for (const button of await found.all())
       expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(48)
+    // On screen at the top, with no scrolling needed to read it.
     const box = await strip(j).boundingBox()
     expect(box?.y).toBeGreaterThanOrEqual(0)
     expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(844)
+    expect(await j.page.evaluate(() => document.querySelector('.content')?.scrollTop ?? 0)).toBe(0)
   }
-  await check()
+  // Welcome: the one thing to press is Sign in.
+  await check('one')
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
   await says(j, 'Step 1 of 4')
-  await check()
+  // Add the editor: the one thing to press is the big button.
+  await check('one')
+  await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
+  await says(j, 'Step 2 of 4')
+  // The list and the game's page: the next thing is a row to touch, so no button is the one to press.
+  await check('at most one')
+  await j.page.getByRole('link', { name: 'crate-game' }).click()
+  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await check('at most one')
+  await j.page.getByRole('link', { name: 'level-1' }).click()
+  await says(j, WORDS.guideMove)
+  await check('at most one')
+  await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  // The change is made: the one thing to press is Save.
+  await says(j, WORDS.guideSave)
+  await check('one')
+  await pressSave(j.page).click()
+  await says(j, WORDS.guideDoneDirect)
+  await check('at most one')
+})
+
+test('no screen a visitor can reach is a dead end: each has a way on and a way back', async () => {
+  const j = await window_('ipadUpright', 'grandma')
+  const wayOn = async (): Promise<number> =>
+    j.page.locator('button:not([disabled]), a[href]').filter({ hasNotText: WORDS.back }).count()
+  const back = j.page.getByRole('button', { name: WORDS.back, exact: true })
+
+  // Welcome: Try it now, Sign in. Nothing to go back to.
+  expect(await j.page.getByRole('button', { name: WORDS.tryIt }).isEnabled()).toBe(true)
+  expect(await j.page.getByRole('button', { name: WORDS.signIn }).isEnabled()).toBe(true)
+
+  // The example game's page: levels to open, and a way back.
+  await j.page.getByRole('button', { name: WORDS.tryIt }).click()
+  await j.page.getByRole('link', { name: 'level-1' }).waitFor()
+  expect(await wayOn()).toBeGreaterThan(0)
+  expect(await back.count()).toBe(1)
+
+  // A level: things to move, a Save to press, a way back.
+  await j.page.getByRole('link', { name: 'level-1' }).click()
+  await thingNamed(j.page, 'crate-1').waitFor()
+  expect(await wayOn()).toBeGreaterThan(0)
+  expect(await back.count()).toBe(1)
+  await back.click()
+  await j.page.getByRole('link', { name: 'level-1' }).waitFor()
+
+  // A game they may not open: a way on (Sign in), a way back, and the way back works.
+  repoOf(j).isPublic = false
+  await j.page.goto(`${j.site}/${GAME}`)
+  await text(j, WORDS.cantFindVisitor)
+  expect(await j.page.getByRole('button', { name: WORDS.signIn }).isEnabled()).toBe(true)
+  expect(await back.count()).toBe(1)
+  await back.click()
+  await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).waitFor()
+
+  // A screen about a person: Welcome, with Sign in, so the person can go on.
+  await j.page.goto(`${j.site}/${GAME}/share`)
+  await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).waitFor()
+  expect(await j.page.getByRole('button', { name: WORDS.signIn }).isEnabled()).toBe(true)
+})
+
+test('a reload after the first save still says "You did it", not "Step 2 of 4", until the tips are hidden', async () => {
+  const j = await window_('ipadUpright', 'grandma')
+  await signIn(j.page)
+  await openGame(j.page)
+  await j.page.getByRole('link', { name: 'level-1' }).click()
+  await thingNamed(j.page, 'crate-1').waitFor()
+  await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await pressSave(j.page).click()
+  await says(j, WORDS.guideDoneDirect)
+  await j.page.reload()
+  await thingNamed(j.page, 'crate-1').waitFor()
+  await says(j, WORDS.guideDoneDirect)
+  expect(await strip(j).textContent()).not.toContain('Step')
 })
 
 test('with only one game, coming back from GitHub opens it without asking', async () => {
