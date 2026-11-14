@@ -183,7 +183,8 @@ test('pressing a note by touch marks its pair of arrows in the card, in view, un
     expect(r.bottom).toBeLessThanOrEqual(window.innerHeight)
   }
   // The other pair is not marked.
-  expect(getComputedStyle(named(other)).outlineWidth).not.toBe('3px')
+  // (Without an outline some engines still report the default width, so the style is what says it.)
+  expect(getComputedStyle(named(other)).outlineStyle).not.toBe('solid')
   touch(named(first), 'pointerdown', centre(named(first)))
   await tick()
   expect(card?.dataset.asked).toBeUndefined()
