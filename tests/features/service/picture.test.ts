@@ -50,7 +50,7 @@ test.each([
 ])('%s is a bad request, and GitHub is not asked', async (_what, path) => {
   const res = await api.call('visitor', 'GET', ask(path))
   expect(problem(res)).toBe('bad-request')
-  expect(res.status).toBe(400)
+  expect(res.status).toBe(422)
   expect(asked(path)).toBe(0)
 })
 
