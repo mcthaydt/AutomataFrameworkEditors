@@ -22,8 +22,8 @@ The mockup is the "Notes on" screen of the private notes' moodboard. The flag se
 the framework's [`2026-11-14-no-default-language-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-14-no-default-language-design.md).
 
 **Plan audit:** [`audits/2026-11-14-blueprint-redesign-plan-audit.md`](../audits/2026-11-14-blueprint-redesign-plan-audit.md).
-Its findings are written into this plan, each marked `(audit I<n>)` or `(audit M<n>)`. Its Owner question Q1 blocks
-Task 7 (PRs 1 to 4 go ahead); Q2 blocks nothing until Task 19's amendment. Neither is defaulted.
+Its findings are written into this plan, each marked `(audit I<n>)` or `(audit M<n>)`. The Owner answered its three
+questions on 2026-11-14 (see "The Owner's answers to the plan audit" below): Q1 C, Q2 A, C1 B.
 
 This plan replaces `plans/2026-11-14-editors-restyle.md`. Pull request 12 (branch `claude/project-thread-lezp37`,
 head `e0648b0`) is not merged; "from PR 12" below means `git show e0648b0:<path>`, copied and then changed only as
@@ -35,8 +35,12 @@ the task says.
   "107786093+mcthaydt@users.noreply.github.com"`. Install the local hook that refuses any other author or committer
   before the first commit in a clone. No Claude attribution anywhere. Pull request bodies start with the project's
   two attribution lines and credit "Requested by **McThayDT**". Never force-push.
-- **Tests only in CI.** Never run `vitest` locally. `pnpm install`, `pnpm format`, `pnpm lint`, `pnpm typecheck`,
-  `pnpm knip` and `pnpm build` may run locally; they are not tests.
+- **Nothing runs locally** (the Owner, 2026-11-14, C1 B: "GitHub only for everything"). Not tests, and not `pnpm
+  format`, `lint`, `typecheck`, `knip`, `build`, the API report or any generator either. "Run" in a step means push and
+  read the pull request's checks. A step that says to run a generator (`pnpm api-report --update`, `pnpm api-index
+  --write`, `pnpm install --lockfile-only`) is done by hand or by a CI step the pull request adds, and the check says if
+  the hand-made file differs from what the generator writes. One exception is spent: the lockfile's checksum for a
+  git pin cannot be written by hand, so Task 1 ran `pnpm install --lockfile-only` once, before the answer arrived.
 - **Branches.** `main` plus at most five with CI running. Each pull request below is one branch, opened as a draft,
   merged by the merge session before the next one starts. A screen-changing pull request is not reported finished
   until its review artifact is published (see "Review pictures").
@@ -74,6 +78,15 @@ the task says.
 - **Stop rules.** Stop and report to the coordinator at once on: a failing check you cannot explain in one sentence;
   the third fix for the same failure; a need for a dependency or a workflow change not named here; an `engines` job
   over 25 minutes; any Owner question. Never default on an Owner question.
+
+## The Owner's answers to the plan audit (2026-11-14)
+
+- **Q1, how big the level is on a phone held upright: C.** Pinch to zoom and a two-finger drag at every size, like
+  Figma. Task 7 therefore needs the short amendment it names (the gesture on `Stage` and its tests), written and
+  audited before Task 7 starts. PRs 1 to 4 do not wait for it.
+- **Q2, the game's language in Play when the editors are in French, Russian or German: A.** Use the editors' language if
+  the game has it; otherwise show the game's flags once. Task 19's amendment builds this; it also waits for plan H.
+- **C1, what runs locally: B.** GitHub only, for everything. See Global Constraints.
 
 ## The Owner's answer on Play (2026-11-14)
 
@@ -640,9 +653,9 @@ from level-1"; one retype "Make crate-1 a spark in level-1"; any mix "Change lev
 
 ### Task 7: The frame: the level fills the window, the pill, the cluster, the tools, undo and redo
 
-**Waits for the Owner's answer to the plan audit's Q1** (how big the level is on a phone held upright: as planned,
-a taller level that slides, or pinch to zoom). If the answer is B or C, a short amendment to this task, written and
-audited before it starts, adds the gesture to `Stage` and its tests. PRs 1 to 4 do not wait.
+**Waits for its amendment.** The Owner answered the plan audit's Q1 with **C** (pinch to zoom and a two-finger drag at
+every size). A short amendment to this task, written and audited before it starts, adds the gesture to `Stage` and its
+tests. PRs 1 to 4 do not wait.
 
 **Files:**
 - Create: `src/features/levels/layout.ts`, `src/features/levels/Stage.svelte`
