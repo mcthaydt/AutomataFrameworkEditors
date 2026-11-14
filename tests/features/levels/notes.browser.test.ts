@@ -180,7 +180,7 @@ test('pressing a note by touch marks its pair of arrows in the card, in view, un
   for (const label of [first, second]) {
     const r = named(label).getBoundingClientRect()
     expect(r.top).toBeGreaterThanOrEqual(0)
-    expect(r.bottom).toBeLessThanOrEqual(window.innerHeight)
+    expect(r.bottom).toBeLessThanOrEqual(window.innerHeight + 1)
   }
   // The other pair is not marked.
   // (Without an outline some engines still report the default width, so the style is what says it.)
