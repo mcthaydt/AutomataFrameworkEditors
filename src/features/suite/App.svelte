@@ -54,8 +54,8 @@
   let level = $state({ dirty: false, look: false })
   let savedHow = $state<'direct' | 'suggestion' | undefined>(undefined)
   let keptCopy = $state(false)
-  /** True once the person chose a game from their own list; false for a link or "Try it now". */
-  let pickedFromList = $state(false)
+  /** True once the person has been shown their own list of games; a link or "Try it now" never shows it. */
+  let sawList = $state(false)
   const hideGuide = (): void => {
     finishGuide(remembered)
     guideOn = false
@@ -79,9 +79,7 @@
 
   onMount(() => {
     const follow = (): void => {
-      const before = route
       route = parseRoute(location.hash)
-      if (before.screen === 'games' && route.screen === 'game') pickedFromList = true
       if (route.screen !== 'level') level = { dirty: false, look: false }
     }
     window.addEventListener('hashchange', follow)
@@ -120,7 +118,7 @@
       keptCopy,
     }),
   )
-  const steps = $derived(guideSteps(!pickedFromList))
+  const steps = $derived(guideSteps(!sawList))
   const count = $derived.by(() => {
     const at = steps.indexOf(step)
     return at < 0 ? undefined : { n: at + 1, of: steps.length }
@@ -172,7 +170,10 @@
       {remembered}
       {justAdded}
       onadd={() => location.assign(addUrl)}
-      ongames={(n) => (games = n)}
+      ongames={(n) => {
+        games = n
+        sawList = true
+      }}
       onsignedout={signedOut}
     />
   {:else if route.screen === 'game'}

@@ -5,6 +5,10 @@ import { parse } from 'smol-toml'
 import { z } from 'zod'
 import { type AccessLevel, higher } from './levels.ts'
 
+// The page's rules forbid eval, and zod would otherwise try it (to build faster readers) and be refused. This turns
+// that off for this copy of zod, before any schema below is made.
+z.config({ jitless: true })
+
 export const ACCESS_FILE = 'automata.access.toml'
 export const MAX_PEOPLE = 100
 
