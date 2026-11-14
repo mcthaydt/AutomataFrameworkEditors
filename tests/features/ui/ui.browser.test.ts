@@ -224,6 +224,8 @@ test('a Stamp with a 39-letter name stays inside 390 px and is hidden from a scr
   await tick()
   const stamp = box.querySelector('[data-stamp]') as HTMLElement
   expect(stamp.getAttribute('aria-hidden')).toBe('true')
+  // It lands a little larger and settles; measure it at rest.
+  await Promise.all(stamp.getAnimations().map((a) => a.finished))
   const rect = stamp.getBoundingClientRect()
   const edge = box.getBoundingClientRect()
   expect(rect.left).toBeGreaterThanOrEqual(edge.left)
