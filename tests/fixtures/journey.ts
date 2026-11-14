@@ -171,6 +171,8 @@ export const thingNamed = (page: Page, id: string) => page.locator(`[data-thing=
 
 /** Drags a thing by `dx` and `dy` tiles with one finger, the way a person does: down, a path across, up. */
 export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: number }): Promise<void> {
+  // On a phone the screen scrolls, and a person scrolls the thing into view before putting a finger on it.
+  await thingNamed(page, id).scrollIntoViewIfNeeded()
   const box = await thingNamed(page, id).boundingBox()
   const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
   if (box === null || !(scale > 0)) throw new Error(`No ${id} to drag on this page.`)
