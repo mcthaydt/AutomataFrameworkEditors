@@ -223,7 +223,6 @@
     flex-direction: column;
     height: min(60vh, 28rem);
     border: 1px solid var(--words);
-    border-radius: 0;
   }
   .lines {
     margin: 0;
