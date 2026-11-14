@@ -23,8 +23,13 @@ test('Welcome shows its pieces, and signing in ends on the list of games with a 
   await title(j, WORDS.appName)
   await j.page.getByText(WORDS.welcomeLine).waitFor()
   await j.page.getByText(WORDS.signInWhy).waitFor()
-  const button = j.page.getByRole('button', { name: WORDS.signIn })
-  expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(48)
+  // The site has an example game, so trying it is the one big button and signing in is the plain one under it.
+  expect(
+    (await j.page.getByRole('button', { name: WORDS.tryIt }).boundingBox())?.height,
+  ).toBeGreaterThanOrEqual(48)
+  expect(
+    (await j.page.getByRole('button', { name: WORDS.signIn }).boundingBox())?.height,
+  ).toBeGreaterThanOrEqual(44)
   await picture(j.page, 'welcome')
 
   await signIn(j.page)

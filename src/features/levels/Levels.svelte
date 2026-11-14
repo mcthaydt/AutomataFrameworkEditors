@@ -33,8 +33,12 @@
     /** After every move and undo. */
     onchange: (edit: LevelEdit) => void
     onsave: () => void
+    /** Puts the level's text where a person can paste it. Always on: it never needs a sign-in. */
+    oncopytext?: () => void
+    /** Hands the level over as a file. */
+    oncopyfile?: () => void
   }
-  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave }: Props = $props()
+  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -267,6 +271,12 @@
           {/if}
           <Button label={WORDS.undo} disabled={edit.past.length === 0} onpress={takeBack} />
         </div>
+        {#if oncopytext !== undefined || oncopyfile !== undefined}
+          <div class="buttons">
+            {#if oncopytext !== undefined}<Button label={WORDS.copyLevel} onpress={oncopytext} />{/if}
+            {#if oncopyfile !== undefined}<Button label={WORDS.copyKeep} onpress={oncopyfile} />{/if}
+          </div>
+        {/if}
       </div>
       {/if}
     </div>
@@ -276,8 +286,8 @@
 <style>
   .editor {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    height: 100%;
     min-height: 0;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);

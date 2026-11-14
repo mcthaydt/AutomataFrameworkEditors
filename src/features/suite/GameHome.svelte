@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { can } from '../access/access.ts'
   import { formatDiagnostic } from '@automataframework/framework/headless'
   import type { Api } from '../api/api.ts'
   import { forgetGame, type Opened, openGame, rememberGame } from '../game/game.ts'
@@ -15,11 +16,13 @@
     remembered: Storage
     /** True when the person has no sign-in: the way back is Welcome, and the words say so. */
     visitor: boolean
+    /** Has the person saved a change before? Then an Owner is pointed at Share, once. */
+    savedBefore: boolean
     onsignin: () => void
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game, remembered, visitor, onsignin, onsignedout, onback }: Props = $props()
+  let { api, game, remembered, visitor, savedBefore, onsignin, onsignedout, onback }: Props = $props()
 
   let opened = $state<Opened | undefined>(undefined)
 
@@ -32,6 +35,26 @@
     opened = result
   }
   onMount(() => void load())
+
+  // Two one-time tips, each shown until it is dismissed.
+  const tipDone = (key: string): boolean => {
+    try {
+      return remembered.getItem(key) !== null
+    } catch {
+      return false
+    }
+  }
+  let shareTipGone = $state(tipDone('af.tip.share'))
+  let approveTipGone = $state(tipDone('af.tip.approve'))
+  function dismiss(key: string): void {
+    try {
+      remembered.setItem(key, '1')
+    } catch {
+      // It may come back next time; nothing is lost.
+    }
+    if (key === 'af.tip.share') shareTipGone = true
+    else approveTipGone = true
+  }
 
   const back = $derived({ label: WORDS.back, onpress: onback })
   const levelIds = $derived(opened?.ok ? Object.keys(opened.game.content.levels) : [])
@@ -46,6 +69,19 @@
       text={opened.game.login === undefined ? WORDS.visitorCan : WORDS.youAre(opened.game.level)}
     />
     {#if opened.game.mine !== undefined}<Notice kind="info" text={WORDS.mineWaiting} />{/if}
+    {#if opened.game.level === 'owner' && opened.game.login !== undefined && savedBefore && !shareTipGone}
+      <Notice kind="info" text={WORDS.tipShare} />
+      <div><Button label={WORDS.tipGotIt} onpress={() => dismiss('af.tip.share')} /></div>
+    {/if}
+    {#if can(opened.game.level, 'approve') && opened.game.waiting > 0 && !approveTipGone}
+      <Notice kind="info" text={WORDS.tipApprove} />
+      <div><Button label={WORDS.tipGotIt} onpress={() => dismiss('af.tip.approve')} /></div>
+    {/if}
+    {#if opened.game.level === 'owner' && opened.game.login !== undefined}
+      <div>
+        <a class="row" href={routeHash({ screen: 'share', owner: game.owner, name: game.name })}>{WORDS.share}</a>
+      </div>
+    {/if}
     {#if opened.game.waiting > 0}
       <a class="row" href={routeHash({ screen: 'waiting', owner: game.owner, name: game.name })}>
         {WORDS.waitingRow(opened.game.waiting)}

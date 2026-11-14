@@ -14,9 +14,13 @@
     api: Api
     remembered: Storage
     onadd: () => void
+    /** Told how many games the list holds, once it is known. */
+    ongames: (count: number) => void
+    /** True when GitHub has just sent the person back from adding the editor. */
+    justAdded: boolean
     onsignedout: () => void
   }
-  let { api, remembered, onadd, onsignedout }: Props = $props()
+  let { api, remembered, onadd, ongames, justAdded, onsignedout }: Props = $props()
 
   let games = $state<readonly GameRef[] | undefined>(undefined)
   let trouble = $state(false)
@@ -38,6 +42,12 @@
       }
     }
     games = all
+    ongames(all.length)
+    // Back from adding the editor to exactly one game: open it, nothing more to choose.
+    const only = all[0]
+    if (justAdded && all.length === 1 && only !== undefined) {
+      location.hash = routeHash({ screen: 'game', owner: only.owner, name: only.name })
+    }
   }
   onMount(() => void load())
 

@@ -27,6 +27,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+    width: 100%;
     max-width: 48rem;
     margin: 0 auto;
     padding: var(--space-3);

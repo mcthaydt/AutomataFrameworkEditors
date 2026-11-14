@@ -177,6 +177,8 @@
   }
   /* The read-only picture needs a height of its own: it is made to fill what it is given. */
   .picture {
+    display: flex;
+    flex-direction: column;
     height: min(60vh, 28rem);
   }
   .lines {

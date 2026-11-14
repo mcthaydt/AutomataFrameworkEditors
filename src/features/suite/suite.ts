@@ -2,9 +2,13 @@
 import { mount, unmount } from 'svelte'
 import { createApi, swapTokens } from '../api/api.ts'
 import { addToGameUrl, createSession, type SessionConfig } from '../session/session.ts'
+import type { GameRef } from '../wire/wire.ts'
 import App from './App.svelte'
 
-export type SuiteConfig = SessionConfig
+/** What the site that runs the editor chooses: where sign-in goes, and which game "Try it now" opens. */
+export interface SuiteConfig extends SessionConfig {
+  readonly demo: GameRef | undefined
+}
 
 /** 32 hex characters from the browser's own random numbers. */
 function randomState(): string {
@@ -27,6 +31,8 @@ export function mountSuite(target: HTMLElement, config: SuiteConfig): { destroy(
   let app: ReturnType<typeof mount> | undefined
   let destroyed = false
 
+  // GitHub sends a person back with `setup_action` when they have just added the editor to a game.
+  const justAdded = new URL(location.href).searchParams.has('setup_action')
   // A sign-in that GitHub sent back is finished first, so the app opens on the place the person was.
   void session.finish(new URL(location.href)).then(({ result, returnTo }) => {
     if (destroyed) return
@@ -41,6 +47,9 @@ export function mountSuite(target: HTMLElement, config: SuiteConfig): { destroy(
         start: result === 'cancelled' || result === 'failed' ? result : undefined,
         addUrl: addToGameUrl(config),
         remembered: localStorage,
+        demo: config.demo,
+        signupUrl: `${config.webUrl}/signup`,
+        justAdded,
         drafts: sessionStorage,
       },
     })

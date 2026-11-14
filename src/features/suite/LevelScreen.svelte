@@ -5,7 +5,9 @@
   import type { Api } from '../api/api.ts'
   import {
     dropDraft,
+    keepCopy,
     keepDraft,
+    levelCopy,
     type Opened,
     type OpenGame,
     openGame,
@@ -29,11 +31,17 @@
     signedIn: boolean
     /** Where an unsaved change is kept on this device. */
     drafts: Storage
+    /** Where the person is in the first run: told whenever it changes. */
+    onfacts: (facts: { dirty: boolean; look: boolean }) => void
+    /** Told once a save has gone in, and how. */
+    onsaved: (how: 'direct' | 'suggestion') => void
+    /** Told when a copy was made. */
+    onkept: () => void
     onsignin: () => void
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game: ref, levelId, remembered, signedIn, drafts, onsignin, onsignedout, onback }: Props = $props()
+  let { api, game: ref, levelId, remembered, signedIn, drafts, onfacts, onsaved, onkept, onsignin, onsignedout, onback }: Props = $props()
 
   /** A sentence about what just happened, with the buttons it needs. */
   interface Event {
@@ -41,6 +49,8 @@
     readonly text: string
     readonly details?: readonly string[]
     readonly ask?: 'sign-in' | 'changed-elsewhere' | 'leave'
+    /** The level's text, in a box that is selected, where the clipboard was refused. */
+    readonly box?: string
   }
 
   let opened = $state<Opened | undefined>(undefined)
@@ -72,6 +82,7 @@
             : WORDS.savedDirect
           : WORDS.statusClean,
   )
+  $effect(() => onfacts({ dirty, look: opened?.ok === true && !visitor && !can(level, 'save') }))
   const asked = $derived(events.some((e) => e.ask === 'sign-in' || e.ask === 'leave'))
 
   function show(next: Opened): void {
@@ -137,6 +148,7 @@
       current = start
       generation += 1
       saved = result.how
+      onsaved(result.how)
       return
     }
     switch (result.problem) {
@@ -175,6 +187,35 @@
     events = []
   }
 
+  /** The level as it is on the screen now, saved or not. */
+  const copyOfNow = () => (game === undefined || current === undefined ? undefined : levelCopy(game, current))
+
+  async function copyText(): Promise<void> {
+    const copy = copyOfNow()
+    if (copy === undefined) return
+    try {
+      await navigator.clipboard.writeText(copy.text)
+      events = [{ kind: 'good', text: WORDS.copyCopied }]
+      onkept()
+    } catch {
+      // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
+      events = [{ kind: 'info', text: WORDS.copySelect, box: copy.text }]
+      onkept()
+    }
+  }
+  function copyFile(): void {
+    const copy = copyOfNow()
+    if (copy === undefined) return
+    keepCopy(document, copy)
+    events = [{ kind: 'good', text: WORDS.copyKept }]
+    onkept()
+  }
+  let textBox: HTMLTextAreaElement | undefined = $state()
+  $effect(() => {
+    textBox?.focus()
+    textBox?.select()
+  })
+
   function leave(): void {
     if (dirty) events = [{ kind: 'info', text: WORDS.leaveAsk, ask: 'leave' }]
     else onback()
@@ -199,6 +240,9 @@
       {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
       {#each events as event (event.text)}
         <Notice kind={event.kind} text={event.text} />
+        {#if event.box !== undefined}
+          <textarea class="box" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
+        {/if}
         {#if event.details !== undefined && event.details.length > 0}
           <ul class="details">
             {#each event.details as line (line)}<li>{line}</li>{/each}
@@ -232,6 +276,8 @@
         back={{ label: WORDS.back, onpress: leave }}
         onchange={changed}
         onsave={() => void save()}
+        oncopytext={() => void copyText()}
+        oncopyfile={copyFile}
       />
     {/key}
   </div>
@@ -263,8 +309,8 @@
 <style>
   .level {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    height: 100%;
     min-height: 0;
   }
   .notices {
@@ -280,6 +326,15 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+  }
+  .box {
+    width: 100%;
+    box-sizing: border-box;
+    font: 0.85rem monospace;
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--fg);
   }
   .details {
     margin: 0;

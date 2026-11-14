@@ -345,3 +345,37 @@ test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a ma
   }
   expect(crate().hasAttribute('data-marked')).toBe(true)
 })
+
+test('the two copy buttons are at least 44 px, on with canSave false and status clean, and each calls its handler once', async () => {
+  const text = vi.fn()
+  const file = vi.fn()
+  mounted = mount(Levels, {
+    target: box,
+    props: {
+      level,
+      characters,
+      hero: 'hero',
+      canSave: false,
+      status: 'clean' as const,
+      statusText: '',
+      title: 'level-1',
+      back: { label: WORDS.back, onpress: () => {} },
+      onchange,
+      onsave: () => {},
+      oncopytext: text,
+      oncopyfile: file,
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
+  for (const [label, handler] of [
+    [WORDS.copyLevel, text],
+    [WORDS.copyKeep, file],
+  ] as const) {
+    const button = named(label)
+    expect(button.disabled).toBe(false)
+    expect(button.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
+    button.click()
+    expect(handler).toHaveBeenCalledTimes(1)
+  }
+})

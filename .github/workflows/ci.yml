@@ -49,6 +49,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
       - run: pnpm test:engine ${{ matrix.engine }}
       - run: pnpm build:journeys
+      - run: pnpm build:journeys-plain
       - run: pnpm test:journeys
         env:
           ENGINE: ${{ matrix.engine }}

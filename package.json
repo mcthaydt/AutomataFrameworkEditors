@@ -19,6 +19,7 @@
     "knip": "knip",
     "build": "vite build",
     "build:journeys": "vite build --mode journeys",
+    "build:journeys-plain": "VITE_DEMO_GAME= vite build --mode journeys --outDir dist-plain",
     "test:node": "vitest run --project node",
     "test:engine": "vitest run --passWithNoTests --project",
     "test:journeys": "vitest run --passWithNoTests --project journeys"
