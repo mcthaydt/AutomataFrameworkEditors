@@ -309,6 +309,7 @@
         {statusText}
         standing={standing !== '' ? standingNote : undefined}
         said={events.length > 0 ? saidNow : undefined}
+        stamp={saved !== undefined && game?.login !== undefined ? WORDS.stampSaved(game.login) : undefined}
         {notes}
         onnotes={setNotes}
         title={levelId}

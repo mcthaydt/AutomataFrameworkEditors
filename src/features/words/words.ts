@@ -60,6 +60,8 @@ export const WORDS = Object.freeze({
   notesHidden: 'Notes hidden',
   noteTiles: (n: number): string => (n === 1 ? '1 tile' : `${n} tiles`),
   noteChange: (name: string, amount: string): string => `${name} ${amount}. Press to change it.`,
+  stampSaved: (name: string): string => `Saved by ${name}`,
+  stampApproved: 'Approved',
   save: 'Save',
   statusClean: 'Nothing to save.',
   statusDirty: "You have changes that aren't saved.",

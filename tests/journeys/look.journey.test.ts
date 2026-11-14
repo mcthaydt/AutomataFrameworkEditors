@@ -3,12 +3,14 @@
 // and the stamps. The screens journey measures every screen against the touch rules; this one proves the look itself.
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
+import { writeAccess } from '#src/features/access/access.ts'
 import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
   type Look,
+  openGame,
   openLevel,
   openPage,
   pressSave,
@@ -54,11 +56,58 @@ async function visitorLevel(j: JourneyPage): Promise<void> {
   await thingNamed(j.page, 'crate-1').waitFor()
 }
 /** Signed in as grandma, on level-1 of the crate game. */
-async function signedInLevel(size: Size): Promise<JourneyPage> {
-  const j = await open(size)
+async function signedInLevel(size: Size, look: Look = {}): Promise<JourneyPage> {
+  const j = await open(size, look)
   await signIn(j.page)
   await openLevel(j.page)
   return j
+}
+/** Kid (who may only suggest) saves a change that grandpa (who may approve) can look at. Kid's window stays open. */
+async function kidHasSaved(size: Size): Promise<JourneyPage> {
+  const kid = await openPage(size, 'kid')
+  windows.push(kid)
+  const repo = kid.fake.repos.get('grandma/crate-game')
+  if (repo === undefined) throw new Error('No crate game in the pretend GitHub.')
+  repo.checks = 'passing'
+  repo.put(
+    'main',
+    'automata.access.toml',
+    writeAccess({
+      format: 1,
+      everyone: 'suggest',
+      people: [
+        { github: 'grandpa', level: 'approve' },
+        { github: 'grandma', level: 'owner' },
+      ],
+    }),
+  )
+  await signIn(kid.page)
+  await openLevel(kid.page)
+  await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
+  await pressSave(kid.page).click()
+  return kid
+}
+/** Grandpa's window on kid's waiting change. */
+async function openKidsChange(size: Size, look: Look = {}): Promise<JourneyPage> {
+  const g = await openPage(size, 'grandpa', true, look)
+  windows.push(g)
+  await signIn(g.page)
+  await openGame(g.page)
+  await g.page.getByRole('link', { name: /waiting/ }).click()
+  await g.page.locator('a.row').first().click()
+  await thingNamed(g.page, 'crate-1').waitFor()
+  return g
+}
+/** A stamp has landed: its animation is over, and it is whole in the window. */
+async function landed(j: JourneyPage): Promise<DOMRect> {
+  await j.page.locator('[data-stamp]').waitFor()
+  await j.page.waitForFunction(() =>
+    document
+      .querySelector('[data-stamp]')
+      ?.getAnimations()
+      .every((a) => a.playState === 'finished'),
+  )
+  return j.page.locator('[data-stamp]').evaluate((el) => el.getBoundingClientRect().toJSON())
 }
 const level1 = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '') as Level
 /** The level with the crate somewhere else: what a teammate saved while someone had it open. */
@@ -279,5 +328,74 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
     await gotIt.waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await gotIt.waitFor({ state: 'detached' })
+  })
+  test("saving lands as a stamp with the person's name", async () => {
+    const j = await signedInLevel(size)
+    await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressSave(j.page).click()
+    const at = await landed(j)
+    const stamp = j.page.locator('[data-stamp]')
+    expect(await stamp.textContent()).toContain(WORDS.stampSaved('grandma'))
+    expect(at.left).toBeGreaterThanOrEqual(0)
+    expect(at.top).toBeGreaterThanOrEqual(0)
+    expect(at.right).toBeLessThanOrEqual(SIZES[size].width)
+    expect(at.bottom).toBeLessThanOrEqual(SIZES[size].height)
+    expect(await stamp.evaluate((el) => getComputedStyle(el).opacity)).toBe('1')
+    expect(await j.page.locator('.status').textContent()).toContain(WORDS.savedDirect)
+    // Another move, and the stamp is gone.
+    await dragByTouch(j.page, 'crate-1', { dx: 1, dy: 0 })
+    await stamp.waitFor({ state: 'detached' })
+  })
+
+  test('a change that waits is stamped too, and the sentence says it waits', async () => {
+    const kid = await kidHasSaved(size)
+    await landed(kid)
+    expect(await kid.page.locator('[data-stamp]').textContent()).toContain(WORDS.stampSaved('kid'))
+    expect(await kid.page.locator('.status').textContent()).toContain(WORDS.savedSuggestion)
+  })
+
+  test('approving stamps Approved, and turning one down does not', async () => {
+    const kid = await kidHasSaved(size)
+    await kid.page.getByText(WORDS.savedSuggestion, { exact: false }).first().waitFor()
+    const g = await openKidsChange(size)
+    await g.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
+    await landed(g)
+    expect(await g.page.locator('[data-stamp]').textContent()).toContain(WORDS.stampApproved)
+    await g.page.getByText(WORDS.approved, { exact: false }).first().waitFor()
+  })
+
+  test('turning a change down shows no stamp', async () => {
+    const kid = await kidHasSaved(size)
+    await kid.page.getByText(WORDS.savedSuggestion, { exact: false }).first().waitFor()
+    const g = await openKidsChange(size)
+    await g.page.getByRole('button', { name: WORDS.turnDown, exact: true }).click()
+    await g.page.getByText(WORDS.turnedDown, { exact: false }).first().waitFor()
+    expect(await g.page.locator('[data-stamp]').count()).toBe(0)
+  })
+
+  test('with reduced motion the stamp fades in and does not move', async () => {
+    const still = await signedInLevel(size, { reducedMotion: 'reduce' })
+    await dragByTouch(still.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressSave(still.page).click()
+    await landed(still)
+    expect(
+      await still.page.locator('[data-stamp]').evaluate((el) => getComputedStyle(el).animationName),
+    ).toMatch(/fade$/)
+    const moving = await signedInLevel(size)
+    await dragByTouch(moving.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressSave(moving.page).click()
+    await landed(moving)
+    expect(
+      await moving.page.locator('[data-stamp]').evaluate((el) => getComputedStyle(el).animationName),
+    ).toMatch(/land$/)
+  })
+
+  test('a visitor never sees a stamp', async () => {
+    const j = await open(size)
+    await visitorLevel(j)
+    await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressSave(j.page).click()
+    await j.page.getByText(WORDS.signInToSave, { exact: false }).first().waitFor()
+    expect(await j.page.locator('[data-stamp]').count()).toBe(0)
   })
 })

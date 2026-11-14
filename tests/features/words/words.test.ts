@@ -149,6 +149,8 @@ const PINNED: Readonly<Record<string, string>> = {
   notesHidden: 'Notes hidden',
   noteTiles: 'crate-1 tiles',
   noteChange: 'crate-1 undefined. Press to change it.',
+  stampSaved: 'Saved by crate-1',
+  stampApproved: 'Approved',
   draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
 }
 
@@ -203,4 +205,9 @@ test('tiles are counted in the singular and the plural', () => {
 
 test('a note says what it is and that pressing it changes it', () => {
   expect(WORDS.noteChange('Across', '6.5 tiles')).toBe('Across 6.5 tiles. Press to change it.')
+})
+
+test('a stamp names who saved, and one word says approved', () => {
+  expect(WORDS.stampSaved('grandma')).toBe('Saved by grandma')
+  expect(WORDS.stampApproved).toBe('Approved')
 })

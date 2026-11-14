@@ -5,7 +5,7 @@
   import type { Api } from '../api/api.ts'
   import { type Opened, openGame } from '../game/game.ts'
   import { compareLevels, Levels, readNotesMode } from '../levels/levels.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
+  import { Button, Notice, Screen, Stamp } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
 
@@ -133,6 +133,7 @@
 {:else if done !== undefined}
   <Screen title={change?.title ?? WORDS.waitingTitle}>
     <Notice kind="good" text={done === 'approved' ? WORDS.approved : WORDS.turnedDown} />
+    {#if done === 'approved'}<div><Stamp text={WORDS.stampApproved} /></div>{/if}
     <div><Button label={WORDS.back} kind="primary" onpress={onhome} /></div>
   </Screen>
 {:else if gone}

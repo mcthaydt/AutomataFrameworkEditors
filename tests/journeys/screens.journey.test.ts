@@ -468,6 +468,24 @@ const SCENES: readonly Scene[] = [
     stage: true,
   },
   {
+    name: 'change-approved-stamp',
+    reach: async (size) => {
+      const j = await suggestionWaiting(size, 'grandpa')
+      await openFirstChange(j)
+      await j.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
+      await text(j, WORDS.approved)
+      await j.page.locator('[data-stamp]').waitFor()
+      // Let it land, so the picture shows it at rest.
+      await j.page.waitForFunction(() =>
+        document
+          .querySelector('[data-stamp]')
+          ?.getAnimations()
+          .every((a) => a.playState === 'finished'),
+      )
+      return j
+    },
+  },
+  {
     name: 'waiting-change-failed-checks',
     reach: async (size) => {
       const j = await suggestionWaiting(size, 'grandpa')
