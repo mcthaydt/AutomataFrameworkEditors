@@ -16,10 +16,19 @@ stage 7 is 6)
 | 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
 | 2. Plan | Done | [`plans/2026-11-14-editors-blueprint-redesign.md`](plans/2026-11-14-editors-blueprint-redesign.md) |
 | 3. Plan audit | Done; 11 important and 12 minor findings applied to the plan; Owner Q1 blocks Task 7, Q2 blocks Task 19's amendment; coordinator C1 open | [`audits/2026-11-14-blueprint-redesign-plan-audit.md`](audits/2026-11-14-blueprint-redesign-plan-audit.md) |
-| 4. Execution | Not started; Play (Task 19) waits for a framework cycle | |
+| 4. Execution | In progress (Task 1 of 19); Play (Task 19) waits for a framework cycle | [Stage 4 log](#stage-4-log) |
 | 5. Implementation audit | Not started; two audits after the build (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 4 log
+
+Overall for this stage: Task 1 of 19 in review. Nothing is run on the building session's machine except
+`pnpm install --lockfile-only` (the lockfile's checksum cannot be written by hand); every test and check is read from
+the pull request's CI.
+
+- Task 1 (pull request 1, the framework pin): pinned to `4b18418` (AutomataFramework's newest commit with all 12 checks
+  green; docs only above `452172c`). The lockfile gained the framework's new Colyseus peer packages.
 
 ### Stage 3 finished (2026-11-14)
 
