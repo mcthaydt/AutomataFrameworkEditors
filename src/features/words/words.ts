@@ -74,6 +74,7 @@ export const WORDS = Object.freeze({
   draftBack: "We brought back the change you hadn't saved.",
   draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
   solid: 'That spot is solid ground. Try another spot.',
+  artMissing: "Some of this game's pictures are missing, so things show as boxes.",
   waitingRow: (n: number): string => (n === 1 ? '1 change is waiting' : `${n} changes are waiting`),
   waitingTitle: 'Waiting changes',
   waitingNone: 'Nothing is waiting.',

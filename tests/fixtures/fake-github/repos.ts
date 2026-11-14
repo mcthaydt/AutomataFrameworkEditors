@@ -2,7 +2,12 @@
 // text, the commits made through the API, and the pulls. There are no trees or blobs on the outside; a file's
 // `sha` is git's blob sha, so it changes exactly when the bytes do.
 import { createHash } from 'node:crypto'
+import { fixturePictures } from '../game/pictures.ts'
 import { fixtureMap } from '../game/read.ts'
+import { plainMap } from '../plain-game/read.ts'
+
+// The pictures are painted once, when this file is first loaded.
+const GAME_PICTURES = await fixturePictures()
 
 export interface FakeCommit {
   readonly sha: string
@@ -46,6 +51,8 @@ export interface FakeRepo {
   /** People other than the owner who can reach the repo on GitHub (collaborators). */
   readonly collaborators: Set<string>
   readonly branches: Map<string, Map<string, string>>
+  /** The game's painted pictures by path: the same on every branch, since an editor changes none. */
+  readonly pictures: Map<string, Uint8Array>
   readonly commits: FakeCommit[]
   readonly pulls: FakePull[]
   /** The time, for new pulls. The server sets it to its own clock. */
@@ -82,7 +89,12 @@ export function nextSha(seed: string): string {
   return createHash('sha1').update(`${counter}:${seed}`).digest('hex')
 }
 
-function makeRepo(owner: string, name: string, files: Map<string, string>): FakeRepo {
+function makeRepo(
+  owner: string,
+  name: string,
+  files: Map<string, string>,
+  pictures: Record<string, Uint8Array> = {},
+): FakeRepo {
   const defaultBranch = 'main'
   const commitDates = new Map<string, number>()
   const first = nextSha(`${owner}/${name}`)
@@ -115,6 +127,7 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
     checks: 'passing',
     collaborators: new Set(),
     branches: new Map([[defaultBranch, files]]),
+    pictures: new Map(Object.entries(pictures)),
     commits: [],
     pulls: [],
     clock: () => Date.now(),
@@ -150,9 +163,14 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
   return repo
 }
 
-/** The fixture game on `main`, owned by `grandma`, public, with the editor added. */
+/** The fixture game, in its own art, on `main`, owned by `grandma`, public, with the editor added. */
 export function gameRepo(name: string): FakeRepo {
-  return makeRepo('grandma', name, fixtureMap())
+  return makeRepo('grandma', name, fixtureMap(), GAME_PICTURES)
+}
+
+/** The same game with no art at all: every thing is a box. */
+export function plainGameRepo(name: string): FakeRepo {
+  return makeRepo('grandma', name, plainMap())
 }
 
 /** A repo with a README.md and nothing else. */

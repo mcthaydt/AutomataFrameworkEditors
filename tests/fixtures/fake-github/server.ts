@@ -14,6 +14,7 @@ import {
   gameRepo,
   nextSha,
   notAGameRepo,
+  plainGameRepo,
   type PullFacts,
 } from './repos.ts'
 
@@ -45,7 +46,7 @@ export interface FakeGitHub {
   clock: number
   /** What it says is left of GitHub's allowance, on every answer. */
   rate: { remaining: number; limit: number }
-  /** Back to: grandma, allow, up, and the repos crate-game, not-a-game and other-game. */
+  /** Back to: grandma, allow, up, and the repos crate-game, not-a-game, other-game and plain-game. */
   reset(): void
   close(): Promise<void>
 }
@@ -110,6 +111,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     add(gameRepo('crate-game'))
     add(notAGameRepo('not-a-game'))
     add(gameRepo('other-game'))
+    add(plainGameRepo('plain-game'))
     log.length = 0
     person = 'grandma'
     signIn = 'allow'
@@ -397,6 +399,18 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       if (method === 'GET') {
         const files = repo.branches.get(url.searchParams.get('ref') ?? main)
         if (files === undefined) return NOT_FOUND
+        const picture = repo.pictures.get(path)
+        if (picture !== undefined) {
+          let binary = ''
+          for (const byte of picture) binary += String.fromCharCode(byte)
+          return send(200, {
+            type: 'file',
+            path,
+            sha: blobSha(binary),
+            encoding: 'base64',
+            content: btoa(binary).replace(/(.{60})/g, '$1\n'),
+          })
+        }
         const text = files.get(path)
         if (text !== undefined) {
           return send(200, {

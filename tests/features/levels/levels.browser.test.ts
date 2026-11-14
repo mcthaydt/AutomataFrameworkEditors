@@ -1,17 +1,24 @@
 // The levels editor in each real browser, driven with real touch pointer events on the real layout.
-import { fitWorld } from '@automataframework/framework'
-import type { Character, Level } from '@automataframework/framework/headless'
+// The plain game, with no pictures: every thing is a box on sky, so a pixel says where a thing is drawn. The pictures
+// with art are held in `level-picture.browser.test.ts`.
+import { fitInRoom } from '@automataframework/framework'
+import { type GameContent, type Level, levelSize, loadGame } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
 import { WORDS } from '#src/features/words/words.ts'
-import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+import { readFrom } from '../../fixtures/game/read.ts'
+import { plainFiles } from '../../fixtures/plain-game/read.ts'
 
-const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
-const characters: Record<string, Character> = {
-  crate: JSON.parse(fixtureFiles['content/characters/crate.json'] ?? '{}'),
-  hero: JSON.parse(fixtureFiles['content/characters/hero.json'] ?? '{}'),
-}
+const LEVEL_FILE = 'content/levels/level-1.json'
+const level = JSON.parse(plainFiles[LEVEL_FILE] ?? '{}') as Level
+let content: GameContent
+beforeAll(async () => {
+  const loaded = await loadGame(readFrom(plainFiles))
+  if (!loaded.ok) throw new Error('the plain game did not load')
+  content = loaded.value
+})
+const NO_ROOM = { top: 0, right: 0, bottom: 0, left: 0 }
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -38,8 +45,8 @@ async function show(over: { canSave?: boolean; status?: Status; onsave?: () => v
     target: box,
     props: {
       level,
-      characters,
-      hero: 'hero',
+      content,
+      art: undefined,
       canSave: over.canSave ?? true,
       status: over.status ?? 'dirty',
       statusText: 'Nothing has changed yet.',
@@ -76,7 +83,7 @@ const centre = (el: Element): { x: number; y: number } => {
 function expectedCentre(tileX: number, tileY: number): { x: number; y: number } {
   const s = stage()
   const rect = s.getBoundingClientRect()
-  const fit = fitWorld({ w: s.clientWidth, h: s.clientHeight }, { w: 16, h: 9 })
+  const fit = fitInRoom({ w: s.clientWidth, h: s.clientHeight }, NO_ROOM, levelSize(level))
   return { x: rect.left + fit.left + tileX * fit.scale, y: rect.top + fit.top + tileY * fit.scale }
 }
 const scale = (): number => Number(stage().dataset.scale)
@@ -407,8 +414,8 @@ test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a ma
       readOnly: true,
       marked: ['crate-1'],
       level,
-      characters,
-      hero: 'hero',
+      content,
+      art: undefined,
       canSave: false,
       status: 'clean' as const,
       statusText: '',
@@ -441,8 +448,8 @@ test('the two copy buttons are at least 44 px, on with canSave false and status 
     target: box,
     props: {
       level,
-      characters,
-      hero: 'hero',
+      content,
+      art: undefined,
       canSave: false,
       status: 'clean' as const,
       statusText: '',

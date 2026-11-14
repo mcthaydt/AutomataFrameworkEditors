@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Art } from '@automataframework/framework'
   import { formatDiagnostic, type Level } from '@automataframework/framework/headless'
   import { onMount } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
@@ -8,6 +9,7 @@
     keepCopy,
     keepDraft,
     levelCopy,
+    loadLevelArt,
     type Opened,
     type OpenGame,
     openGame,
@@ -69,6 +71,10 @@
   let saving = $state(false)
   let saved = $state<'direct' | 'suggestion' | undefined>(undefined)
   let events = $state.raw<readonly Event[]>([])
+  /** The level's pictures, loaded before its editor opens, and the editor frees them. */
+  let art = $state.raw<Art | undefined>(undefined)
+  /** True when a picture is missing, so the level shows as boxes and says so. */
+  let artMissing = $state(false)
 
   const same = (a: Level | undefined, b: Level | undefined): boolean => JSON.stringify(a) === JSON.stringify(b)
   const visitor = $derived(game?.login === undefined)
@@ -90,7 +96,15 @@
   $effect(() => onfacts({ dirty, look: opened?.ok === true && !visitor && !can(level, 'save') }))
   const asked = $derived(events.some((e) => e.ask === 'sign-in' || e.ask === 'leave'))
 
-  function show(next: Opened): void {
+  /** Loads the level's pictures: a new set for every editor that opens, since each one frees the set it is given. */
+  async function loadPictures(from: OpenGame): Promise<void> {
+    const got = await loadLevelArt(api, from, levelId)
+    art = got === 'missing' ? undefined : got
+    artMissing = got === 'missing'
+  }
+
+  async function show(next: Opened): Promise<void> {
+    if (next.ok && next.game.content.levels[levelId] !== undefined) await loadPictures(next.game)
     opened = next
     if (!next.ok) return
     game = next.game
@@ -115,7 +129,7 @@
     const result = await openGame(api, ref)
     if (!result.ok && result.problem === 'signed-out') return onsignedout()
     if (result.ok) rememberGame(remembered, ref)
-    show(result)
+    await show(result)
     const refused = !result.ok && (result.problem === 'not-found' || result.problem === 'not-allowed')
     onopened({
       name: result.ok ? result.game.content.project.name : undefined,
@@ -153,6 +167,7 @@
     saving = false
     if (result.ok) {
       dropDraft(drafts, game, levelId)
+      await loadPictures(result.game)
       game = result.game
       start = result.game.content.levels[levelId]
       current = start
@@ -248,6 +263,7 @@
   <div class="level">
     <div class="notices">
       {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
+      {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
       {#each events as event (event.text)}
         <Notice kind={event.kind} text={event.text} />
         {#if event.box !== undefined}
@@ -276,8 +292,8 @@
     {#key generation}
       <Levels
         level={start}
-        characters={game.content.characters}
-        hero={game.content.project.hero}
+        content={game.content}
+        {art}
         {canSave}
         saveKind={asked ? 'plain' : 'primary'}
         {status}

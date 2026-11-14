@@ -1,21 +1,21 @@
 <script lang="ts">
-  import { fitWorld } from '@automataframework/framework'
-  import { type Character, type Level, levelSize } from '@automataframework/framework/headless'
+  import { type GameContent, type Level, levelSize } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import { Button, Notice } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
-  import { type LevelEdit, moveThing, nudgeThing, startEdit, undo } from './edit.ts'
-  import { createLevelCanvas, type LevelCanvas } from './level-canvas.ts'
-  import { toScreen, toWorld } from './place.ts'
+  import { type LevelEdit, moveThing, nudgeThing, rulesOf, startEdit, undo } from './edit.ts'
+  import { type Art, type LevelPicture, openLevelPicture } from './level-picture.ts'
+  import { fitInRoom, type Room, toScreen, toWorld } from './place.ts'
 
   // The levels editor on the screen. A thing is a real button laid over the picture, so a finger, a keyboard and a
   // screen reader all reach it; the picture only draws. Every move is a plain function from `edit.ts`, so what a
   // finger does and what the arrow buttons do are the same thing. The edit is kept here until the screen above saves.
   interface Props {
     level: Level
-    characters: Readonly<Record<string, Character>>
-    /** The character a start point shows. */
-    hero?: string | undefined
+    /** The game the level is in: its characters, its tilesets and its hero. */
+    content: GameContent
+    /** The level's pictures, loaded by the screen around it; this editor's picture owns them from here and frees them. */
+    art: Art | undefined
     canSave: boolean
     /** Only to look at: nothing moves, and there are no arrows, Undo or Save. */
     readOnly?: boolean
@@ -39,7 +39,7 @@
     /** Hands the level over as a file. */
     oncopyfile?: () => void
   }
-  let { level, characters, hero, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
+  let { level, content, art, canSave, readOnly = false, marked = [], saveKind = 'primary', status, statusText, title, back, onchange, onsave, oncopytext, oncopyfile }: Props = $props()
 
   /** The most a finger may wander before a press is a drag. */
   const DRAG_START_PX = 6
@@ -52,9 +52,12 @@
   let solid = $state(false)
   let stage: HTMLDivElement | undefined = $state()
   let size = $state({ w: 0, h: 0 })
-  let picture: LevelCanvas | undefined
+  let picture: LevelPicture | undefined
 
-  const fit = $derived(fitWorld(size, levelSize(edit.now)))
+  /** This screen keeps no room round the level: the level fills the stage. */
+  const NO_ROOM: Room = { top: 0, right: 0, bottom: 0, left: 0 }
+  const rules = $derived(rulesOf(content, edit.now))
+  const fit = $derived(fitInRoom(size, NO_ROOM, levelSize(edit.now)))
 
   /** The drag a finger is in the middle of. */
   interface Drag {
@@ -135,7 +138,7 @@
       drag.active = true
     }
     const finger = toWorld(drag.fit, stagePoint(e, drag.rect))
-    const result = moveThing(drag.from, characters, drag.id, {
+    const result = moveThing(drag.from, rules, drag.id, {
       x: finger.x - drag.grab.x,
       y: finger.y - drag.grab.y,
     })
@@ -159,7 +162,7 @@
   }
 
   function nudge(id: string, way: 'left' | 'right' | 'up' | 'down'): void {
-    const result = nudgeThing(edit, characters, id, way)
+    const result = nudgeThing(edit, rules, id, way)
     solid = !result.moved && result.why === 'solid'
     if (result.moved) change(result.edit)
   }
@@ -196,13 +199,18 @@
       watcher.observe(stage)
       size = { w: stage.clientWidth, h: stage.clientHeight }
     }
-    void createLevelCanvas().then((made) => {
-      if (!alive) return made.destroy()
-      picture = made
-      stage?.prepend(made.canvas)
-      made.resize(size.w, size.h)
-      made.show(edit.now, characters, readOnly ? marked : selected, hero)
-    })
+    if (stage === undefined) art?.destroy()
+    else
+      void openLevelPicture({ mount: stage, content, level: edit.now, art })
+        .then((made) => {
+          if (!alive) return made.destroy()
+          picture = made
+          made.show(edit.now)
+        })
+        .catch(() => {
+          // A picture that cannot be made (no WebGL) leaves the buttons over an empty stage; the art is freed.
+          art?.destroy()
+        })
     return () => {
       alive = false
       watcher.disconnect()
@@ -210,21 +218,19 @@
     }
   })
 
-  // Redraws the picture after every move, selection and resize. The state is read before the optional calls: `picture`
-  // is still unset when this first runs (Pixi starts later), and an optional call that short-circuits never evaluates
-  // its arguments, so reading them inside it left the effect with no dependencies and the picture drawn once only.
+  // Draws the picture again after every move. The state is read before the optional call: `picture` is still unset
+  // when this first runs (Pixi starts later), and an optional call that short-circuits never evaluates its arguments,
+  // so reading it inside the call would leave the effect with no dependencies and the picture drawn once only. The
+  // picture follows the stage's size itself.
   $effect(() => {
-    const { w, h } = size
     const now = edit.now
-    const ringed = readOnly ? marked : selected
-    picture?.resize(w, h)
-    picture?.show(now, characters, ringed, hero)
+    picture?.show(now)
   })
 
   const thingBox = (id: string): { x: number; y: number; w: number; h: number } | undefined => {
     const thing = edit.now.things.find((t) => t.id === id)
     if (thing === undefined) return undefined
-    const c = characters[thing.character]
+    const c = content.characters[thing.character]
     const at = toScreen(fit, thing)
     const w = Math.max(MIN_TOUCH, (c?.size.w ?? 1) * fit.scale)
     const h = Math.max(MIN_TOUCH, (c?.size.h ?? 1) * fit.scale)
@@ -361,7 +367,8 @@
     touch-action: none;
     cursor: grab;
   }
-  .thing[aria-pressed='true'] {
+  .thing[aria-pressed='true'],
+  .thing[data-marked] {
     border-color: var(--focus);
   }
   /* Under the stage the tools have a height of their own and scroll inside it, so the stage keeps its size when the
