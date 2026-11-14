@@ -116,7 +116,9 @@ function pictureAt(at: { x: number; y: number }): string {
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
 /** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
-const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
+// Pixi starts after the page does; on a busy runner that can take longer than waitFor's default second.
+const drawn = (): Promise<void> =>
+  vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE), { timeout: 5000 })
 
 function touch(el: Element, type: string, at: { x: number; y: number }, id = 1): void {
   el.dispatchEvent(
