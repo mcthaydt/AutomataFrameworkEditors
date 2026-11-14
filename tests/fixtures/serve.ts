@@ -19,6 +19,7 @@ const TYPES: Readonly<Record<string, string>> = {
   '.png': 'image/png',
   '.wasm': 'application/wasm',
   '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
 }
 
 /** The headers `public/_headers` gives every file (the `/*` block): a path, then indented `Name: value` lines. */

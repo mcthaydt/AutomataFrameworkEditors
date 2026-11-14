@@ -5,7 +5,9 @@ import { defineConfig, type UserConfig } from 'vite'
 
 const config: UserConfig = defineConfig({
   plugins: [svelte()],
-  build: { target: 'es2023', sourcemap: true },
+  // `assetsInlineLimit: 0` keeps every font a file of its own. Vite would otherwise write the small ones into the
+  // stylesheet as `data:` addresses, which the page's header (`public/_headers`) refuses.
+  build: { target: 'es2023', sourcemap: true, assetsInlineLimit: 0 },
 })
 
 export default config

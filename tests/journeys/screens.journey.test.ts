@@ -14,12 +14,13 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  OLD_SIZES,
   openGame,
   openLevel,
   openPage,
   picture,
   pressSave,
-  SIZES,
+  type SIZES,
   setupJourneys,
   signIn,
   thingNamed,
@@ -581,7 +582,7 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
   )
 }
 
-describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
+describe.each(OLD_SIZES)('at %s', (size) => {
   for (const scene of SCENES) {
     test(`${scene.name}: pictured, then measured`, async () => {
       const j = await scene.reach(size)

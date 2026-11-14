@@ -153,7 +153,7 @@ export const WORDS = Object.freeze({
   tipShare: 'Want help with your game? Press Share to let someone in.',
   tipApprove: 'Someone made a change for you to look at. Open it to approve it or turn it down.',
   tipGotIt: 'Got it',
-  // The one word beside a notice's icon, so its kind never rests on colour alone.
+  // The one word beside a notice's icon, so its kind never rests on color alone.
   noticeInfo: 'Note',
   noticeGood: 'Done',
   noticeProblem: 'Problem',

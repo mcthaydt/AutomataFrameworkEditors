@@ -14,7 +14,11 @@ export const SIZES = {
   ipadUpright: { width: 820, height: 1180 },
   ipadSideways: { width: 1180, height: 820 },
   phone: { width: 390, height: 844 },
+  phoneSideways: { width: 844, height: 390 },
+  desktop: { width: 1440, height: 900 },
 } as const
+/** The sizes the old screens run at, until each is rebuilt for all five (Tasks 6 to 16). */
+export const OLD_SIZES = ['ipadUpright', 'ipadSideways', 'phone'] as const
 
 const SITE_PORT = 4800
 const FAKE_PORT = 4801
@@ -45,6 +49,14 @@ export function setupJourneys(): void {
   })
 }
 
+/** How the device looks at the page: its light or dark setting, a wish for less motion, and fonts that never arrive. */
+export interface Look {
+  readonly colorScheme?: 'light' | 'dark'
+  readonly reducedMotion?: 'reduce'
+  /** Every font file is refused, as a blocker or a dead line would: the screens must still read in the device's own font. */
+  readonly blockFonts?: boolean
+}
+
 export interface JourneyPage {
   readonly page: Page
   readonly fake: FakeGitHub
@@ -63,12 +75,21 @@ export async function openPage(
   person: (typeof PEOPLE)[number] = 'grandma',
   /** True: another person at another window of the same pretend GitHub, with everything it holds kept. */
   keep = false,
+  look: Look = {},
 ): Promise<JourneyPage> {
   if (running === undefined) throw new Error('Call setupJourneys() at the top of the journey file.')
   const { fake, site, browser } = running
   if (!keep) fake.reset()
   fake.person = person
-  const context: BrowserContext = await browser.newContext({ viewport: SIZES[size], hasTouch: true })
+  const context: BrowserContext = await browser.newContext({
+    viewport: SIZES[size],
+    hasTouch: true,
+    ...(look.colorScheme === undefined ? {} : { colorScheme: look.colorScheme }),
+    ...(look.reducedMotion === undefined ? {} : { reducedMotion: look.reducedMotion }),
+  })
+  // A refused font is an answer the page must live with, not a fault of the page: the browser's report of it (a
+  // "Failed to load resource" line) is already left off the list of problems below.
+  if (look.blockFonts === true) await context.route('**/*.woff*', (route) => route.abort())
   // The browser reports every rule it refused to obey; a journey fails on any.
   await context.addInitScript(() => {
     const w = window as unknown as { __refused: string[] }
@@ -88,9 +109,12 @@ export async function openPage(
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
     // WebKit also says so, in the console, when Playwright's own screenshot style is turned away by the page's policy;
     // a real refusal is caught by the `securitypolicyviolation` listener above, in every engine.
+    // A font file that cannot be fetched (the line is down, or a blocker refuses it) is also an answer the page lives
+    // with: every screen reads in the device's own font (Firefox says so as a console error).
     const own =
       message.text().startsWith('Failed to load resource') ||
-      message.text().startsWith('Refused to apply a stylesheet')
+      message.text().startsWith('Refused to apply a stylesheet') ||
+      message.text().includes('downloadable font: download failed')
     if (message.type() === 'error' && !own) {
       errors.push(`console: ${message.text()}`)
     }
