@@ -25,6 +25,6 @@
     margin: 0;
   }
   .link {
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

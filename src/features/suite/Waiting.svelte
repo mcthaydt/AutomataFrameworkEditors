@@ -67,10 +67,10 @@
     justify-content: center;
     min-height: 56px;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
     text-decoration: none;
     overflow-wrap: anywhere;
   }
@@ -78,6 +78,6 @@
     font-weight: 600;
   }
   .by {
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

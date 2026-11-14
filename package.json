@@ -33,6 +33,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "@fontsource-variable/fraunces": "5.3.0",
+    "@fontsource-variable/onest": "5.3.1",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@phosphor-icons/core": "2.1.1",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@types/node": "24.19.1",
     "@vitest/browser-playwright": "5.0.3",

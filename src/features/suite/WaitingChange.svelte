@@ -209,7 +209,7 @@
 <style>
   .by {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
   /* The read-only picture needs a height of its own: it is made to fill what it is given. */
   .picture {

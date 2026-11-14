@@ -18,10 +18,10 @@
     min-height: 44px;
     max-width: 100%;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
     font: inherit;
     font-weight: 600;
     cursor: pointer;
@@ -32,14 +32,14 @@
   }
   .primary {
     min-height: 48px;
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--primary-fg);
+    border-color: var(--touch);
+    background: var(--touch);
+    color: var(--ground);
   }
   .danger {
-    border-color: var(--danger);
-    color: var(--danger);
-    background: transparent;
+    border: 2px solid var(--mark);
+    color: var(--touch);
+    background: var(--ground);
   }
   .button:disabled {
     opacity: 0.5;

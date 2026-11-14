@@ -325,7 +325,7 @@
   }
   .status {
     min-height: 1.4em;
-    color: var(--muted);
+    color: var(--quiet);
   }
   /* The shape of this box, not of the device, decides whether the tools sit under the stage or beside it. */
   .area {
@@ -345,7 +345,7 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
-    border-radius: var(--radius);
+    border-radius: var(--corner);
     touch-action: none;
   }
   .stage :global(canvas) {
@@ -356,13 +356,13 @@
     position: absolute;
     padding: 0;
     border: 2px solid transparent;
-    border-radius: var(--radius);
+    border-radius: var(--corner);
     background: transparent;
     touch-action: none;
     cursor: grab;
   }
   .thing[aria-pressed='true'] {
-    border-color: var(--focus);
+    border-color: var(--touch);
   }
   /* Under the stage the tools have a height of their own and scroll inside it, so the stage keeps its size when the
      arrows appear or a note comes and goes: a drag in progress must not see the picture shrink under the finger. */

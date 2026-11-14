@@ -251,7 +251,7 @@
       {#each events as event (event.text)}
         <Notice kind={event.kind} text={event.text} />
         {#if event.box !== undefined}
-          <textarea class="box" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
+          <textarea class="box measure" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
         {/if}
         {#if event.details !== undefined && event.details.length > 0}
           <ul class="details">
@@ -340,11 +340,10 @@
   .box {
     width: 100%;
     box-sizing: border-box;
-    font: 0.85rem monospace;
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
   }
   .details {
     margin: 0;

@@ -25,19 +25,19 @@
     gap: var(--space-1) var(--space-2);
     align-items: baseline;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
     overflow-wrap: anywhere;
   }
   .info {
-    background: var(--info);
+    background: var(--raised);
   }
   .good {
-    background: var(--good);
+    background: var(--raised);
   }
   .problem {
-    background: var(--problem);
-    border-color: var(--danger);
+    background: var(--ground);
+    border: 2px solid var(--mark);
   }
   .kind {
     font-weight: 700;

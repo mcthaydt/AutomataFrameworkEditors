@@ -59,7 +59,7 @@
   }
   .why {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
   /* A link is pressed with a finger like a button, so it is as tall as one. */
   .why a {

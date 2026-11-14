@@ -153,16 +153,16 @@
     align-items: center;
     min-height: 56px;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
     font-weight: 600;
     text-decoration: none;
     overflow-wrap: anywhere;
   }
   .soon {
     margin: 0;
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

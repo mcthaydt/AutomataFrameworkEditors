@@ -51,13 +51,13 @@
     gap: var(--space-3);
     min-height: 48px;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
     cursor: pointer;
   }
   .on {
-    border-color: var(--primary);
+    border-color: var(--touch);
   }
   input {
     flex: none;
@@ -75,6 +75,6 @@
     font-weight: 600;
   }
   .hint {
-    color: var(--muted);
+    color: var(--quiet);
   }
 </style>

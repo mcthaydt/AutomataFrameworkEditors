@@ -269,7 +269,7 @@
     font-size: var(--font-size);
   }
   .hint {
-    color: var(--muted);
+    color: var(--quiet);
   }
   .linkrow {
     display: flex;
@@ -281,10 +281,10 @@
   select {
     min-height: 44px;
     padding: var(--space-1) var(--space-2);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--fg);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
+    background: var(--raised);
+    color: var(--words);
     font: inherit;
   }
   .link {
@@ -305,8 +305,8 @@
     gap: var(--space-2);
     align-items: center;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
+    border: 1px solid var(--words);
+    border-radius: var(--corner);
   }
   .who {
     flex: 1 1 8rem;
