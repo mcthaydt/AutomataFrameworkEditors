@@ -58,7 +58,16 @@ describe("the editors' colours", () => {
     expect(ALL_CSS).not.toContain('prefers-color-scheme')
     // A colour keyword in a colour property: only these stand for no colour of their own (`srgb` is the space a
     // `color-mix(in srgb, …)` mixes in).
-    const NOT_A_COLOUR = ['transparent', 'currentcolor', 'none', 'solid', 'dashed', 'dotted', 'inherit', 'srgb']
+    const NOT_A_COLOUR = [
+      'transparent',
+      'currentcolor',
+      'none',
+      'solid',
+      'dashed',
+      'dotted',
+      'inherit',
+      'srgb',
+    ]
     const keyword =
       /(?:^|[;{\s])(?:color|background|background-color|border|border-color|outline|fill|stroke)\s*:\s*([^;}]*)/gm
     for (const [, value = ''] of ALL_CSS.matchAll(keyword)) {
