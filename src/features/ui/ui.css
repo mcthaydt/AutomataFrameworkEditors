@@ -1,0 +1,76 @@
+/* The suite's few tokens. One type scale starting at 18 px, one spacing scale, a light and a dark set of colours
+   chosen by the device, and a focus ring that can always be seen. There is no component library. */
+:root {
+  color-scheme: light dark;
+  --font-size: 18px;
+  --font-size-small: 16px;
+  --font-size-big: 24px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius: 10px;
+  --bg: #ffffff;
+  --fg: #1b1b24;
+  --muted: #4b4b5a;
+  --line: #c9c9d4;
+  --surface: #f3f3f7;
+  --primary: #1d4ed8;
+  --primary-fg: #ffffff;
+  --danger: #b42318;
+  --danger-fg: #ffffff;
+  --info: #e8f0fe;
+  --good: #e3f6e8;
+  --problem: #fde8e6;
+  --focus: #1d4ed8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14141c;
+    --fg: #f1f1f6;
+    --muted: #b4b4c2;
+    --line: #3a3a4a;
+    --surface: #1f1f2b;
+    --primary: #6d93ff;
+    --primary-fg: #0b0b12;
+    --danger: #ff8a80;
+    --danger-fg: #0b0b12;
+    --info: #1e2a45;
+    --good: #173525;
+    --problem: #43201d;
+    --focus: #9db8ff;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font:
+    var(--font-size) / 1.4 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  /* The iPad may not zoom into a screen by accident, and a turn never shrinks the text. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}

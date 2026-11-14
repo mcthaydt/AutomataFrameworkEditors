@@ -1,0 +1,115 @@
+# `check` runs the static checks and the Node tests; `engines` runs the browser tests and the journeys once per
+# browser, in parallel, so a failing engine is named by its job. Every action is pinned to a commit. Nothing is
+# deployed from here (Cloudflare builds the site from this repo itself) and nothing is published.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm knip
+      - run: pnpm build
+      - run: pnpm test:node
+
+  engines:
+    runs-on: ubuntu-latest
+    # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
+    # failures (`--bail`), so a red run is read in minutes.
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit, firefox]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
+      - run: pnpm test:engine ${{ matrix.engine }}
+      - run: pnpm build:journeys
+      - run: pnpm build:journeys-plain
+      - run: pnpm test:journeys
+        env:
+          ENGINE: ${{ matrix.engine }}
+      # A red run in a few lines: which journeys failed, and the first line of why.
+      - run: node scripts/failed-tests.mjs journeys-result.json
+        if: always()
+      # Pictures a person looks at (the drunk-grandma check); nothing compares them.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: screens-${{ matrix.engine }}
+          path: tests/**/__screenshots__/**
+          if-no-files-found: ignore
+
+  # The same pictures, also as plain files on the `ci-screens` branch, because a cloud session can read the repository
+  # through the GitHub API but is refused by the host that serves artifacts. Layout: `<commit>/<engine>/<name>.png`
+  # for every run, plus `main/<engine>/` for the newest push to main and `pr-<number>/<engine>/` for the newest run of
+  # each pull request. Only this job may write, only to that branch (branch protection covers `main`), and never for a
+  # pull request from a fork.
+  screens:
+    needs: engines
+    if: always() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    # One writer at a time, so two runs never race to push the branch.
+    concurrency:
+      group: ci-screens
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      LATEST: ${{ github.event_name == 'push' && 'main' || format('pr-{0}', github.event.pull_request.number) }}
+    steps:
+      - name: Download this run's pictures
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'screens-*' --dir "$RUNNER_TEMP/screens" || true
+      - name: Commit them to the ci-screens branch
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          engines=("$RUNNER_TEMP"/screens/screens-*)
+          if [ ${#engines[@]} -eq 0 ]; then echo "This run made no pictures."; exit 0; fi
+          git init -q "$RUNNER_TEMP/branch" && cd "$RUNNER_TEMP/branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # The branch has no history in common with main; the first run starts it.
+          if git fetch -q --depth 1 origin ci-screens; then git checkout -q -B ci-screens FETCH_HEAD; else git checkout -q --orphan ci-screens; fi
+          for dir in "${engines[@]}"; do
+            engine="${dir##*/screens-}"
+            rm -rf "$LATEST/$engine"
+            mkdir -p "$COMMIT/$engine" "$LATEST/$engine"
+            find "$dir" -name '*.png' -exec cp {} "$COMMIT/$engine/" \; -exec cp {} "$LATEST/$engine/" \;
+          done
+          git add -A
+          if git diff --cached --quiet; then echo "No new pictures."; exit 0; fi
+          git commit -q -m "screens: $COMMIT ($LATEST)"
+          git push -q origin ci-screens
+          echo "Pictures: https://github.com/${GITHUB_REPOSITORY}/tree/ci-screens/$LATEST"

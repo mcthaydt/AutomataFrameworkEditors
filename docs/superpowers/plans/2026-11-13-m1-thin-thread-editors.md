@@ -313,7 +313,7 @@ export interface Violation { readonly file: string; readonly rule: string; reado
 export function checkArchitecture(files: SourceFiles): Violation[]
 ```
 
-- [ ] **Step 1: Write the config.** `package.json`: name `@automataframework/editors`, version `0.0.0`,
+- [x] **Step 1: Write the config.** `package.json`: name `@automataframework/editors`, version `0.0.0`,
   `"private": true`, `"type": "module"`, `packageManager` `pnpm@10.34.6`, `engines.node` `>=24.21.0`, imports
   `"#src/*": "./src/*"`. Dependencies: the framework (the pinned string in Global Constraints), `svelte`, `pixi.js`, `zod`, `smol-toml`.
   Dev: the rest of the Tech Stack line, plus `playwright` 1.63.0, all exact. `pnpm.onlyBuiltDependencies`: the pinned
@@ -324,12 +324,12 @@ export function checkArchitecture(files: SourceFiles): Violation[]
   `biome.json`, `knip.json` and `.gitignore`: copy the framework's at the pinned commit, drop `isolatedDeclarations`
   and `declaration` (nothing here is published), add `functions` to `include`, and add `**/*.svelte` wherever a list
   names source files.
-- [ ] **Step 2: Write `vitest.config.ts`** with five projects. `node`: `tests/**/*.test.ts` except
+- [x] **Step 2: Write `vitest.config.ts`** with five projects. `node`: `tests/**/*.test.ts` except
   `*.browser.test.ts` and `*.journey.test.ts`. `chromium`, `webkit`, `firefox`: `tests/**/*.browser.test.ts`, browser
   mode, headless, the Playwright provider, one instance of that engine, the Svelte plugin, timeouts as in the
   framework's config. `journeys`: `tests/journeys/**/*.journey.test.ts`, Node, `globalSetup`
   `tests/journeys/global-setup.ts`, `fileParallelism: false`, `testTimeout` 60 000.
-- [ ] **Step 3: Write `.github/workflows/ci.yml`**, from the framework's at the pinned commit (same triggers,
+- [x] **Step 3: Write `.github/workflows/ci.yml`**, from the framework's at the pinned commit (same triggers,
   permissions, concurrency, runner, pinned action SHAs, Node and pnpm steps). Job `check`: `pnpm lint`,
   `pnpm typecheck`, `pnpm knip`, `pnpm build`, `pnpm test:node`. Job `engines`, matrix
   `engine: [chromium, webkit, firefox]`, `fail-fast: false`: install that browser with its system dependencies,
@@ -337,7 +337,7 @@ export function checkArchitecture(files: SourceFiles): Violation[]
   engine, then upload `tests/**/__screenshots__/**` as `screens-${{ matrix.engine }}` (`if: always()`). Job
   `screens`: the framework's, unchanged (it copies the pictures to the `ci-screens` branch, where a cloud session can
   read them). No deploy job and no release workflow.
-- [ ] **Step 4: Write the failing tests.** `tests/architecture/rules.test.ts`, one violation each, by `rule`:
+- [x] **Step 4: Write the failing tests.** `tests/architecture/rules.test.ts`, one violation each, by `rule`:
 
 ```ts
 const one = (files: SourceFiles) => checkArchitecture(files).map((v) => v.rule)
@@ -376,9 +376,9 @@ test('a feature folder has its entry file', () =>
   `pnpm.onlyBuiltDependencies`; every other dependency version is exact (no `^`, `~`, `*` or `latest`).
   `tests/workflows/ci.test.ts` reads the workflows folder and expects: one workflow file, `ci.yml`; no text matching
   `npm publish`, `pnpm publish`, `NPM_TOKEN` or `changeset`; every `uses:` pinned to a 40-character SHA.
-- [ ] **Step 5: Push; the `check` job fails** because `checkArchitecture` is not defined. If the run is refused or
+- [x] **Step 5: Push; the `check` job fails** because `checkArchitecture` is not defined. If the run is refused or
   never starts, or the install fails on the git dependency, stop and report with the log's text.
-- [ ] **Step 6: Implement `checkArchitecture`,** starting from the framework's `tests/architecture/rules.ts` at the
+- [x] **Step 6: Implement `checkArchitecture`,** starting from the framework's `tests/architecture/rules.ts` at the
   pinned commit (first line: `// Lifted from AutomataFramework@ec4fddd: tests/architecture/rules.ts`). Changes: the
   `LAYERS` above; `.svelte` files are sources; drop `sim-is-pure` and `headless-is-headless`; `package-confined` is
   `pixi.js` only in `features/levels/level-canvas.ts`, `smol-toml` only in `features/access/`, and `svelte` only on
@@ -388,8 +388,8 @@ test('a feature folder has its entry file', () =>
   the page side; `functions-use-service` lets a file under `functions/` import only
   `src/features/service/service.ts`. `src/index.ts` and `src/main.ts` are empty modules with a comment until
   Task 11.
-- [ ] **Step 7: Push; all jobs pass** (browser and journey projects have no tests yet and must say so, not fail).
-- [ ] **Step 8: Commit** (`chore: repo skeleton, the framework pin, CI and the architecture test`), then open the
+- [x] **Step 7: Push; all jobs pass** (browser and journey projects have no tests yet and must say so, not fail).
+- [x] **Step 8: Commit** (`chore: repo skeleton, the framework pin, CI and the architecture test`), then open the
   stage's pull request as a draft with a few lines saying what M1 builds here.
 
 ### Task 2: The words and the three UI pieces
@@ -430,7 +430,7 @@ them to `WORDS`, and adds them to `words.test.ts`:
 | `save` | Save |
 | `solid` | That spot is solid ground. Try another spot. |
 
-- [ ] **Step 1: Write the failing tests.** `words.test.ts`: every row above equals `WORDS[key]` (functions called
+- [x] **Step 1: Write the failing tests.** `words.test.ts`: every row above equals `WORDS[key]` (functions called
   with `'crate-1'`); and no value, lower-cased, contains any of `repo`, `commit`, `branch`, `token`, `oauth`, `json`,
   `toml`, `sync`, `push`, `pull`, `merge`, `conflict`, `schema`, `sha`, `api`, `fork`, `error` as a whole word (the test
   exports this list as `BANNED`, for Task 20). `ui.browser.test.ts`
@@ -439,11 +439,11 @@ them to `WORDS`, and adds them to `words.test.ts`:
   focused Button call it once; a `problem` Notice has `role="alert"` and the others `role="status"`; a Screen has one
   `h1`, and it is `document.activeElement` after mount; a Button with a 60-letter label wraps inside the 390 px box
   (its right edge is inside).
-- [ ] **Step 2: Push; `check` and the engines fail** on the missing modules.
-- [ ] **Step 3: Implement.** `ui.css` holds the suite's few tokens (one font size scale starting at 18 px, the
+- [x] **Step 2: Push; `check` and the engines fail** on the missing modules.
+- [x] **Step 3: Implement.** `ui.css` holds the suite's few tokens (one font size scale starting at 18 px, the
   spacing, a light and a dark set of colours by `prefers-color-scheme`, a visible focus ring). No component library.
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(ui): the words and the button, screen and notice`).
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(ui): the words and the button, screen and notice`).
 
 ### Task 3: The levels and the sharing file
 
@@ -484,7 +484,7 @@ export function levelOf(file: AccessFile, login: string, repoOwner: string): Acc
   `people` once, without regard to case. The file's problems are plain sentences, like the framework's
   (`people[1].level: This must be one of: look, suggest, approve, edit, owner.`).
 
-- [ ] **Step 1: Write the failing tests.**
+- [x] **Step 1: Write the failing tests.**
 
 ```ts
 // levels.test.ts
@@ -516,10 +516,10 @@ test.each([
 test('writeAccess throws on a list parseAccess would refuse', ...)
 ```
 
-- [ ] **Step 2: Push; `check` fails** on the missing modules.
-- [ ] **Step 3: Implement** with Zod and smol-toml (`parse` and `stringify`).
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(access): the levels and the sharing file`).
+- [x] **Step 2: Push; `check` fails** on the missing modules.
+- [x] **Step 3: Implement** with Zod and smol-toml (`parse` and `stringify`).
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(access): the levels and the sharing file`).
 
 ### Task 4: The sign-in step, and who a token belongs to
 
@@ -573,7 +573,7 @@ export function whoIs(token: string, env: ExchangeEnv, fetcher?: typeof fetch): 
   gives `user.login` and `user.id`; 404 or 422 is `signed-out`. Asking GitHub's `/user` instead would accept a token
   made by any app, which is why it is not used.
 
-- [ ] **Step 1: Write the failing tests** (a made-up `fetcher` that records its call):
+- [x] **Step 1: Write the failing tests** (a made-up `fetcher` that records its call):
 
 ```ts
 const post = (body: unknown, origin = 'https://editors.example') =>
@@ -609,10 +609,10 @@ test('an empty token is signed-out and GitHub is never asked', ...)
   `Referrer-Policy: no-referrer` (so the sign-in code never leaves in a Referer), and a `Content-Security-Policy`
   with `default-src 'self'`, `script-src 'self' 'wasm-unsafe-eval'`, `connect-src 'self'` (the page never talks to
   GitHub), `img-src 'self' data:`, `frame-ancestors 'none'`.
-- [ ] **Step 2: Push; `check` fails** on the missing modules.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(exchange): the sign-in step, and who a token belongs to`).
+- [x] **Step 2: Push; `check` fails** on the missing modules.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(exchange): the sign-in step, and who a token belongs to`).
 
 ### Task 5: GitHub, as the App
 
@@ -703,9 +703,9 @@ else unexpected, `unknown`. Three calls are settled by looking, not by reading G
 it is the same, the branch refused the App, `blocked`. **A 405 or 409 on `mergePull`:** `clashes`. **A 422 on
 `createBranch`** (it already exists): `changed-elsewhere`.
 
-- [ ] **Step 1: Check each row above against GitHub's REST documentation** (see "Before starting"). Report any that
+- [x] **Step 1: Check each row above against GitHub's REST documentation** (see "Before starting"). Report any that
   differ before going on.
-- [ ] **Step 2: Write the failing tests.** `base64.test.ts`: `fromBase64(toBase64(t)) === t` for `'crate'`,
+- [x] **Step 2: Write the failing tests.** `base64.test.ts`: `fromBase64(toBase64(t)) === t` for `'crate'`,
   `'상자 📦'` and `''`; `fromBase64('Y3Jh\ndGU=\n') === 'crate'`. `app-token.test.ts`, with a key pair made in the
   test by WebCrypto and exported as PEM both ways: the JWT has three parts, header `{ alg: 'RS256', typ: 'JWT' }`,
   payload `iss`, `iat` and `exp` as above, and its signature verifies with the public key, for a PKCS#8 key and for
@@ -716,11 +716,11 @@ it is the same, the branch refused the App, `blocked`. **A 405 or 409 on `mergeP
   space, `#` or `/` in it is encoded segment by segment (`automata/grandma` keeps its slash in a ref path); the
   three "settled by looking" cases; `checks` for each of its four answers; no token and no key appears in any
   returned value or thrown message.
-- [ ] **Step 3: Push; `check` fails** on the missing modules.
-- [ ] **Step 4: Implement.** A PKCS#1 key is wrapped into PKCS#8 by putting the fixed RSA header in front of it, so
+- [x] **Step 3: Push; `check` fails** on the missing modules.
+- [x] **Step 4: Implement.** A PKCS#1 key is wrapped into PKCS#8 by putting the fixed RSA header in front of it, so
   whoever sets the site up pastes the key exactly as GitHub gave it.
-- [ ] **Step 5: Push; all jobs pass.**
-- [ ] **Step 6: Commit** (`feat(github): GitHub, as the App`).
+- [x] **Step 5: Push; all jobs pass.**
+- [x] **Step 6: Commit** (`feat(github): GitHub, as the App`).
 
 ### Task 6: The pretend GitHub
 
@@ -801,7 +801,7 @@ verifies with the test's public key and is not expired; "installation" means a t
 
 A file's `sha` is git's blob sha (SHA-1 of `blob <bytes>\0<content>`), so it changes exactly when the bytes do.
 
-- [ ] **Step 1: Write the failing tests.** `game.test.ts`: `loadGame` over `tests/fixtures/game` is `ok`, and each
+- [x] **Step 1: Write the failing tests.** `game.test.ts`: `loadGame` over `tests/fixtures/game` is `ok`, and each
   content file's bytes equal `writeContent(type, parsed)`. The level is 16 by 9, a floor on the bottom row and a
   wall at each side, `crate-1` at `{ x: 6.5, y: 7.5 }`, player 1 at `{ x: 2.5, y: 7.5 }`, as the Examples repo's
   game has it. `server.test.ts` starts the server on a spare port and drives it with `fetch` and Task 5's `appJwt`:
@@ -811,10 +811,10 @@ A file's `sha` is git's blob sha (SHA-1 of `blob <bytes>\0<content>`), so it cha
   whose file also changed on `main` is 405 and changes nothing; after `tokensRunOut()` the old token fails and a
   refresh gives one that works; `reset()` puts the crate back. And one test that runs Task 5's real `openRepo` and
   each `Repo` method against it, so the two halves are known to agree.
-- [ ] **Step 2: Push; `check` fails** on the missing modules.
-- [ ] **Step 3: Implement** with `node:http` and `node:crypto` only.
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`test: a pretend GitHub`).
+- [x] **Step 2: Push; `check` fails** on the missing modules.
+- [x] **Step 3: Implement** with `node:http` and `node:crypto` only.
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`test: a pretend GitHub`).
 
 ### Task 7: The API: who is asking, and opening a game
 
@@ -891,7 +891,7 @@ branch, so they see their own waiting change; otherwise from the default branch.
 is read; one that is missing is left out (the page's `loadGame` then names it). `waiting` counts the open pulls
 whose head starts `automata/` and is in this repo.
 
-- [ ] **Step 1: Write the failing tests,** all through `startTestApi()` (the real code, the pretend GitHub):
+- [x] **Step 1: Write the failing tests,** all through `startTestApi()` (the real code, the pretend GitHub):
 
 ```ts
 // enter.test.ts
@@ -932,11 +932,11 @@ test('no answer, for any route and any person, contains a token, the secret or t
   nothing external) into a temp folder and expects the result to be under 1 000 000 bytes and to contain neither
   `rapier` nor `pixi`: Cloudflare limits a Function's size, and the framework's physics and renderer must not ride
   along with `parseContent`.
-- [ ] **Step 2: Push; `check` fails** on the missing modules.
-- [ ] **Step 3: Implement.** If `bundle.test.ts` fails because the framework's headless entry does not shake down,
+- [x] **Step 2: Push; `check` fails** on the missing modules.
+- [x] **Step 3: Implement.** If `bundle.test.ts` fails because the framework's headless entry does not shake down,
   stop and report: the fix is in the framework (a smaller entry for content only), not a workaround here.
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(service): the API's door, and opening a game`).
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(service): the API's door, and opening a game`).
 
 ### Task 8: The API: Save
 
@@ -991,7 +991,7 @@ level changed in between is `changed-elsewhere`, and nothing of the person's is 
 the answer is that problem; the next Save finds the branch with no pull, starts it again from the default branch
 and sends the change again, so there is never a second commit or a branch left behind for good.
 
-- [ ] **Step 1: Write the failing tests,** through `startTestApi()`. `moved` is the fixture level with `crate-1` at
+- [x] **Step 1: Write the failing tests,** through `startTestApi()`. `moved` is the fixture level with `crate-1` at
   `{ x: 8.5, y: 7.5 }`; `ask` is `{ game, path: 'content/levels/level-1.json', value: moved, version, message: 'Move crate-1 in level-1' }`:
 
 ```ts
@@ -1025,10 +1025,10 @@ test('a message of 300 characters with line breaks becomes one line of 72', ...)
 test('a body that is not a SaveAsk is bad-request', ...)
 ```
 
-- [ ] **Step 2: Push; `check` fails.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(service): Save, straight in or as a suggestion, by level`).
+- [x] **Step 2: Push; `check` fails.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(service): Save, straight in or as a suggestion, by level`).
 
 **A visitor at these routes.** Tasks 8, 9 and 10 each add one test to their own file: with no token, every route
 the task adds answers `signed-out`, the pretend GitHub's log shows no request, and no repo changed.
@@ -1080,7 +1080,7 @@ Approve checks, in order, and changes nothing unless all pass:
 6. `mergePull` with the head commit seen in step 5, title `Approve: <title>`, message `Approved by <login>.`. A
    clash is `clashes`. Then the branch is deleted (a failure to delete is not a failure to approve).
 
-- [ ] **Step 1: Write the failing tests,** through `startTestApi()`, each starting from "kid has saved a change"
+- [x] **Step 1: Write the failing tests,** through `startTestApi()`, each starting from "kid has saved a change"
   with `repo.checks = 'passing'`:
 
 ```ts
@@ -1105,10 +1105,10 @@ test('kid takes their own change back; a look-level person cannot turn anything 
 test('a branch rule that blocks the App: approve is blocked', ...)
 ```
 
-- [ ] **Step 2: Push; `check` fails.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(service): waiting changes, approve and turn down`).
+- [x] **Step 2: Push; `check` fails.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(service): waiting changes, approve and turn down`).
 
 ### Task 10: The API: sharing
 
@@ -1144,7 +1144,7 @@ are `not-found` with those names as `details`; then one commit on the default br
 `version` sent, message `Change who can help with this game`, the Owner as author. A list equal to the one already
 there writes nothing.
 
-- [ ] **Step 1: Write the failing tests,** through `startTestApi()`:
+- [x] **Step 1: Write the failing tests,** through `startTestApi()`:
 
 ```ts
 test('grandma reads the sharing of a game with no file: everyone look, nobody listed, version undefined', ...)
@@ -1165,10 +1165,10 @@ test('a broken file on main reads as broken with an empty list, and saving mends
 test('a branch rule that blocks the App: blocked', ...)
 ```
 
-- [ ] **Step 2: Push; `check` fails.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(service): sharing a game`).
+- [x] **Step 2: Push; `check` fails.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(service): sharing a game`).
 
 ### Task 11: The page signs in
 
@@ -1276,7 +1276,7 @@ spot has a plain `signIn` Button, which calls `begin` with the screen the person
 **Which screens ask for sign-in.** A visitor is shown Welcome only for the routes that need a person: `games`,
 `waiting`, `change` and `share`. The `game` and `level` routes open for a visitor without a word about signing in.
 
-- [ ] **Step 1: Write the failing tests.** `api.test.ts`, with a made-up `fetcher`: each method's verb, path, query
+- [x] **Step 1: Write the failing tests.** `api.test.ts`, with a made-up `fetcher`: each method's verb, path, query
   or body, and the Bearer header; with no token `open` is sent with no `Authorization` header and every other method is `signed-out` with nothing
   sent; a `signed-out` answer then a
   `renew()` that says yes makes the call again with the new token, and a second `signed-out` is final (no third
@@ -1299,11 +1299,11 @@ spot has a plain `signIn` Button, which calls `begin` with the screen the person
   `#/game/grandma/crate-game/share` signed out shows Welcome, and signing in lands on Share; after `fake.tokensRunOut()` a reload still shows "Pick a game" (renewed without the person
   noticing); during the whole journey the page made no request to any address but its own origin and the sign-in
   page (the journey records every request).
-- [ ] **Step 2: Push; `check` and the journeys fail.**
-- [ ] **Step 3: Implement.** `App.svelte` shows Welcome when there is no token and the route needs a person, and
+- [x] **Step 2: Push; `check` and the journeys fail.**
+- [x] **Step 3: Implement.** `App.svelte` shows Welcome when there is no token and the route needs a person, and
   otherwise the screen for the route; until Task 12 the `games` and `game` screens are only their titles.
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(session): the page signs in, and talks only to its own API`).
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(session): the page signs in, and talks only to its own API`).
 
 ### Task 12: Opening a game
 
@@ -1385,7 +1385,7 @@ this game. For `broken`: `brokenGame` and each `formatDiagnostic` line in a list
 Button back to the list. For `signed-out`: sign out and show Welcome with `signedOutAgain`. For `offline`, `busy`
 and anything else: `cantReach` with a `tryAgain` Button that asks again.
 
-- [ ] **Step 1: Write the failing tests.** `open.test.ts`, with a made-up `Api`: the fixture game opens with its
+- [x] **Step 1: Write the failing tests.** `open.test.ts`, with a made-up `Api`: the fixture game opens with its
   level, `mine` and `waiting` passed through, and `files` by path; a level that is not JSON is `broken` with the
   framework's diagnostic for that file; each `ProblemKind` from `api.open` passes through; `levelPath(game,
   'level-1')` is `content/levels/level-1.json` and an unknown id is `undefined`. `recent.test.ts`: remembered games
@@ -1402,10 +1402,10 @@ and anything else: `cantReach` with a `tryAgain` Button that asks again.
   list does not remember it. Not signed in, opening the link: the game opens with `visitorCan`, a `level-1` row and
   a `signIn` Button in the top bar, and the page asked for nothing. Not signed in, with the game made private:
   `cantFindVisitor`; pressing `signIn` as `grandma` comes back to the game, open, with `youAre('owner')`. As `grandma` with no repo `installed`: `pickEmpty` and the `pickAdd` Button.
-- [ ] **Step 2: Push; `check` and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(game): pick a game and open it`).
+- [x] **Step 2: Push; `check` and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(game): pick a game and open it`).
 
 ### Task 13: Moving a thing, as plain functions
 
@@ -1445,7 +1445,7 @@ export function describeChange(edit: LevelEdit): string   // the commit message
   a move by one `STEP`. `describeChange`: one thing moved, `Move crate-1 in level-1`; several, `Move 3 things in
   level-1`; none, `''`. Moving a thing away and back leaves the edit not dirty.
 
-- [ ] **Step 1: Write the failing tests,** on the fixture level (16 by 9, floor on row 8, walls in columns 0 and 15,
+- [x] **Step 1: Write the failing tests,** on the fixture level (16 by 9, floor on row 8, walls in columns 0 and 15,
   the crate 1 by 1 at 6.5, 7.5):
 
 ```ts
@@ -1476,11 +1476,11 @@ test('moved away and back is not dirty, and describes nothing', ...)
 test('the edited level still passes the framework: writeContent does not throw', ...)
 ```
 
-- [ ] **Step 2: Push; `check` fails** on the missing modules.
-- [ ] **Step 3: Implement.** A thing's size is its character's `size`. Compare with a tolerance of `1e-9` in
+- [x] **Step 2: Push; `check` fails** on the missing modules.
+- [x] **Step 3: Implement.** A thing's size is its character's `size`. Compare with a tolerance of `1e-9` in
   `onSolid`, so a box resting exactly on the floor is not "inside" it.
-- [ ] **Step 4: Push; all jobs pass.**
-- [ ] **Step 5: Commit** (`feat(levels): moving a thing, snapped, kept inside and off solid ground`).
+- [x] **Step 4: Push; all jobs pass.**
+- [x] **Step 5: Commit** (`feat(levels): moving a thing, snapped, kept inside and off solid ground`).
 
 ### Task 14: The Levels editor on the screen
 
@@ -1539,7 +1539,7 @@ selects. Tapping the stage where no thing is unselects. With a thing's button fo
 Escape unselects. When the stage changes size (the iPad is turned), a drag in progress is cancelled the same way and
 everything refits.
 
-- [ ] **Step 1: Write the failing tests.** `level-canvas.browser.test.ts`: after `resize(480, 270)` and `show`, a
+- [x] **Step 1: Write the failing tests.** `level-canvas.browser.test.ts`: after `resize(480, 270)` and `show`, a
   pixel in an empty tile is the sky colour, one in the floor is the tile colour, the crate's centre is `#c9a227`
   (read with `drawImage` onto a 2D canvas, as the framework's render test does); `resize(0, 0)` then `show` throws
   nothing; `destroy()` twice throws nothing. `levels.browser.test.ts` mounts `Levels` in an 820 by 1180 box with the
@@ -1562,16 +1562,16 @@ test('turning mid-drag cancels the drag', ...)
 test('at 390 by 844 every button is at least 44 px and nothing runs off the side', ...)
 ```
 
-- [ ] **Step 2: Push; the engines fail** on the missing modules.
-- [ ] **Step 3: Implement.** `level-canvas.ts` follows the framework's `src/features/render/stage.ts` at the pinned
+- [x] **Step 2: Push; the engines fail** on the missing modules.
+- [x] **Step 3: Implement.** `level-canvas.ts` follows the framework's `src/features/render/stage.ts` at the pinned
   commit for starting Pixi (the no-eval entry first, the texture worker probe off, resolution from
   `devicePixelRatio`), and uses `fitWorld` for the fit so the level sits exactly as it does in the game.
   `Levels.svelte` keeps the `LevelEdit` in a `$state`, watches the stage with a `ResizeObserver`, and positions the
   buttons with `toScreen`.
-- [ ] **Step 4: Push; all jobs pass in all three engines.** Write `dragByTouch` for `tests/fixtures/journey.ts` (Task 11 made the file): it
+- [x] **Step 4: Push; all jobs pass in all three engines.** Write `dragByTouch` for `tests/fixtures/journey.ts` (Task 11 made the file): it
   reads the button's box and the stage's `data-scale`, then dispatches `pointerdown`, five `pointermove`s and
   `pointerup` with `pointerType: 'touch'` in the page.
-- [ ] **Step 5: Commit** (`feat(levels): drag a thing by touch, by buttons and by keys`).
+- [x] **Step 5: Commit** (`feat(levels): drag a thing by touch, by buttons and by keys`).
 
 ### Task 15: Save, on the screen
 
@@ -1651,7 +1651,7 @@ Its rules:
 | Closing the tab with unsaved changes | The browser's own "leave?" prompt | `beforeunload` |
 | An unknown level id | `cantFindGame`, and Back | |
 
-- [ ] **Step 1: Write the failing tests.** `save.test.ts`, with a made-up `Api`: the ask is the path
+- [x] **Step 1: Write the failing tests.** `save.test.ts`, with a made-up `Api`: the ask is the path
   `content/levels/level-1.json`, the level as data, the opened version and the message; on success the returned
   game's `files`, `content.levels['level-1']` and `mine` are the new ones and every other file is untouched; each
   problem passes through with its details; a level whose id is not in the project is `unknown` and nothing is sent.
@@ -1717,10 +1717,10 @@ test('my level was lowered while I worked: Save says lookOnly and my crate stays
 test('a rule on GitHub blocks the editor: blockedOwner, and my crate stays on screen', ...)  // rule = 'blocks-app'
 ```
 
-- [ ] **Step 2: Push; `check` and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass in all three engines.**
-- [ ] **Step 5: Commit** (`feat(game): Save on the screen, and never over someone else's change`).
+- [x] **Step 2: Push; `check` and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass in all three engines.**
+- [x] **Step 5: Commit** (`feat(game): Save on the screen, and never over someone else's change`).
 
 ### Task 16: Waiting changes: look, approve, turn down
 
@@ -1789,7 +1789,7 @@ After `approve`: `approved`, and back to the game's page, which now opens with t
 or `takeBack`: `turnedDown`. `clashes`, `not-ready`, `checks-failed`, `own-change` and `blocked` from the API show
 their words (`blockedOwner` for the last) and change nothing on screen; any other problem follows Task 15's rules.
 
-- [ ] **Step 1: Write the failing tests.** `compare.test.ts`: the crate moved gives one `ThingMove` with both
+- [x] **Step 1: Write the failing tests.** `compare.test.ts`: the crate moved gives one `ThingMove` with both
   points; nothing changed gives none; a thing added and one removed give `other` 2 and no moves; tiles changed
   gives `other` 1. The new `levels.browser.test.ts` cases: with `readOnly`, a drag moves nothing, no arrow, Undo or
   Save button exists, and the marked thing's button has `data-marked`. `approve.journey.test.ts`, at iPad upright
@@ -1815,10 +1815,10 @@ test('the game changed underneath: Approve says it doesn\'t fit any more, and no
 test('a person who may only look sees the list and the change, and no buttons that change anything', ...)
 ```
 
-- [ ] **Step 2: Push; `check`, the engines and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass in all three engines.**
-- [ ] **Step 5: Commit** (`feat(suite): see waiting changes, approve them or turn them down`).
+- [x] **Step 2: Push; `check`, the engines and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass in all three engines.**
+- [x] **Step 5: Commit** (`feat(suite): see waiting changes, approve them or turn them down`).
 
 ### Task 17: The Share screen
 
@@ -1878,7 +1878,7 @@ text box `addName` with `addNameHint`, a level picker starting at `levelSuggest`
 (`nameUnknown`, and nothing is saved). `changed-elsewhere` shows `sharingChanged` and loads the newest list.
 `broken` from `api.sharing` shows `sharingBroken`. Leaving with unsaved changes asks `leaveAsk`.
 
-- [ ] **Step 1: Write the failing tests.** `choice.browser.test.ts`: each option row is at least 48 px tall; tapping
+- [x] **Step 1: Write the failing tests.** `choice.browser.test.ts`: each option row is at least 48 px tall; tapping
   one calls `onchange` with its value; the arrow keys move the choice; exactly one is checked; the hints are shown.
   `share.journey.test.ts`, at iPad upright and phone:
 
@@ -1906,10 +1906,10 @@ test('Copy the link puts the game\'s address on the clipboard', ...)       // Ch
 test('every level picker and every Remove is at least 44 px, on a phone too', ...)
 ```
 
-- [ ] **Step 2: Push; the engines and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass in all three engines.**
-- [ ] **Step 5: Commit** (`feat(suite): share a game, and choose what each person may do`).
+- [x] **Step 2: Push; the engines and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass in all three engines.**
+- [x] **Step 5: Commit** (`feat(suite): share a game, and choose what each person may do`).
 
 ### Task 18: Try it without signing in, and keep a copy
 
@@ -1967,7 +1967,7 @@ What changes on the screens:
   always on. Pressing it downloads the level as it is on the screen now, saved or not, and shows `copyKept` as a
   good Notice. It never asks for sign-in and never calls the API.
 
-- [ ] **Step 1: Write the failing tests.** `copy.test.ts`: `levelCopy` for the fixture game with the crate moved is
+- [x] **Step 1: Write the failing tests.** `copy.test.ts`: `levelCopy` for the fixture game with the crate moved is
   named `level-1.json` and its text equals `writeContent('level', moved)`, byte for byte; a level whose id is not in
   the project is `undefined`; `keepCopy`, given a made-up document, makes one link whose `download` is the name,
   clicks it once and removes it. `levels.browser.test.ts`: the `copyKeep` Button is at least 44 px, is on with
@@ -2002,11 +2002,11 @@ test('the whole visit made no request to any address but the page\'s own', ...)
 
   (The "no sample game" line needs a second build: `global-setup.ts` builds once more with `VITE_SAMPLE_GAME` empty
   into `dist-plain/` and serves it on port 4802.)
-- [ ] **Step 2: Push; `check`, the engines and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass in all three engines.** If WebKit does not raise a `download` event for a Blob
+- [x] **Step 2: Push; `check`, the engines and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass in all three engines.** If WebKit does not raise a `download` event for a Blob
   link, stop and report with the log: the fix is chosen with the coordinator, not worked around.
-- [ ] **Step 5: Commit** (`feat(game): try the editor without signing in, and keep a copy`).
+- [x] **Step 5: Commit** (`feat(game): try the editor without signing in, and keep a copy`).
 
 ### Task 19: The first run, for each kind of person
 
@@ -2094,7 +2094,7 @@ What changes on the screens:
   `tipApprove` on the game's page the first time someone who may approve sees a change waiting.
 - Hiding the tips at any step finishes the guide. A person who has finished it never sees the strip again.
 
-- [ ] **Step 1: Write the failing tests.** `guide.test.ts`: `guideStep` for each row of facts (signed out with no game open is
+- [x] **Step 1: Write the failing tests.** `guide.test.ts`: `guideStep` for each row of facts (signed out with no game open is
   `start`; signed out with a game open is `pick-game`, in a level `move`, dirty `save`: a visitor is never sent back
   to `start`; signed in with `games` 0 and no game open is `add-editor`; `games` undefined is `pick-game`, so the
   strip does not flash "add the editor" while asking; a game open and no level is `pick-game`; in a level, clean,
@@ -2145,10 +2145,10 @@ test('no screen a visitor can reach has a button that does nothing or a dead end
 test('a returning person, signed in and with the guide finished, lands on "Pick a game" with no strip', ...)
 ```
 
-- [ ] **Step 2: Push; `check` and the journeys fail.**
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Push; all jobs pass in all three engines.**
-- [ ] **Step 5: Commit** (`feat(suite): a first run for owners and for the people they share with`).
+- [x] **Step 2: Push; `check` and the journeys fail.**
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Push; all jobs pass in all three engines.**
+- [x] **Step 5: Commit** (`feat(suite): a first run for owners and for the people they share with`).
 
 ### Task 20: Every screen at every size, pictured
 
@@ -2159,7 +2159,7 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
 **Interfaces:**
 - Consumes: `openPage`, `SIZES`, `picture` (Task 11) and every screen.
 
-- [ ] **Step 1: Write the failing tests.** `screens.journey.test.ts`: for each of the three sizes, walk Welcome with
+- [x] **Step 1: Write the failing tests.** `screens.journey.test.ts`: for each of the three sizes, walk Welcome with
   "try it" and without, Welcome when a screen needs a person, the game's page and the level as a visitor, the
   "sign in to save" Notice, the "copy is on your device" Notice, a game a visitor can't open, Welcome after a
   cancelled sign-in, the "add the editor" step, Pick a game, the game's page at each of the five
@@ -2180,14 +2180,14 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   text node or an `aria-label`, `title` or `placeholder` written as a literal string (every word comes from
   `WORDS`); and no value of `WORDS`, lower-cased, contains a banned word (Task 2's list), now that every task has
   added its rows.
-- [ ] **Step 2: Push; read the red run** and fix what it finds, one commit per kind of fix. If the run is green at
+- [x] **Step 2: Push; read the red run** and fix what it finds, one commit per kind of fix. If the run is green at
   once, say so in the report: the checks still stand guard.
-- [ ] **Step 3: Push; all jobs pass,** and the `screens` job has copied the pictures to the `ci-screens` branch
+- [x] **Step 3: Push; all jobs pass,** and the `screens` job has copied the pictures to the `ci-screens` branch
   under `pr-<number>/<engine>/`.
-- [ ] **Step 4: Read every Chromium picture** from the `ci-screens` branch (the artifact host is refused from a cloud
+- [x] **Step 4: Read every Chromium picture** from the `ci-screens` branch (the artifact host is refused from a cloud
   session; the branch is not) against the drunk-grandma test: can she tell what is happening, and what to press?
   Write one line per screen in the pull request's description. A screen that fails is fixed in this task.
-- [ ] **Step 5: Commit** (`test: every screen pictured and measured at iPad and phone sizes`).
+- [x] **Step 5: Commit** (`test: every screen pictured and measured at iPad and phone sizes`).
 
 ### Task 21: Setting it up, the README and the close
 
@@ -2195,13 +2195,13 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
 - Create: `docs/deploy.md`, `docs/teams.md`, `tests/docs/docs.test.ts`
 - Modify: `README.md`, `CLAUDE.md` (Structure, if it moved), `docs/superpowers/progress.md`
 
-- [ ] **Step 1: Write the failing test.** `docs.test.ts` reads `docs/deploy.md` and expects it to name every
+- [x] **Step 1: Write the failing test.** `docs.test.ts` reads `docs/deploy.md` and expects it to name every
   setting the code reads: `VITE_GITHUB_CLIENT_ID`, `VITE_GITHUB_APP_SLUG` and `VITE_SAMPLE_GAME` (build), `GITHUB_CLIENT_ID`,
   `GITHUB_CLIENT_SECRET`, `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY` (the Function), the build command
   `pnpm build`, the output folder `dist`, the callback and setup addresses, and the App's four permissions; that
   nothing in the repo but `.env.journeys` and tests sets a value for any of them; and that `docs/teams.md` names
   `automata.access.toml`, shows the example file from this plan, and that example passes `parseAccess`.
-- [ ] **Step 2: Write `docs/deploy.md`,** for whoever runs the site, as numbered steps: (1) in Cloudflare, make a
+- [x] **Step 2: Write `docs/deploy.md`,** for whoever runs the site, as numbered steps: (1) in Cloudflare, make a
   Pages project from this repo, build command `pnpm build`, output `dist`, Node 24; note the address it gives;
   (2) on GitHub, make a GitHub App: that address as the home page, the callback and the setup address ("redirect on
   update" on); repository permissions Contents read and write, Pull requests read and write, Checks read, Metadata
@@ -2210,19 +2210,19 @@ test('a returning person, signed in and with the guide finished, lands on "Pick 
   whole as GitHub gave it) and, to give visitors a game to try, `VITE_SAMPLE_GAME` as `owner/name` of a public game
   the editor has been added to; redeploy; (4) the check below. It also says plainly that preview addresses cannot
   sign in, because the App has one callback address.
-- [ ] **Step 3: Write `docs/teams.md`,** for a team's Owner, in plain words: add the editor to your game (one
+- [x] **Step 3: Write `docs/teams.md`,** for a team's Owner, in plain words: add the editor to your game (one
   button, once); share it from the Share screen; what each level can do (the table from this plan); that the list
   is the file `automata.access.toml` in the game, which an agent or a person can also edit by hand, with the
   example; and, for teams that want GitHub itself to guard the game against their own GitHub collaborators, the
   optional branch rule, step by step: require a pull request with one approval on the default branch, and put
   Automata Editors on the rule's bypass list, or Save and Approve will say the editor is blocked.
-- [ ] **Step 4: Rewrite `README.md`:** what the suite is (it changes a game's authorable content, the JSON files;
+- [x] **Step 4: Rewrite `README.md`:** what the suite is (it changes a game's authorable content, the JSON files;
   the code is the agents'), that anyone can try it and keep a copy without signing in, how a team starts (two links: the site, `docs/teams.md`),
   the levels in one table, what Save does at each, the link form `#/game/<owner>/<name>`, the fact that an agent
   can make every change the editor makes by editing the same files, how the page and the API are split, and that
   tests run only in CI.
-- [ ] **Step 5: Push; all jobs pass.** Update the tracker to stage 4 at 100%, tick every box here.
-- [ ] **Step 6: Commit** (`docs: setting the site up, a team's guide and the README`), mark the pull request ready,
+- [x] **Step 5: Push; all jobs pass.** Update the tracker to stage 4 at 100%, tick every box here.
+- [x] **Step 6: Commit** (`docs: setting the site up, a team's guide and the README`), mark the pull request ready,
   and send the coordinator the summary, with this list for the Owner's review. It cannot run in CI, and M1's "done
   means" needs it:
 
