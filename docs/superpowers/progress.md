@@ -8,7 +8,7 @@ Spec: the "Visual direction" section of
 [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
 in the AutomataFramework repo, and Cycle 1's implementation audit for the three minors it left (M4, M5, M9).
 
-Overall: **12%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
+Overall: **60%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
 is 10, stage 6 is 12, stage 7 is 6)
 
 | Stage | State | Output |
@@ -16,10 +16,33 @@ is 10, stage 6 is 12, stage 7 is 6)
 | 1. Spec | Done (in AutomataFramework) | the section above |
 | 2. Plan | Done (pull request 10) | [`plans/2026-11-14-editors-restyle.md`](plans/2026-11-14-editors-restyle.md) |
 | 3. Plan audit | Done, in review: four blocking findings, all written into the plan; one question for the Owner | [`audits/2026-11-14-editors-restyle-plan-audit.md`](audits/2026-11-14-editors-restyle-plan-audit.md) |
-| 4. Execution | Not started | |
+| 4. Execution | Tasks 1 to 8 built and pushed; Task 9's docs written; the picture reading waits for a green run (pull request 12) | the pull request |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 4 (2026-11-14, in progress)
+
+Tasks 1 to 8 are built, each pushed on its own commit, and Task 9's docs are written (the project page's "look", the
+list of what the device may keep with `af.notes`, `tests/styles/`, and a check that the project page names every
+`af.` key the code uses). What is left of stage 4 is reading the pictures once CI is green, and fixing a "no".
+
+**The Owner's answer to Q1 was (a):** Share stays a row on the game's page, so Task 7 went as planned.
+
+**Rulings made while building** (each is a small step past what the plan said, none changes a principle):
+- `Levels.svelte` went over the 600-line limit with the notes, so the floating tools (the top panel, the side tools,
+  the card, Undo and Redo, what was said and the stamp) are their own file, `Floats.svelte`. Cost if wrong: one more
+  file; nothing else moved.
+- A `Row` joined the shared pieces (`ui/Row.svelte`): the list screens had four copies of the same row. Cost if
+  wrong: one file to take back out.
+- A stamp has its own margin (8 px at the sides, 16 px above and below): turned four degrees, a wide stamp's corners
+  reach 2 to 3 px past its box, which a test caught at 390 px.
+- On a phone the clear cell is narrow, so the notes are one note holding both numbers; pressing it leads to the
+  Across arrows (the plan's Down note exists from iPad width up).
+- The tests that measure the stamp wait for it to land (its first 200 ms are larger than it rests).
+- The word `wordmark` (`automata`) is the only new word besides the stamps', the notes' and `appOnGitHub`.
+
+**Deferred minors:** none yet.
 
 ### Stage 3 finished (2026-11-14)
 
