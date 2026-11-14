@@ -27,8 +27,10 @@ Overall for this stage: Task 1 of 19 in review. Nothing is run on the building s
 `pnpm install --lockfile-only` (the lockfile's checksum cannot be written by hand); every test and check is read from
 the pull request's CI.
 
-- Task 1 (pull request 1, the framework pin): pinned to `4b18418` (AutomataFramework's newest commit with all 12 checks
-  green; docs only above `452172c`). The lockfile gained the framework's new Colyseus peer packages.
+- Task 1 (pull request 1, the framework pin): pinned first to `4b18418`, whose git install failed (its build script was
+  TypeScript, which Node will not run under `node_modules`), then to `b57d00a`, the merge of AutomataFramework pull
+  request 95 (the fix, and the level picture Task 3 needs). The lockfile gained the framework's new Colyseus peer
+  packages; the new tarball's checksum was worked out from the downloaded file, the same way that gave the old one.
 
 ### Stage 3 finished (2026-11-14)
 
