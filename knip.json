@@ -1,24 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6.39.0/schema.json",
   "ignoreExportsUsedInFile": true,
-  "entry": [
-    "functions/**/*.ts",
-    "src/index.ts",
-    "tests/**/*.test.ts",
-    "tests/journeys/global-setup.ts"
-  ],
-  "project": [
-    "src/**/*.{ts,svelte}",
-    "functions/**/*.ts",
-    "tests/**/*.ts"
-  ],
-  "ignoreDependencies": [
-    "@automataframework/framework",
-    "pixi.js"
-  ],
+  "entry": ["functions/**/*.ts", "src/index.ts", "tests/**/*.test.ts", "tests/journeys/global-setup.ts"],
+  "project": ["src/**/*.{ts,svelte}", "functions/**/*.ts", "tests/**/*.ts"],
+  "ignoreDependencies": ["@automataframework/framework", "pixi.js"],
   "ignoreIssues": {
-    "src/features/*/*.ts": [
-      "types"
-    ]
+    "src/features/*/*.ts": ["types"]
   }
 }
