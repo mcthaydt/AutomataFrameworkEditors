@@ -82,7 +82,7 @@ Decided in this spec's conversation (2026-11-14):
 |---|---|---|
 | Q1 | What does a first-time visitor see first? | **Straight onto the full-screen demo level.** A tip says "Drag the crate", then "Press Save". No welcome page. |
 | Q2 | The mockup shows parts the editors do not have yet. What do the screens show? | **Build the mockup's frame for real now.** Find, Play, Add and Erase work; the switcher shows all five editors, World working and the other four "Coming soon". Paint comes with Tiles; settings like "How heavy" with Feel. |
-| Q3 | English must not be the default. How do languages work? | **All nine now.** The editor opens in the device's language; if the device's language is not one of the nine, a language picker comes first, each language in its own script. A language button stays top right; the choice is kept on the device. A check fails on any missing word. |
+| Q3 | English must not be the default. How do languages work? | **All nine now.** The editor opens in the device's language; if the device's language is not one of the nine, a language picker comes first. A language button stays top right; the choice is kept on the device. A check fails on any missing word. Pickers show **just the flag** (the Owner, 2026-11-14). |
 | Q4 | What does a visitor's Save do on the first run? | **Two actions, Save and Export.** Save only works signed in with GitHub, and the screen shows it is for working with your team (Figma is a huge inspiration). Export gives the level's file. |
 | Q4b | Does Export need signing in? | **No, anyone can Export.** A visitor's first run ends: drag the crate, press Export, the stamp "EXPORTED", copied for their agent. Beside it, Save says "Sign in to save with your team". |
 
@@ -145,7 +145,7 @@ The level screen is the product. Every other screen borrows its frame.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────┐
-│ ┌ Crate Game · Level 1 ┐ ┌World┐ Characters Feel Sound Story   ┌Find or do anything┐ ◐◑ 文A  Share  [ Save ] │
+│ ┌ Crate Game · Level 1 ┐ ┌World┐ Characters Feel Sound Story   ┌Find or do anything┐ ◐◑ ⚑  Share  [ Save ] │
 │ └──────────────────────┘                                        └──────────────────┘                        │
 │ ┌────┐                                                                     ┌──────────────┐ │
 │ │MOVE│              ·  ·  ·  ·  ·  ·  ·  the game's real art  ·  ·  ·  ·  │ CRATE         │ │
@@ -192,7 +192,7 @@ keeps its minimum height and the floating parts may overlap the level's edges bu
 
 ```
 ┌────────────────────────────┐
-│ ┌Level 1 · World ▾┐ 文A [Save]│
+│ ┌Level 1 · World ▾┐ ⚑ [Save]│
 │                            │
 │     the game's real art    │
 │   ╭ Drag the crate ╮        │
@@ -285,15 +285,19 @@ test fails when a find-bar action is missing from that list or the list names on
 ## Languages
 
 - **Nine:** English, Spanish, Korean, Japanese, Chinese, Portuguese, French, Russian and German. No order puts one
-  first: the picker lists them by their own names in a fixed order the plan sets that does not lead with English
-  (for example by number of speakers among the Owner's list, or alphabetically by their own names), and every list
-  of languages in this repo follows the same order.
+  first: the picker shows them in a fixed order the plan sets that does not lead with English, and every list of
+  languages in this repo follows the same order.
+- **Pickers show just the flag** (the Owner, 2026-11-14): no language names on screen, no words around them. Each
+  language has one flag, the same one the framework's language picker uses for the games' six; the plan takes the
+  framework's table (from the framework's language spec, once it lands) and extends it with the same rule for French,
+  Russian and German, so a language's flag is the same everywhere in the product. Each flag button still has the
+  language's own name as its accessible name, for screen readers and for the find bar, but that name is never drawn.
 - **Which one shows:** the language the person last chose on this device (`af.language`, a new device setting added
   to `CLAUDE.md`'s allowed list); else the first of the device's preferred languages that is one of the nine; else
-  the language picker, before anything else, full screen, nine large buttons each in its own script, with no words
-  in any one language around them.
-- **The language button** (`文A` icon and the current language's own name) sits in the top-right cluster on every
-  screen and opens the same picker as a panel.
+  the language picker, before anything else, full screen: nine large flags, with no words in any one language
+  around them.
+- **The language button** (the current language's flag) sits in the top-right cluster on every screen and opens the
+  same picker of flags as a panel.
 - **Every word in nine languages.** All words stay in `src/features/words/`, one table per language. A test fails
   when a word is missing or empty in any language, or when a screen shows a word not taken from the tables. Words
   are written by agents in plain language at the drunk-grandma level in each language; the plan says how they are
@@ -349,7 +353,7 @@ title-block cards. None is a plain list in one column.
 
 | Screen | What it is in the redesign |
 |---|---|
-| **Language picker** | Full screen on the ground: the wordmark, then nine large buttons, each its language's own name in its own script. |
+| **Language picker** | Full screen on the ground: the wordmark, then nine large flags, nothing else. |
 | **Your games** (signed in) | A wall of title-block cards, one per game: a picture of its first level in its real art with the grid over it, the game's name, its people's faces, "2 changes waiting". "Add the editor to another game" is the last card. Can't-reach and not-a-game states are cards with a plain sentence and one button. |
 | **A game's page** | The game's first level, faded, fills the back; over it, a floating panel with the game's title block, its levels as picture cards ("Level 1, changed by Sam yesterday"), the changes waiting (with faces), and Share for those who may. Look, Suggest, Approve, Edit and Owner each see only what they may do. |
 | **Share** | A floating panel over the game's page, the way people know from shared documents: the people and their level as a choice each, "Add someone by their GitHub name", what anyone who signs in may do, and the link to copy. |
