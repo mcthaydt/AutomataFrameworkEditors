@@ -323,8 +323,11 @@ test('turning the box sideways refits: the button is still on the crate', async 
   await show()
   await turn(1180, 820)
   const want = expectedCentre(6.5, 7.5)
-  expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
-  expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+  // The measuring after a turn is deferred, so the button settles a moment later.
+  await vi.waitFor(() => {
+    expect(Math.abs(centre(crate()).x - want.x)).toBeLessThanOrEqual(1)
+    expect(Math.abs(centre(crate()).y - want.y)).toBeLessThanOrEqual(1)
+  })
 })
 
 // The picture, not only the buttons over it: the first build moved the buttons and never redrew the crate.
