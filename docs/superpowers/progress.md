@@ -2,7 +2,26 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
-## Cycle 2: the editors wear Blueprint
+## Cycle 3: the Blueprint redesign
+
+Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
+It replaces Cycle 2's restyle: the Owner saw PR 12's screens and they did not match the agreed mockup. Cycle 2's plan
+and audit stay for the record; PR 12 is not merged, and the new plan names the parts it takes from it.
+
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
+| 2. Plan | Not started | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started; two audits after the build (drunk-grandma on Opus, visuals on Fable) | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+## Cycle 2: the editors wear Blueprint (replaced by Cycle 3)
 
 Spec: the "Visual direction" section of
 [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
