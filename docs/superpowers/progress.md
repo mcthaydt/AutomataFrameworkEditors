@@ -45,6 +45,9 @@ the pull request's CI.
   words to it. Tests read the plain English table through `tests/fixtures/words.ts`, so Node never loads a rune file.
   `measure.ts` and `live.svelte.ts` from the plan's Task 4 are not copied yet: nothing imports them, so knip would
   flag them; they arrive with the first test that uses them.
+- Task 7b (the framework pin, zoom plan): the pin moves from `b57d00a` to `504c278`, the merge of AutomataFramework pull
+  request 102 (`LevelPicture.setView`, which the zoom needs). Same three places as Task 1: `package.json`, the
+  `onlyBuiltDependencies` line and the lockfile, whose checksum was worked out from the downloaded tarball.
 
 ### Stage 3 finished (2026-11-14)
 
