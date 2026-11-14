@@ -5,8 +5,8 @@ import { expect, test } from 'vitest'
 const DIR = join(import.meta.dirname, '../../.github/workflows')
 const names = readdirSync(DIR)
 
-test('the workflows are ci.yml and the commit-authors check: there is no release workflow', () => {
-  expect(names).toEqual(['ci.yml', 'commit-authors.yml'])
+test('the workflows are ci.yml, the commit-authors check and the closed-branch cleanup: there is no release workflow', () => {
+  expect(names).toEqual(['ci.yml', 'commit-authors.yml', 'delete-closed-pr-branch.yml'])
 })
 
 test('nothing publishes to npm', () => {
