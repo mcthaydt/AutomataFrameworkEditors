@@ -8,18 +8,35 @@ Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14
 It replaces Cycle 2's restyle: the Owner saw PR 12's screens and they did not match the agreed mockup. Cycle 2's plan
 and audit stay for the record; PR 12 is not merged, and the new plan names the parts it takes from it.
 
-Overall: **8%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
 | 2. Plan | Done | [`plans/2026-11-14-editors-blueprint-redesign.md`](plans/2026-11-14-editors-blueprint-redesign.md) |
-| 3. Plan audit | Not started | |
+| 3. Plan audit | Done; 11 important and 12 minor findings applied to the plan; Owner Q1 blocks Task 7, Q2 blocks Task 19's amendment; coordinator C1 open | [`audits/2026-11-14-blueprint-redesign-plan-audit.md`](audits/2026-11-14-blueprint-redesign-plan-audit.md) |
 | 4. Execution | Not started; Play (Task 19) waits for a framework cycle | |
 | 5. Implementation audit | Not started; two audits after the build (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 3 finished (2026-11-14)
+
+The plan audit found nothing blocking and eleven important findings, each now written into the plan and marked
+`(audit I<n>)`: layouts that would overflow with German or Russian tool words, and a title block taller than its
+room (the room is now measured, phone undo and redo float above the tools, the title block is a 2 × 2 grid); three
+first-visit gaps (the crate's ring on arrival, the card's sheet held back during the first drag on a phone, and the
+"Sign in to save with your team" line under a visitor's stamp at every size); the still picture freeing the art it
+is given; the renderer's half-height limit; caching the pictures for a crowd of visitors; no skipped scenes in Task 4;
+a first tip that need not name an English id in other languages; and Play's tests moved to the built-in hero's thumb
+scheme. Twelve minor findings are applied too.
+
+**Waiting:** the Owner's Q1 (how big a level is on a phone held upright; recommended pinch to zoom) before Task 7;
+the Owner's Q2 (the game's language in Play when the editors are in French, Russian or German) before Task 19's
+amendment; the coordinator's C1 (what a stage may run locally this cycle). PRs 1 to 4 can start now.
+
+Nothing was run: this stage wrote documents.
 
 ### Stage 2 finished (2026-11-14)
 
