@@ -212,8 +212,9 @@ test('at every step of the first run: one primary where the next thing is a butt
     const count = await found.count()
     expect(count).toBeLessThanOrEqual(1)
     if (primaries === 'one') expect(count).toBe(1)
+    // 47.5: the screens check's own floor, since a browser may lay a 48 px button out at 47.99998.
     for (const button of await found.all())
-      expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(48)
+      expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(47.5)
     // On screen at the top, with no scrolling needed to read it.
     const box = await strip(j).boundingBox()
     expect(box?.y).toBeGreaterThanOrEqual(0)
