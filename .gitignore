@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-plain/
+coverage/
+.superpowers/
+*.tsbuildinfo
+__screenshots__/
+.svelte-kit/
+.wrangler/
