@@ -324,7 +324,7 @@
 </script>
 
 <div class="editor">
-  <div class="area">
+  <div class="area" class:floating={!readOnly}>
     <div
       class="stage"
       role="group"
@@ -417,6 +417,17 @@
     flex: 1;
     min-height: 0;
     container-type: size;
+  }
+  /* The tools need a height of their own, or on a phone they leave the level no room at all: below it the page scrolls
+     (the screen holding this scrolls inside itself), and above it the level takes what is left. 44rem is the top panel,
+     the tools row and the card, with 10rem clear between them; sideways, with the card at the side, 24rem is enough. */
+  .area.floating {
+    min-height: 44rem;
+  }
+  @media (min-aspect-ratio: 1/1) and (min-width: 36rem) {
+    .area.floating {
+      min-height: 24rem;
+    }
   }
   /* The game's art is never rounded, tinted or covered by anything but the tools' own boxes. */
   .stage {

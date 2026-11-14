@@ -120,7 +120,7 @@
     inset: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(0, 1fr) auto 11rem;
+    grid-template-rows: auto minmax(10rem, 1fr) auto 11rem;
     grid-template-areas:
       'top top'
       'clear clear'
