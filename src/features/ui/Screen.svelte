@@ -17,7 +17,7 @@
 <main class="screen">
   <header>
     <h1 tabindex="-1" bind:this={heading}>{title}</h1>
-    {#if back}<Button label={back.label} onpress={back.onpress} />{/if}
+    {#if back}<Button label={back.label} icon="back" onpress={back.onpress} />{/if}
   </header>
   {@render children()}
 </main>
@@ -41,6 +41,7 @@
   }
   h1 {
     margin: 0;
+    font-family: var(--title);
     font-size: var(--font-size-big);
     overflow-wrap: anywhere;
   }

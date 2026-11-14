@@ -3,8 +3,7 @@
   "ignoreDependencies": [
     "@fontsource-variable/fraunces",
     "@fontsource-variable/onest",
-    "@fontsource/jetbrains-mono",
-    "@phosphor-icons/core"
+    "@fontsource/jetbrains-mono"
   ],
   "ignoreExportsUsedInFile": true,
   "entry": ["functions/**/*.ts", "src/index.ts", "tests/**/*.test.ts"],

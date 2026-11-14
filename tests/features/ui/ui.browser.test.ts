@@ -2,7 +2,7 @@
 import { createRawSnippet, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
-import { Button, Notice, Screen } from '#src/features/ui/ui.ts'
+import { Button, Choice, Notice, Screen, Stamp, Tool } from '#src/features/ui/ui.ts'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -134,4 +134,128 @@ test('a Screen with a back Button calls it', async () => {
   expect(back).toBeDefined()
   back?.click()
   expect(onpress).toHaveBeenCalledTimes(1)
+})
+
+// The look: the colours and corners every piece wears, as the browser computes them (the six are named in ui.css).
+const GROUND = 'rgb(37, 49, 34)'
+const TOUCH = 'rgb(238, 180, 128)'
+const RAISED = 'rgb(49, 60, 44)'
+const MARK = 'rgb(131, 126, 49)'
+const style = (element: Element) => getComputedStyle(element)
+
+test('a Button with an icon shows the icon before its words, and is named by its words alone', async () => {
+  mounted = mount(Button, { target: box, props: { label: 'Save', icon: 'save', onpress: () => {} } })
+  await tick()
+  const icon = button().querySelector('.icon')
+  expect(icon?.getAttribute('aria-hidden')).toBe('true')
+  expect(icon?.querySelector('svg')).not.toBeNull()
+  // The icon comes first, and holds no text, so the button's name is its label and nothing else.
+  expect(button().firstElementChild).toBe(icon)
+  expect(button().textContent?.trim()).toBe('Save')
+})
+
+test('a primary Button is touch with ground words', async () => {
+  mounted = mount(Button, { target: box, props: { label: 'Save', kind: 'primary', onpress: () => {} } })
+  await tick()
+  expect(style(button()).backgroundColor).toBe(TOUCH)
+  expect(style(button()).color).toBe(GROUND)
+})
+
+test("a plain Button's words are touch on raised", async () => {
+  mounted = mount(Button, { target: box, props: { label: 'Go', onpress: () => {} } })
+  await tick()
+  expect(style(button()).backgroundColor).toBe(RAISED)
+  expect(style(button()).color).toBe(TOUCH)
+})
+
+test('a danger Button has a mark edge on the ground', async () => {
+  mounted = mount(Button, { target: box, props: { label: 'Remove', kind: 'danger', onpress: () => {} } })
+  await tick()
+  expect(style(button()).backgroundColor).toBe(GROUND)
+  expect(style(button()).borderTopColor).toBe(MARK)
+  expect(style(button()).borderTopWidth).toBe('2px')
+  expect(style(button()).color).toBe(TOUCH)
+})
+
+test('a Tool is at least 56 by 56 and its word is at least 13 px, in capitals', async () => {
+  const onpress = vi.fn()
+  mounted = mount(Tool, { target: box, props: { label: 'Undo', icon: 'undo', onpress } })
+  await tick()
+  const rect = button().getBoundingClientRect()
+  expect(rect.width).toBeGreaterThanOrEqual(56)
+  expect(rect.height).toBeGreaterThanOrEqual(56)
+  const word = button().querySelector('.label')
+  expect(word).not.toBeNull()
+  expect(Number.parseFloat(style(word as Element).fontSize)).toBeGreaterThanOrEqual(13)
+  expect(style(word as Element).textTransform).toBe('uppercase')
+  expect(button().textContent?.trim()).toBe('Undo')
+  button().click()
+  expect(onpress).toHaveBeenCalledTimes(1)
+})
+
+test("a Notice's icon is an svg and its kind is still a word", async () => {
+  for (const kind of ['info', 'good', 'problem'] as const) {
+    mounted = mount(Notice, { target: box, props: { kind, text: 'Hello' } })
+    await tick()
+    expect(box.querySelector('.icon svg')).not.toBeNull()
+    expect(box.querySelector('.kind')?.textContent).toMatch(/\w/)
+    void unmount(mounted)
+    mounted = undefined
+    box.replaceChildren()
+  }
+})
+
+test('a problem Notice has a mark edge on the ground; the others are raised', async () => {
+  mounted = mount(Notice, { target: box, props: { kind: 'problem', text: 'Nope' } })
+  await tick()
+  const problem = box.querySelector('.notice') as Element
+  expect(style(problem).backgroundColor).toBe(GROUND)
+  expect(style(problem).borderTopColor).toBe(MARK)
+  void unmount(mounted)
+  mounted = undefined
+  box.replaceChildren()
+  mounted = mount(Notice, { target: box, props: { kind: 'info', text: 'Hi' } })
+  await tick()
+  expect(style(box.querySelector('.notice') as Element).backgroundColor).toBe(RAISED)
+})
+
+test('a Stamp with a 39-letter name stays inside 390 px and is hidden from a screen reader', async () => {
+  mounted = mount(Stamp, { target: box, props: { text: `Saved by ${'g'.repeat(39)}` } })
+  await tick()
+  const stamp = box.querySelector('[data-stamp]') as HTMLElement
+  expect(stamp.getAttribute('aria-hidden')).toBe('true')
+  const rect = stamp.getBoundingClientRect()
+  const edge = box.getBoundingClientRect()
+  expect(rect.left).toBeGreaterThanOrEqual(edge.left)
+  expect(rect.right).toBeLessThanOrEqual(edge.right)
+})
+
+test('every corner is 2 px', async () => {
+  const pieces: Array<[string, () => void]> = [
+    ['.button', () => (mounted = mount(Button, { target: box, props: { label: 'Go', onpress: () => {} } }))],
+    [
+      '.tool',
+      () => (mounted = mount(Tool, { target: box, props: { label: 'Go', icon: 'undo', onpress: () => {} } })),
+    ],
+    ['.notice', () => (mounted = mount(Notice, { target: box, props: { kind: 'info', text: 'Hi' } }))],
+    ['.stamp', () => (mounted = mount(Stamp, { target: box, props: { text: 'Saved' } }))],
+    [
+      '.row',
+      () =>
+        (mounted = mount(Choice, {
+          target: box,
+          props: { label: 'Who', options: [{ value: 'a', label: 'A' }], value: 'a', onchange: () => {} },
+        })),
+    ],
+  ]
+  for (const [selector, make] of pieces) {
+    make()
+    await tick()
+    const found = box.querySelector(selector)
+    expect(found, selector).not.toBeNull()
+    expect(style(found as Element).borderTopLeftRadius, selector).toBe('2px')
+    void unmount(mounted as ReturnType<typeof mount>)
+    mounted = undefined
+    box.replaceChildren()
+  }
 })
