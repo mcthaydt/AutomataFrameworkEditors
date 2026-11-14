@@ -53,6 +53,12 @@ this site's API; translations written by the builder and read in full by the dru
 reader; the editors draw their own nine flags; a game that has not turned the built-in hero on gets a plain notice
 from Play; the two audits do not wait for Play.
 
+**Added by the Owner after the spec was merged (2026-11-14):** every panel can be closed and opened, to hide
+things when overwhelmed and show everything as a power user. It is ruling 17 and part of Task 7: the tools, the
+card, the title block and the notes' switch each close to a small handle, one control hides or shows them all, the
+level never moves when they do, and what is closed is remembered on the device. It extends the spec; the spec's
+page has not been changed.
+
 Nothing was run: this stage wrote a document.
 
 ## Cycle 2: the editors wear Blueprint (replaced by Cycle 3)

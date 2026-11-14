@@ -44,7 +44,7 @@ the task says.
 - **The header stays** (`public/_headers`): no font, icon, script or picture from another address, no inline script,
   no `style="…"` attribute in markup (Svelte `style:` directives are fine), no `blob:` picture. `data:` pictures are
   allowed by the header as it is and are used only for faces (Task 14).
-- **The device keeps** only what `CLAUDE.md` lists, plus `af.notes` and `af.language`.
+- **The device keeps** only what `CLAUDE.md` lists, plus `af.notes`, `af.language` and `af.panels`.
 - **Sizes.** Five, named so everywhere: `phone` 390 × 844, `phoneSideways` 844 × 390, `ipadUpright` 820 × 1180,
   `ipadSideways` 1180 × 820, `desktop` 1440 × 900.
 - **Touch.** 44 px or more for anything pressed, 48 for a main button, 56 for a tool. Nothing shrinks or gets an
@@ -117,6 +117,15 @@ The spec leaves these to the builder. The plan audit may challenge each.
 16. **The two audits do not wait for Play.** They run after Task 18 on every screen that exists, so the redesign
     can reach the Owner's review while the framework's cycle runs. Task 19 ends with the same two audits on its
     own screens.
+17. **Panels close and open** (the Owner, 2026-11-14, after the spec was merged: "close and open panels", to hide
+    things when overwhelmed and expand it all as a power user. This extends the spec). Four parts can be closed
+    wherever they float: `tools`, `card`, `block` and `switch`. The pill and the cluster never close, so the
+    level's name, Find, Save and Export are always there. A closed part leaves a 44 px handle at its own edge
+    that opens it again; one more control hides or shows all four at once. Everything is open on a first visit.
+    Closing or opening a part never moves or resizes the level (the room of ruling 2 is kept either way). A
+    chosen tool stays chosen while the tools are closed, and picking a thing does not open a closed card. What is
+    closed is kept on the device in `af.panels`. On `narrow`, `block` and `switch` are already in the scroll under
+    the level and do not close.
 
 ## Review Focus
 
@@ -198,7 +207,8 @@ floating part (`pill`, `cluster`, `tools`, `card`, `switch`, `block`, `undo`, `t
 `tray`, `sheet`); `[data-tool="move|add|erase"]` with `aria-pressed` (`play` joins in Task 19); `[data-thing]`
 with `data-x`, `data-y`
 (a start point is `start-1`); `[data-scale]` on the stage; `[data-clear]` on an empty element laid exactly over the
-clear cell; `[data-note="left|top|name|joint"]`; `[data-stamp]`; `[data-lang]` on a flag button.
+clear cell; `[data-handle="tools|card|block|switch"]` on a closed part's handle and `[data-close]` on a part's own
+close button; `[data-note="left|top|name|joint"]`; `[data-stamp]`; `[data-lang]` on a flag button.
 
 ## Review pictures
 
@@ -606,11 +616,14 @@ from level-1"; one retype "Make crate-1 a spark in level-1"; any mix "Change lev
 - Create: `src/features/ui/Menu.svelte`, `src/features/ui/TitleBlock.svelte`, `src/features/ui/Sheet.svelte`
 - Create: `src/features/suite/Frame.svelte`, `Pill.svelte`, `Cluster.svelte`, `Switcher.svelte`,
   `ComingSoon.svelte`
+- Create: `src/features/ui/panels.ts`, `src/features/ui/Handle.svelte`; modify `src/features/ui/Panel.svelte`,
+  `src/features/ui/icons.ts` (`panels: sidebarSimple`), `CLAUDE.md` (the device list gains `af.panels`)
 - Rewrite: `src/features/levels/Levels.svelte`, `src/features/suite/LevelScreen.svelte`
 - Modify: `src/features/suite/App.svelte` (the level route renders with no bar and no strip above it)
 - Test: `tests/features/levels/layout.test.ts`, `tests/features/levels/stage.browser.test.ts`,
   `tests/features/levels/levels.browser.test.ts` (rewritten), `tests/features/suite/frame.browser.test.ts`,
-  `tests/journeys/frame.journey.test.ts`; `tests/journeys/move-the-crate.journey.test.ts` keeps passing
+  `tests/journeys/frame.journey.test.ts`; `tests/journeys/move-the-crate.journey.test.ts` keeps passing;
+  `tests/features/ui/panels.test.ts`, `tests/journeys/panels.journey.test.ts`
 
 **Interfaces:**
 - Produces:
@@ -621,6 +634,13 @@ export type Shape = 'wide' | 'mid' | 'narrow'
 export function shapeOf(box: Size): Shape          // ruling 1
 export function roomFor(shape: Shape): Room         // ruling 2
 export const LEAST_LEVEL_HEIGHT = 320
+// ui/panels.ts: which parts are closed (ruling 17), kept in `af.panels` as a JSON list of names
+export type PanelName = 'tools' | 'card' | 'block' | 'switch'
+export const PANEL_NAMES: readonly PanelName[]
+export function readClosed(store: Storage | undefined): ReadonlySet<PanelName>   // rubbish or a throw: none closed
+export function keepClosed(store: Storage | undefined, closed: ReadonlySet<PanelName>): void   // never throws
+export function toggled(closed: ReadonlySet<PanelName>, name: PanelName): ReadonlySet<PanelName>
+export function allClosed(closed: ReadonlySet<PanelName>, floating: readonly PanelName[]): boolean
 ```
 
 ```
@@ -663,6 +683,19 @@ carries a `.label` tag `WORDS.comingSoon` in `--mark`'s edge and opens `ComingSo
 "copy this level"), and Sign in or the person's name (`Menu` with Sign out; faces come in Task 14). Share and Find
 appear in the tasks that build them. The tools are Move only in this task.
 
+**Panels close and open (ruling 17).** `Panel` gains `name?: PanelName`, `closed`, `onclose`: a named panel
+has a close button at its top corner (`data-close`, the `minus` icon, 44 px to press, accessible name
+`WORDS.panelHide(name)`, as in "Hide tools"). `Levels` renders a closed part as a `Handle` in its place
+(`data-handle="<name>"`, a 44 px `Panel` holding the part's icon, accessible name `WORDS.panelShow(name)`), set
+against the same edge the part sits on: tools at the left edge (`wide`) or bottom left; card at the right edge
+under the cluster (`wide`) or as the sheet's title bar (`mid`, `narrow`, where closing the card is pulling the
+sheet down to nothing but its handle); block and switch where they were. The names come from `WORDS.panelTools`,
+`panelCard`, `panelBlock`, `panelSwitch`. One control hides or shows all the floating four at once: on `wide` a
+44 px icon button (`panels`) at the end of the pill, on `mid` and `narrow` a row in the pill's menu; it reads
+`WORDS.panelsHide` while any is open and `WORDS.panelsShow` when all are closed. Opening and closing use the
+200 ms panel motion. Focus goes to the handle on close and to the part's first control on open. `Levels` exports
+`panel(name)` and `panels()` for the find bar, and `LevelState` gains `closed: readonly PanelName[]`.
+
 - [ ] **Step 1: Failing tests.**
   - `layout.test.ts`: `shapeOf` of the five sizes is narrow, mid, mid, wide, wide; of 1024 × 599 is mid; `roomFor`
     returns ruling 2's numbers; for each size the clear cell is at least 160 px tall and half the shorter side wide.
@@ -683,6 +716,16 @@ appear in the tasks that build them. The tools are Move only in this task.
     element in the frame is the stage, and `[data-scale]`'s box is the window's (on `narrow`, the window's width
     and at least 320 tall); `broken(page, true)` is empty; no two `[data-part]` boxes overlap; every `[data-tool]`
     is at least 56 px each way; Save is at least 48 tall; each of the four other editors opens its card.
+  - `panels.test.ts`: nothing is closed for an empty store, for rubbish and for a store that throws; `toggled`
+    twice is the start; `keepClosed` then `readClosed` gives the same set; `allClosed` looks only at the parts
+    that float.
+  - `panels.journey.test.ts` (five sizes): on a first visit nothing is closed and no `[data-handle]` exists;
+    closing the tools leaves `[data-handle="tools"]` at least 44 px each way at the same edge, and `data-scale`
+    and the crate's box are unchanged; the crate can still be dragged with the tools closed; the handle opens
+    them and Move is still pressed; with the card closed, picking the crate shows no card and the handle is
+    there; "hide all" leaves only the pill, the cluster, the handles and undo and redo, Save still works, and the
+    control now reads "Show everything"; a reload keeps what was closed; by keyboard, Enter on a close button
+    moves focus to its handle; `broken(page, true)` is empty with everything closed and with one part closed.
 - [ ] **Step 2:** Push, red. **Step 3:** Implement. `measure.ts` now finds parts by `[data-part]` and the main
       button by `.button.primary` as before. **Step 4:** Push, green in three engines.
 - [ ] **Step 5:** Commit `feat: the level fills the window and its tools float`. Report `Task 7`.
@@ -911,7 +954,8 @@ export function finishGuide(store: Storage): void
 `WORDS.guideSave` at Save for someone who may save; `done` and `none` are undefined. `Tip.svelte`
 (`data-part="tip"`): a `--touch` chip with a small pointer, placed beside its target's box inside the frame, never
 over another part, with a `WORDS.tipsHide` button; it re-reads the target's box on resize and hides itself (no
-throw) if the target is not on screen, as when a menu or the find bar is open.
+throw) if the target is not on screen, as when a menu or the find bar is open. A tip whose target is in a closed
+panel (ruling 17) points at that panel's handle instead; `guide.test.ts` has the case for Add.
 
 **The address with nothing after it:** signed out with a demo game: the demo's first level, at once, in the level
 screen (no welcome page, no redirect, the address stays). Signed out with no demo game: the frame with one
@@ -979,7 +1023,8 @@ export const COMMAND_KINDS: readonly { readonly id: string; readonly words: keyo
 `level`, `signedIn`, `mayShare`. `FindDoes`: one function per kind. The kinds, in order: `move-tool`,
 `add:<character>` ("Add a crate"), `erase-tool`, `move-left` / `-right` / `-up` / `-down` ("Move
 crate-1 left", only with a thing picked), `erase` ("Erase crate-1"), `save`, `export`, `undo`, `redo`,
-`show-notes`, `fade-notes`, `hide-notes`, `share`, `open-game`, `open-level:<id>` ("Open Level 2"),
+`show-notes`, `fade-notes`, `hide-notes`, `hide-panel:<name>` and `show-panel:<name>` ("Hide tools", whichever
+applies to each part that floats), `hide-panels`, `show-panels`, `share`, `open-game`, `open-level:<id>` ("Open Level 2"),
 `open-editor:<name>` ("Open Feel"), `sign-in`, `sign-out`; Task 17 adds `language:<code>` (each by its own name);
 Task 19 adds `play` after `erase-tool`.
 
@@ -1434,6 +1479,9 @@ their last use (the words-used test names them).
 | `tipAdd` | Press Add to put something in the level. |
 | `tipExport` | Nice. Now press Export to keep it. |
 | `tipsHide` | Hide tips |
+| `panelTools`, `panelCard`, `panelBlock`, `panelSwitch` | tools, details, level name, notes |
+| `panelHide(name)`, `panelShow(name)` | Hide {name}, Show {name} |
+| `panelsHide`, `panelsShow` | Hide everything, Show everything |
 | `lookLine(owner)` | You can look around. To change things, ask {owner}. |
 | `teamGame` | This game belongs to a team. Sign in to open it. |
 | `leaveAsk`, `leaveYes` | Leave without saving?, Leave |
@@ -1464,7 +1512,7 @@ its title; `wide` is the same as picked); `level-pinned` (stage; the pin's note)
 `level-character-choice` (stage); `level-unsaved` (stage); `level-saved` (stage; the stamp);
 `level-saved-suggestion` (stage); `level-changed-elsewhere` (stage); `level-offline` (stage); `level-leave`
 (stage); `level-look-only` (stage); `level-art-missing` (stage); `level-plain-game` (stage; boxes on sky);
-`level-find-open`, `level-find-typed`, `level-find-none` (stage); `level-pill-menu`; `level-person-menu`;
+`level-tools-closed`, `level-card-closed`, `level-everything-closed` (stage); `level-find-open`, `level-find-typed`, `level-find-none` (stage); `level-pill-menu`; `level-person-menu`;
 `level-coming-soon`; `level-language-panel`; `level-long-names` (stage).
 
 **Play (added by Task 19):** `level-play` (the fixture game, playing); `level-play-needs-code` (the plain game,
@@ -1490,7 +1538,8 @@ the notice).
   7, 9 pixel tests); no dead button (Task 7's Coming soon cards, Task 18's rules); no default language (Task 17);
   no page of words first (Task 12); nothing under 44 px (`broken`). "What happens to PR 12": Tasks 4, 6, 9, 18.
   The spec's Paint and "How heavy" are non-goals and appear only as `cardLater`.
-- **Gaps the spec left, closed here:** rulings 1 to 16. **Open:** the two named gaps of Task 19, which only the
+- **Gaps the spec left, closed here:** rulings 1 to 16. **Added after the spec, by the Owner:** ruling 17 (panels that
+  close and open). **Open:** the two named gaps of Task 19, which only the
   framework's cycle can close.
 - **Where this plan differs from the spec, and why:** the card has no "what it is" line (the format has no such
   field: ruling 4); Play comes last, after a framework cycle, and offers no link to a game's own page (the Owner's answer and
