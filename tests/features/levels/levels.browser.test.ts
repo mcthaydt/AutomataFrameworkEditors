@@ -21,7 +21,7 @@ let onchange: (edit: LevelEdit) => void
 beforeEach(() => {
   box = document.createElement('div')
   box.style.cssText =
-    'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column'
+    'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column;overflow:auto;scrollbar-width:none'
   document.body.append(box)
   edits = []
   onchange = (edit) => edits.push(edit)
@@ -558,9 +558,11 @@ test.each(SIZES)(
       [s.left, edge.left],
       [s.top, edge.top],
       [s.right, edge.right],
-      [s.bottom, edge.bottom],
     ] as const)
       expect(Math.abs(got - want)).toBeLessThanOrEqual(1)
+    // The stage is as tall as the box, or, when the tools need more room than a phone has, taller (the screen scrolls).
+    expect(s.bottom).toBeGreaterThanOrEqual(edge.bottom - 1)
+    if (w > h) expect(s.bottom - edge.bottom).toBeLessThanOrEqual(1)
     expect(within(crate().getBoundingClientRect(), clearCell())).toBe(true)
   },
 )

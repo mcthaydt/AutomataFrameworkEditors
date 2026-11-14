@@ -20,7 +20,7 @@ const edits: LevelEdit[] = []
 
 /** `width` by `height` of page for the editor; the iPad upright unless a test says otherwise. */
 function sized(width: number, height: number): void {
-  box.style.cssText = `position:fixed;left:0;top:0;width:${width}px;height:${height}px;display:flex;flex-direction:column`
+  box.style.cssText = `position:fixed;left:0;top:0;width:${width}px;height:${height}px;display:flex;flex-direction:column;overflow:auto;scrollbar-width:none`
 }
 beforeEach(() => {
   box = document.createElement('div')

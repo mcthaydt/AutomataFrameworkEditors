@@ -410,11 +410,14 @@
 </div>
 
 <style>
+  /* A size container too, so the area can ask the shape of the room it is given (the window may be any shape, and the
+     page around may be showing a strip or a bar). It is as tall as it is given, never as its content. */
   .editor {
     display: flex;
     flex: 1;
     flex-direction: column;
     min-height: 0;
+    container-type: size;
   }
   /* The shape of this box, not of the device, decides how the tools are laid out. It is a size container so the
      floating grid can ask it. The stage fills it edge to edge, and the tools float above. */
@@ -430,7 +433,7 @@
   .area.floating {
     min-height: 55rem;
   }
-  @media (min-aspect-ratio: 1/1) and (min-width: 36rem) {
+  @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
     .area.floating {
       min-height: 24rem;
     }
