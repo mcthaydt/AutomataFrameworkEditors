@@ -7,6 +7,7 @@ import { approveChange, turnDownChange } from './approve.ts'
 import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
+import { readSharing, writeSharing } from './people.ts'
 import { saveLevel } from './save.ts'
 import { listWaiting, showChange } from './waiting.ts'
 
@@ -29,6 +30,8 @@ const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/waiting': (deps, request, url) => listWaiting(deps, request, gameOf(url)),
   'GET /api/change': (deps, request, url) =>
     showChange(deps, request, gameOf(url), Number(url.searchParams.get('number'))),
+  'GET /api/sharing': (deps, request, url) => readSharing(deps, request, gameOf(url)),
+  'POST /api/sharing': (deps, request) => writeSharing(deps, request),
   'GET /api/game': (deps, request, url) => openGame(deps, request, gameOf(url)),
 }
 const PATHS = new Set(['/api/token', ...Object.keys(ROUTES).map((key) => key.split(' ')[1] ?? '')])

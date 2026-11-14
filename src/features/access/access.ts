@@ -5,6 +5,7 @@ export {
   ACCESS_FILE,
   type AccessFile,
   CLOSED,
+  checkAccess,
   defaultAccess,
   levelOf,
   MAX_PEOPLE,

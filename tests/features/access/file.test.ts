@@ -124,3 +124,12 @@ test('writeAccess throws on a list parseAccess would refuse', () => {
   ).toThrow()
   expect(() => writeAccess({ ...CLOSED, everyone: 'owner' } as unknown as AccessFile)).toThrow()
 })
+
+test('checkAccess gives the same answers as parseAccess, for a value that did not come from a file', async () => {
+  const { checkAccess, parseAccess } = await import('#src/features/access/access.ts')
+  const good = { format: 1, everyone: 'look', people: [{ github: 'kid', level: 'suggest' }] }
+  expect(checkAccess(good)).toEqual({ ok: true, value: good })
+  const bad = checkAccess({ format: 1, everyone: 'owner', people: [] })
+  expect(bad).toEqual(parseAccess('format = 1\neveryone = "owner"\n'))
+  expect(checkAccess('nope').ok).toBe(false)
+})

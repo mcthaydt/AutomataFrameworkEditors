@@ -1,6 +1,6 @@
 // What the page and the API say to each other. The two sides meet only here (and in `access`), so a change to what
 // one says is a change to this file, which both can read. Later tasks add the rest of the messages.
-import type { AccessLevel } from '../access/access.ts'
+import type { AccessFile, AccessLevel } from '../access/access.ts'
 
 export type ProblemKind =
   | 'signed-out'
@@ -135,4 +135,19 @@ export interface WaitingChange extends Waiting {
 export interface ChangeAsk {
   readonly game: GameRef
   readonly number: number
+}
+
+export interface SharingAnswer {
+  readonly access: AccessFile
+  /** Undefined: the game has no sharing file yet. */
+  readonly version: string | undefined
+  /** The account that owns the game: always an Owner, never in the list. */
+  readonly owner: string
+  /** The file on the game cannot be read; saving this screen mends it. */
+  readonly broken: boolean
+}
+export interface SharingAsk {
+  readonly game: GameRef
+  readonly access: AccessFile
+  readonly version: string | undefined
 }

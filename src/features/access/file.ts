@@ -82,6 +82,14 @@ function sentence(issue: z.core.$ZodIssue): string {
   }
 }
 
+/** Checks a value (from a page, say) against the rules for the sharing list. The same sentences as `parseAccess`. */
+export function checkAccess(raw: unknown): Parsed {
+  const result = AccessSchema.safeParse(raw)
+  return result.success
+    ? { ok: true, value: result.data }
+    : { ok: false, problems: result.error.issues.map(sentence) }
+}
+
 export function parseAccess(text: string): Parsed {
   let raw: unknown
   try {
@@ -92,9 +100,7 @@ export function parseAccess(text: string): Parsed {
       problems: ["The sharing list can't be read. Check that it is written the way the example shows."],
     }
   }
-  const result = AccessSchema.safeParse(raw)
-  if (result.success) return { ok: true, value: result.data }
-  return { ok: false, problems: result.error.issues.map(sentence) }
+  return checkAccess(raw)
 }
 
 /**
