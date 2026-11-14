@@ -2,6 +2,49 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Cycle 2: the editors wear Blueprint
+
+Spec: the "Visual direction" section of
+[`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
+in the AutomataFramework repo, and Cycle 1's implementation audit for the three minors it left (M4, M5, M9).
+
+Overall: **8%** (stage 1 is the shared spec and counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5
+is 10, stage 6 is 12, stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done (in AutomataFramework) | the section above |
+| 2. Plan | Done, in review | [`plans/2026-11-14-editors-restyle.md`](plans/2026-11-14-editors-restyle.md) |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+### Stage 2 finished (2026-11-14)
+
+The plan has nine tasks: the six colours and three fonts; icons and the shared pieces (with M4); redo and a canvas
+that draws only the art; the level filling the screen with floating tools; the drawing notes; the stamps; the list
+screens (with M5, kept as a ruling); the name (M9); the docs and a reading of every picture. Every task has
+end-to-end journeys at iPad upright, iPad sideways and phone size in three engines.
+
+**The Owner answered the one question (M9):** the editors are "Automata Framework editors" on screen, and the GitHub
+App is "Automata Framework Editors". Whether the App already exists under another name is not known; the plan keeps
+its name in one constant.
+
+**Measured in a throwaway copy, never committed, no test run:** the four packages install and build; Vite inlines
+three small font files as `data:` addresses unless `build.assetsInlineLimit` is `0`, which the header would refuse;
+knip does not see the three font packages; every icon the plan names exists.
+
+**Rulings made, for the plan audit to challenge** (the plan lists each with its cost): Share stays a row on the
+game's page; the bar with the wordmark and Sign in stays above a level; the first-run strip stays above a level; Redo
+is added; a waiting save is stamped "Saved by" too; the notes' switch is one tool that steps through three states;
+the floating panels' tracks are fixed sizes.
+
+**Not in the plan, and why:** the find bar and Play (neither exists until M3, so "Hide notes" there and "Play hides
+the notes" wait for them); an editor switcher (one editor in M1); a light theme; the Korean, Japanese and Chinese
+fonts (they join with the first translation).
+
 ## Cycle 1: the 2D first layer, the Editors' share of M1
 
 Spec: [`2026-11-13-2d-first-layer-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-13-2d-first-layer-design.md)
@@ -98,6 +141,8 @@ are in the plan's "Before starting".
 
 ### Log
 
+- 2026-11-14: Cycle 2, Stage 2. The restyle plan written: nine tasks, the Owner's answer on the name, the audit's M4,
+  M5 and M9 placed. Nothing run but an install and a build in a throwaway copy.
 - 2026-11-14: Stage 6. B1, S1 to S10 and the cheap minors applied, with the tests the audit asked for; S7 is AutomataFramework pull request 27. Nothing run locally.
 - 2026-11-14: Stage 5. The implementation audit of pull request 4: one blocking finding, B1, the level's picture
   is drawn once and never again (the effect that redraws it records no dependencies), so a dragged crate's button moves
