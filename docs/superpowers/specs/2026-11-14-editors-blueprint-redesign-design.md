@@ -83,10 +83,17 @@ Decided in this spec's conversation (2026-11-14):
 | Q1 | What does a first-time visitor see first? | **Straight onto the full-screen demo level.** A tip says "Drag the crate", then "Press Save". No welcome page. |
 | Q2 | The mockup shows parts the editors do not have yet. What do the screens show? | **Build the mockup's frame for real now.** Find, Play, Add and Erase work; the switcher shows all five editors, World working and the other four "Coming soon". Paint comes with Tiles; settings like "How heavy" with Feel. |
 | Q3 | English must not be the default. How do languages work? | **All nine now.** The editor opens in the device's language; if the device's language is not one of the nine, a language picker comes first, each language in its own script. A language button stays top right; the choice is kept on the device. A check fails on any missing word. |
-| Q4 | What does a visitor's Save do on the first run? | _Asked; the answer goes here._ |
+| Q4 | What does a visitor's Save do on the first run? | **Two actions, Save and Export.** Save only works signed in with GitHub, and the screen shows it is for working with your team (Figma is a huge inspiration). Export gives the level's file. |
+| Q4b | Does Export need signing in? | **No, anyone can Export.** A visitor's first run ends: drag the crate, press Export, the stamp "EXPORTED", copied for their agent. Beside it, Save says "Sign in to save with your team". |
 
 The Owner's rule behind Q3, in their words: English is not to be "just like the default language". It applies to
-every screen, every word, the order languages are listed in, and the examples in this repo's docs.
+every screen, every word and the order languages are listed in. What gets translated is the games and the editors
+only; anything a browser's own translation handles well (the site, docs, this repo's docs) is not translated (the
+Owner, 2026-11-14).
+
+Why Save and Export are apart, in the Owner's words: saving is for collaboration, and Figma is a huge inspiration.
+The framework's MCP server and the paid desktop editor apps (which let a person's agent use it) exist so a team's agents and people work on the same files; Save is
+where a person joins that, Export is where anyone takes a copy away.
 
 ## Approaches considered
 
@@ -158,8 +165,9 @@ The level screen is the product. Every other screen borrows its frame.
   icon and word. World is chosen. The other four carry a small "Coming soon" tag; pressing one opens a short card
   saying what it will do ("Feel will let you tune how the game moves and feels") and closes with one button.
 - **Top right, the cluster:** the find bar ("Find or do anything"), the faces of the people in this game (or "Sign
-  in" for someone who has not), the language button, Share, and Save (the main button). A visitor sees Sign in where
-  the faces go and no Share.
+  in" for someone who has not), the language button, Export, Share, and Save (the main button). Save carries the
+  faces of the people it saves for, so it reads as "save with your team". A visitor sees Sign in where the faces
+  go, no Share, and Save as "Sign in to save with your team"; Export is the main button for them.
 - **Left edge, the tools:** Move (chosen at first), Add, Erase and Play, each an icon with its word under it, 56 px
   or more each way. Paint joins between Add and Erase when Tiles lands.
 - **Right side, the picked thing's card**, under the cluster, when something is picked.
@@ -176,7 +184,8 @@ The same parts, re-placed for the shape: the pill shortens to the level's name a
 opens from it as a list); the cluster keeps Find (as an icon with its word), the faces or Sign in, the language
 button and Save, and Share moves into the pill's menu with the game's page; the tools run along the bottom edge
 instead of the left; the card is a bottom sheet over the tools that can be pulled down to its title; the notes'
-switch, the title block and undo and redo share the bottom row with the tools. On a phone held sideways the level
+switch, the title block and undo and redo share the bottom row with the tools. Export sits in the pill's menu for
+someone signed in; for a visitor it takes Save's place in the cluster. On a phone held sideways the level
 keeps its minimum height and the floating parts may overlap the level's edges but never each other.
 
 ### Phone upright
@@ -196,6 +205,7 @@ keeps its minimum height and the floating parts may overlap the level's edges bu
    (page scrolls below the level's minimum height: notes switch, title block)
 ```
 
+The top-right button is Save for someone signed in and Export for a visitor; the other one is in the pill's menu.
 The level keeps a minimum height worth touching; below it the page scrolls to the title block and the notes'
 switch. Find opens from the pill's menu and from the keyboard. Notes collapse to one chip by the picked thing that
 opens the card, so a small thing is never buried.
@@ -303,22 +313,23 @@ The path, for someone who has never been here, on any device:
 2. **The demo game's first level opens, full screen, with its real art.** No welcome page, no sign-in. One tip, in
    the touch colour, points at the crate: **"Drag the crate anywhere"**. The crate's ring gently draws itself in.
    Nothing else asks for attention; the tools, Save and the rest are there, quiet.
-3. **They drag the crate.** The notes draw themselves in as it moves, showing how far it is. When they let go the tip
-   moves to Save: **"Nice. Now press Save."**, and Save's dot says there is something to save.
-4. **They press Save.** The stamp lands. What it says and what follows depends on Q4 (see below). This is the "you did
-   it" moment: the first run is finished and stays finished on this device (`af.guide.done`).
-5. **After that, one quiet line** under the stamp offers the next thing, never a tour: for a visitor, "Sign in to
-   change your own game"; for a signed-in person, the game's page.
+3. **They drag the crate.** The notes draw themselves in as it moves, showing where it is. When they let go the tip
+   moves on. For a visitor it points at Export: **"Nice. Now press Export to keep it."** For someone signed in
+   into a game they may change, it points at Save: **"Nice. Now press Save."**
+4. **They press it.** For a visitor, the stamp **"EXPORTED"** lands with "Copied for your agent", the level's file is
+   on their clipboard (and a "Save it as a file" button sits under the stamp). For someone signed in, the stamp
+   **"SAVED"** lands with "by Sam, just now" (or "Waiting for someone to approve"). This is the "you did it" moment:
+   the first run is finished and stays finished on this device (`af.guide.done`).
+5. **After that, one quiet line** under the stamp offers the next thing, never a tour: for a visitor, Save beside it
+   reads "Sign in to save with your team"; for a signed-in person, "See your team's game".
 
 A person who does something else (a tool, the find bar, the switcher) is never blocked: the tip waits and comes back
 when they return to the level. A "Hide tips" button sits on the tip. The tip's words and its target come from facts
 on screen, as today's guide does, so it can never point at something that is not there.
 
-**Q4 (asked, not yet answered).** For a visitor the demo game cannot be saved into. The recommended answer: Save
-works without signing in, keeps the change on this device and stamps "SAVED on this device", with "Copy it for your
-agent" and "Sign in to save into your own game" under the stamp. The other options were Save asking for sign-in (as
-today) and a visitor's Save reading "Keep a copy". This section is finished with the Owner's answer before the plan
-starts.
+A visitor who presses Save instead of Export is not stopped cold: a small panel says "Save puts your change into
+your team's game, so everyone works on the same thing. Sign in with GitHub to save." with "Sign in" (main) and
+"Export instead". Their change is still on screen after signing in.
 
 ### The other first runs
 
@@ -364,7 +375,10 @@ Unchanged in what it does; restyled in what it says:
 - **Approving:** the stamp "APPROVED" with "by Sam".
 - **The file changed elsewhere:** the notice says so, plainly, and offers to see the other version or keep theirs, as
   M1 does today.
-- **A visitor:** Q4.
+- **Export (anyone, signed in or not):** the stamp "EXPORTED" with "Copied for your agent"; the file is exactly what
+  the framework's `writeContent` writes; "Save it as a file" under the stamp. Export never changes the game.
+- **A visitor's Save:** the "Sign in to save with your team" panel above; nothing is kept anywhere but the unsaved
+  draft the editors already keep.
 
 ## Testing
 

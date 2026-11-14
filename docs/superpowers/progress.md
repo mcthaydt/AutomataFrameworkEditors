@@ -13,7 +13,7 @@ stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
-| 1. Spec | Written; one Owner question (Q4) open | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
+| 1. Spec | Done (pull request 15); Q1 to Q4 answered by the Owner | [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md) |
 | 2. Plan | Not started | |
 | 3. Plan audit | Not started | |
 | 4. Execution | Not started | |
