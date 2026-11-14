@@ -65,6 +65,12 @@
     clearBox = $bindable(),
     card = $bindable(),
   }: Props = $props()
+
+  // What was just said asks for a press, so it is brought into view when it comes: on a phone it lies below the fold.
+  let saidBox: HTMLElement | undefined | null = $state()
+  $effect(() => {
+    if (saidBox) saidBox.scrollIntoView({ block: 'nearest' })
+  })
 </script>
 
 <div class="floats">
@@ -108,7 +114,7 @@
   <!-- What just happened, and the stamp. Both lie over the clear cell and out of the grid's flow, so their coming
        and going never changes a track and the level never refits under a finger. -->
   <div class="over">
-    {#if said !== undefined}<div class="said" data-said>{@render said()}</div>{/if}
+    {#if said !== undefined}<div class="said" data-said bind:this={saidBox}>{@render said()}</div>{/if}
     {#if stamp !== undefined}<div class="stamp-place"><Stamp text={stamp} /></div>{/if}
   </div>
 </div>
@@ -120,7 +126,7 @@
     inset: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(10rem, 1fr) 11rem auto 11rem;
+    grid-template-rows: auto minmax(10rem, 1fr) 16rem auto 11rem;
     grid-template-areas:
       'top top'
       'clear clear'
@@ -267,7 +273,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    max-height: calc(11rem - 2 * var(--space-2));
+    max-height: calc(16rem - 2 * var(--space-2));
     padding: var(--space-2);
     overflow: auto;
     border: 1px solid var(--words);

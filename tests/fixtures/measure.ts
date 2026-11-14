@@ -194,11 +194,12 @@ export async function broken(page: Page, stage: boolean): Promise<string[]> {
               const range = document.createRange()
               range.selectNodeContents(node)
               for (const at of range.getClientRects()) {
+                // Only the part of the level the screen shows counts: the rest is scrolled out of sight.
+                const shown = document.querySelector('.content')?.getBoundingClientRect()
+                const top = Math.max(clear.top, shown?.top ?? clear.top)
+                const bottom = Math.min(clear.bottom, shown?.bottom ?? clear.bottom)
                 const over =
-                  at.left < clear.right &&
-                  at.right > clear.left &&
-                  at.top < clear.bottom &&
-                  at.bottom > clear.top
+                  at.left < clear.right && at.right > clear.left && at.top < bottom && at.bottom > top
                 if (over) found.push(`words lie over the level: "${words.slice(0, 30)}"`)
               }
             }

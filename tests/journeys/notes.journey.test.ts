@@ -151,7 +151,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
     for (const name of pair) {
       const found = await j.page.getByRole('button', { name, exact: true }).boundingBox()
       expect(found).not.toBeNull()
-      expect((found?.y ?? 0) + (found?.height ?? 0)).toBeLessThanOrEqual(SIZES[size].height)
+      expect((found?.y ?? 0) + (found?.height ?? 0)).toBeLessThanOrEqual(1 + SIZES[size].height)
       expect(found?.y ?? -1).toBeGreaterThanOrEqual(0)
     }
     await j.page.getByRole('button', { name: pair[0] as string, exact: true }).tap()

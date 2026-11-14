@@ -428,10 +428,10 @@
     container-type: size;
   }
   /* The tools need a height of their own, or on a phone they leave the level no room at all: below it the page scrolls
-     (the screen holding this scrolls inside itself), and above it the level takes what is left. 55rem is the top panel,
+     (the screen holding this scrolls inside itself), and above it the level takes what is left. 60rem is the top panel,
      the tools row, the card and the row for what was said, with 10rem clear between them; sideways, with the card at the side, 24rem is enough. */
   .area.floating {
-    min-height: 55rem;
+    min-height: 60rem;
   }
   @container (min-aspect-ratio: 1/1) and (min-width: 36rem) {
     .area.floating {
