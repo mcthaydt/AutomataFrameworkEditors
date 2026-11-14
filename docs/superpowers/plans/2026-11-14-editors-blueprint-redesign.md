@@ -21,6 +21,10 @@ Playwright), `@automataframework/framework` pinned by commit, Cloudflare Pages F
 The mockup is the "Notes on" screen of the private notes' moodboard. The flag set and the order of languages are
 the framework's [`2026-11-14-no-default-language-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-14-no-default-language-design.md).
 
+**Plan audit:** [`audits/2026-11-14-blueprint-redesign-plan-audit.md`](../audits/2026-11-14-blueprint-redesign-plan-audit.md).
+Its findings are written into this plan, each marked `(audit I<n>)` or `(audit M<n>)`. Its Owner question Q1 blocks
+Task 7 (PRs 1 to 4 go ahead); Q2 blocks nothing until Task 19's amendment. Neither is defaulted.
+
 This plan replaces `plans/2026-11-14-editors-restyle.md`. Pull request 12 (branch `claude/project-thread-lezp37`,
 head `e0648b0`) is not merged; "from PR 12" below means `git show e0648b0:<path>`, copied and then changed only as
 the task says.
@@ -86,9 +90,14 @@ The spec leaves these to the builder. The plan audit may challenge each.
 
 1. **Shapes, by the frame's own box, not the device:** `wide` when width ≥ 1024 and height ≥ 600 (`ipadSideways`,
    `desktop`); `narrow` when width < 600 (`phone`); `mid` otherwise (`ipadUpright`, `phoneSideways`).
-2. **Room kept clear of the level** (CSS px; top, right, bottom, left): `wide` 80, 320, 88, 96; `mid` 72, 16, 88,
-   16; `narrow` 64, 8, 80, 8. The card's space on `wide` is always kept, so picking a thing never refits the level.
-   On `mid` and `narrow` the card is a bottom sheet over the level and may cover it; it pulls down to its title.
+2. **Room kept clear of the level** (CSS px; top, right, bottom, left), the least room: `wide` 80, 320, 88, 96;
+   `mid` 72, 16, 88, 16; `narrow` 64, 8, 144, 8. `Levels` measures the tools' panel and the bottom row (a
+   `ResizeObserver`) and keeps, on each side, the larger of the least room and the measured part plus 16, so a long
+   tool word in another language never covers the level (audit I1). The room changes only when the language or the
+   panels change, never when a thing is picked, a stamp lands or a notice shows. The card's space on `wide` is always
+   kept, so picking a thing never refits the level. On `mid` and `narrow` the card is a bottom sheet over the level
+   and may cover it; it pulls down to its title. On `narrow` undo and redo are their own small panel just above the
+   tools' right end, not in the tools' row, which four tools fill (audit I2).
 3. **The level's least height** is 320 px. On `narrow` the stage is as tall as the window (at least 320 px) and the
    page scrolls below it to the notes' switch and the title block.
 4. **Names in words.** A character or level has only an id. Its name in words is the id with dashes as spaces and a
@@ -110,7 +119,8 @@ The spec leaves these to the builder. The plan audit may challenge each.
     notice saying pictures are missing.
 13. **One framework addition** (Task 2): the framework's renderer draws only from a stepped sim and keeps room only
     at the bottom, so a still level fitted between four panels needs `createLevelPicture`.
-14. **Until Task 17 lands, `main` shows English only**, as it does today. Nothing is released from `main`.
+14. **Until Task 17 lands, `main` shows English only**, as it does today. Nothing is released from `main`. This holds
+    only while no site is deployed from this repo's `main`: if one is, stop and report before PR 5 merges (audit M11).
 15. **A game that has not turned the built-in hero on** still has the Play tool. Pressing it plays nothing and says
     why in one notice (`playNeedsCode`). The spec's "offers to open the game's own page" is left out: no file of a
     game names the address it is played at. If the framework's cycle adds one, Task 19's amendment adds the link.
@@ -126,6 +136,12 @@ The spec leaves these to the builder. The plan audit may challenge each.
     chosen tool stays chosen while the tools are closed, and picking a thing does not open a closed card. What is
     closed is kept on the device in `af.panels`. On `narrow`, `block` and `switch` are already in the scroll under
     the level and do not close.
+
+18. **The title block is a drawing's title block**: a 2 × 2 grid of cells (game | level, editor | saved), labels,
+    at most 72 px tall. On `mid`, when the bottom row does not fit in a language, it shows its level and saved cells
+    only, since the pill names the game and the editor (audit I2).
+19. **Tool words are at most 9 characters** in every language; a word that does not fit is translated shorter,
+    never shrunk or cut (audit I1).
 
 ## Review Focus
 
@@ -297,7 +313,10 @@ export interface LevelPicture {
   setRoom(room: Room): void
   /** Where the level is on the canvas now: `fitInRoom` of the mount's size. */
   fit(): Fit
-  /** Removes the canvas and frees Pixi and the art. Safe to call twice. */
+  /**
+   * Removes the canvas and frees Pixi and the art. Safe to call twice. The picture owns the `Art` it was given, as
+   * `createRenderer` does: never hand one `Art` to two pictures (audit I6).
+   */
   destroy(): void
 }
 
@@ -322,9 +341,11 @@ export function createLevelPicture(options: {
     `h` and `color` (compare as sets; sids are not compared), and no view more. A level with one pin and one rope
     gives one `pin` link at the pin's `x`, `y` and one `rope` link from the thing's `from` to `to`.
   - A level with a start point for players 1 and 2: two hero views whose `sprite.player` are 1 and 2.
+  - The stage's `setInset(500)` on a box 300 tall fits as `setInset(150)` does (audit I7).
 - [ ] **Step 2:** Push; `check` fails on the missing module.
 - [ ] **Step 3:** Implement. `stage.ts`: replace the single `inset` with a `Room` (`setInset(px)` stays and sets
-      `{ top: 0, right: 0, bottom: px, left: 0 }`, so every golden and picture of a running game is untouched);
+      `{ top: 0, right: 0, bottom: min(px, h / 2), left: 0 }`, keeping today's half-height limit, so every golden and
+      picture of a running game is untouched; only `setRoom` takes a room as given (audit I7));
       `room()` and `fitFor` use `fitInRoom` when there is no shot; the cover strip stays bottom only. `createStage`
       takes `keep` and passes `preserveDrawingBuffer: keep`. `still.ts` builds the views once per `show` and calls
       `stage.draw(views, links)`.
@@ -380,7 +401,8 @@ export function bytesFromBase64(base64: string): Uint8Array
 readBytes(branch: string, path: string): Promise<Answer<{ base64: string }>>
 // game/pictures.ts: one fetch per path per game, kept in memory; rejects when the API says no
 export function readPictureFor(api: Api, game: OpenGame): ReadPicture
-// game/art.ts: undefined when the level needs none; 'missing' when a picture cannot be loaded
+// game/art.ts: undefined when the level needs none; 'missing' when a picture cannot be loaded. A new `Art` on every
+// call (the bytes stay cached by readPictureFor), because each picture frees the one it is given (audit I6).
 export function loadLevelArt(api: Api, game: OpenGame, levelId: string): Promise<Art | undefined | 'missing'>
 // levels/edit.ts: what a change to a level must know about the game it is in
 export interface LevelRules {
@@ -401,14 +423,18 @@ export function openLevelPicture(options: { mount: HTMLElement; content: GameCon
 match `/^content\/[A-Za-z0-9._\/-]+\.png$/` and hold no `..`, else `bad-request`; `branch` must be the default
 branch, or (signed in) the head of an open pull of this same game, else `not-found`; the answer is the file's
 base64 as GitHub's contents call gives it, white space removed. A file over GitHub's one megabyte answers
-`not-found`.
+`not-found`. Every picture answer carries `Cache-Control: private, max-age=300`; a visitor's answer for the demo game
+on its default branch is also kept in Cloudflare's cache (`caches.default`, used only when the runtime has it, so the
+journeys' server works without it), keyed by the request's address, for five minutes. A crowd of first visits then
+costs GitHub one read per picture per five minutes, not one per visitor (audit I8).
 
 - [ ] **Step 1: The test game gets art.** Copy from AutomataFramework at Task 2's commit,
       `tests/fixtures/full-game/content/`: `figures/hero.json`, `figures/meadow.json`, `figures/tree.json`,
       `tilesets/meadow.json`, `backdrops/valley.json`, and add a new `figures/crate.json` (copy the template's
       `template/content/figures/crate.json`). `hero.json` and `crate.json` characters gain `"figure"`. `level-1.json`
       gains `"tileset": "meadow"`, `"backdrop": "valley"` and the full game's rows of tiles, keeping `crate-1` at
-      6.5, 7.5 and the start at 2.5, 7.5 so every existing journey's numbers hold. List each file in
+      6.5, 7.5 and the start at 2.5, 7.5 so every existing journey's numbers hold. Copy the tiles, not the full
+      game's `view`: the editors fit a level whole (audit M12). List each file in
       `automata.toml`. Every file is written by `writeContent` (a throwaway `node` script; do not hand-format).
       Add a second fixture, `tests/fixtures/plain-game/`, which is today's game unchanged (boxes), served by the
       pretend GitHub as `grandma/plain-game`.
@@ -419,7 +445,9 @@ base64 as GitHub's contents call gives it, white space removed. A file over GitH
 - [ ] **Step 3: Failing tests.**
   - `picture.test.ts`: a visitor reads `content/figures/hero.png` of the demo game on its default branch; a visitor
     asking any other game is `not-found`; `path=../secret.png`, `path=src/main.ts` and `path=content/a.json` are
-    `bad-request`; a branch that is no open pull's head is `not-found`; the pretend GitHub was asked exactly once.
+    `bad-request`; a branch that is no open pull's head is `not-found`; the pretend GitHub was asked exactly once;
+    a good answer has `Cache-Control: private, max-age=300`; with a stand-in `caches.default`, a second visitor's ask
+    for the same demo picture does not reach the pretend GitHub (audit I8).
   - `pictures.test.ts`: `readPictureFor` asks the API once for two reads of one path; rejects when the API answers
     a problem; the Blob's bytes equal the fixture's.
   - `place.test.ts`: `solidOf` for a level with the `meadow` tileset says `G` is solid and `.` is not; for a level
@@ -431,7 +459,8 @@ base64 as GitHub's contents call gives it, white space removed. A file over GitH
     crate's pixel moved.
   - `real-art.journey.test.ts` (five sizes): a visitor opens the demo level; the canvas pixel at the middle of
     `[data-thing="crate-1"]` is not the sky's color and not `#c9a227`; dragging the crate 2 tiles right moves that
-    picture; the request list holds `GET /api/picture` for each picture once; no rule was refused.
+    picture; the request list holds `GET /api/picture` for each picture once; no `.wasm` file was fetched (the first
+    visit loads no physics, audit M8); no rule was refused.
 - [ ] **Step 4:** Push; the new tests fail, the old ones pass.
 - [ ] **Step 5:** Implement. `Levels.svelte` keeps its present frame and behavior in this task and only swaps its
       canvas: it mounts `openLevelPicture`, calls `show(edit.now)` in the effect that redrew before, and takes its
@@ -482,15 +511,13 @@ base64 as GitHub's contents call gives it, white space removed. A file over GitH
       finds. `tokens.test.ts` allows a `var()` alias and still fails a second literal color.
 - [ ] **Step 3: Tests** (they come with the files; make these changes): `tokens.test.ts` expects 3 px corners and
       0.07em; a new case, "a panel is raised at 94% with a 10 px blur and a 35% edge", reads `Panel.svelte`'s
-      computed style in `ui.browser.test.ts`; `measure.ts`'s `SIZES` loop covers five sizes; `screens.journey`'s
-      size list becomes all five.
+      computed style in `ui.browser.test.ts`; `measure.ts`'s `SIZES` loop covers five sizes.
 - [ ] **Step 4:** US spelling in shown words: `git grep -n -i -E "colour|organis|centre|grey|cancell|licence" src/features/words`
       and change each hit in a shown string (none expected in strings on 2026-11-14; the comment at
       `noticeInfo` becomes "color").
-- [ ] **Step 5:** Push. Expected: green; the screens journey may now fail its measures on old screens at the two
-      new sizes. Fix a real overlap; where an old screen that Tasks 7 to 16 replace fails only at
-      `phoneSideways`, skip that one scene at that one size with a comment naming the task that replaces it. List
-      every such skip in the report; Task 18 fails if one is left.
+- [ ] **Step 5:** Push. Expected: green. `SIZES` names all five, but the old screens' journey keeps the three sizes
+      it runs today: no scene is skipped. Each later task runs the screens it builds at all five sizes, and Task 18
+      runs every scene at five (audit I9).
 - [ ] **Step 6:** Commit (`feat: the editors' six colors, three fonts and icons`), review pictures, report `Task 4`.
 
 ### Task 5: Words as a table, read through one reactive `WORDS`
@@ -528,7 +555,9 @@ export const APP_ON_GITHUB = 'Automata Framework Editors'
 export const WORDS: Words   // TABLES.en, for tests that look a button up by its English name
 ```
 
-`WORDS` is a `Proxy` over a `$state` language: `get(_, key) => TABLES[current][key]`. `appName` becomes
+`WORDS` is a `Proxy` over a `$state` language: `get(_, key) => TABLES[current][key]`. A test-only
+`useTables(tables)` (reached only through `tests/fixtures/words.ts`, never called by `src/`) swaps the table map, so
+a browser test can mount a screen in a made-up table; Task 7's "long" table uses it (audit M10). `appName` becomes
 "Automata Framework editors"; `blockedOwner` names `APP_ON_GITHUB`; `service/save.ts` writes
 `Made with ${APP_ON_GITHUB} by ${who.login}.`.
 
@@ -611,6 +640,10 @@ from level-1"; one retype "Make crate-1 a spark in level-1"; any mix "Change lev
 
 ### Task 7: The frame: the level fills the window, the pill, the cluster, the tools, undo and redo
 
+**Waits for the Owner's answer to the plan audit's Q1** (how big the level is on a phone held upright: as planned,
+a taller level that slides, or pinch to zoom). If the answer is B or C, a short amendment to this task, written and
+audited before it starts, adds the gesture to `Stage` and its tests. PRs 1 to 4 do not wait.
+
 **Files:**
 - Create: `src/features/levels/layout.ts`, `src/features/levels/Stage.svelte`
 - Create: `src/features/ui/Menu.svelte`, `src/features/ui/TitleBlock.svelte`, `src/features/ui/Sheet.svelte`
@@ -632,7 +665,8 @@ from level-1"; one retype "Make crate-1 a spark in level-1"; any mix "Change lev
 // layout.ts
 export type Shape = 'wide' | 'mid' | 'narrow'
 export function shapeOf(box: Size): Shape          // ruling 1
-export function roomFor(shape: Shape): Room         // ruling 2
+export function roomFor(shape: Shape): Room         // ruling 2: the least room
+export function roomWith(least: Room, measured: Partial<Room>): Room   // the larger on each side, plus 16 (audit I1)
 export const LEAST_LEVEL_HEIGHT = 320
 // ui/panels.ts: which parts are closed (ruling 17), kept in `af.panels` as a JSON list of names
 export type PanelName = 'tools' | 'card' | 'block' | 'switch'
@@ -658,7 +692,8 @@ Frame.svelte   props: game?: string, level?: string, onhome?(), editors: boolean
                cluster: Snippet<[Shape]>, children: Snippet<[Shape]>
                `data-frame`, `data-shape`; measures its own box; never taller than the window on wide and mid.
 Menu.svelte    props: label, icon?, items: readonly MenuItem[]   MenuItem = { id, label, icon?, tag?, onpress }
-TitleBlock     props: game, level, editor, saved   (four lines, labels; `data-part="block"`)
+TitleBlock     props: game, level, editor, saved, compact?   (a 2 × 2 grid of label cells, at most 72 px tall;
+               `compact` shows the level and saved cells only; `data-part="block"`; ruling 18)
 Sheet.svelte   props: title, open (bindable), children   a bottom sheet that pulls down to its title (`data-part="sheet"`)
 ```
 
@@ -668,11 +703,11 @@ Sheet.svelte   props: title, open (bindable), children   a bottom sheet that pul
 |---|---|---|---|
 | pill | top left: game name, level name (the `h1`), then the five editors in a row | top left: level name and "World", opens `Menu` | the same as `mid` |
 | cluster | top right: Find, person, language (Task 17), Export, Share, Save | top right: Find, person, Save (a visitor: Export) | top right: Save (a visitor: Export) |
-| tools | left edge, a column, centered | bottom left, a row | bottom, a row, with undo and redo at its right |
+| tools | left edge, a column, centered | bottom left, a row | bottom, a row the full width (undo and redo float just above its right end) |
 | card | right, under the cluster, 296 px wide | `Sheet` over the tools | `Sheet` over the tools |
 | switch (Task 9) | bottom left | bottom row, after the tools | in the scroll below the level |
 | block | bottom right, left of undo | bottom row, before undo | in the scroll below the level |
-| undo, redo | bottom right corner | bottom right | in the tools' row |
+| undo, redo | bottom right corner | bottom right | their own panel, just above the tools' right end (audit I2) |
 
 The pill's `Menu` on `mid` and `narrow` holds: the five editors, "Open the game's page", Share (who may), Export
 or Save (whichever the cluster does not show), Find (`narrow`), Sign in or Sign out. On `wide` pressing the game's
@@ -698,7 +733,11 @@ sheet down to nothing but its handle); block and switch where they were. The nam
 
 - [ ] **Step 1: Failing tests.**
   - `layout.test.ts`: `shapeOf` of the five sizes is narrow, mid, mid, wide, wide; of 1024 × 599 is mid; `roomFor`
-    returns ruling 2's numbers; for each size the clear cell is at least 160 px tall and half the shorter side wide.
+    returns ruling 2's least numbers; `roomWith(least, measured)` keeps the larger on each side; for each size the
+    clear cell is at least 160 px tall and half the shorter side wide.
+  - `levels.browser.test.ts`, "long words": with a test table whose every string is the English one 40% longer
+    (`useTables`), at each of the five sizes, `broken` is empty, the tools keep 56 px, the room on the tools' side
+    grew to fit them, and `data-scale` is the same before and after a pick (audit I1).
   - `stage.browser.test.ts`: the canvas is as big as the stage; `[data-clear]` equals the stage less `room`; every
     `[data-thing]` lies inside it; a touch drag of `crate-1` by 2 tiles calls `ondrag` with x 8.5; a second finger
     cancels; `mode="read"` ignores a drag; the canvas's `toDataURL()` is the same before and after `picked` is set
@@ -794,17 +833,22 @@ What it draws, all page elements in the stage's layer, none on the canvas:
   joint (`data-note="joint"`). A measure chip calls `onask` with its side (the card marks that row; on `mid` and
   `narrow` the sheet opens); the name chip calls `onask('card')`.
 - **`compact`:** only the name chip, which opens the card.
-- **The switch** (`data-part="switch"`, in `Levels`): one button, `WORDS.notesSwitch` and its state word; each press
-  steps on, faded (the layer at 35%), hidden. Kept in `af.notes`.
+- **The switch** (`data-part="switch"`, in `Levels`): one button, as the mockup draws it: a small three-position
+  knob (right for on, middle for faded, left for hidden; `--touch` track when on), then `WORDS.notesSwitch` and its
+  state word; each press steps on, faded (the layer at 35%), hidden. Kept in `af.notes` (audit M2).
 - **Motion:** the layer's children have `animation-name: draw` when a thing is picked (200 ms) and `fade` under
-  reduced motion.
+  reduced motion. An undo rubs the last notes out: the layer has `animation-name: rub` (200 ms) as the undone
+  version's notes leave, `fade` under reduced motion (the spec's "undo rubs the last note out", audit M3).
+- **The name chip** goes where `notesFor`'s `block` says (its first side that fits in the clear cell), joined to the
+  thing by its leader; the notes have no other block (audit M7).
 
 - [ ] **Step 1: Failing tests.**
   - Node: the grid's stroke pair on `#9fd3f0` (the framework's sky) and on `#253122` each reach 1.5 to 1 against
     the color behind (`contrast` and `mix`).
   - Browser: with `crate-1` picked, the left chip reads "FROM THE LEFT 6.5 TILES" and its line runs from the
-    level's left edge to the crate's middle (within 1 px of `fit`); after a move the number is the file's; the
-    block of notes lies inside `[data-clear]` on every side at each of the five sizes; the canvas's `toDataURL()`
+    level's left edge to the crate's middle (within 1 px of `fit`); after a move the number is the file's; every
+    chip lies inside `[data-clear]` on every side at each of the five sizes; after a move then Undo, the layer's
+    `animation-name` is `rub`; the switch's knob is right, middle and left in its three states; the canvas's `toDataURL()`
     is identical with the notes on, faded and hidden, and with a thing picked or not; a chip is a button at least
     44 px tall; pressing "FROM THE TOP" gives the card's second row `data-asked`; `compact` shows one chip; a store
     that throws leaves the notes on and the switch working.
@@ -872,13 +916,14 @@ export interface WireFile { readonly path: string; readonly text: string; readon
   /** For a level file: who changed it last and when (milliseconds). Left out when GitHub does not say. */
   readonly last?: { readonly by: string; readonly at: number } }
 // repo.ts, on Repo: GET /repos/{owner}/{repo}/commits?sha={branch}&path={path}&per_page=1
+// `by` is the commit's `author.login`, else `commit.author.name` (a save's author name is the person's login, audit M5)
 lastChange(branch: string, path: string): Promise<Answer<{ by: string; at: number } | undefined>>
 // format.ts
 export function ago(language: Language, then: number, now: number): string   // Intl.RelativeTimeFormat; under 45 s is WORDS.justNow
 ```
 
 `Stamp` props: `word: string`, `line?: string`, `children?: Snippet` (what sits under it). It is a `.label` word in
-a 2 px `--mark` edge on `--ground`, turned 4 degrees, `animation-name: land` (`fade` under reduced motion),
+a 3 px `--mark` edge on `--ground`, turned −8 degrees as the mockup's is (audit M4), `animation-name: land` (`fade` under reduced motion),
 `data-stamp`, `data-part="stamp"`, placed top center of the frame, over the level, and it never moves the level.
 It is announced once through a `role="status"` sentence beside it. `Notice` becomes a `Panel` under the cluster
 (`data-part="notice"`, an olive edge for a problem) with one sentence on what happened, one on what to press, and
@@ -891,7 +936,7 @@ What each press does:
 | Save | Edit, Owner | stamp `stampSaved` with `stampBy(name, justNow)`; the title block says `blockSavedBy`; under the stamp the link `seeTeamGame` (first save on this device only) |
 | Save | Suggest, Approve | stamp `stampSaved` with `stampWaiting` |
 | Save | a visitor | the notice `saveWhy` with Sign in (main) and `exportInstead`; the change stays on screen through the sign-in (the draft, as today) |
-| Export | anyone | the level's `writeContent` text goes to the clipboard; stamp `stampExported` with `stampCopied`; under it the button `copyKeep` ("Save it as a file"); never calls `/api/save` |
+| Export | anyone | the level's `writeContent` text goes to the clipboard; stamp `stampExported` with `stampCopied`; under it the button `copyKeep` ("Save it as a file") and, for a visitor, on every shape, a quiet link `saveTeam` that opens the sign-in panel (audit I5); never calls `/api/save` |
 | Export, clipboard refused | anyone | the same stamp with the line `copySelect`, and the text in a selected box in a notice |
 | the file changed elsewhere, offline, busy, blocked, broken | signed in | today's sentences, as a problem notice with today's buttons |
 | the pill's game name or "Open the game's page" with unsaved changes | anyone | `Leave`: `leaveAsk`, Stay (main), Leave |
@@ -909,7 +954,8 @@ over the level the person was on (`App.svelte` no longer swaps the screen for `W
       a visitor's Save shows the panel with exactly one main button, "Export instead" exports; a visitor signs in
       from the panel and the moved crate is still moved; Export puts text on the clipboard equal to the fixture
       file with the move applied (Chromium and WebKit read the clipboard; Firefox takes either the stamp or the
-      selected box), and `POST /api/save` is not in the request list; "clipboard refused" (the page's
+      selected box), and `POST /api/save` is not in the request list; a visitor's stamp holds the `saveTeam` link at
+      every size and it opens the sign-in panel; "clipboard refused" (the page's
       `navigator.clipboard.writeText` replaced by one that rejects): the box holds the text and is selected; "Save
       it as a file" downloads `level-1.json`; each save problem shows its notice with the level visible behind and
       nothing overlapping; leaving with a change asks, Stay keeps it, Leave goes to the game's page.
@@ -957,6 +1003,12 @@ over another part, with a `WORDS.tipsHide` button; it re-reads the target's box 
 throw) if the target is not on screen, as when a menu or the find bar is open. A tip whose target is in a closed
 panel (ruling 17) points at that panel's handle instead; `guide.test.ts` has the case for Add.
 
+**The arrival ring** (the spec's "the crate's ring gently draws itself in", audit I3): while the tip is at `drag`, its
+target thing has the picked ring's dashed `--touch` outline with `animation-name: draw` (`fade` under reduced
+motion), as `data-hinted`, without being picked, so no card opens. **The sheet waits** (audit I4): while the tip is at
+`drag` or `keep`, picking a thing on `mid` and `narrow` brings the card's sheet up pulled down to its title only; a
+press on the title opens it as usual. On `wide` the card shows as always (it has its own room).
+
 **The address with nothing after it:** signed out with a demo game: the demo's first level, at once, in the level
 screen (no welcome page, no redirect, the address stays). Signed out with no demo game: the frame with one
 `SignInPanel`. Signed in: your games (Task 15). An address that matches nothing: `none` (Task 16's screen; until
@@ -973,9 +1025,11 @@ Look level: the tools' panel holds one line, `WORDS.lookLine(owner)`, and nothin
       `#/nonsense` is `none`, `#/` is `games`, `#/game/a/b/level` is the first level. Journeys (five sizes, three
       engines): **a visitor's first visit**: one navigation to the site's address shows `[data-scale]` and the tip
       "Drag the crate anywhere" with no click; no element with the old welcome's words exists; `[data-part="tip"]`
-      overlaps no other part and its pointer is within 24 px of the crate; dragging the crate changes the tip to
+      overlaps no other part and its pointer is within 24 px of the crate; the crate has `data-hinted` and a dashed
+      ring with `animation-name: draw`, and nothing is picked; on `mid` and `narrow` the drag leaves the sheet at its
+      title only; no `.wasm` file was fetched (audit M8); dragging the crate changes the tip to
       "Nice. Now press Export to keep it." beside Export; pressing Export shows "EXPORTED", "Copied for your
-      agent", and Save reading "Sign in to save with your team" (on `wide`; in the menu elsewhere); a reload shows
+      agent", and "Sign in to save with your team" under the stamp at every size (and as Save on `wide`); a reload shows
       no tip; the whole run is one drag and one press. **Signed in, a game you may change:** drag, "Nice. Now
       press Save.", Save, "SAVED". **Hide tips** ends them for good. **Doing something else** (open the find bar
       or a menu) hides the tip, and closing brings it back. **A link to a team's game, signed out:** the panel,
@@ -1105,18 +1159,23 @@ opens the menu with Sign out. Save shows the same faces inside its button on `wi
 - Produces:
 
 ```ts
-// thumbs.ts: one hidden level picture, shared; each ask is drawn in turn and copied to the asker's 2D canvas
-export function drawThumb(target: HTMLCanvasElement, ask: { content: GameContent; level: Level; art: Art | undefined }): Promise<void>
+// thumbs.ts: one hidden level picture, shared; each ask is drawn in turn and copied to the asker's 2D canvas. The
+// picture is made again (destroyed, then created) whenever the next ask's size, tileset or backdrop differs, one at a
+// time, so never more than one hidden context; its mount is laid out off screen at the thumb's own pixel size
+// (a `display: none` mount has no size, and the framework draws nothing until it has one). Each picture frees its own
+// art, so an ask brings a loader, never an `Art` another picture holds (audit I6).
+export function drawThumb(target: HTMLCanvasElement, ask: { content: GameContent; level: Level; art: () => Promise<Art | undefined | 'missing'> }): Promise<void>
 ```
 
-`Thumb` props: `content`, `level`, `art`, `grid?: boolean` (default true: the same stroke-pair grid as the notes,
+`Thumb` props: `content`, `level`, `art` (a loader, as `drawThumb` takes), `grid?: boolean` (default true: the same stroke-pair grid as the notes,
 drawn as an SVG over the 2D canvas), `marks?` (Task 16). 16:9, the level fitted with no room.
 
 - **Your games** (`Frame` with no level; the pill reads `WORDS.gamesTitle`): a wall of title-block cards, as many
   across as fit at 280 px each: a `Thumb` of the game's first level, the game's name (Fraunces), its faces, and
   `waitingRow(n)` when n > 0. Each card is one link. A game opens lazily (its card shows the ground and its name
   until its files arrive; at most three opens at once). The last card is `WORDS.addAnother` (with no games:
-  `WORDS.addCardTitle`, `WORDS.addCardLine`, one main button). A game that cannot be reached or is not a game is a
+  `WORDS.addCardTitle`, `WORDS.addCardLine`, a picture of what will happen (a `Thumb` of the demo level with a
+  "SAVED" stamp over it, the spec's "with a picture of what will happen", audit M6), one main button). A game that cannot be reached or is not a game is a
   card with its plain sentence and one button. The find field of the old list is gone; the find bar lists
   `open-game:<owner>/<name>` for each.
 - **A game's page:** the game's first level fills the frame behind, drawn by `Stage` in `mode="read"` at 35%
@@ -1129,7 +1188,9 @@ drawn as an SVG over the 2D canvas), `marks?` (Task 16). 16:9, the level fitted 
   is a level; `waitingNone` when empty. A back button returns to the game's panel.
 
 - [ ] **Step 1: Failing tests.** Browser: 12 `Thumb`s on one page all show the level (a non-sky pixel where the
-      ground is) and `document.querySelectorAll('canvas')` holds no more than 2 WebGL canvases. Journeys (five
+      ground is) and `document.querySelectorAll('canvas')` holds no more than 2 WebGL canvases; with a `Stage` of the
+      same level open beside them, the `Stage`'s crate pixel is still the crate's after the thumbs are drawn and
+      their picture destroyed (audit I6); thumbs of two games with different tilesets both draw. Journeys (five
       sizes): the wall shows the fixture's games as cards with pictures; the first card opens the game's page,
       whose first level card opens the level; each access level sees only what it may (Look: no Share, no waiting
       link; Suggest: its own waiting change; Approve, Edit, Owner as today's `game-*` scenes); can't-reach shows
@@ -1217,9 +1278,14 @@ export const LANGUAGES = ['zh', 'es', 'en', 'pt', 'ru', 'ja', 'ko', 'de', 'fr'] 
 export type Language = (typeof LANGUAGES)[number]
 export const LANGUAGE_NAMES: Readonly<Record<Language, string>>   // 中文, Español, English, Português, Русский, 日本語, 한국어, Deutsch, Français
 export const LANGUAGE_TAGS: Readonly<Record<Language, string>>    // zh-Hans, es-MX, en-US, pt-BR, ru, ja, ko, de, fr
+// (the framework gives `en` and `es`; the editors follow the flags, audit M9)
 /** The language this team writes the editors' words in. A fact for checks; no code reads it as a fallback. */
 export const SOURCE: Language = 'en'
-/** The first of the device's tags that is one of the nine (`pt-PT` is pt, `zh-TW` is zh), or undefined. */
+/**
+ * The first of the device's tags that is one of the nine (`pt-PT` is pt, `zh-TW` is zh), or undefined. Tags are read
+ * as the framework's `matchLanguage` reads them: what follows a `.` is dropped, `_` is `-`, and a bad tag finds nothing
+ * (audit M9).
+ */
 export function matchLanguage(tags: readonly string[]): Language | undefined
 /** `own` first, then the fixed order with nothing else moved. */
 export function listFor(own: Language | undefined): readonly Language[]
@@ -1265,14 +1331,16 @@ export const FLAGS: Readonly<Record<Language, string>>   // the SVG text
   - `languages.test.ts`: the order; `matchLanguage(['fr-CA', 'en'])` is `fr`; `['nl', 'sv']` is undefined;
     `['zh-TW']` is `zh`; `['pt-PT']` is `pt`; `listFor('ko')` starts `ko, zh, es, en, pt, ru, ja, de, fr`.
   - `tables.test.ts`: for every language, every key of `EN` exists, is the same kind (string or function), is not
-    empty, and a function called with marker arguments (`'§1'`, `7`) returns a string holding each marker; no
+    empty, and a function called with marker arguments (`'§1'`, `7`) returns a string holding each marker, but for
+    the keys in `MAY_DROP = ['tipDrag', 'cmdAdd']`, which may leave the name out ("Drag this anywhere", the tip's
+    pointer naming it: a character's name is an English id from the game's files, audit I10); no
     table holds a banned word (`tests/fixtures/banned.ts` gains, per language, its own words for repo, commit,
     branch, pull request and token: es `repositorio`, `rama`; pt `repositório`, `ramificação`; fr `dépôt`,
     `branche`, `jeton`; de `Repository`, `Zweig`; ru `репозиторий`, `коммит`, `ветка`, `токен`; ja `リポジトリ`,
     `コミット`, `ブランチ`, `トークン`, `プルリクエスト`; ko `저장소`, `커밋`, `브랜치`, `토큰`; zh `仓库`, `提交`,
     `分支`, `令牌`); no English table value has a UK spelling (`colour`, `centre`, `organis`, `cancelled`,
-    `favourite`, `grey`); the words of the four tools and three stamps are at most 12 characters in every
-    language; a table other than `EN` equals `EN` in at most 10% of its string values (names like "GitHub").
+    `favourite`, `grey`); the words of the four tools and three stamps are at most 9 characters in every
+    language (ruling 19); a table other than `EN` equals `EN` in at most 10% of its string values (names like "GitHub").
   - `no-default.test.ts`: no file under `src/` but `languages.ts`, `en.ts` and `words.svelte.ts`'s table map holds
     the string `'en'`; `index.html` has no `lang` attribute (the page sets it); no `?? 'en'` or `|| 'en'` anywhere.
   - `flags.test.ts`: nine files, each parses as SVG with that `viewBox`, has no `style`, `class`, `script`, `href`
@@ -1348,9 +1416,16 @@ export const FLAGS: Readonly<Record<Language, string>>   // the SVG text
 
 **The two gaps** (the only things this task leaves open, because the framework has not decided them):
 
-- **G1:** how a game's files say the built-in hero is on. It decides the body of `canPlay`.
-- **G2:** the framework's call that plays content in an element with the built-in hero's keys and touch buttons.
-  It decides the body of `startPlay`.
+- **G1:** how a game's files say the built-in hero is on. The hero spec (AutomataFramework PR 91, merged) decides
+  it: the project's `hero` character has `moves`. So `canPlay` is
+  `content.characters[content.project.hero]?.moves !== undefined`; the amendment only checks plan H kept that name
+  (audit I11).
+- **G2:** the framework's call that plays content in an element with the built-in hero's keys, gamepad and thumb
+  scheme. It decides the body of `startPlay`. The amendment also settles, with the framework's real API: which
+  language the game's hints speak (the plan audit's Q2, the Owner's answer); how the game's language is chosen, since
+  the framework's game start refuses to begin before one is (plan W); and how a touch on Stop never starts a walk,
+  since on a sideways phone and a tablet the thumb scheme's halves cover the game and Stop sits over the left half
+  (audit I11).
 
 Everything else is decided here.
 
@@ -1396,13 +1471,15 @@ for every level of every game, at Look level too: there it is the one button bes
   - `rules.test.ts`: a file that imports `levels/play.ts` with a plain `import` fails; `await import` passes.
   - `commands.test.ts`: `play` is in the list at every level, Look included, right after `erase-tool` where
     there are tools.
-  - `play.browser.test.ts` (three engines): after `startPlay` on the fixture level, holding the framework's
-    "right" key for one second moves the hero's picture to the right; `stop()` twice is safe and leaves the
+  - `play.browser.test.ts` (three engines): after `startPlay` on the fixture level, holding the `right` action's
+    key for one second moves the hero's picture to the right; `stop()` twice is safe and leaves the
     mount empty.
   - `play.journey.test.ts` (five sizes, three engines): drag the crate into the air and press Play: no
     `[data-note]`, no `[data-part="tools"]`, no `[data-part="card"]`; Stop is at least 48 px and overlaps nothing;
-    the crate falls (two pictures half a second apart differ); on the touch sizes a press on the framework's
-    right button moves the hero, on desktop the key does; Stop: the crate's `data-y` is the dragged one, it is
+    the crate falls (two pictures half a second apart differ); on the touch sizes the built-in hero's thumb scheme
+    plays it (a thumb put down on the left half and slid right walks the hero right; a tap on the right half jumps
+    it), on desktop the keys do; a touch on Stop stops and does not walk the hero; the hero spec's own case, "Play on
+    the demo level by thumbs at iPad size", is the `ipadSideways` run (audit I11); Stop: the crate's `data-y` is the dragged one, it is
     still picked, Undo is still enabled and `data-scale` is unchanged; Escape does the same; a Look-level person
     can Play and Stop; in `plain-game`, Play shows the notice, `data-scale` and the first thing's box do not
     change, and OK closes it; nothing was saved by any of it (the pretend GitHub got no write).
@@ -1475,7 +1552,7 @@ their last use (the words-used test names them).
 | `seeTeamGame` | See your team's game |
 | `saveWhy` | Save puts your change into your team's game, so everyone works on the same thing. Sign in with GitHub to save. |
 | `exportInstead` | Export instead |
-| `tipDrag(name)` | Drag the {name, lower case} anywhere |
+| `tipDrag(name)` | Drag the {name, lower case} anywhere (other languages may say "Drag this anywhere": `MAY_DROP`) |
 | `tipAdd` | Press Add to put something in the level. |
 | `tipExport` | Nice. Now press Export to keep it. |
 | `tipsHide` | Hide tips |
@@ -1538,11 +1615,12 @@ the notice).
   7, 9 pixel tests); no dead button (Task 7's Coming soon cards, Task 18's rules); no default language (Task 17);
   no page of words first (Task 12); nothing under 44 px (`broken`). "What happens to PR 12": Tasks 4, 6, 9, 18.
   The spec's Paint and "How heavy" are non-goals and appear only as `cardLater`.
-- **Gaps the spec left, closed here:** rulings 1 to 16. **Added after the spec, by the Owner:** ruling 17 (panels that
+- **Gaps the spec left, closed here:** rulings 1 to 16, and 18 and 19 from the plan audit. **Added after the spec, by the Owner:** ruling 17 (panels that
   close and open). **Open:** the two named gaps of Task 19, which only the
   framework's cycle can close.
 - **Where this plan differs from the spec, and why:** the card has no "what it is" line (the format has no such
   field: ruling 4); Play comes last, after a framework cycle, and offers no link to a game's own page (the Owner's answer and
   ruling 15); the picker
   puts the person's own language first when one is known (the framework's language spec, which this spec defers
-  to for the flag table).
+  to for the flag table); faces are `data:` pictures, which the spec's constraints rule out ("no `data:` address")
+  but the page's header already allows for pictures, and only faces use it (ruling 7, audit M1).
