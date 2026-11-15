@@ -33,7 +33,7 @@ with the other hand, feel the hero change on the next jump, and see on the level
 | Q1 | How does a person feel a change to the move numbers? | **A.** They play the real level, and a slider changes the hero while they play. The jump is drawn on the level as a drawing note ("Reaches 3 tiles up, 5 across") that redraws as a number moves. |
 | Q2 | Dust, shake and freeze need the framework's feel runtime, which nobody had planned. | **A.** The framework's plan F (the feel runtime) goes first, in its own thread. Feel builds the move numbers and the controls first, and the effects after plan F is merged. |
 | Q3 | Where do the move switches (double jump, wall jump, dash) live? | **B** (the Owner changed this from A: "we're using ECS and double jump wall jump seem like components so shouldn't they be under characters?"). They are on the character, so they live in **Characters**. Feel shows the numbers only for the moves that are on, with "Turn on in Characters" for the rest. |
-| Q4 | A new effect is a new feel file, which `automata.toml` must list. May Feel add that line? | **A.** The save that adds an effect also adds that file's `[[content]]` entry to `automata.toml`, and touches nothing else in it. An agent does exactly the same by hand. |
+| Q4 | A new effect is a new feel file, which `automata.toml` must list. May Feel add that line? | **Changed by the Owner, 2026-11-15** (first A: a line per effect). `automata.toml` lists the effects folder once, the way Sound's folders are listed (`{ type = "feel", folder = "content/feel" }`), and every feel file in it is the game's. Adding or removing an effect then changes no line there. An agent does exactly the same by hand. |
 
 ## What Feel edits, and what it only reads
 
@@ -42,7 +42,7 @@ with the other hand, feel the hero change on the next jump, and see on the level
 | The hero's **tuning file** (`moves.tuning` on the project's `hero` character) | Writes its `numbers` (the eighteen built-in ids and any of the game's own) and its `controls`. |
 | **Feel files** (`content/feel/*.json`: `on`, `dust`, `shake`, `freeze`, `buzz`) | Writes them in Part 3, after plan F. |
 | The hero's **character file** | Reads only: whether it has `moves`, its `tuning` id, and which of `double-jump`, `wall-jump` and `dash` are on. Never writes it (Q3). |
-| `automata.toml` | Only in Part 3: adds or removes one feel file's `[[content]]` entry, and nothing else (Q4). |
+| `automata.toml` | Only in Part 3, and at most once in a game's life: adds the one entry that lists the effects folder when the game has none, and nothing else (Q4). |
 | The **level** | Reads only, to play it. Feel never moves a thing in a level; that is World. |
 
 Nothing else. Feel never shows or touches a game's code, and keeps nothing anywhere but the files (and the unsaved
@@ -193,7 +193,7 @@ ticks is a second) with two decimals and a short word; tiles a second as "tiles 
 | Move | id | What the slider says | Shown as |
 |---|---|---|---|
 | Walk | `walk-speed` | How fast it walks | 6 tiles a second |
-| Walk | `walk-grip` | How quickly it gets going and stops | 0.05 seconds; 0 says "At once" |
+| Walk | `walk-grip` | How fast it starts and stops | 0.05 seconds; 0 says "At once" |
 | Walk | `air-grip` | How quickly it turns in the air | 0.10 seconds; 0 says "At once" |
 | Jump | `jump-speed` | How high it jumps | 12, with the note's height beside it ("3 tiles") |
 | Jump | `jump-cut` | Let go early to jump lower | 1 says "Off", else "Keeps half", "Keeps a third" … as a share |
@@ -205,7 +205,7 @@ ticks is a second) with two decimals and a short word; tiles a second as "tiles 
 | Wall jump | `wall-slide-speed` | How fast it slides down a wall | 3 tiles a second |
 | Wall jump | `wall-jump-out` | How far a wall jump pushes away | 7 tiles a second |
 | Wall jump | `wall-jump-up` | How high a wall jump goes | 11, with its height |
-| Wall jump | `wall-jump-lock` | How long it keeps away from the wall | 0.13 seconds |
+| Wall jump | `wall-jump-lock` | How long it stays off the wall | 0.13 seconds |
 | Dash | `dash-speed` | How fast a dash goes | 18 tiles a second, with its length |
 | Dash | `dash-ticks` | How long a dash lasts | 0.17 seconds, with its length |
 | Dash | `dash-rest` | Wait before the next dash | 0.50 seconds |
@@ -282,10 +282,12 @@ Built only once plan F is merged to the framework's `main` and the editors' pin 
   Buzz plays on the device when it can and says "Buzz: strong, 0.07 seconds" when it cannot. Reduced motion on the
   device shows the framework's still form, as the game does.
 - **Adding an effect** writes a new feel file, `content/feel/<id>.json`, its id from the event ("hero-landed", with
-  "-2" and up when taken), and the same save appends its two-line `[[content]]` entry (`type = "feel"`, its `path`)
-  to the end of `automata.toml`, changing no other byte there (Q4). **Removing** one deletes the file and that entry
-  in one save. This is the one place an editor writes `automata.toml`; the plan changes this repo's `CLAUDE.md` rule
-  ("writes only the content files `automata.toml` lists") to say so.
+  "-2" and up when taken), in the effects folder `automata.toml` lists (Q4, as the Owner changed it); the file being
+  there is what makes it the game's. **Removing** one deletes the file. Neither changes `automata.toml`. Only a game
+  that lists no effects folder yet gets one write there, with its first effect: the `[[content]]` entry for
+  `content/feel` (`type = "feel"`, its `folder`), appended at the end, changing no other byte. That is the one place
+  an editor writes `automata.toml`; the plan changes this repo's `CLAUDE.md` rule ("writes only the content files
+  `automata.toml` lists") to say so. Folders in `automata.toml` come from the framework's sound formats cycle.
 
 ## The first run
 
