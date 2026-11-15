@@ -22,20 +22,17 @@
 <!-- World, Scenes, mid-project: painting flowers with a Pencil. The Pencil hovers and the brush's outline shows at its real
      size, in the flowers' pink, before it touches; pressing harder paints more flowers (How many does the same
      for a Pencil with no pressure); a finger on the scene slides the view, so nothing is painted by accident. The brush's own settings sit just above
-     the toolbar, the hero and the crate are faint (they belong to Levels), the Library is open on clumps, dashed frames show what a phone and a computer see, and the day
+     the toolbar, the hero and the crate are faint (they belong to Levels), the Library is open on clumps, the frames that show what each screen sees are off (they are a switch in Show), and the day bar shows only with the Light tool, so the day
      can be played through. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
       <div class="veil" style="left:12.4%;top:72.6%;width:6.3%;height:11.2%" title="The hero, faint: it belongs to Levels"></div>
       <div class="veil" style="left:37.2%;top:73.6%;width:6.8%;height:10.2%" title="The crate, faint: it belongs to Levels"></div>
-      <div class="device" style="left:6.3%;top:30%;width:52%;height:58%"><span>A phone sees</span></div>
-      <div class="device" style="left:6.3%;top:8%;width:87.4%;height:80%"><span>A computer sees</span></div>
       <div class="brush" style="left:18%;top:68%;width:9%;height:13.8%"></div>
     </div>
   </div>
 </div>
-<div class="float daybar"><button class="iconbtn"><span class="ic" data-i="play"></span></button><span class="label">Play the day</span><span class="rbar"><i style="--at:45%"></i></span><span class="num">Noon</span></div>
 <script>
 window.MOCK = {
   editor: 'world', what: 'Scene', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 2,
@@ -46,7 +43,7 @@ window.MOCK = {
   place: 'Meadow', saved: 'Not saved: 4 changes', changes: 4, tool: 2, state: 'mid-project',
   toolopts: '<span>Brush</span><span class="seg"><button>Small</button><button class="on">Middle</button><button>Big</button></span><span>How many</span><span class="seg"><button>Few</button><button class="on">Some</button><button>Lots</button></span><span class="pnote">or press harder</span>',
   settings: [
-    '<span>What screens see</span><span class="knob2 on"></span>',
+    '<span>What screens see</span><span class="knob2"></span>',
   ],
   list: { title: 'Front to back', count: 6, search: 'Find something', rows: [
       { head: 'In front', count: 1 },

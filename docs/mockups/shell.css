@@ -4202,3 +4202,191 @@ body.sh.bare {
   --top-h: 0px;
   --tools-h: 0px;
 }
+
+/* The Keys sheet fits its box at every size (B8, B3): columns may shrink, the gesture's words wrap under their
+   icon instead of running off, and Close stays inside the title row. */
+body.sh .keysheet {
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (min-width: 760px) {
+  body.sh.touch .keysheet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+body.sh.fine .keysheet {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+}
+
+body.sh .keysheet h2 {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+body.sh .keysheet .col {
+  min-width: 0;
+}
+
+body.sh .keysheet .k {
+  padding: 6px 0;
+}
+
+body.sh .keysheet .k span:last-child {
+  white-space: normal;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  text-align: right;
+  min-width: 0;
+}
+
+body.sh .keysheet .k span:first-child {
+  flex: none;
+  max-width: 48%;
+  white-space: normal;
+}
+
+/* An icon is never hidden with its word: older rules hid every span inside a button on a phone, and an icon is a
+   span too, so the action bar, the play bar and the toolbar showed empty buttons (B3, B9). */
+body.sh :is(.actbar, .sh-play, .tbar, .sh-top, .holds, .tray, .lrail) .ab:not(.n) span.ic,
+body.sh :is(.actbar, .sh-play, .tbar, .sh-top, .holds, .tray, .lrail) span.ic {
+  display: inline-block !important;
+}
+
+/* The bar over a picked thing keeps its words on a phone; the nudge arrows go into "…" there (B3). */
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh .actbar .ab:not(.n) span:not(.ic) {
+    display: inline !important;
+  }
+
+  body.sh.touch .actbar .nudge,
+  body.sh.touch .actbar .nudge + .adiv {
+    display: none;
+  }
+}
+
+/* A phone held upright (B3). */
+@media (max-width: 500px) {
+  /* The part's name never shrinks to nothing; Find and Map are icons, and the button keeps its words and number. */
+  body.sh .sh-top .partn {
+    flex: 0 0 auto;
+  }
+
+  body.sh .sh-top .cmdk span:not(.ic),
+  body.sh .sh-top .share.put > .ic {
+    display: none !important;
+  }
+
+  body.sh .sh-top .fill {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* The toolbar fits the width: the list, the five tools, Undo and Play. Show and the zoom are in the game's menu
+     on a phone (pinch zooms). */
+  body.sh .tbar .tl2.ob,
+  body.sh .tbar .div.o,
+  body.sh .tbar .tz {
+    display: none !important;
+  }
+
+  body.sh .tbar {
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  body.sh .tbar .tl2 {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 0 2px;
+  }
+
+  /* Things to place: one short row just above the toolbar, and the level above it, whole (B3). */
+  body.sh .tray {
+    padding: 8px;
+  }
+
+  body.sh .tray p {
+    display: none;
+  }
+
+  body.sh .tray .ti {
+    width: 64px;
+  }
+
+  body.sh.has-tray .fit {
+    bottom: calc(var(--tools-h) + 120px);
+  }
+}
+
+/* A phone on its side: the level keeps most of the screen, and only one thing floats over it at a time (B4, S1). */
+@media (max-height: 600px) and (min-width: 600px) {
+  body.sh .tl2 {
+    height: 42px;
+    font-size: 10px;
+  }
+
+  /* The picked tool's few settings sit in a row at the level's top left, inside the screen. */
+  body.sh .sh-tools .topts {
+    position: fixed;
+    left: 72px;
+    top: calc(var(--top-h) + 8px);
+    right: auto;
+    bottom: auto;
+    transform: none;
+    max-width: calc(100vw - 72px - var(--right-w) - 8px);
+    overflow-x: auto;
+    z-index: 15;
+  }
+
+  body.sh .holds {
+    top: calc(var(--top-h) + 64px);
+  }
+
+  /* Things to place or paint: one row along the bottom of the level, with no words above it; while it is open the
+     tool's settings, the hold-buttons and the tips step aside. */
+  body.sh .tray {
+    left: calc(64px + (100vw - 64px - var(--right-w)) / 2);
+    bottom: 8px;
+    width: calc(100vw - 64px - var(--right-w) - 16px);
+    padding: 6px 8px;
+  }
+
+  body.sh .tray p {
+    display: none;
+  }
+
+  body.sh .tray .ti {
+    width: 60px;
+    padding: 4px 2px;
+    font-size: 11px;
+  }
+
+  body.sh .tray .ti .pic {
+    width: 26px;
+    height: 26px;
+  }
+
+  body.sh.has-tray .fit {
+    bottom: 92px;
+  }
+
+  body.sh.has-tray .sh-tools .topts,
+  body.sh.has-tray .holds,
+  body.sh.has-tray .stage .tip {
+    display: none !important;
+  }
+
+  /* A sheet that is taller than the screen scrolls inside itself, so its last line is never cut (B4). */
+  body.sh .share-pop,
+  body.sh .keysheet {
+    max-height: calc(100vh - var(--top-h) - 16px);
+    overflow-y: auto;
+    top: calc(var(--top-h) + 8px);
+    bottom: auto;
+  }
+}
