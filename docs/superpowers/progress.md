@@ -230,12 +230,6 @@ the pull request's CI.
   an erased thing is not counted in `other`, so an erase still reads as an erase. Ruling: `setCharacter` also keeps the
   new, possibly bigger, box inside the level, or the file would fail the framework's check. Ruling: `startId` and
   `nextId` are used inside the feature, so only `nextId` joins the entry, which a test reads.
-- Task 7, part 1 (the pure parts, `levels/layout.ts`, `ui/panels.ts`, `levels/view.ts`): Task 7 is a whole new level
-  screen with the zoom amendment, so it goes up as several pull requests, each green on its own, in the plan's order:
-  1 the pure parts (this), 2 `Stage`, 3 the frame and its floating parts, 4 panels that close and open, 5 the zoom
-  buttons and keys, 6 the journeys. Ruling: the plan's "one pull request a task" is kept by task, not by size; the
-  report `Task 7` comes with the sixth. The room numbers are the zoom amendment's (`mid` right 92, `narrow` bottom
-  232), so they are never built twice.
 
 ### Stage 3 finished (2026-11-14)
 
