@@ -2,6 +2,30 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the plain-words round, all 29 findings fixed (2026-11-15)
+
+Visual review step 1's fixes (the [plain-words check of board v15](audits/2026-11-15-mockups-v15-plain-words.md)),
+mockups only (no editor code), in one Sonnet session on PR 70 (it replaces PR 64, whose branch had stopped getting CI
+after `main`'s `ci.yml` changed under it; PR 70 is the same branch plus a merge of `main`, no history rewritten).
+Progress on this step: **90%**: every finding is fixed in the pages and the stylesheet and pushed; what is left is
+reading CI's pictures at five sizes and republishing the board (a new version of the same artifact).
+
+- **All 29 findings, high and low together:** "The six editors" with a Screens row (1); a button's gate is a gate, with
+  its own icon and drawn as bars, on every page and the library, and a door is only a way into another level (2, 3, 13,
+  14, 29); "While something is on it" / "For good" (4); one word each, Move (6) and Make a copy (7); "3 changes, only on
+  this iPad" (8); the map's key, move page, level menu, edge card, wall card, problems list, deleted note, zoom and Map
+  names, "Zoomed out" and "Levels · Map" on a phone (5, 9 to 12, 15, 21 to 27); "Hide the list", "the 3 crates'
+  settings" and "Crate 1 · settings" (17 to 19); the device's own word in the changed dot and the offline line (20); the
+  fall band says what happens (16); the join's bar says what taking the line away does (28).
+- **Paths wait for Characters:** the join pages no longer draw the walking creature or offer "A path to walk" (the
+  Owner: paths wait for the Characters slice).
+- **The Owner's yes:** on the world map the zoom button sits right under List and says "Whole world" (the "Far away" gap
+  was a drawing mistake: the level's tools are hidden on the map); inside a level it stays "Whole level" and "Close up".
+- **One judgement call:** the three-dots menu's clipboard Copy (with Paste) is a different action from Make a copy, so it
+  is worded "Copy to paste" there, and both words stay.
+- **Not changed:** game content in the Story, Characters and Sound pages that names a door (a door in a story is a
+  door); the board stays trimmed to this round's screens.
+
 ## The shell and World mockups (roadmap slice 3): edge-joined levels, the right panel folded away, the language card (2026-11-15)
 
 Mockups only (no editor code). What the merged level links spec (AutomataFramework PR 165,
