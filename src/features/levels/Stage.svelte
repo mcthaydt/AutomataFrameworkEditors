@@ -559,7 +559,7 @@
     position: absolute;
     padding: 0;
     border: 0;
-    border-radius: var(--radius, 6px);
+    border-radius: var(--corner);
     background: transparent;
     touch-action: none;
     cursor: grab;
