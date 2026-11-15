@@ -7,325 +7,335 @@ Owner through the coordinator. The first layer's spec in AutomataFramework
 ([`2026-11-14-editors-blueprint-redesign-design.md`](2026-11-14-editors-blueprint-redesign-design.md)) still hold;
 where this page is more exact about the Figures part, this page wins.
 
-The Owner asked (2026-11-15) that every editor part get its own full pipeline: spec, plan, audits, build. This is the
-first: the figure builder, the part of Characters that makes a character's picture.
+Its partner is the framework's
+[`2026-11-15-rigged-figures-design.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/specs/2026-11-15-rigged-figures-design.md):
+that page says what a figure file holds and how the framework paints it; this page says what a person sees and does.
+The builder can change only what that file holds, so the framework's cycle comes first.
+
+The Owner asked (2026-11-15) that every editor part get its own pipeline. This is the first.
 
 ## Principles served
 
 - **5. Characters and scenes come from the environment builder and figure builder.** This is the figure builder. The
-  Owner (2026-11-15): "the real art comes from the builders". The demo game's characters are made with it, so it is on
-  the path to Release 1, ahead of the other editor parts.
-- **2. iPad-first editors.** The figure fills the screen, every part can be picked, dragged, sized and turned with a
-  finger, and every drag has buttons and keys beside it.
-- **1. Agent-first.** The builder changes the framework's figure file and nothing else (plus the picture and atlas the
-  framework paints from it). Every action has a plain name an agent's command also uses. An agent editing the same
-  file by hand gets the same bytes, and the same picture.
+  Owner (2026-11-15): "the real art comes from the builders", and it "should be as complex as the 3D counterpart". The
+  demo game's characters are made with it, so it is on the path to Release 1, ahead of the other editor parts.
+- **2. iPad-first editors.** The figure fills the screen; every slider, piece and pose is changed by a finger, and
+  every drag has buttons and keys beside it.
+- **1. Agent-first.** The builder changes the figure file and nothing else (plus the picture and atlas the framework
+  paints from it, and the one `automata.toml` line for a new figure). Every action has a plain name an agent's command
+  also uses, and an agent editing the same file by hand gets the same bytes and the same picture.
 
-It breaks none: 2D only (the 3D figure builder is a later layer), its own repo, nothing ported ahead of its user (the
-demo game uses it at once), and no new dependency.
+It breaks none: 2D only (the 3D builder is the 3D layer's), its own repo, nothing ahead of its user (the demo game uses
+it at once), and no new dependency.
 
 ## Why
 
-The framework can already draw a character from a figure file (M2 plan A): a picture made of blocks and rounds in
-named colours, with poses that move parts, and other colours for players 2 to 4. Today only an agent can write one, by
-typing numbers into JSON. The Owner wants the art of every game, the demo first, to come from the builders, and the
-editors are where a person who does not write code changes a game. So a person needs to make and change a figure by
-touch, and see it as the game will show it, at once.
+The old 3D figure builder (AutomataFrameworkFailed's Studio, `packages/editor-3d/src/features/studio`, and the painter
+behind it) made a whole person from sliders, dressed them from a library, walked them with a gait and posed them by
+dragging their hands, feet and head. The Owner wants that power in 2D, so that a person who does not write code can
+make a game's characters, the demo's first, and see them as the game draws them at every step.
 
-## What a figure file holds today (the framework's `figure` format)
+## Decided with the Owner (2026-11-15)
 
-So the builder's words match the file, here is what it can change, from `src/features/content/figure.ts` at the
-framework pin:
-
-| In the file | What it is | Limits |
+| | Question | The Owner's answer |
 |---|---|---|
-| `frame` | the size of one picture, in pixels | 4 to 128 each way |
-| `tile` | how many pixels make one tile of the game | 4 to 64 |
-| `outline` | an edge one pixel wide round the whole figure, or none | one colour |
-| `paints` | the colours, each named for what it is for (`body`, `trim`, `ink`) | 1 to 16 |
-| `parts` | blocks and rounds, each with a middle, a size, a turn and a paint; first is at the back | 1 to 32 |
-| `poses` | ways the figure stands: each moves some parts (`dx`, `dy`, `turn`) | 1 to 64 |
-| `variants` | the same figure in other colours, for players 2, 3 and 4 | 0 to 8 |
+| — | Where does the demo's art come from? | **From the builders.** The figure builder makes the demo's characters. |
+| — | How powerful is it? | **As powerful as the old 3D builder.** The framework's format grows to match (its own spec). |
+| Q1 | Does the Figures part change clips? | **No.** It changes the figure; clips are their own part ("Clips and kinds"). It can play them to look at. |
+| Q2 | How is a 2D figure built? | **A 2D-native rigged figure** with the old builder's features (sliders, outfits, hair, face, held things, walks, stands, poses by hands and feet), not a port of its painter. |
+| Q3 | Which views? | **Side, front and back.** The side view is mirrored to face left. |
+| Q4 | Which bodies? | **People, four-legged animals and free shapes.** |
+| Q5 | Can the builder make a new figure? | **Yes.** |
+| — | Where do the hero's moves go? | **Characters, not Feel** (the Owner: "double jump, wall jump seem like components"). The switches for double jump, wall jump and dash are changed in a Characters part, not in this one (see "The Characters editor's frame"). |
 
-The framework paints it (`paintFigure`, the same bytes in every engine) into `content/figures/<id>.png` and
-`<id>.atlas.json` beside the file (`artFiles`), and `artProblems` fails a game whose pictures are not what its files
-say. A character file names its `figure` and lists its `clips` (runs of poses). Painted pictures are committed, and an
-editor's save writes them with the file in the same commit (the Owner, 2026-11-14, AF audit I7).
+Already decided before this spec, and not reopened: the Blueprint look (dark, canvas first, floating panels that close
+and open like Claude's app, drawing notes over the real art, never restyling a game's art); palette No. 310, Fraunces,
+Onest and JetBrains Mono, Phosphor regular icons; pinch to zoom and two fingers to move at every size; nine languages,
+no default language, flags only in pickers; Save (signed in, with your team) and Export (anyone, copied for your agent)
+kept apart; painted pictures committed and written by the editor's save; editors change only authorable content;
+visitors open only the demo game.
 
 ## Goals
 
-1. **A person makes a character's picture by touch**, from nothing or from a start, and sees it exactly as the game
-   draws it, at every step.
-2. **Every field of the figure file can be changed** without typing JSON: colours, parts, their order, poses, player
-   colours, the outline, the frame and tile sizes.
-3. **What is saved is the framework's bytes**: the figure file as `writeContent` writes it, and the picture and atlas
-   as `artFiles` paints them, in one save.
-4. **The demo game's characters can be made with it** (the hero, the keeper, the critter, and the crate as a prop).
+1. **A person makes a person, an animal or a free figure by touch**, from a starter, a copy or nothing, and sees it as
+   the game paints it at every step, in every view.
+2. **Everything the figure file holds can be changed** without typing: the body's and face's sliders, colours and
+   palette, pieces from the library and the game's own, shapes on a bone, the walk and the stand, poses, views, player
+   colours, outline and sizes.
+3. **What is saved is the framework's bytes**: the file as `writeContent` writes it, the picture and atlas as
+   `artFiles` paints them, and for a new figure the `automata.toml` line as the framework writes it, in one save.
+4. **The demo's hero, keeper and critter, and the crate as a free figure, can be made with it.**
 5. **The first visit to Characters ends in a real change in under a minute**, with no reading.
 6. **Proven by journeys** at five sizes, by byte checks against the framework, and by an Owner review of every screen.
 
 ## Non-goals
 
-- **Clips** (which poses play, how fast, looping) are the "Clips and kinds" part's spec. The builder can play a
-  character's clips to look at (pending Q1).
-- **Behaviour** (Schematic), **movement numbers** (Feel's Tuner), **sounds** and **words**: other parts.
-- **3D figures**: the 3D layer.
-- **A pixel pencil or new shapes** (pending Q2): they need a framework format change, which would be its own spec in
-  AutomataFramework first.
-- **Importing a picture** (a PNG drawn elsewhere): the figure file is the source; a picture with no file behind it
-  breaks principle 1.
-- **The old procedural painter** (sliders, garments, lighting): settled by the Owner, 2026-11-14 (M2 plan A): not
-  ported.
+- **Clips** (Q1), **behaviour** (Schematic), **the hero's move switches** (a Characters part of their own),
+  **movement numbers** (Feel's Tuner), sounds and words.
+- **3D figures** and more than three views.
+- **Importing a picture** drawn elsewhere, or a pixel pencil: a picture with no numbers behind it breaks principle 1.
+- **Lamps and a time of day lighting the figure**, and cloth or hair swaying in play: not in the framework's format (see
+  its spec's non-goals).
 
 ## Anti-goals (a failure even if it works)
 
-- A picture on screen that is not the framework's painting of the file (a preview drawn some other way, smoothed,
-  tinted or filtered).
-- A change that can only be made by a gesture (no button or key does it too).
-- A field of the file the builder silently drops or rewrites when it saves something else.
-- Words like "variant", "dx", "paint id", "frame" or "atlas" on a screen.
-- A figure that saves but fails `automata check` (its picture or its file refused).
-- A first visit that starts with a list of parts, a page of words or a tour.
-
-## Decided with the Owner
-
-Already decided before this spec, and not reopened: the Blueprint look (dark, canvas first, floating panels that can
-be closed and opened like Claude's app, drawing notes over the real art, never restyling a game's art); the editors'
-palette No. 310, Fraunces, Onest and JetBrains Mono, Phosphor regular icons; pinch to zoom and two fingers to move at
-every size; nine languages, no default language, flags only in pickers; Save (signed in, with your team) and Export
-(anyone, copied for your agent) kept apart; painted pictures committed and written by the editor's save; the editors
-change only authorable content; visitors open only the demo game.
-
-Decided in this spec's conversation:
-
-| | Question | The Owner's answer |
-|---|---|---|
-| — | Where does the demo's art come from? | **From the builders** (2026-11-15). The figure builder must be able to make the demo's characters. |
-| Q1 | What does the Figures part change? | *Waiting.* Recommended: only the figure file; clips can be played, not changed. |
-| Q2 | What can a person draw with? | *Waiting.* Recommended: blocks and rounds as the file holds them today. |
-| Q3 | Can the builder make a new figure? | *Waiting.* Recommended: yes, from a copy, a starter or blank, listing it in `automata.toml`. |
-| Q4 | The first visit's one task? | *Waiting.* Recommended: tap the hero's body, pick a colour, see it run. |
+- A picture on screen that is not the framework's painting of the file (drawn another way, smoothed, tinted).
+- A change that only a gesture can make.
+- A field of the file the builder drops or rewrites when it saves something else.
+- Words like "variant", "effector", "IK", "ramp", "atlas" or "frame" on a screen.
+- A figure that saves but fails `automata check`.
+- A first visit that starts with a wall of sliders, a page of words or a tour.
+- Forty sliders shown at once. Power is there when asked for, folded until then.
 
 ## Approaches considered
 
-1. **Build on the framework's figure format, painted by the framework in the page** (chosen). The builder edits the
-   `FigureFile` in memory, and on every change calls the framework's `paintFigure` (pure, the same bytes everywhere) to
-   draw what is on screen, and `artFiles` and `writeContent` to save. What the person sees is what the game draws, by
-   construction, and an agent's hand edit is the same file.
-2. **Port the old 3D Studio and the procedural painter.** The Owner settled that the old painter is not ported. The
-   Studio's way of working (Look, Pose, Animate) does carry over, as the modes below.
-3. **A general pixel-art editor writing PNGs.** Familiar, but the picture would have no file an agent can read, change
-   and paint again: it breaks principle 1 and the framework's `artProblems` check. Rejected.
+1. **The old Studio's way of working, in 2D, on the framework's painter** (chosen). Its Look, Pose and Animate modes
+   become Look, Move and Pose here (Animate is clips, which is another part); every change is a change to the figure
+   file in memory, painted by the framework's own painter on each change, so what is seen is what the game draws.
+2. **A part-by-part shape editor** (the first draft of this spec). Simple, but a person would be built block by block:
+   far from the old builder's power, and the Owner said so. Kept for free figures only.
+3. **A paint program writing PNGs.** No file an agent can change and paint again. Rejected.
 
 ## The Characters editor's frame
 
 The level screen's frame (the redesign spec) holds: the pill top left, the cluster top right, tools on the left edge
-(along the bottom when upright), panels that float and close, the title block and undo and redo bottom right.
+(along the bottom when upright), floating panels that close and open, the title block and undo and redo bottom right.
 
-- **The switcher** shows Characters chosen. Under the pill, Characters has its parts as a second row of tabs: **Figures**
-  (working), **Clips and kinds** and **Schematic** (each "Coming soon", with the same short card as an editor that is
-  coming). Each part is its own spec.
-- **The pill** reads the game's name and the figure's name ("Crate Game · Hero"); pressing it opens the game's page,
-  which gains a **Characters** list: each character with its picture, and each figure (pending Q3: and "New figure").
-- **Opening Characters from World:** a picked thing's card in World gets "Change how it looks", which opens its
-  character's figure in the builder. Back returns to the level with the thing still picked.
+- **The switcher** shows Characters chosen. Characters has its parts as a second row of tabs under the pill:
+  **Figures** (this spec, working), **Clips and kinds** and **Schematic** ("Coming soon", each with the short card an
+  editor that is coming has). The hero's move switches (double jump, wall jump, dash; the Owner, 2026-11-15) are a
+  character's parts, so they belong with what a character is: the Clips and kinds part's spec places them, not Feel's.
+- **The pill** reads the game's name and the figure's name ("Crate Game · Keeper"); pressing it opens the game's page,
+  which gains a **Characters** list: each character with its picture, each figure, and **New figure**.
+- **From World:** a picked thing's card gets "Change how it looks", which opens its character's figure here. Back
+  returns to the level with the thing still picked.
 
 ### iPad sideways and desktop
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│ ┌Crate Game · Hero┐ World ┌Characters┐ Feel Sound Story        ┌Find or do anything┐ ⚑ Share [Save] │
-│  ┌Figures┐ Clips and kinds · Schematic                                                        │
-│ ┌──────┐                                                              ┌ PARTS ─────────── ✕ ┐ │
-│ │MOVE  │          · · · · · · · · · · · · · · ·                       │ ▸ eye        ink    │ │
-│ │SIZE  │          ·       ╭──── HEAD ───╮      ·   FROM THE LEFT 12   │ ▸ head       trim   │ │
-│ │TURN  │          ·       │  ▒▒▒▒▒▒▒▒   │      ·  ├──────────┤        │ ▸ body       body   │ │
-│ │ADD   │          ·       ╰──▒▒▒▒▒▒▒▒───╯      ·                      │ ▸ foot-back  ink    │ │
-│ │ERASE │          ·        ██████████          ·   12 WIDE            │ [+ Add a block] [+ Add a round] │
-│ │PLAY  │          ·        ██    ██            ·                      └────────────────────┘ │
-│ └──────┘          · · · · · · · · · · · · · · ·                       ┌ COLOURS ────────── ✕ ┐ │
-│                                                                       │ ● body ● trim ● ink  │ │
-│ ┌ LOOK │ POSE │ PLAYERS ┐  ┌ idle ▾ ┐   ▶ run                         └────────────────────┘ │
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ┌Crate Game · Keeper┐ World ┌Characters┐ Feel Sound Story       ┌Find or do anything┐ ⚑ Share [Save] │
+│  ┌Figures┐ Clips and kinds · Schematic                                                          │
+│ ┌──────┐                                                          ┌ BODY ───────────────── ✕ ┐ │
+│ │LOOK  │            · · · · · · · · · · ·                         │ Height        ──●──  30  │ │
+│ │MOVE  │            ·      ▄▄▄▄          ·      ┬                 │ Build         ─●───      │ │
+│ │POSE  │            ·     ▐◕ ◕▌  HEAD    ·      │ 30 TALL         │ Legs          ──●──      │ │
+│ │PLAYER│            ·      ▀██▀          ·      │                 │ ▸ More: arms, hips, age … │ │
+│ │PLAY  │            ·     ▐████▌ ○ hand  ·      │                 ├ WEAR ─────────────── ✕ ┤ │
+│ └──────┘            ·      █  █          ·      ┴                 │ [tunic] [boots] [hood] +  │ │
+│                     · · · · · · · · · · ·                         ├ FACE · COLOURS ────── ✕ ┤ │
+│ ┌SIDE│FRONT│BACK┐  ⟲ turn                                         └──────────────────────────┘ │
 │ ┌ DRAWING NOTES ● ON ┐                                    ┌ title block ┐   ┌ ↶ ↷ ┐            │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **The figure fills the middle**, painted by the framework at a whole-number zoom (each pixel a crisp square, never
-  smoothed), on the ground colour with the pixel grid over it and the frame's edge drawn as a dashed line. A strip of
-  the game's own ground tile under its feet, at the game's tile size, shows how big it is in the game (from `tile`).
-- **The modes** sit bottom left in one segmented control: **Look** (its parts and colours), **Pose** (how it stands in
-  each pose) and **Players** (its colours for players 2 to 4). This is the old Studio's Look, Pose and Animate, cut to
-  what a 2D figure file holds.
-- **Panels on the right**, each closable and openable (a ✕ on each, and its name in a small row when closed, like
-  Claude's app): **Parts** (the parts in drawing order, front at the top) and **Colours**. In Pose mode a **Poses**
-  panel joins; in Players mode, **Players**.
-- **Tools on the left**: Move, Size, Turn, Add, Erase, Play. Each is an icon with its word, 56 px or more.
+- **The figure fills the middle**, painted by the framework at a whole-number zoom (each pixel a crisp square), on the
+  ground colour with the pixel grid over it and the picture's edge dashed. A strip of the game's own ground under its
+  feet, at the game's tile size, shows how big it is in the game. Beside it, smaller, the figure as it stands in the
+  game's first level, so the person sees it among the art it lives with.
+- **Views**, bottom left: Side, Front and Back (only those the file paints; "Add front and back views" when it paints
+  only the side), and **Turn**, which shows it facing left. A view that is not painted is never shown as if it were.
+- **Modes** are the tools on the left: **Look** (what it is and wears), **Move** (how it walks and stands), **Pose**
+  (its poses), **Players** (its colours for players 2 to 4), and **Play**. Each is an icon with its word, 56 px or more.
+- **Panels** on the right, each closable and openable (a ✕, and its name in a small row when closed, like Claude's app),
+  change with the mode. Look has **Body**, **Wear**, **Face** and **Colours**; Move has **Walk** and **Stand**; Pose has
+  **Poses**; Players has **Players**.
 
-### iPad upright, phone sideways and phone upright
+### iPad upright and phones
 
-The same parts re-placed as the level screen re-places them: tools along the bottom, the panels as one bottom sheet
-with a tab per panel (pulled down to its title, or closed), the modes in the pill's row, the canvas keeping its minimum
-height. On a phone held upright nothing scrolls; the sheet covers at most the lower third and the figure is fitted
-above it.
+The same parts re-placed as the level screen re-places them: the modes along the bottom, the panels as one bottom
+sheet with a tab per panel (pulled down to its title, or closed), the views in the pill's row, the figure keeping its
+minimum height. On a phone held upright nothing scrolls but a panel's own list; the sheet covers at most the lower
+third and the figure is fitted above it.
 
 ```
 ┌────────────────────────────┐
-│ ┌Hero · Characters ▾┐ ⚑[Save]│
-│ ┌LOOK│POSE│PLAYERS┐         │
-│      ·  ╭ HEAD ╮  ·         │
-│      ·  │▒▒▒▒▒▒│  ·         │
-│      ·  ██████    ·         │
-│ ┌ PARTS · COLOURS ───── ✕ ┐ │
-│ │ head  trim   [− 12 +]   │ │
-│ MOVE SIZE TURN ADD ERASE ▶ ↶↷│
+│ ┌Keeper · Characters ▾┐⚑[Save]│
+│ SIDE FRONT BACK  ⟲          │
+│        ▄▄▄▄                 │
+│       ▐◕ ◕▌                 │
+│       ▐████▌                │
+│ ┌BODY · WEAR · FACE ─── ✕ ┐│
+│ │ Height   ──●──   30     ││
+│ LOOK MOVE POSE PLAYERS ▶ ↶↷│
 └────────────────────────────┘
 ```
 
-## Look: parts and colours
+## Look: what it is and what it wears
 
-- **Picking a part:** touch it on the figure (the frontmost part under the finger) or in the Parts panel. The picked
-  part gets a dashed ring and its notes: its name chip ("HEAD"), its middle as two measure lines from the frame's left
-  and top edges ("FROM THE LEFT 12"), its size ("12 WIDE", "10 TALL") and, when turned, its turn as an arc ("TURNED
-  15°"). Each number is the very number in the file; each note is a control that opens − and + for it.
-- **Move** drags the picked part's middle, in whole pixels (half pixels only by its − and +, since the file allows
-  them). **Size** drags the edges and corners (the middle stays put, as the file's `x` and `y` mean). **Turn** drags a
-  handle round the middle, snapping to 15°, finer with − and +. Arrow keys do the same as the tool chosen; Shift moves
-  by 4.
-- **The part's card** (in the Parts panel when picked): its name, its shape (Block or Round, with pictures), its
-  colour (a choice of the figure's colours), its place, size and turn with − and +, "Bring forward", "Send back",
-  "Copy this part" and Erase. Reordering also works by dragging in the list.
-- **Add:** "Add a block" or "Add a round" puts a new part in the middle of the frame, in the picked part's colour (or
-  the first), in front, named by its shape and the next free number ("block-2"), and picks it. Renaming is in the card.
-- **Erase** removes the picked part, and with it its moves in every pose; the notice says how many poses changed.
-  Undo brings it all back. The last part cannot be erased, and says why.
-- **Colours:** each colour is a round swatch with its name ("body"). Touching one opens a picker: a grid of the
-  game's palette (every colour the game's figures, tiles and backdrops already use) and a full picker beside it, with
-  the `#rrggbb` shown as a label for anyone who wants it. "Add a colour" names it by what it is for, offering the
-  usual names (body, trim, ink, eyes, cloth, metal) in the person's language, written to the file as the ids an agent
-  would use. A colour still in use cannot be removed; the builder says which parts use it.
-- **The outline** is a switch with a colour, in the Colours panel: "Edge round the figure".
-- **Size of the picture** ("How big one picture is", width and height in pixels, and "Pixels in one tile") is in the
-  Colours panel's foot under "Picture size". Making the frame smaller than a part's middle is refused in words before
-  it is written, the same words the framework's check uses.
+### Body
 
-## Pose: how it stands
+- **Sliders**, each the file's own number with its plain sentence as its label ("How long the legs are"), in the order
+  a person reads a body. The first three show (for a person: height, build, legs; for an animal: length, height,
+  legs); **More** opens the rest in folded groups (Shape: shoulders, hips, arms, fat, muscle; Head and neck; Hands and
+  feet; Stance: posture, hunch, head tilt; Age; Chunk). Each slider has − and + and a "back to normal" that removes the
+  number from the file (the old Studio's rule: a slider at its default is not written).
+- **Dragging the body** works too: with Body open, the figure grows handles at the top of the head, the shoulders,
+  the hips and the feet. Dragging one changes the slider it belongs to, and the note beside it names it ("LEGS 0.45").
+- **Surprise me** picks every body slider at random within its range; undo puts it back. It is how someone who does not
+  know what to change gets started.
+- A free figure's Body is the shape editor: its blocks and rounds, picked on the figure or in a list, moved, sized and
+  turned by drag, buttons or keys, with their order and colours (the first draft's Look, kept for free figures).
 
-- **The Poses panel** lists the figure's poses, each with a small picture of it. The chosen pose is drawn on the
-  canvas; the figure as its parts stand (the first pose, usually `idle`) shows faintly under it, so a person sees what
-  moved.
-- **In Pose mode, Move and Turn change the pose, not the part.** Dragging the arm in `run-1` writes a move for the arm
-  in that pose (`dx`, `dy`, `turn`), never the arm's own place. The mode's control and a line under the pill say so in
-  words ("Changing the pose run-1. The hero's own shape stays the same."). Size is not offered in Pose mode, because a
-  pose cannot resize a part.
-- **Put back** on a part's card removes its move from this pose. A move with nothing left in it is removed, never
-  written as an empty move (the framework refuses one).
-- **New pose** copies the chosen pose under a new name; **Erase pose** removes it, and if a character's clip plays it,
-  says which clips use it and refuses (the character file would no longer load). Renaming a pose that a clip plays is
-  refused for the same reason until the Clips part can rename both together.
-- **Watch it move** (pending Q1): a strip at the foot of Pose mode lists the clips of the characters that use this
-  figure ("Hero: run, jump, fall"); touching one plays it on the canvas at its own speed, looping, using the poses as
-  they are on screen. It changes nothing.
+### Wear
+
+- **The pieces it wears** in a row of chips with pictures ("Tunic", "Boots", "Hood", "Lantern"), in the order they are
+  drawn. Touching one opens its card: its colour and second colour (from the palette), its own choices the library
+  gives it (sleeves long or short, a cape's length), which hand holds it for a held thing, Bring forward, Send back,
+  and Take off.
+- **Add** opens the library as a tray of pictures, in the kinds the framework's spec lists (tops, trousers and skirts,
+  shoes, capes, hats and hoods, hair, face marks, held things; for animals, collars, saddles, coats and markings), each
+  shown on this figure as it would look. The game's own pieces come first, marked "This game's".
+- **Shapes on a bone:** "Add your own shape" puts a block or a round on a part of the body (picked by touching it:
+  "On the chest"), moved and sized like a free figure's shape, for what the library does not have.
+- **Outfits** are not named sets in this format; an outfit is what it wears. Another look for the same character is a
+  copy of the figure (Copy this figure, on the game's page).
+
+### Face
+
+- Eye, brow and mouth styles as pictures to pick; then the sliders (eye size, spacing and tilt; brow weight; nose;
+  cheeks; jaw), folded like the body's. The face is drawn big in the panel as well as on the figure, because at game
+  size it is a few pixels.
+
+### Colours
+
+- **The palette's colours** as rows of swatches, each row a colour and its shades ("tan", four shades). Touching a
+  named colour on the figure (its skin, its hair) or in the list, then a swatch, sets it. The figure is always shaded
+  from the colour's row, so a person picks a colour, not a shade.
+- **Add a colour to the game's palette** opens a picker; the builder makes the shades the way the framework's spec says
+  and writes the palette file (it is authorable content, and other figures may use it). The palette can be changed only
+  by someone whose level lets them change every file it touches; the save says which figures it changes.
+- **Edge round the figure:** dark (each colour's darkest shade), one ink colour, or none.
+
+## Move: how it walks and stands
+
+- **Walk:** the figure walks on the spot (or along the ground strip, with "Walk across") using its gait. The gait is a
+  choice of the library's and the game's ("Brisk", "Strut", "Loose", "Bounce", and for animals "Trot") with sliders for
+  its numbers in plain words ("How long a step is", "How high the feet lift", "How much the arms swing", "How bouncy").
+  Changing a number repaints the walk while it plays. The pictures it makes (`walk-1` to `walk-n`) show as a strip
+  under it; touching one stops on it.
+- **Stand:** how it stands still (the library's stands: "Hand on hip", "Arms crossed", "Thumbs in pockets", "Hands
+  behind") and how much it breathes and shifts, shown as its idle.
+- **Watch its clips** (Q1): a strip lists the clips of the characters that use this figure ("Hero: run, jump, fall");
+  touching one plays it on the figure at its own speed. It changes nothing; "Change the clips" opens Clips and kinds
+  when that part lands.
+
+## Pose: its poses
+
+- **The Poses panel** lists the figure's own poses with a picture of each, then the poses its walk and stand make
+  (shown, not changed here: they come from Move). The chosen pose is drawn; the figure standing shows faintly under it.
+- **Handles** on the hands, feet, head and hips, as the old Studio had: drag one and the arm or leg follows, bending
+  only the way a joint can (the framework's limits). The note by the handle names what moved ("RIGHT HAND"); one that
+  cannot reach further stops there and the note says so. Two-finger turn, or the Turn handle, turns a hand, a foot or
+  the head.
+- **Joint by joint:** picking a joint (touch it, or from a list) shows its two bends as − and + with numbers in
+  degrees ("Bends forward 20°", "Bends out 5°"), for exact work; that is what the file holds too.
+- **In any view:** a pose is one pose in every view. Dragging in Side changes the forward bends; in Front or Back, the
+  out bends. The other views update beside it as small pictures, so a person sees the whole pose.
+- **New pose** copies the chosen one under a name; **Mirror** swaps left and right; **Back to standing** clears it.
+  **Erase pose** and renaming are refused, with the clips named, when a character's clip plays it.
 
 ## Players: colours for players 2 to 4
 
-- The figure is shown four times side by side, one per player, in their colours. Touching a colour on player 2's
-  figure opens the picker for that colour in player 2's set. Only colours that differ are written (the framework's
-  `variants`: "only the paints that change").
-- "Players 2 to 4 look like player 1" is the default when there are none. "Same as player 1" on a colour removes it from
-  that player's set. The framework draws player 2 in the first set, 3 in the second, 4 in the third; the builder names
-  them by player, never by the file's ids, which it writes as `two`, `three`, `four`.
+- The figure is shown four times side by side, one per player. Touching a colour on player 2's figure, then a swatch,
+  sets it for player 2 only. Only colours that differ are written. "Same as player 1" removes one.
 
 ## Play
 
-Play in the builder shows the figure in the game: it opens the game's first level that has a thing with a character
-drawn from this figure, and plays it there with the framework's built-in play (as World's Play does), from the files as
-they are on screen, unsaved changes included. Stop returns to the builder. A figure no character uses plays nothing
-and says so ("No character uses this picture yet").
+Play opens the game's first level that has a character drawn from this figure and plays it with the framework's
+built-in play, from the files as they are on screen, unsaved changes included. Stop returns here. A figure no character
+uses says so ("No character uses this picture yet") and offers "Give a character this picture" (it sets the character's
+`figure`).
 
-## New figures (pending Q3)
+## New figures (Q5)
 
-If the Owner says yes: "New figure" on the game's page offers **a copy of one of this game's figures**, **a starter**
-(the framework template's hero and crate, which the framework ships) or **blank** (one block, one colour, one pose
-`idle`). The builder asks only for its name in words, and makes the id from it. Saving writes the figure file, its
-picture and atlas, and the one entry listing it in `automata.toml` (`[[content]]` with `type = "figure"` and its
-path), exactly as an agent or a framework command would write it. A character without a figure gets "Give it a
-picture" on its card in World and in the Characters list, which makes a new figure and sets the character's `figure`
-(one key in the character file).
-
-The framework has no function today that adds a line to `automata.toml` while keeping the person's comments and
-layout. The plan adds one to the framework (its own AF pull request, used by the editors and by an `automata`
-command), rather than the editors writing TOML text of their own, so both make the same bytes.
+- **New figure**, on the game's page and in the find bar, asks first what it is: **A person**, **An animal** or **A
+  shape** (pictures, no words needed), then where to start: **one of this game's figures** (a copy), **a starter** from
+  the framework's library (a few people and animals, already dressed), or **blank**. Then its name in words; the id is
+  made from it.
+- A character without a figure gets **Give it a picture** on its card in World and in the Characters list, which does
+  the same and sets the character's `figure`.
+- Saving writes the figure file, its picture and atlas, and the one `[[content]]` entry in `automata.toml`, written by
+  the framework's function for it (its spec), so an agent and the editors make the same bytes.
 
 ## Saving, exporting and problems
 
 - **Save** (signed in) writes, in one change: the figure file as `writeContent` writes it, its picture and atlas as
-  `artFiles` paints them, and (for a new figure) the `automata.toml` entry and the character's `figure` key. The
-  rules for saving straight in or as a suggestion, by the person's level, are unchanged.
-- **Export** (anyone) copies the figure file for the person's agent, as World's Export copies a level, and also offers
-  the picture as a PNG to keep. The stamp says "EXPORTED".
-- **Problems** come from the framework's own check of the figure (`FigureSchema` and the character check): shown as
-  you edit, in the panel that holds the thing at fault, never as a raw path. The builder refuses most of them before
-  they happen (a limit reached says so: "A figure can have 32 parts at most").
-- **Undo and redo** cover every change in all three modes. The unsaved figure is kept on the device as a draft
-  (`af.draft:…`, already allowed) until saved or thrown away.
+  `artFiles` paints them, and, when they changed, the palette file, the `automata.toml` entry and the character's
+  `figure` key. Saving straight in or as a suggestion, by the person's level, is unchanged.
+- **Export** (anyone) copies the figure file for the person's agent, as World's Export copies a level, and offers the
+  picture as a PNG to keep. The stamp says "EXPORTED".
+- **Painting is in the page**: the framework's painter runs in the browser on each change (the same code as `automata
+  art`). If a big figure's painting takes long enough to be felt, the plan may move it off the page's main thread; the
+  bytes stay the framework's.
+- **Problems** come from the framework's own checks, shown as you edit in the panel that holds the thing at fault,
+  never as a raw path. The builder refuses most before they happen ("A figure can have 32 shapes at most").
+- **Undo and redo** cover every change in every mode. The unsaved figure is a draft on the device (`af.draft:…`,
+  already allowed).
 
 ## The find bar and agents
 
-Every action is in the find bar by its plain name and in `docs/commands.md` with the file change it makes: "Add a
-block", "Add a round", "Erase head", "Move head left", "Make head wider", "Turn head", "Bring head forward", "Change
-the colour body", "Add a colour", "New pose", "Change the pose run-1", "Put head back in this pose", "Colours for
-player 2", "Edge round the figure", "Play", "New figure" (pending Q3). The test that fails on a find-bar action
-missing from that list covers these too.
+Every action is in the find bar by its plain name and in `docs/commands.md` with the file change it makes: "New
+figure", "Make the legs longer", "Surprise me", "Wear a hood", "Take off the hood", "Change the skin colour", "Add a
+colour to the palette", "Walk like Strut", "Make the steps longer", "Stand with arms crossed", "New pose", "Move the
+right hand up", "Mirror this pose", "Show the front", "Turn to face left", "Colours for player 2", "Edge round the
+figure", "Play". The test that fails on a find-bar action missing from that list covers these too.
 
-## First visit (pending Q4)
+## First visit
 
-On the demo game, the first time Characters opens: the hero's figure, big, in Look mode, with one tip: "Tap the hero's
-body", then "Pick a colour". The hero then runs on the spot in its new colour (its run clip, played once round), and
-the tip ends as World's does: "Press Export" for a visitor (stamp "EXPORTED, copied for your agent"), "Press Save" for
-someone signed in. Nothing else is explained; the tools, modes and panels are found by looking. The tips count as
-World's do (`af.tip.*`).
+On the demo game, the first time Characters opens: the hero, big, in Look, with one tip, "Tap the hero's hat" (or the
+piece the hero wears most visibly), then "Pick a colour". The hero then walks on the spot in its new colour, and the
+tip ends as World's does: "Press Export" for a visitor (stamp "EXPORTED, copied for your agent"), "Press Save" for
+someone signed in. Nothing else is explained; sliders, poses and the library are found by looking. The tips count as
+World's do (`af.tip.*`). (This first visit is this spec's call, as the Owner's earlier first-visit question was
+withdrawn with the rescope; the Owner may change it at review.)
 
-The demo's hero has no figure on Examples' `main` today (its art arrives with the figures this builder makes). Until
-it does, the first visit starts one step earlier: "Give the hero a picture", pick a starter, then the same tip.
+The demo has no figures on Examples' `main` today. Until its figures are made, the first visit starts one step earlier:
+"Give the hero a picture", pick A person, pick a starter, then the same tip.
 
 ## Words and languages
 
 Every word is in `src/features/words/`, in all nine languages, in the drunk-grandma voice. The file's words never
-reach the screen: a variant is "colours for player 2", a frame is "one picture", a paint is "a colour", a move is "how
-it moves in this pose", `dx` is "moved right". A person's own names (a part called "head", a colour called "body") are
-shown as they wrote them; the builder's offered names are translated on screen and written in the game's ids.
+reach the screen: a variant is "colours for player 2", a ramp is "a colour and its shades", an effector is "a hand",
+a gait is "how it walks". A person's own names are shown as written; the library's names are translated on screen and
+written as the library's ids.
 
 ## Tests
 
-- **Unit tests** of each edit: the file it writes for every action, in all three modes, including the cases the
-  framework refuses (erasing a part removes its moves; a pose move put back to nothing is removed; a colour in use
-  cannot be removed; frame smaller than a part).
-- **Byte checks:** for every figure the builder saves in the tests, the bytes equal `writeContent` of the same value,
-  and the picture and atlas equal `artFiles`; the canvas's pixels equal `paintFigure`'s at that zoom.
-- **Agent parity:** a figure changed by hand in a test (as an agent would) opens in the builder with every field shown
-  and saves back byte for byte when nothing is changed.
+- **Unit tests** of each edit: the file it writes for every action in every mode, including what the framework refuses
+  (a pose past a joint's limit, a piece on a bone the body lacks, a colour still used, a pose a clip plays).
+- **Byte checks:** for every figure the tests save, the bytes equal `writeContent` of the same value, the picture and
+  atlas equal `artFiles`, the `automata.toml` text equals the framework's writer, and the canvas's pixels equal the
+  framework's painting at that zoom.
+- **Agent parity:** a figure changed by hand (as an agent would) opens with every field shown and saves back byte for
+  byte when nothing changes.
 - **Journeys** (real browsers, the pretend GitHub, at phone upright and sideways, iPad upright and sideways, and
-  desktop): the first visit as a visitor and as an Owner; make a part, colour it, pose it, give player 2 colours; New
-  figure from a starter, used by a character, then Play shows it in the level; a suggestion-level save; every action
-  done once by touch, once by buttons and once by keys; undo and redo through all three modes.
+  desktop): the first visit as a visitor and as an Owner; New figure as a person, an animal and a shape, from a starter,
+  a copy and blank; change sliders, wear and take off pieces, set colours and add one to the palette; set a walk and a
+  stand; make and mirror a pose by its handles and joint by joint, in each view; colours for player 2; give a character
+  the figure and Play it in the level; a suggestion-level save; every action once by touch, once by buttons and once by
+  keys; undo and redo through every mode.
 - **Pictures for the Owner review** at the five sizes, in the artifact format the Owner uses, saying plainly whether
   they show the final look.
 
 ## Constraints
 
-- The framework pin must have everything the builder uses (`FigureSchema`, `paintFigure`, `artFiles`,
-  `writeContent`, and the `automata.toml` writer if Q3 is yes). Moving the pin is its own pull request.
+- The framework's rigged-figure cycle (its spec, plans and builds) is on its `main` first, and the framework pin moves
+  to it in its own pull request. The builder may ship by stages as the framework's plans land (people and the side view
+  first), each stage only what the pinned framework can paint.
 - It does not overlap the Blueprint redesign build: it uses that build's frame, panels, notes, find bar, words and
   journeys set-up, and starts after the frame and the level screen are on `main`.
 - Nothing runs on a session's machine: every test is read from CI.
-- No new dependency. The colour picker is built from the existing pieces.
-- Touch targets 44 px or more, main buttons 48 px, tools 56 px; the figure is redrawn sharp at every zoom.
+- No new dependency. Touch targets 44 px or more, main buttons 48 px, tools 56 px; the figure is redrawn sharp at
+  every zoom.
 
 ## Left to the builder (the plan)
 
 - The zoom steps and how the figure is fitted at each size.
-- The exact handles for Size and Turn, within the rules above.
-- How the palette grid gathers the game's colours.
-- How the frame-size change treats parts that would end outside it (refuse, or offer to move them in).
-- How the work is cut into pull requests, keeping `main` green: the framework's `automata.toml` writer first (if Q3
-  is yes), then Look, then Pose, then Players, then New figure and the first visit.
+- Which sliders show first for each body, and the folded groups' exact contents.
+- The handles' look, and how they are hit on a small figure.
+- How the library's tray is sorted and searched.
+- Whether painting moves off the main thread.
+- How the work is cut into pull requests that keep `main` green, following the framework's plans: likely the frame and
+  a person's Look, then Move, then Pose, then views, then animals and free shapes, then Players, New figure and the
+  first visit.

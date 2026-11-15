@@ -7,14 +7,15 @@ The tracker every stage reads first and updates last. One section per cycle; new
 Spec: [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md). The Owner asked
 (2026-11-15) that every editor part get its own pipeline; this is the first. The demo game's art comes from the
 builders (the Owner, 2026-11-15), so this is on the path to Release 1. It starts building after Cycle 3's frame and
-level screen are on `main`.
+level screen are on `main`, and after the framework's rigged-figures cycle (its spec,
+`2026-11-15-rigged-figures-design.md` in AutomataFramework), since the builder can change only what the file holds.
 
-Overall: **2%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
-| 1. Spec | In progress: drafted; Owner questions Q1 to Q4 waiting | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
+| 1. Spec | Written; the Owner's Q1 to Q5 answered (2026-11-15); in review with the framework's rigged-figures spec | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
 | 2. Plan | Not started | |
 | 3. Plan audit | Not started | |
 | 4. Execution | Not started | |
