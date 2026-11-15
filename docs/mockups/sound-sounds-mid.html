@@ -29,8 +29,6 @@
   .fader { width: 6px; border-radius: 3px; background: var(--edge); position: relative; }
   .fader i { position: absolute; bottom: var(--v); left: -9px; width: 24px; height: 12px; border-radius: 3px; background: var(--words); border: 2px solid var(--ground); }
   .strip .num { font-size: 12px; color: var(--quiet); }
-  .warncard { position: absolute; z-index: 4; right: 12px; top: 14%; width: min(280px, calc(100% - 24px)); display: grid; grid-template-columns: auto 1fr; gap: 6px 8px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 14px; }
-  .warncard p { margin: 0; } .warncard .sbtn { grid-column: 1 / -1; justify-self: start; }
   .duck { position: absolute; right: 14px; top: 8px; }
   .mixer { overflow: hidden; } .strip { min-width: 0; } .mixer .more2 { display: none; justify-content: center; color: var(--quiet); font-size: 13px; text-align: center; }
   @media (max-width: 699px) and (min-height: 601px) { .mixer .strip:nth-child(n+4):not(.more2) { display: none; } .mixer .more2 { display: flex; } }
@@ -42,7 +40,10 @@
     .meters { flex-direction: column; justify-content: center; gap: 3px; align-self: stretch; }
     .meter { width: 100%; height: 3px; } .meter i { top: 0; right: auto; width: 60%; height: 100% !important; }
     .fader { width: 100%; height: 4px; } .fader i { bottom: auto; top: -6px; left: var(--v); width: 12px; height: 16px; }
-    .strip .sbtn { height: 26px; font-size: 13px; } }
+    .mixer { overflow-y: auto; } .strip { flex: none; height: 44px; border: 0; box-shadow: inset 0 0 0 1px var(--edge); } .strip.on { box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .strip .sbtn { height: 36px; font-size: 13px; } }
+  /* On phones "Only this" is its headphones icon, so the words never wrap. */
+  @media (max-width: 500px), (max-height: 600px) { .strip .ot { display: none; } }
 </style>
 </head>
 <body>
@@ -54,7 +55,6 @@
     <div class="stage grid">
       <span class="chip" style="left:6%;top:61%"><span class="ic" data-i="speaker-high"></span>Jump</span>
       <span class="chip" style="left:45%;top:79%"><span class="ic" data-i="speaker-high"></span>Push</span>
-      <div class="warncard"><span class="ic" data-i="warning"></span><p>Wind clicks when it starts again</p><button class="sbtn">Smooth it out</button></div>
       <span class="chip" style="left:50%;top:4%;transform:translateX(-50%)"><span class="ic" data-i="music-notes"></span>Music: <span class="v">Meadow tune</span></span>
     </div>
   </div>
@@ -82,11 +82,12 @@ window.MOCK = {
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New sound</button><button class="btn small"><span class="ic" data-i="upload-simple"></span>Bring in a recording</button>',
   },
-  bottom: { title: 'How loud each group is', icon: 'sliders', html: `<div class="mixer"><div class="strip on"><b>Music</b><div class="meters"><span class="meter"><i style="height:62%"></i></span><span class="fader"><i style="--v:70%"></i></span></div><button class="sbtn">Only this</button></div><div class="strip"><b>Hero</b><div class="meters"><span class="meter"><i style="height:40%"></i></span><span class="fader"><i style="--v:85%"></i></span></div><button class="sbtn">Only this</button></div><div class="strip"><b>The level</b><div class="meters"><span class="meter"><i style="height:28%"></i></span><span class="fader"><i style="--v:60%"></i></span></div><button class="sbtn">Only this</button></div><div class="strip"><b>Talking</b><div class="meters"><span class="meter"><i style="height:0%"></i></span><span class="fader"><i style="--v:90%"></i></span></div><button class="sbtn">Only this</button></div><div class="strip"><b>Everything</b><div class="meters"><span class="meter"><i style="height:58%"></i></span><span class="fader"><i style="--v:80%"></i></span></div><button class="sbtn">Only this</button></div><div class="strip more2"><b>More</b><span>2 more groups ›</span></div></div>` },
+  bottom: { title: 'How loud each group is', icon: 'sliders', html: `<div class="mixer"><div class="strip on"><b>Music</b><div class="meters"><span class="meter"><i style="height:62%"></i></span><span class="fader"><i style="--v:70%"></i></span></div><button class="sbtn" title="Hear only this group"><span class="ic" data-i="headphones"></span><span class="ot">Only this</span></button></div><div class="strip"><b>Hero</b><div class="meters"><span class="meter"><i style="height:40%"></i></span><span class="fader"><i style="--v:85%"></i></span></div><button class="sbtn" title="Hear only this group"><span class="ic" data-i="headphones"></span><span class="ot">Only this</span></button></div><div class="strip"><b>The level</b><div class="meters"><span class="meter"><i style="height:28%"></i></span><span class="fader"><i style="--v:60%"></i></span></div><button class="sbtn" title="Hear only this group"><span class="ic" data-i="headphones"></span><span class="ot">Only this</span></button></div><div class="strip"><b>Talking</b><div class="meters"><span class="meter"><i style="height:0%"></i></span><span class="fader"><i style="--v:90%"></i></span></div><button class="sbtn" title="Hear only this group"><span class="ic" data-i="headphones"></span><span class="ot">Only this</span></button></div><div class="strip"><b>Everything</b><div class="meters"><span class="meter"><i style="height:58%"></i></span><span class="fader"><i style="--v:80%"></i></span></div><button class="sbtn" title="Hear only this group"><span class="ic" data-i="headphones"></span><span class="ot">Only this</span></button></div><div class="strip more2"><b>More</b><span>2 more groups ›</span></div></div>` },
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
   values: {
     title: 'Music', sub: 'Music · how loud it is', pic: { i: 'music-notes' }, tab: 'Music',
+    top: '<div class="icard"><span class="ic" data-i="warning"></span><p>Wind clicks when it starts again</p><button class="sbtn"><span class="ic" data-i="wave-sine"></span>Smooth it out</button></div>',
     groups: [
       { name: 'Loudness', open: true, rows: [
         { t: 'slider', l: 'How loud', f: 'mix.music.volume', v: '70%', lo: 'Silent', hi: 'Full', at: 70, ch: true },

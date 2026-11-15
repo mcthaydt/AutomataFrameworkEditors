@@ -10,8 +10,11 @@
   .clipstage { display: flex; gap: 6%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
   .onion { position: relative; line-height: 0; border-bottom: 2px solid #444; padding: 0 30px; }
   .onion canvas { display: block; image-rendering: pixelated; }
-  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
-  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
+  /* The pose now is at full strength with hard pixels, above the others; the poses before and after are faint tints
+     of the same size, a step to each side. */
+  .onion .now { position: relative; z-index: 2; display: block; }
+  .onion .before { position: absolute; z-index: 1; left: 18px; bottom: 0; opacity: 0.2; filter: brightness(0) invert(0.85); }
+  .onion .after { position: absolute; z-index: 1; left: 42px; bottom: 0; opacity: 0.2; filter: brightness(0) invert(0.85); }
   .gamesize { display: flex; flex-direction: column; gap: 6px; align-items: center; }
   .gamesize .mini { width: 180px; aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; position: relative; border: 1px solid var(--edge); image-rendering: pixelated; }
   .gamesize .mini span { position: absolute; left: 20%; top: 66%; line-height: 0; }
@@ -34,7 +37,7 @@
 <div class="canvas paper">
   <div class="fit">
     <div class="clipstage">
-      <div class="onion"><span class="before" data-pixel="keeper" data-fit="0.7"></span><span data-pixel="step" data-fit="0.7"></span><span class="after" data-pixel="keeper" data-fit="0.7"></span></div>
+      <div class="onion"><span class="before" data-pixel="keeper" data-fit="0.7"></span><span class="now" data-pixel="step" data-fit="0.7"></span><span class="after" data-pixel="keeper" data-fit="0.7"></span></div>
       <div class="gamesize"><div class="mini"><span data-pixel="step" data-scale="1"></span></div><span class="label">At the game's size</span></div>
     </div>
   </div>

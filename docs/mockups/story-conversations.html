@@ -49,6 +49,9 @@
   @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) and (max-width: 940px) { [data-board] { display: none !important; } .script.phone { display: block; } }
   body.sh .pinned.sam::before { content: "S"; background: #b3a38f; }
   @media (max-width: 1180px), (max-height: 600px) { .minimap { display: none; } }
+  /* A missing language sits at the line's right end, apart from the words. */
+  .script .line:has(.miss) { display: flex; align-items: flex-start; gap: 8px; }
+  .script .line .miss { margin-left: auto; flex: none; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -60,19 +63,19 @@
   <div class="fit">
     <div data-board="980x520">
       <svg class="clinks" viewBox="0 0 980 520" aria-hidden="true">
-        <path d="M280 110 C340 110 340 90 400 90"/><path class="head" d="M400 90l-10 -6v12z"/>
-        <path d="M700 130 C780 130 820 170 820 300"/><path class="head" d="M820 300l-6 -10h12z"/>
+        <path d="M250 110 C335 110 335 90 420 90"/><path class="head" d="M420 90l-10 -6v12z"/>
+        <path d="M720 130 C790 130 820 170 820 300"/><path class="head" d="M820 300l-6 -10h12z"/>
         <path d="M160 200 C160 400 400 400 690 380"/><path class="head" d="M690 380l-10 -6v12z"/>
       </svg>
-      <span class="chip" style="left:290px;top:150px">“What's that door?”</span>
+      <span class="chip" style="left:335px;top:100px;transform:translate(-50%,-50%);font-size:13px;white-space:nowrap">“What's that door?”</span>
       <span class="chip" style="left:770px;top:200px">Then</span>
       <span class="chip" style="left:330px;top:362px">“Bye!”</span>
-      <div class="card" style="left:20px;top:40px;width:260px">
+      <div class="card" style="left:20px;top:40px;width:230px">
         <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag">▶ Starts here</span></header>
         <p>“Hello there!”</p><p>“Lovely day for pushing crates.”</p>
         <p class="cond"><span class="ic" data-i="bookmark-simple"></span>Remember: met the keeper</p>
       </div>
-      <div class="card on" style="left:400px;top:40px;width:300px">
+      <div class="card on" style="left:420px;top:40px;width:300px">
         <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag"><span class="flag" data-flag="kr"></span>Korean missing</span></header>
         <p>“The door opens if you push the crate onto the button.”</p>
         <p class="cond"><span class="ic" data-i="door"></span>Only if the door is shut</p>
@@ -85,7 +88,7 @@
         <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span></header>
         <p class="problem">No arrow points to this card. Delete it, or draw an arrow to it.</p><div class="ask"><button class="btn small">Delete this card</button></div>
       </div>
-      <div class="pinned sam" style="left:730px;top:40px"><b>Sam · writer</b>Keep the keeper's lines short: the box fits two lines on a phone.</div>
+      <div class="pinned sam" style="left:745px;top:40px"><b>Sam · writer</b>Keep the keeper's lines short: the box fits two lines on a phone.</div>
     </div>
     <div class="script phone">
       <h3>Keeper at the door · 4 cards</h3>
@@ -96,7 +99,6 @@
       <p class="line on">“The door opens if you push the crate onto the button.”<span class="miss"><span class="flag" data-flag="kr"></span>Korean missing</span></p>
       <div class="who">Keeper · ends · then plays: Door opens</div>
       <p class="line">“Off you go, then.”</p>
-      <p class="more3">On a phone, a conversation opens as a script. The map is on a tablet or a computer.</p>
     </div>
     <div class="float minimap"><i style="left:8%;top:10%;width:26%;height:22%"></i><i style="left:42%;top:10%;width:30%;height:18%"></i><i style="left:70%;top:58%;width:26%;height:20%"></i><i style="left:8%;top:78%;width:32%;height:14%"></i><i class="view" style="left:4%;top:4%;width:92%;height:90%"></i></div>
   </div>

@@ -23,7 +23,15 @@
   .ramp { display: flex; gap: 0; margin: 2px 0; }
   .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
   .ramp i.on { outline: 3px solid var(--touch); outline-offset: -3px; }
-  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: clamp(120px, 24cqh, 200px); }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: clamp(120px, 30cqh, 260px); }
+  .rkey { display: flex; flex-wrap: wrap; gap: 4px 12px; max-width: 420px; font-size: 13px; color: var(--quiet); }
+  .rkey span { display: inline-flex; align-items: center; gap: 6px; }
+  .rkey i { width: 14px; height: 14px; border: 1px solid var(--edge); border-radius: 2px; }
+  .rkey i.y { background: var(--touch); }
+  .rkey i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 2px, transparent 2px 5px); }
+  .rkey i.me { background: var(--accent); }
+  .patch canvas { width: min(7cqh, 5cqw); }
+  .patch > span:empty { width: min(7cqh, 5cqw); }
   .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
   .rules i.y { background: var(--touch); }
   .rules i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 3px, transparent 3px 7px); }
@@ -46,7 +54,8 @@
           <div class="rules"><i class="n"></i><i class="n"></i><i></i><i class="n"></i><i class="me"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i></div>
           <div class="rules"><i class="n"></i><i class="n"></i><i class="n"></i><i class="y"></i><i class="me"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i></div>
         </div>
-        <button class="btn small"><span class="ic" data-i="plus"></span>Add a rule</button>
+        <span class="rkey"><span><i class="me"></i>This tile</span><span><i class="y"></i>A tile must be here</span><span><i class="n"></i>No tile here</span><span><i></i>Anything</span></span>
+        <button class="sbtn"><span class="ic" data-i="plus"></span>Add a rule</button>
       </div>
       <div class="side">
         <span class="sub">Test patch: paint here, the tiles join by themselves</span>

@@ -46,6 +46,9 @@
   .langrow div { flex: 1; display: flex; flex-direction: column; gap: 2px; } .langrow b { font-weight: 500; } .langrow small { color: var(--quiet); font-size: 14px; display: flex; gap: 6px; align-items: center; }
   .script .more3 { margin: 14px 0 0; color: var(--quiet); font-size: 14px; }
   @media (max-width: 1180px), (max-height: 600px) { .minimap { display: none; } }
+  /* A missing language sits at the line's right end, apart from the words. */
+  .script .line:has(.miss) { display: flex; align-items: flex-start; gap: 8px; }
+  .script .line .miss { margin-left: auto; flex: none; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -70,7 +73,15 @@
       <p class="line">“Thanks. I will look.”</p>
       <div class="who">Keeper · ends · plays: Door opens</div>
       <p class="line">“Off you go, then.”</p>
-      <p class="more3">24 more cards below · scroll to read on</p>
+      <div class="who">Keeper · if the hero asked “Who are you?”</div>
+      <p class="line">“I keep the door. I have kept it for a long time.”</p>
+      <div class="who">Hero</div>
+      <p class="line">“Is it heavy?”</p>
+      <div class="who">Keeper</div>
+      <p class="line">“Only the first hundred years.”</p>
+      <div class="who">Keeper · ends</div>
+      <p class="line">“Now, about that crate.”</p>
+      <p class="more3">20 more cards below · scroll to read on</p>
     </div>
   </div>
 </div>

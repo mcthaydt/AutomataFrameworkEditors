@@ -205,16 +205,18 @@ function insRow(r) {
       return `<div class="ir sl">${label}${r.num ? `<span class="scrub">${r.v}</span>` : '<span></span>'}<span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     // Choices that do not fit the panel as segments become a dropdown.
     case 'choice':
-      if (r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
+      if (r.opts.length >= 4 || r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
       return `<div class="ir${r.opts.join('').length + (r.l || '').length > 24 || r.opts.join('').length > 18 || !r.l ? ' wide' : ''}">${label}<span class="segs">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span></div>`
     case 'sw':
-      return `<div class="ir">${label}<span class="tog${r.on ? ' on' : ''}"></span></div>`
+      return `<div class="ir${(r.l || '').length > 26 ? ' wide sww' : ''}">${label}<span class="tog${r.on ? ' on' : ''}"></span></div>`
     case 'pick':
-      return `<div class="ir">${label}<span class="drop">${pic(r)}<span>${r.v}</span>${icon('caret-down')}</span></div>`
+      return `<div class="ir${!r.l || (r.l || '').length + String(r.v).length > 30 ? ' wide' : ''}">${label}<span class="drop">${pic(r)}<span>${r.v}</span>${icon('caret-down')}</span></div>`
     case 'text':
       return `<div class="ir tx">${label}<span class="tbox">${r.v}</span></div>`
     case 'btns':
-      return `<div class="ibtns" style="--n:${r.b.length === 4 ? 2 : r.b.length}">${r.b.map(([w, ic, main]) => `<button class="sbtn${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
+      const words = r.b.reduce((s, [w]) => s + w.length, 0)
+      const cols = r.b.length === 1 ? 1 : r.b.length === 4 ? 2 : words > 26 || r.b.some(([w]) => w.length > 14) ? 1 : r.b.length
+      return `<div class="ibtns${cols === 3 ? ' three' : ''}" style="--n:${cols}">${r.b.map(([w, ic, main]) => `<button class="sbtn${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
     case 'html':
       return r.h
     default:
@@ -246,7 +248,7 @@ function inspector(v, keep) {
     if (!g.open) hidden += g.count || 1
     if (take.length) parts.push(`<div class="igroup"><h4>${g.name.replace(soon, '')}</h4>${take.map(insRow).join('')}</div>`)
   }
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${v.title}${changed ? '<i class="dot" title="Changed, not shared yet"></i>' : ''}</b><small>${v.sub || ''}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, not shared yet"></i></span>') : v.title}</b><small>${v.sub || ''}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
       ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}
       <button class="astext">${icon('file-text')}Show as text, for agents</button></div>`
@@ -267,14 +269,15 @@ function assets(lib) {
     <div class="agrid">${lib.items.map((it) => `<div class="ai${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></div>`).join('')}</div>`
 }
 
-// The left panel: everything in what is open, and the game's things to add. A part with nothing to add has no
-// Assets tab.
+// The left panel: everything in what is open, and the game's things to add. Both tabs show on every page, so a
+// new person learns the second one is there.
 function leftPanel(m) {
+  const hasAssets = true
   if (!m.library?.items?.length) m.library = null
   const onAssets = !m.list && m.library
   const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Assets.</p>'
   return `<aside class="sh-left">
-    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${m.list?.tab || 'Everything here'}</button>${m.library ? `<button class="${onAssets ? 'on' : ''}">Assets</button>` : ''}<button class="ib" aria-label="Hide" title="Hide this panel">${icon('sidebar-simple')}</button></nav>
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${m.list?.tab || 'Everything here'}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Assets</button>` : ''}<button class="ib" aria-label="Hide" title="Hide this panel">${icon('sidebar-simple')}</button></nav>
     <div class="lsearch">${icon('magnifying-glass')}<span>Find</span></div>
     <div class="lbody">${body}</div>
   </aside>`
@@ -290,7 +293,7 @@ function playbar(p) {
     <button class="ib w" title="Start again">${icon('arrow-counter-clockwise')}<span>Start again</span></button>
     <button class="ib w" title="Play from here">${icon('map-pin')}<span>Play from here</span></button>
     <span class="rew" title="Drag back to see it again"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}<button class="spd" title="How fast">${['Normal', 'Slow', 'Slower'][p.speed || 0]}${icon('caret-down')}</button></span>
-    <button class="ib w stop" title="Stop">${icon('stop')}<span>Stop</span></button>
+    <button class="ib big" title="Bigger: hide the panels while playing">${icon('arrows-out')}</button>
   </div>`
 }
 
@@ -336,7 +339,7 @@ function frame(m) {
   const device = fine ? 'computer' : small ? 'phone' : 'iPad'
   const status = n ? `${icon('check')}<span class="long">Saved on this ${device}</span><span class="short">Saved</span>` : `${icon('check')}<span class="long">Everyone has your changes</span><span class="short">Shared</span>`
   // The tool's own options sit inside the toolbar, beside the tool they belong to. "All levels" is the level's menu.
-  const opts = (m.settings || []).filter((o) => !/All levels/.test(o))
+  const opts = [...(m.settings || []).filter((o) => !/All levels/.test(o)), `<span>Zoom</span><span class="seg"><button class="on">Fit</button><button>${/%$/.test(m.zoom || '100%') ? m.zoom || '100%' : '100%'}</button></span>`]
   const html = `
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
@@ -352,11 +355,11 @@ function frame(m) {
     <button class="share">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}<span class="nw"> new</span></span>` : ''}</button>
   </header>
   ${leftPanel(m)}
-  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}</aside>` : ''}
+  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show the values">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button></aside>` : ''}
   ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
   ${m.play ? playbar(m.play) : ''}
   <div class="sh-tools">
-    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div"></i><button class="tl2 u" title="${fine ? 'Undo (⌘Z)' : 'Undo · press and hold for Redo'}">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u r" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button>${opts.length ? `<i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="How this tool works and what the canvas shows">${icon('sliders-horizontal')}<span>Options</span></button>` : ''}<button class="tz" title="Zoom: pinch, or press to pick">${m.zoom || '100%'}</button></nav>
+    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div"></i><button class="tl2 u" title="${fine ? 'Undo (⌘Z)' : 'Undo · press and hold for Redo'}">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u r" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button>${opts.length ? `<i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="How this tool works and what the canvas shows">${icon('sliders-horizontal')}<span>Options</span></button>` : ''}<button class="tz" title="Zoom: pinch, or press to pick">${/%$/.test(m.zoom || '') ? m.zoom : '100%'}</button></nav>
     ${opts.length && m.optsOpen ? `<div class="opop"><b>Options</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
   </div>`
   document.body.insertAdjacentHTML('beforeend', html)
@@ -376,7 +379,7 @@ function frame(m) {
     stage.insertAdjacentHTML(
       'beforeend',
       `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">
-      <div class="agent" style="left:${g.card[0]}%;top:${g.card[1]}%"><b>${icon('sparkle')}${g.who || 'Agent'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
+      <div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b>${icon('sparkle')}${g.who || 'Agent'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
     )
   }
 }
@@ -411,5 +414,18 @@ for (const el of document.querySelectorAll('[data-board]')) {
     transform: `scale(${scale})`,
     transformOrigin: '0 0',
   })
+}
+// A timeline ends on a whole row: rows that would be cut are left out, and the band's header says how many more.
+for (const tl of document.querySelectorAll('.tl')) {
+  let hidden = 0
+  for (const tn of tl.querySelectorAll(':scope > .tn')) {
+    if (tn.offsetTop + tn.offsetHeight > tl.clientHeight + 1) {
+      tn.style.display = 'none'
+      tn.nextElementSibling.style.display = 'none'
+      hidden++
+    }
+  }
+  const head = tl.closest('.sh-bottom')?.querySelector('.bh')
+  if (hidden && head) head.insertAdjacentHTML('beforeend', `<span class="morerows">${hidden} more row${hidden > 1 ? 's' : ''} below</span>`)
 }
 document.documentElement.dataset.ready = 'yes'

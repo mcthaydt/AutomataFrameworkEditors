@@ -24,7 +24,7 @@
       <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>
       <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
       <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
-      <span class="tip up" style="left:50%;top:2%;transform:translateX(-10%)">Drag the line above back to see it again</span>
+      <span class="tip up" style="left:12px;top:2%">Drag the line above back to see it again</span>
     </div>
   </div>
 </div>
@@ -38,6 +38,22 @@ window.MOCK = {
   ],
   tool: 7,
   play: { paused: true, speed: 0, at: 40, time: '0:12' },
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {

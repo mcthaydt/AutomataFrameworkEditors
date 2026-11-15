@@ -2711,3 +2711,391 @@ body.sh .daybar {
 body.sh .daybar .rbar {
   width: 120px;
 }
+
+/* ---------- design loop two ---------- */
+
+/* An agent's colour is a token, used only for what an agent did. */
+:root,
+body.sh {
+  --agent: #c4b2f5;
+  --agent-edge: #5b4d86;
+  --tools-h: 84px;
+}
+
+body.sh.fine {
+  --tools-h: 64px;
+}
+
+.agent {
+  border-color: var(--agent-edge);
+}
+
+.agent b {
+  color: var(--agent);
+}
+
+.agent::before {
+  border-color: var(--agent-edge);
+}
+
+body.sh .ghost2 {
+  outline-color: var(--agent);
+}
+
+/* A button's words never break. Three in a row put the icon above a short label; long ones take a row each. */
+.ibtns .sbtn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ibtns.three .sbtn {
+  flex-direction: column;
+  gap: 2px;
+  height: auto;
+  min-height: calc(var(--row) + 6px);
+  padding: 4px 4px;
+  font-size: 12px;
+}
+
+/* A label set above its control keeps air below it, so it never reads into the next row. */
+.ir.wide {
+  padding-bottom: 8px;
+}
+
+.ir.wide .drop {
+  width: 100%;
+}
+
+/* The title and its changed dot stay on one line. */
+.nw {
+  white-space: nowrap;
+}
+
+/* A tool with no job here is left out at every size: a dimmed tool means "not now", never "not on this page". */
+.tl2.off {
+  display: none;
+}
+
+/* On a computer a segment is 24 high, with the same picked look as on touch. */
+.fine .segs button,
+.fine .seg button {
+  height: 24px;
+}
+
+/* Every control a finger uses is at least 44 points, measured, not only drawn. */
+.touch :is(.ltabs button, .place, .partn, .wsn, .game, .more, .bh button, .warncard button,
+  .note button, .agent button, .ibtns .sbtn) {
+  min-height: 44px;
+}
+
+.touch .sh-top .game {
+  min-width: 44px;
+}
+
+.touch .sh-bottom .bh {
+  height: 48px;
+}
+
+/* Tips stay inside the canvas and wrap. */
+body.sh .tip {
+  max-width: 240px;
+  white-space: normal;
+}
+
+/* The changed dot keeps its line; the band says when rows are hidden below. */
+.morerows {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--quiet);
+}
+
+body.sh .sh-bottom {
+  --tl-name: 140px;
+}
+
+/* Small words on Share and Suggest are never under 12 points. */
+body.sh .share-pop .sc small,
+body.sh .sc small {
+  font-size: 13px;
+}
+
+/* A dropdown in the inspector stands out from the panel on a computer too. */
+body.sh .drop {
+  background: var(--raised);
+  border: 1px solid var(--line);
+}
+
+/* Playing keeps every panel where it was; the panels only go quiet, so nothing the person looks at moves. */
+body.sh.playing :is(.sh-left, .sh-right) {
+  opacity: 0.55;
+}
+
+/* The play bar is never wider than the canvas; short of room it keeps its icons and drops their words. */
+.sh-play {
+  max-width: calc(100vw - var(--left-w) - var(--right-w) - 16px);
+}
+
+@media (max-width: 1365px) {
+  .sh-play .ib.w span:not(.ic) {
+    display: none;
+  }
+}
+
+/* The inspector's tab (phone on its side) is hidden everywhere else. */
+.itab {
+  display: none;
+}
+
+/* The keys sheet lies above the veil at full contrast. */
+body.sh .keysheet {
+  z-index: 42;
+  color: var(--words);
+}
+
+/* On narrow screens: the problems count stays, and the play bar's line takes all the free width with Start again kept
+   as an icon. */
+@media (max-width: 1000px), (max-height: 600px) {
+  .sh-top .warn {
+    display: inline-flex;
+  }
+
+  body.sh .sh-play {
+    left: 8px;
+    right: 8px;
+    transform: none;
+    max-width: none;
+  }
+
+  .sh-play .rew {
+    flex: 1;
+  }
+
+  .sh-play .ib.w {
+    display: inline-flex;
+  }
+}
+
+/* An upright iPad: on a page with a band the closed sheet shows only its title row; the agent's card sits beside the
+   thing it is about. */
+@media (min-width: 601px) and (max-width: 1000px) and (min-height: 601px) {
+  body.sh.has-bottom2 .sh-right .ibody {
+    display: none;
+  }
+
+  body.sh .agent {
+    position: absolute;
+    left: var(--ax) !important;
+    top: var(--ay) !important;
+    bottom: auto;
+    right: auto;
+    width: 260px;
+  }
+}
+
+/* A phone: one name in the top bar (the part, with the workspace inside its menu), the saved tick without its word,
+   Share keeps its count, and the agent's card is a strip across the canvas's top. */
+@media (max-width: 500px) {
+  .sh-top .wsn,
+  .kept .short {
+    display: none;
+  }
+
+  .sh-top .share .n {
+    display: inline;
+  }
+
+  body.sh .agent {
+    position: fixed;
+    top: calc(var(--top-h) + 6px) !important;
+    bottom: auto;
+    left: 8px !important;
+    right: 8px;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px 4px 10px;
+  }
+
+  body.sh .agent b {
+    display: none;
+  }
+
+  body.sh .agent p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.sh .agent span {
+    display: flex;
+    gap: 4px;
+    flex: none;
+  }
+
+  .phone-hide {
+    display: none;
+  }
+}
+
+/* A phone on its side: the inspector starts as a 44-point tab on the right edge, so the canvas and any band get the
+   width; overlays start below the top bar, scroll inside and fade at their end; the keys sheet's title stays put. */
+@media (max-height: 600px) and (min-width: 600px) {
+  body.sh {
+    --right-w: 44px;
+  }
+
+  body.sh.no-right {
+    --right-w: 0px;
+  }
+
+  .sh-right > :not(.itab) {
+    display: none;
+  }
+
+  .sh-right .itab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 44px;
+    height: 100%;
+    padding: 12px 0;
+    border: 0;
+    background: var(--panel);
+    color: var(--words);
+    font: 500 13px var(--label);
+  }
+
+  .sh-right .itab span {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: calc(100% - 40px);
+  }
+
+  .touch .tl2 {
+    height: 44px;
+  }
+
+  .touch .agent button {
+    min-height: 36px;
+  }
+
+  .share-pop,
+  .keysheet,
+  .sheet,
+  .pop {
+    top: calc(var(--top-h) + 6px) !important;
+    bottom: 8px !important;
+    max-height: none !important;
+    overflow-y: auto;
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+    mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+  }
+
+  body.sh .keysheet h2 {
+    position: sticky;
+    top: -12px;
+    z-index: 1;
+    background: var(--panel);
+  }
+
+  body.sh .daybar {
+    left: 72px;
+  }
+}
+
+/* Keys and gestures on a computer: the touch column is the widest, so no line breaks. */
+body.sh.fine .keysheet {
+  width: min(1120px, calc(100vw - 32px));
+  grid-template-columns: 1fr 1fr 1.5fr;
+}
+
+body.sh .keysheet .k span:first-child {
+  white-space: nowrap;
+}
+
+/* A problem never floats on the canvas: it is a card at the top of the inspector, as wide as every other block. */
+.icard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  margin: 4px 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--raised);
+  border-left: 3px solid var(--accent);
+  font-size: 14px;
+}
+
+.icard p {
+  margin: 0;
+}
+
+.icard .sbtn {
+  grid-column: 1 / -1;
+  justify-content: center;
+}
+
+/* Words only for a bigger screen, and their short stand-ins for a phone. */
+.phone-only {
+  display: none;
+}
+
+/* On phones a timeline's moments are their dashed lines only, so two names never lie on each other. */
+@media (max-width: 500px), (max-height: 600px) {
+  .phone-only {
+    display: inline;
+  }
+
+  .phone-hide {
+    display: none;
+  }
+
+  body.sh .evt > span {
+    display: none;
+  }
+}
+
+/* Filter chips are the shell's chips: small, unbordered, the picked one filled. A finger still gets 44 points. */
+body.sh .filters .choice {
+  position: relative;
+  min-height: 0;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--raised);
+  color: var(--quiet);
+  font: 13px var(--label);
+}
+
+body.sh .filters .choice.on {
+  background: var(--words);
+  color: var(--ground);
+}
+
+body.sh .filters .choice .num {
+  font-size: 12px;
+}
+
+.touch .filters {
+  padding: 8px 0;
+}
+
+.touch .filters .choice::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}

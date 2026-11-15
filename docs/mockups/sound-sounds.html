@@ -32,6 +32,8 @@
   .duck { position: absolute; right: 14px; top: 8px; }
   .mixer { overflow-x: auto; } .strip { min-width: 96px; } .mixer .more2 { position: absolute; right: 0; top: 0; bottom: 0; width: 56px; display: none; align-items: center; justify-content: flex-end; padding-right: 6px; background: linear-gradient(90deg, transparent, var(--panel)); color: var(--quiet); font-size: 13px; }
   @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) { .takes .label { display: none; } .mixer .more2 { display: flex; } }
+  /* A phone on its side: the band gets most of the height, so the wave and its handles can be used. */
+  @media (max-height: 600px) and (min-width: 600px) { body.sh.has-bottom2 { --band-h: 58vh; } }
 </style>
 </head>
 <body>

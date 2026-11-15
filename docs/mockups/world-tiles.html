@@ -22,7 +22,7 @@
   .patch > span:empty { width: min(5.5cqh, 4cqw); aspect-ratio: 1; }
   .ramp { display: flex; gap: 0; margin: 2px 0; }
   .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
-  .ramp i.on { outline: 3px solid var(--touch); outline-offset: -3px; }
+  .ramp i.on { outline: 3px solid var(--accent); outline-offset: -3px; }
   .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: clamp(120px, 24cqh, 200px); }
   .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
   .rules i.y { background: var(--touch); }
@@ -83,7 +83,7 @@ window.MOCK = {
     groups: [
       { name: 'Colors', open: true, rows: [
         { l: 'The game\'s colors, in rows from light to dark. Change one and every tile that uses it changes.' },
-        { t: 'html', h: '<div class="ramp"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#3c4a2a"></i></div><div class="ramp"><i style="background:#f1dcc0"></i><i style="background:#d1aa83" class="on"></i><i style="background:#a07a52"></i><i style="background:#6f5236"></i><i style="background:#3e2d1e"></i></div><div class="ramp"><i style="background:#cfeefc"></i><i style="background:#9fd3f0" class="on"></i><i style="background:#5a9fc8"></i><i style="background:#35607e"></i><i style="background:#1d3448"></i></div>' },
+        { t: 'html', h: '<div class="ramp"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#3c4a2a"></i></div><div class="ramp"><i style="background:#f1dcc0"></i><i style="background:#d1aa83"></i><i style="background:#a07a52"></i><i style="background:#6f5236"></i><i style="background:#3e2d1e"></i></div><div class="ramp"><i style="background:#cfeefc"></i><i style="background:#9fd3f0"></i><i style="background:#5a9fc8"></i><i style="background:#35607e"></i><i style="background:#1d3448"></i></div>' },
       ] },
       { name: 'What fits next to it', open: true, rows: [
         { t: 'choice', l: 'Fits next to', f: 'joins', opts: ['The same tile', 'Any meadow tile', 'Nothing'], on: 1 },
