@@ -6,8 +6,8 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 Pull request 56 (branch `claude/project-thread-3v0bsz`) replaces 55: it carries every commit of 55 and adds the fixes
 from the Opus plain-words audit (`/mnt/project-files/reports/2026-11-15-slice3-plain-words-audit.md`, at 4f0135d,
-52 findings). Progress on this step: **90%** (every finding has a fix pushed; the last phone fixes wait on CI's
-pictures, then the review page). Branch `claude/project-thread-h6n4o2` (55's) is already deleted.
+52 findings). Progress on this step: **100%** (every finding fixed and checked in CI's pictures at 8538775; the review page
+is republished). Branch `claude/project-thread-h6n4o2` (55's) is already deleted.
 
 - **B1 done:** the icons (192 Phosphor files the pages name) and the three fonts (latin and latin-ext) are copied
   into `docs/mockups/assets/` with `LICENCES.txt`. No package came back.
@@ -28,8 +28,12 @@ pictures, then the review page). Branch `claude/project-thread-h6n4o2` (55's) is
   the list, Undo and Play fit; the nudge arrows leave the bar on touch screens below iPad sideways; Line up's menu
   is not drawn open on any page now (the only page that drew it was mid-project, which now shows the helper's card
   alone).
-- **Still to do here:** republish the review page (artifact W5REbCVDUkABgoPY5Hxy2X) with the shell and World only. Then, in its own thread, the one
-  Fable UI/UX pass.
+- **Review page republished** (artifact W5REbCVDUkABgoPY5Hxy2X, version 7): the shell and World only, 20 screens at
+  five sizes, pictures from 8538775.
+- **Left for the Fable pass:** small overlaps CI's pictures still show: on a phone on its side the settings strip
+  sits over the top of the hold-buttons (Scenes) and the colour column (Tiles); on Links the keeper's figure covers
+  part of "Takes 3 hits"; an upright phone's tool buttons are icons, with a word only under the picked one.
+- **Next:** the one Fable UI/UX pass, in its own thread, then the Owner.
 
 ## The shell and World mockups (roadmap slice 3): handoff (2026-11-15, 08:10 UTC)
 
