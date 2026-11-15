@@ -2,6 +2,26 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Cycle 4: the 2D figure builder (Characters, Figures)
+
+Spec: [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md). The Owner asked
+(2026-11-15) that every editor part get its own pipeline; this is the first. The demo game's art comes from the
+builders (the Owner, 2026-11-15), so this is on the path to Release 1. It starts building after Cycle 3's frame and
+level screen are on `main`.
+
+Overall: **2%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | In progress: drafted; Owner questions Q1 to Q4 waiting | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
+| 2. Plan | Not started | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
