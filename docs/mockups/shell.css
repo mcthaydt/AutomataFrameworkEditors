@@ -8506,3 +8506,41 @@ html body.sh .menup .mi .go2 {
 html body.sh.has-tilestrip .tilestrip {
   align-items: flex-start;
 }
+
+/* ----- 18. The colours to paint with wrap onto two rows on an upright phone, so none is cut off at the edge ----- */
+@media (max-width: 500px) {
+  html body.sh.has-tilestrip .strip {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 6px;
+  }
+
+  html body.sh.has-tilestrip .strip i,
+  html body.sh.has-tilestrip .strip button {
+    flex: none;
+  }
+
+  html body.sh.has-tilestrip .big canvas {
+    width: 64cqw;
+  }
+}
+
+/* ----- 19. The paint brush's settings in a tray wrap onto two lines on an upright phone, like the tile tool's (M4, M15) ----- */
+@media (max-width: 500px) {
+  html body.sh .tray .tset {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 4px;
+    overflow: visible;
+    white-space: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ----- 20. Characters' top bar on an upright iPad and a phone on its side: "Level 1" with the arrow, so "Up to date" is not cut off ----- */
+@media (max-width: 1000px) {
+  html body.sh .sh-top .backb .bw {
+    display: none;
+  }
+}

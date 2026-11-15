@@ -435,7 +435,7 @@ function frame(m) {
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
     <button class="wsn" title="The five editors: World, Characters, Feel, Sound, Story"><b>${editor[0]}</b>${icon('caret-down')}</button>
-    ${m.back ? `<button class="ib backb" title="Back to ${m.back}">${icon('arrow-left')}<span>Back to ${m.back}</span></button>` : ''}
+    ${m.back ? `<button class="ib backb" title="Back to ${m.back}">${icon('arrow-left')}<span><span class="bw">Back to </span>${m.back}</span></button>` : ''}
     <button class="partn" title="Other parts, other editors and the game's own menu"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}${m.with ? `<span class="pw2">, shown with ${m.with}</span>` : ''}</span>${icon('caret-down')}</button>
     ${m.editor === 'world' && here === 'Levels' ? `<button class="ib mapb${m.mapOn ? ' on' : ''}" title="Every level on one map. Or pinch out past the whole level">${icon('map-trifold')}<span>Map</span></button>` : ''}
     <span class="fill"></span>
