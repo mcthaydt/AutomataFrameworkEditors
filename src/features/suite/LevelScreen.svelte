@@ -17,11 +17,14 @@
     saveLevel,
     takeDraft,
   } from '../game/game.ts'
-  import { describeChange, Levels, type LevelEdit } from '../levels/levels.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
-  import type { GameOpened } from './opened.ts'
+  import { describeChange, type LevelEdit, Levels, type Shape } from '../levels/levels.ts'
+  import { Button, type MenuItem, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
+  import { nameOf } from '../words/table.ts'
+  import Cluster from './Cluster.svelte'
+  import Frame from './Frame.svelte'
+  import type { GameOpened } from './opened.ts'
 
   // One level on the screen: opens the game, brings back a change that was not saved, shows the editor, and saves.
   // What a person may do is what the API said when it opened the game; the API asks again on every save.
@@ -45,17 +48,36 @@
     /** Told when a copy was made. */
     onkept: () => void
     onsignin: () => void
+    /** The person pressed Sign out. */
+    onsignout: () => void
+    /** The sign-in ran out or was refused: the person is signed out whatever they pressed. */
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game: ref, levelId, remembered, signedIn, drafts, gameName, onopened, onfacts, onsaved, onkept, onsignin, onsignedout, onback }: Props = $props()
+  let {
+    api,
+    game: ref,
+    levelId,
+    remembered,
+    signedIn,
+    drafts,
+    gameName,
+    onopened,
+    onfacts,
+    onsaved,
+    onkept,
+    onsignin,
+    onsignout,
+    onsignedout,
+    onback,
+  }: Props = $props()
 
   /** A sentence about what just happened, with the buttons it needs. */
   interface Event {
     readonly kind: 'info' | 'good' | 'problem'
     readonly text: string
     readonly details?: readonly string[]
-    readonly ask?: 'sign-in' | 'changed-elsewhere' | 'leave'
+    readonly ask?: 'sign-in' | 'changed-elsewhere' | 'leave' | 'keep'
     /** The level's text, in a box that is selected, where the clipboard was refused. */
     readonly box?: string
   }
@@ -220,11 +242,11 @@
     if (copy === undefined) return
     try {
       await navigator.clipboard.writeText(copy.text)
-      events = [{ kind: 'good', text: WORDS.copyCopied }]
+      events = [{ kind: 'good', text: WORDS.copyCopied, ask: 'keep' }]
       onkept()
     } catch {
       // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
-      events = [{ kind: 'info', text: WORDS.copySelect, box: copy.text }]
+      events = [{ kind: 'info', text: WORDS.copySelect, box: copy.text, ask: 'keep' }]
       onkept()
     }
   }
@@ -250,62 +272,104 @@
     onback()
   }
 
+  /** What the title block says in short; the whole sentence is `statusText`, read out and kept for a screen reader. */
+  const savedWords = $derived(
+    status === 'saving'
+      ? WORDS.statusSaving
+      : status === 'dirty'
+        ? WORDS.blockNotSaved
+        : status === 'saved'
+          ? saved === 'suggestion'
+            ? WORDS.blockWaiting
+            : WORDS.blockSaved
+          : WORDS.blockClean,
+  )
+  const saveDisabled = $derived(!canSave || status === 'clean' || status === 'saving' || status === 'saved')
+
+  /** What the pill's menu holds after the editors: the game's page, and on a phone the buttons the cluster has no room for. */
+  const menuFor = (shape: Shape): readonly MenuItem[] => [
+    { id: 'game', label: WORDS.openGamePage, icon: 'open', onpress: leave },
+    ...(shape === 'narrow'
+      ? ([
+          { id: 'export', label: WORDS.export, icon: 'export', onpress: () => void copyText() },
+          visitor
+            ? { id: 'sign-in', label: WORDS.signIn, icon: 'signIn', onpress: onsignin }
+            : { id: 'sign-out', label: WORDS.signOut, icon: 'signOut', onpress: onsignout },
+        ] as const)
+      : []),
+  ]
   const title = $derived(opened?.ok ? (game?.content.project.name ?? `${ref.owner}/${ref.name}`) : (gameName ?? `${ref.owner}/${ref.name}`))
   const back = $derived({ label: WORDS.back, onpress: onback })
   const standing = $derived(
     visitor ? WORDS.visitorCan : !can(level, 'save') ? WORDS.lookOnly : game?.mine !== undefined ? WORDS.mineWaiting : '',
   )
+  const hasNotices = $derived(standing !== '' || artMissing || events.length > 0)
 </script>
+
+{#snippet noticeList()}
+  {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
+  {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
+  {#each events as event (event.text)}
+    <Notice kind={event.kind} text={event.text} />
+    {#if event.box !== undefined}
+      <textarea class="box" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
+    {/if}
+    {#if event.details !== undefined && event.details.length > 0}
+      <ul class="details">
+        {#each event.details as line (line)}<li>{line}</li>{/each}
+      </ul>
+    {/if}
+    {#if event.ask === 'sign-in'}
+      <div class="actions"><Button label={WORDS.signIn} kind="primary" onpress={onsignin} /></div>
+    {:else if event.ask === 'changed-elsewhere'}
+      <div class="actions">
+        <Button label={WORDS.takeTheirs} onpress={() => void takeTheirs()} />
+        <Button label={WORDS.keepMine} onpress={keepMine} />
+      </div>
+    {:else if event.ask === 'leave'}
+      <div class="actions">
+        <Button label={WORDS.leaveNo} kind="primary" onpress={keepMine} />
+        <Button label={WORDS.leaveYes} onpress={leaveForGood} />
+      </div>
+    {:else if event.ask === 'keep'}
+      <div class="actions"><Button label={WORDS.copyKeep} icon="file" onpress={copyFile} /></div>
+    {/if}
+  {/each}
+{/snippet}
 
 {#if opened === undefined}
   <Screen {title} {back}><p>{WORDS.loading}</p></Screen>
 {:else if opened.ok && game !== undefined && start !== undefined && current !== undefined}
   <div class="level">
-    <div class="notices">
-      {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
-      {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
-      {#each events as event (event.text)}
-        <Notice kind={event.kind} text={event.text} />
-        {#if event.box !== undefined}
-          <textarea class="box" readonly rows="8" bind:this={textBox} value={event.box}></textarea>
-        {/if}
-        {#if event.details !== undefined && event.details.length > 0}
-          <ul class="details">
-            {#each event.details as line (line)}<li>{line}</li>{/each}
-          </ul>
-        {/if}
-        {#if event.ask === 'sign-in'}
-          <div class="actions"><Button label={WORDS.signIn} kind="primary" onpress={onsignin} /></div>
-        {:else if event.ask === 'changed-elsewhere'}
-          <div class="actions">
-            <Button label={WORDS.takeTheirs} onpress={() => void takeTheirs()} />
-            <Button label={WORDS.keepMine} onpress={keepMine} />
-          </div>
-        {:else if event.ask === 'leave'}
-          <div class="actions">
-            <Button label={WORDS.leaveNo} kind="primary" onpress={keepMine} />
-            <Button label={WORDS.leaveYes} onpress={leaveForGood} />
-          </div>
-        {/if}
-      {/each}
-    </div>
-    {#key generation}
-      <Levels
-        level={start}
-        content={game.content}
-        {art}
-        {canSave}
-        saveKind={asked ? 'plain' : 'primary'}
-        {status}
-        {statusText}
-        title={levelId}
-        back={{ label: WORDS.back, onpress: leave }}
-        onchange={changed}
-        onsave={() => void save()}
-        oncopytext={() => void copyText()}
-        oncopyfile={copyFile}
-      />
-    {/key}
+    <Frame game={title} level={nameOf(levelId)} onhome={leave} menu={menuFor}>
+      {#snippet cluster(shape)}
+        <Cluster
+          {shape}
+          {visitor}
+          login={game?.login}
+          {saveDisabled}
+          saveKind={asked ? 'plain' : 'primary'}
+          onsave={() => void save()}
+          onexport={() => void copyText()}
+          {onsignin}
+          {onsignout}
+        />
+      {/snippet}
+      {#snippet children(shape)}
+        {#key generation}
+          <Levels
+            content={game.content}
+            {levelId}
+            {start}
+            {art}
+            {shape}
+            block={{ game: title, level: nameOf(levelId), saved: savedWords, status: statusText }}
+            notices={hasNotices ? noticeList : undefined}
+            onchange={changed}
+          />
+        {/key}
+      {/snippet}
+    </Frame>
   </div>
 {:else if opened.ok}
   <Screen {title} {back}><Notice kind="problem" text={WORDS.cantFindGame} /></Screen>
@@ -338,15 +402,6 @@
     flex: 1;
     flex-direction: column;
     min-height: 0;
-  }
-  .notices {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3) 0;
-  }
-  .notices:empty {
-    display: none;
   }
   .actions {
     display: flex;

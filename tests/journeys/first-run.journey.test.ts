@@ -5,12 +5,15 @@ import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  leaveLevel,
   openGame,
   openPage,
+  pressExport,
   pressSave,
   type SIZES,
   setupJourneys,
   signIn,
+  statusSays,
   thingNamed,
 } from '../fixtures/journey.ts'
 import { WORDS } from '../fixtures/words.ts'
@@ -61,14 +64,15 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await says(j, 'Step 2 of 4')
     await j.page.getByRole('link', { name: 'crate-game' }).click()
     await j.page.getByRole('link', { name: 'level-1' }).click()
-    await says(j, WORDS.guideMove)
+    // The level screen is the whole window: the first-run strip is on the screens around it (Task 12 puts tips on it).
+    await thingNamed(j.page, 'crate-1').waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-    await says(j, WORDS.guideSave)
     await pressSave(j.page).click()
-    await says(j, WORDS.guideDoneDirect)
+    await statusSays(j.page, WORDS.savedDirect)
     expect(repoOf(j).commits).toHaveLength(1)
+    await leaveLevel(j.page)
+    await says(j, WORDS.guideDoneDirect)
     await j.page.getByRole('button', { name: WORDS.guideHide }).click()
-    await j.page.getByRole('button', { name: WORDS.back, exact: true }).click()
     await text(j, WORDS.tipShare)
     await j.page.reload()
     expect(await strip(j).count()).toBe(0)
@@ -81,12 +85,14 @@ test('a visitor, from nothing to a change and a copy, following only what the sc
   await j.page.getByRole('button', { name: WORDS.tryIt }).click()
   await says(j, 'Step 1 of 3')
   await j.page.getByRole('link', { name: 'level-1' }).click()
-  await says(j, WORDS.guideMove)
+  await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await says(j, WORDS.guideSaveVisitor)
+  await pressExport(j.page)
   const download = j.page.waitForEvent('download')
   await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
   await readFile(await (await download).path(), 'utf8')
+  await text(j, WORDS.copyKept)
+  await leaveLevel(j.page)
   await says(j, WORDS.guideDoneCopy)
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
 })
@@ -101,6 +107,8 @@ test("a visitor who presses Save instead: asked to sign in, comes back, saves, a
   await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
   await text(j, WORDS.draftBack)
   await pressSave(j.page).click()
+  await statusSays(j.page, WORDS.savedDirect)
+  await leaveLevel(j.page)
   await says(j, WORDS.guideDoneDirect)
 })
 
@@ -122,6 +130,8 @@ describe('someone sent a link, not signed in', () => {
   }
   test('(suggest) lands in the game, three steps, signs in at Save, ends "waiting for someone to approve it"', async () => {
     const j = await viaLink('kid', { format: 1, everyone: 'suggest', people: [] })
+    await statusSays(j.page, WORDS.savedSuggestion)
+    await leaveLevel(j.page)
     await says(j, WORDS.guideDoneSuggestion)
   })
   test('(edit) the same, ending "the change is in your game"', async () => {
@@ -130,6 +140,8 @@ describe('someone sent a link, not signed in', () => {
       everyone: 'look',
       people: [{ github: 'grandpa', level: 'edit' }],
     })
+    await statusSays(j.page, WORDS.savedDirect)
+    await leaveLevel(j.page)
     await says(j, WORDS.guideDoneDirect)
   })
 })
@@ -140,7 +152,7 @@ test('someone sent a link (look): told they can look around and who to ask; no s
   await j.page.goto(`${j.site}/${GAME}`)
   await signIn(j.page)
   await j.page.getByRole('link', { name: 'level-1' }).click()
-  await says(j, WORDS.guideLook)
+  await text(j, WORDS.lookOnly)
   expect(await pressSave(j.page).isDisabled()).toBe(true)
 })
 
@@ -207,7 +219,7 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
 test('at every step of the first run: one primary where the next thing is a button, never two, 48 px, and the strip on screen', async () => {
   const j = await window_('phone', 'grandma')
   noEditorYet(j)
-  const check = async (primaries: 'one' | 'at most one'): Promise<void> => {
+  const check = async (primaries: 'one' | 'at most one', onStrip = true): Promise<void> => {
     const found = j.page.locator('button.primary')
     const count = await found.count()
     expect(count).toBeLessThanOrEqual(1)
@@ -215,10 +227,12 @@ test('at every step of the first run: one primary where the next thing is a butt
     // 47.5: the screens check's own floor, since a browser may lay a 48 px button out at 47.99998.
     for (const button of await found.all())
       expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(47.5)
-    // On screen at the top, with no scrolling needed to read it.
-    const box = await strip(j).boundingBox()
-    expect(box?.y).toBeGreaterThanOrEqual(0)
-    expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(844)
+    // On screen at the top, with no scrolling needed to read it. The level screen has no strip: it is the window.
+    if (onStrip) {
+      const box = await strip(j).boundingBox()
+      expect(box?.y).toBeGreaterThanOrEqual(0)
+      expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(844)
+    }
     expect(await j.page.evaluate(() => document.querySelector('.content')?.scrollTop ?? 0)).toBe(0)
   }
   // Welcome: the one thing to press is Sign in.
@@ -235,15 +249,15 @@ test('at every step of the first run: one primary where the next thing is a butt
   await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
   await check('at most one')
   await j.page.getByRole('link', { name: 'level-1' }).click()
-  await says(j, WORDS.guideMove)
-  await check('at most one')
+  await thingNamed(j.page, 'crate-1').waitFor()
+  await check('at most one', false)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   // The change is made: the one thing to press is Save.
-  await says(j, WORDS.guideSave)
-  await check('one')
+  await statusSays(j.page, WORDS.statusDirty)
+  await check('one', false)
   await pressSave(j.page).click()
-  await says(j, WORDS.guideDoneDirect)
-  await check('at most one')
+  await statusSays(j.page, WORDS.savedDirect)
+  await check('at most one', false)
 })
 
 test('no screen a visitor can reach is a dead end: each has a way on and a way back', async () => {
@@ -262,12 +276,11 @@ test('no screen a visitor can reach is a dead end: each has a way on and a way b
   expect(await wayOn()).toBeGreaterThan(0)
   expect(await back.count()).toBe(1)
 
-  // A level: things to move, a Save to press, a way back.
+  // A level: things to move, a Save to press, a way back (the game's name, or the pill's menu).
   await j.page.getByRole('link', { name: 'level-1' }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
   expect(await wayOn()).toBeGreaterThan(0)
-  expect(await back.count()).toBe(1)
-  await back.click()
+  await leaveLevel(j.page)
   await j.page.getByRole('link', { name: 'level-1' }).waitFor()
 
   // A game they may not open: a way on (Sign in), a way back, and the way back works.
@@ -294,9 +307,10 @@ test('a reload after the first save still says "You did it", not "Step 2 of 4", 
   await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await pressSave(j.page).click()
-  await says(j, WORDS.guideDoneDirect)
+  await statusSays(j.page, WORDS.savedDirect)
   await j.page.reload()
   await thingNamed(j.page, 'crate-1').waitFor()
+  await leaveLevel(j.page)
   await says(j, WORDS.guideDoneDirect)
   expect(await strip(j).textContent()).not.toContain('Step')
 })

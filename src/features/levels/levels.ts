@@ -24,6 +24,7 @@ export {
   type Way,
 } from './edit.ts'
 export { nextId } from './ids.ts'
+export { type Shape, shapeOf } from './layout.ts'
 export { default as Levels } from './Levels.svelte'
 export {
   keepInside,
@@ -36,3 +37,4 @@ export {
   toScreen,
   toWorld,
 } from './place.ts'
+export { default as Stage } from './Stage.svelte'

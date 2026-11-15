@@ -5,6 +5,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  leaveLevel,
   openGame,
   openLevel,
   openPage,
@@ -185,7 +186,7 @@ test('grandpa cannot approve his own: the words say someone else must', async ()
   await dragByTouch(me.page, 'crate-1', { dx: 2, dy: 0 })
   await pressSave(me.page).click()
   await text(me, WORDS.savedSuggestion)
-  await me.page.getByRole('button', { name: WORDS.back }).click()
+  await leaveLevel(me.page)
   // The only change waiting is his own: the page does not tell him someone made a change for him to look at.
   await text(me, WORDS.waitingRow(1))
   expect(await me.page.getByText(WORDS.tipApprove).count()).toBe(0)

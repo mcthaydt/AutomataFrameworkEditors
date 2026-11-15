@@ -4,7 +4,7 @@
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { type Browser, type BrowserContext, chromium, firefox, type Page, webkit } from 'playwright'
-import { afterAll, beforeAll } from 'vitest'
+import { afterAll, beforeAll, expect } from 'vitest'
 import { DEMO } from './api.ts'
 import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/server.ts'
 import { type Site, startSite } from './serve.ts'
@@ -167,8 +167,12 @@ export async function picture(page: Page, name: string): Promise<void> {
   }, refusedBefore)
 }
 
-/** The line under the editor's title that says whether there is something to save. */
+/** The line that says whether there is something to save: read out to a screen reader, and short in the title block. */
 export const statusLine = (page: Page) => page.locator('.status')
+
+/** Waits until the status line says exactly `words`. */
+export const statusSays = (page: Page, words: string) =>
+  expect.poll(async () => (await statusLine(page).textContent())?.trim()).toBe(words)
 
 /** A thing in the level, by its id: a button laid over the picture, with its place in tiles. */
 export const thingNamed = (page: Page, id: string) => page.locator(`[data-thing="${id}"]`)
@@ -264,3 +268,22 @@ export async function openLevel(page: Page, game = 'crate-game', level = 'level-
 
 /** Presses Save. */
 export const pressSave = (page: Page) => page.getByRole('button', { name: WORDS.save, exact: true })
+
+/** The pill's menu, which a screen that is not wide has in place of the five editors' row. */
+const pillMenu = (page: Page) => page.locator('[data-pill-menu]')
+
+/** Goes from the level to the game's page: the game's name on a wide screen, the pill's menu on a narrower one. */
+export async function leaveLevel(page: Page): Promise<void> {
+  const home = page.locator('[data-home]')
+  if ((await home.count()) > 0) return home.click()
+  await pillMenu(page).click()
+  await page.locator('[data-item="game"]').click()
+}
+
+/** Presses Export: its own button where the cluster has room, else the pill's menu (a phone). */
+export async function pressExport(page: Page): Promise<void> {
+  const button = page.getByRole('button', { name: WORDS.export, exact: true })
+  if ((await button.count()) > 0) return button.click()
+  await pillMenu(page).click()
+  await page.locator('[data-item="export"]').click()
+}

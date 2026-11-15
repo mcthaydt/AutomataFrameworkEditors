@@ -5,7 +5,7 @@
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import { loadLevelArt, type Opened, openGame } from '../game/game.ts'
-  import { compareLevels, Levels } from '../levels/levels.ts'
+  import { compareLevels, type Room, Stage } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
@@ -21,6 +21,9 @@
     onhome: () => void
   }
   let { api, game: ref, number, onsignedout, onback, onhome }: Props = $props()
+
+  /** The level fills the box: nothing floats over it on this screen. */
+  const NO_ROOM: Room = { top: 0, right: 0, bottom: 0, left: 0 }
 
   let opened = $state.raw<Opened | undefined>(undefined)
   let change = $state.raw<WaitingChange | undefined>(undefined)
@@ -188,18 +191,19 @@
       <!-- The box is there from the start, so the buttons below do not move when the pictures arrive under a finger. -->
       <div class="picture">
         {#if artReady}
-          <Levels
-            readOnly
-            level={shown.level}
+          <Stage
             content={opened.game.content}
+            level={shown.level}
             {art}
-            marked={shown.moved.map((m) => m.id)}
-            canSave={false}
-            status="clean"
-            statusText=""
+            room={NO_ROOM}
+            picked={undefined}
+            mode="read"
             title={shown.level.id}
-            onchange={() => {}}
-            onsave={() => {}}
+            marked={shown.moved.map((m) => m.id)}
+            onpick={() => {}}
+            ondrag={() => 'same'}
+            ondragend={() => {}}
+            ondragcancel={() => {}}
           />
         {/if}
       </div>
@@ -249,8 +253,7 @@
   }
   /* The read-only picture needs a height of its own: it is made to fill what it is given. */
   .picture {
-    display: flex;
-    flex-direction: column;
+    position: relative;
     height: min(60vh, 28rem);
   }
   .lines {

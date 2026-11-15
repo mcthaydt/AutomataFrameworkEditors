@@ -6,6 +6,7 @@ import {
   dragByTouch,
   type JourneyPage,
   openPage,
+  pressExport,
   pressSave,
   type SIZES,
   setupJourneys,
@@ -53,6 +54,7 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await j.page.getByRole('link', { name: 'level-1' }).click()
     await thingNamed(j.page, 'crate-1').waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressExport(j.page)
     const download = j.page.waitForEvent('download')
     await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
     const file = await download
@@ -73,7 +75,7 @@ test('Copy this level puts the level text where it can be pasted (the clipboard 
   const chromium = (process.env.ENGINE ?? 'chromium') === 'chromium'
   if (chromium)
     await j.page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: j.site })
-  await j.page.getByRole('button', { name: WORDS.copyLevel }).click()
+  await pressExport(j.page)
   if (chromium) {
     await text(j, WORDS.copyCopied)
     expect(await j.page.evaluate(() => navigator.clipboard.readText())).toBe(moved)
@@ -108,6 +110,7 @@ test('the visitor presses Save, signs in, and saves: the game holds exactly the 
   await j.page.goto(`${j.site}/${GAME}/level/level-1`)
   await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await pressExport(j.page)
   const download = j.page.waitForEvent('download')
   await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
   const kept = await readFile(await (await download).path(), 'utf8')

@@ -5,6 +5,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  leaveLevel,
   openLevel,
   openPage,
   pressSave,
@@ -141,11 +142,11 @@ test('a reload after someone else changed the level drops my change, and says so
 test('Back with an unsaved change asks first; Stay stays; Leave without saving leaves', async () => {
   const j = await asGrandma()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await j.page.getByRole('button', { name: WORDS.back }).click()
+  await leaveLevel(j.page)
   await text(j, WORDS.leaveAsk)
   await j.page.getByRole('button', { name: WORDS.leaveNo }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
-  await j.page.getByRole('button', { name: WORDS.back }).click()
+  await leaveLevel(j.page)
   await j.page.getByRole('button', { name: WORDS.leaveYes }).click()
   await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
   expect(repoOf(j).commits).toEqual([])

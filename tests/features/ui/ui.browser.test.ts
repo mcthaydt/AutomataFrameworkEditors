@@ -2,7 +2,7 @@
 import { createRawSnippet, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
-import { Button, Chip, Choice, Notice, Panel, Screen, Stamp, Tool } from '#src/features/ui/ui.ts'
+import { Button, Chip, Choice, Notice, Panel, Screen, Stamp, TitleBlock, Tool } from '#src/features/ui/ui.ts'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -318,4 +318,29 @@ test('a Chip has a ground of its own and a thin edge of words, and stays inside 
   expect(style(chip).borderTopColor).toBe('rgb(245, 236, 194)')
   expect(style(chip).borderTopWidth).toBe('1px')
   expect(chip.getBoundingClientRect().right).toBeLessThanOrEqual(box.getBoundingClientRect().right)
+})
+
+test('the title block is a grid of cells two rows tall; compact keeps the level and what is saved', async () => {
+  mounted = mount(TitleBlock, {
+    target: box,
+    props: { game: 'Crate Game', level: 'Level 1', editor: 'World', saved: 'Not saved yet' },
+  })
+  await tick()
+  const cells = [...box.querySelectorAll('.cell')]
+  expect(cells.map((c) => c.querySelector('.value')?.textContent)).toEqual([
+    'Crate Game',
+    'Level 1',
+    'World',
+    'Not saved yet',
+  ])
+  expect(box.querySelector('[data-block]')?.getBoundingClientRect().height).toBeLessThanOrEqual(72.5)
+  void unmount(mounted)
+  box.replaceChildren()
+  mounted = mount(TitleBlock, {
+    target: box,
+    props: { game: 'Crate Game', level: 'Level 1', editor: 'World', saved: 'Not saved yet', compact: true },
+  })
+  await tick()
+  expect([...box.querySelectorAll('.cell .value')].map((v) => v.textContent)).toEqual(['Level 1', 'Not saved yet'])
+  expect(box.querySelector('[data-block]')?.getBoundingClientRect().height).toBeLessThanOrEqual(36.5)
 })

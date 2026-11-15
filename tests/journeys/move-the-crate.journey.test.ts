@@ -118,12 +118,13 @@ describe('someone who may only suggest', () => {
   })
 })
 
-test('the same, moving with the arrow buttons instead of a finger', async () => {
+test('the same, moving with the arrow keys after a tap instead of a drag, saving with a tap', async () => {
   const j = await open('phone')
   await signIn(j.page)
   await openLevel(j.page)
   await thingNamed(j.page, 'crate-1').tap()
-  for (let step = 0; step < 4; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
+  await thingNamed(j.page, 'crate-1').focus()
+  for (let step = 0; step < 4; step += 1) await j.page.keyboard.press('ArrowRight')
   await says(j, WORDS.statusDirty)
   await pressSave(j.page).tap()
   await says(j, WORDS.savedDirect)

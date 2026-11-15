@@ -170,13 +170,14 @@
 </script>
 
 <div class="page">
-{#if guideOn && guided}
+{#if guideOn && guided && route.screen !== 'level'}
   <Guide count={level.look && step === 'move' ? undefined : count} text={guideText} onhide={hideGuide} />
 {/if}
 <div class="content">
 {#if !signedIn && (asksForPerson || notice === 'signed-out')}
   <Welcome {notice} {ready} {demo} {signupUrl} landing={route.screen === 'games' && notice !== 'signed-out'} onsignin={begin} />
 {:else}
+  {#if route.screen !== 'level'}
   <div class="bar">
     {#if signedIn}
       <Button label={WORDS.signOut} onpress={signOut} />
@@ -188,6 +189,7 @@
   {#if !signedIn && (notice === 'cancelled' || notice === 'failed')}
     <!-- A sign-in that did not happen, on a screen that does not need one: say so, and the way to try again is the bar. -->
     <div class="said"><Notice kind="problem" text={notice === 'failed' ? WORDS.signInFailed : WORDS.signInCancelled} /></div>
+  {/if}
   {/if}
   {#if route.screen === 'games'}
     <PickGame
@@ -232,6 +234,7 @@
         onsaved={saved}
         onkept={() => (keptCopy = true)}
         onsignin={begin}
+        onsignout={signOut}
         onsignedout={signedOut}
         onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
       />
