@@ -3211,13 +3211,15 @@ kbd {
   }
 }
 
-/* A long name in the pill never runs under the editors. */
-.pill .where .long {
-  display: inline-block;
-  white-space: nowrap;
-  max-width: 190px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* A long name in the pill never runs under the editors (wide only: narrow shows the short name). */
+@media (min-width: 1001px) and (min-height: 601px) {
+  .pill .where .long {
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .ends {
