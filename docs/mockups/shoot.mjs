@@ -1,6 +1,6 @@
 // Takes the mockups' pictures, in CI only: every page in this folder at the five sizes the editors are designed
 // for, with Chromium, at twice the pixels so a person can read them. It serves the repository over a tiny local
-// server (the icons and fonts come from node_modules, and a mask image must share the page's origin), and writes
+// server (the icons and fonts are in assets/, and a mask image must share the page's origin), and writes
 // `mockup-screens/<page>-<size>.png`, which the `mockups` job uploads for the `screens` job to put on `ci-screens`.
 import { mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:http'

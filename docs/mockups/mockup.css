@@ -1,9 +1,7 @@
 /* The mockups' look: the editors' Blueprint frame in palette No. 310, drawn as static pages so the Owner can see
    every editor before any of them is built. Nothing here is product code: the real tokens live in
    src/features/ui/ui.css, and these copy them so a mockup and the build can be compared side by side. */
-@import "../../node_modules/@fontsource-variable/fraunces/wght.css";
-@import "../../node_modules/@fontsource-variable/onest/wght.css";
-@import "../../node_modules/@fontsource/jetbrains-mono/400.css";
+@import "assets/fonts.css";
 
 :root {
   color-scheme: dark;

@@ -4,7 +4,8 @@
 // redo. It also fills in the Phosphor icons (`data-i`), the flags (`data-flag`) and the sketched pixel figures
 // (`data-pixel`). Static pictures only: no button here does anything.
 
-const ICONS = '../../node_modules/@phosphor-icons/core/assets/regular/'
+// The Phosphor icons the pages use, copied into assets/icons/ (the package left with the slice cut, Editors #54).
+const ICONS = 'assets/icons/'
 
 const EDITORS = [
   ['World', 'map-trifold'],
