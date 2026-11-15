@@ -10,13 +10,13 @@ builders (the Owner, 2026-11-15), so this is on the path to Release 1. It starts
 level screen are on `main`, and after the framework's rigged-figures cycle (its spec,
 `2026-11-15-rigged-figures-design.md` in AutomataFramework), since the builder can change only what the file holds.
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **8%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Written; the Owner's Q1 to Q5 answered (2026-11-15); in review with the framework's rigged-figures spec | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
-| 2. Plan | Not started | |
+| 2. Plan (plan G) | Written, in review, 100%. Eighteen tasks in six pull requests (each task is 5% of stage 4; the last 10% is the final green run and the review artifact). Three gates before any of it is built: the Owner's approval of the mockups of all editors (the Owner, 2026-11-15; where the Characters mockup differs, the plan is amended first), the Blueprint redesign's frame on `main`, and the framework's plan R on its `main` as far as each pull request needs. The pull requests: 1, the pin and one change of several files in the API; 2, the Characters frame, a figure on screen as the framework paints it, Body, Colours, the draft, Save and Export; 3, Wear with the library's tray, a shape of your own, Face; 4, Move (walk and stand) and Pose (by handles and joint by joint); 5, front and back views, players' colours, animals and free shapes; 6, New figure, giving a character a picture, Play, every action in the find bar, the first visit, every screen pictured. Rulings for the audit: the page paints the pictures at save and the API checks their size and atlas (it does not paint); a walk's or stand's numbers change the game's own copy of that file; painting stays on the main thread. No dependency is added. No Owner question is open | [`plans/2026-11-15-2d-figure-builder.md`](plans/2026-11-15-2d-figure-builder.md) |
 | 3. Plan audit | Not started | |
 | 4. Execution | Not started | |
 | 5. Implementation audit | Not started | |
