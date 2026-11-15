@@ -81,11 +81,10 @@ the find bar, and every screen pictured. Every task has end-to-end journeys at f
 differs from the plan's screens, the plan is amended first); the framework's task may start once plan T is on its
 `main` and this plan is audited. "Try it in the game" also waits for the redesign's Play.
 
-**For the Owner, through the coordinator (ruling 6):** adding a conversation or a cutscene is a new file, which
-`automata.toml` must list. The plan has Story add that one entry in the same save, as the Owner answered for Feel (its
-Q4) and with content folders as for Sound (its Q6). The Story spec's table of what Story edits does not name the
-project file, so this is reported before Task 8 starts; a "no" turns the two Add cards into "Ask your agent to add
-one".
+**Ruling 6, settled by the Owner's one rule across editors (2026-11-15):** each kind's folder is listed once in
+`automata.toml` and new files in it just work, as for Feel and Sound. A new conversation or cutscene is a new file
+in its folder; a game that does not list the folder yet has a one-press set-up that adds the one entry. The two Add
+cards wait for the framework's content folders on the pin.
 
 **For the plan audit:** Q-A, new lines start in the game's own language, because the framework refuses a line the
 game's own language lacks; Q-B, a change started by someone who is an Owner only through GitHub (an organization's
