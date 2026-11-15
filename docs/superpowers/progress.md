@@ -5,7 +5,13 @@ The tracker every stage reads first and updates last. One section per cycle; new
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 
 Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating-glass-docks.md) on PR 57, mockups only
-(no editor code). Progress on this step: **90%** (Task 5 of 6 written; the pictures of Tasks 3 to 5 are still to be checked).
+(no editor code). Progress on this step: **100%**: all six tasks are done, every picture of Tasks 3 to 5 and of the
+other workspaces was read at `b137632`, and every check on the pull request is green. The Editor Mockups board is
+republished (version 10, [the board](https://claude.ai/artifact/W5REbCVDUkABgoPY5Hxy2X)) with CI's pictures from that
+commit, and the speed test is its own page
+([speed test](https://claude.ai/artifact/TbwA44WZwaAX6SsUfkZWoM)). Next: the Owner's speed test on the iPad Pro 11, then
+the visual review steps (plain words, design pass, end to end, second look) on this pull request, as the coordinator
+decides.
 
 - **Task 1 (20%):** the seven glass tokens, the two recipes (glass for the docks, soft glass for the band, menus, Help,
   Settings and their family), the four solid cases and the contrast check, all in one new last section of
@@ -35,6 +41,25 @@ Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating
   0.45 (the list, the inspector and the top bar), and the Put in game family (`world-levels-share`, `-blocked`,
   `-check`, `-offline`, `-suggest`) is highest: 0.62 on an iPad sideways, 0.68 on a computer, 0.75 to 0.77 on a phone,
   0.74 on a phone on its side. Those, and the upright iPad (up to 0.51), are what the Owner's speed test decides.
+- **Task 3, after looking (95%):** CI's pictures of the floating docks at all five sizes showed three things, now fixed
+  and pictured again at `b137632`. (a) The foot of the Put in game sheet (the buttons and the line under them) was a
+  solid panel-grey box laid on the glass card (37 against 24 round it); it is now the glass tint laid on the dark of the
+  ground, still filled so rows scrolling under it never show through the buttons (a faint darker strip over a bright
+  level remains, see the deferred minors). (b) "Send to check" ran past the narrower floating bar on a phone, so the
+  button's words go onto two lines when short of room (nothing else in the bar shrinks). (c) On the big level the Hold
+  buttons sat under the floating list, showing only as a ghost through the glass; they now sit beside the list, and
+  clear of the home bar. The sheet-foot overlap fix from `7f7d519` holds at all five sizes on `blocked` and `suggest`
+  (the buttons about 28 points under the last row, "Your changes are safe" about 16 under "Not yet", the note box on a
+  phone whole).
+- **Task 6 (100%):** the Characters, Feel, Sound and Story pages at an iPad sideways and a phone were read: docks float,
+  words read, the soft glass band is soft, no glass inside glass (the `mockups` job prints nothing for it). The speed
+  test page is published on its own, and the board is republished from CI's pictures at `b137632`.
+- **Pages over 0.40 wide blur, at `b137632`** (after every dock floats; page, size, share of the window the 24-point
+  blur covers): iPad sideways: `world-levels-blocked`, `-check`, `-offline`, `-share`, `-suggest` 0.62, the big level
+  0.49, the glass page 0.48. Computer: those five 0.67, the other pages 0.43 to 0.50. Upright iPad: up to 0.51
+  (`-check`). Phone: `-check` 0.76, `-suggest` 0.75, `-share` 0.74, `-blocked` 0.60 and `shell-signin` 0.53. Phone
+  sideways: 0.69 for the same family and `shell-signin` 0.68. The speed test's choices ("Only the top bar and small
+  things" and the others) are the Owner's way to see which of these need the lighter blur.
 - **Rulings so far.** (1) The spec's contrast table names `--touch` as peach and `--mark` as olive, but the plain-words
   audit re-pointed them to greys (`#c8c8c8`, `#8a8a8a`) and made `--accent` the peach; the check measures the colours the
   cascade ends on, with `--accent` for the peach, and holds `--mark` (a fill and an icon, never words) to 3 to 1.
@@ -46,7 +71,15 @@ Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating
   sizes show glass over sky at the top bar and the Hold tab, and the bottom docks sit over the dark canvas. (5) The
   upright list card and the phone's open inspector sheet are drawn by no mockup (the list is hidden below 1000 points
   wide and the phone's inspector is the one-line peek), so no rules were written for them; the sheets a phone does
-  draw (Put in game and the family) already hang 8 points in.
+  draw (Put in game and the family) already hang 8 points in. (6) The `mockups` job is gated by the `plan` job's
+  pictures output (`needs: plan`), not run always, so a draft that changes no mockup does not spend a browser run; the
+  `screens` job needs `engines` and `mockups`, as the coordinator said.
+- **Deferred minors.** (1) `story-conversations` on a phone has its card labels running off the left edge and over the
+  text; it looks the same before the glass work, and the Story slice is later. (2) The Put in game sheet's foot is a
+  solid strip, so over a bright level it is a little darker than the glass round it (a see-through foot would let rows
+  scroll under the buttons on a short screen). (3) The speed test page's own top bar wraps "Crate Game" and the level's
+  name onto two lines on a phone; it is a test page, not a screen. (4) The tour's light cards and the tip bubbles stay
+  solid by design (an open question for the Owner, one token to change).
 
 ## The shell and World mockups (roadmap slice 3): floating glass docks, the spec (2026-11-15)
 
