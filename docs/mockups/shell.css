@@ -5282,6 +5282,7 @@ body.sh .ibtns .sbtn {
     left: auto;
     right: 8px;
     top: calc(var(--top-h) + 8px);
+    bottom: auto;
     transform: none;
   }
 }
@@ -5786,5 +5787,30 @@ body.sh .setr .sbtn {
 @media (max-width: 1000px), (max-height: 600px) {
   body.sh.no-tools .sh-tools {
     display: none;
+  }
+}
+
+/* CI's second pictures of the Fable pass: on narrow screens a tool's settings keep their own width and scroll,
+   instead of squeezing until the Mirror switch lies on top of the next words. */
+@media (max-width: 1000px), (max-height: 600px) {
+  html body.sh .sh-tools .topts > *,
+  html body.sh .tray .tset > * {
+    flex: none;
+  }
+}
+
+/* A phone on its side, on a page with a strip of tiles along the top: the tool's settings go to the bottom, so the
+   two strips never sit on each other. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.has-tilestrip .sh-tools .topts {
+    top: auto;
+    bottom: 8px;
+  }
+}
+
+/* A switch stays beside its words on a phone; only a row of choices drops under its name. */
+@media (max-width: 700px), (max-height: 600px) {
+  body.sh .setr:has(> .tog) {
+    flex-wrap: nowrap;
   }
 }
