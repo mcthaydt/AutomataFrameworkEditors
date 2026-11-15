@@ -11,8 +11,14 @@ and World, is written, 100%:
 Its verdict: a tidy desktop layout at touch sizes, not yet an iPad app. 33 findings (12 High): the level covers 28%
 of a sideways iPad; Delete, Duplicate, Erase and placing a thing are drawn on no screen; nothing stands in for the
 keyboard's modifier keys or the mouse's precision; play in place shows no touch controls; sliders hide their numbers.
-Three questions are with the Owner. The mockups change only after the Owner has seen it. Rounds 2 to 5 (Characters,
-Feel, Sound, Story) wait for the Owner. Overall: 20%. Nothing was run.
+The Owner answered its three questions yes (2026-11-15): the left panel starts closed on the iPad; Play, Undo and
+Redo move to the top bar; Tiles opens on the test patch. The Owner then set three more rules the same day: one
+editor at a time, moving on only when the Owner is satisfied (so the shell and World are grilled again after each
+round of fixes); LDtk is World's big inspiration; no auto-tiling rules at launch, and nothing may tie the editors to
+2D only, since they will serve 3D later. What World takes from LDtk, with each pick checked for iPad and for 3D, is
+[`audits/2026-11-15-world-what-to-take-from-ldtk.md`](audits/2026-11-15-world-what-to-take-from-ldtk.md): written,
+100%, three questions with the Owner. Rounds 2 to 5 (Characters, Feel, Sound, Story) wait for the Owner. Overall:
+20%. Nothing was run.
 
 ## The mockups of all five editors: design audit
 
