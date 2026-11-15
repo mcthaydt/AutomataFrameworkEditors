@@ -10,9 +10,9 @@ framework's spec and plan R (AutomataFramework pull requests 104 and 109), the o
 (findings I…, Q1, Q2). Nothing was run: every fact below is read from the files, or is said to be unchecked.
 
 **Verdict: ready for execution once its three gates open and the fixes below are in the plan; they are, in this pull
-request.** No critical finding, eight important, four minor. No Owner question is opened here; the framework audit's
-Q1 (how the demo's figures are shaded under palette No. 276) touches this plan only through "Add a colour" on the
-demo game. No new dependency.
+request.** No critical finding, eight important, four minor. No Owner question is opened here. The framework audit's
+Q1 is settled: the Owner moved the games' art to Lospec's DUEL 256 palette, and the UI keeps its own (2026-11-15). It
+touches this plan only through "Add a colour" on the demo game (G-M3). No new dependency.
 
 ## The questions the coordinator asked
 
@@ -95,9 +95,11 @@ when the change writes it.
   pin adds is red until it is translated.
 - **G-M2.** The draft was keyed `af.draft:<owner>/<name>:figure:<id>`; `game/draft.ts` keys a level by its path. Now a
   figure's draft is keyed by its file's path too: one shape.
-- **G-M3.** "Add a colour" on the demo game makes shades outside palette No. 276, which Examples' CI refuses (the
-  Owner's rule). The builder cannot know a game's own CI rule; until the Owner answers the framework audit's Q1, the
-  demo's colours come only from its own palette file. A note, not a change.
+- **G-M3.** The games' art is in Lospec's DUEL 256 palette (the Owner, 2026-11-15: "We can just use the duel 256
+  palette from lopsec for the games, use current the palette for UI"), and Examples' CI holds the demo's pictures to
+  the framework's `DUEL_COLOURS`. The library's 32 ramps are DUEL's, so picking any of them is fine; a colour mixed by
+  hand in "Add a colour" may not be. **Fixed:** on the demo game, "Add a colour" offers DUEL's rows only. Another
+  game's own rule is its own; the builder offers it the same rows first. The editors' own look keeps palette No. 310.
 - **G-M4.** The tracker has two "Cycle 4" sections (this one and the environment builder's). Left as they are; the
   titles keep them apart.
 
