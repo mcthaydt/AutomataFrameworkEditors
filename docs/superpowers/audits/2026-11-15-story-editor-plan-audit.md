@@ -19,8 +19,8 @@ The plan is careful and mostly right. Its numbers agree with its fixture (ten wo
 columns, the timeline's reach and lengths all check out against the framework's real schemas), its file layout fits
 the architecture rules, and every spec goal and journey has a task. But **two findings are critical and must be
 amended into the plan before any task starts**: a Suggest-level person can get words into the game without approval
-(C1), and ruling 6 contradicts the Owner's content-folders decision (C2). Ten important findings need an amendment
-before the task they name. One question is the Owner's (I5), sent to the coordinator; the plan does not default on it.
+(C1), and ruling 6 contradicts the Owner's content-folders decision (C2). Twelve important findings need an amendment
+before the task they name. One question was the Owner's (I5); the Owner answered A, the App finishes the change itself, and I5 now says how.
 
 The build is gated anyway (G1, the Owner's approval of the mockups of all editors, and G3, plan T on the framework's
 `main`), so these amendments cost no time if they land while the gates are closed.
@@ -118,8 +118,8 @@ not moved is 'blocked'; add that test. In the same task: `POST git/commits` send
 committer; and a `GET git/trees/…?recursive=1` answer with `truncated: true` falls back to reading each path's version
 with `readFile`.
 
-**I5. "It goes into the game when its checks pass" is not true as planned. (The Owner's question, sent to the
-coordinator.)** The spec says "the App puts it in once the game's checks pass". The plan has the page call `finish`
+**I5. "It goes into the game when its checks pass" is not true as planned. (Asked of the Owner; answered A,
+2026-11-15.)** The spec says "the App puts it in once the game's checks pass". The plan has the page call `finish`
 after the last word and retry at 5, 10, 20 and 40 seconds, then wait for someone who may save to open the game's page
 or the waiting list. A game's checks take minutes, not 75 seconds (the plan's own stop rule allows an `engines` job 25), so in practice the
 change goes in only when someone next opens the editor, maybe days later, while the stamp said `storyGoesInSoon`. The
@@ -133,7 +133,20 @@ options:
 - **C. GitHub's own auto-merge.** The App turns it on for the change; GitHub merges when the required checks pass. Each
   team's repo must allow auto-merge, a setting the App cannot change.
 
-Task 21 waits for the answer; the rest of the plan does not.
+**The Owner's answer (2026-11-15, through the coordinator): A, "App finishes it itself".** *Amend Tasks 6 and 21:*
+the Pages Function gains one route, `POST /api/github-hook`, for the App's `check_suite` event (`completed`). It
+checks GitHub's signature (`X-Hub-Signature-256`, HMAC-SHA256 of the body with the App's webhook secret, compared in
+constant time) before reading anything, and answers 401 otherwise; it trusts nothing in the body but the repo and the
+head commit, and for each waiting change whose head is that commit runs the same `finish` rules as `POST
+/api/finish` (`goesIn` after C1, `readyToGoIn`, `missingWords` empty, the checks passing, the merge with that commit
+only), as the App, with "Finished by the editor" as the merge's message. The page's `finishWhenReady` retries and the
+on-sight `finish` stay as the fallback when a delivery is lost. A deploy step joins `docs/deploy.md`: the App's
+webhook address (`/api/github-hook`), its `check_suite` subscription, and the secret `GITHUB_WEBHOOK_SECRET` kept in
+Cloudflare only; no new App permission (checks read already covers the event). Tests: a signed event finishes a
+ready change; a bad or missing signature is 401 and changes nothing; an event for a commit no waiting change has does
+nothing; a change still missing words or needing approval is left alone; the journey's "It is in the game now" comes
+from the pretend GitHub sending the event when the test sets the checks to passing. `storyGoesInSoon` stays true as
+written. Task 21 is no longer held.
 
 **I6. Words changes will often clash with `main`, and the plan says nothing about it.** Every Story save writes the
 same few messages files, whose keys `writeContent` keeps in order, so a waiting words change and any later save
@@ -189,6 +202,30 @@ check of the target branch before the change, compared by file, path and sentenc
 goes in; a save in a game whose `main` already has a long button word goes in, and one that makes a second one is
 refused.
 
+**I12. Story builds its own several-file save; the other editors share one.** Added 2026-11-15 at the coordinator's
+word: Feel and Scenes now save through the figure builder's (plan G's Task 2, Editors pull request 43) one route for a
+change of several files, `ChangeAsk` and `ChangeFile` in `wire.ts`, `saveChange(api, game, ask)` on the page, and
+`saveFiles` on the git data routes in `repo.ts`; and Approve and a waiting change's `here` judge every touched path
+with one shared helper, `allowedPaths` in `service/changed.ts` (the Scenes plan audit's E1). Story's plan makes its own
+`/api/save-many`, `SaveManyAsk`, `FileSave`, a second `saveFiles` and its own path rules in `readyToGoIn`. Two save
+shapes for one job is the incohesion the audit prompt asks about, and two `saveFiles` would drift. *Amend Tasks 4 to
+7:* Story saves through `saveChange` and `ChangeAsk`, and widens them only where Story needs more, each named once:
+
+- `ChangeAsk` gains `into?: number` (add to a waiting change), and the answer gains `how: 'words'`, `missing` and
+  `goesIn`; a `ChangeFile` of kind `content` covers conversations, cutscenes, messages and characters, and one new
+  kind, `read-marks`, holds the marks file (checked through `parseReadMarks` and `writeReadMarks`).
+- Task 4 builds nothing new in `repo.ts` if plan G's `saveFiles` is on `main` first; it only adds `lineHistory`.
+  Whichever lands first carries I4's fixes (a refused move told by looking, no committer, a truncated tree) and
+  Story's versions-on-the-target-branch rule (with `into`, a file's version is checked on that change's branch, not
+  the default branch as plan G says).
+- `allowedPaths` gains `READ_MARKS_FILE` and, after C2, a new file directly in a listed folder of its kind and the
+  one-time folder lines; `readyToGoIn` (Task 6) calls it instead of its own rules. `onlyLists` goes (C2).
+- `missingWords`, `otherWordProblems` and the words routing (Task 5 steps 6 and 7) stay Story's, called from the
+  shared route when the change touches a messages file. Story's character rule (only `name` and `conversation` may
+  differ) and its marks rule stay too, as checks inside that route for those kinds.
+- Gate: Story's Tasks 4 to 6 come after plan G's Task 2 is on `main`, or Story's Task 4 builds that shared route as
+  plan G describes it, so it is built once (the Scenes audit's rule: whichever cycle builds it first).
+
 ## Minor
 
 - **M1.** Task 2 keeps "`pnpm install --lockfile-only`, the one allowed local command". The Owner widened "nothing runs
@@ -243,13 +280,13 @@ refused.
 | C1, C2 | any task (C2 adds G6) |
 | I1, I2 (Task 1's part), I3, I9, M2, M3 | Task 1 |
 | M1 | Task 2 |
-| I4, M5 | Task 4 |
-| I11, C2's paths | Task 5 |
-| C1, I6, M9 | Task 6 |
+| I4, I12, M5 | Task 4 |
+| I11, I12, C2's paths | Task 5 |
+| C1, I6, I12, M9 | Task 6 |
 | I10 | Task 7 |
 | M6 | Task 8 |
 | M7, M8 | Tasks 10 and 11 |
 | I2 (the gate) | Task 15 |
-| I5 (the Owner's answer), I6, I7, I8, M10, M11 | Task 21 |
+| I5 (the Owner's answer A), I6, I7, I8, M10, M11 | Tasks 6 and 21 |
 
 The plan stage (or a short amendment session) writes these into the plan; this audit is then its record.

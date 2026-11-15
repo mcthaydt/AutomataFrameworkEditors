@@ -17,7 +17,7 @@ stage 7 is 6)
 |---|---|---|
 | 1. Spec | Written, in review; Q1 (a map of cards), Q2 (a save missing words waits until all six languages are there) and Q2b (a native speaker may mark words read) answered by the Owner | [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md) |
 | 2. Plan | Written, in review (2026-11-15): 24 tasks in eight pull requests | [`plans/2026-11-15-story-editor.md`](plans/2026-11-15-story-editor.md) |
-| 3. Plan audit | Done (2026-11-15): 2 critical, 11 important, 11 minor; the plan is amended before the tasks each names | [`audits/2026-11-15-story-editor-plan-audit.md`](audits/2026-11-15-story-editor-plan-audit.md) |
+| 3. Plan audit | Done (2026-11-15): 2 critical, 12 important, 11 minor; the plan is amended before the tasks each names | [`audits/2026-11-15-story-editor-plan-audit.md`](audits/2026-11-15-story-editor-plan-audit.md) |
 | 4. Execution | Not started; waits for the plan's amendment, the mockups' approval (the Owner, 2026-11-15), plan T and the redesign's build | |
 | 5. Implementation audit | Not started; two audits (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
@@ -34,12 +34,13 @@ framework's folders). The important ones: three framework names to export (I1), 
 framework once plan T's Task 11 is in (I2), the key rule into the framework's content skill (I3), a blocked branch
 move told from a changed one (I4), clashes with `main` (I6), what an approver sees (I7), an Owner's World saves joining
 their words change (I8), the preview's keys (I9), ids that start with a digit (I10), and a missing language file
-blocking every save (I11).
+blocking every save (I11); and Story saves through the shared several-file save (`saveChange`, `allowedPaths`)
+the figure builder, Feel and Scenes use, widened only where Story needs more (I12).
 
-**For the Owner, through the coordinator (I5):** the spec says a complete words change goes in once its checks pass,
-but the plan only finishes it when someone opens the game. Options: A, the App hears GitHub's checks and finishes it
-itself (recommended); B, keep it and say so in the words; C, GitHub's auto-merge, where each repo allows it. Task 21
-waits for the answer.
+**The Owner's answer (I5, 2026-11-15): the App finishes it itself.** The spec says a complete words change goes in
+once its checks pass; the plan only finished it when someone opened the game. Now the App hears GitHub's
+`check_suite` event at one new route, `/api/github-hook` (signed with a webhook secret kept in Cloudflare, set at
+deploy), and finishes the change itself. Task 21 is no longer held.
 
 **Next:** the plan's amendment, then stage 4 once the gates open. Nothing was run: this stage read documents and code.
 
