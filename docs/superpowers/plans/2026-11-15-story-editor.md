@@ -11,7 +11,7 @@ never go red.
 **Architecture:** One new page feature, `story`, between `levels` and `find`. Everything a person changes is a pure
 function over the framework's own files (`ConversationFile`, `CutsceneFile`, `MessagesFile`, `Character`, `ReadMarks`),
 kept in one `StoryEdit` with undo, and written with `writeContent` and `writeReadMarks`. One save is one change of
-several files, made by a new `/api/save-many`; a save that leaves words missing becomes a waiting change that anyone
+several files, made through the editors' one shared save (the figure builder's `saveChange`); a save that leaves words missing becomes a waiting change that anyone
 may add words to, and it goes in when every word is there. The screens sit in the redesign's `Frame` and reuse its
 `Stage`, panels, find bar, stamps and tips. The framework draws the level and the speech box; the editor never
 re-implements what the game does.
@@ -28,9 +28,10 @@ below, with its zoom amendment). The framework's story is plan T,
 
 ## Before anything is built (the gates)
 
-> **The plan audit** ([`audits/2026-11-15-story-editor-plan-audit.md`](../audits/2026-11-15-story-editor-plan-audit.md))
-> lists amendments to make before the tasks each names (its last table). Ruling 6's folders below already follow its
-> C2; the rest, `/api/save-many` giving way to the shared `saveChange` (I12) among them, are still to be written in.
+> **Amended after the plan audit** ([`audits/2026-11-15-story-editor-plan-audit.md`](../audits/2026-11-15-story-editor-plan-audit.md)).
+> Every finding of its last table is written in below, each where its task is, tagged with the audit's number (C1,
+> I4, M5 and so on) so a builder can trace it. The Owner answered its one question (I5: the App finishes a complete
+> words change itself). Where this plan and the audit differ, this plan holds.
 
 No task below starts until its gate is open. A closed gate is reported to the coordinator, never worked round.
 
@@ -38,10 +39,12 @@ No task below starts until its gate is open. A closed gate is reported to the co
 |---|---|---|
 | G1 | **The Owner has approved the mockups of all editors** (the Owner, 2026-11-15: mockups first). If the approved Story mockup differs from this plan's screens, this plan gets a short amendment and its audit first | Tasks 2 to 24 (everything in this repo) |
 | G2 | This plan's audit (stage 3) is merged | every task |
-| G3 | Framework plan T is on AutomataFramework's `main` (pull request 64): `name` and `conversation` on a character, `cutscene` on a step, `opens` on a cutscene, `openAt`, `nextPlace`, `choosePlace`, `cameraAt`, `actorsAt`, `linesAt`, and the page's `story` feature | Task 1 on |
+| G3 | Framework plan T is on AutomataFramework's `main` (pull request 64) through its Task 10: `name` and `conversation` on a character, `cutscene` on a step, `opens` on a cutscene, `openAt`, `nextPlace`, `choosePlace`, `cameraAt`, `actorsAt`, `linesAt`, and the page's `story` feature; and its `wordsOf` falls back to the game's own language, never to English (plan W; audit M4), else Task 1 reports it | Task 1 on |
+| G3b | Plan T's Task 11 (the cutscene's camera through `Renderer.look`, after plan A) is on `main`, so the shot a camera key gives is the framework's (audit I2) | Tasks 15 to 17 |
 | G4 | The redesign's build is on this repo's `main` through its Task 18 (the frame, the find bar, faces, nine languages, zoom, the scenes) | Task 7 on (Tasks 2 to 6 touch no screen and need only G1 to G3) |
 | G5 | The redesign's Task 19 (Play) is on `main` | Task 17's "Try it in the game" only |
-| G6 | The framework's content folders (framework plan M, AutomataFramework pull request 118: `FolderRef`, `Project.folders` and `withFolders` in `content/project-write.ts`) are on `main` and on the pin | "Add a conversation", "Add a cutscene" and their set-up only (ruling 6) |
+| G6 | The framework's content folders (framework plan M, AutomataFramework pull request 118: `FolderRef`, `Project.folders` and `withFolders` in `content/project-write.ts`) are on `main` and on the pin | "Add a conversation", "Add a cutscene" and their set-up, and the folder rules of Tasks 5 and 6 (ruling 6; audit C2) |
+| G7 | The figure builder's save of several files (its plan G's Task 2: `ChangeAsk`, `ChangeFile`, `ChangeAnswer`, `service/change.ts` and its route, `Repo.saveFiles`, the page's `saveChange`, and the shared `allowedPaths` in `service/changed.ts`) is on `main`, **or** Story is the first editor to build it, and then Tasks 4 to 6 build it under exactly those names and plan G's Task 2 widens it (audit I12; the coordinator, 2026-11-15: one save, whichever editor is first) | Tasks 4 to 6 |
 
 The framework stays ahead of the editors (the Owner, 2026-11-14): Task 1 is framework work and may start when G2
 and G3 are open, before G1.
@@ -54,7 +57,8 @@ and G3 are open, before G1.
   "Requested by **McThayDT**". Never force-push.
 - **Nothing runs locally** (the Owner, 2026-11-14): no tests, format, lint, typecheck, knip, build or generator. A
   step that needs a generated file (`docs/commands.md`, the framework's API report) writes it by hand and the check
-  says if it differs. The one exception is `pnpm install --lockfile-only` for a pin's checksum (Task 2).
+  says if it differs. That includes the lockfile: a pin's checksum is worked out from the downloaded tarball, as
+  the redesign's Task 7b did (audit M1).
 - **Branches.** `main` plus at most five with CI running. Each pull request below is one branch, a draft, merged by
   the merge session before the next starts.
 - **Everything in the redesign plan's Global Constraints holds**: the header, the five sizes (`phone` 390 × 844,
@@ -68,9 +72,10 @@ and G3 are open, before G1.
 - **The game's words are the game's six**, in the framework's order: `zh`, `es`, `en`, `pt`, `ja`, `ko`
   (`LANGUAGES`). Story never shows `ru`, `de` or `fr` as a game language, never adds a language, and never fills one
   language with another's words. `'en'` is never a fallback in code.
-- **An editor changes only content files**, with three narrow exceptions, each written only as named here:
-  `automata.translations.toml` through the framework's `markRead` and `writeReadMarks` (the Owner, Q2b); and one
-  folder entry in `automata.toml`, written once, when a game is set up for conversations or cutscenes (ruling 6).
+- **An editor changes only content files**, with two narrow exceptions, each written only as named here:
+  `automata.translations.toml` through the framework's `markRead` and `writeReadMarks` (the Owner, Q2b); and the
+  folder entries in `automata.toml`, written once with the framework's `withFolders`, when a game is set up for
+  conversations or cutscenes (ruling 6). The editor writes no `automata.toml` byte of its own (audit C2).
 - **Same bytes as an agent.** Every file is written by `writeContent` (or `writeReadMarks`). The page works the
   bytes out to show and export them; the API writes its own from the values and trusts nothing the page says.
 - **The device keeps** only what `CLAUDE.md` lists: Story adds `af.tip.story` (under `af.tip.*`) and its draft
@@ -95,39 +100,55 @@ The spec leaves these to the builder. The plan audit may challenge each.
 1. **Where Story lives.** One feature, `story`, after `levels` and before `find` in `LAYERS` and `PAGE_SIDE`. `find`
    gains Story's commands; `suite` gains `StoryScreen`. Story imports `levels` for `Stage`, the level picture, the
    view functions, the notes and the character picture, and changes none of them (the spec: "does not change World").
-2. **The framework ask is one small export** (Task 1): `createBox`, `BoxState`, `BoxPress` and `StoryBox` on the
-   framework's public surface, so the card's preview and Try it show the framework's own speech box. The spec's
-   other ask, a cutscene's state at a tick, is already plan T's `cameraAt`, `actorsAt` and `linesAt`. The stage needs
-   nothing new: it draws through the level picture's `show(level)` with a copy of the level in which each actor
-   stands where `actorsAt` says. An actor's clip and facing are shown as words on its chip (the spec's "fields
-   only"), not drawn.
+2. **The framework asks are one small pull request** (Task 1): the speech box (`createBox`, `BoxState`, `BoxWords`,
+   `StoryBox`) on the page entry, and the walk of a conversation (`TalkPlace`, `openAt`, `nextPlace`, `choosePlace`)
+   on the headless entry, which plan T's Task 13 leaves private (audit I1), so the card's preview and Try it show
+   the framework's own box and walk; the key rule in the framework's content skill (audit I3); and the box's keys
+   heard only inside its mount (audit I9). The spec's other ask, a cutscene's state at a tick, is plan T's
+   `cameraAt`, `actorsAt` and `linesAt`, and the part of the level a camera key shows is the framework's own shot
+   function from plan T's Task 11 (gate G3b; audit I2): the editor never works out the frame itself. The stage
+   draws through the level picture's `show(level)` with a copy of the level in which each actor stands where
+   `actorsAt` says. An actor's clip and facing are shown as words on its chip (the spec's "fields only"), not drawn.
 3. **The map is laid out by rule** (Task 10), from the file and the measured sizes of its cards and chips: columns
    by the fewest presses from the start, rows in the order steps are met, every line square-cornered in a lane of
-   its own. Nothing about a place is saved.
-4. **Several files, one change** (Task 4): the API makes one commit through GitHub's git data calls (a tree, a
-   commit, a move of the branch that is refused if the branch moved). Each file's version is checked first, as a
-   level's is today.
+   its own (the spec says a line going back "curves round"; either holds if no line crosses a card, and the approved
+   mockup settles the corners under G1; audit M8). Nothing about a place is saved.
+4. **Several files, one change, through the one shared save** (Tasks 4 and 5; audit I12): Story saves with the
+   figure builder's `saveChange` and its route (gate G7), widened only where Story needs more (`into`, the words
+   routing, the read marks, Story's character rule). One commit through GitHub's git data calls (a tree, a commit, a
+   move of the branch that is refused if the branch moved). Each file's version is checked first, on the branch the
+   change goes to.
 5. **Waiting for words** (Tasks 5, 6, 21). Whether a change waits for words is never stored: it is worked out, each
    time, from the game's files as the change leaves them (`missingWords`). A waiting change lives on its starter's
    own branch, as every waiting change does; anyone who may save may add words to it, and only messages files and
-   the read marks may be added that way. It goes in by `POST /api/finish` when every word is there, the checks on
-   its newest commit pass, and its starter may save straight in (worked out afresh from the sharing file on the
-   default branch; for an organization's game a starter who is an Owner only through GitHub counts as needing
-   approval, because their own sign-in is not there to ask GitHub with). The page calls `finish` after the save that
-   completes the words (it tries again at 5, 10, 20 and 40 seconds while the screen is open) and whenever a person
-   who may save opens the game's page or the waiting list and such a change is ready. An agent that fills the words
-   through the ordinary pull request sees it go in the next time anyone opens the game, or merges it itself. A
-   change started at Suggest then waits for approval as today, and Approve refuses a change that still lacks words.
+   the read marks may be added that way. It **goes in by itself** when every word is there, the checks on its newest
+   commit pass, and **everyone whose commit is on it may save straight in**: its starter and each later commit's
+   author, each worked out afresh from the sharing file on the default branch (audit C1: otherwise a Suggest-level
+   person could add words to an Owner's change and have them go in unapproved). A change with a commit by anyone
+   else needs approval, and the page says so. For an organization's game a person who is an Owner only through
+   GitHub counts as needing approval, because their own sign-in is not there to ask GitHub with; once the words are
+   there they may approve it themselves (the audit's Q-B, accepted). **The App finishes it itself** (the Owner,
+   2026-11-15, the audit's I5, answer A): GitHub's `check_suite` event reaches a new route, `POST /api/github-hook`,
+   which runs `finish`'s rules for the waiting change whose head that is (Task 6). The page's `finish` after the
+   save that completes the words (tried again at 5, 10, 20 and 40 seconds while the screen is open), and on the
+   game's page and the waiting list, stays as the fallback for a lost delivery. An agent that fills the words
+   through the ordinary pull request sees it go in when its checks pass. A change that needs approval then waits as
+   today, and Approve refuses a change that still lacks words. **A change that clashes with `main`** (audit I6) is
+   brought up to date by the words' own merge (Task 6): a messages file is key to text, so the change's keys are laid
+   over `main`'s file and committed to its branch, and its checks run again; only a key both sides changed is shown
+   to a person. **A person's one waiting change holds all their saves** (`saveLevel` puts every save of someone with a
+   waiting change on it), so an Owner's World saves made while their words change waits join it; World's stamp then
+   says so (Task 21; audit I8).
    **A waiting change for words has failing checks until the words are there**: that is the game's own check
    doing its job on a branch, and the editor says "Waiting for words", never "the checks failed", for it.
-6. **Each kind's folder is listed once, and new files in it just work** (the Owner's one rule across editors,
+6. **Each kind's folder is listed once, and new files in it just work** (audit C2) (the Owner's one rule across editors,
    2026-11-15, as Feel and Sound do it through the framework's content folders: a `[[content]]` block with a `type`
    and a `folder`). A new conversation or cutscene is a new file in the game's folder for that kind, and the save
    writes nothing else. A game that does not list the folder yet shows `storySetUpTalks` or `storySetUpScenes` in
-   place of the Add card: one press, and the next save also appends that one folder entry
-   (`content/conversations` or `content/cutscenes`) to the end of `automata.toml`, changing no other byte. If
-   Sound's or Feel's build has put this set-up on `main` first, Story uses theirs (the same `wire` functions and
-   the same field on the save) and Task 5 adds only the two kinds. **Gate G6:** the framework's content folders are
+   place of the Add card: one press, and the next save also adds that one folder entry (`content/conversations` or
+   `content/cutscenes`), its bytes the framework's `withFolders(text, refs)` and nothing else, so an agent's command
+   writes the same file. If Sound's or Feel's build has put this set-up on `main` first (the shared save's `setUp`
+   field), Story uses theirs and Task 5 adds only the two kinds. **Gate G6:** the framework's content folders are
    on the pin; until then the two Add cards and the set-up are not built (Tasks 12 and 17 say so), and nothing
    else waits. Story never removes a conversation or a cutscene file (an agent does; nothing in the spec asks for
    it).
@@ -135,15 +156,17 @@ The spec leaves these to the builder. The plan audit may challenge each.
    (`source`) lacks, and a game that will not load cannot be opened from its own waiting change. So "Add a line",
    "Add a step", a new choice and a new cutscene line are written in the game's own language: with the map showing
    another language, pressing one asks `storyOwnFirst` with one main button that shows the game's own words. Changing
-   an existing line writes whichever language the map shows. (An audit question, Q-A below.)
+   an existing line writes whichever language the map shows. (The audit's Q-A: accepted, since the framework forces
+   it.)
 8. **A word used in two places** is one row in Words, under the first group that uses it, with a chip
    `wordsUsedIn(n)` that lists the places. In a card, typing into a line whose key something else also uses first
    gives the line a key of its own (in every language that had the old one), so a change in one place never
    changes another unseen.
 9. **A language the game has no file for** (or a game with no words at all) cannot be mended by an editor, which may
    not list a new file of words. Words shows that column as `wordsNoFile(language)`; such a language never makes a
-   save wait (the game's check already fails for it and no word typed here can fix it); a game with no words at all
-   opens Story's page with `storyNoWords`.
+   save wait (the game's check already fails for it and no word typed here can fix it), and never blocks one: the
+   save checks only the problems a change adds (audit I11, Task 5). A game with no words at all opens Story's page
+   with `storyNoWords`.
 10. **Names.** A conversation or a cutscene has only an id; its name in words is the redesign's `nameOf(id)`. A new
     one asks for its name once and makes the id from it (`fileId`); the name cannot be changed afterwards.
 11. **Export** copies one block of text for an agent: for each file the change touches, a line `=== <path> ===`
@@ -163,14 +186,16 @@ The spec leaves these to the builder. The plan audit may challenge each.
 16. **Two fingers on the cutscene's stage** zoom and move the level, as in World, except inside the camera's frame
     while the frame is picked: there they zoom the camera. The frame's own − and + always work.
 17. **"The last thing opened"** is remembered for this visit only (the page's own state), so no new device setting:
-    after a reload, Story opens the game's first conversation, else its first cutscene, else Story's page.
+    after a reload, Story opens the game's first conversation, else its first cutscene, else Story's page. **A
+    deviation from the spec**, which said "on this device" (audit M6): the spec's own reason, no new device setting,
+    holds, and the address keeps the part through a reload.
 18. **Trying a cutscene in the game** plays a copy of the content, in memory only, in which this cutscene has
     `opens` and no other cutscene of its level does.
 19. **Every Story word in nine languages is written by the building session** and read by the drunk-grandma audit,
     as the redesign's ruling 9 says. No native speaker has read them.
 
-**Open questions for the plan audit** (not the Owner's unless the audit says so): **Q-A**, ruling 7 (new lines in
-the game's own words only); **Q-B**, ruling 5's "an Owner only through GitHub needs approval".
+**The plan audit's answers:** **Q-A** (ruling 7, new lines in the game's own words only) and **Q-B** (ruling 5, an
+Owner only through GitHub needs approval) are both accepted.
 
 ## Review Focus
 
@@ -201,20 +226,24 @@ Layers, lowest first: `words`, `access`, `wire`, `exchange`, `github`, `service`
 src/lib/blob-sha.ts          git's blob sha of a text (the version a new file will have)        Task 4
 src/lib/zip.ts               a stored zip of a few text files                                   Task 7
 src/features/wire/
-  wire.ts                    SaveManyAsk, SaveManyAnswer, FileSave, MissingWords, WordsHistory,
+  wire.ts                    plan G's ChangeAsk, ChangeFile, ChangeAnswer widened (into, setUp,
+                             read-marks, how 'words', missing, goesIn); MissingWords, WordsHistory,
                              Waiting.words, Waiting.goesIn, 'words-missing'                     Task 5, 6
-  missing.ts                 missingWords, otherWordProblems                                    Task 5
+  missing.ts                 missingWords, otherWordProblems, addedProblems                     Task 5
   project-line.ts            folderOf, newFilePath, onlyListsFolders (bytes: the framework's withFolders) Task 5
-src/features/github/repo.ts  saveFiles, lineHistory                                             Task 4
+src/features/github/repo.ts  plan G's saveFiles (with audit I4's rules), lineHistory, pullAuthors Task 4
 src/features/service/
-  save-many.ts               POST /api/save-many                                                Task 5
+  change.ts, changed.ts      plan G's save and allowedPaths, widened for Story's kinds          Task 5
   words-left.ts              what a waiting change still lacks; whether it goes in              Task 6
   ready.ts                   the checks Approve and Finish share (lifted from approve.ts)       Task 6
+  words-merge.ts             a words change brought up to date with main, key by key           Task 6
   finish.ts                  POST /api/finish                                                   Task 6
+  hook.ts                    POST /api/github-hook: the App hears check_suite and finishes      Task 6
   words-history.ts           GET /api/words-history                                             Task 6
   open.ts, approve.ts, waiting.ts, pulls.ts, service.ts                                         changed
-src/features/api/api.ts      saveMany, finish, wordsHistory, open(ref, change?)                 Task 5, 6
+src/features/api/api.ts      the shared change call, finish, wordsHistory, open(ref, change?)   Task 5, 6
 src/features/game/open.ts    OpenGame.marks, openGame(api, ref, change?)                        Task 5
+src/features/game/change.ts  plan G's saveChange, used by Story                                 Task 7
 src/features/story/
   story.ts                   the entry                                                          Task 7
   files.ts                   StoryFiles, storyFilesOf, contentWith                              Task 7
@@ -236,10 +265,12 @@ src/features/story/
   words-table.ts             rows, groups, cell states, filters                                 Task 18
   WordsTable.svelte, WordCell.svelte, braces.ts                                                 Task 19
   marks.ts                   isRead, tick, untick, whoRead                                      Task 20
+  change-words.ts            changeLines, onlyOldGaps: a Story change in plain lines            Task 21
   guide.ts                   Story's first run                                                  Task 22
 src/features/find/commands.ts                Story's command kinds                              Task 23
 src/features/suite/StoryScreen.svelte        the frame round Story; Save, Export, stamps        Task 8, 21
 src/features/suite/route.ts, App.svelte, Switcher.svelte, WaitingChange.svelte, GameHome.svelte changed
+src/features/suite/LevelScreen.svelte        World's stamp line for a change waiting for words (I8) Task 21
 tests/fixtures/game/         a keeper, a conversation, a cutscene, six messages files, marks    Task 3
 tests/fixtures/fake-github/  git data calls, blame, the `story-gaps` and `no-korean` games      Task 3, 4
 tests/features/story/, tests/journeys/story-*.journey.test.ts, tests/fixtures/story-scenes.ts
@@ -256,24 +287,46 @@ Test hooks, added to the redesign's: `[data-step="<id>"]` on a card (with `data-
 
 ## Pull request 1 (in AutomataFramework): the speech box on its own
 
-### Task 1: `createBox` on the public surface
+### Task 1: The speech box and a conversation's walk on the public surface, and the key rule
 
 **Files:**
-- Modify: `src/features/story/story.ts` (re-export from `./box.ts`), `README.md` (one paragraph under "Story"),
-  `docs/api/framework.api.md` (by hand, as that repo's rule says), a changeset if that repo still asks for one
-- Test: `tests/public-surface.test.ts`, `tests/features/story/box.browser.test.ts`, `tests/docs/readme.test.ts`
+- Modify: `src/features/story/story.ts` (re-export from `./box.ts`), `src/headless.ts` (or the entry that re-exports
+  `level/talk.ts`), `skills/automata-content/SKILL.md` (the "conversation" and "cutscene" sections),
+  `README.md` (one paragraph under "Story"), `docs/api/framework.api.md` (taken from the `package` job's log, as plan
+  T's Task 13 does; audit M2), and a changeset, `.changeset/story-box.md`, `patch` (the repo has `.changeset/`, as
+  pull request 102's `level-picture-view.md` shows; audit M2)
+- Modify only if Step 1's key test fails: `src/features/story/box.ts` (its `keydown` listener on the mount, not the
+  window; audit I9)
+- Test: `tests/public-surface.test.ts`, `tests/features/story/box.browser.test.ts`, `tests/docs/readme.test.ts`,
+  the skill's docs test
 
 **Interfaces:**
-- Produces, from `@automataframework/framework`: `createBox(mount, on: BoxPress, words?: BoxWords, options?: {
-  watching?: boolean }): StoryBox`, `type BoxState`, `type BoxPress`, `type StoryBox`, exactly as plan T's Task 9
-  made them. No behaviour changes.
+- Produces, from `@automataframework/framework`: `createBox`, `type BoxState`, `type BoxWords`, `type StoryBox`,
+  with plan T's Task 9 signature unchanged: `createBox(mount, on: { next(): void; choose(choice: number): void;
+  skip(): void }, words: BoxWords, options?: { readonly watching?: boolean }): StoryBox` (`words` stays required; the
+  editor passes the framework's own `BoxWords` for the shown language, else its defaults; audit M3).
+- Produces, from `@automataframework/framework/headless` (audit I1): `type TalkPlace`, `openAt`, `nextPlace`,
+  `choosePlace`, exactly as plan T's `level/talk.ts` made them.
+- From plan T's Task 11 (gate G3b, audit I2): the pure function its `Renderer.look` uses to turn a camera key into
+  the part of the level shown at a window's shape, on the headless entry under the name Task 11 gives it (written
+  here as `shotOf(level, camera, window)`); if Task 11 kept it private, this task exports it. Task 15 consumes it.
+- The skill states the key rule (audit I3), the same one `keys.ts` (Task 7) follows: a line is
+  `<file>.<step>.<n>`, a choice `<file>.<step>.choice-<n>`, a cutscene's line `<cutscene>.line-<n>`, the next free
+  number when one is taken; a step's id is made from its first words (at most 32 characters, starting with a
+  letter, `step-<n>` when none); a key is at most 96 characters, the step's part cut to fit.
 
-- [ ] **Step 1: Failing tests.** `public-surface.test.ts` lists the four names. `box.browser.test.ts`, imported from
-      `#src/index.ts`: "the box shows a step with no sim: `show({ speaker: 'Keeper', text: 'Hello there!', choices:
-      [], next: true, skip: false })` then Enter calls `on.next` once"; "with `watching` there are no buttons".
-      `readme.test.ts`: the "Story" section names `createBox`.
-- [ ] **Steps 2 to 4:** push, red; export; push, green in four engines; the API report matches.
-- [ ] **Step 5:** Commit `feat(story): the speech box can be shown on its own`. Report the merge commit: Task 2 pins it.
+- [ ] **Step 1: Failing tests.** `public-surface.test.ts` lists the eight names (and the shot function, once G3b is
+      open). `box.browser.test.ts`, imported from `#src/index.ts`: "the box shows a step with no sim: `show({
+      speaker: 'Keeper', text: 'Hello there!', choices: [], next: true, skip: false })` then Enter calls `on.next`
+      once"; "with `watching` there are no buttons"; **"keys pressed outside the mount reach nothing"**: with a
+      text box beside the mount focused, typing Enter and `1` calls no `on` function, and with the mount `inert`
+      a key event dispatched at the window calls none (audit I9). `readme.test.ts`: the "Story" section names
+      `createBox`. The skill's docs test: the "conversation" section holds the key rule and its example uses
+      `keeper.hello.1` and `keeper.hello.choice-1`.
+- [ ] **Steps 2 to 4:** push, red; export, write the rule, and scope the box's keys if the test says so (a behaviour
+      change, named in the commit); push, green in four engines; the API report from the log matches.
+- [ ] **Step 5:** Commit `feat(story): the speech box and a conversation's walk on the public surface`. Report the
+      merge commit (Task 2 pins it) and whether the box's keys had to move.
 
 ---
 
@@ -284,8 +337,9 @@ Test hooks, added to the redesign's: `[data-step="<id>"]` on a card (with `data-
 **Files:** `package.json` (the dependency and the matching `pnpm.onlyBuiltDependencies` line), `pnpm-lock.yaml`;
 whatever no longer compiles, and nothing else. Test: `tests/workflows/package.test.ts`.
 
-- [ ] **Step 1:** Change the three places; the lockfile's checksum by `pnpm install --lockfile-only` (the one
-      allowed local command). **Step 2:** Push; fix only what the new framework broke. **Step 3:** Commit
+- [ ] **Step 1:** Change the three places; the lockfile's checksum worked out from the downloaded tarball, as the
+      redesign's Task 7b did (nothing runs locally; audit M1). Check what G3 asks of plan T's `wordsOf` (audit M4)
+      and the folder names G6 needs, and report any that differs. **Step 2:** Push; fix only what the new framework broke. **Step 3:** Commit
       `chore: pin the framework to <short sha> (story)`. Report what broke, if anything.
 
 ---
@@ -331,8 +385,13 @@ Japanese lacks `keeper.door.1` and `door-opens.line-1`) and **`no-korean`** (no 
 
 ### Task 4: One commit of several files, and who changed each line
 
+**This is the figure builder's `Repo.saveFiles`** (gate G7; audit I12). If plan G's Task 2 is on `main`, this task
+adds only `lineHistory`, `pullAuthors` and the rules below that plan G's lacks; if Story is first, it builds
+`saveFiles` under plan G's name and shape (plan G's files may also carry a PNG as `base64`; Story sends text only),
+and plan G's Task 2 widens it. Either way there is one `saveFiles`.
+
 **Files:**
-- Create: `src/lib/blob-sha.ts`
+- Create: `src/lib/blob-sha.ts` (only if `saveFiles` does not already give each new file's version)
 - Modify: `src/features/github/repo.ts`, `tests/fixtures/fake-github/server.ts`, `repos.ts`
 - Test: `tests/lib/blob-sha.test.ts`, `tests/features/github/repo.test.ts`, `tests/fixtures/fake-github/server.test.ts`
 
@@ -340,7 +399,8 @@ Japanese lacks `keeper.door.1` and `door-opens.line-1`) and **`no-korean`** (no 
 - Produces:
 
 ```ts
-// lib/blob-sha.ts: git's own sha of a file's bytes (sha1 of "blob <bytes>\0" then the bytes), by WebCrypto
+// lib/blob-sha.ts: git's own sha of a file's bytes, by WebCrypto: sha1 of "blob <n>\0" then the bytes, where the
+// text is UTF-8 and <n> is its length in bytes, not in characters (audit M5)
 export function blobSha(text: string): Promise<string>
 // repo.ts, on Repo
 /** One commit that writes several files. Each `version` is checked against the branch first (undefined: the file
@@ -356,73 +416,93 @@ saveFiles(save: {
  *  A path the branch does not have gives no ranges. Lines count from 1. */
 lineHistory(branch: string, paths: readonly string[]):
   Promise<Answer<Readonly<Record<string, readonly { from: number; to: number; by: string; at: number }[]>>>>
+/** The author login of each commit a pull has, oldest first (`GET pulls/<n>/commits`): who added to a change. */
+pullAuthors(number: number): Promise<Answer<readonly string[]>>
 ```
 
 `saveFiles`, as the installation: `GET git/ref/heads/<branch>` (the head), `GET git/commits/<head>` (its tree),
 `GET git/trees/<tree>?recursive=1` (each path's sha, to check versions), `POST git/trees` with `base_tree` and one
 `{ path, mode: '100644', type: 'blob', content }` each, `POST git/commits` (the message, the tree, the head as the
-one parent, the author), `PATCH git/refs/heads/<branch>` with `force: false`. A 422 on the last is
-'changed-elsewhere'; a 403 or 409 from a branch rule is 'blocked', as `saveFile` says it today. `versions` are
-`blobSha` of each text. `by` in `lineHistory` is the commit author's login, else the commit's author name. The
+one parent, the author and **no committer**, as `saveFile` sends it, so GitHub signs the commit as the App and a
+"signed commits" rule still passes; audit I4), `PATCH git/refs/heads/<branch>` with `force: false`. **A refusal of
+the last is settled by looking, as `saveFile` does it** (audit I4): on a 422, 403 or 409, read the branch's head
+again; if it moved, 'changed-elsewhere'; if not, a rule refused the App, 'blocked'. A tree answer with
+`truncated: true` falls back to `readFile` for each path's version. Versions are checked **on the branch the change
+goes to** (with `into`, the waiting change's branch, not the default branch). `versions` are `blobSha` of each
+text. `by` in `lineHistory` is the commit author's login, else the commit's author name. The
 pretend GitHub gains those six calls and `POST /graphql` for exactly this query; its blame gives each line the oldest
 commit of the unbroken run of commits, newest first, whose text for that path holds the line.
 
-- [ ] **Step 1: Failing tests.** `blobSha('hello\n')` is `ce013625030ba8dba906f756967f9e9ca394464a`. `saveFiles`:
+- [ ] **Step 1: Failing tests.** `blobSha('hello\n')` is `ce013625030ba8dba906f756967f9e9ca394464a`, and of a
+      Korean text it equals git's own (`git hash-object` of the same bytes, recorded in the test). `saveFiles`:
       three files in one commit, one commit in the log, each file's new version is its blob sha and `readFile`
       agrees; a stale version writes nothing and is 'changed-elsewhere'; a new file with `version: undefined` is
       made, and refused if it is already there; the branch moved between the read and the move is
-      'changed-elsewhere'; a rule that blocks the App is 'blocked'; the author is the person. `lineHistory`: after
+      'changed-elsewhere'; a rule that blocks the App (the pretend GitHub answers the ref's move with a 422 and the
+      head has not moved) is 'blocked', not 'changed-elsewhere'; the commit the pretend GitHub got has an author
+      and no committer; a truncated tree still checks versions; the author is the person. `pullAuthors` lists
+      each commit's login in order. `lineHistory`: after
       alice writes a file and bob changes its line 3, line 3 is bob's and the rest alice's; a missing path is `[]`.
 - [ ] **Steps 2 to 4:** red, implement, green. **Step 5:** Commit `feat(github): one commit of several files, and each line's history`.
 
-### Task 5: `/api/save-many`
+### Task 5: Story's files through the shared save
+
+**This widens the figure builder's save; it builds none of its own** (gate G7; audit I12; the coordinator,
+2026-11-15). There is no `/api/save-many`, `SaveManyAsk`, `SaveManyAnswer`, `FileSave` or `api.saveMany`. The shapes
+below are what Story adds to plan G's, under plan G's names: Story's `FileSave` is `ChangeFile`'s `content` kind
+(`{ kind: 'content'; type; path; value; version? }`, for `conversation`, `cutscene`, `messages` and `character`) plus
+one new kind, `{ kind: 'read-marks'; value; version? }` at `READ_MARKS_FILE`; `ChangeAsk` gains `into?` and the
+`setUp?` field Sound adds too (whichever is built first names it, the other uses it); `ChangeAnswer` gains `how:
+'words'`, `missing` and `goesIn`. Steps 2 to 5 below are Story's entries in the shared route
+(`service/change.ts`) and in the shared `allowedPaths` (`service/changed.ts`), not a check of their own. The caps
+are plan G's (24 files, 6 MB), so Story's own "1 to 40 files" goes: a change of a conversation, six messages files,
+a character, the marks and the project file is 10. If Story is first, it builds plan G's route under plan G's names
+and plan G's Task 2 widens it.
 
 **Files:**
-- Create: `src/features/wire/missing.ts`, `src/features/wire/project-line.ts`, `src/features/service/save-many.ts`
-- Modify: `src/features/wire/wire.ts`, `src/features/service/service.ts`, `open.ts`, `src/features/api/api.ts`,
-  `src/features/game/open.ts`
-- Test: `tests/features/wire/missing.test.ts`, `project-line.test.ts`, `tests/features/service/save-many.test.ts`,
-  `open.test.ts`, `tests/features/api/api.test.ts`, `tests/features/game/open.test.ts`
+- Create: `src/features/wire/missing.ts`, `src/features/wire/project-line.ts`
+- Modify: `src/features/wire/wire.ts`, `src/features/service/change.ts`, `src/features/service/changed.ts`,
+  `src/features/service/service.ts`, `open.ts`, `src/features/api/api.ts`, `src/features/game/open.ts`
+- Test: `tests/features/wire/missing.test.ts`, `project-line.test.ts`, `tests/features/service/change.test.ts`
+  (Story's cases), `changed.test.ts`, `open.test.ts`, `tests/features/api/api.test.ts`,
+  `tests/features/game/open.test.ts`
 
 **Interfaces:**
-- Consumes: `saveFiles` (Task 4); the framework's `writeContent`, `parseContent`, `loadGame`,
-  `translationProblems`, `parseReadMarks`, `writeReadMarks`, `readMark`, `READ_MARKS_FILE`, `LANGUAGES`.
+- Consumes: `saveFiles` and the shared route (Task 4, gate G7); the framework's `writeContent`, `parseContent`,
+  `loadGame`, `translationProblems`, `parseReadMarks`, `writeReadMarks`, `readMark`, `READ_MARKS_FILE`, `LANGUAGES`,
+  `withFolders`.
 - Produces:
 
 ```ts
 // wire.ts
 export type StoryKind = 'conversation' | 'cutscene' | 'messages' | 'character' | 'read-marks'
-export interface FileSave {
-  readonly path: string; readonly kind: StoryKind
-  /** The file as data; the API writes the bytes. */
-  readonly value: unknown
-  /** The version the person opened; undefined for a file this save adds. */
-  readonly version: string | undefined
-}
+// ChangeFile (plan G's) gains one kind; Story's other files are its `content` kind with `type` one of the first four
+//   | { readonly kind: 'read-marks'; readonly value: ReadMarks; readonly version?: string }   // at READ_MARKS_FILE
 /** How many words each language still lacks; a language with none has no entry. */
 export type MissingWords = Readonly<Partial<Record<Language, number>>>
-export interface SaveManyAsk {
-  readonly game: GameRef; readonly files: readonly FileSave[]; readonly message: string
+// ChangeAsk (plan G's: game, message, files) gains:
   /** Add to this waiting change (its number) instead of starting or using my own. */
   readonly into?: number
-  /** List these kinds' folders in the project file in this same save (ruling 6); never with `into`. */
-  readonly setUp?: readonly FolderKind[]
-}
-export interface SaveManyAnswer {
+  /** List these kinds' folders in the project file in this same save (ruling 6); never with `into`. Shared with
+   *  Sound's set-up: one field, whichever editor builds it first. */
+  readonly setUp?: readonly FolderRef[]
+// ChangeAnswer (plan G's: how, version, mine, changed?) gains:
   /** 'words': it waits for words, whatever the person's level. */
   readonly how: 'direct' | 'suggestion' | 'words'
   readonly versions: Readonly<Record<string, string>>
-  readonly mine: Waiting | undefined
   readonly missing: MissingWords
-  /** True when the change it is part of goes in by itself once nothing is missing. */
+  /** True when the change it is part of goes in by itself once nothing is missing (Task 6's rule). */
   readonly goesIn: boolean
-}
 // ProblemKind gains 'words-missing' (STATUS 409)
 // wire/missing.ts (pure; both sides mean the same thing by "missing")
 /** For each language the game has a messages file for, other than its own: how many of its own keys it lacks. */
 export function missingWords(content: Pick<GameContent, 'project' | 'messages'>): MissingWords
-/** `translationProblems` with every missing word filled from the game's own, in memory: what is wrong besides missing. */
+/** `translationProblems` with every missing word filled from the game's own, in memory: what is wrong besides missing.
+ *  It leaves out "This game has no words in <language>" (a file the game lacks; ruling 9, audit I11). */
 export function otherWordProblems(content: GameContent): readonly Diagnostic[]
+/** The problems in `after` that `before` does not have, matched by file, path and sentence (audit I11): a change is
+ *  refused only for what it adds, so a game whose `main` already has a word problem can still be saved. */
+export function addedProblems(before: readonly Diagnostic[], after: readonly Diagnostic[]): readonly Diagnostic[]
 export const nothingMissing = (missing: MissingWords): boolean
 // wire/project-line.ts (pure; ruling 6)
 export type FolderKind = 'conversation' | 'cutscene'
@@ -443,9 +523,9 @@ export function openGame(api: Api, ref: GameRef, change?: number): Promise<Opene
 `GET /api/game` also returns `automata.translations.toml` when the branch has it, and with `change=<number>` reads
 from that waiting change's branch (it must be a waiting change, else 'not-found'; `mine` and `level` as always).
 
-What `POST /api/save-many` does, in order; any refusal writes nothing:
+What the shared route does for Story's files, in order; any refusal writes nothing:
 
-1. The door (`enter`, action `save`); signed out is 'signed-out'. 1 to 40 files, no path twice, else 'bad-request'.
+1. The door (`enter`, action `save`); signed out is 'signed-out'. Plan G's caps, no path twice, else 'bad-request'.
 2. The target branch: `into` given: that waiting change's branch (`waitingPull`; then every file's kind must be
    `messages` or `read-marks`, else 'not-allowed'); else my own waiting change's branch if I have one; else the
    default branch, for now.
@@ -457,22 +537,26 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
    `parseReadMarks`; a throw is 'broken' with the framework's sentences. A file's `id` must match its file name. A
    `character` may differ from the branch's only in `name` and `conversation` ('not-allowed' otherwise). Each mark
    must equal `readMark` of the two texts as this save leaves them, or be a mark the branch's file already has.
-5. For each kind in `setUp` whose folder the project does not list, the project file's text becomes
-   the framework's `withFolders(text, [{ type: kind, folder: SET_UP_FOLDER[kind] }])` and joins the commit (ruling 6). A new file needs nothing more.
-6. `wholeGameLoads` with every text in place: 'broken' with its sentences. Then `otherWordProblems` of that game:
-   any is 'broken' with its sentences.
+5. `setUp` may hold only `{ type: 'conversation', folder: SET_UP_FOLDER.conversation }` and the cutscene's like it
+   (else 'not-allowed'); the project file's text becomes the framework's `withFolders(text, setUp)` (the same text
+   when both are listed) and joins the commit (ruling 6). A new file needs nothing more.
+6. `wholeGameLoads` with every text in place: 'broken' with its sentences. Then `addedProblems(otherWordProblems`
+   of the target branch's game, `otherWordProblems` of the game with the change`)`: any is 'broken' with its
+   sentences (audit I11).
 7. `missing = missingWords(…)`. Where it goes: `into`: that branch. My own waiting change: its branch. Else, if
    nothing is missing and I may `save-direct`: the default branch (`how: 'direct'`). Else my `automata/<login>`
    branch, made fresh as `saveLevel` makes it, with a pull whose title is the message.
 8. `saveFiles`; on a refusal a branch made in step 7 is deleted. `how` is 'words' when anything is missing, else
-   'direct' or 'suggestion'. `goesIn` is Task 6's rule for the change's starter (true for a 'direct').
+   'direct' or 'suggestion'. `goesIn` is Task 6's rule for the change as this save leaves it (true for a
+   'direct').
 
 - [ ] **Step 1: Failing tests.** `missingWords`: none for the fixture; `{ ko: 1, ja: 2 }` for `story-gaps`; `{}` for
       `no-korean` and for a game with no words (ruling 9). `otherWordProblems`: none for `story-gaps`; names a
-      Korean text that lost `{count}` and a `controls.jump` of 13 characters. `withFolders` (the framework's) then
+      Korean text that lost `{count}` and a `controls.jump` of 13 characters; none for `no-korean` (the missing file
+      is left out). `addedProblems` keeps only the new ones. `withFolders` (the framework's) then
       `parseProject` lists the folder last and every earlier byte is unchanged; `newFilePath` is in the listed
       folder and undefined with none; `onlyListsFolders` is false when any other byte differs or the entry names
-      another kind or folder. `save-many.test.ts`, each as its own test:
+      another kind or folder. `change.test.ts` (Story's cases), each as its own test:
       an Owner changes `keeper.hello.1` in English only: direct, one commit, one file, and `main` still has no
       translation problem; an Owner adds a line (the conversation and `en.json`): 'words', `{ zh: 1, es: 1, pt: 1,
       ja: 1, ko: 1 }`, on `automata/<login>`, `main` untouched; a Suggest person's complete change: 'suggestion';
@@ -482,18 +566,25 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
       that is not listed, a level's path, the sharing file, `automata.toml` as a file: 'not-allowed'; a character
       whose `size` changed: 'not-allowed'; a mark that is not the texts' mark: 'broken'; a stale version:
       'changed-elsewhere' and no branch left behind; a visitor: 'signed-out'; Look level: 'not-allowed'; a line
-      whose key the game's own language lacks: 'broken' with the framework's sentence. `open.test.ts`: the marks
+      whose key the game's own language lacks: 'broken' with the framework's sentence; **a save in `no-korean` goes
+      in** (ruling 9); **a save in a game whose `main` already has a 13-character button goes in, and one that
+      makes a second is 'broken'** (audit I11); with `into`, a file's version is checked on that change's branch.
+      `open.test.ts`: the marks
       file comes back; `change=` reads the other branch; `change=` for an ordinary pull is 'not-found'.
-- [ ] **Steps 2 to 4:** red, implement, green. **Step 5:** Commit `feat(api): save several files as one change`.
+- [ ] **Steps 2 to 4:** red, implement, green. **Step 5:** Commit `feat(api): Story's files in the shared save`.
 
-### Task 6: Waiting for words, finishing, and the words' history
+### Task 6: Waiting for words, finishing by itself, and the words' history
 
 **Files:**
-- Create: `src/features/service/words-left.ts`, `ready.ts`, `finish.ts`, `words-history.ts`
-- Modify: `src/features/service/pulls.ts` (`toWaiting`), `approve.ts`, `waiting.ts`, `service.ts`,
-  `src/features/wire/wire.ts`, `src/features/api/api.ts`
-- Test: `tests/features/service/words-left.test.ts`, `finish.test.ts`, `words-history.test.ts`, `waiting.test.ts`,
-  the approve cases in `service.test.ts` or where they live
+- Create: `src/features/service/words-left.ts`, `ready.ts`, `words-merge.ts`, `finish.ts`, `hook.ts`,
+  `words-history.ts`
+- Modify: `src/features/service/pulls.ts` (`toWaiting`), `approve.ts`, `waiting.ts`, `changed.ts`, `service.ts`,
+  `functions/` (the route list, if it names routes), `src/features/wire/wire.ts`, `src/features/api/api.ts`,
+  `docs/deploy.md` (the App's webhook), `tests/fixtures/fake-github/server.ts` (it sends `check_suite` when a test
+  sets a commit's checks to passing)
+- Test: `tests/features/service/words-left.test.ts`, `words-merge.test.ts`, `finish.test.ts`, `hook.test.ts`,
+  `words-history.test.ts`, `waiting.test.ts`, the approve cases in `service.test.ts` or where they live,
+  `tests/docs/deploy.test.ts` (or where the deploy doc is read)
 
 **Interfaces:**
 - Produces:
@@ -503,7 +594,8 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
 export interface Waiting { /* … */
   /** What it still lacks; `{}` when it changes words and lacks none; undefined when it changes no words file. */
   readonly words: MissingWords | undefined
-  /** Its starter may save straight in, so it goes in by itself once nothing is missing. */
+  /** Its starter and every later commit's author may save straight in, so it goes in by itself once nothing is
+   *  missing (ruling 5; audit C1). */
   readonly goesIn: boolean
 }
 export interface LineBy { readonly by: string; readonly at: number }
@@ -515,32 +607,71 @@ export interface WordsHistory {
 }
 // service/words-left.ts
 export function wordsLeft(repo: Repo, pull: Pull): Promise<Answer<MissingWords | undefined>>   // at most 9 reads
-export function goesIn(repo: Repo, access: AccessFile, pull: Pull): boolean                    // ruling 5
+/** True when the starter (`automata/<login>`) and each author `pullAuthors` names may `save-direct` by `access`, the
+ *  sharing file on the default branch read afresh; a GitHub-only Owner counts as not (Q-B). One call. */
+export function goesIn(repo: Repo, access: AccessFile, pull: Pull): Promise<Answer<boolean>>       // ruling 5
+// service/words-merge.ts (audit I6)
+/** A words change that clashes with `main`, brought up to date: for each messages file and the marks it touches,
+ *  `main`'s file with every key the change made or changed (its first commit's parent against its head) laid over
+ *  it, written by `writeContent` and committed to the change's branch with `saveFiles`, its author the App. A key
+ *  both `main` and the change changed is 'changed-elsewhere' with both texts in `details`, and nothing is written.
+ *  A clash in any other file is 'clashes', as Approve says it today. */
+export function bringUpToDate(deps: ApiDeps, repo: Repo, change: Pull): Promise<Answer<{ commit: string }>>
+// service/hook.ts (the Owner's answer to audit I5, A)
+/** POST /api/github-hook: GitHub's `check_suite` event for the App. Checks `X-Hub-Signature-256` (HMAC-SHA256 of the
+ *  raw body with `GITHUB_WEBHOOK_SECRET`, compared in constant time) before reading anything; 401 otherwise. Reads
+ *  only the repo and `check_suite.head_sha` from the body; for an `action: "completed"`, finds the waiting change
+ *  whose head is that commit and runs `finish`'s rules for it as the App. Any other event, or none found, is 200 and
+ *  does nothing. */
+export function githubHook(deps: ApiDeps, request: Request): Promise<Response>
 // service/ready.ts, lifted from approve.ts and used by both
 export function readyToGoIn(deps: ApiDeps, repo: Repo, change: Pull):
   Promise<Answer<{ paths: readonly string[]; listed: readonly ContentRef[] }>>
 ```
 
-`readyToGoIn` is Approve's steps 2, 4 and 5 as they are today, with two changes: a path may also be
-`READ_MARKS_FILE` (it must read back through `parseReadMarks`), or `automata.toml` when `onlyListsFolders(before, after)`; and a change whose `missingWords` is not empty is 'words-missing'. `approveChange`
-becomes: the door, its own "not your own" rule, `readyToGoIn`, the merge. `POST /api/finish { game, number }`: the
-door (`save`); a waiting change; `goesIn` else 'not-allowed'; `readyToGoIn`; merge that commit with the title
-`Words complete: <title>` and the message `Finished by <login>.`; delete the branch. `showChange`'s `here` uses the
-same path rule. `GET /api/words-history` (the door, `look`, visitors allowed): `lineHistory` over the listed
-messages files and the marks file, each line matched to its key by reading the file's own text (a JSON line
-`"<key>": "…"`, a TOML line `"<key>" = "…"` under its `[read.<language>]`).
+`readyToGoIn` is Approve's steps 2, 4 and 5 as they are today, with two changes: step 2's path rule is the shared
+`allowedPaths` (`service/changed.ts`, gate G7), which Story widens with `READ_MARKS_FILE` (it must read back through
+`parseReadMarks`), a new file directly in a folder the project lists for its kind (on the default branch or in the
+change's own `automata.toml`), and `automata.toml` when `onlyListsFolders(before, after)`; and a change whose
+`missingWords` is not empty is 'words-missing'. `approveChange` becomes: the door, its own "not your own" rule,
+`readyToGoIn`, the merge. **`finish(deps, repo, change, by)`** is the rule both callers share: a waiting change;
+`goesIn` else 'not-allowed'; `readyToGoIn`; merge that commit with the title `Words complete: <title>` and the
+message `Finished by <by>.`; delete the branch. A merge that answers 'clashes' runs `bringUpToDate` once and
+answers 'not-ready' (its new commit's checks must run); a second clash is 'clashes'. `POST /api/finish { game,
+number }`: the door (`save`), then `finish` with the person's login. `POST /api/github-hook`: `githubHook`, then
+`finish` with `the editor` as `by`. `showChange`'s `here` uses `allowedPaths` too. `GET /api/words-history` (the
+door, `look`, visitors allowed): `lineHistory` over the listed messages files and the marks file of the default
+branch, or of the waiting change's branch with `change=<number>` (so a starter's new words show as theirs; audit
+M9), each line matched to its key by reading the file's own text (a JSON line `"<key>": "…"`, a TOML line
+`"<key>" = "…"` under its `[read.<language>]`). The history is one GraphQL call, which GitHub counts apart from the
+REST allowance `repo.allowance()` sees; a visitor gets history only while the REST allowance is above the visitor
+reserve, and otherwise the Words part shows no faces or "Changed" from history (audit M9).
+
+**The webhook, at deploy** (`docs/deploy.md`, as CLI steps where GitHub has them, else the one settings step named
+plainly): the App's webhook address is `https://<site>/api/github-hook`, it subscribes to **Check suite**, and its
+secret is set with `wrangler pages secret put GITHUB_WEBHOOK_SECRET`. The secret lives only in Cloudflare; the App
+needs no new permission (Checks: read already covers the event).
 
 - [ ] **Step 1: Failing tests.** `toWaiting` of the Owner's add-a-line change has `words` with five languages and
-      `goesIn: true`; a Suggest person's has `goesIn: false`; a level-only change has `words: undefined`. Finish:
+      `goesIn: true`; a Suggest person's has `goesIn: false`; a level-only change has `words: undefined`. **C1:** a
+      Suggest person adds Korean (`into`) to an Owner's change: `goesIn` becomes false, its checks pass, `finish`
+      is 'not-allowed', and Approve by an Approver puts it in; an Edit person's words keep `goesIn: true`. Finish:
       with words missing 'words-missing'; with all six written and checks running 'not-ready'; passing: merged,
       branch gone, `main` has no translation problem; a Suggest person's change 'not-allowed'; a change that also
       touches a level it lists goes in; one that touches `automata.access.toml` or changes another byte of
       `automata.toml` 'not-allowed'. Approve: refuses 'words-missing'; accepts a change with the marks file and
-      one that sets up and adds a conversation. History: after alice writes Korean `keeper.bye.1` and bob ticks
+      one that sets up and adds a conversation. **The hook:** a signed `check_suite` `completed` for a ready change's
+      head merges it with "Finished by the editor."; a missing or wrong signature is 401 and nothing changes; an
+      event for a commit no waiting change has, or of another kind, is 200 and nothing changes; a change still
+      missing words, or needing approval, is left as it was. **A clash** (audit I6): a waiting words change, then an
+      Owner's save straight in that adds `keeper.hello.3` next to its key; `finish` brings it up to date (one
+      commit by the App on its branch, both keys in `en.json`), answers 'not-ready', and after the checks pass goes
+      in with both lines; the same key changed on both sides is 'changed-elsewhere' with both texts. History: after alice writes Korean `keeper.bye.1` and bob ticks
       it, `words.ko['keeper.bye.1'].by` is alice and `read.ko['keeper.bye.1'].by` is bob; a visitor at the demo
       game gets it; a visitor elsewhere 'not-found'.
 - [ ] **Steps 2 to 4:** red, implement, green; every existing approve test still passes unchanged.
-- [ ] **Step 5:** Commit `feat(api): a change waits for its words, and goes in when they are there`. Report Tasks 3 to 6.
+- [ ] **Step 5:** Commit `feat(api): a change waits for its words, and the App puts it in when they are there`.
+      Report Tasks 3 to 6, and that the deploy needs the webhook's address and secret (the Owner's step, at deploy).
 
 ---
 
@@ -588,12 +719,12 @@ export function describeStory(game: OpenGame, edit: StoryEdit): string
  *  over them, then `otherWordProblems`. Each names its file and path. */
 export function checkStory(game: OpenGame, edit: StoryEdit): Promise<readonly Diagnostic[]>
 // keys.ts
-export function slugOf(words: string, most?: number): string    // a-z and 0-9 words joined by dashes; '' if none
+export function slugOf(words: string, most?: number): string    // a-z and 0-9 words joined by dashes, starting with a letter; '' if none
 export function fileId(name: string, taken: ReadonlySet<string>): string        // most 64; 'story-1' when the slug is ''
 export function stepId(file: ConversationFile, firstWords: string): string      // most 32; 'step-<n>' when ''; '-2' up when taken
 export function lineKey(fileId: string, step: string, taken: ReadonlySet<string>): string       // keeper.hello.1, next free number
-export function choiceKey(fileId: string, step: string, taken: ReadonlySet<string>): string     // keeper.hello.choice-1
-export function cutsceneLineKey(cutscene: string, taken: ReadonlySet<string>): string           // door-opens.line-1
+export function choiceKey(fileId: string, step: string, taken: ReadonlySet<string>): string     // keeper.hello.choice-1, most 96
+export function cutsceneLineKey(cutscene: string, taken: ReadonlySet<string>): string           // door-opens.line-1, most 96
 // game-words.ts
 export function textOf(files: StoryFiles, language: Language, key: string): string | undefined
 export function setText(files: StoryFiles, language: Language, key: string, text: string): StoryFiles
@@ -606,7 +737,7 @@ export function shownLanguage(source: Language | undefined, has: readonly Langua
 // save.ts, copy.ts, draft.ts
 export function saveStory(api: Api, game: OpenGame, edit: StoryEdit, into?: number): Promise<StorySaved>
 export type StorySaved =
-  | { readonly ok: true; readonly how: SaveManyAnswer['how']; readonly missing: MissingWords
+  | { readonly ok: true; readonly how: ChangeAnswer['how']; readonly missing: MissingWords
       readonly goesIn: boolean; readonly game: OpenGame }
   | { readonly ok: false; readonly problem: ProblemKind; readonly details?: readonly string[] }
 export function storyCopy(game: OpenGame, edit: StoryEdit): { readonly text: string
@@ -621,20 +752,25 @@ export function zipOf(files: readonly { readonly path: string; readonly text: st
 `describeStory`: one kind of change gives its own words (`Change what Keeper says`, `Add a step to Keeper`,
 `Change Door opens`, `Write Korean words`, `Mark Korean words as read`); several give `Change the story`. These go
 into the game's history, so they are English, like World's `Move crate-1 in level-1`. A key is at most 96
-characters: `lineKey` cuts the step's part to fit. The draft keeps `touched`'s values and each file's version, and
+characters: `lineKey`, `choiceKey` and `cutsceneLineKey` each cut the step's (or the cutscene's) part to fit, the same
+way (audit I10). An id must start with a letter (the framework's `ID_PATTERN`), so a slug drops its leading digits
+and dashes, and one with nothing left is `''`, which gives the `step-<n>` or `story-<n>` fallback (audit I10). The draft keeps `touched`'s values and each file's version, and
 is `'changed'` when any of those versions is no longer the opened file's.
 
 - [ ] **Step 1: Failing tests.** `slugOf('What's that door?')` is `whats-that-door`; of `'こんにちは'`, `'🙂'` and `''`
-      is `''`; of 200 letters is 32 long and ends on a whole word or a cut, never a dash. `stepId` for the Japanese
+      is `''`; of 200 letters is 32 long and ends on a whole word or a cut, never a dash; of `'3 apples, please'` is
+      `apples-please` and of `'42'` is `''`, so `stepId` gives `step-1` (audit I10). `stepId` for the Japanese
       line is `step-1`, then `step-2`; for "Hello there!" twice is `hello-there` then `hello-there-2`. `lineKey`
       with `keeper.hello.1` and `.2` taken is `keeper.hello.3`; with a 64-letter file id and a 32-letter step it is
-      96 or under and matches the framework's `MessageKey`. `apply` twice then `undoStory` twice is the start by
+      96 or under and matches the framework's `MessageKey`; so do `choiceKey` (`.choice-4` on the same ids, which
+      would be 107 uncut) and `cutsceneLineKey` on a 64-letter cutscene; every `fileId` and `stepId` the tests make
+      parses as the framework's `Id` (audit I10). `apply` twice then `undoStory` twice is the start by
       value; `redoStory` after a new `apply` does nothing. `touched` after one new line lists the conversation then
       `en.json`, each `text` equal to `writeContent` of the value, and for the fixture untouched it is empty.
       `checkStory` names a choice that points at a step that is gone, in the framework's sentence. `shownLanguage`:
       `('en', all six, 'ko')` is `ko`; `('en', all six, 'de')` is `en`; `(undefined, [], 'en')` is undefined.
       `usesOf('keeper.hello.1')` is the conversation; of `level.level-1.name` a level; of `controls.jump` a button.
-      `saveStory` sends one `save-many` and afterwards the game's files hold the new versions and `touched` is
+      `saveStory` sends one `saveChange` (plan G's call) and afterwards the game's files hold the new versions and `touched` is
       empty; a refusal leaves the edit as it was. `storyCopy` of a two-file change is two `=== path ===` blocks whose
       bytes are the files'. `zipOf` of two files unzips (read by the test's own few lines) to the same paths and
       bytes; its CRCs are right. The draft: kept, taken, `'changed'` after a version moves, dropped on garbage and
@@ -647,7 +783,7 @@ is `'changed'` when any of those versions is no longer the opened file's.
 - Create: `src/features/suite/StoryScreen.svelte`, `src/features/story/StoryPage.svelte`, `MiniMap.svelte`
 - Modify: `src/features/suite/route.ts`, `App.svelte`, `Switcher.svelte` (Story is no longer "Coming soon"),
   `Pill.svelte`, `src/features/ui/panels.ts` (`timeline`), `src/features/words/*.ts` (Appendix A's `story…` words,
-  nine languages), `CLAUDE.md` (the three exceptions and the device list)
+  nine languages), `CLAUDE.md` (the two exceptions of Global Constraints, the webhook route, and the device list)
 - Test: `tests/features/suite/route.test.ts`, `tests/features/story/story-page.browser.test.ts`,
   `tests/journeys/story-open.journey.test.ts`
 
@@ -763,7 +899,8 @@ export interface Box { readonly x: number; readonly y: number; readonly w: numbe
 export interface MapSizes {
   /** Each card's measured height at CARD_W wide; a card not measured yet counts as 120. */
   readonly cards: Readonly<Record<string, number>>
-  /** Each line's chip, by line id; one not measured counts as 96 by 32. */
+  /** Each line's chip, by line id; one not measured counts as 96 by 32. A chip is at most CHIP_W wide and wraps
+   *  its words onto more rows, so a 2,000-character choice is a tall chip, never a cut one (audit M7). */
   readonly chips: Readonly<Record<string, { readonly w: number; readonly h: number }>>
 }
 export interface MapLine {
@@ -776,6 +913,7 @@ export interface MapLine {
 export interface MapLayout { readonly cards: Readonly<Record<string, Box>>; readonly lines: readonly MapLine[]
   readonly size: { readonly w: number; readonly h: number }; readonly unreached: readonly string[] }
 export const CARD_W = 280
+export const CHIP_W = 200
 export function layoutMap(file: ConversationFile, sizes: MapSizes): MapLayout
 ```
 
@@ -801,8 +939,9 @@ The rules (in map units; one unit is one CSS pixel at zoom 1):
 
 - [ ] **Step 1: Failing tests.** The fixture: `hello` in column 0, `door` and `bye` in column 1, `door` above
       `bye`; `door:next` leaves `door`'s right and enters `bye`'s left by the bus (same column). Properties, checked
-      over the fixture, a 12-step map with three back lines and a self line, a 128-step chain and a 128-step map
-      where every step has four choices to seeded-random steps: every pair of cards is apart; every line piece is
+      over the fixture, a 12-step map with three back lines and a self line, a 128-step chain, a 128-step map
+      where every step has four choices to seeded-random steps, and the fixture with one choice of 2,000 characters
+      (a chip 200 wide and as tall as its rows, audit M7): every pair of cards is apart; every line piece is
       straight across or down; no piece meets a card's inside or another line's chip; every chip is inside `size`;
       a second call gives a deeply equal layout; changing one card's height moves only cards below it in its
       column and the lines that touch them or pass below.
@@ -862,7 +1001,8 @@ leader ticks and the cards' id labels only; the words on cards are the content a
       a box): the three cards of the fixture are there with their words in English; with `shown: 'ko'` in Korean;
       for `story-gaps` in Korean the `bye` card reads "Not written in Korean yet"; `hello` has `data-start`, `bye`
       has `data-end` and reads "Plays: Door opens"; no card's box meets another's; every chip's words are whole (no
-      cut, no ellipsis) in all nine editor languages (`useTables` with the long-words table too); a step nothing
+      cut, no ellipsis) in all nine editor languages (`useTables` with the long-words table too), and a choice of
+      2,000 characters wraps in a chip 200 wide whose box holds all its words (audit M7); a step nothing
       leads to has the framework's sentence and is faded; a press picks and `data-scale` does not change; a pinch
       changes `data-scale` and picks nothing; Look mode has no tools. Journey (five sizes, three engines): open
       Keeper; pinch by 2; two-finger move; "Whole map"; pick `door` by touch and by Tab and Enter; close and open
@@ -950,7 +1090,8 @@ them, else its defaults.
 - [ ] **Step 1: Failing tests.** `boxAt` at `hello`, line 1 (its last): two choices in Korean; with Korean missing
       a line, the English words; a step with no speaker has no `speaker`. `levelFor` is `level-1`. Browser: the
       preview holds `.automata-story` with the step's words; the level canvas's `toDataURL()` is the same with and
-      without the box (the art-untouched test); a press inside the preview does nothing. Journey (five sizes, three
+      without the box (the art-untouched test); a press inside the preview does nothing; typing `1`, `2` and Enter in a line's text
+      box beside the preview changes only the text box, never the preview's line or choice (audit I9). Journey (five sizes, three
       engines): Try it from the start: "Hello there!", Next, "Lovely day." with two choices; pick "What's that
       door?"; Next to the end; "Then it plays: Door opens"; Try again; Stop returns to the map with the same card
       picked and the same `data-scale`; an unsaved new line is said; every box button is 48 px or more and above
@@ -1031,15 +1172,18 @@ level's middle, zoom 1, `cut`, no actors, no lines.
 
 **Interfaces:**
 - Consumes: `levels/Stage.svelte` as the redesign and its amendment made it (props `content`, `level`, `art`,
-  `room`, `picked`, `mode`, `onpick`, `ondrag`, `ondragend`, `layer`); the framework's timeline functions.
+  `room`, `picked`, `mode`, `onpick`, `ondrag`, `ondragend`, `layer`); the framework's timeline functions; the
+  framework's shot function from plan T's Task 11, put on the headless entry by Task 1 (gate G3b; audit I2).
 - Produces:
 
 ```ts
 // stage-level.ts (pure)
 /** The level as it stands at tick `t`: each actor's thing (or player's start) where `actorsAt` says, the rest as written. */
 export function levelAt(level: Level, file: CutsceneFile, t: number): Level
-/** The camera's frame at `t`, in tiles: the level's `view` (else the whole level) divided by the zoom, about its middle. */
-export function frameAt(level: Level, file: CutsceneFile, t: number): Box
+/** The camera's frame at `t`, in tiles, for a window of `shape`: the framework's own shot for the camera key at `t`
+ *  (plan T's Task 11), so the frame is what the game shows on that window, wide screens showing more as
+ *  `placeCamera` does. The editor works out no frame of its own (audit I2). */
+export function frameAt(level: Level, file: CutsceneFile, t: number, shape: Shape): Box
 /** The camera's middle for a frame dragged to `box`, kept inside the level. */
 export function cameraFor(level: Level, box: Box): { readonly x: number; readonly y: number }
 ```
@@ -1064,8 +1208,9 @@ at the playhead; a thing that is not an actor does not move, and the timeline's 
 framework's sentence. Nothing is drawn on the canvas.
 
 - [ ] **Step 1: Failing tests.** `levelAt` at 0 has `player-1`'s start where the level has it and at 120 halfway
-      between its two keys; a thing with no key is where the level has it. `frameAt` at 0 is the whole view about
-      the middle and at 300 is two thirds of it (zoom 1.5) about the crate. `cameraFor` never leaves the level.
+      between its two keys; a thing with no key is where the level has it. `frameAt` equals the framework's shot
+      function for the same key and window at 0, 120 and 300, at the five sizes' shapes, and at 300 is smaller than at
+      0 (zoom 1.5) and about the crate (audit I2). `cameraFor` never leaves the level.
       Browser (five sizes): `[data-camera]`'s box, turned back into tiles by the stage's fit, equals `frameAt`;
       dragging it by two tiles calls `onchange` with a camera key at the playhead two tiles on; + makes the frame
       smaller by 1.25; with the frame not picked a pinch inside it changes the stage's `data-scale` and not the
@@ -1279,10 +1424,13 @@ the next tick writes the file afresh.
 
 **Files:**
 - Modify: `src/features/suite/StoryScreen.svelte`, `Cluster.svelte`, `WaitingChange.svelte`, `Waiting.svelte`,
-  `GameHome.svelte`, `src/features/story/Words.svelte`
-- Create: `src/features/suite/finish.ts`
-- Test: `tests/features/suite/finish.test.ts`, `tests/journeys/story-save.journey.test.ts`,
-  `story-waiting-words.journey.test.ts`, `story-export.journey.test.ts`, `story-never-red.journey.test.ts`
+  `GameHome.svelte`, `LevelScreen.svelte` (World's stamp: the one change to World, audit I8),
+  `src/features/story/Words.svelte`; `tests/fixtures/fake-github/` (it sends a signed `check_suite` event to
+  `/api/github-hook` when a test sets a commit's checks to passing, as GitHub would)
+- Create: `src/features/suite/finish.ts`, `src/features/story/change-words.ts`
+- Test: `tests/features/suite/finish.test.ts`, `tests/features/story/change-words.test.ts`,
+  `tests/journeys/story-save.journey.test.ts`, `story-waiting-words.journey.test.ts`, `story-export.journey.test.ts`,
+  `story-never-red.journey.test.ts`, `story-approve.journey.test.ts`
 
 **Interfaces:**
 - Consumes: `saveStory`, `storyCopy`, `zipOf`, the drafts (Task 7); `api.finish`; the redesign's `Stamp`, `Notice`,
@@ -1297,7 +1445,23 @@ export function finishWhenReady(api: Api, game: GameRef, number: number, wait: (
   alive: () => boolean): Promise<'in' | 'waiting' | ProblemKind>
 /** The waiting changes a person who may save should finish on sight: words there, checks passing, goes in. */
 export function readyToFinish(waiting: readonly Waiting[]): readonly Waiting[]
+// story/change-words.ts (pure): what an approver reads about a Story change (audit I7)
+export type ChangeLine =
+  | { readonly kind: 'says'; readonly who: string; readonly before: string; readonly after: string }
+  | { readonly kind: 'added' | 'removed'; readonly who: string; readonly words: string }
+  | { readonly kind: 'wrote'; readonly language: Language; readonly count: number }
+  | { readonly kind: 'read'; readonly language: Language; readonly count: number }
+  | { readonly kind: 'changed'; readonly name: string }     // a step's way on, a cutscene's keys, a character's starter
+/** Each Story file the change touches, before (the default branch) and after (the change's branch), in plain lines:
+ *  the conversation or cutscene by its shown name, each line in `shown`. */
+export function changeLines(before: StoryFiles, after: StoryFiles, shown: Language): readonly ChangeLine[]
+/** True when every word the save leaves missing was already missing in the game as opened (audit M10). */
+export function onlyOldGaps(opened: MissingWords, missing: MissingWords): boolean
 ```
+
+`finishWhenReady` and the on-sight `finish` are the fallback: the App finishes a change itself when GitHub tells it
+the checks passed (`/api/github-hook`, Task 6; the Owner's answer to the audit's I5), so `storyGoesInSoon` is true
+as written, and the page's tries only make "It is in the game now" show sooner when the screen is still open.
 
 What each press does (the stamp never moves the canvas, as in World):
 
@@ -1305,9 +1469,12 @@ What each press does (the stamp never moves the canvas, as in World):
 |---|---|---|
 | Save | may save straight in; nothing missing | `stampSaved`, `stampBy(name, justNow)` |
 | Save | anyone who may save; words missing | `stampSaved`, `storyWaitingWords(languages)` with the flags ("Waiting for words in Korean, Japanese and 3 more"), and under it the line `storyTeamWrites` and the link `storySeeMissing` (Words, filtered to Missing) |
+| Save | the same, when `onlyOldGaps` (the game already lacked those words; audit M10) | `stampSaved`, `storyWaitingOld(languages)` in place of `storyWaitingWords`, the same line and link |
 | Save | Suggest or Approve; nothing missing | `stampSaved`, `stampWaiting`, as today |
 | Save | the save that fills the last word of a change that goes in | `stampSaved`, `storyEveryWord`; the line `storyGoesInSoon`; `finishWhenReady`; on `'in'` the line becomes `storyInNow`; on `'waiting'` it stays |
-| Save | the same, for a change that needs approval | `stampSaved`, `storyEveryWord`, `storyNowApprove` |
+| Save | the same, for a change that needs approval | `stampSaved`, `storyEveryWord`, `storyNowApprove`; `storyYouApprove` when the person saving may approve it themselves (the audit's Q-B person; M11) |
+| Save | a change that clashes with `main` (audit I6) | the App brings it up to date (Task 6's `bringUpToDate`) and the line stays `storyGoesInSoon`; a key both sides changed is the notice `storyBothChanged(key)` with both texts and the two buttons `storyKeepMine` (main) and `storyKeepTheirs`, which save into the change with `into` |
+| Save in World | someone whose waiting change is waiting for words (`mine.words` not empty) | World's stamp adds the line `worldIntoWords` under `stampWaiting`: the one change this plan makes to World (audit I8) |
 | Save | a visitor | the notice `saveWhy` with Sign in and `exportInstead`; the draft keeps the change through the sign-in |
 | Save | the framework has a problem with the change (`checkStory`) | nothing is sent; a problem notice with the sentences, each a link to the card, key or cell it is about |
 | Export | anyone | `storyCopy`'s text to the clipboard; `stampExported`, `stampCopied`; `copyKeep` gives the one file or the zip (`story-change.zip`); the clipboard refused: the text selected in a notice, as in World |
@@ -1320,10 +1487,18 @@ with `into`. The waiting list and a waiting change's screen show, for a change w
 `storyWaitingWords(…)` in place of its checks' words, and its main button is `storyWriteMissing`, which opens
 `#/game/o/n/story/words?change=<number>&show=missing`; with `words` empty and `goesIn` it reads `storyGoesInSoon`.
 `GameHome` and `Waiting`, for a person who may save, call `finish` once for each of `readyToFinish` and show the
-list again.
+list again. **A waiting change's screen shows a Story change** (audit I7): beside the levels it already draws, for
+each Story file the change touches (the paths `showChange` already judges with `allowedPaths`), the plain lines of
+`changeLines`, each in the editor's words (`storyChangeSays`, `storyChangeAdded`, `storyChangeRemoved`,
+`storyChangeWrote`, `storyChangeRead`, `storyChangeOther`), at most eight and then `storyAndMore(n)`; and one
+button, `storyOpenIn`, that opens it in Story at Look on that change (`#/game/o/n/story/page?change=<number>`).
+Approve stays where it is, and the approver needs nothing else to judge it.
 
 - [ ] **Step 1: Failing tests.** `finishWhenReady` with a clock handed in: 'not-ready' three times then in; stops
-      when `alive()` is false; a refusal is returned at once. `readyToFinish` keeps only `words` empty, `goesIn`
+      when `alive()` is false; a refusal is returned at once. `changeLines`: the fixture with "Hello there!" changed
+      is one `says`; five Korean lines written is one `wrote` with 5; a moved camera key is one `changed` named
+      "Door opens"; the same files give nothing. `onlyOldGaps`: true when each language's count is at most the
+      opened game's, false when one rises. `readyToFinish` keeps only `words` empty, `goesIn`
       and `checks: 'passing'`. Journeys (five sizes, three engines; the pretend GitHub's checks are set by the
       test): **straight in:** an Owner changes "Hello there!" and Saves: SAVED, one commit on `main` holding one
       file whose bytes equal `writeContent` of the same change made by hand in the test. **Waiting for words:** an
@@ -1333,7 +1508,17 @@ list again.
       "SAVED, every word is there"; the test sets the checks to passing; within the tries it reads "It is in the
       game now" and `main` has the line in six languages. **Suggest:** a Suggest person's complete change waits
       for approval; their incomplete one says words first, then, completed by another, "Now someone approves it",
-      and Approve by an Approver puts it in. **Two at once (Review Focus 4):** two people open the same waiting
+      and Approve by an Approver puts it in, after reading on the change's screen "Keeper: 'Hello there!' becomes
+      'Hello, friend!'" and "Korean: 5 words written", and pressing "Open in Story" to see the map at Look on that
+      change (`story-approve.journey.test.ts`, audit I7). **Q-B's person** (an Owner through GitHub only) reads
+      "Now you can approve it" after the last word (M11). **World joins it** (I8): an Owner with a words change
+      waiting moves the crate in World; the stamp says "Saved into your change that is waiting for words" and
+      `main` is untouched. **Old gaps** (M10): in `story-gaps`, a save that changes only an English line says
+      "Waiting for words the game was already missing". **A clash** (I6): a waiting words change, then an Owner's
+      save straight in that adds a line beside it; the checks set to passing, the waiting change still goes in and
+      `main` has both lines. **The hook** (I5): with the screen closed, the test sets the checks to passing; the
+      pretend GitHub sends the signed event and `main` has the words without any page calling `finish`.
+      **Two at once (Review Focus 4):** two people open the same waiting
       change, both write Korean; the second Save says changed elsewhere, "Show the newest" keeps their words in
       the boxes, and their next Save goes in. **Export** of a change across the conversation and two messages
       files: the clipboard holds three `=== path ===` blocks equal to the three files' bytes and no `/api/save`
@@ -1451,8 +1636,8 @@ through `StoryScreen`.
       The `de`, `ru` and `ja` scenes and the long-names game run the map, the timeline and Words.
 - [ ] **Step 2:** The art-untouched test on the stage and on both speech boxes (Tasks 13 and 15) runs in this file
       too, at the five sizes.
-- [ ] **Step 3:** Docs. `CLAUDE.md`: `story` in the features list and the structure; the three exceptions to
-      "content files only"; the device list (`af.tip.story`, the Story draft, `timeline`). `README.md`: what Story
+- [ ] **Step 3:** Docs. `CLAUDE.md`: `story` in the features list and the structure; the two exceptions to
+      "content files only" and the one route GitHub calls (`/api/github-hook`); the device list (`af.tip.story`, the Story draft, `timeline`). `README.md`: what Story
       is, in four sentences. `docs/teams.md`: what "Waiting for words" means for a team and its agent, and that a
       waiting change's checks fail until the words are there. The docs tests read each.
 - [ ] **Step 4:** Push; green. **Review pictures: the full set, every scene of Appendix B at five sizes, saying
@@ -1572,6 +1757,19 @@ storyEveryWord          Every word is there
 storyGoesInSoon         It goes into the game when its checks pass.
 storyInNow              It is in the game now.
 storyNowApprove         Now someone approves it.
+storyYouApprove         Now you can approve it.
+storyWaitingOld(l)      Waiting for words the game was already missing, in {l}
+storyBothChanged(key)   Someone else changed these words too. Which do you keep?
+storyKeepMine           Keep mine
+storyKeepTheirs         Keep theirs
+storyChangeSays(who, before, after)  {who}: “{before}” becomes “{after}”
+storyChangeAdded(who, words)         {who} now says “{words}”
+storyChangeRemoved(who, words)       {who} no longer says “{words}”
+storyChangeWrote(lang, n)            {lang}: {n} words written
+storyChangeRead(lang, n)             {lang}: {n} words marked as read
+storyChangeOther(name)               {name} changed
+storyOpenIn             Open in Story
+worldIntoWords          Saved into your change that is waiting for words
 storyWordsFor(by)       Words for {by}'s change
 storyAddWords           Add words to this change
 storyWriteMissing       Write the missing words
@@ -1595,7 +1793,9 @@ cutscene: at rest; the frame picked; a key picked (camera, actor, line); the tim
 game. Words: all; Missing; a cell being written with a sentence under it; a value's chip; two columns with the
 flag row; a ticked cell with a face; the no-file column; the mark-all notice. Saving: SAVED; waiting for words
 (with the quiet line); every word is there; it is in the game now; a visitor's sign-in panel; EXPORTED; the
-problem notice; changed elsewhere; a waiting change opened for its words; the waiting list with a words change.
+problem notice; changed elsewhere; a waiting change opened for its words; the waiting list with a words change;
+waiting for words the game was already missing; now you can approve it; both changed the same words; a waiting
+change's screen with its Story lines and Open in Story; World's stamp saved into a change waiting for words.
 The first run: each of its three tips. Each of these in `en`; the map, the timeline and Words also in `de`, `ru`
 and `ja` and with the long-names game.
 
@@ -1615,4 +1815,8 @@ and `ja` and with the long-names game.
 - **Not in the spec, added by this plan and flagged:** ruling 6 (the folder listed once, the Owner's rule across editors), ruling 7 (new lines in
   the game's own words), ruling 9 (a language with no file), ruling 13 (history from blame).
 - **Names** used across tasks are defined once: `StoryFiles`, `StoryEdit`, `Did`, `TouchedFile` (7, 9); `MapLayout`
-  (10); `MissingWords`, `Waiting.words`, `goesIn` (5, 6); `WordsHistory`, `LineBy` (6, 18, 20); `RowId` (14 to 16).
+  (10); `MissingWords`, `Waiting.words`, `goesIn` (5, 6); `WordsHistory`, `LineBy` (6, 18, 20); `RowId` (14 to 16); `ChangeLine` (21).
+- **After the plan audit** (2026-11-15): every finding of
+  `docs/superpowers/audits/2026-11-15-story-editor-plan-audit.md` is written into the task it amends, tagged with
+  its number (C1, C2, I1 to I12, M1 to M11), and I5 carries the Owner's answer A. The one change to World is the
+  stamp line of I8; the one route GitHub calls is `/api/github-hook` (I5).
