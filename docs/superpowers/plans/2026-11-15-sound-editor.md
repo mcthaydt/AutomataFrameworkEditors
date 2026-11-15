@@ -75,7 +75,11 @@ Written in the tracker when each is true. Task 1 does not start before all of 1 
 4. This plan's audit is merged.
 5. The Feel editor's plan is read as it is on `main` then: if its Task 2 (`EDITABLE`, `game/files.ts`) or its Task
    13 (a commit of several files) is built, Task 2 and Task 3 here **widen** those files and keep their names; if
-   not, they are built as written here, and Feel's tasks widen these. One save path, whichever editor is first.
+   not, they are built as written here, and Feel's tasks widen these. One save path, whichever editor is first. The Story plan (Editors PR 38: `/api/save-many`, an editors-side
+   `withFolderLine`) and the Scenes plan (PR 37: `Repo.saveFiles`) plan the same pieces; the plan audit (I4) settles
+   the shared names as this plan's Task 2 now writes them: `Repo.saveFiles` (Story's and Scenes' name and shape, with
+   `base64` for bytes), one `POST /api/files` with `setUp` as kinds from one `SET_UP_FOLDER` table, and the folder
+   line always the framework's `withFolders`. Whichever builds first builds those; the others widen them.
 
 **What this plan takes from the redesign as built** (names from its plan; Task 1's first step checks each on `main`
 and reports any that differs before building on it): `Frame`, `Pill`, `Cluster`, `Switcher`, `ComingSoon`, `Panel`,
@@ -118,7 +122,9 @@ The spec leaves these to the builder, or is silent. The plan audit may challenge
    "motif", "song", "loop") made free with `-2`, `-3`.
 6. **"Try another" is offered for a sound made from a kind in this visit,** since the file does not remember its
    kind and nothing else may. Any other sound's card offers "Start again from a kind", which opens the tray and
-   replaces the voices (Undo brings them back). "Try another" counts seeds up from the one that made the sound.
+   replaces the voices (Undo brings them back). "Try another" counts seeds up from the one that made the sound. A
+   new sound starts at the first seed, from 0, whose voices are not those of a sound the game already has, so a second
+   Jump is not the first one again (plan audit, M1).
 7. **The four sliders,** each a place from 0 to 1 worked out from the file, each press a step:
    - **Higher or lower:** the place is the loudness-weighted middle pitch of the tones and hisses, on a scale of
      octaves from 60 to 6000 hertz. A step multiplies every pitch by a semitone (1.0595 up, 0.9439 down), held to
@@ -137,18 +143,24 @@ The spec leaves these to the builder, or is silent. The plan audit may challenge
 8. **The picture of a sound** is SVG: one bar a voice from `at` for `length`, drawn from its start pitch to its end
    pitch on the same octave scale; a hiss as a hatched bar; a recording as its wave (120 points, the loudest sample
    of each slice); a motif as its notes' steps. The moving line is CSS, timed from the press.
-9. **Which thing a chip sits on** follows the spec's rule, with the places settled: a chip sits above its thing,
+9. **Which thing a chip sits on** follows the spec's rule, read the way the framework names its events (plan audit,
+   I2): a `hero.*` event belongs to the project's `hero` character, whatever its id; any other event's first word is
+   matched first against the characters' `kind` (the touch events are `<kind>.touched`, `<kind>.left`,
+   `<kind>.taken`, named after the touched character's `kind`, not its id), then against a character's id; no match
+   is "Whole game". The places: a chip sits above its thing,
    with World's leader line; chips that would overlap stack upward; a thing off the screen has no chip until it is
    on it. `events.ts` (Task 4) is the one place that knows which happenings exist.
-10. **The happenings offered** are, in this order: the built-in hero's (plan H's `MOVE_EVENTS`, only for a hero with
-    `moves`, each move only if it is on); for every character with `touch`, `<kind>.touched`, `<kind>.left` and for
+10. **The happenings offered** are, in this order: the built-in hero's (plan H's `MOVE_EVENTS`, all eight, each
+    `hero.<name>`, `left-ground` included, only for a hero with `moves`, each move only if it is on); for every character with `touch`, `<kind>.touched`, `<kind>.left` and for
     `take` `<kind>.taken`; `level.started`; every name the game's cue and feel files already use; then "Name your
     own". A name with words is shown as the words; any other as the name itself.
 11. **Erasing** a sound takes away the cues that name it, and a recording file no other sound names. Erasing a loop
     or a motif that a song or a sound still uses is not offered: its card says where it is used.
 12. **A song written as rows of notes** (music format 1) opens with Play and one button, "Turn it into loops",
     which rewrites it as format 2 through the framework's own `musicToMidi` then `midiToMusic` (one undo step).
-    Nothing else edits a format 1 song.
+    Nothing else edits a format 1 song. It is a change of sound, and the panel says so before it is kept, with the
+    framework's `dropped` in Sound's words (ruling 27): each part becomes Keys or Bass, every drum hit a snare, and a
+    note off the sixteenths moves. The new loops' ids are made free as a brought-in file's are.
 13. **The chord buttons** for a bar are the key's seven (`I ii iii IV V vi vii°`, or the minor key's), the six
     that fit first and the diminished one last and smaller, each showing `chordName`. "More" adds `7` and `sus4` of
     the picked one. "Try a progression" offers four: `I V vi IV`, `I vi IV V`, `vi IV I V`, `I IV V IV` (in a minor
@@ -183,14 +195,24 @@ The spec leaves these to the builder, or is silent. The plan audit may challenge
     "New sound: Jump", "Changed: Meadow", "Taken away: Thud", each with Play for Before and After where there is
     one.
 23. **A change holds at most 20 files and 5 MB of recordings.** More, and Save says "That is a lot at once. Save
-    what you have first." before anything is sent.
+    what you have first." before anything is sent. One step may be bigger: a brought-in music file (Task 19) or a
+    song turned into loops (ruling 12) is one step of up to 200 files, because it cannot be cut in two; one over 200
+    is refused at its panel with `music.too-big` before it is kept, and a change that holds such a step may hold
+    nothing else (plan audit, I5).
 24. **The eight other languages are written by the building session** under the redesign's ruling 9 (tests, then
     the drunk-grandma audit's back-translation). This plan fixes the English (Appendix A).
+27. **Nothing the framework says in English reaches a screen** where a person who is not a developer is working: the
+    MIDI panel, the recording limits and "Name your own" say Sound's own words in nine languages, from the
+    framework's codes (`MidiDropped.what`, `why`) and limits (plan audit, I3). The one exception is today's: a game
+    whose files are broken shows the framework's problems as World does.
 25. **Loop and style names come from the framework** (`libraryName`, nine languages); a game's own loop, motif,
     sound or song is shown by its id with dashes as spaces and a capital ("hero-theme" reads "Hero theme"), the
     developer's own word otherwise untouched.
-26. **Test games:** the fixture game gains the folder lines, three sounds (`jump`, `land`, `thud`), a cue list and
-    the library's `calm` song as `meadow`; `plain-game` stays with no sound and no folder lines (the "no sounds
+26. **Test games:** the fixture game gains three sounds (`jump`, `land`, `thud`), a cue list and the library's
+    `calm` song as `meadow`, listed by path in Task 1 and by the five folder lines from Task 3 on (plan audit, C1:
+    nothing on the page or in the API can list a folder before Tasks 2 and 3). Its `crate.landed` cue answers a name
+    the framework never raises (only a game's own code could), so it is there for the chips and "Whole game" tests and
+    no journey waits to hear it; `plain-game` stays with no sound and no folder lines (the "no sounds
     yet" and "Set up sounds" game); a new `old-song-game` holds one format 1 track and lists its files by path.
 
 ## Review Focus
@@ -222,7 +244,7 @@ Layers, lowest first: `words`, `access`, `wire`, `exchange`, `github`, `service`
 ```
 src/features/wire/wire.ts            EDITABLE + sound, cues, music, loop, motif; FileWrite, FilesAsk, FilesAnswer;
                                      OpenAnswer.folders; RecordingAsk                               Task 2
-src/features/github/repo.ts          commitFiles (several files, one commit), listFolder, readBytes  Task 2
+src/features/github/repo.ts          saveFiles (several files, one commit), listFolder, readBytes    Task 2
 src/features/service/files.ts        the save of a change of several files                           Task 2
 src/features/service/open.ts         folder files, and the folders' names                            Task 2
 src/features/service/recording.ts    one recording's bytes                                            Task 2
@@ -271,16 +293,15 @@ tests/                               mirrors the above; tests/fixtures/old-song-
 - Test: `tests/fixtures/game.test.ts`, `tests/workflows/package.test.ts`
 
 **Interfaces:**
-- Produces: the framework at plan M's merge commit. The fixture game lists folders for `sound`, `music`, `loop`,
-  `motif` and `cues`; `jump` is `makeSound('jump', 0)`, `land` is `makeSound('land', 0)`, `thud` is
+- Produces: the framework at plan M's merge commit. The fixture game lists its new files by path (one block each, as
+  every file it has today; Task 3 turns them into folder lines); `jump` is `makeSound('jump', 0)`, `land` is `makeSound('land', 0)`, `thud` is
   `makeSound('hit', 0, 'thud')`; its cues: `hero.jumped` plays `jump`, `hero.landed` plays `land`, `crate.landed`
   plays `thud`, `level.started` starts `meadow`; `meadow` and its loops are `libraryFiles('calm', 'meadow')`.
 
 - [ ] **Step 1:** Check on `main` every name under the two "What this plan takes" lists (`git grep` here; the
       framework's API report at the pin). Write any that differs in the tracker and report it before Step 2.
 - [ ] **Step 2:** Move the pin to plan M's merge commit, in the three places.
-- [ ] **Step 3: Failing tests** in `game.test.ts`: the fixture game loads through `loadGame(read, list)` with its
-      folders; it has three sounds, one cue list of four, one song and its loops; every file equals `writeContent`
+- [ ] **Step 3: Failing tests** in `game.test.ts`: the fixture game loads through `loadGame(read)` as today; it has three sounds, one cue list of four, one song and its loops; every file equals `writeContent`
       of itself byte for byte; the three sounds equal `makeSound`'s; `plain-game` has no sound, no cue and no
       folder line; `old-song-game` loads with one format 1 track and no folder line.
 - [ ] **Step 4:** Write the files (in `writeContent`'s form; the byte test says if one differs). Push; green, every
@@ -323,7 +344,8 @@ export interface OpenAnswer { /* as today, plus */
 export interface RecordingAsk { readonly game: GameRef; readonly branch: string; readonly path: string }
 // api.ts
 saveFiles(ask: FilesAsk): Promise<Answer<FilesAnswer>>
-recording(ask: RecordingAsk): Promise<Answer<WirePicture>>     // the bytes of one .wav, base64
+recording(ask: RecordingAsk): Promise<Answer<WireBytes>>       // the bytes of one .wav, base64
+// WireBytes is WirePicture renamed for any file of bytes ({ path, base64 }); WirePicture stays as its alias.
 ```
 
 Only kinds this plan needs must be in `EDITABLE` when it is built; `level`, `tuning` and `feel` are there when their
@@ -333,15 +355,17 @@ own tasks put them there.
 branch when they have one), nothing written unless all pass:
 
 1. Signed in, and the level may save (as today's save).
-2. `setUp`: each must be `content/sounds` for `sound`, `content/music` for `music`, `content/loops` for `loop`,
-   `content/motifs` for `motif`, `content/cues` for `cues`, `content/feel` for `feel`; anything else is
-   `not-allowed`. The new `automata.toml` is the framework's `withFolders` of the file as it is.
+2. `setUp`: a list of kinds; each folder is `SET_UP_FOLDER`'s, one table in `wire.ts` for every editor (`sound`
+   `content/sounds`, `music` `content/music`, `loop` `content/loops`, `motif` `content/motifs`, `cues`
+   `content/cues`, `feel` `content/feel`; the Story plan adds `conversation` and `cutscene`); any other kind is
+   `not-allowed`. The new `automata.toml` is the framework's `withFolders` of the file as it is, and nothing else
+   in the editors writes a `[[content]]` block (plan audit, I4).
 3. Every JSON write's path is listed by path with that type, or is `<folder>/<id>.json` directly in a folder listed
    for that type (after step 2); its bytes are `writeContent(type, value)`; its id is its file's name. A write with
    no `version` must not exist; one with a `version` must, at that version (`changed-elsewhere` otherwise).
 4. Every recording's path ends `.wav`, sits directly in a folder listed for `sound`, and passes `readRecording`.
 5. A removal names a file that a rule above would let be written.
-6. At most 20 writes and 5 MB of recordings (`bad-request`).
+6. At most 200 writes and 5 MB of recordings (`bad-request`); the page's smaller rule is ruling 23.
 7. The whole game, with the change in place, loads (`wholeGameLoads`, now with the folders' listing) and has no
    `recordingProblems`; else `broken` with the framework's sentences.
 8. One commit holds every write, removal and the set-up line, by the person's level like any save (a Suggest-level
@@ -415,6 +439,9 @@ A kept draft holds no recording and no sound whose recording is unsaved (the spe
       the path and for `RIFF`), and a store that throws gives no draft; `changeCopies` names each file by its name
       in the game.
 - [ ] **Steps 2 to 4:** push red; implement; push green.
+- [ ] **Step 4b: The fixture lists folders.** With the API (Task 2) and the page (here) both listing folders, the
+      fixture game's sound, music, loop and cue path blocks become the five folder lines (`withFolders`); Task 1's
+      `game.test.ts` now loads it through `loadGame(read, list)`. Push; every existing journey stays green.
 - [ ] **Step 5:** Commit `feat: a change of several files, held, drafted and saved`. Report `Task 3`.
 
 ## Pull request 2: sounds with no screen
@@ -543,7 +570,9 @@ export interface Hear {
   /** Plays plain notes once at a tempo: a loop over the song's chords, a chord, a tapped note. */
   notes(notes: readonly PlainNote[], tempo: number): void
   /** Seconds since what is playing began, for the moving line; undefined when nothing plays. */ at(): number | undefined
-  stop(): void; close(): void }
+  stop(): void; close(): void
+  /** The one speaker, for the level's Play to build the game's audio on (Task 9); made on the first press. */
+  speaker(): Speaker }
 /** `speaker` is for tests; left out, a `webSpeaker()` is made at the first call from a press. */
 export function createHear(options?: { readonly speaker?: Speaker; readonly log?: (entry: unknown) => void }): Hear
 ```
@@ -627,11 +656,21 @@ pressed and then makes the sound (`newSound`), opens its card and asks "When…"
 thing's first free happening is already picked); then Record and Bring in a file, which read "Soon" until Part 2.
 "Try another" on the card is ruling 6.
 
+**Play plays the game's sound** (plan audit, I1: the spec's "Play plays the level with its sounds and music", and
+the journeys below read the game's own cue log after Play, but the redesign's `startPlay` makes no audio). Here
+`levels/play.ts`'s `startPlay` gains `audio`: `createAudio({ content, speaker })` over the one `Hear`'s speaker
+(Task 6 gives `Hear` a `speaker()` for it), so a press of Play is the press that turns the speaker on and Sound and
+the game never hold two. It is the game's own audio in every editor, since a player hears it; Sound's chips hide
+while it plays and come back on Stop; Play stops what Sound was playing. Task 14 adds `recordings` (the framework's
+`loadRecordings` over `recordingOf`). The journeys' hook exposes the game audio's `log()`.
+
 - [ ] **Step 1: Failing tests:** pressing Jump from the hero's "+ Sound" makes `jump` (or the free name), the cue
       `hero.jumped`, plays it, and the chip appears; Try another changes the voices, plays, and Undo returns the
       first take; a card of a sound from the file shows "Start again from a kind" and no Try another; the tray's
-      buttons wrap and none is cut at 390 px. The journey (three engines, five sizes): three presses from the level
-      to a sound that plays when the hero jumps, then Play the level and read the game's own cue log.
+      buttons wrap and none is cut at 390 px; Play on the fixture level logs `level.started` music `meadow` and,
+      after a jump, `hero.jumped` sound `jump`, the chips are gone while it plays and back after Stop, and a sound
+      playing in Sound stops when Play is pressed. The journey (three engines, five sizes): three presses from the
+      level to a sound that plays when the hero jumps, then Play the level and read the game's own cue log.
 - [ ] **Steps 2 to 4,** review pictures (`sound-kinds`, `sound-new-when`); commit `feat(sound): a new sound from a
       kind, and Try another`. Report `Task 9`.
 
@@ -641,14 +680,15 @@ thing's first free happening is already picked); then Record and Bring in a file
 - Create: `src/features/sound/WhenPicker.svelte`; test `WhenPicker.browser.test.ts`; the words `sound.when.*`
 
 **What it builds:** the picker lists `happenings` as sentences ("When the hero jumps"), grouped by whose they are,
-the one in use marked; "Name your own" takes a name, checked as the framework's event name is (the framework's own
-sentence is shown under the box), and shows it as typed. Change swaps the cue; Add another adds one; a sound's last
+the one in use marked; "Name your own" takes a name, checked with the framework's `EventName` schema, and under the
+box says Sound's own `when.own-bad` ("Use small letters, joined by dots, like boss.roared."), never the
+framework's sentence, which is English and says "event" (plan audit, I3); it shows the name as typed. Change swaps the cue; Add another adds one; a sound's last
 "When…" can be taken away (the sound stays, in the panel, with "Nothing plays this yet").
 
 - [ ] **Step 1: Failing tests:** every `MOVE_EVENTS` name and the three touch forms have words in all nine
       languages; Change rewrites one cue; Add another adds one and the chip count rises; a happening that already
       plays another sound says "The hero's jump already plays Jump. Swap it?" and swaps on yes; "Name your own" with
-      `Boss Fight` shows the framework's sentence and saves nothing; `boss.roared` shows as itself under "Whole
+      `Boss Fight` shows `when.own-bad` and saves nothing; `boss.roared` shows as itself under "Whole
       game".
 - [ ] **Steps 2 to 4,** review pictures (`sound-when`, `sound-when-own`); commit `feat(sound): pick what sets a
       sound off`. Report `Task 10`.
@@ -664,13 +704,18 @@ sentence is shown under the box), and shows it as typed. Change swaps the cue; A
 
 **Interfaces:**
 - Produces: `needsSetUp(game: OpenGame): boolean` (the project lists no folder for `sound` or for `cues`);
-  `SOUND_FOLDERS` (the five lines of Task 2's rule 2); `withSetUp(change: Change): Change`.
+  `SOUND_FOLDERS` (the five kinds `sound`, `music`, `loop`, `motif`, `cues` of Task 2's `SET_UP_FOLDER`; `feel`
+  is Feel's); `withSetUp(change: Change): Change`.
 
 **What it builds:** Save sends `pending(edits)` with `saveChange` and the line `nameOf` gives; the stamp, the title
 block, the notices and the waiting-change path are World's. On a game that `needsSetUp`, Sound's first open shows
 one notice over the level: "This game isn't set up for sounds yet." with **Set up sounds**; pressing it adds the
 five folder lines to the pending change (nothing is sent until Save), the stamp's line then reads "… and set up
-sounds", and until it is pressed New sound is off and says why. Export copies the picked file; a change of several
+sounds", and until it is pressed New sound is off and says why. The same pull request widens this repo's
+`CLAUDE.md` ("An editor changes authorable content and nothing else"): an editor writes the content files a game
+lists or its folders hold, a recording file for a sound (Part 2), and, once, the framework's folder lines in
+`automata.toml` (plan audit, I6; the Feel plan's Task 13 makes the same change, so whichever lands second keeps
+one sentence). Export copies the picked file; a change of several
 files offers "Save them as files" (`changeCopies`). The draft is `keepChangeDraft`. A waiting change is ruling 22.
 
 - [ ] **Step 1: Failing tests.** `setup.test.ts`: `plain-game` needs it, the fixture does not, `old-song-game` (its
@@ -771,8 +816,9 @@ Sound with an unsaved recording asks "Leave without saving?". The spec's refusal
 
 - [ ] **Step 1: Failing tests:** a handle never crosses the other and never leaves the wave; "Keep it" over 1 MB
       cannot happen (10 seconds is under it) and a test proves the bytes of 10 seconds are under
-      `RECORDING_MAX_BYTES`; a game at 19.5 MB says "This game's recordings are nearly full." and at the limit says
-      the framework's sentence before Save. The journey: Chromium and Firefox record with the pretend microphone,
+      `RECORDING_MAX_BYTES`; a game at 19.5 MB says "This game's recordings are nearly full." and over the limit
+      says `record.full` ("This game's recordings are full. Erase one before you keep another.") before Save, never
+      the framework's English sentence (plan audit, I3). The journey: Chromium and Firefox record with the pretend microphone,
       WebKit brings in a file; trim, keep, pick "When the hero takes a spark", Save as an Owner: one commit with
       the `.wav`, the sound and the cue list; reload: the card's wave is drawn from the game's file and Play logs
       one recording voice; the same as a Suggest-level person is one waiting change; leave with an unsaved
@@ -926,17 +972,22 @@ presses into a lane like a loop; a picked motif block, and a motif sound's card,
 
 **Interfaces:**
 - Produces: `bringInMusic(game: OpenGame, bytes: Uint8Array, name: string): { readonly change: Change; readonly
-  says: { lanes: number; bars: number; tempo: number; dropped: readonly string[] } } | { readonly problem: string }`
+  says: { lanes: number; bars: number; tempo: number; dropped: readonly MidiDropped[] } } | { readonly problem: 'not-midi' | 'no-notes' | 'too-big' }`
   (the framework's `midiToMusic`, ids made free); `musicFile(game: OpenGame, what: MidiSource): { readonly name:
   string; readonly bytes: Uint8Array }` (the framework's `musicToMidi`).
 
 **What it builds:** ruling 18's two buttons. Bringing in shows "4 lanes, 32 bars, 110 beats a minute", the
-framework's `dropped` sentences as they are (they are the framework's words; the nine languages get them from the
-framework when it has them, else in the game makers' English, said once on the panel), Play and "Keep it". "Save
+framework's `dropped` said in Sound's words, one line for each `what` (`music.dropped.<what>`, with its `count` or
+`tempo`; ruling 27), Play and "Keep it". A refusal is `music.not-music-file` ("That isn't a music file Sound can
+read. Music apps can save one for other apps: look for .mid.") or `music.no-notes` ("That music file has no notes
+in it."), and an import over ruling 23's 200 files is `music.too-big` ("That song is too long to bring in. Try a
+shorter one."). "Save
 for other music apps" is on a song's, a loop's and a motif's card and downloads `<id>.mid`.
 
 - [ ] **Step 1: Failing tests:** a brought-in file becomes one change of a song and its loops that loads; its
-      refusal sentence is shown for a `.txt`; the downloaded file, read back with the framework's `midiToMusic`,
+      `music.not-music-file` is shown for a `.txt` and no word on the panel says "MIDI" whatever the file; a
+      fixture with a pitch bend and a tempo change shows `music.dropped.bends` and `music.dropped.tempo`; the
+      downloaded file, read back with the framework's `midiToMusic`,
       gives the same `notesOf` as the song (the spec's journey); nothing of the `.mid` is in the saved change. The
       journey in three engines.
 - [ ] **Steps 2 to 4,** review pictures (`music-came-in`); commit `feat(sound): bring a music file in, take a song
@@ -1022,7 +1073,9 @@ Keys are `sound.*`. The spec's lines are used word for word; these are the rest.
 | `when.taken` | When the hero takes {a thing} |
 | `when.touched` / `when.left` | When something touches {the thing} / leaves {the thing} |
 | `when.level-started` | When the level starts |
+| `when.hero-left-ground` | When the hero leaves the ground |
 | `when.own` | Name your own |
+| `when.own-bad` | Use small letters, joined by dots, like boss.roared. |
 | `when.swap` | {the happening} already plays {name}. Swap it? |
 | `setup.says` | This game isn't set up for sounds yet. |
 | `setup.do` | Set up sounds |
@@ -1036,6 +1089,7 @@ Keys are `sound.*`. The spec's lines are used word for word; these are the rest.
 | `record.yours` | Only bring in sounds you made or may use. |
 | `record.not-sound` | That file isn't a sound this device can play. Try another file. |
 | `record.nearly-full` | This game's recordings are nearly full. |
+| `record.full` | This game's recordings are full. Erase one before you keep another. |
 | `music.key` / `music.speed` / `music.forever` | Key: {name} / Speed: {n} / Loops forever |
 | `music.lane-add` | + Lane |
 | `music.progression` | Try a progression |
@@ -1049,6 +1103,10 @@ Keys are `sound.*`. The spec's lines are used word for word; these are the rest.
 | `music.finer` | Finer |
 | `music.bring-in` / `music.take-out` | Bring in a music file / Save for other music apps |
 | `music.came-in` | {lanes} lanes, {bars} bars, {tempo} beats a minute |
+| `music.not-music-file` | That isn't a music file Sound can read. Music apps can save one for other apps: look for .mid. |
+| `music.no-notes` | That music file has no notes in it. |
+| `music.too-big` | That song is too long to bring in. Try a shorter one. |
+| `music.dropped.moved` … `.cut` | {n} notes were moved a little to fit the beat / The speed changes were left out; it keeps {tempo} beats a minute / Bends in the notes were left out / Pedal and knob moves were left out / It was read as four beats a bar / {n} instruments were left out: a song has up to eight / The end after bar 128 was left out / Some notes played together were left out / {n} long notes were cut short |
 | `music.plays-when` | Plays {when} |
 | `music.start-from` | Start from a style / Start from nothing |
 | `block.move` / `repeat` / `copy` / `remove` | Move / Repeat / Copy / Remove |

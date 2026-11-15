@@ -149,7 +149,9 @@ move. What changes when Sound is chosen:
 
 A cue answers an event by name, like `hero.jumped` or `crate.landed`. The chip goes on every thing in the level whose
 character is the event's first word (the hero, every crate); an event whose first word is no character in the level
-goes in "Whole game". This is worked out from the files each time, never kept. (My call: it is the rule the framework
+goes in "Whole game". (Amended by the plan audit, 2026-11-15: the framework names a built-in hero's events `hero.*`
+whatever the hero's id, and a touch event after the touched character's `kind`, so "is the first word" means the
+project's hero for `hero`, else a character whose `kind` it is, else one whose id it is.) This is worked out from the files each time, never kept. (My call: it is the rule the framework
 already uses to name events after a character, `spark.taken`, `door.touched`.)
 
 ### What can set a sound off
@@ -252,7 +254,9 @@ a floating panel fills the space between the pill and the title block.
   there. Stop is one press. Music never starts by itself.
 - **Make your own loop** (in the tray, for those who want notes): a grid of one loop's steps, rows for drums or the
   notes of the key for the rest. It is the only place single notes are placed, and nobody has to go there.
-- **MIDI in and out** (the Owner, Q5). "Bring in a MIDI file" (in the loop tray and in the Sounds panel's "New") reads
+- **MIDI in and out** (the Owner, Q5). On screen the two buttons read "Bring in a music file" and "Save for other
+  music apps" (amended by the plan audit, 2026-11-15: this page's own words rule bans "MIDI" on a screen; the
+  names below are what they do). "Bring in a MIDI file" (in the loop tray and in the Sounds panel's "New") reads
   a `.mid` file with the framework's converter and makes the game's own JSON: one track whose lanes are the file's
   instruments (its drum channel as Drums), its tempo, its key when the file names one, and the notes as loops, cut
   into bars. Notes that are not in the key are kept exactly, so nothing is lost. Before it is kept, a short panel
