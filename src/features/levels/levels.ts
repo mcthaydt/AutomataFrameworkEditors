@@ -4,8 +4,8 @@ export { compareLevels, type HitId, type LevelChanges, type ThingMove } from './
 export {
   type Added,
   addThing,
-  canErase,
   type Characters,
+  canErase,
   describeChange,
   eraseThing,
   isDirty,
