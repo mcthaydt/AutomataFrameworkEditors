@@ -191,11 +191,37 @@ their `automata.toml` blocks; the pretend GitHub's pictures made by `artFiles`, 
 
 ### Task 2: One change of several files
 
-**Files:** Create `src/features/service/change.ts`, `src/features/game/change.ts`; modify `wire/wire.ts`,
-`service/save.ts` (`saveLevel` becomes a caller), `service/service.ts` (the route), `github/repo.ts`, `api/api.ts`,
+**Files:** Create `src/features/service/change.ts`, `src/features/service/changed.ts`, `src/features/game/change.ts`;
+modify `wire/wire.ts`, `service/save.ts` (`saveLevel` becomes a caller), `service/approve.ts`, `service/waiting.ts`,
+`service/service.ts` (the route), `github/repo.ts`, `api/api.ts`,
 the pretend GitHub under `tests/fixtures/fake-github/`, and `CLAUDE.md` (the one line on what an editor writes; see
 Global Constraints). Tests: `tests/features/service/change.test.ts`, `tests/features/game/change.test.ts`,
-`tests/features/github/repo.test.ts`, `tests/journeys/save-problems.journey.test.ts`.
+`tests/features/github/repo.test.ts`, `tests/features/service/changed.test.ts`, `tests/features/service/approve.test.ts`,
+`tests/features/service/waiting.test.ts`, `tests/journeys/save-problems.journey.test.ts`.
+
+**One rule for which files a change may touch** (audit G-I8, from the scenes audit's E1, Editors pull request 42).
+Today `approve.ts` (step 2) and `waiting.ts` (`here`) allow a waiting change only when every path it touches is a
+listed content file, so a Suggest-level save that carries a picture, an atlas or a new `[[content]]` block could be
+sent but never approved. Make the rule once, in `service/changed.ts`, and have the save route, `approve.ts` and
+`waiting.ts` all call it; the scenes builder and Feel take the same function, not copies:
+```ts
+/** Which of a change's paths an editor may write, judged against the game as it would be with the change in place. */
+function allowedPaths(input: {
+  before: { project: string; listed: readonly ContentRef[] } // the default branch's automata.toml and its list
+  after: { project: string; listed: readonly ContentRef[] }  // the same, read from the change's head
+  paths: readonly string[]
+}): { ok: true } | { ok: false; refused: readonly string[] }
+```
+A path is allowed when it is a content file `after` lists; or a picture or atlas whose name is that of a figure or
+backdrop `after` lists, beside it (`<id>.png`, `<id>.atlas.json`); or `automata.toml`, only when `after.project` is
+exactly `listContent(before.project, added)` for the blocks `after` lists and `before` does not (nothing else in the
+file changes, and nothing is taken away). `automata.access.toml` and every other path are refused, by name. An empty
+change is refused. `approve.ts` then loads the whole game with the head's `automata.toml` and list when the change
+writes it (step 4 today passes the default branch's), and `waiting.ts` shows a picture or atlas as a changed file
+with no text diff. Tests: each kind allowed; a picture beside a file that is not listed, an `automata.toml` with one
+other line changed, a block taken away and the sharing file each refused by name; a Suggest-level figure save with
+its picture, atlas and new block is approved end to end against the pretend GitHub; every existing approve and
+waiting test still passes.
 
 **`repo.ts` has no way to do this today** (audit G-I2). Its one writer, `saveFile`, is GitHub's contents route: one
 text file a commit. A figure's save is at least three files and one is a PNG. Add
@@ -709,6 +735,7 @@ The fixes are in this page: the first pull request needs plan R's new Part 0 (`l
 task takes are on plan R's parts that come before it (G-I1); a commit of several files is new GitHub work through the
 git data routes, with the calls counted (G-I2); a save repaints and carries every figure a shared file changes
 (G-I3); the API also checks each picture's colour table, and the ruling that the page paints is held (G-I4); the
-editors' own rule on what they write is widened in `CLAUDE.md` (G-I5); a pose's places are units from the hips
+editors' own rule on what they write is widened in `CLAUDE.md` (G-I5); one shared `allowedPaths` decides which
+files a save, an approval and the waiting list accept, so a waiting figure save can be approved (G-I8); a pose's places are units from the hips
 (G-I6); the redesign's Tasks 15 and 16 join gate 2 (G-I7); and the minor ones. The Owner's palette question on plan
 R's audit (Q1) touches this plan only through "Add a colour" on the demo game; nothing here waits for it.

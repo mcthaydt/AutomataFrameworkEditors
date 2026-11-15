@@ -10,7 +10,7 @@ framework's spec and plan R (AutomataFramework pull requests 104 and 109), the o
 (findings I…, Q1, Q2). Nothing was run: every fact below is read from the files, or is said to be unchecked.
 
 **Verdict: ready for execution once its three gates open and the fixes below are in the plan; they are, in this pull
-request.** No critical finding, seven important, four minor. No Owner question is opened here; the framework audit's
+request.** No critical finding, eight important, four minor. No Owner question is opened here; the framework audit's
 Q1 (how the demo's figures are shaded under palette No. 276) touches this plan only through "Add a colour" on the
 demo game. No new dependency.
 
@@ -77,6 +77,16 @@ pose survives a change of height or legs. **Fixed:** `movePlace` converts the to
 **G-I7. Gate 2 missed two of the redesign's tasks it builds on.** Task 4 changes `GameHome` (the redesign's Task 15,
 "your games, a game's page") and every panel shows problems in place as the redesign's Task 16 does; gate 2 named only
 Tasks 7 to 13, 17 and 19. **Fixed:** 15 and 16 are in gate 2.
+
+**G-I8. A waiting figure save could never be approved.** Found by the scenes builder's audit (its E1, Editors pull
+request 42) and added here, since this plan builds the save of several files first. `service/approve.ts` (step 2)
+refuses a waiting change unless every path it touches is a listed content file, and `service/waiting.ts` says the
+same through `here`; a figure's save always carries a picture and an atlas, and a new figure an `automata.toml`
+block, so a Suggest person's figure would wait for ever. **Fixed:** Task 2 adds one `allowedPaths` in
+`service/changed.ts`, which the save route, `approve.ts` and `waiting.ts` call, and which the scenes builder and Feel
+reuse: listed content, a picture or atlas beside a listed figure or backdrop, and `automata.toml` only when its whole
+change is `listContent`'s added blocks; the sharing file never. Approval loads the game with the head's project file
+when the change writes it.
 
 ## Minor
 
