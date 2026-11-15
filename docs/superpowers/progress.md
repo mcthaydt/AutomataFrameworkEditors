@@ -2,6 +2,25 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): handoff (2026-11-15, 08:10 UTC)
+
+The work is now on pull request 55 (branch `claude/project-thread-h6n4o2`), which carries every commit of pull
+request 34 and a merge of `main`. Pull request 34 is closed: it conflicted with `main` in this file after the slice
+cut, so its checks had not run on its last three commits. Its branch `claude/project-thread-ul6x7a` is still to be
+deleted.
+
+- **Found in CI's first pictures of the grill fixes (at f8ffeda):** every page was blank on a sideways iPad, and
+  the Pencil page on a computer too. Cause: the closed left panel put the class `rail` on the page's body, and
+  `mockup.css` already had a `.rail` rule (an old slider, 4 pixels high). Fixed by naming the class `left-closed`.
+  The pictures of that fix have **not** been looked at yet.
+- **Not checked yet:** the other four sizes of the ten new pages, at any commit.
+- **Still to do, in order (the Owner, 2026-11-15, 08:06 UTC: one Fable pass, not two; each step its own
+  thread):** look at the pictures at all five sizes and fix what is broken; publish the review page again at the
+  same address (artifact W5REbCVDUkABgoPY5Hxy2X), with the shell and World only; the Opus plain-words audit, with
+  fixes; one Fable UI/UX pass over every shell and World screen at every size, with fixes; then the Owner.
+- Only the shell and World are in scope. The other editors' pages are still in `docs/mockups/` and are pictured, but
+  wait their turn.
+
 ## The mockups, round three: handoff (2026-11-15, stopped for the night)
 
 The Owner stopped for the night at 07:04 UTC ("we'll revisit this tomorrow; we need to have a roadmap so we stick

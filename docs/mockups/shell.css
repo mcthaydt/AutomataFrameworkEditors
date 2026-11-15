@@ -3288,15 +3288,15 @@ body.sh.playing {
   display: none;
 }
 
-body.sh.rail {
+body.sh.left-closed {
   --left-w: 56px;
 }
 
-body.sh.rail .sh-left > :not(.lrail) {
+body.sh.left-closed .sh-left > :not(.lrail) {
   display: none;
 }
 
-body.sh.rail .lrail {
+body.sh.left-closed .lrail {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3304,14 +3304,14 @@ body.sh.rail .lrail {
   padding: 8px 0;
 }
 
-body.sh.rail .lrail .ib {
+body.sh.left-closed .lrail .ib {
   width: 44px;
   height: 44px;
   border-radius: 10px;
   color: var(--quiet);
 }
 
-body.sh.rail .lrail .ib.on {
+body.sh.left-closed .lrail .ib.on {
   background: var(--hover);
   color: var(--words);
 }

@@ -382,7 +382,7 @@ function frame(m) {
   for (const el of document.querySelectorAll('.pop')) el.innerHTML = el.innerHTML.replaceAll('this iPad', `this ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
   // An iPad held sideways starts with the left panel closed to its rail; a computer starts with it open.
-  if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen) cls.push('rail')
+  if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen) cls.push('left-closed')
   if (m.tray) cls.push('has-tray')
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')
