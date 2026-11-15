@@ -44,7 +44,7 @@
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    padding: 1px var(--space-2);
+    padding: 0 var(--space-2);
     border-right: 1px solid color-mix(in srgb, var(--words) 35%, transparent);
     border-bottom: 1px solid color-mix(in srgb, var(--words) 35%, transparent);
   }

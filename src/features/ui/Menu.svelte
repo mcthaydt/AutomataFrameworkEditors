@@ -27,11 +27,16 @@
   async function show(): Promise<void> {
     open = true
     await tick()
-    list?.querySelector<HTMLButtonElement>('button')?.focus()
+    // Closed again before the list came (a quick Escape): nothing to focus, and focus stays where close put it.
+    if (open) list?.querySelector<HTMLButtonElement>('button')?.focus()
   }
   function close(): void {
     open = false
     trigger?.focus()
+    // The list goes on the next update; if it held the focus when it went, the focus comes back to the button.
+    void tick().then(() => {
+      if (!open && document.activeElement === document.body) trigger?.focus()
+    })
   }
   function pick(item: MenuItem): void {
     close()

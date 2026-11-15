@@ -303,7 +303,8 @@
     const entries = [...fingers.entries()]
     const [a, b] = entries
     if (a === undefined || b === undefined) return
-    gesture = { start: now, from: [a[1], b[1]], ids: [a[0], b[0]] }
+    // Copies: the fingers' own points are changed on every move, and the gesture is worked out from where they began.
+    gesture = { start: now, from: [{ ...a[1] }, { ...b[1] }], ids: [a[0], b[0]] }
     moving = true
   }
 
@@ -562,12 +563,12 @@
   }
   /* The ring is a page element, never drawn into the picture: the art stays exactly as the game draws it. */
   .thing[aria-pressed='true'] {
-    outline: 2px dashed var(--touch);
+    outline: 2px dashed var(--touch, currentColor);
     outline-offset: 2px;
     animation: draw 200ms ease-out;
   }
   .thing[data-marked] {
-    outline: 2px solid var(--touch);
+    outline: 2px solid var(--touch, currentColor);
     outline-offset: 2px;
   }
   @keyframes draw {
