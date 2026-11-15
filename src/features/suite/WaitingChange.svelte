@@ -180,8 +180,9 @@
     <p class="by">{change.mine ? WORDS.waitingMine : WORDS.waitingBy(change.by)}</p>
     {#if shown !== undefined}
       {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
-      {#if artReady}
-        <div class="picture">
+      <!-- The box is there from the start, so the buttons below do not move when the pictures arrive under a finger. -->
+      <div class="picture">
+        {#if artReady}
           <Levels
             readOnly
             level={shown.level}
@@ -195,8 +196,8 @@
             onchange={() => {}}
             onsave={() => {}}
           />
-        </div>
-      {/if}
+        {/if}
+      </div>
       <ul class="lines">
         {#each shown.moved as move (move.id)}<li>{WORDS.changeMoved(move.id)}</li>{/each}
         {#if shown.other > 0}<li>{WORDS.changeOther}</li>{/if}

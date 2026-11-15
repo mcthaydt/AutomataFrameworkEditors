@@ -91,6 +91,8 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await text(grandpa, WORDS.waitingRow(1))
     await grandpa.page.getByRole('link', { name: /waiting/ }).click()
     await grandpa.page.locator('a.row').first().click()
+    // Grandpa looks at the picture first; the test does too, so no press lands while the page is still settling.
+    await thingNamed(grandpa.page, 'crate-1').waitFor()
     await grandpa.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
     await text(grandpa, WORDS.approved)
 
