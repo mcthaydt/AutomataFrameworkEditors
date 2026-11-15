@@ -5,17 +5,36 @@ The tracker every stage reads first and updates last. One section per cycle; new
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 
 Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating-glass-docks.md) on PR 57, mockups only
-(no editor code). Progress on this step: **20%** (Task 1 of 6).
+(no editor code). Progress on this step: **60%** (Task 3 of 6 drawn; its pictures are still to be checked).
 
 - **Task 1 (20%):** the seven glass tokens, the two recipes (glass for the docks, soft glass for the band, menus, Help,
   Settings and their family), the four solid cases and the contrast check, all in one new last section of
   `docs/mockups/shell.css` and `tests/docs/glass.test.ts`. The check was written first and failed on CI for the right
   reason (the section was not there); it passes with the section.
+- **Task 2 (45%):** `world-levels-glass.html` draws the level slid under every panel (a body class, `moved`, and a
+  glass class from the page's `MOCK.glass`); `shoot.mjs` now looks for glass inside glass and for pages whose wide blur
+  covers over 40% of the window. CI's pictures show the blur is drawn in headless Chromium (no launch flags were
+  needed), no element with a blur sits inside another, and the pages over 40% are listed in the `mockups` job's log
+  (iPad sideways and computer, mostly the Put in game family, up to 0.68). Three small fixes came out of looking: the
+  tools' own card had been given a solid panel by an older rule with a longer selector, the closed rail's tools are a row
+  of the rail's card rather than a second card, and the inspector's tab is transparent so its card's glass shows.
+- **Task 3 (60%):** every dock floats. The top bar floats 8 points in at all five sizes (its height is what it was: 48,
+  56 on a touch screen, 44 on a phone on its side), and its slot `--top-h` grew by the 8 points and the notch, so
+  everything measured from it keeps its 8 points under the bar. A phone on its side has a floating column of tools and
+  a floating tab for the inspector; an upright iPad and a phone have a floating band above the sheet; the dark canvas
+  runs edge to edge at every size; the safe areas (notch, home bar) are kept clear by every dock.
 - **Rulings so far.** (1) The spec's contrast table names `--touch` as peach and `--mark` as olive, but the plain-words
   audit re-pointed them to greys (`#c8c8c8`, `#8a8a8a`) and made `--accent` the peach; the check measures the colours the
   cascade ends on, with `--accent` for the peach, and holds `--mark` (a fill and an icon, never words) to 3 to 1.
   (2) The tour's cards (`.coach`) are light, with dark words and a pointer, like the tips; they stay solid and are not in
   the soft-glass list. If the Owner wants them frosted, they need their words and pointer redrawn dark.
+  (3) The plan's page source `world-levels-mid.html` has no picked thing, so `world-levels-glass.html` is made from
+  `world-levels.html`. (4) On an upright iPad and a phone the picked crate is low in the level's art, so the level
+  cannot slide far enough for the ground to sit behind the bottom docks and keep the crate in the clear: those two
+  sizes show glass over sky at the top bar and the Hold tab, and the bottom docks sit over the dark canvas. (5) The
+  upright list card and the phone's open inspector sheet are drawn by no mockup (the list is hidden below 1000 points
+  wide and the phone's inspector is the one-line peek), so no rules were written for them; the sheets a phone does
+  draw (Put in game and the family) already hang 8 points in.
 
 ## The shell and World mockups (roadmap slice 3): floating glass docks, the spec (2026-11-15)
 

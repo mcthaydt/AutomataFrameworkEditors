@@ -183,3 +183,41 @@ test('glass turns solid in the four cases', () => {
   expect(cases[1]).toContain('html body.sh:not(.glass-on)')
   expect(cases[3]).toContain('--g-edge: var(--quiet)')
 })
+
+test('the tools card has its glass back, and the rail has no card inside a card', () => {
+  const card = block('html body.sh.tools-left:is(.left-over, .no-left) .sh-tools .tbar')
+  expect(card).toContain('background: var(--g-bg)')
+  expect(card).toContain('border: 1px solid var(--g-edge)')
+  const rail = block('html body.sh.tools-left.left-closed .sh-tools .tbar')
+  expect(rail).toContain('background: transparent')
+  expect(rail).toContain('backdrop-filter: none;')
+  expect(rail).toContain('-webkit-backdrop-filter: none;')
+})
+
+test('docks keep clear of the notch and the home bar', () => {
+  for (const side of ['top', 'right', 'bottom', 'left']) {
+    expect(section).toContain(`env(safe-area-inset-${side}, 0px)`)
+  }
+})
+
+test('the top bar floats a gap in from the window, and its slot grows by the gap', () => {
+  const bar = block('html body.sh .sh-top')
+  expect(bar).toContain('top: calc(var(--dock-gap) + var(--safe-t))')
+  expect(bar).toContain('left: calc(var(--dock-gap) + var(--safe-l))')
+  expect(bar).toContain('right: calc(var(--dock-gap) + var(--safe-r))')
+  expect(bar).toContain('height: var(--bar-h)')
+  expect(bar).toContain('border-radius: 12px')
+  expect(section).toContain('--top-h: calc(var(--bar-h) + var(--dock-gap) + var(--safe-t))')
+  // The bar's own height is what it was at each size.
+  expect(section).toMatch(/html body\.sh:not\(\.bare\) \{\s*--bar-h: 48px;/)
+  expect(section).toMatch(/html body\.sh\.touch:not\(\.bare\) \{\s*--bar-h: 56px;/)
+  expect(section).toMatch(/html body\.sh:not\(\.bare\) \{\s*--bar-h: 44px;/)
+})
+
+test('a phone on its side gets a floating column of tools and a tab at least 44 high', () => {
+  const column = block('html body.sh .sh-tools .tbar')
+  expect(column).toContain('height: auto')
+  expect(column).toContain('border-radius: 12px')
+  expect(block('html body.sh .sh-right .itab')).toContain('background: transparent')
+  expect(section).toMatch(/\.itab \{\s*height: auto;\s*min-height: 44px;/)
+})

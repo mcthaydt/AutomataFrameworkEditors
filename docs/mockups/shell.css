@@ -7232,3 +7232,230 @@ html body.sh.moved.moved.moved .stage {
     --moved-my: -62;
   }
 }
+
+/* ----- 5. Three small fixes that a glass surface needs where an older, more specific rule had made it solid ----- */
+
+/* The tools' own card (an iPad held sideways with the list over the level, or a computer with no list): an older rule
+   with a longer selector gave it a solid panel, edge and shadow, so the glass never showed. */
+html body.sh.tools-left:is(.left-over, .no-left) .sh-tools .tbar {
+  background: var(--g-bg);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), var(--shadow);
+}
+
+/* With the list closed to its rail, the tools sit inside the rail's card. Glass inside glass is never drawn, so here
+   the tools are only a row of the rail: no surface of their own. */
+html body.sh.tools-left.left-closed .sh-tools .tbar {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The inspector's tab (a phone on its side) is the whole of its card, so it takes the card's glass instead of a panel. */
+html body.sh .sh-right .itab {
+  background: transparent;
+}
+
+/* ----- 6. Every dock floats, at every size ----- */
+/* A dock is 8 points in from the window and from its neighbours, and keeps clear of the notch and the home bar (the
+   safe areas are 0 in a browser without them). The top bar floats like the rest: its slot, `--top-h`, is now the bar's
+   height plus the 8 points above it (and the notch), so everything that already measures from `--top-h` keeps its 8
+   points under the bar, and the canvas still starts at the bar's lower edge. */
+
+html body.sh {
+  --dock-gap: 8px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
+
+/* The bar's own height is what it was (48, 56 on a touch screen, 44 on a phone on its side); a page with no shell
+   round it (`bare`) keeps its slot of 0. */
+html body.sh:not(.bare) {
+  --bar-h: 48px;
+  --top-h: calc(var(--bar-h) + var(--dock-gap) + var(--safe-t));
+}
+
+@media (min-height: 601px) {
+  html body.sh.touch:not(.bare) {
+    --bar-h: 56px;
+  }
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh:not(.bare) {
+    --bar-h: 44px;
+  }
+}
+
+html body.sh .sh-top {
+  top: calc(var(--dock-gap) + var(--safe-t));
+  left: calc(var(--dock-gap) + var(--safe-l));
+  right: calc(var(--dock-gap) + var(--safe-r));
+  height: var(--bar-h);
+  border-radius: 12px;
+}
+
+/* On a phone the floating bar is 16 points narrower than the window, so its padding and gaps tighten to keep what was
+   in it. */
+@media (max-width: 500px), (max-height: 600px) and (min-width: 600px) {
+  html body.sh .sh-top {
+    gap: 2px;
+    padding-left: 8px;
+    padding-right: 6px;
+  }
+}
+
+/* The dark canvas, with its paper dots, runs edge to edge behind every dock at every size. */
+html body.sh {
+  background: #181818;
+}
+
+html body.sh:has(.canvas.paper) {
+  background-image: radial-gradient(circle, #333 1px, transparent 1.4px);
+  background-size: 24px 24px;
+  background-position: var(--left-w) var(--top-h);
+}
+
+/* Room under the level for the home bar: the toolbar's slot grows by it. */
+html body.sh:not(.playing):not(.bare):not(.tools-left) {
+  --tools-h: calc(84px + var(--safe-b));
+}
+
+html body.sh.fine:not(.playing):not(.bare):not(.tools-left) {
+  --tools-h: calc(64px + var(--safe-b));
+}
+
+/* An iPad held sideways and a computer: the panels were already cards; they keep the home bar's room under them. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  html body.sh.has-bottom2 {
+    --bottom2-h: calc(34vh + var(--dock-gap) + var(--safe-b));
+  }
+
+  html body.sh .sh-left,
+  html body.sh .sh-right:not(.inline),
+  html body.sh .share-pop {
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+  }
+
+  html body.sh .sh-bottom {
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+    height: calc(var(--bottom2-h) - var(--dock-gap) - var(--safe-b));
+  }
+}
+
+/* An iPad held upright and a phone: the toolbar, and a band above it, float 8 points from the edges, over the
+   settings sheet (the sheet itself was already a card). */
+@media (max-width: 1000px) and (min-height: 601px) {
+  html body.sh .sh-tools {
+    bottom: calc(var(--sheet-h) + var(--band-h, 0px) + var(--dock-gap) + var(--safe-b));
+  }
+
+  html body.sh.no-right .sh-tools {
+    bottom: calc(var(--band-h, 0px) + var(--dock-gap) + var(--safe-b));
+  }
+
+  html body.sh .sh-bottom {
+    left: calc(var(--dock-gap) + var(--safe-l));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: calc(var(--sheet-h) + var(--dock-gap) + var(--safe-b));
+    height: calc(var(--band-h) - var(--dock-gap));
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  html body.sh.no-right .sh-bottom {
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+  }
+}
+
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh .sh-right:not(.inline) {
+    left: calc(var(--dock-gap) + var(--safe-l));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+  }
+}
+
+/* The phone's toolbar never moves (F34): it stays at the bottom, whatever is above it. */
+@media (max-width: 500px) {
+  html body.sh .sh-tools,
+  html body.sh.no-right .sh-tools {
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+  }
+}
+
+/* A phone held on its side: the tools are a floating column, only as tall as its tools, and the closed inspector is a
+   small floating tab with the picked thing's name. The level is fitted between them. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh {
+    --right-w: calc(52px + var(--safe-r));
+  }
+
+  html body.sh .canvas {
+    left: calc(72px + var(--safe-l));
+  }
+
+  html body.sh:has(.canvas.paper) {
+    background-position: calc(72px + var(--safe-l)) var(--top-h);
+  }
+
+  html body.sh .sh-tools,
+  html body.sh.no-right .sh-tools {
+    left: calc(var(--dock-gap) + var(--safe-l));
+    top: calc(var(--top-h) + var(--dock-gap));
+    bottom: auto;
+  }
+
+  html body.sh .sh-tools .tbar {
+    height: auto;
+    max-height: calc(100vh - var(--top-h) - 2 * var(--dock-gap) - var(--safe-b));
+    padding: 2px;
+    gap: 0;
+    border-radius: 12px;
+  }
+
+  html body.sh .sh-right:not(.inline) {
+    top: calc(var(--top-h) + var(--dock-gap));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: auto;
+    width: 44px;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  html body.sh .sh-right .itab {
+    height: auto;
+    min-height: 44px;
+  }
+
+  html body.sh .sh-right .itab span {
+    max-height: 160px;
+  }
+
+  html body.sh .sh-bottom {
+    left: calc(80px + var(--safe-l));
+    right: calc(var(--right-w) + var(--dock-gap));
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+    height: calc(var(--band-h) - var(--dock-gap));
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  html body.sh.no-right .sh-bottom {
+    right: calc(var(--dock-gap) + var(--safe-r));
+  }
+
+  html body.sh .holds {
+    left: calc(80px + var(--safe-l));
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+  }
+
+  html body.sh.has-tray .tray {
+    max-width: calc(100vw - 80px - var(--safe-l) - var(--right-w) - 16px);
+  }
+}
