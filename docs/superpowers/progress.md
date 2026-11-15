@@ -18,6 +18,30 @@ stage 7 is 6)
 | 3. Plan audit | Written, in review, 100%. Sound, with one critical fault fixed (Task 1 gave the fixture game folder lines before the page and the API could list a folder, which would have broken every journey) and seven important and five minor, all fixed in the plan: Play makes the game's sound over Sound's one speaker; chips follow how the framework names events (`hero.*`, a touch event by `kind`); no framework English, "MIDI" or "event" on a screen (Sound words the framework's codes); one save shared with the Feel, Story and Scenes plans (the figure builder’s `saveChange` and its shared `allowedPaths`, widened for recordings, removals and `setUp`; folder lines only by the framework’s `withFolders`); a brought-in song may be one step of up to 200 files; `CLAUDE.md` widened for `.wav` files and folder lines; the hero's eighth event worded. The spec's MIDI buttons and chip rule amended to match. No Owner question | [`audits/2026-11-15-sound-editor-plan-audit.md`](audits/2026-11-15-sound-editor-plan-audit.md) |
 | 4 to 7 | Not started | |
 
+## Cycle 5: the Feel editor (2D)
+
+Spec: [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md). Its own cycle (the Owner,
+2026-11-15: every editor tab gets its own pipeline). Feel tunes the built-in hero's move numbers by playing the real
+level with a drawn jump (Q1 A), changes the controls, and after the framework's plan F the effects (Q2 A). Move
+switches stay in Characters (Q3 B). Q4 changed after the spec (the Owner, 2026-11-15): Feel lists its effects folder
+once in `automata.toml`, the way Sound does, and no longer adds a line per effect. The spec is amended to say so
+(2026-11-15), and the plan is written that way.
+
+Overall: **12%** (the same weights as Cycle 3: stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60,
+stage 5 is 10, stage 6 is 12, stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done; Q1 to Q4 answered by the Owner | [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md) |
+| 2. Plan | Done (2026-11-15, in review): fifteen tasks in three parts, every one with its journeys. The framework's F1 to F3 are their own plan, plan G, in AutomataFramework (`docs/superpowers/plans/2026-11-15-live-tuning.md`) | [`plans/2026-11-15-feel-editor.md`](plans/2026-11-15-feel-editor.md) |
+| 3. Plan audit | Done (2026-11-15): sound; three important fixes (two slider words over the 32-character limit, a panel no longer swallows a key's release, and the save follows the figure builder's `saveChange` instead of a second shape) and six small ones, made in the plan and two words in the spec. No Owner question; the order of the Feel and figure builder cycles is the coordinator's | [`audits/2026-11-15-feel-editor-plan-audit.md`](audits/2026-11-15-feel-editor-plan-audit.md) |
+| 4. Execution | Not started; waits for the Owner's yes to the mockups of all the editors (the Owner, 2026-11-15: mockups before any code), Cycle 3's Tasks 1 to 19, the framework's plan H and plan G, and this plan's audit; Part 3 (effects) also waits for the framework's plan F, and its content folders | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+Nothing was run: this stage wrote documents.
+
 ## The Story editor (its own cycle)
 
 Spec: [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md). The Owner asked that every
@@ -107,6 +131,14 @@ the pull request's CI.
 - Task 7b (the framework pin, zoom plan): the pin moves from `b57d00a` to `504c278`, the merge of AutomataFramework pull
   request 102 (`LevelPicture.setView`, which the zoom needs). Same three places as Task 1: `package.json`, the
   `onlyBuiltDependencies` line and the lockfile, whose checksum was worked out from the downloaded tarball.
+- Fix (pull request 27): a waiting change's picture box is there before the game's art loads, so Approve does not move
+  under a finger; the share journey also waits for the picture. It came from a one-off Firefox failure of that journey.
+- Task 6 (every change a level can take): `edit.ts` gains redo (`future` on `LevelEdit`), add, erase, another character
+  and start points as hit ids (`start-<player>`, the hero's size); `ids.ts` names a new thing (`crate-2`); `compareLevels`
+  returns moved, added, erased, retyped and other, and `describeChange` names each kind. Ruling: a joint that goes with
+  an erased thing is not counted in `other`, so an erase still reads as an erase. Ruling: `setCharacter` also keeps the
+  new, possibly bigger, box inside the level, or the file would fail the framework's check. Ruling: `startId` and
+  `nextId` are used inside the feature, so only `nextId` joins the entry, which a test reads.
 
 ### Stage 3 finished (2026-11-14)
 
