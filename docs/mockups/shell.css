@@ -7757,7 +7757,7 @@ html body.sh .dropopen button .ic {
 
 /* ----- 4. Sheets: who can change the game, your games, what changed, the people (H4, H5, M9) ----- */
 html body.sh .share-pop .pp,
-html body.sh .share-pop .chg {
+html body.sh .share-pop .cgr {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -7767,19 +7767,19 @@ html body.sh .share-pop .chg {
 }
 
 html body.sh .share-pop .pp .wh2,
-html body.sh .share-pop .chg .wh2 {
+html body.sh .share-pop .cgr .wh2 {
   flex: 1;
   min-width: 0;
 }
 
 html body.sh .share-pop .pp .wh2 b,
-html body.sh .share-pop .chg .wh2 b {
+html body.sh .share-pop .cgr .wh2 b {
   display: block;
   font: 600 15px var(--label);
 }
 
 html body.sh .share-pop .pp .wh2 small,
-html body.sh .share-pop .chg .wh2 small {
+html body.sh .share-pop .cgr .wh2 small {
   display: block;
   color: var(--quiet);
   font: 400 13px var(--label);
@@ -7837,7 +7837,7 @@ html body.sh .share-pop .lvl.fixed {
   color: var(--quiet);
 }
 
-html body.sh .share-pop .key {
+html body.sh .share-pop .lkey {
   margin: 8px 0 12px;
   padding: 10px 12px;
   border-radius: 10px;
@@ -7845,18 +7845,18 @@ html body.sh .share-pop .key {
   font-size: 13px;
 }
 
-html body.sh .share-pop .key b {
+html body.sh .share-pop .lkey b {
   font-weight: 600;
 }
 
-html body.sh .share-pop .key div {
+html body.sh .share-pop .lkey div {
   display: flex;
   gap: 8px;
   padding: 3px 0;
   color: var(--quiet);
 }
 
-html body.sh .share-pop .key div b {
+html body.sh .share-pop .lkey div b {
   flex: none;
   min-width: 96px;
   color: var(--words);
@@ -8366,7 +8366,7 @@ html body.sh .sh-right .ihead .imore {
 }
 
 /* The game's list of changes needs a picture inline in its words. */
-html body.sh .share-pop .chg .mini {
+html body.sh .share-pop .cgr .mini {
   width: 18px;
   height: 18px;
   margin-right: 4px;
