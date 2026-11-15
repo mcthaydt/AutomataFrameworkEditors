@@ -737,5 +737,5 @@ git data routes, with the calls counted (G-I2); a save repaints and carries ever
 (G-I3); the API also checks each picture's colour table, and the ruling that the page paints is held (G-I4); the
 editors' own rule on what they write is widened in `CLAUDE.md` (G-I5); one shared `allowedPaths` decides which
 files a save, an approval and the waiting list accept, so a waiting figure save can be approved (G-I8); a pose's places are units from the hips
-(G-I6); the redesign's Tasks 15 and 16 join gate 2 (G-I7); and the minor ones. The games' art is in Lospec's DUEL
-palette (the Owner, 2026-11-15), so on the demo game "Add a colour" offers DUEL's rows only (G-M3).
+(G-I6); the redesign's Tasks 15 and 16 join gate 2 (G-I7); and the minor ones. The games' art is in Lospec's DUEL 128
+palette (the Owner, 2026-11-15), so on the demo game "Add a colour" offers the library's DUEL 128 ramps only (G-M3).
