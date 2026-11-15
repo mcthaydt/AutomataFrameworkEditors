@@ -8578,3 +8578,11 @@ html body.sh .sh-right .ihead {
     margin-inline: auto;
   }
 }
+
+/* ----- 24. Three answers at the foot of the Check changes sheet (the owner added "Don't put them in", 2026-11-15) ----- */
+/* Each button is as wide as its words and never breaks them; on a narrow sheet they wrap onto rows of their own, and on
+   a wide one they sit in a line. */
+html body.sh .share-pop .go.three .sbtn {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}

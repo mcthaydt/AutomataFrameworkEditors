@@ -34,8 +34,9 @@ Owner's look, and his answer to H6.
 - **Pages changed:** the check sheet ("Not now" at the top, Play first), keep a copy ("Not now"), Find (Cancel on a
   touch screen), the number pad (Cancel, over the open sheet on a phone), the game's menu (What changed, Your games),
   Characters (a back button to Level 1), the tile strip ("This tile").
-- **One question left for the Owner (H6):** is "Ask for a change" enough on the check sheet, or is a separate "Don't put
-  them in" wanted? The page has "Ask for a change" and "Not now" until he says.
+- **H6 answered (the Owner, 2026-11-15, "add it"):** the check sheet has a third answer, "Don't put them in". It turns the
+  changes down with no message; Mia gets a note with an Undo (`world-levels-turned-down`) and Sam a note that nothing
+  went in and his changes are still on his iPad (`world-levels-turned-down-sam`).
 
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 

@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- Checking someone's changes (the end-to-end check, E8; the actions check, H6, L12), for a person who may approve (Mia). The top bar says "1 to check"; tapped, it opens this sheet over the level, where the changes are marked in orange. "Not now" at the top leaves it, and "1 to check" stays in the top bar until Mia decides, so looking is never a decision. Playing the level with the changes is the first button, so it is in sight on a short screen. Then Mia can put them in the game, or ask Sam to change something (the box is on world-levels-ask). -->
+<!-- Checking someone's changes (the end-to-end check, E8; the actions check, H6, L12), for a person who may approve (Mia). The top bar says "1 to check"; tapped, it opens this sheet over the level, where the changes are marked in orange. "Not now" at the top leaves it, and "1 to check" stays in the top bar until Mia decides, so looking is never a decision. Playing the level with the changes is the first button, so it is in sight on a short screen. Then Mia has three clear answers: put them in the game, ask Sam to change something (the box is on world-levels-ask), or turn them down with "Don't put them in" (the owner asked for this one, 2026-11-15: a plain no, with no message; what it does is on world-levels-turned-down and what Sam sees is on world-levels-turned-down-sam, and it has an Undo). -->
 <style>
   .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
@@ -45,7 +45,7 @@
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
   <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
-  <div class="go"><button class="sbtn main"><span class="ic" data-i="check"></span>Put them in the game</button><button class="sbtn"><span class="ic" data-i="chat-circle-text"></span>Ask for a change</button></div>
+  <div class="go three"><button class="sbtn main"><span class="ic" data-i="check"></span>Put them in the game</button><button class="sbtn"><span class="ic" data-i="chat-circle-text"></span>Ask for a change</button><button class="sbtn"><span class="ic" data-i="x"></span>Don't put them in</button></div>
 </section>
 <script>
 window.MOCK = {

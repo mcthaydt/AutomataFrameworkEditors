@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Changes turned down (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- What Mia sees after "Don't put them in" on the check sheet (the end-to-end actions check, H6): the level is as it was, "1 to check" is gone from the top bar, and a note says what happened (the game stays as it is, Sam is told) with an Undo that brings the 3 changes back under "1 to check". A wrong tap on "Don't put them in" is one tap to take back. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+
+    </div>
+  </div>
+</div>
+<div class="float note2 stack" role="status"><span class="ic" data-i="x"></span><span><b>You didn't put Sam's 3 changes in</b><small>The game stays as it is, and Sam is told. Changed your mind? Press Undo.</small></span><button class="sbtn"><span class="ic" data-i="arrow-u-up-left"></span>Undo</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: null, saved: 'Mia, just now',
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

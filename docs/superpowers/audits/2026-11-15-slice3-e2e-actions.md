@@ -27,8 +27,8 @@ to bring it back.
 ## Status: all 34 drawn (2026-11-15, the fixes round)
 
 Every gap below has a page or a change in the mockups, drawn at all five sizes on PR 64. CI's pictures were read in three
-rounds and the layout faults they showed are fixed (`docs/superpowers/progress.md` lists them). One question for the Owner is left open: **H6**, whether "Ask for a change" is
-enough on the check sheet or a separate "Don't put them in" is wanted. Each fix was held to the drunk-grandma test: the
+rounds and the layout faults they showed are fixed (`docs/superpowers/progress.md` lists them). The one open question, **H6**, is
+answered: the Owner said "add it" (2026-11-15), so the check sheet has a separate "Don't put them in". Each fix was held to the drunk-grandma test: the
 action can be found, says what it does, can be undone, and is never only a gesture.
 
 | Gap | Fixed by |
@@ -38,7 +38,7 @@ action can be found, says what it does, can be undone, and is never only a gestu
 | H3 | world-levels-parts and shell-editors: both menus drawn open; on a phone the parts and the other editors are one menu, and an upright phone has the game's menu as its last row. |
 | H4 | shell-people (the list, each level's drop-down open with what it means, take someone off the list, add someone) and shell-people-look (read only, with who to ask). |
 | H5 | shell-games (after signing in, and "Your games" in the game's menu); signing out is on it. |
-| H6 | world-levels-check: "Not now" at the top, and "1 to check" stays in the top bar. "Ask for a change" stays the one other answer until the Owner says otherwise (open question). |
+| H6 | world-levels-check: "Not now" at the top, and "1 to check" stays in the top bar. Three answers at the foot: "Put them in the game", "Ask for a change" and "Don't put them in" (the Owner's yes, 2026-11-15). world-levels-turned-down (Mia's note, with an Undo) and world-levels-turned-down-sam (what Sam sees). |
 | M1 | world-levels-rail: a computer's closed list is the same rail an iPad has. |
 | M2 | world-levels-list and world-levels-add: the list and Add things open over the level on a phone and an upright iPad, each with Close. |
 | M3 | An upright phone's toolbar has a second row with Undo, Redo, Show and Play, each with its word; world-levels-show draws the menu. |
@@ -136,8 +136,8 @@ action can be found, says what it does, can be undone, and is never only a gestu
   them"). Every other sheet has a "Not yet" or "Not now"; this one has nothing to close it, so Mia can't look and come
   back later. There is also no way to say no to the whole lot, only to ask for a change.
 - **Fix:** add "Not now" under the two buttons, the same as Put in game's "Not yet", and say the top bar keeps "1 to
-  check" until she decides. Decide (with the Owner) whether "Ask for a change" is enough or a "Don't put them in"
-  is wanted too.
+  check" until she decides. The Owner then asked for a separate "Don't put them in" too (2026-11-15), drawn as a third
+  button with an Undo and a note for Sam.
 
 ## Medium
 
