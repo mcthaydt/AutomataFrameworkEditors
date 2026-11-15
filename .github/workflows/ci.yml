@@ -81,7 +81,8 @@ jobs:
       - run: pnpm test:node
 
   # Each browser in two shards that run side by side, so a full run takes about half as long (the Owner, 2026-11-15).
-  # The browser tests are short and run whole in the first shard; the journeys are split between the two.
+  # The screens journey alone takes as long as all the others together, so it is the first shard (with the short
+  # browser tests), and every other journey is the second; an even split by file count left one shard twice as long.
   browsers:
     needs: plan
     name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/2)
@@ -98,8 +99,9 @@ jobs:
     env:
       CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=HEAD^1' || '' }}
       BAIL: ${{ needs.plan.outputs.full == 'true' && '15' || '1' }}
-      EXCLUDE: ${{ needs.plan.outputs.pictures != 'true' && '--exclude=tests/journeys/screens.journey.test.ts' || '' }}
-      JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (needs.plan.outputs.full == 'true' || matrix.engine == 'chromium') }}
+      SHARD: ${{ matrix.shard == 1 && 'tests/journeys/screens.journey.test.ts' || '--exclude=tests/journeys/screens.journey.test.ts' }}
+      # The screens journey (the first shard's) is left out with the pictures.
+      JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (needs.plan.outputs.full == 'true' || matrix.engine == 'chromium') && (matrix.shard == 2 || needs.plan.outputs.pictures == 'true') }}
     steps:
       # Two commits deep: a pull request's run is on the merge commit, and its first parent is the base, which
       # `--changed` compares against.
@@ -131,7 +133,7 @@ jobs:
       - if: env.JOURNEYS == 'true'
         run: pnpm build:journeys-plain
       - if: env.JOURNEYS == 'true'
-        run: pnpm test:journeys --shard=${{ matrix.shard }}/2 --bail=$BAIL $EXCLUDE
+        run: pnpm test:journeys $SHARD --bail=$BAIL
         env:
           ENGINE: ${{ matrix.engine }}
       # A red run in a few lines: which journeys failed, and the first line of why.
