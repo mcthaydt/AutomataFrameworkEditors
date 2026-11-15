@@ -2,6 +2,28 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Cycle 4: the Feel editor (2D)
+
+Spec: [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md). Its own cycle (the Owner,
+2026-11-15: every editor tab gets its own pipeline). Feel tunes the built-in hero's move numbers by playing the real
+level with a drawn jump (Q1 A), changes the controls, and after the framework's plan F the effects (Q2 A). Move
+switches stay in Characters (Q3 B); a new effect adds its `automata.toml` entry (Q4 A).
+
+Overall: **4%** (the same weights as Cycle 3: stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60,
+stage 5 is 10, stage 6 is 12, stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done; Q1 to Q4 answered by the Owner | [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md) |
+| 2. Plan | Not started | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started; waits for plan H, Cycle 3's Task 19 (Play) and the framework's F1 to F3; Part 3 waits for plan F | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+Nothing was run: this stage wrote documents.
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
