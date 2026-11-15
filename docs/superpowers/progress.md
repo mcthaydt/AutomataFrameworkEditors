@@ -129,6 +129,12 @@ the pull request's CI.
   buttons and keys, 6 the journeys. Ruling: the plan's "one pull request a task" is kept by task, not by size; the
   report `Task 7` comes with the sixth. The room numbers are the zoom amendment's (`mid` right 92, `narrow` bottom
   232), so they are never built twice.
+- Task 7, part 2 (`Stage.svelte`): the stage draws the framework's picture at the view's scale and lays one button for
+  every thing and start point by the same `Fit`; one finger drags, two fingers zoom and move, the wheel, a trackpad,
+  Safari's gesture events and the keys do the same, and a thing held at the clear cell's edge slides the level. Ruling:
+  `Stage` owns the view and tells the screen through `onview`, with `zoom()`, `reveal()` and `pan()` exported; it does
+  not take a bindable `view` (the plan's word), because nothing outside it needs to set one and a new level must open
+  whole. Ruling: mode `look` picks but does not drag. Not wired into `Levels` yet: the frame (part 3) does that.
 
 ### Stage 3 finished (2026-11-14)
 
