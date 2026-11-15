@@ -224,8 +224,11 @@ test('a phone on its side gets a floating column of tools and a tab at least 44 
 
 test('Settings offers See-through panels, three ways, under For me', () => {
   const settings = read('docs/mockups/shell-settings.html')
-  expect(settings.indexOf('See-through panels')).toBeGreaterThan(settings.indexOf('<h4>For me'))
-  expect(settings).toMatch(/See-through panels[\s\S]*?Choose for me[\s\S]*?On[\s\S]*?Off/)
+  // The page's own opening comment names the setting too, so look only from the "For me" group on.
+  expect(settings).toContain('<h4>For me')
+  const forMe = settings.slice(settings.indexOf('<h4>For me'))
+  expect(forMe).toContain('See-through panels')
+  expect(forMe).toMatch(/See-through panels[\s\S]*?Choose for me[\s\S]*?On[\s\S]*?Off/)
 })
 
 test('the page with the setting off says so, and the line for a computer is hidden on one', () => {
