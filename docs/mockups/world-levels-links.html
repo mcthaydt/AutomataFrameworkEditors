@@ -19,12 +19,17 @@
   .lend.to { background: #fff; }
   .tag { position: absolute; z-index: 3; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; opacity: 0.45; }
   .tag.on { opacity: 1; box-shadow: inset 0 0 0 1px #eeb480; }
+  /* A tag is always in front, above its owner's head, with a short line down to it (Fable pass, F28). */
+  .tag.up { z-index: 6; opacity: 1; transform: translate(-50%, -100%); }
+  .tag.up::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 10px; background: rgb(255 255 255 / 0.6); }
+  /* The circle and the path each say what they are. */
+  .tag.w { z-index: 6; opacity: 0.9; transform: none; background: rgb(30 30 30 / 0.75); color: var(--quiet); }
 </style>
 </head>
 <body>
 <!-- World, Levels, links, paths and reach (taken from LDtk): what a thing does is drawn in the level. The picked
      button has an arrow to the door it opens, made by drawing from one to the other with the Pencil or a finger; both
-     ends are big enough to grab, and the door lights up as the tip comes near. The keeper's walk is a path drawn with Draw path, how far it sees is a circle, and
+     ends are big enough to grab, and the door lights up as the tip comes near. The keeper's walk is a path drawn with Join, how far it sees is a circle, and
      a value that matters sits as a small tag. Tags, paths and circles are faint until their thing is picked. -->
 <div class="canvas">
   <div class="fit">
@@ -41,8 +46,10 @@
       <i class="lend" style="left:73.2%;top:80%"></i><i class="lend to" style="left:88.4%;top:70%"></i>
       <div class="ring" style="left:70%;top:79.8%;width:6.4%;height:4.2%"></div>
       <span class="tag on" style="left:73.2%;top:88%">Opens Door 1 for 5 seconds</span>
-      <span class="tag" style="left:33%;top:64%">Takes 3 hits</span>
-      <span class="tip" style="left:58%;top:44%">Draw from the button to what it opens</span>
+      <span class="tag up" style="left:32.7%;top:66%">Takes 3 hits</span>
+      <span class="tag w" style="left:44.5%;top:62%">Sees this far</span>
+      <span class="tag w" style="left:24%;top:87.6%">Walks here</span>
+      <span class="tip" style="left:74%;top:47%">Draw from the button to what it opens</span>
     </div>
   </div>
 </div>
@@ -51,7 +58,8 @@ window.MOCK = {
   editor: 'world', place: 'Level 2', saved: 'Not saved: 2 changes', changes: 2, zoom: '100%',
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   t: 3,
-  toolopts: '<span>Draw from a button to its door. Or draw where someone walks.</span>',
+  // Join's tray: what to draw (the Owner, 2026-11-15: "Draw path" is now Join, F27). One hint: the bubble (F10).
+  tray: { more: false, items: [{ n: 'Join two things', i: 'link', on: true }, { n: 'A path to walk', i: 'path' }] },
   list: {
     count: 9,
     rows: [

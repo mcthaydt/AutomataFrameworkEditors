@@ -2,6 +2,48 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the Fable UI/UX pass's fixes (2026-11-15)
+
+Pull request 56's work moves to branch `claude/project-thread-95sweh` (a new pull request replaces 56) with the fixes from
+the one Fable UI/UX pass (`/mnt/project-files/reports/2026-11-15-slice3-fable-uiux-pass.md`, at 7b7039d, 37 findings)
+and the Owner's answers to its three questions (2026-11-15, 09:01 UTC). Progress on this step: **80%** (every finding
+drawn; CI's pictures still to check at five sizes, then the review page).
+
+- **The Owner's answers:** F2 yes, the tools go down the left edge on an iPad held sideways (in the rail with the list
+  when it is closed, a floating column beside the open list; the free thumb's buttons move to the bottom left); F9 a
+  problem warns first and still lets you put changes in, and that is a setting; F27 "Draw path" is now **Join**, with a
+  tray of "Join two things" and "A path to walk".
+- **New pages (the Owner: onboarding, instructions and settings, Figma-inspired):** `shell-welcome` (the first-run
+  card), `shell-tour` (step 2 of 4, a spotlight on the tools), `shell-help` (the basics with ticks, the tour again,
+  keys, your helper) and `shell-settings` ("For everyone on Crate Game": what a problem does when changes go in, three
+  choices, warn first by default; "For me": rows, Pencil, left hand, tips, the tour, language).
+- **The level's room (F1, F37):** the level's picture is now only the level (`art/level-1-fill.png`, the same 888 by
+  580 sheet so no note moved), fitted to the free space; the inspector is 240 points on a sideways iPad; the big
+  level's list opens over the level. No green strip, no notch.
+- **One tray (F3, F10):** the tray hugs its tiles and carries the tool's one setting at its right end; no grey hint
+  line; one hint per screen.
+- **Plain faults (F4 to F8):** the two-row page shows its panels again; a one-only thing's bar has no "Make another"
+  and its Delete says "A level needs a Start"; four things at most in the bar (Line up, Make another, Delete, …; one
+  thing gets Nudge, which opens a pad of 48-point arrows, drawn open on Scenes); the bar stays on the screen and clear
+  of what is picked; Tiles colours 44 points; play controls at a thumb's size.
+- **Play (F7, F21):** the frame hugs the level; on phones the game takes the screen under the play bar and its
+  controls sit in the corners; "Try a change" is a play-bar button on phones; "From the start" and "Play from here" in
+  words on iPad and computer, with a picture that is not Undo's; the rewind hint sits under the bar.
+- **The rest:** tips point at their thing (F11); picked things have a dark edge (F13); "3 only on this iPad" (F14);
+  "Up to date" is quiet and Undo is faint with nothing to undo (F15); one list name, rail "List" and "Add" (F16);
+  "Where it is", last, with "Drawn" under Look (F17, F18, F35); a tapped dot explains itself and the sheet's heading
+  has the dot (F19); "Whole level" (F20); the Keys sheet in two left columns (F22); the sheet takes the right column
+  (F23); Mia's Crate 2 shows as a ghost (F24); one Paint everywhere, Scenes with a tray and Box, Fill, Erase (F25,
+  F26); Links' tags above their owner, "Sees this far", "Walks here" (F28); no neighbour tabs mid-level (F29); the map
+  has "New level" and no toolbar (F30); "Meadow, shown with Level 1" (F31); Tiles' strip of tiles along the top and
+  "The hero stands on" in the settings strip (F32); phones fold the free thumb's buttons to one tab, strips scroll
+  with a fade, the lock note wraps, the peek line on an upright phone (F33, F34); Pencil: the left-hand switch shown
+  in Show, hover lights the thing under the tip (F36); the Low list (F37).
+- **Deviation:** the helper's card on mid-project now says the fix waits for Keep ("Keep this to lift it onto the
+  grass"), so the red ring and "1 problem" staying is right (F9's second half).
+- **Next:** check CI's pictures at five sizes, fix what is off, republish the review page (artifact
+  W5REbCVDUkABgoPY5Hxy2X), then the Owner.
+
 ## The shell and World mockups (roadmap slice 3): the plain-words audit's fixes (2026-11-15)
 
 Pull request 56 (branch `claude/project-thread-3v0bsz`) replaces 55: it carries every commit of 55 and adds the fixes

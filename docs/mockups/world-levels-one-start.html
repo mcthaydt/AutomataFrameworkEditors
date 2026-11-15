@@ -31,12 +31,12 @@ window.MOCK = {
   editor: 'world', place: 'Level 1', saved: 'Not saved: 1 change', changes: 1, zoom: '100%',
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   t: 1,
-  act: { at: [62.25, 56] },
+  act: { at: [62.25, 56], h: 27.4, only: 'A level needs a Start' },
   settings: [
     '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
   ],
   tray: {
-    tip: 'Tap one, then tap the level. Or drag it in.',
+    more: 'All zones',
     items: [
       { n: 'Start (one per level)', i: 'map-pin', on: true },
       { n: 'Goal', i: 'flag-pennant' },

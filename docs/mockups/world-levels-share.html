@@ -13,7 +13,7 @@
 </style>
 </head>
 <body class="lib-open">
-<!-- Put in game: everything is kept on this iPad as you go; Put in game puts it into the game for the team. ("Share" is kept for the people screen, where you choose who may do what.) Keep a copy as a file is in the game's menu, not here. When Mia changed the same thing, the list asks whose to keep. Someone who may only suggest sees world-levels-suggest instead. -->
+<!-- Put in game: everything is kept on this iPad as you go; Put in game puts it into the game for the team. ("Share" is kept for the people screen, where you choose who may do what.) Keep a copy as a file is in the game's menu, not here. When Mia changed the same thing, the list asks whose to keep and the level shows both places. A problem is the sheet's first row: by default it warns and still lets you put the changes in; Settings can make it stop you instead (the Owner, 2026-11-15). Someone who may only suggest sees world-levels-suggest instead. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
@@ -33,6 +33,9 @@
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
+      <img class="theirs" src="art/crate.png" alt="" style="left:66%;top:78%">
+      <span class="who mia" style="left:69.1%;top:78%">Mia's Crate 2</span>
+      <span class="who" style="left:53.1%;top:73.8%;transform:translate(-50%, calc(100% + 64px))">Your Crate 2</span>
       <div class="mate" style="left:20%;top:30%">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2 L18 9 L10 11 L7 18 Z" fill="#b7b492" stroke="#111314" stroke-width="1.2"/></svg>
         <span>Mia</span>
@@ -43,13 +46,14 @@
 </div>
 <div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
 <section class="pop share-pop">
-  <h3>Put 3 changes in the game</h3>
-  <p>Only you can see these, on this iPad. Put them in and your team sees them too.</p>
+  <h3><i class="dot"></i>Put 3 changes in the game</h3>
+  <p>Only you can see these, on this iPad (the orange dot). Put them in and your team sees them too.</p>
+  <div class="prob"><b><span class="ic" data-i="warning"></span>1 problem: Crate 4 is half in the ground</b><small>You can still put them in. Whether this warns you first is in Settings.</small><button class="sbtn"><span class="ic" data-i="magnifying-glass"></span>Show me</button></div>
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
   <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
-  <div class="both"><b><span class="ic" data-i="users"></span>Mia moved Crate 2 too</b><span><button class="sbtn on" role="radio" aria-checked="true"><span class="ic" data-i="check-circle"></span>Keep mine</button><button class="sbtn" role="radio" aria-checked="false"><span class="ic" data-i="circle"></span>Keep Mia's</button></span></div>
-  <div class="go"><button class="sbtn main"><span class="ic" data-i="arrow-circle-up"></span>Put them in</button><button class="sbtn">Not yet</button></div>
+  <div class="both"><b><span class="ic" data-i="users"></span>Mia moved Crate 2 too</b><small class="hint2">Both places show in the level. Tap one there, or here.</small><span><button class="sbtn on" role="radio" aria-checked="true"><span class="ic" data-i="check-circle"></span>Keep mine</button><button class="sbtn" role="radio" aria-checked="false"><span class="ic" data-i="circle"></span>Keep Mia's</button></span></div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="arrow-circle-up"></span>Put them in anyway</button><button class="sbtn">Not yet</button></div>
 </section>
 <script>
 window.MOCK = {

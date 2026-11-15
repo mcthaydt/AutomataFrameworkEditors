@@ -18,7 +18,8 @@
      with what the ground can be, each a colour and a word. You paint what a place is; the level's scene paints the look
      from that shape by itself, with no rules to write. "Show what it is" (in View) tints the level by kind, to check
      where the hero can stand. The things go faint while the ground is picked. On the left edge, Box, Fill and Erase
-     are held with the free thumb; press and hold on the level to paint with what is there. -->
+     are held with the free thumb; press and hold on the level to paint with what is there. The tray is the one place
+     to pick what to paint; the list shows what is painted, with the same kind lit (Fable pass, F25). -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
@@ -45,7 +46,7 @@ window.MOCK = {
     '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
   ],
   tray: {
-    tip: 'Pick what it is, then paint. Press and hold the level to paint with what is there.',
+    more: 'All kinds',
     items: [
       { n: 'Ground', sw: '#b07a4f' },
       { n: 'Ledge', sw: '#6fa8dc', on: true },
@@ -58,8 +59,8 @@ window.MOCK = {
     count: 10,
     rows: [
       { head: 'Ground', count: 2, fold: false, on: true },
-      { n: 'Ground', sw: '#b07a4f', d: 1 },
-      { n: 'Ledge', title: 'You can jump up through it', sw: '#6fa8dc', d: 1 },
+      { n: 'Ground', sw: '#b07a4f', d: 1, title: 'Painted along the bottom' },
+      { n: 'Ledge', title: 'You can jump up through it', sw: '#6fa8dc', d: 1, on: true },
       { head: 'Things', count: 3, fold: true, faint: true },
       { head: 'Zones', count: 2, fold: true, faint: true },
       { head: 'Scene', count: 1, fold: true, faint: true },

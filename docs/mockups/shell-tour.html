@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The tour (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The tour, step 2 of 4 (Figma-inspired: a card that points at one part of the screen, with how far along you are,
+     Back and Next, and a way out). The four steps: the level and picking (1), the tools (2), a thing's settings (3),
+     Play and "Put in game" (4). Each step asks you to do the thing, and says so when you have: here, tapping Place
+     moves it on. The rest of the screen is dimmed around what the step is about. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="spot"></div>
+<section class="coach" role="dialog" aria-label="The tour, step 2 of 4">
+  <span class="coach-n">2 of 4</span>
+  <h3>These are your tools</h3>
+  <p>Pick moves things. Place puts new things in. Paint paints the ground. Erase takes things away. Join joins a button to its door.</p>
+  <p class="coach-do"><span class="ic" data-i="hand-tap"></span>Try it: tap Place.</p>
+  <div class="coach-go"><button class="sbtn">Back</button><span class="dots"><i class="on"></i><i class="on"></i><i></i><i></i></span><button class="sbtn main">Next</button></div>
+  <button class="coach-x">Skip the tour</button>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+<script>
+// The spotlight and the card follow the toolbar wherever this size puts it: down the left edge on an iPad held
+// sideways, along the bottom elsewhere.
+{
+  const t = document.querySelector('.sh-tools .tbar').getBoundingClientRect()
+  const spot = document.querySelector('.spot')
+  Object.assign(spot.style, { left: `${t.left - 6}px`, top: `${t.top - 6}px`, width: `${t.width + 12}px`, height: `${t.height + 12}px` })
+  const c = document.querySelector('.coach')
+  const left = t.width < 120
+  const cw = Math.min(340, innerWidth - 16)
+  c.style.width = `${cw}px`
+  if (left) Object.assign(c.style, { left: `${t.right + 18}px`, top: `${Math.max(56, t.top)}px` })
+  else Object.assign(c.style, { left: `${Math.min(Math.max(8, t.left + t.width / 2 - cw / 2), innerWidth - cw - 8)}px`, bottom: `${innerHeight - t.top + 18}px` })
+  c.classList.add(left ? 'to-left' : 'to-below')
+}
+</script>
+</body>
+</html>

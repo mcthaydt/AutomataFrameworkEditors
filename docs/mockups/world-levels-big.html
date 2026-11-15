@@ -17,15 +17,15 @@
 <!-- World, Levels, a big level: twelve screens long and 214 things. The small map at the top left shows all of it,
      with the part on screen boxed; drag the box, or tap the map, to go there. The list is open with its groups folded
      and their counts, so 214 things fit in one short list; the top bar's Find narrows it as you type. The hero is
-     locked, and tapping it says so, with one button to unlock. The levels before and after show faintly at the edges. -->
+     locked, and tapping it says so, with one button to unlock. A neighbour shows only at the level's real end, as a short
+     upright label ("to Level 5 →"); this is screen 3 of 12, so none shows (Fable pass, F29). On an iPad the list opens
+     over the level and closes with a tap on the level, so the level keeps its room (F1). -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
       <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:73.8%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:64.2%">
-      <span class="nbr l" title="The level before: drag past the edge to go there">Level 3</span>
-      <span class="nbr r" title="The next level: drag past the edge to go there">Level 5</span>
       <div class="ring" style="left:12.4%;top:72.6%;width:6.3%;height:11.2%"></div>
       <div class="lockpop" style="left:30%;top:72.6%"><span class="ic" data-i="lock-simple"></span>Locked, so it can't move by mistake<button class="sbtn">Unlock</button></div>
     </div>
@@ -43,7 +43,7 @@ window.MOCK = {
     '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
   ],
   tool: 0,
-  leftOpen: true,
+  leftOver: true,
   list: {
     count: 214,
     rows: [
@@ -72,7 +72,6 @@ window.MOCK = {
       { name: 'Place', open: true, rows: [
         { t: 'read', l: 'From the left', v: '4 tiles' },
         { t: 'read', l: 'From the top', v: '7 tiles' },
-        { l: 'Locked: unlock it to move it or change its place.' },
       ] },
       { name: 'Look', open: true, rows: [
         { t: 'pick', l: 'Looks like', f: 'look', v: 'Hero', img: 'art/hero.png' },

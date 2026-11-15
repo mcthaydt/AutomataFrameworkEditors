@@ -4472,3 +4472,1270 @@ body.sh .tbar .tz.tz {
     position: static;
   }
 }
+
+/* ---------- The one Fable UI/UX pass of slice 3 (2026-11-15), and the Owner's three answers ---------- */
+/* Later wins: every rule here is meant to override the rounds above. `html body.sh` lifts a rule over an older one
+   inside a media query where the plain selector would tie. */
+
+/* The level fills the room it has (F1). The art is the level and nothing else (F37: no green strip, no notch): its
+   picture keeps the 888 by 580 sheet every note is placed on, so no page's numbers move, but only the level inside it
+   (55 to 832 across, 40 to 505 down) is drawn, and that part is what is fitted to the space and centred. */
+body.sh .stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(calc(100cqw * 888 / 777), calc(100cqh * 888 / 465));
+  transform: translate(-49.944%, -46.983%);
+  background-image: url("art/level-1-fill.png");
+}
+
+body.sh .stage.grid::before {
+  clip-path: inset(6.897% 6.306% 12.931% 6.194%);
+}
+
+/* What is picked shows on any colour: the accent, two points, with finger-sized corner handles and a thin dark edge
+   outside both (F13). */
+body.sh .ring:not(.warn) {
+  border-width: 2px;
+  background-size: 12px 12px, 12px 12px, 12px 12px, 12px 12px;
+  filter: drop-shadow(0 0 0.6px #111314) drop-shadow(0 0 0.6px #111314);
+}
+
+/* A tip whose tail points left, at the thing beside it (F11). */
+body.sh .tip.l {
+  transform: translateY(-50%);
+}
+
+body.sh .tip.l::after {
+  left: -8px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-left: 0;
+  border-right-color: #f2f2f2;
+}
+
+/* A tip with no tail, where nothing is close enough to point at. */
+body.sh .tip.free::after {
+  display: none;
+}
+
+/* "Up to date" is a tick and quiet words, not a button (F15); Undo and Redo are faint with nothing to undo. */
+body.sh .sh-top .share.put.quiet {
+  background: none;
+  box-shadow: none;
+  padding: 0 6px;
+  pointer-events: none;
+}
+
+body.sh .tu.faint,
+body.sh .tl2.u.faint {
+  opacity: 0.35;
+}
+
+/* "3 only on this iPad" wherever it fits (F14); short of room the line goes and the number stays. */
+@media (max-width: 1259px) {
+  html body.sh .sh-top .share.put .w small.long {
+    display: block;
+  }
+}
+
+@media (max-width: 900px) {
+  html body.sh .sh-top .share.put .w small.long {
+    display: none;
+  }
+}
+
+/* The scene says which level it is shown with (F31); on a phone only the scene's name is kept. */
+body.sh .sh-top .pw2 {
+  color: var(--quiet);
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh .sh-top .pw2 {
+    display: none;
+  }
+
+  /* "1 problem" drops to its icon and number before it cuts the part's name (F33). */
+  html body.sh .sh-top .warn .pw {
+    display: none;
+  }
+}
+
+/* The bar over what is picked: four things at most, clear of the thing by a fixed gap (F8, F12). */
+body.sh .actbar {
+  transform: translate(-50%, calc(-100% - 14px));
+}
+
+body.sh .actbar.below {
+  transform: translate(-50%, 14px);
+}
+
+body.sh .actbar .ab.no {
+  color: var(--faint);
+}
+
+body.sh .actbar .ab.no span {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+body.sh .actbar .ab.no small {
+  font: 500 11px var(--label);
+}
+
+/* Nudge opens a pad of four arrows a finger can hit (F6). */
+body.sh .actbar .npad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+}
+
+body.sh .actbar .npad > b {
+  font: 600 13px var(--label);
+}
+
+body.sh .actbar .npad > span {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-auto-rows: 48px;
+  gap: 4px;
+}
+
+body.sh .actbar .npad > span button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--words);
+}
+
+body.sh .actbar .npad > span button .ic {
+  width: 22px;
+  height: 22px;
+}
+
+body.sh .actbar .npad .sbtn {
+  width: 100%;
+  height: 40px;
+}
+
+/* A changed value's dot, tapped (F19). */
+body.sh .dotpop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--raised);
+  font: 500 13px / 1.3 var(--label);
+  color: var(--words);
+}
+
+body.sh .dotpop span {
+  flex: 1;
+}
+
+body.sh .dotpop .sbtn {
+  flex: none;
+  height: 36px;
+  white-space: nowrap;
+}
+
+/* A long switch label wraps and its switch stays at the right (F37). */
+body.sh .ir.sww .il {
+  white-space: normal;
+}
+
+/* The page that compares row sizes shows its two panels (F4): only the shell's own panel is hidden there. */
+html body.sh.bare .sh-right.inline {
+  display: flex;
+  position: static;
+}
+
+body.sh .peek {
+  display: none;
+}
+
+/* Things to place or paint: one row, as wide as its tiles, with the tool's one setting at its right end; nothing
+   else floats at the bottom (F3, F10). */
+html body.sh .tray {
+  width: auto;
+  max-width: calc(100vw - var(--left-w) - var(--right-w) - 24px);
+  bottom: calc(var(--bottom2-h) + var(--tools-h) + 20px);
+  padding: 6px;
+}
+
+body.sh .tray .trow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+html body.sh .tray .titems {
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 4px;
+}
+
+html body.sh .tray .ti {
+  width: 64px;
+  padding: 6px 2px 5px;
+  font-size: 12px;
+}
+
+html body.sh .tray .ti .pic {
+  width: 28px;
+  height: 28px;
+}
+
+body.sh .tray .tset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 0 6px 0 12px;
+  border-left: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+html body.sh.has-tray .fit {
+  bottom: calc(var(--bottom2-h) + var(--tools-h) + 112px);
+}
+
+/* The hold-buttons' fold, open everywhere but on narrow screens. */
+body.sh .holds .hfold {
+  display: none;
+}
+
+/* ----- An iPad held sideways: the tools go down the left edge, in the rail with the list (the Owner: F2) ----- */
+body.sh.side {
+  --right-w: 240px;
+  --tools-h: 0px;
+}
+
+body.sh.side.no-right {
+  --right-w: 0px;
+}
+
+body.sh.side .sh-tools {
+  left: 0;
+  top: calc(var(--top-h) + 128px);
+  bottom: auto;
+  transform: none;
+  width: 56px;
+  align-items: center;
+}
+
+body.sh.side .sh-tools .tbar {
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+body.sh.side .tl2 {
+  width: 48px;
+  min-width: 48px;
+  height: 52px;
+  padding: 0;
+  font-size: 11px;
+}
+
+body.sh.side .tl2.u,
+body.sh.side .sh-tools .div.u {
+  display: none;
+}
+
+body.sh.side .sh-tools .div.o {
+  width: 32px;
+  height: 1px;
+  margin: 4px 0;
+}
+
+body.sh.side .tbar .tz {
+  width: 48px;
+  height: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 4px 2px;
+  font-size: 11px;
+  line-height: 1.15;
+  white-space: normal;
+  text-align: center;
+}
+
+body.sh.side .lrail .rdiv {
+  display: block;
+  width: 32px;
+  height: 1px;
+  margin: 4px 0 0;
+  background: var(--line);
+}
+
+body.sh .lrail .rdiv {
+  display: none;
+}
+
+/* With the list open the tools float down the level's left edge instead. */
+body.sh.side:not(.left-closed) .sh-tools {
+  left: calc(var(--left-w) + 8px);
+  top: calc(var(--top-h) + 12px);
+  width: auto;
+}
+
+body.sh.side:not(.left-closed) .sh-tools .tbar {
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+body.sh.side.no-left .sh-tools {
+  left: 0;
+  top: calc(var(--top-h) + 12px);
+}
+
+body.sh.side.no-left .sh-tools .tbar {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+body.sh.side.no-left {
+  --left-w: 56px;
+}
+
+/* The free thumb's buttons sit in the bottom left corner, under the tools. */
+body.sh.side .holds {
+  top: auto;
+  bottom: 12px;
+  transform: none;
+}
+
+body.sh.side .fit {
+  top: 16px;
+  bottom: 16px;
+  left: 84px;
+}
+
+body.sh.side:not(.left-closed) .fit {
+  left: 80px;
+}
+
+html body.sh.side.has-tray .fit {
+  bottom: 104px;
+}
+
+html body.sh.side .tray {
+  bottom: 12px;
+  max-width: calc(100vw - var(--left-w) - var(--right-w) - 176px);
+}
+
+/* A tool's settings with no tray sit alone at the bottom, centred under the level. */
+body.sh.side .sh-tools .topts {
+  position: fixed;
+  left: calc(var(--left-w) + (100vw - var(--left-w) - var(--right-w)) / 2);
+  bottom: 12px;
+  top: auto;
+  transform: translateX(-50%);
+}
+
+body.sh.side.has-topts-only .fit {
+  bottom: 76px;
+}
+
+/* Show opens beside the tools. */
+body.sh.side .opop {
+  position: fixed;
+  left: calc(var(--left-w) + 8px);
+  right: auto;
+  top: calc(var(--top-h) + 128px);
+  bottom: auto;
+}
+
+body.sh.side.left-closed .opop {
+  left: 64px;
+}
+
+/* The big level: the list opens over the level and closes with a tap on it, so the level keeps its room (F1). */
+body.sh.side.left-over {
+  --left-w: 56px;
+}
+
+body.sh.side.left-over .sh-left {
+  width: 260px;
+  z-index: 16;
+  box-shadow: var(--shadow);
+}
+
+body.sh.side.left-over .sh-tools {
+  left: 0;
+  top: calc(var(--top-h) + 12px);
+  z-index: 15;
+}
+
+body.sh.side.left-over .sh-tools .tbar {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+body.sh.side.left-over .fit {
+  left: 84px;
+}
+
+/* ----- Play (F7, F21) ----- */
+/* The play bar's acts say what they do in words wherever there is room; "From the start" is not Undo's picture. */
+@media (min-width: 700px) {
+  html body.sh .sh-play .ib.w span:not(.ic) {
+    display: inline;
+  }
+
+  html body.sh .sh-play .ib.w:is([title="Pause"], [title="Go on"], [title="One step"]) span:not(.ic),
+  html body.sh .sh-play .ib.big span:not(.ic) {
+    display: none;
+  }
+}
+
+body.sh .sh-play .ib.try.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+/* The line under the play bar says what its slider does, with nothing to point across. */
+body.sh .sh-play {
+  position: absolute;
+}
+
+body.sh .sh-play .phint {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f2f2f2;
+  color: #1e1e1e;
+  font: 500 13px var(--label);
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+
+/* The game's touch controls are never smaller than a thumb. */
+body.sh .tb {
+  min-width: 56px;
+}
+
+body.sh .tb[title="Move"] {
+  min-width: 88px;
+}
+
+/* On narrow screens "Try a change" is the play bar's button; its card opens on a tap and never covers a control. */
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh .trycard {
+    display: none;
+  }
+
+  body.sh .sh-play .phint {
+    display: none;
+  }
+}
+
+/* On a phone the game takes the whole screen under the play bar, as a player sees it: the camera follows the hero,
+   and the touch controls sit in the corners at a thumb's size. */
+@media (max-width: 1000px), (max-height: 600px) {
+  html body.sh.playing .fit {
+    left: 0;
+    right: 0;
+    top: calc(var(--play-h) + 12px);
+    bottom: 0;
+    overflow: hidden;
+  }
+
+  html body.sh.playing .tb {
+    position: fixed !important;
+    left: auto !important;
+    right: auto !important;
+    width: 64px !important;
+  }
+
+  html body.sh.playing .tb[title="Move"] {
+    left: 16px !important;
+    bottom: 24px !important;
+    width: 104px !important;
+  }
+
+  html body.sh.playing .tb[title="Jump"] {
+    right: 16px !important;
+    bottom: 32px !important;
+    width: 80px !important;
+  }
+
+  html body.sh.playing .tb[title="Pull"] {
+    right: 112px !important;
+    bottom: 20px !important;
+  }
+}
+
+@media (max-width: 500px) {
+  html body.sh.playing .stage {
+    left: 0;
+    width: calc(100cqh * 888 / 465);
+    transform: translate(-6.194%, -46.983%);
+  }
+}
+
+/* ----- The "Put in game" sheet (F9, F19, F23, F24) ----- */
+/* On an iPad or a computer it takes the whole right column while it is open, so no half-panel shows under it. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  html body.sh .share-pop {
+    top: var(--top-h);
+    right: 0;
+    bottom: 0;
+    width: max(var(--right-w), 340px);
+    border-radius: 0;
+    border-width: 0 0 0 1px;
+    overflow-y: auto;
+  }
+}
+
+body.sh .share-pop h3 .dot {
+  margin-right: 6px;
+}
+
+/* A problem is the sheet's first row, in words, with Show me. Warning first is a setting (the Owner, 2026-11-15). */
+body.sh .share-pop .prob {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgb(229 72 77 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(229 72 77 / 0.55);
+  font-size: 13px;
+}
+
+body.sh .share-pop .prob b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 14px var(--label);
+}
+
+body.sh .share-pop .prob b .ic {
+  color: #e5484d;
+}
+
+body.sh .share-pop .prob small {
+  color: var(--quiet);
+}
+
+body.sh .share-pop .prob .sbtn {
+  align-self: flex-start;
+  height: 36px;
+}
+
+/* Mia's place for Crate 2, as a ghost with her name, beside yours (F24). */
+body.sh .theirs {
+  position: absolute;
+  z-index: 3;
+  width: 6.25%;
+  opacity: 0.55;
+  outline: 2px dashed #b7b492;
+  outline-offset: 2px;
+  image-rendering: pixelated;
+}
+
+body.sh .who {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, calc(-100% - 6px));
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgb(30 30 30 / 0.9);
+  color: var(--words);
+  font: 500 12px var(--label);
+  white-space: nowrap;
+}
+
+body.sh .who.mia {
+  box-shadow: inset 0 0 0 1px #b7b492;
+}
+
+/* ----- The Keys sheet: two columns, both starting at the left; an icon stays with its first word (F22) ----- */
+html body.sh .keysheet .k {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: start;
+}
+
+html body.sh .keysheet .k span:first-child,
+html body.sh .keysheet .k span:last-child {
+  display: block;
+  max-width: none;
+  text-align: left;
+  white-space: normal;
+}
+
+html body.sh .keysheet .k span:last-child .ic {
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: -3px;
+}
+
+/* ----- Phones and the upright iPad (F33, F34) ----- */
+@media (max-width: 1000px), (max-height: 600px) {
+  /* The free thumb's buttons fold to one tab at the screen's edge, shut until it is tapped. */
+  body.sh .holds .hb:not(.hfold) {
+    display: none;
+  }
+
+  body.sh .holds .hfold {
+    display: flex;
+    width: 52px;
+    min-height: 52px;
+  }
+
+  body.sh .holds .hfold .ic:last-child {
+    width: 12px;
+    height: 12px;
+  }
+
+  body.sh.touch .fit {
+    left: 16px;
+  }
+
+  /* A tool's settings strip scrolls sideways, with a fade where it is cut. */
+  html body.sh .sh-tools .topts,
+  html body.sh .tray .tset {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  }
+
+  /* A tool's word may take two short lines rather than spill out of its button. */
+  body.sh .tl2 span:not(.ic) {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.05;
+  }
+
+  /* The lock note wraps to two lines instead of running off the screen. */
+  body.sh .lockpop {
+    max-width: min(300px, 70vw);
+    white-space: normal;
+  }
+
+  body.sh .minimap .mw span {
+    white-space: nowrap;
+  }
+
+  body.sh .minimap .mw span + span {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px) and (min-height: 601px) {
+  /* Things to place or paint, above the toolbar: the tool's setting wraps to its own line when the tiles fill it. */
+  html body.sh .tray {
+    left: 50%;
+    max-width: calc(100vw - 16px);
+  }
+
+  body.sh .tray .trow {
+    flex-wrap: wrap;
+  }
+
+  html body.sh .tray .titems {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  body.sh .tray .tset {
+    border-left: 0;
+    padding: 0 4px;
+  }
+
+  html body.sh.has-tray .fit {
+    bottom: calc(var(--tools-h) + 160px);
+  }
+}
+
+/* An upright phone: picking a thing shows a one-line peek above the toolbar; the settings open on a tap, and the
+   toolbar never moves (F34). */
+@media (max-width: 500px) {
+  html body.sh .sh-right {
+    height: 52px;
+    bottom: calc(var(--tools-h) + 16px);
+    left: 8px;
+    right: 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  html body.sh .sh-right::before,
+  html body.sh .sh-right > :not(.peek) {
+    display: none;
+  }
+
+  body.sh .sh-right .peek {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    padding: 0 14px;
+    border: 0;
+    background: none;
+    color: var(--words);
+    font: 500 14px var(--label);
+  }
+
+  body.sh .sh-right .peek .pic {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated;
+    object-fit: contain;
+  }
+
+  body.sh .sh-right .peek > span:not(.ic) {
+    flex: 1;
+    text-align: left;
+    color: var(--quiet);
+  }
+
+  body.sh .sh-right .peek b {
+    color: var(--words);
+    font-weight: 600;
+  }
+
+  html body.sh .sh-tools {
+    bottom: 8px;
+  }
+
+  html body.sh.has-right .fit {
+    bottom: calc(var(--tools-h) + 84px);
+  }
+}
+
+body.sh.side.left-over .sh-tools {
+  left: 268px;
+}
+
+body.sh.side.left-over .sh-tools .tbar {
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+body.sh .share-pop .both .hint2 {
+  display: block;
+  margin: -2px 0 8px;
+  font: 500 12px var(--label);
+  color: var(--quiet);
+}
+
+/* The brush's outline shows on any ground: white with a dark edge, the same in Scenes as in Levels (F26). */
+html body.sh .brush {
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #111314, inset 0 0 0 1px #111314;
+}
+
+/* ---------- First run, the tour, Help and Settings (the Owner, 2026-11-15: onboarding and settings, Figma-inspired) ---------- */
+
+/* Welcome: one card in the middle, what this is and the three things you do. */
+body.sh .onb {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+  padding: 28px 28px 20px;
+  text-align: left;
+}
+
+body.sh .onb .onb-pic {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  background: var(--touch);
+  color: var(--on-touch);
+}
+
+body.sh .onb .onb-pic .ic {
+  width: 30px;
+  height: 30px;
+}
+
+body.sh .onb h2 {
+  margin: 0 0 6px;
+  font: 600 22px / 1.2 var(--label);
+}
+
+body.sh .onb > p {
+  margin: 0 0 16px;
+  color: var(--quiet);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+body.sh .onb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+body.sh .onb-steps li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+body.sh .onb-steps .n {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--raised);
+  font: 600 14px var(--label);
+}
+
+body.sh .onb-steps b {
+  display: block;
+  font: 600 15px var(--label);
+}
+
+body.sh .onb-steps li > span:last-child {
+  color: var(--quiet);
+  font-size: 14px;
+}
+
+body.sh .onb-go,
+body.sh .coach-go {
+  display: flex;
+  gap: 8px;
+}
+
+body.sh .onb-go .sbtn {
+  flex: 1;
+  height: 48px;
+  white-space: nowrap;
+}
+
+body.sh .onb-small {
+  margin: 10px 0 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 13px;
+}
+
+/* The tour: everything dims except the part the step is about; the card points at it. */
+body.sh .spot {
+  position: absolute;
+  z-index: 40;
+  border-radius: 14px;
+  box-shadow: 0 0 0 4px var(--touch), 0 0 0 9999px rgb(0 0 0 / 0.55);
+  pointer-events: none;
+}
+
+body.sh .coach {
+  position: absolute;
+  z-index: 41;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f2f2f2;
+  color: #1e1e1e;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+body.sh .coach::after {
+  content: "";
+  position: absolute;
+  border: 9px solid transparent;
+}
+
+body.sh .coach.to-left::after {
+  left: -9px;
+  top: 28px;
+  border-left: 0;
+  border-right-color: #f2f2f2;
+}
+
+body.sh .coach.to-below::after {
+  left: calc(50% - 9px);
+  bottom: -9px;
+  border-bottom: 0;
+  border-top-color: #f2f2f2;
+}
+
+body.sh .coach .coach-n {
+  font: 600 12px var(--label);
+  color: #6e6e6e;
+}
+
+body.sh .coach h3 {
+  margin: 4px 0 6px;
+  font: 600 17px var(--label);
+}
+
+body.sh .coach p {
+  margin: 0 0 8px;
+}
+
+body.sh .coach .coach-do {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #e2e2e2;
+  font-weight: 600;
+}
+
+body.sh .coach .sbtn {
+  height: 44px;
+  padding: 0 16px;
+  background: #e2e2e2;
+  color: #1e1e1e;
+}
+
+body.sh .coach .sbtn.main {
+  background: #1e1e1e;
+  color: #f2f2f2;
+}
+
+body.sh .coach .coach-go {
+  align-items: center;
+  margin-top: 12px;
+}
+
+body.sh .coach .dots {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 6px;
+}
+
+body.sh .coach .dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c4c4c4;
+}
+
+body.sh .coach .dots i.on {
+  background: #1e1e1e;
+}
+
+body.sh .coach .coach-x {
+  display: block;
+  margin: 8px auto 0;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: #555;
+  font: 500 13px var(--label);
+  text-decoration: underline;
+}
+
+/* Help, at the right like the other sheets: the basics with ticks, then more help. */
+body.sh .helpp,
+body.sh .setp {
+  top: calc(var(--top-h) + 8px);
+  right: 8px;
+  width: min(380px, calc(100vw - 16px));
+  max-height: calc(100vh - var(--top-h) - 16px);
+  overflow-y: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+body.sh :is(.helpp, .setp) header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+body.sh :is(.helpp, .setp) h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: 600 18px var(--label);
+}
+
+body.sh :is(.helpp, .setp) header .sbtn {
+  height: 40px;
+}
+
+body.sh .helpp .hb2 {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+body.sh .helpp .hb2 span {
+  color: var(--quiet);
+}
+
+body.sh .helpp .bar2 {
+  height: 6px;
+  margin: 8px 0 8px;
+  border-radius: 3px;
+  background: var(--raised);
+}
+
+body.sh .helpp .bar2 i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--mark);
+}
+
+body.sh .helpp .lrn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+}
+
+body.sh .helpp .lrn > span:nth-child(2) {
+  flex: 1;
+}
+
+body.sh .helpp .lrn .ic {
+  width: 22px;
+  height: 22px;
+  color: var(--faint);
+}
+
+body.sh .helpp .lrn.done .ic {
+  color: var(--mark);
+}
+
+body.sh .helpp .lrn.done > span:nth-child(2) {
+  color: var(--quiet);
+  text-decoration: line-through;
+}
+
+body.sh .helpp .lrn .sbtn {
+  height: 40px;
+  white-space: nowrap;
+}
+
+body.sh :is(.helpp, .setp) h4 {
+  margin: 18px 0 6px;
+  font: 600 14px var(--label);
+}
+
+body.sh .helpp .hrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 6px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--words);
+  font: 500 15px var(--label);
+  text-align: left;
+}
+
+body.sh .helpp .hrow > span:nth-child(2) {
+  flex: 1;
+}
+
+body.sh .helpp .hrow small {
+  display: block;
+  color: var(--quiet);
+  font-size: 13px;
+}
+
+/* Settings: a wide sheet with its sections down the left on an iPad or a computer; one long page on a phone. */
+body.sh .setp {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 16px));
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: 20px;
+}
+
+body.sh .setp header {
+  grid-column: 1 / -1;
+}
+
+body.sh .setnav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body.sh .setnav b {
+  margin: 8px 0 2px;
+  font: 600 12px var(--label);
+  color: var(--faint);
+}
+
+body.sh .setnav button {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--quiet);
+  font: 500 14px var(--label);
+  text-align: left;
+}
+
+body.sh .setnav button.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+body.sh .setbody h4:first-child {
+  margin-top: 4px;
+}
+
+body.sh .setbody h4 small {
+  display: block;
+  margin-top: 2px;
+  font: 400 13px var(--label);
+  color: var(--quiet);
+}
+
+body.sh .setq {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--raised);
+}
+
+body.sh .setq > b {
+  display: block;
+  margin-bottom: 8px;
+  font: 600 14px var(--label);
+}
+
+body.sh .setq .opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 4px;
+  font-size: 14px;
+}
+
+body.sh .setq .opt .ic {
+  width: 22px;
+  height: 22px;
+  color: var(--faint);
+}
+
+body.sh .setq .opt.on .ic {
+  color: var(--touch);
+}
+
+body.sh :is(.setq .opt, .setr) small {
+  display: block;
+  color: var(--quiet);
+  font-size: 12px;
+}
+
+body.sh .setr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+body.sh .setr .segs,
+body.sh .setr .sbtn,
+body.sh .setr .drop {
+  flex: none;
+}
+
+body.sh .setr .sbtn {
+  height: 40px;
+}
+
+@media (max-width: 700px), (max-height: 600px) {
+  body.sh .setp {
+    display: block;
+  }
+
+  body.sh .setnav {
+    display: none;
+  }
+
+  body.sh .setr {
+    flex-wrap: wrap;
+    padding: 6px 0;
+  }
+}
+
+@media (max-height: 600px) {
+  body.sh .onb {
+    top: 8px;
+    transform: translateX(-50%);
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    padding: 16px 20px;
+  }
+
+  body.sh .onb .onb-pic {
+    display: none;
+  }
+
+  body.sh .onb-steps {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+}
+
+/* The map has no toolbar on a narrow screen either: its zoom is a pinch there. */
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh.no-tools .sh-tools {
+    display: none;
+  }
+}

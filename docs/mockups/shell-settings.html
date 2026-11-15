@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Settings (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Settings, opened from the game's menu (Crate Game, then Settings). Figma-inspired: one sheet, a short list of
+     sections down its left (on a phone the sections are one long page), plain words, each choice saying what it does.
+     "For me" is kept on this device and is never something a helper needs. "For everyone on Crate Game" is kept in the
+     game's settings file, so a helper (the AI) can read and change it too; only an Owner may change it. A problem in a
+     level warns you first and still lets you put your changes in, and that is a setting (the Owner, 2026-11-15). -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="dim"></div>
+<section class="pop setp" role="dialog" aria-label="Settings">
+  <header><h3><span class="ic" data-i="gear"></span>Settings</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></header>
+  <nav class="setnav"><b>For everyone</b><button class="on">Putting changes in</button><b>For me</b><button>Touch and Pencil</button><button>Tips and help</button><button>Language</button></nav>
+  <div class="setbody">
+    <h4>For everyone on Crate Game<small>Only an Owner can change these. Kept with the game, so your helper can see them too.</small></h4>
+    <div class="setq"><b>When a level has a problem and someone puts changes in</b>
+      <label class="opt on"><span class="ic" data-i="check-circle"></span><span>Warn them first, then let them go on<small>Best for most teams</small></span></label>
+      <label class="opt"><span class="ic" data-i="circle"></span><span>Don't let them until it is fixed<small>For a game people are playing</small></span></label>
+      <label class="opt"><span class="ic" data-i="circle"></span><span>Don't warn<small>Problems still show in the list</small></span></label>
+    </div>
+    <h4>For me<small>Kept on this iPad.</small></h4>
+    <div class="setr"><span>Row size<small>Big rows for a finger, small rows for a mouse or a Pencil</small></span><span class="segs"><button class="on">Choose for me</button><button>Big</button><button>Small</button></span></div>
+    <div class="setr"><span>The Pencil uses the tool, a finger slides the view</span><span class="tog on"></span></div>
+    <div class="setr"><span>Draw with a finger too</span><span class="tog"></span></div>
+    <div class="setr"><span>I draw with my left hand<small>Puts the buttons for your free thumb on the right</small></span><span class="tog"></span></div>
+    <div class="setr"><span>Show tips as I go</span><span class="tog on"></span></div>
+    <div class="setr"><span>The tour</span><button class="sbtn"><span class="ic" data-i="play-circle"></span>Take it again</button></div>
+    <div class="setr"><span>Language</span><span class="drop"><span>English</span><span class="ic" data-i="caret-down"></span></span></div>
+  </div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

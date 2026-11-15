@@ -8,14 +8,15 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .trail { position: absolute; z-index: 1; width: 1.2%; aspect-ratio: 1; border-radius: 50%; background: var(--touch); opacity: 0.8; }
-  .playing { position: absolute; z-index: 3; inset: 0; outline: 3px solid var(--touch); outline-offset: 4px; pointer-events: none; }
+  .playing { position: absolute; z-index: 3; inset: 6.897% 6.306% 12.931% 6.194%; outline: 3px solid var(--touch); outline-offset: 3px; pointer-events: none; }
 </style>
 </head>
 <body>
 <!-- World, Levels, playing: Play sits beside Share, and the level plays where it is drawn, with pause, one step,
      slow, start again, play from here, and the last 30 seconds to drag back through. On a touch screen the game's own
      touch controls are over the level, so it can be played on the iPad. The inspector stays closed; one small card
-     holds the change worth trying while it plays. -->
+     holds the change worth trying while it plays; on a phone it is the play bar's "Try a change" button, and the
+     game takes the whole screen under the play bar (Fable pass, F7). -->
 <div class="canvas">
   <div class="fit">
     <div class="stage">
@@ -25,11 +26,10 @@
       <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>
       <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
       <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
-      <span class="tip up" style="left:12px;top:2%">Drag the line above back to see it again</span>
-      <span class="tb" style="left:3%;bottom:4%;width:14%;aspect-ratio:1" title="Move"><span class="ic" data-i="arrows-left-right"></span></span>
-      <span class="tb" style="right:3%;bottom:6%;width:10%;aspect-ratio:1" title="Jump"><span class="ic" data-i="arrow-fat-up"></span></span>
-      <span class="tb" style="right:15%;bottom:3%;width:7.5%;aspect-ratio:1" title="Pull"><span class="ic" data-i="hand"></span></span>
-      <span class="chip keyhint" style="left:2%;top:90%">Arrow keys move · Space jumps</span>
+      <span class="tb" style="left:8%;bottom:15.5%;width:13%;aspect-ratio:1" title="Move"><span class="ic" data-i="arrows-left-right"></span></span>
+      <span class="tb" style="right:8.5%;bottom:16%;width:9.5%;aspect-ratio:1" title="Jump"><span class="ic" data-i="arrow-fat-up"></span></span>
+      <span class="tb" style="right:20%;bottom:14.5%;width:7%;aspect-ratio:1" title="Pull"><span class="ic" data-i="hand"></span></span>
+      <span class="chip keyhint" style="left:7%;top:80%">Arrow keys move · Space jumps</span>
     </div>
   </div>
 </div>
@@ -41,7 +41,7 @@ window.MOCK = {
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
     ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
   ],
-  play: { paused: true, speed: 0, at: 40, time: '0:12' },
+  play: { paused: true, speed: 0, at: 40, time: '0:12', hint: 'Drag the line in the bar back to see it again' },
   list: {
     count: 7,
     rows: [
