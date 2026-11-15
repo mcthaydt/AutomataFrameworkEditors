@@ -2,6 +2,14 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Task 6 and Task 7 part 1 reverted (2026-11-15)
+
+The Owner said (2026-11-15) that the editors were built before their mockups were shown, and chose to revert what had
+already merged on that path: Task 6 (pull request 28) and Task 7 part 1 (pull request 45). This pull request reverts
+both merge commits and nothing else; pull request 47 (Task 7 parts 2 and 3) was closed unmerged. Tasks 1 to 5, the
+framework pin and every document stay. No editor is built until the Owner approves the revised mockups. Nothing was
+run; the pull request's checks are the test.
+
 ## The mockups of all five editors: design audit
 
 The Owner asked (2026-11-15) for mockups of every editor before any editor code, and then for an audit of them against
