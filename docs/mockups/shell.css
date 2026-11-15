@@ -2192,3 +2192,14 @@ body.sh .bar.b4 {
     --sheet-h: 26vh;
   }
 }
+
+/* The problems count never wraps; on an iPad it is the sign and the number. */
+.sh-top .warn {
+  white-space: nowrap;
+}
+
+@media (max-width: 1259px) {
+  .sh-top .warn .pw {
+    display: none;
+  }
+}

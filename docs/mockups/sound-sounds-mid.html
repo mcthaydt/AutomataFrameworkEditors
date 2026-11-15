@@ -28,6 +28,7 @@
   .fader { width: 6px; border-radius: 3px; background: var(--edge); position: relative; }
   .fader i { position: absolute; left: -9px; width: 24px; height: 12px; border-radius: 3px; background: var(--words); border: 2px solid var(--ground); }
   .strip .num { font-size: 12px; color: var(--quiet); }
+  @media (max-width: 1000px) { .chip.wind { left: auto !important; right: 2%; max-width: 46%; white-space: normal; flex-wrap: wrap; } }
   .duck { position: absolute; right: 14px; top: 8px; }
   .mixer { overflow-x: auto; } .strip { min-width: 96px; } .mixer .more2 { position: absolute; right: 0; top: 0; bottom: 0; width: 56px; display: none; align-items: center; justify-content: flex-end; padding-right: 6px; background: linear-gradient(90deg, transparent, var(--panel)); color: var(--quiet); font-size: 13px; }
   @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) { .takes .label { display: none; } .mixer .more2 { display: flex; } }
@@ -42,7 +43,7 @@
     <div class="stage grid">
       <span class="chip" style="left:6%;top:61%"><span class="ic" data-i="speaker-high"></span>Jump</span>
       <span class="chip" style="left:45%;top:79%"><span class="ic" data-i="speaker-high"></span>Push</span>
-      <span class="chip" style="left:62%;top:20%;border-color:var(--mark)"><span class="ic" data-i="warning"></span>Wind clicks when it starts again<button class="btn small" style="margin-left:8px">Smooth it out</button></span>
+      <span class="chip wind" style="left:62%;top:20%;border-color:var(--mark)"><span class="ic" data-i="warning"></span>Wind clicks when it starts again<button class="btn small" style="margin-left:8px">Smooth it out</button></span>
       <span class="chip" style="left:50%;top:4%;transform:translateX(-50%)"><span class="ic" data-i="music-notes"></span>Music: <span class="v">Meadow tune</span></span>
     </div>
   </div>

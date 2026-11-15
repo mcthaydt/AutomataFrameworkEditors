@@ -338,7 +338,7 @@ function frame(m) {
     <button class="wsn"><b>${editor[0]}</b>${icon('caret-down')}</button>
     <button class="partn">${here}${m.place ? ` · ${m.place}` : ''}${icon('caret-down')}</button>
     <span class="fill"></span>
-    ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems} problem${problems > 1 ? 's' : ''}</span></button>` : ''}
+    ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}${fine ? '<kbd>⌘K</kbd>' : '<span>Find</span>'}</button>
     <span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>
     <span class="kept">${status}</span>

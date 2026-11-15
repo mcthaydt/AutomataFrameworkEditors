@@ -16,7 +16,8 @@
   .bars6 .lvb { height: 5px; border-radius: 3px; background: var(--edge); position: relative; }
   .bars6 .lvb i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--quiet); }
   .bars6 .flag svg { width: 18px; height: 12px; display: block; }
-  table { width: 100%; border-collapse: collapse; background: var(--raised); border: 1px solid var(--line); font-size: 15px; table-layout: fixed; }
+  table { width: 100%; border-collapse: collapse; background: var(--raised); border: 1px solid var(--line); font-size: 15px; table-layout: auto; }
+  .c-us, .c-kr { width: 38%; } .c-note { width: 24%; }
   th, td { border: 1px solid var(--edge); padding: 5px 7px; text-align: left; vertical-align: top; overflow: hidden; }
   th { font: 600 14px var(--label); color: var(--words); }
   th .flag { margin-right: 6px; vertical-align: -2px; }
@@ -65,7 +66,6 @@ window.MOCK = {
   place: 'Words', off: [1, 2, 3], jobs: ['Move: pick a line'], what: 'Words', saved: 'Mia, 1 hour ago', tool: 0, zoom: '100%',
   settings: [
     '<span>Sort by</span><span class="seg"><button class="on">Where it is</button><button>A to Z</button></span>',
-    '<span>Show</span><span class="seg"><button>All six</button><button class="on">One language</button></span>',
   ],
   list: { title: 'Where the words are', count: 6, search: 'Find words', rows: [
       { head: 'Conversations', count: 3 },
