@@ -7309,6 +7309,20 @@ html body.sh .sh-top {
   }
 }
 
+/* "Send to check" and "Waiting for Mia" are the longest words in a phone's bar. The bar is 16 points narrower now that
+   it floats, so short of room the button's words go onto two lines (it is 44 high, so two fit) instead of running
+   past the bar's edge. Only this button gives way: every other piece in the bar keeps its size and its 44 points. */
+@media (max-width: 500px) {
+  html body.sh .sh-top .share.put {
+    flex: 0 1 auto;
+    white-space: normal;
+  }
+
+  html body.sh .sh-top .share.put .w b {
+    text-wrap: balance;
+  }
+}
+
 /* The dark canvas, with its paper dots, runs edge to edge behind every dock at every size. */
 html body.sh {
   background: #181818;
@@ -7460,10 +7474,34 @@ html body.sh.fine:not(.playing):not(.bare):not(.tools-left) {
   }
 }
 
+/* The free thumb's Hold buttons sit in the bottom left corner. Over the home bar they would be hard to press, so they
+   clear it; and when the big level's list floats over the level (`left-over`) they sit beside the list, not under it,
+   where the glass showed them only as a faint ghost and a finger could not reach them. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  html body.sh.tools-left .holds {
+    bottom: calc(12px + var(--safe-b));
+  }
+
+  html body.sh.tools-left.left-over .holds {
+    left: calc(var(--left-w) + var(--dock-gap) + 260px + var(--dock-gap));
+  }
+}
+
 /* ----- 7. The setting, in words ----- */
 
 /* A line only the other devices need: the iPad's and phone's "Reduce Transparency" line is left out on a computer
    (frame.js puts the device on the body; `.only-computer` and `.only-ipad` already do the same for their lines). */
 html body.sh[data-device="computer"] .no-computer {
   display: none;
+}
+
+/* ----- 8. The foot of a sheet sits in the glass, not on it ----- */
+
+/* The buttons' foot (the Put in game sheet and its family) keeps a filled background so rows scrolling under it never
+   show through the buttons. That fill was today's solid panel grey, which on glass read as a lighter box laid on the
+   card (the first pictures: 37 against 24 around it). It is now the glass's own tint laid on the dark of the editors'
+   ground, so over the ground it is the card's colour and the box is gone; it is still filled all the way through. In the
+   four solid cases `--g-bg` is the panel, so it is the panel there, as before. */
+html body.sh .share-pop .foot {
+  background: linear-gradient(var(--g-bg), var(--g-bg)), #1c1c1c;
 }
