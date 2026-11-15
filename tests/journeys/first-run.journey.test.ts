@@ -93,6 +93,8 @@ test('a visitor, from nothing to a change and a copy, following only what the sc
   await readFile(await (await download).path(), 'utf8')
   await text(j, WORDS.copyKept)
   await leaveLevel(j.page)
+  // The copy is kept, so leaving without saving is what the visitor means.
+  await j.page.getByRole('button', { name: WORDS.leaveYes }).click()
   await says(j, WORDS.guideDoneCopy)
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
 })

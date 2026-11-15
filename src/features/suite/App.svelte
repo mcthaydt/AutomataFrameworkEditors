@@ -236,6 +236,7 @@
         onsignin={begin}
         onsignout={signOut}
         onsignedout={signedOut}
+        signInProblem={!signedIn && (notice === 'cancelled' || notice === 'failed') ? notice : undefined}
         onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
       />
     {/key}

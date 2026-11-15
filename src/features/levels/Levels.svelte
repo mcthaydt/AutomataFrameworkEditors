@@ -303,13 +303,13 @@
   /* What just happened floats under the cluster; it scrolls inside itself when the window is short. */
   .notices {
     position: absolute;
-    top: 96px;
+    top: var(--top-clear, 96px);
     right: var(--margin, 16px);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
     width: min(380px, calc(100% - 2 * var(--margin, 16px)));
-    max-height: calc(100% - 96px - var(--margin, 16px));
+    max-height: calc(100% - var(--top-clear, 96px) - var(--margin, 16px));
     overflow-y: auto;
     touch-action: pan-y;
   }

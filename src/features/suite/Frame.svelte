@@ -23,6 +23,8 @@
 
   let width = $state(0)
   let height = $state(0)
+  /** How tall the top row is, so what floats under it (the notices) starts below it however many lines the pill takes. */
+  let top = $state(0)
   const shape = $derived(shapeOf({ w: width, h: height }))
   /** Nothing is drawn until the frame knows its size: no part is ever laid out for the wrong shape and moved. */
   const ready = $derived(width > 0 && height > 0)
@@ -41,10 +43,17 @@
   }
 </script>
 
-<div class="frame" data-frame data-shape={shape} bind:clientWidth={width} bind:clientHeight={height}>
+<div
+  class="frame"
+  data-frame
+  data-shape={shape}
+  style:--top-clear="{top + 24}px"
+  bind:clientWidth={width}
+  bind:clientHeight={height}
+>
   {#if ready}
     {@render children(shape)}
-    <div class="top">
+    <div class="top" bind:clientHeight={top}>
       <Pill {shape} {game} {level} {onhome} extra={menu(shape)} {onsoon} />
       <div class="cluster">{@render cluster(shape)}</div>
     </div>

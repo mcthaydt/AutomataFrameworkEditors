@@ -52,6 +52,8 @@
     /** The sign-in ran out or was refused: the person is signed out whatever they pressed. */
     onsignedout: () => void
     onback: () => void
+    /** A sign-in the person started and that did not happen: said on the level too, so the crate they moved stays in sight. */
+    signInProblem?: 'cancelled' | 'failed' | undefined
   }
   let {
     api,
@@ -69,6 +71,7 @@
     onsignout,
     onsignedout,
     onback,
+    signInProblem,
   }: Props = $props()
 
   /** A sentence about what just happened, with the buttons it needs. */
@@ -302,10 +305,13 @@
   const standing = $derived(
     visitor ? WORDS.visitorCan : !can(level, 'save') ? WORDS.lookOnly : game?.mine !== undefined ? WORDS.mineWaiting : '',
   )
-  const hasNotices = $derived(standing !== '' || artMissing || events.length > 0)
+  const hasNotices = $derived(standing !== '' || artMissing || events.length > 0 || signInProblem !== undefined)
 </script>
 
 {#snippet noticeList()}
+  {#if signInProblem !== undefined}
+    <Notice kind="problem" text={signInProblem === 'failed' ? WORDS.signInFailed : WORDS.signInCancelled} />
+  {/if}
   {#if standing !== ''}<Notice kind="info" text={standing} />{/if}
   {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
   {#each events as event (event.text)}
