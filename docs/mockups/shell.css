@@ -7766,20 +7766,20 @@ html body.sh .share-pop .chg {
   border-top: 1px solid var(--line);
 }
 
-html body.sh .share-pop .pp .who,
-html body.sh .share-pop .chg .who {
+html body.sh .share-pop .pp .wh2,
+html body.sh .share-pop .chg .wh2 {
   flex: 1;
   min-width: 0;
 }
 
-html body.sh .share-pop .pp .who b,
-html body.sh .share-pop .chg .who b {
+html body.sh .share-pop .pp .wh2 b,
+html body.sh .share-pop .chg .wh2 b {
   display: block;
   font: 600 15px var(--label);
 }
 
-html body.sh .share-pop .pp .who small,
-html body.sh .share-pop .chg .who small {
+html body.sh .share-pop .pp .wh2 small,
+html body.sh .share-pop .chg .wh2 small {
   display: block;
   color: var(--quiet);
   font: 400 13px var(--label);
@@ -8481,4 +8481,28 @@ html body.sh.has-tilestrip .tilestrip .tt.more .ic {
     -webkit-mask-image: none;
     mask-image: none;
   }
+}
+
+/* ----- 16. Fixes from the first pictures: the "..." menu's rows are rows, "Show me" stays on one line ----- */
+html body.sh .actbar .moremenu .mrows button {
+  flex-direction: row;
+  justify-content: flex-start;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+html body.sh .actbar .moremenu .mrows button span {
+  display: inline;
+  grid-template-columns: none;
+  gap: 0;
+}
+
+html body.sh .menup .mi .go2 {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ----- 17. The tiles in the strip sit on one line: a name that wraps ("Grass corner") no longer drops its neighbours' words ----- */
+html body.sh.has-tilestrip .tilestrip {
+  align-items: flex-start;
 }
