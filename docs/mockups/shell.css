@@ -3099,3 +3099,14 @@ body.sh .filters .choice .num {
   height: 44px;
   transform: translateY(-50%);
 }
+
+/* A phone's top bar keeps room for the part's whole name: the saved tick waits in the game's menu. */
+@media (max-width: 500px) {
+  .sh-top .kept {
+    display: none;
+  }
+
+  .sh-top .partn {
+    flex: 1 1 auto;
+  }
+}
