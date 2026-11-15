@@ -176,60 +176,67 @@ const last = (): LevelEdit => {
   return edit
 }
 const overlap = (a: DOMRect, b: DOMRect): boolean =>
-  Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
+  Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+  Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
 
 const PARTS = ['tools', 'block', 'undo'] as const
 
 // ---- where everything sits ------------------------------------------------------------------------------------------
 
-test.each(Object.keys(SIZES) as SizeName[])('at %s every part is where its shape puts it, and clear of the level', async (name) => {
-  await show(name)
-  const { w, h, shape } = SIZES[name]
-  expect(box.querySelector('[data-shape]')?.getAttribute('data-shape')).toBe(shape)
-  const rects = Object.fromEntries(PARTS.map((p) => [p, part(p).getBoundingClientRect()])) as Record<
-    (typeof PARTS)[number],
-    DOMRect
-  >
-  const near = (value: number, want: number): void => expect(Math.abs(value - want)).toBeLessThanOrEqual(2)
-  if (shape === 'wide') {
-    // The tools are a column at the left edge, centered; undo and the block are in the bottom right corner.
-    near(rects.tools.left, 16)
-    near(centre(part('tools')).y, h / 2)
-    near(rects.undo.right, w - 16)
-    near(rects.undo.bottom, h - 16)
-    expect(rects.block.right).toBeLessThanOrEqual(rects.undo.left)
-  } else if (shape === 'mid') {
-    // One row along the bottom: the tools, then the block, then undo.
-    near(rects.tools.left, 16)
-    near(rects.tools.bottom, h - 16)
-    near(rects.undo.right, w - 16)
-    near(rects.undo.bottom, h - 16)
-    expect(rects.tools.right).toBeLessThanOrEqual(rects.block.left)
-    expect(rects.block.right).toBeLessThanOrEqual(rects.undo.left)
-  } else {
-    // A phone upright: the tools the whole width along the bottom, undo above their right end, the block above that.
-    near(rects.tools.left, 16)
-    near(rects.tools.right, w - 16)
-    near(rects.tools.bottom, h - 16)
-    near(rects.undo.right, w - 16)
-    expect(rects.undo.bottom).toBeLessThanOrEqual(rects.tools.top)
-    expect(rects.block.bottom).toBeLessThanOrEqual(rects.undo.top)
-  }
-  for (let a = 0; a < PARTS.length; a += 1) {
-    for (let b = a + 1; b < PARTS.length; b += 1) {
-      expect(overlap(rects[PARTS[a] as 'tools'], rects[PARTS[b] as 'tools']), `${PARTS[a]} and ${PARTS[b]}`).toBe(false)
+test.each(Object.keys(SIZES) as SizeName[])(
+  'at %s every part is where its shape puts it, and clear of the level',
+  async (name) => {
+    await show(name)
+    const { w, h, shape } = SIZES[name]
+    expect(box.querySelector('[data-shape]')?.getAttribute('data-shape')).toBe(shape)
+    const rects = Object.fromEntries(PARTS.map((p) => [p, part(p).getBoundingClientRect()])) as Record<
+      (typeof PARTS)[number],
+      DOMRect
+    >
+    const near = (value: number, want: number): void => expect(Math.abs(value - want)).toBeLessThanOrEqual(2)
+    if (shape === 'wide') {
+      // The tools are a column at the left edge, centered; undo and the block are in the bottom right corner.
+      near(rects.tools.left, 16)
+      near(centre(part('tools')).y, h / 2)
+      near(rects.undo.right, w - 16)
+      near(rects.undo.bottom, h - 16)
+      expect(rects.block.right).toBeLessThanOrEqual(rects.undo.left)
+    } else if (shape === 'mid') {
+      // One row along the bottom: the tools, then the block, then undo.
+      near(rects.tools.left, 16)
+      near(rects.tools.bottom, h - 16)
+      near(rects.undo.right, w - 16)
+      near(rects.undo.bottom, h - 16)
+      expect(rects.tools.right).toBeLessThanOrEqual(rects.block.left)
+      expect(rects.block.right).toBeLessThanOrEqual(rects.undo.left)
+    } else {
+      // A phone upright: the tools the whole width along the bottom, undo above their right end, the block above that.
+      near(rects.tools.left, 16)
+      near(rects.tools.right, w - 16)
+      near(rects.tools.bottom, h - 16)
+      near(rects.undo.right, w - 16)
+      expect(rects.undo.bottom).toBeLessThanOrEqual(rects.tools.top)
+      expect(rects.block.bottom).toBeLessThanOrEqual(rects.undo.top)
     }
-  }
-  const cell = clear()
-  for (const p of PARTS) expect(overlap(rects[p], cell), `${p} lies over the level`).toBe(false)
-  expect(cell.height).toBeGreaterThanOrEqual(160)
-  expect(cell.width).toBeGreaterThanOrEqual(Math.min(w, h) / 2)
-  const move = box.querySelector('[data-tool="move"]')
-  expect(move?.getAttribute('aria-pressed')).toBe('true')
-  const wide = part('block').querySelectorAll('.cell').length
-  expect(wide).toBe(shape === 'narrow' ? 2 : 4)
-  expect(part('block').getBoundingClientRect().height).toBeLessThanOrEqual(shape === 'narrow' ? 76 : 80)
-})
+    for (let a = 0; a < PARTS.length; a += 1) {
+      for (let b = a + 1; b < PARTS.length; b += 1) {
+        expect(
+          overlap(rects[PARTS[a] as 'tools'], rects[PARTS[b] as 'tools']),
+          `${PARTS[a]} and ${PARTS[b]}`,
+        ).toBe(false)
+      }
+    }
+    const cell = clear()
+    for (const p of PARTS) expect(overlap(rects[p], cell), `${p} lies over the level`).toBe(false)
+    expect(cell.height).toBeGreaterThanOrEqual(160)
+    expect(cell.width).toBeGreaterThanOrEqual(Math.min(w, h) / 2)
+    const move = box.querySelector('[data-tool="move"]')
+    expect(move?.getAttribute('aria-pressed')).toBe('true')
+    const wide = part('block').querySelectorAll('.cell').length
+    expect(wide).toBe(shape === 'narrow' ? 2 : 4)
+    expect(part('block').getBoundingClientRect().height).toBeLessThanOrEqual(shape === 'narrow' ? 76 : 80)
+  },
+)
 
 /** Every string 40% longer, as another language may be (audit I1). */
 function longer(text: string): string {
@@ -246,30 +253,33 @@ function longTable(): typeof EN {
   return table as unknown as typeof EN
 }
 
-test.each(Object.keys(SIZES) as SizeName[])('at %s words 40%% longer break nothing, and picking never refits the level', async (name) => {
-  useTables({ en: longTable() })
-  await show(name)
-  const { w, h } = SIZES[name]
-  const cell = clear()
-  for (const p of PARTS) {
-    const r = part(p).getBoundingClientRect()
-    expect(r.left, p).toBeGreaterThanOrEqual(-0.5)
-    expect(r.top, p).toBeGreaterThanOrEqual(-0.5)
-    expect(r.right, p).toBeLessThanOrEqual(w + 0.5)
-    expect(r.bottom, p).toBeLessThanOrEqual(h + 0.5)
-    expect(overlap(r, cell), `${p} lies over the level`).toBe(false)
-  }
-  for (const tool of box.querySelectorAll('[data-tool]')) {
-    const r = tool.getBoundingClientRect()
-    expect(r.width).toBeGreaterThanOrEqual(56)
-    expect(r.height).toBeGreaterThanOrEqual(56)
-  }
-  const before = scale()
-  tap(crate())
-  await tick()
-  expect(crate().getAttribute('aria-pressed')).toBe('true')
-  expect(scale()).toBe(before)
-})
+test.each(Object.keys(SIZES) as SizeName[])(
+  'at %s words 40%% longer break nothing, and picking never refits the level',
+  async (name) => {
+    useTables({ en: longTable() })
+    await show(name)
+    const { w, h } = SIZES[name]
+    const cell = clear()
+    for (const p of PARTS) {
+      const r = part(p).getBoundingClientRect()
+      expect(r.left, p).toBeGreaterThanOrEqual(-0.5)
+      expect(r.top, p).toBeGreaterThanOrEqual(-0.5)
+      expect(r.right, p).toBeLessThanOrEqual(w + 0.5)
+      expect(r.bottom, p).toBeLessThanOrEqual(h + 0.5)
+      expect(overlap(r, cell), `${p} lies over the level`).toBe(false)
+    }
+    for (const tool of box.querySelectorAll('[data-tool]')) {
+      const r = tool.getBoundingClientRect()
+      expect(r.width).toBeGreaterThanOrEqual(56)
+      expect(r.height).toBeGreaterThanOrEqual(56)
+    }
+    const before = scale()
+    tap(crate())
+    await tick()
+    expect(crate().getAttribute('aria-pressed')).toBe('true')
+    expect(scale()).toBe(before)
+  },
+)
 
 // ---- what a finger does ---------------------------------------------------------------------------------------------
 

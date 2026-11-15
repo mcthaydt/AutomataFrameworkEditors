@@ -2,13 +2,7 @@
 // pill, the cluster and the tools floating over it, and nothing above it. Every part is where its shape puts it, none
 // overlaps another, every press is big enough, and each editor that is not built opens its card.
 import { afterEach, describe, expect, test } from 'vitest'
-import {
-  type JourneyPage,
-  openPage,
-  SIZES,
-  setupJourneys,
-  thingNamed,
-} from '../fixtures/journey.ts'
+import { type JourneyPage, openPage, SIZES, setupJourneys, thingNamed } from '../fixtures/journey.ts'
 import { broken } from '../fixtures/measure.ts'
 import { WORDS } from '../fixtures/words.ts'
 
@@ -46,9 +40,9 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
     const frame = page.locator('[data-frame]')
     expect(await frame.getAttribute('data-shape')).toBe(SHAPES[size])
     // The first thing in the frame is the level's stage, and it is the window.
-    expect(
-      await frame.evaluate((el) => el.firstElementChild?.querySelector('[data-scale]') !== null),
-    ).toBe(true)
+    expect(await frame.evaluate((el) => el.firstElementChild?.querySelector('[data-scale]') !== null)).toBe(
+      true,
+    )
     const stage = await page.locator('[data-scale]').first().boundingBox()
     const { width, height } = SIZES[size]
     expect(Math.abs((stage?.width ?? 0) - width)).toBeLessThanOrEqual(1)
@@ -92,7 +86,9 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
       expect(box?.width).toBeGreaterThanOrEqual(55.5)
       expect(box?.height).toBeGreaterThanOrEqual(55.5)
     }
-    expect((await page.getByRole('button', { name: WORDS.save, exact: true }).boundingBox())?.height).toBeGreaterThanOrEqual(47.5)
+    expect(
+      (await page.getByRole('button', { name: WORDS.save, exact: true }).boundingBox())?.height,
+    ).toBeGreaterThanOrEqual(47.5)
     expect(await page.locator('h1').count()).toBe(1)
     expect(await page.locator('[data-tool="move"]').getAttribute('aria-pressed')).toBe('true')
   })

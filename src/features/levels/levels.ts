@@ -24,8 +24,8 @@ export {
   type Way,
 } from './edit.ts'
 export { nextId } from './ids.ts'
-export { type Shape, shapeOf } from './layout.ts'
 export { default as Levels } from './Levels.svelte'
+export { type Shape, shapeOf } from './layout.ts'
 export {
   keepInside,
   onSolid,

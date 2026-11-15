@@ -341,6 +341,9 @@ test('the title block is a grid of cells two rows tall; compact keeps the level 
     props: { game: 'Crate Game', level: 'Level 1', editor: 'World', saved: 'Not saved yet', compact: true },
   })
   await tick()
-  expect([...box.querySelectorAll('.cell .value')].map((v) => v.textContent)).toEqual(['Level 1', 'Not saved yet'])
+  expect([...box.querySelectorAll('.cell .value')].map((v) => v.textContent)).toEqual([
+    'Level 1',
+    'Not saved yet',
+  ])
   expect(box.querySelector('[data-block]')?.getBoundingClientRect().height).toBeLessThanOrEqual(36.5)
 })
