@@ -14,11 +14,14 @@
   .rh { position: absolute; width: 14px; height: 14px; border-radius: 2px; background: var(--touch); border: 2px solid var(--ground); }
   .thumbzone { position: absolute; bottom: 0; width: 34%; height: 70%; border: 2px dashed rgb(17 19 20 / 0.5); border-bottom: 0; border-radius: 50% 50% 0 0; }
   .thumbzone span { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: #111314; white-space: nowrap; }
-  .pad { position: relative; width: min(92%, 120cqh); aspect-ratio: 2 / 1.15; }
+  .pad { position: relative; width: min(calc(100% - 32px), 100cqh); aspect-ratio: 200 / 163; }
   .pad svg { width: 100%; height: 100%; }
-  .callout { position: absolute; display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--raised); border: 1px solid var(--edge); border-radius: var(--corner); font-size: 14px; white-space: nowrap; }
-  .callout.on { border-color: var(--touch); color: var(--touch); }
-  @media (max-width: 699px) and (min-height: 601px) { .callout { font-size: 12px; padding: 2px 6px; } }
+  .callout { position: absolute; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--raised); border: 1px solid var(--edge); border-radius: var(--corner); font-size: 14px; white-space: nowrap; }
+  .callout.r { transform: none; }
+  .callout.on { border-color: var(--accent); color: var(--words); }
+  .vbtns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vbtns .vpick, .vbtns .btn { font-size: 13px; min-height: 32px; padding: 0 10px; gap: 6px; border-radius: 6px; border-color: var(--line); background: var(--raised); }
+  @media (max-width: 699px), (max-height: 600px) { .callout { font-size: 13px; padding: 2px 6px; } }
 </style>
 </head>
 <body>
@@ -28,19 +31,20 @@
 <div class="canvas">
   <div class="fit" style="display:grid;place-items:center">
     <div class="pad">
-      <svg viewBox="0 0 200 115" aria-hidden="true">
-        <path d="M40 20 H160 C185 20 198 50 196 80 C194 105 175 112 160 100 L140 82 H60 L40 100 C25 112 6 105 4 80 C2 50 15 20 40 20 Z" fill="#313c2c" stroke="#f5ecc2" stroke-width="1.5"/>
-        <circle cx="55" cy="48" r="13" fill="#253122" stroke="#f5ecc2"/><circle cx="55" cy="48" r="6" fill="#b7b492"/>
-        <circle cx="125" cy="72" r="11" fill="#253122" stroke="#f5ecc2"/>
-        <g stroke="#f5ecc2" fill="#253122"><rect x="70" y="64" width="8" height="22" rx="2"/><rect x="63" y="71" width="22" height="8" rx="2"/></g>
+      <svg viewBox="0 -24 200 163" aria-hidden="true">
+        <path d="M40 20 H160 C185 20 198 50 196 80 C194 105 175 112 160 100 L140 82 H60 L40 100 C25 112 6 105 4 80 C2 50 15 20 40 20 Z" fill="#2a2a2a" stroke="#555" stroke-width="1.5"/>
+        <circle cx="55" cy="48" r="13" fill="#222" stroke="#555"/><circle cx="55" cy="48" r="6" fill="#444"/>
+        <circle cx="125" cy="72" r="11" fill="#222" stroke="#555"/>
+        <g stroke="#555" fill="#222"><rect x="70" y="64" width="8" height="22" rx="2"/><rect x="63" y="71" width="22" height="8" rx="2"/></g>
         <circle cx="160" cy="62" r="7" fill="#eeb480" stroke="#eeb480"/><circle cx="160" cy="62" r="11" fill="none" stroke="#eeb480" stroke-opacity=".5" stroke-width="3"/>
-        <circle cx="173" cy="49" r="7" fill="#253122" stroke="#f5ecc2"/><circle cx="147" cy="49" r="7" fill="#253122" stroke="#f5ecc2"/><circle cx="160" cy="36" r="7" fill="#253122" stroke="#f5ecc2"/>
-        <rect x="92" y="38" width="7" height="5" rx="2" fill="#b7b492"/><rect x="104" y="38" width="7" height="5" rx="2" fill="#b7b492"/>
+        <circle cx="173" cy="49" r="7" fill="#222" stroke="#555"/><circle cx="147" cy="49" r="7" fill="#222" stroke="#555"/><circle cx="160" cy="36" r="7" fill="#222" stroke="#555"/>
+        <rect x="92" y="38" width="7" height="5" rx="2" fill="#444"/><rect x="104" y="38" width="7" height="5" rx="2" fill="#444"/>
+        <g stroke="#6e6e6e" stroke-width="1" fill="none" vector-effect="non-scaling-stroke"><path d="M55 35 V-14"/><path d="M101 38 V-14"/><path d="M147 42 L170 -14"/><path d="M160 73 L172 128"/></g>
       </svg>
-      <span class="callout" style="left:6%;top:12%"><span class="ic" data-i="person-simple-walk"></span>Walk</span>
-      <span class="callout on" style="left:76%;top:70%"><span class="ic" data-i="arrow-fat-up"></span>Jump · pressed now</span>
-      <span class="callout" style="left:62%;top:20%"><span class="ic" data-i="hand"></span>Pull the crate</span>
-      <span class="callout" style="left:42%;top:16%"><span class="ic" data-i="pause"></span>Pause</span>
+      <span class="callout" style="left:27.5%;top:0"><span class="ic" data-i="person-simple-walk"></span>Walk</span>
+      <span class="callout" style="left:50.5%;top:0"><span class="ic" data-i="pause"></span>Pause</span>
+      <span class="callout r" style="right:0;top:0"><span class="ic" data-i="hand"></span>Pull the crate</span>
+      <span class="callout r on" style="right:0;bottom:0"><span class="ic" data-i="arrow-fat-up"></span>Jump · pressed now</span>
     </div>
   </div>
 </div>
@@ -67,7 +71,7 @@ window.MOCK = {
   closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning', 1]],
   values: {
     title: 'Jump', sub: 'Action · the hero', pic: { i: 'arrow-fat-up' }, tab: 'Jump',
-    top: '<p class="vnote" style="margin:4px 12px 8px;padding:6px 10px;border-left:3px solid var(--mark)">Space is used for both “Jump” and “Pull the crate”. Give each its own key.</p><div class="ibtns" style="padding:0 16px 8px"><button class="sbtn"><span class="ic" data-i="keyboard"></span>Pick another key for Pull the crate</button></div>',
+    top: '<p class="vnote" style="margin:4px 12px 8px;padding:6px 10px;border-left:3px solid var(--mark)">Space is used for both “Jump” and “Pull the crate”. Give each its own key.</p><div class="ibtns" style="padding:0 16px 8px"><button class="sbtn"><span class="ic" data-i="keyboard"></span>Pick another key</button></div>',
     groups: [
       { name: 'Pressed with', open: true, rows: [
         { t: 'html', h: '<div class="vbtns"><span class="vpick">Space</span><span class="vpick">↑</span><span class="vpick"><span class="ic" data-i="game-controller"></span>A, the bottom button</span><span class="vpick"><span class="ic" data-i="hand-tap"></span>Jump button</span><button class="btn small"><span class="ic" data-i="plus"></span>Add</button></div>' },

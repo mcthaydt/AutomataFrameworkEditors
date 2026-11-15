@@ -87,7 +87,7 @@ body.sh .stage.grid::before {
 
 /* Labels are words, not signage. */
 body.sh .label {
-  font: 500 12px / 1.2 var(--label);
+  font: 500 13px / 1.2 var(--label);
   text-transform: none;
   letter-spacing: 0;
 }
@@ -106,7 +106,7 @@ body.sh .float {
 }
 
 body.sh .chip {
-  font: 500 12px / 1.2 var(--label);
+  font: 500 13px / 1.2 var(--label);
   text-transform: none;
   letter-spacing: 0;
   background: rgb(30 30 30 / 0.88);
@@ -164,14 +164,14 @@ body.sh .pinned::before {
   border-radius: 50%;
   background: #8fb3a3;
   color: #1e1e1e;
-  font: 600 11px / 20px var(--label);
+  font: 600 13px / 20px var(--label);
   text-align: center;
 }
 
 body.sh .pinned b {
   display: block;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--quiet);
 }
 
@@ -182,7 +182,7 @@ body.sh .mock-tag {
   top: calc(var(--top-h) + 10px);
   left: auto;
   bottom: auto;
-  font: 500 11px / 1 var(--label);
+  font: 500 13px / 1 var(--label);
   color: var(--faint);
   background: none;
   border: 0;
@@ -323,7 +323,7 @@ body.sh .mock-tag {
 }
 
 .sh-top .cmdk kbd {
-  font: 11px var(--label);
+  font: 13px var(--label);
   color: var(--faint);
   background: none;
   border: 0;
@@ -350,7 +350,7 @@ body.sh .mock-tag {
   border-radius: 50%;
   background: #c9b3e6;
   color: #1e1e1e;
-  font: 600 12px var(--label);
+  font: 600 13px var(--label);
   border: 2px solid var(--panel);
 }
 
@@ -361,7 +361,7 @@ body.sh .mock-tag {
 
 .kept {
   color: var(--faint);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   margin-right: 6px;
 }
@@ -390,7 +390,7 @@ body.sh .mock-tag {
   padding: 0 5px;
   border-radius: 10px;
   background: rgb(0 0 0 / 0.18);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ---------- the left panel: Layers and Assets ---------- */
@@ -467,7 +467,7 @@ body.sh .mock-tag {
 
 .lh {
   padding: 10px 8px 4px;
-  font: 500 12px var(--label);
+  font: 500 13px var(--label);
   color: var(--faint);
 }
 
@@ -526,7 +526,7 @@ body.sh .mock-tag {
 }
 
 .afil button {
-  font: 12px var(--label);
+  font: 13px var(--label);
   height: 26px;
   padding: 0 8px;
   border: 0;
@@ -554,7 +554,7 @@ body.sh .mock-tag {
   padding: 8px 2px 6px;
   border-radius: 8px;
   background: var(--raised);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--quiet);
   text-align: center;
 }
@@ -648,7 +648,7 @@ body.sh .mock-tag {
 .ihead small {
   display: block;
   color: var(--quiet);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -667,12 +667,12 @@ body.sh .mock-tag {
 
 .igroup h4 {
   margin: 0 0 4px;
-  font: 600 12px / 1.4 var(--label);
+  font: 600 13px / 1.4 var(--label);
   color: var(--words);
 }
 
 .igroup h4 .soon {
-  font: 500 11px var(--label);
+  font: 500 13px var(--label);
   color: var(--faint);
   background: none;
   border: 0;
@@ -726,7 +726,7 @@ body.sh .mock-tag {
 }
 
 .scrub small {
-  font: 11px var(--label);
+  font: 13px var(--label);
   color: var(--faint);
 }
 
@@ -777,7 +777,7 @@ body.sh .mock-tag {
   grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--faint);
   padding: 0;
 }
@@ -790,7 +790,7 @@ body.sh .mock-tag {
 }
 
 .segs button {
-  font: 12px var(--label);
+  font: 13px var(--label);
   height: calc(var(--row) - 16px);
   padding: 0 9px;
   border: 0;
@@ -916,7 +916,7 @@ body.sh .mock-tag {
 
 .inote {
   margin: 4px 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--quiet);
 }
 
@@ -943,7 +943,7 @@ body.sh .mock-tag {
 .more .n {
   margin-left: auto;
   color: var(--faint);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* A page's own bits drawn in the inspector (round two's markup) stay inside it. */
@@ -985,7 +985,7 @@ body.sh .sh-bottom {
 .sh-bottom .bh .btn,
 .sh-bottom .bh .iconbtn {
   height: 30px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ---------- play in place ---------- */
@@ -1035,7 +1035,7 @@ body.sh .sh-bottom {
 }
 
 .sh-play .t {
-  font: 12px var(--measure);
+  font: 13px var(--measure);
   color: var(--quiet);
 }
 
@@ -1081,7 +1081,7 @@ body.sh .sh-bottom {
   border-radius: 8px;
   background: none;
   color: var(--quiet);
-  font: 500 11px var(--label);
+  font: 500 13px var(--label);
   white-space: nowrap;
 }
 
@@ -1112,67 +1112,12 @@ body.sh .sh-bottom {
   background: var(--line);
 }
 
-/* A tool's own few settings sit just above the toolbar. */
-.sh-tools .opts {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 640px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--quiet);
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.sh-tools .opts .seg {
-  display: inline-flex;
-  padding: 2px;
-  border-radius: 6px;
-  background: var(--raised);
-  border: 0;
-}
-
-.sh-tools .opts .seg button,
-.sh-tools .opts .btn {
-  font: 12px var(--label);
-  height: 26px;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: var(--quiet);
-  box-shadow: none;
-}
-
-.sh-tools .opts .seg button.on {
-  background: var(--hover);
-  color: var(--words);
-}
-
-.sh-tools .opts .knob2 {
-  background: var(--hover);
-  border: 0;
-}
-
-.sh-tools .opts .knob2.on {
-  background: var(--touch);
-}
-
-.sh-tools .opts .ic {
-  width: 14px;
-  height: 14px;
-}
-
 .sh-zoom {
   position: absolute;
   z-index: 12;
   right: calc(var(--right-w) + 12px);
   bottom: calc(var(--bottom2-h) + 14px);
-  font: 12px var(--measure);
+  font: 13px var(--measure);
   color: var(--quiet);
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1208,7 +1153,7 @@ body.sh .sh-bottom {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: #c4b2f5;
 }
 
@@ -1301,7 +1246,7 @@ body.sh .dim {
 .cmd h5 {
   margin: 0;
   padding: 10px 16px 4px;
-  font: 500 12px var(--label);
+  font: 500 13px var(--label);
   color: var(--faint);
 }
 
@@ -1323,13 +1268,13 @@ body.sh .dim {
 
 .cmd .r small {
   color: var(--faint);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .cmd .r kbd,
 .cmd .r .k {
   margin-left: auto;
-  font: 12px var(--label);
+  font: 13px var(--label);
   color: var(--faint);
 }
 
@@ -1396,7 +1341,7 @@ body.sh .keysheet h2 {
 }
 
 body.sh .keysheet h3 {
-  font: 500 12px var(--label);
+  font: 500 13px var(--label);
   text-transform: none;
   letter-spacing: 0;
   color: var(--faint);
@@ -1443,7 +1388,6 @@ body.sh kbd {
   .faces,
   .kept,
   .sh-zoom,
-  .sh-tools .opts,
   .mock-tag {
     display: none;
   }
@@ -1795,7 +1739,7 @@ body.sh .pinned {
 
 .legend {
   margin: -4px 16px 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--quiet);
 }
 
@@ -1808,7 +1752,7 @@ body.sh .pinned {
   border: 0;
   background: none;
   color: var(--faint);
-  font: 12px var(--label);
+  font: 13px var(--label);
 }
 
 .astext .ic {
@@ -1883,72 +1827,99 @@ body.sh .mock-tag {
   right: auto;
 }
 
-/* The tool's options live inside the toolbar, after the tools. */
-.tbar .opts {
+/* A tool's options are behind one Options button at the toolbar's end, in a small panel above it, so no word in
+   the toolbar is ever cut (Figma keeps its bottom bar for tools only). */
+.opop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 300px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  color: var(--quiet);
+}
+
+.opop > b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--words);
+  padding-bottom: 4px;
+}
+
+.opop .orow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  max-width: calc(100vw - var(--left-w) - var(--right-w) - 400px);
-  padding: 0 6px;
-  font-size: 12px;
-  color: var(--quiet);
-  white-space: nowrap;
-  overflow: hidden;
+  min-height: 44px;
+  flex-wrap: wrap;
 }
 
-.tbar .opts .osep {
-  width: 1px;
-  height: 20px;
-  background: var(--line);
-}
-
-.tbar .opts .seg {
+.opop .seg {
   display: inline-flex;
   padding: 2px;
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--raised);
   border: 0;
 }
 
-.tbar .opts .seg button,
-.tbar .opts .btn {
-  font: 12px var(--label);
-  height: 28px;
-  padding: 0 8px;
+.opop .seg button,
+.opop .btn,
+.opop .vpick {
+  font: 14px var(--label);
+  height: 36px;
+  padding: 0 10px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 5px;
   background: none;
   color: var(--quiet);
   box-shadow: none;
 }
 
-.tbar .opts .seg button.on {
-  background: var(--hover);
+.opop .btn,
+.opop .vpick {
+  background: var(--raised);
   color: var(--words);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.tbar .opts .knob2 {
+.opop .seg button.on {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+.opop .knob2 {
   background: var(--hover);
   border: 0;
 }
 
-.tbar .opts .knob2.on {
+.opop .knob2.on {
   background: #d6d6d6;
 }
 
-.has-opts .tl2 {
-  min-width: 46px;
+.opop .iconbtn {
+  width: 36px;
+  height: 36px;
 }
 
 /* Play controls carry their words on an iPad and a computer. */
 .sh-play .ib.w {
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--words);
 }
 
 .sh-play .segs button {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* A sheet over the work hides the toolbar under it. */
@@ -2163,7 +2134,7 @@ body.sh .views3 {
 
 .bh .lg {
   color: var(--quiet);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* Timeline bars are grey whatever row they are on; only what is picked takes the accent. */
@@ -2179,11 +2150,11 @@ body.sh .bar.b4 {
 
 /* Tool words read the same on an upright iPad as on a sideways one. */
 .tl2 {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .fine .tl2 {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 /* An upright iPad: the sheet starts low, with its handle to pull it up. */
@@ -2213,4 +2184,530 @@ body.sh .bar.b4 {
   .kept .short {
     display: inline;
   }
+}
+
+/* ---------- design loop one ---------- */
+
+/* Tool words stay small enough for "Draw path" to fit its button. */
+.tl2 {
+  font-size: 12px;
+}
+
+.fine .tl2 {
+  font-size: 12px;
+}
+
+/* The top bar never runs out of room: Share never shrinks, and the rest gives way in turn (the faces, the saved
+   words, the problems word, then the part's name takes an ellipsis). */
+.sh-top {
+  overflow: hidden;
+}
+
+.sh-top > * {
+  flex: none;
+}
+
+.sh-top .fill {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.sh-top .sh-ws,
+.sh-top .place,
+.sh-top .partn {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.sh-top .place,
+.sh-top .partn .pt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sh-top .partn .pt {
+  min-width: 0;
+}
+
+.sh-top .share {
+  height: 36px;
+  margin-left: 4px;
+  border-radius: 9px;
+}
+
+.touch .sh-top .share {
+  height: 36px;
+}
+
+.sh-top .share .n {
+  white-space: nowrap;
+}
+
+@media (max-width: 1365px) {
+  .faces,
+  .kept .long,
+  .sh-top .warn .pw {
+    display: none;
+  }
+
+  .kept .short {
+    display: inline;
+  }
+}
+
+@media (max-width: 1300px) {
+  .sh-top .share .nw {
+    display: none;
+  }
+}
+
+/* On a touch screen the top bar is 56 high, so its tabs can be 44. */
+@media (min-height: 601px) {
+  body.sh.touch {
+    --top-h: 56px;
+  }
+}
+
+/* Every small control on a touch screen has a 44-point hit area, though it may be drawn smaller. */
+.touch :is(.sh-ws .ws, .sh-ws .parts button, .ltabs button, .lsearch, .ib, .segs button, .drop, .scrub, .sbtn, .tog,
+  .afil button, .agent button, .astext, .more, .sh-top .share, .partn, .wsn, .place, .spd, .tz, .opop .seg button) {
+  position: relative;
+}
+
+.touch :is(.sh-ws .ws, .sh-ws .parts button, .ltabs button, .lsearch, .ib, .segs button, .drop, .scrub, .sbtn,
+  .afil button, .agent button, .astext, .more, .sh-top .share, .partn, .wsn, .place, .spd, .tz, .opop .seg button)::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+.touch .tog {
+  margin: 12px 0;
+}
+
+.astext,
+.more {
+  min-height: 36px;
+}
+
+/* The picked segment is the lightest and white; the rest are dim. One style everywhere. */
+.segs button.on,
+.seg button.on,
+.sh-bottom .seg button.on {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+/* Inspector buttons sit in full rows: equal columns, a two-by-two grid for four. */
+.ibtns {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr));
+}
+
+.ibtns .sbtn {
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+  min-width: 0;
+}
+
+/* The inspector's head: the changed dot sits beside the title; the panel can be hidden. */
+.ihead {
+  position: relative;
+}
+
+.ihead .it b .dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 2px;
+}
+
+.ihead .ihide {
+  margin-left: auto;
+  align-self: flex-start;
+  color: var(--faint);
+}
+
+/* Zoom sits at the toolbar's right end. */
+.tbar .tz {
+  align-self: center;
+  height: 32px;
+  margin: 0 4px 0 2px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: none;
+  color: var(--quiet);
+  font: 13px var(--measure);
+  white-space: nowrap;
+}
+
+.sh-tools {
+  max-width: calc(100vw - 16px);
+}
+
+.tl2.ob.on {
+  color: var(--words);
+  background: var(--hover);
+}
+
+/* Play: the time carries its speed as a small menu on narrow screens. */
+.sh-play {
+  max-width: calc(100vw - 16px);
+}
+
+.sh-play .t {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-play .spd {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--raised);
+  color: var(--words);
+  font: 13px var(--label);
+}
+
+.sh-play .spd .ic {
+  width: 12px;
+  height: 12px;
+}
+
+.sh-play .stop {
+  display: inline-flex !important;
+}
+
+.mock-tag {
+  display: none !important;
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .tbar .tz {
+    display: none;
+  }
+
+  .sh-play .spd {
+    display: inline-flex;
+  }
+
+  .sh-play .rew {
+    flex: 1 1 40px;
+    width: auto;
+    min-width: 40px;
+  }
+
+  /* The sheet says there is more below with a soft fade; its handle is bigger. */
+  .sh-right .ibody {
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 20px), transparent);
+    mask-image: linear-gradient(#000 calc(100% - 20px), transparent);
+    padding-bottom: 16px;
+  }
+
+  .sh-right::before {
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+  }
+}
+
+/* An upright iPad: the sheet's rows sit in two columns, each no wider than about 400. On a page with a band the
+   sheet starts closed, a title row with its handle, and opens on a tap. */
+@media (min-width: 601px) and (max-width: 1000px) and (min-height: 601px) {
+  .sh-right .ibody {
+    columns: 2 340px;
+    column-gap: 28px;
+  }
+
+  .sh-right .igroup,
+  .sh-right .ibody > button {
+    break-inside: avoid;
+  }
+
+  body.sh.has-bottom2 {
+    --sheet-h: 84px;
+  }
+}
+
+/* A phone held upright: a tool that has no job here, and every tool while playing, is left out. Undo shows that a
+   press and hold gives Redo. The part's name alone, with an ellipsis. */
+@media (max-width: 500px) {
+  .tl2.off {
+    display: none;
+  }
+
+  .tl2.u {
+    display: flex;
+  }
+
+  .tl2.u.r {
+    display: none;
+  }
+
+  .tl2.ob span:not(.ic) {
+    display: none;
+  }
+
+  .partn .pp {
+    display: none;
+  }
+
+  .touch .cmd kbd,
+  .touch .cmd .key {
+    display: none;
+  }
+}
+
+/* A phone on its side: the tool column is always 64 wide and the canvas starts where it ends; dead tools are left
+   out; the level sits below the play bar; overlays are full height and scroll, their main button at the foot. */
+@media (max-height: 600px) and (min-width: 600px) {
+  .sh-tools,
+  .no-right .sh-tools {
+    width: 64px;
+    max-width: 64px;
+  }
+
+  .sh-tools .tbar {
+    width: 64px;
+    overflow-y: auto;
+  }
+
+  .tl2 {
+    min-width: 0;
+    width: 58px;
+    height: 44px;
+  }
+
+  .tl2.off {
+    display: none;
+  }
+
+  .tl2.u {
+    display: flex;
+  }
+
+  .tl2.u.r {
+    display: none;
+  }
+
+  .opop {
+    left: calc(100% + 8px);
+    right: auto;
+    bottom: 8px;
+  }
+
+  body.sh .fit,
+  body.sh.no-right .fit {
+    top: calc(8px + var(--play-h));
+  }
+
+  .share-pop,
+  .keysheet,
+  .sheet {
+    top: 6px !important;
+    bottom: 6px !important;
+    max-height: none !important;
+    overflow-y: auto;
+  }
+
+  .share-pop .go {
+    position: sticky;
+    bottom: -12px;
+    background: var(--panel);
+    padding-bottom: 8px;
+  }
+}
+
+/* Keys and gestures: centred and sized to what it holds. */
+body.sh .keysheet {
+  inset: auto;
+  left: 50%;
+  top: calc(var(--top-h) + 24px);
+  transform: translateX(-50%);
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - var(--top-h) - 120px);
+  overflow-y: auto;
+}
+
+body.sh.touch .keysheet {
+  grid-template-columns: 1fr;
+  width: min(460px, calc(100vw - 16px));
+}
+
+.touch .cmd kbd {
+  display: none;
+}
+
+body.sh.touch .keysheet .col.keyonly {
+  display: none;
+}
+
+/* Timelines: a fixed name column that ends names with an ellipsis, room at both ends of the ruler, numbers above the
+   playhead, and a soft fade where rows go on below. */
+body.sh .sh-bottom {
+  --tl-name: 120px;
+}
+
+body.sh .tlwrap .playhead {
+  left: calc(var(--tl-name) + 14px + (100% - var(--tl-name) - 28px) * var(--at));
+}
+
+body.sh .tl {
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+}
+
+body.sh .tl > .tn .tnw {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.sh .tl > .tt,
+body.sh .tl > .ruler-t {
+  margin: 0 14px;
+}
+
+body.sh .tl > .ruler-t span {
+  z-index: 6;
+  padding: 0 3px;
+  background: var(--panel);
+}
+
+body.sh .key.on {
+  background: var(--accent);
+  outline-color: var(--accent);
+}
+
+body.sh .tl > .tn.on {
+  background: var(--hover);
+}
+
+/* A face or picture inside a dropdown is small and sits before the name. */
+body.sh .drop {
+  align-items: center;
+  gap: 8px;
+}
+
+body.sh .drop canvas,
+body.sh .drop img {
+  width: 20px !important;
+  height: auto !important;
+  image-rendering: pixelated;
+}
+
+body.sh .drop .pic {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* A moment's name late in a timeline sits to the left of its line, so it stays inside. */
+body.sh .evt span {
+  font-size: 13px;
+  color: var(--quiet);
+}
+
+body.sh .evt.r span {
+  left: auto;
+  right: 4px;
+}
+
+/* Share: notes on the canvas step back while it is open; one kind of main button (Keep mine is a picked choice). */
+body:has(.share-pop) .pinned {
+  display: none;
+}
+
+.share-pop .both .sbtn.on {
+  background: #4a4a4a;
+  color: #fff;
+  outline: 0;
+  border-color: transparent;
+}
+
+.share-pop .go .sbtn {
+  white-space: nowrap;
+}
+
+.tip.up::before {
+  content: "↑ ";
+}
+
+/* An agent's card on a narrow screen: a card with air around it, never a slab. */
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh .agent {
+    left: 12px !important;
+    right: auto;
+    width: min(420px, calc(100vw - 24px));
+  }
+}
+
+/* A phone on its side: the agent's card is one line across the top of the canvas. */
+@media (max-height: 600px) and (min-width: 600px) {
+  body.sh .agent {
+    position: fixed;
+    top: calc(var(--top-h) + 6px) !important;
+    bottom: auto;
+    left: 72px !important;
+    right: auto;
+    width: calc(100vw - 72px - var(--right-w) - 8px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px 4px 10px;
+  }
+
+  body.sh .agent b {
+    display: none;
+  }
+
+  body.sh .agent p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.sh .agent span {
+    display: flex;
+    gap: 4px;
+    flex: none;
+  }
+}
+
+/* The day's slider sits at the canvas's top left, out of the toolbar's way. */
+body.sh .daybar {
+  z-index: 12;
+  top: calc(var(--top-h) + 12px);
+  bottom: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px 0 6px;
+  font-size: 14px;
+  color: var(--quiet);
+}
+
+body.sh .daybar .rbar {
+  width: 120px;
 }

@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .clipstage { display: flex; gap: 6%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
-  .onion { position: relative; line-height: 0; border-bottom: 3px solid #607443; padding: 0 30px; }
-  .onion canvas { height: min(70cqh, 40cqw); width: auto; image-rendering: pixelated; }
-  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.25; filter: sepia(1) hue-rotate(150deg); }
-  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.2; filter: sepia(1) hue-rotate(-30deg); }
+  .onion { position: relative; line-height: 0; border-bottom: 2px solid #444; padding: 0 30px; }
+  .onion canvas { display: block; image-rendering: pixelated; }
+  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
+  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
   .gamesize { display: flex; flex-direction: column; gap: 6px; align-items: center; }
   .gamesize .mini { width: 180px; aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; position: relative; border: 1px solid var(--edge); image-rendering: pixelated; }
   .gamesize .mini span { position: absolute; left: 20%; top: 66%; line-height: 0; }
@@ -34,7 +34,7 @@
 <div class="canvas paper">
   <div class="fit">
     <div class="clipstage">
-      <div class="onion"><span class="before" data-pixel="keeper" data-scale="14"></span><span data-pixel="step" data-scale="14"></span><span class="after" data-pixel="keeper" data-scale="14"></span></div>
+      <div class="onion"><span class="before" data-pixel="keeper" data-fit="0.7"></span><span data-pixel="step" data-fit="0.7"></span><span class="after" data-pixel="keeper" data-fit="0.7"></span></div>
       <div class="gamesize"><div class="mini"><span data-pixel="step" data-scale="1"></span></div><span class="label">At the game's size</span></div>
     </div>
   </div>

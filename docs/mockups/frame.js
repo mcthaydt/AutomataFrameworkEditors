@@ -134,7 +134,11 @@ const PIXELS = {
 
 function paintPixels(el) {
   const rows = PIXELS[el.dataset.pixel]
-  const scale = Number(el.dataset.scale || 6)
+  // `data-fit` (a share of the canvas's height) picks the largest whole-number scale that fits, so pixels stay crisp.
+  const box = el.dataset.fit ? el.closest('.fit') : null
+  const scale = box
+    ? Math.max(1, Math.floor(Math.min((box.clientHeight * Number(el.dataset.fit)) / rows.length, (box.clientWidth * 0.28) / rows[0].length)))
+    : Number(el.dataset.scale || 6)
   const canvas = document.createElement('canvas')
   canvas.width = rows[0].length * scale
   canvas.height = rows.length * scale
@@ -199,8 +203,10 @@ function insRow(r) {
     // A slider says what its two ends mean; its number is in More (a page can ask for it with `num`).
     case 'slider':
       return `<div class="ir sl">${label}${r.num ? `<span class="scrub">${r.v}</span>` : '<span></span>'}<span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
+    // Choices that do not fit the panel as segments become a dropdown.
     case 'choice':
-      return `<div class="ir${r.opts.join('').length > 18 || !r.l ? ' wide' : ''}">${label}<span class="segs">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span></div>`
+      if (r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
+      return `<div class="ir${r.opts.join('').length + (r.l || '').length > 24 || r.opts.join('').length > 18 || !r.l ? ' wide' : ''}">${label}<span class="segs">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span></div>`
     case 'sw':
       return `<div class="ir">${label}<span class="tog${r.on ? ' on' : ''}"></span></div>`
     case 'pick':
@@ -208,7 +214,7 @@ function insRow(r) {
     case 'text':
       return `<div class="ir tx">${label}<span class="tbox">${r.v}</span></div>`
     case 'btns':
-      return `<div class="ibtns">${r.b.map(([w, ic, main]) => `<button class="sbtn${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
+      return `<div class="ibtns" style="--n:${r.b.length === 4 ? 2 : r.b.length}">${r.b.map(([w, ic, main]) => `<button class="sbtn${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
     case 'html':
       return r.h
     default:
@@ -240,8 +246,7 @@ function inspector(v, keep) {
     if (!g.open) hidden += g.count || 1
     if (take.length) parts.push(`<div class="igroup"><h4>${g.name.replace(soon, '')}</h4>${take.map(insRow).join('')}</div>`)
   }
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${v.title}</b><small>${v.sub || ''}</small></span></header>
-    ${changed ? '<p class="legend"><i class="dot"></i>Changed, not shared yet</p>' : ''}
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${v.title}${changed ? '<i class="dot" title="Changed, not shared yet"></i>' : ''}</b><small>${v.sub || ''}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
       ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}
       <button class="astext">${icon('file-text')}Show as text, for agents</button></div>`
@@ -284,7 +289,7 @@ function playbar(p) {
     <span class="segs">${['Normal', 'Slow', 'Slower'].map((s, i) => `<button class="${i === (p.speed || 0) ? 'on' : ''}">${s}</button>`).join('')}</span>
     <button class="ib w" title="Start again">${icon('arrow-counter-clockwise')}<span>Start again</span></button>
     <button class="ib w" title="Play from here">${icon('map-pin')}<span>Play from here</span></button>
-    <span class="rew" title="Drag back to see it again"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}</span>
+    <span class="rew" title="Drag back to see it again"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}<button class="spd" title="How fast">${['Normal', 'Slow', 'Slower'][p.speed || 0]}${icon('caret-down')}</button></span>
     <button class="ib w stop" title="Stop">${icon('stop')}<span>Stop</span></button>
   </div>`
 }
@@ -296,8 +301,8 @@ function timeline(t) {
     .map((r) => {
       const keys = (r.keys || []).map((k, i) => `<i class="key${r.onKey === i ? ' on' : ''}" style="left:${k}%"></i>`).join('')
       const bars = (r.bars || []).map(([a, b, w, c]) => `<span class="bar ${c || ''}" style="left:${a}%;width:${b - a}%">${w || ''}</span>`).join('')
-      const evts = (r.evts || []).map(([a, w]) => `<span class="evt" style="left:${a}%"><span>${w}</span></span>`).join('')
-      return `<div class="tn${r.on ? ' on' : ''}" style="--d:${r.d || 0}">${r.i ? icon(r.i) : ''}${r.n}</div><div class="tt">${bars}${keys}${evts}</div>`
+      const evts = (r.evts || []).map(([a, w]) => `<span class="evt${a > 55 ? ' r' : ''}" style="left:${a}%"><span>${w}</span></span>`).join('')
+      return `<div class="tn${r.on ? ' on' : ''}" style="--d:${r.d || 0}">${r.i ? icon(r.i) : ''}<span class="tnw">${r.n}</span></div><div class="tt">${bars}${keys}${evts}</div>`
     })
     .join('')
   return `<div class="tlwrap" style="--at:${t.at || 0}"><div class="tl" style="--cols:${t.cols || 16}">${ruler}${rows}</div><i class="playhead"></i></div>`
@@ -326,7 +331,9 @@ function frame(m) {
     return `<button class="tl2${i === tool ? ' on' : ''}${off.includes(i) || (m.play && i < 4) ? ' off' : ''}" title="${job}${why}${fine ? ` (${key})` : ''}">${icon(i === 4 && m.play ? 'stop' : ic)}<span>${i === 4 && m.play ? 'Stop' : word}</span></button>`
   }).join('')
   const problems = (m.closed || []).find(([w]) => w === 'Problems')?.[2]
-  const device = fine ? 'computer' : 'iPad'
+  // The device's own word: a computer, a phone (small or on its side), or an iPad.
+  const small = window.innerWidth <= 500 || window.innerHeight <= 600
+  const device = fine ? 'computer' : small ? 'phone' : 'iPad'
   const status = n ? `${icon('check')}<span class="long">Saved on this ${device}</span><span class="short">Saved</span>` : `${icon('check')}<span class="long">Everyone has your changes</span><span class="short">Shared</span>`
   // The tool's own options sit inside the toolbar, beside the tool they belong to. "All levels" is the level's menu.
   const opts = (m.settings || []).filter((o) => !/All levels/.test(o))
@@ -334,26 +341,26 @@ function frame(m) {
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
     <nav class="sh-ws">${ws}</nav>
-    ${m.place ? `<button class="place" title="All ${here.toLowerCase()}">${m.place}${icon('caret-down')}</button>` : ''}
+    ${m.place && m.place !== here ? `<button class="place" title="All ${here.toLowerCase()}">${m.place}${icon('caret-down')}</button>` : ''}
     <button class="wsn"><b>${editor[0]}</b>${icon('caret-down')}</button>
-    <button class="partn">${here}${m.place ? ` · ${m.place}` : ''}${icon('caret-down')}</button>
+    <button class="partn"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}</span>${icon('caret-down')}</button>
     <span class="fill"></span>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}${fine ? '<kbd>⌘K</kbd>' : '<span>Find</span>'}</button>
     <span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>
     <span class="kept">${status}</span>
-    <button class="share">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n} new</span>` : ''}</button>
+    <button class="share">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}<span class="nw"> new</span></span>` : ''}</button>
   </header>
   ${leftPanel(m)}
   ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}</aside>` : ''}
   ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
   ${m.play ? playbar(m.play) : ''}
   <div class="sh-tools">
-    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div"></i><button class="tl2 u" title="Undo">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u r" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button>${opts.length ? `<i class="div o"></i><div class="opts">${opts.join('<i class="osep"></i>')}</div>` : ''}</nav>
-  </div>
-  <span class="sh-zoom">${m.zoom || '100%'}</span>
-  <div class="mock-tag">Mockup${m.state ? ` · ${m.state}` : ''}</div>`
+    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div"></i><button class="tl2 u" title="${fine ? 'Undo (⌘Z)' : 'Undo · press and hold for Redo'}">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u r" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button>${opts.length ? `<i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="How this tool works and what the canvas shows">${icon('sliders-horizontal')}<span>Options</span></button>` : ''}<button class="tz" title="Zoom: pinch, or press to pick">${m.zoom || '100%'}</button></nav>
+    ${opts.length && m.optsOpen ? `<div class="opop"><b>Options</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
+  </div>`
   document.body.insertAdjacentHTML('beforeend', html)
+  for (const el of document.querySelectorAll('.pop')) el.innerHTML = el.innerHTML.replaceAll('this iPad', `this ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')

@@ -13,7 +13,7 @@
   .big { position: relative; border: 1px solid var(--words); line-height: 0; }
   .big canvas { width: min(78cqh, 52cqw); height: auto; image-rendering: pixelated; }
   .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.3) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.3) 1px, transparent 1px); background-size: 6.25% 6.25%; }
-  .big .cursor { position: absolute; z-index: 2; width: 6.25%; height: 6.25%; outline: 3px solid var(--touch); outline-offset: -1px; }
+  .big .cursor { position: absolute; z-index: 2; width: 6.25%; height: 6.25%; outline: 3px solid var(--accent); outline-offset: -1px; }
   .mirror { position: absolute; z-index: 2; top: -8px; bottom: -8px; left: 50%; border-left: 2px dashed var(--touch); }
   .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
   .patch { display: grid; grid-template-columns: repeat(6, auto); line-height: 0; border: 1px solid var(--edge); }
@@ -23,11 +23,11 @@
   .ramp { display: flex; gap: 0; margin: 2px 0; }
   .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
   .ramp i.on { outline: 3px solid var(--touch); outline-offset: -3px; }
-  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 120px; }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: clamp(120px, 24cqh, 200px); }
   .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
   .rules i.y { background: var(--touch); }
   .rules i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 3px, transparent 3px 7px); }
-  .rules i.me { background: #afd472; }
+  .rules i.me { background: var(--accent); }
   @media (max-width: 1000px), (max-height: 600px) { .side .sub.hide-narrow { display: none; } }
   @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 12px; } .big canvas { width: 62cqw; } .side { align-items: center; } }
   @media (max-height: 600px) { .big canvas { width: 70cqh; } .patch canvas { width: 7cqh; } }

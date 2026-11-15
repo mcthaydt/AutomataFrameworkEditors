@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .clipstage { display: flex; gap: 6%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
-  .onion { position: relative; line-height: 0; border-bottom: 3px solid #607443; padding: 0 30px; }
-  .onion canvas { height: min(70cqh, 40cqw); width: auto; image-rendering: pixelated; }
-  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.25; filter: sepia(1) hue-rotate(150deg); }
-  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.2; filter: sepia(1) hue-rotate(-30deg); }
+  .onion { position: relative; line-height: 0; border-bottom: 2px solid #444; padding: 0 30px; }
+  .onion canvas { display: block; image-rendering: pixelated; }
+  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
+  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.3; filter: brightness(0) invert(0.8); }
   .gamesize { display: flex; flex-direction: column; gap: 6px; align-items: center; }
   .gamesize .mini { width: 180px; aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; position: relative; border: 1px solid var(--edge); image-rendering: pixelated; }
   .gamesize .mini span { position: absolute; left: 20%; top: 66%; line-height: 0; }
@@ -55,7 +55,7 @@
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 1,
+  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 2,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Add a key', 'diamond', 'K'],
     ['Onion skin', 'stack', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
@@ -63,7 +63,6 @@ window.MOCK = {
   status: { pointer: false, grid: 'Frame 3 of 8', snap: false },
   place: 'Hero', what: 'Character', saved: 'Not saved: 1 change', changes: 1, tool: 0, zoom: '100%', state: 'mid-project',
   settings: [
-    '<span>Show</span><span class="seg"><button>The clip</button><button class="on">How it works</button></span>',
   ],
   list: { title: 'Characters', count: 5, search: 'Find a character', rows: [
       { head: 'In this game', count: 5 },

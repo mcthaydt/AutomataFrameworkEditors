@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .camframe { position: absolute; z-index: 2; border: 2px solid var(--accent); box-shadow: 0 0 0 9999px rgb(17 19 20 / 0.35); }
-  .camframe > span { position: absolute; left: -2px; top: -24px; padding: 3px 8px; background: var(--panel); color: var(--words); font: 500 14px var(--label); white-space: nowrap; border-radius: 6px 6px 0 0; }
+  .camframe > span { position: absolute; left: -2px; top: -24px; padding: 3px 8px; background: var(--panel); color: var(--words); font: 500 14px var(--label); white-space: nowrap; border-radius: 6px 6px 0 0; max-width: calc(100% + 4px); overflow: hidden; text-overflow: ellipsis; }
   .walkpath { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; }
   .tlbox { position: absolute; z-index: 4; border: 1px dashed var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
   .ease svg { width: 100%; height: 90px; display: block; border: 1px solid var(--edge); border-radius: 3px; background: var(--ground); }
@@ -47,7 +47,7 @@ window.MOCK = {
   bottom: {
     title: 'Door opens · 4 seconds', icon: 'film-slate',
     head: '<span class="bhead"><span class="num">2.5 seconds</span></span>',
-    html: '<i class="tlbox" style="left:calc(var(--tl-name, 150px) + (100% - var(--tl-name, 150px)) * 0.34);width:calc((100% - var(--tl-name, 150px)) * 0.34);top:calc(var(--tl-row, 30px) * 1.9);height:calc(var(--tl-row, 30px) * 3.2)"></i>',
+    html: '<i class="tlbox" style="left:calc(var(--tl-name) + 14px + (100% - var(--tl-name) - 28px) * 0.34);width:calc((100% - var(--tl-name) - 28px) * 0.34);top:calc(var(--tl-row, 30px) * 1.9);height:calc(var(--tl-row, 30px) * 3.2)"></i>',
     tl: { unit: 'seconds', ruler: ['0', '1', '2', '3', '4'], cols: 16, at: 0.375, rows: [
       { n: 'Moments', i: 'flag-pennant', evts: [[25, 'Door starts'], [75, 'Player takes over']] },
       { n: 'Camera', i: 'video-camera', keys: [0, 37.5, 62.5, 100], onKey: 2, on: true },
@@ -69,7 +69,7 @@ window.MOCK = {
       ] },
       { name: 'Getting there', open: true, rows: [
         { t: 'choice', l: 'Moves', f: 'ease', opts: ['Steady', 'Smooth', 'Snappy', 'My own'], on: 3 },
-        { t: 'html', h: '<div class="ease"><svg viewBox="0 0 100 50" preserveAspectRatio="none"><path d="M4 46 C40 46, 50 6, 96 4" fill="none" stroke="#eeb480" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="40" cy="46" r="3" fill="#ededed"/><circle cx="50" cy="6" r="3" fill="#ededed"/></svg></div>' },
+        { t: 'html', h: '<div class="ease"><svg viewBox="0 0 100 50"><path d="M4 46 C40 46, 50 6, 96 4" fill="none" stroke="#eeb480" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="40" cy="46" r="3" fill="#ededed"/><circle cx="50" cy="6" r="3" fill="#ededed"/></svg></div>' },
       ] },
     ],
   },

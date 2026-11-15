@@ -10,20 +10,19 @@
   /* The figure from three sides at once, standing on one line of ground, each with its name. */
   .views3 { display: flex; gap: 4%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; padding-bottom: 28px; position: relative; }
   .view { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
-  .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 3px solid #607443; }
-  .view .fig canvas { height: min(64cqh, 27cqw); width: auto; image-rendering: pixelated; }
+  .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 2px solid #444; }
+  .view .fig canvas { display: block; image-rendering: pixelated; }
   .view.main .fig { outline: 1px dashed var(--edge); outline-offset: 6px; }
   .view .label { color: var(--quiet); }
-  .view.main .label { color: var(--touch); }
+  .view.main .label { color: var(--words); }
   .ghost { position: absolute; left: 10px; bottom: 0; opacity: 0.3; filter: grayscale(1); }
   .handle { position: absolute; z-index: 3; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
-  .handle.on { background: var(--touch); box-shadow: 0 0 0 4px color-mix(in srgb, var(--touch) 35%, transparent); }
+  .handle.on { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent); }
   .bone { position: absolute; z-index: 2; height: 3px; background: var(--touch); transform-origin: 0 50%; }
   .arc { position: absolute; z-index: 2; border: 2px dashed var(--touch); border-radius: 50%; border-color: var(--touch) transparent transparent transparent; }
   .turnbtn { position: absolute; z-index: 4; left: 50%; bottom: -6px; transform: translateX(-50%); }
   .facing { position: absolute; z-index: 4; left: 0; right: 0; bottom: -2px; text-align: center; color: var(--quiet); font-size: 14px; }
-  @media (max-width: 699px) and (min-height: 601px) { .view .fig canvas { height: 30cqh; } .views3 { gap: 2%; } }
-  @media (max-height: 600px) { .view .fig canvas { height: 46cqh; } }
+  @media (max-width: 699px) and (min-height: 601px) { .views3 { gap: 2%; } }
 </style>
 </head>
 <body>
@@ -32,7 +31,7 @@
 <div class="canvas paper">
   <div class="fit">
     <div class="views3">
-      <div class="view main"><div class="fig"><span class="ghost" data-pixel="keeper" data-scale="12"></span><span data-pixel="step" data-scale="12"></span>
+      <div class="view main"><div class="fig"><span class="ghost" data-pixel="keeper" data-fit="0.6"></span><span data-pixel="step" data-fit="0.6"></span>
         <i class="bone" style="left:44%;top:6%;width:30%;transform:rotate(90deg)"></i>
         <i class="bone" style="left:44%;top:40%;width:26%;transform:rotate(-38deg)"></i>
         <i class="bone" style="left:40%;top:68%;width:28%;transform:rotate(100deg)"></i>
@@ -41,10 +40,10 @@
         <i class="handle" style="left:64%;top:25%"></i>
         <i class="handle" style="left:40%;top:68%"></i>
         <div class="arc" style="left:30%;top:22%;width:30%;height:36%"></div>
-        <span class="chip" style="left:68%;top:12%">Left arm · raised a little</span></div>
+        <span class="chip" style="left:50%;top:-44px;transform:translateX(-50%);white-space:nowrap">Left arm · raised a little</span></div>
         <span class="label">From the side</span></div>
-      <div class="view"><div class="fig"><span data-pixel="front" data-scale="12"></span></div><span class="label">From the front</span></div>
-      <div class="view"><div class="fig"><span data-pixel="back" data-scale="12"></span></div><span class="label">From the back</span></div>
+      <div class="view"><div class="fig"><span data-pixel="front" data-fit="0.6"></span></div><span class="label">From the front</span></div>
+      <div class="view"><div class="fig"><span data-pixel="back" data-fit="0.6"></span></div><span class="label">From the back</span></div>
     </div>
   </div>
 </div>

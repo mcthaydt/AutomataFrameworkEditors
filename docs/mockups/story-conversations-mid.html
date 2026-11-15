@@ -11,7 +11,7 @@
   .card.on { outline: 2px solid var(--accent); outline-offset: 4px; }
   .card.faint { border-style: dashed; border-color: var(--quiet); }
   .card header { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--edge); }
-  .card header .label { flex: 1; }
+  .card header .label { flex: 1; font-size: 15px; color: var(--quiet); }
   .card header canvas { width: 26px; height: auto; image-rendering: pixelated; display: block; }
   .card p { margin: 0; padding: 6px 12px; }
   .card .tag { font: 500 15px var(--label); color: var(--quiet); display: inline-flex; gap: 6px; align-items: center; }
@@ -25,12 +25,13 @@
   .clinks .head { fill: var(--quiet); stroke: none; }
   .minimap { position: absolute; z-index: 4; right: 10px; top: 10px; width: 150px; height: 90px; padding: 6px; }
   .minimap i { position: absolute; background: var(--quiet); border-radius: 1px; }
-  .minimap .view { background: none; border: 2px solid var(--accent); }
+  .minimap .view { background: none; border: 1.5px solid var(--quiet); }
   .script { width: min(100%, 680px); margin: 0 auto; height: 100%; overflow: hidden; padding: 18px 26px; background: var(--raised); border: 1px solid var(--edge); border-radius: 3px; font-size: 16px; line-height: 1.45; }
   .script h3 { margin: 0 0 10px; font: 600 20px var(--title); }
   .script .who { font: 500 14px var(--label); color: var(--quiet); margin-top: 12px; }
   .script .line { margin: 0 0 0 18px; }
-  .script .line.on { background: var(--hover); box-shadow: -18px 0 0 var(--hover), inset 3px 0 0 var(--accent); }
+  .script .line.on { position: relative; background: var(--hover); box-shadow: -18px 0 0 var(--hover); }
+  .script .line.on::before { content: ""; position: absolute; left: -16px; top: 2px; bottom: 2px; width: 3px; border-radius: 2px; background: var(--accent); }
   .script .choice2 { margin: 6px 0 0 18px; color: var(--quiet); }
   .script .choice2 b { color: var(--words); }
   .script .miss { display: inline-flex; gap: 4px; align-items: center; margin-left: 8px; font-size: 14px; color: var(--quiet); vertical-align: 2px; }
@@ -42,7 +43,7 @@
   .langs .flag svg { width: 16px; height: 11px; display: block; }
   .script .miss .flag svg, .langrow .flag svg { width: 21px; height: 14px; display: block; }
   .langrow { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; }
-  .langrow b { font-weight: 500; flex: 1; } .langrow small { color: var(--quiet); font-size: 14px; }
+  .langrow div { flex: 1; display: flex; flex-direction: column; gap: 2px; } .langrow b { font-weight: 500; } .langrow small { color: var(--quiet); font-size: 14px; display: flex; gap: 6px; align-items: center; }
   .script .more3 { margin: 14px 0 0; color: var(--quiet); font-size: 14px; }
   @media (max-width: 1180px), (max-height: 600px) { .minimap { display: none; } }
 </style>
@@ -100,7 +101,7 @@ window.MOCK = {
       { name: 'The line', open: true, rows: [
         { t: 'pick', l: 'Who speaks', f: 'speaker', v: 'Keeper', px: 'head' },
         { t: 'text', l: 'Words', f: 'lines[0]', v: '“The door opens if you push the crate onto the button.”' },
-                { t: 'html', h: '<div class="langrow"><span class="flag" data-flag="kr"></span><b>5 of 6 languages</b><small>Korean missing</small><span class="ic" data-i="caret-right"></span></div>' },
+                { t: 'html', h: '<div class="langrow"><div><b>5 of 6 languages</b><small><span class="flag" data-flag="kr"></span>Korean missing</small></div><span class="ic" data-i="caret-right"></span></div>' },
       ] },
       { name: 'Only if', count: 1, rows: [
         { t: 'pick', l: 'Shown only if', f: 'when', v: 'The door is shut', i: 'door' },
