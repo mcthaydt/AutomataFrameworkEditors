@@ -6,8 +6,8 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 The first check of the mockups as journeys rather than screens: every journey a person expects to finish, walked
 screen to screen at five sizes, iPad Pro 11 sideways first. Report: `/mnt/project-files/reports/2026-11-15-slice3-e2e-evaluation.md`
-(at d52c73b: 18 journeys, 9 dead ends or gaps, 9 small things). Progress on this step: **80%** (every gap drawn; CI's
-pictures of the fixes not yet checked).
+(at d52c73b: 18 journeys, 9 dead ends or gaps, 9 small things). Progress on this step: **100%** (every gap drawn;
+CI's pictures checked at 59718fe after one round of fixes).
 
 - **New pages, one per missing step:** `shell-menu` (the game's menu open: the way in to Help, Settings and the keys,
   plus who can change it, keep a copy, another game, sign out; E1), `shell-tour-done` (the tour's last step, ticks
@@ -25,7 +25,7 @@ pictures of the fixes not yet checked).
 - **Default chosen (easy to change):** a new level starts with ground, a Start, a Goal and a Fall off zone, so it
   can be played at once.
 - **Left:** the phone map's lines (E18), the "Don't let them until it is fixed" sheet (E20), tour steps 1 and 3.
-- **Next:** check CI's pictures of the new pages at five sizes, fix what is off, then the Owner.
+- **Next:** the Owner's review.
 
 ## The shell and World mockups (roadmap slice 3): the Fable UI/UX pass's fixes (2026-11-15)
 
