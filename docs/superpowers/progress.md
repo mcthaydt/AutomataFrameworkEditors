@@ -2,6 +2,18 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The mockups of all five editors: the grill, one editor at a time
+
+The Owner asked (2026-11-15) for a harsh critique of the round-three mockups (pull request 34, at `84986a8`), one
+editor per round, held against how well-known iPad apps differ from their desktop versions. Round 1 of 5, the shell
+and World, is written, 100%:
+[`audits/2026-11-15-editor-mockups-grill-1-shell-and-world.md`](audits/2026-11-15-editor-mockups-grill-1-shell-and-world.md).
+Its verdict: a tidy desktop layout at touch sizes, not yet an iPad app. 33 findings (12 High): the level covers 28%
+of a sideways iPad; Delete, Duplicate, Erase and placing a thing are drawn on no screen; nothing stands in for the
+keyboard's modifier keys or the mouse's precision; play in place shows no touch controls; sliders hide their numbers.
+Three questions are with the Owner. The mockups change only after the Owner has seen it. Rounds 2 to 5 (Characters,
+Feel, Sound, Story) wait for the Owner. Overall: 20%. Nothing was run.
+
 ## The mockups of all five editors: design audit
 
 The Owner asked (2026-11-15) for mockups of every editor before any editor code, and then for an audit of them against
