@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- Anything that can be dragged can be moved with buttons and keys (the editors rule). "Move" on a picked level opens four big arrows, a tile a tap; the arrow keys do the same on a keyboard. When the next tap would make it touch a level, the pad says so first, and the dashed bar shows where players would walk across. Done closes it. -->
+<!-- Anything that can be dragged can be moved with buttons and keys (the editors rule). "Move" on a picked level opens four big arrows, a tile a tap; the arrow keys do the same on a keyboard. Level 4 is one tile from Level 3, so there is no bar yet. When the next tap would make it touch a level, the pad says so first, in words, since nothing touches until then. Done closes it. -->
 <div class="canvas">
   <div class="fit">
     <div class="wmap"></div>
@@ -24,8 +24,7 @@ const W = BASE.world()
 const l4 = W.levels.find((l) => l.n === 'Level 4')
 W.levels.find((l) => l.n === 'Level 2').here = false
 l4.x = 61; l4.picked = true
-W.edges.push({ a: 'Level 3', b: 'Level 4', at: [6, 10], x: 60, state: 'soon' })
-W.pad = { on: 'Level 4', note: 'One more to the left and it touches Level 3: players will walk straight across. On a keyboard, the arrow keys move it too.' }
+W.pad = { on: 'Level 4', note: 'One more tap to the left and Level 4 touches Level 3: players will then walk straight across. On a keyboard, the arrow keys move it too.' }
 W.focus = 'Level 4'
 window.MAP = W
 </script>

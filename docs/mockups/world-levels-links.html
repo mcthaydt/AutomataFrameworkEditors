@@ -3,53 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World · Levels, links and paths (mockup)</title>
+<title>World · Levels, joining a button to a gate (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
-  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
-  /* A gate (it opens and shuts in the level) is bars, so it never looks like a door into another level. */
-  .door.gate::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
-  .door.target { box-shadow: 0 0 0 3px #eeb480, 0 0 18px 4px rgb(238 180 128 / 0.6); }
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .gate.target { box-shadow: 0 0 0 3px #eeb480, 0 0 18px 4px rgb(238 180 128 / 0.6); }
   .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
-  .kp { position: absolute; z-index: 1; width: 5.4%; }
-  .kp canvas { width: 100%; height: auto; image-rendering: pixelated; }
-  .reach { position: absolute; z-index: 1; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px dashed rgb(255 255 255 / 0.45); }
-  .wp { position: absolute; z-index: 2; width: 12px; height: 12px; transform: translate(-50%, -50%); border-radius: 50%; background: rgb(255 255 255 / 0.55); border: 2px solid #111314; }
   .lend { position: absolute; z-index: 4; width: 28px; height: 28px; transform: translate(-50%, -50%); border-radius: 50%; background: #eeb480; border: 3px solid #111314; }
   .lend.to { background: #fff; }
   .tag { position: absolute; z-index: 3; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; opacity: 0.45; }
   .tag.on { opacity: 1; box-shadow: inset 0 0 0 1px #eeb480; }
-  /* A tag is always in front, above its owner's head, with a short line down to it (Fable pass, F28). */
-  .tag.up { z-index: 6; opacity: 1; transform: translate(-50%, -100%); }
-  .tag.up::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 10px; background: rgb(255 255 255 / 0.6); }
-  /* The circle and the path each say what they are. */
-  .tag.w { z-index: 6; opacity: 0.9; transform: none; background: rgb(30 30 30 / 0.75); color: var(--quiet); }
 </style>
 </head>
 <body>
-<!-- World, Levels, links, paths and reach (taken from LDtk): what a thing does is drawn in the level. The picked
-     button has an arrow to the gate it opens, made by drawing from one to the other with the Pencil or a finger; both
-     ends are big enough to grab, and the gate lights up as the tip comes near. The keeper's walk is a path drawn with Join, how far it sees is a circle, and
-     a value that matters sits as a small tag. Tags, paths and circles are faint until their thing is picked. -->
+<!-- World, Levels, joining (taken from LDtk): what a thing does is drawn in the level. The picked button has an arrow
+     to the gate it opens, made by drawing from one to the other with the Pencil or a finger; both ends are big enough to
+     grab, and the gate lights up as the tip comes near. A value that matters sits as a small tag, faint until its thing
+     is picked. Paths for someone to walk wait for the Characters editor (the Owner, 2026-11-15), so Join does one thing
+     for now: it joins a button to the gate it opens. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
-      <div class="door target"></div>
+      <div class="gate target"></div>
       <div class="press"></div>
-      <span class="kp" data-pixel="keeper" data-scale="1" style="left:30%;top:69%"></span>
-      <div class="reach" style="left:33%;top:76%;width:22%"></div>
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M22 86 L 50 86" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="0.45" stroke-dasharray="1 1"/>
         <path d="M73.2 80 C 76 64, 82 60, 88.4 70" fill="none" stroke="#eeb480" stroke-width="0.7"/>
       </svg>
-      <i class="wp" style="left:22%;top:86%"></i><i class="wp" style="left:50%;top:86%"></i>
       <i class="lend" style="left:73.2%;top:80%"></i><i class="lend to" style="left:88.4%;top:70%"></i>
       <div class="ring" style="left:70%;top:79.8%;width:6.4%;height:4.2%"></div>
-      <span class="tag on" style="left:73.2%;top:88%">Opens Gate 1 while pressed</span>
-      <span class="tag up" style="left:32.7%;top:66%">Takes 3 hits</span>
-      <span class="tag w" style="left:44.5%;top:62%">Sees this far</span>
-      <span class="tag w" style="left:24%;top:87.6%">Walks here</span>
+      <span class="tag on" style="left:73.2%;top:88%">Opens Gate 1 while something is on it</span>
       <span class="tip" style="left:62%;top:47%">Draw from the button to what it opens</span>
     </div>
   </div>
@@ -60,16 +44,15 @@ window.MOCK = {
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   t: 3,
   // Join's tray: what to draw (the Owner, 2026-11-15: "Draw path" is now Join, F27). One hint: the bubble (F10).
-  tray: { more: false, items: [{ n: 'Join two things', i: 'link', on: true }, { n: 'A path to walk', i: 'path' }] },
+  tray: { more: false, items: [{ n: 'Join two things', i: 'link', on: true }] },
   list: {
-    count: 9,
+    count: 8,
     rows: [
-      { head: 'Things', count: 6, fold: false },
+      { head: 'Things', count: 5, fold: false },
       { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true, d: 1 },
       { n: 'Crate 1', k: 'crate', img: 'art/crate.png', d: 1 },
-      { n: 'Keeper', k: 'keeper', px: 'keeper', d: 1 },
       { n: 'Button 1', k: 'button', i: 'radio-button', on: true, d: 1 },
-      { n: 'Gate 1', k: 'gate', i: 'door', d: 1 },
+      { n: 'Gate 1', k: 'gate', i: 'gate', d: 1 },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', d: 1 },
       { head: 'Zones', count: 2, fold: true },
       { head: 'Ground', count: 2, fold: true },
@@ -81,9 +64,9 @@ window.MOCK = {
     title: 'Button 1', sub: 'Button · opens a gate when something stands on it', pic: { i: 'radio-button' }, tab: 'Button 1',
     groups: [
       { name: 'What it does', open: true, rows: [
-        { t: 'pick', l: 'Opens', f: 'opens', v: 'Gate 1', i: 'door', ch: true },
+        { t: 'pick', l: 'Opens', f: 'opens', v: 'Gate 1', i: 'gate', ch: true },
         // A switch is yes or no in the spec (`stays`): open only while something stands on it, or for good from the first press.
-        { t: 'choice', l: 'Stays open', f: 'stays', opts: ['While pressed', 'For good'], on: 0 },
+        { t: 'choice', l: 'Stays open', f: 'stays', opts: ['While something is on it', 'For good'], on: 0, seg: true },
       ] },
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: '11', u: 'tiles' },

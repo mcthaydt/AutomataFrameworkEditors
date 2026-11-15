@@ -10,8 +10,8 @@
 <body>
 <!-- Checking someone's changes (the end-to-end check, E8; the actions check, H6, L12), for a person who may approve (Mia). The top bar says "1 to check"; tapped, it opens this sheet over the level, where the changes are marked in orange. "Not now" at the top leaves it, and "1 to check" stays in the top bar until Mia decides, so looking is never a decision. Playing the level with the changes is the first button, so it is in sight on a short screen. Then Mia has three clear answers: put them in the game, ask Sam to change something (the box is on world-levels-ask), or turn them down with "Don't put them in" (the owner asked for this one, 2026-11-15: a plain no, with no message; what it does is on world-levels-turned-down and what Sam sees is on world-levels-turned-down-sam, and it has an Undo). -->
 <style>
-  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
-  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
 </style>
 <div class="canvas">
@@ -22,13 +22,13 @@
       <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
       <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
-      <div class="door"></div>
+      <div class="gate"></div>
       <div class="press"></div>
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
-      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
       <div class="ring theirs" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring theirs" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring theirs" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
@@ -40,11 +40,11 @@
   <div class="hdr"><h3>Sam sent 4 changes to check</h3><button class="sbtn">Not now</button></div>
   <p>They are marked in orange on the level. Nobody else sees them until you put them in. They stay under “1 to check” until you decide.</p>
   <button class="sbtn wide1 first"><span class="ic" data-i="play"></span>Play the level with them</button>
-  <div class="said"><b>Sam's note</b>The door needs a button near it, I think.</div>
+  <div class="said"><b>Sam's note</b>The gate needs a button near it, I think.</div>
   <div class="prob"><b><span class="ic" data-i="warning"></span>1 problem: Crate 4 is half in the ground</b><small>You can still put them in. Whether this warns you first is in Settings.</small><button class="sbtn"><span class="ic" data-i="magnifying-glass"></span>Show me</button></div>
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
-  <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
+  <div class="sc"><span class="pic"><span class="ic" data-i="gate"></span></span>Added a gate<small>Level 1</small></div>
   <div class="sc"><span class="pic"><span class="ic" data-i="arrows-left-right"></span></span>Put Level 4 against Level 3<small>The map</small></div>
   <div class="go three"><button class="sbtn main"><span class="ic" data-i="check"></span>Put them in the game</button><button class="sbtn"><span class="ic" data-i="chat-circle-text"></span>Ask for a change</button><button class="sbtn"><span class="ic" data-i="x"></span>Don't put them in</button></div>
 </section>
@@ -72,7 +72,7 @@ window.MOCK = {
       { n: 'Crate 3', k: 'crate', img: 'art/crate.png' },
       { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
       { n: 'Button', k: 'button', i: 'radio-button' },
-      { n: 'Door', k: 'door', i: 'door' },
+      { n: 'Gate 1', k: 'gate', i: 'gate' },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
       { head: 'Zones', count: 2 },
       { n: 'Start', i: 'map-pin' },
@@ -88,7 +88,8 @@ window.MOCK = {
       { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
       { n: 'Hero', note: 'used once', img: 'art/hero.png' },
       { n: 'Button', note: 'used once', i: 'radio-button' },
-      { n: 'Door', note: 'used once', i: 'door' },
+      { n: 'Gate', note: 'used once', i: 'gate' },
+      { n: 'Door', note: 'not used yet', i: 'door' },
       { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
       { n: 'Coin', note: 'not used yet', i: 'coin' },
       { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },

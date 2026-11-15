@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
-  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
-  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
 </style>
 </head>
@@ -26,13 +26,13 @@
       <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
       <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
-      <div class="door"></div>
+      <div class="gate"></div>
       <div class="press"></div>
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
-      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
       <div class="pickbox" style="left:36.5%;top:62.5%;width:27%;height:22%"></div>
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
@@ -41,7 +41,7 @@
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2 L18 9 L10 11 L7 18 Z" fill="#b7b492" stroke="#111314" stroke-width="1.2"/></svg>
         <span>Mia</span>
       </div>
-      <div class="pinned" style="left:66%;top:22%"><b>Mia · 10 min ago</b>Can the hero still jump over the door when it is open?</div>
+      <div class="pinned" style="left:66%;top:22%"><b>Mia · 10 min ago</b>Can the hero still jump over the gate when it is open?</div>
     </div>
   </div>
 </div>
@@ -51,7 +51,7 @@
   <div class="prob must"><b><span class="ic" data-i="warning"></span>Fix 1 problem first: Crate 4 is half in the ground</b><small>This game asks for every problem to be fixed before changes go in, so players never meet one.</small><button class="sbtn main"><span class="ic" data-i="magnifying-glass"></span>Show me</button></div>
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
-  <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
+  <div class="sc"><span class="pic"><span class="ic" data-i="gate"></span></span>Added a gate<small>Level 1</small></div>
   <div class="foot">
     <div class="go"><button class="sbtn" disabled aria-disabled="true"><span class="ic" data-i="lock-simple"></span>Put them in</button><button class="sbtn">Not yet</button></div>
     <p class="keep">Your changes are safe on this iPad until then. Only an Owner can change this rule, in Settings.</p>
@@ -81,7 +81,7 @@ window.MOCK = {
       { n: 'Crate 3', k: 'crate', img: 'art/crate.png', on: true },
       { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
       { n: 'Button', k: 'button', i: 'radio-button' },
-      { n: 'Door', k: 'door', i: 'door' },
+      { n: 'Gate 1', k: 'gate', i: 'gate' },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
       { head: 'Zones', count: 2 },
       { n: 'Start', i: 'map-pin' },
@@ -97,7 +97,8 @@ window.MOCK = {
       { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
       { n: 'Hero', note: 'used once', img: 'art/hero.png' },
       { n: 'Button', note: 'used once', i: 'radio-button' },
-      { n: 'Door', note: 'used once', i: 'door' },
+      { n: 'Gate', note: 'used once', i: 'gate' },
+      { n: 'Door', note: 'not used yet', i: 'door' },
       { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
       { n: 'Coin', note: 'not used yet', i: 'coin' },
       { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },

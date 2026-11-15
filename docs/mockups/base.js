@@ -38,6 +38,7 @@ window.BASE = {
       { n: 'Crate', note: 'used once', img: 'art/crate.png', on: true },
       { n: 'Hero', note: 'used once', img: 'art/hero.png' },
       { n: 'Button', note: 'not used yet', i: 'radio-button' },
+      { n: 'Gate', note: 'not used yet', i: 'gate' },
       { n: 'Door', note: 'not used yet', i: 'door' },
       { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
       { n: 'Coin', note: 'not used yet', i: 'coin' },
@@ -79,7 +80,7 @@ window.BASE.levels = {
   list: window.BASE.list, library: { open: false }, closed: window.BASE.closed,
 }
 
-// The middle of the work: four crates, a button and a door, three changes not yet in the game and one problem. The
+// The middle of the work: four crates, a button and a gate, three changes not yet in the game and one problem. The
 // pages about putting changes in, checking them and the problems share it.
 window.BASE.midList = {
   count: 12,
@@ -91,7 +92,7 @@ window.BASE.midList = {
     { n: 'Crate 3', k: 'crate', img: 'art/crate.png' },
     { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
     { n: 'Button', k: 'button', i: 'radio-button' },
-    { n: 'Door', k: 'door', i: 'door' },
+    { n: 'Gate 1', k: 'gate', i: 'gate' },
     { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
     { head: 'Zones', count: 2 },
     { n: 'Start', i: 'map-pin' },
@@ -132,9 +133,9 @@ window.BASE.world = () => ({
   tip: 'Tap a level to go in. Drag a level against another and players walk straight across. A dashed arrow is a door.',
 })
 
-// What every map page shows around the map: the top bar says "All levels", Map is on, and there are no tools.
+// What every map page shows around the map: the top bar says "Levels · Map", Map is on, and there are no tools.
 window.BASE.map = {
-  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', holds: false, mapOn: true, state: 'world map',
+  editor: 'world', place: 'Map', saved: 'Sam, 2 minutes ago', zoom: '8%', holds: false, mapOn: true, state: 'world map',
   parts: window.BASE.parts, part: 0, tool: 0, noTools: true,
   list: {
     count: 7,

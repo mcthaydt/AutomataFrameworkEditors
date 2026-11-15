@@ -13,6 +13,8 @@ const EDITORS = [
   ['Feel', 'sliders-horizontal'],
   ['Sound', 'music-notes'],
   ['Story', 'book-open'],
+  // The sixth, added by the Owner (2026-11-15): the menus, pause and everything else a player sees.
+  ['Screens', 'layout'],
 ]
 
 // The six game languages' flags, drawn plainly; the product uses the framework's.
@@ -171,7 +173,7 @@ const pic = (r) =>
         : `<span class="pic">${icon(r.i || 'cube')}</span>`
 
 // ---------- round three: one shell, the canvas is the app ----------
-// The Owner (2026-11-15): Figma-simple. One shell with the five editors as workspaces; the canvas in the middle;
+// The Owner (2026-11-15): Figma-simple. One shell with the six editors as workspaces; the canvas in the middle;
 // Layers and Assets on the left; an inspector on the right that shows the few values that matter and keeps the rest
 // under More; one small toolbar; play in place; edits kept on the device as a draft until Share; a plain dark look
 // with palette No. 310 only for accents.
@@ -185,7 +187,8 @@ const TOOLS = [
   ['Place', 'plus-square', 'A'],
   ['Paint', 'paint-brush', 'B'],
   ['Erase', 'eraser', 'E'],
-  // "Join", not "Draw path": it joins a button to its door, or draws where someone walks (the Owner, 2026-11-15).
+  // "Join", not "Draw path": it joins a button to the gate it opens (the Owner, 2026-11-15). Where someone walks waits for
+  // Characters, so Join does only this one thing for now.
   ['Join', 'link', 'L'],
 ]
 // Pages name tools by round two's numbers (0 Pick, 1 Place, 2 Paint, 3 Join, 4 Play); this turns one into its
@@ -220,7 +223,8 @@ function insRow(r) {
       return `<div class="ir sl">${label}<span class="scrub${r.w || !/\d/.test(r.v) || /[a-z]/.test(r.v) ? ' wd' : ''}">${r.w ? `${r.w}<small>${r.v}</small>` : r.v}</span><span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     // Choices that do not fit the panel as segments become a dropdown.
     case 'choice':
-      if (r.opts.length >= 4 || r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
+      // `seg` keeps a pair of long answers as two segments, so both are in sight ("While something is on it" / "For good").
+      if (!r.seg && (r.opts.length >= 4 || r.opts.join('').length > 30)) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
       return `<div class="ir${r.opts.join('').length + (r.l || '').length > 24 || r.opts.join('').length > 18 || !r.l ? ' wide' : ''}">${label}<span class="segs">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span></div>`
     case 'sw':
       // A long label wraps; the switch stays at the right of its row, like every other switch (Fable pass, F37).
@@ -271,6 +275,15 @@ function inOrder(groups) {
   return gs.map((g, i) => [g, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(([g]) => g)
 }
 
+// The word for the device this page is drawn on ("iPad", "phone" or "computer"), set by `frame` before it draws, so a
+// hover name made of words in an attribute says the right one too (a text node is fixed after the page is drawn).
+let deviceWord = 'iPad'
+
+// A title that is plural ("3 crates", "Flowers") is spoken of as "the 3 crates' settings" and "rename them", not
+// "3 crates's" and "rename it" (plain-words check, finding 18). A page can say so with `plural`.
+const isPlural = (v, name) => v.plural ?? (/^\d+ /.test(name) || /[^s]s$/.test(name))
+const ofName = (v, name) => (isPlural(v, name) ? `the ${name.replace(/^([A-Z])([a-z])/, (_, a, b) => a.toLowerCase() + b)}'` : `${name}'s`)
+
 function inspector(v, keep) {
   let shown = 0
   let hidden = 0
@@ -302,7 +315,7 @@ function inspector(v, keep) {
   // Hiding the settings says where they go: a tab at the right edge, named for the thing, brings them back (the
   // end-to-end actions check, H1). On a phone the sheet closes with Done instead (H2); only one of the two shows.
   const named = String(v.title).replace(/<[^>]+>/g, '')
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, only on this device so far"></i></span>') : v.title}</b>${kindLine(v)}</span><button class="ib imore" title="More to do with ${named}: rename it, lock it, hide it, copy it, add a note">${icon('dots-three')}</button><button class="ib ihide" title="Hide the settings. Tap ${named} at the right edge to bring them back">${icon('sidebar-simple')}</button><button class="sbtn idone" title="Close the settings">Done</button></header>
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, only on this ${deviceWord} so far"></i></span>') : v.title}</b>${kindLine(v)}</span><button class="ib imore" title="More to do with ${isPlural(v, named) ? `the ${named}: rename them, lock them, hide them, copy them to paste, add a note` : `${named}: rename it, lock it, hide it, copy it to paste, add a note`}">${icon('dots-three')}</button><button class="ib ihide" title="Hide the settings. Tap “${named} · settings” at the right edge to bring them back">${icon('sidebar-simple')}</button><button class="sbtn idone" title="Close the settings">Done</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
       ${hidden ? `<button class="more">${icon('caret-right')}${hidden} more setting${hidden > 1 ? 's' : ''}</button>` : ''}</div>`
 }
@@ -344,7 +357,7 @@ function leftPanel(m) {
   // Find filters this list as you type, so the list has no Find of its own.
   return `<aside class="sh-left">
     <nav class="lrail"><button class="ib on" title="${listName}: open the list">${icon('list-bullets')}<span>List</span></button>${m.mapOn ? '' : `<button class="ib" title="Add things: open the things to add">${icon('shapes')}<span>Add</span></button>`}<i class="rdiv"></i></nav>
-    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${listName}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Add things</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button><button class="sbtn lclose" title="Close the list">Close</button></nav>
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${listName}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Add things</button>` : ''}<button class="ib" aria-label="Hide the list" title="Hide the list">${icon('sidebar-simple')}</button><button class="sbtn lclose" title="Close the list">Close</button></nav>
     <div class="lbody">${body}</div>
   </aside>`
 }
@@ -399,6 +412,7 @@ function frame(m) {
   // The device's own word: a computer, a phone (small or on its side), or an iPad.
   const small = window.innerWidth <= 500 || window.innerHeight <= 600
   const device = fine || (m.hand === 'pencil' && !(navigator.maxTouchPoints > 0)) ? 'computer' : small ? 'phone' : 'iPad'
+  deviceWord = device
   // An iPad held sideways (or any touch screen that wide) keeps its tools down the left edge, as a phone on its side
   // does, so the bottom is free for one tray (the Owner, 2026-11-15: F2).
   const side = !fine && window.innerWidth > 1000 && window.innerHeight > 600
@@ -409,9 +423,10 @@ function frame(m) {
   const put = m.signedOut ? 'Keep a copy' : m.suggest ? 'Send to check' : 'Put in game'
   // Sent to be checked, the button says who has them (`m.waiting`) until they are put in or sent back (E8).
   // Someone who has not signed in (`m.signedOut`) is alone in the demo game: nobody else's face shows (E9).
-  // The same words at every size that has room ("3 only on this iPad"); short of room the line goes and the number
-  // stays (F14).
-  const where = n ? `<small class="long">${n} only on this ${device}</small>` : ''
+  // The same words at every size that has room ("3 changes, only on this iPad"); short of room the line goes and the
+  // number stays (F14). The count has its noun: "3 only on this iPad" left a person asking "3 what?" (plain-words
+  // check, finding 8).
+  const where = n ? `<small class="long">${n} change${n > 1 ? 's' : ''}, only on this ${device}</small>` : ''
   // View holds what the canvas shows; the picked tool's own two or three settings sit beside the toolbar
   // (`toolopts`). "All levels" is the level's menu.
   // The free hand's strip, on a touch screen only: buttons held with the thumb that isn't drawing, where a computer
@@ -422,7 +437,8 @@ function frame(m) {
   // The zoom says how near you are in words (W8); the number is only in Show.
   const pc = /^(\d+)%$/.exec(m.zoom || '100%')
   // Always how near you are now, never a thing to do: "Whole level" is where it rests (F20).
-  const zoomWord = pc ? (Number(pc[1]) === 100 ? 'Whole level' : Number(pc[1]) > 100 ? 'Close up' : 'Far away') : m.zoom
+  // On the world map the level is not the thing in view, the whole world is (the Owner's yes, 2026-11-15).
+  const zoomWord = m.mapOn ? 'Whole world' : pc ? (Number(pc[1]) === 100 ? 'Whole level' : Number(pc[1]) > 100 ? 'Close up' : 'Zoomed out') : m.zoom
   const opts = [...(m.settings || []).filter((o) => !/All levels/.test(o)), `<span>Zoom</span><span class="seg"><button class="on">Whole level</button><button>${/%$/.test(m.zoom || '100%') ? m.zoom || '100%' : '100%'}</button></span>`]
   // Nothing changed yet means nothing to undo: Undo and Redo are drawn faint (F15).
   const faint = n ? '' : ' faint'
@@ -434,27 +450,27 @@ function frame(m) {
   const html = `
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
-    <button class="wsn" title="The five editors: World, Characters, Feel, Sound, Story"><b>${editor[0]}</b>${icon('caret-down')}</button>
+    <button class="wsn" title="The six editors: World, Characters, Feel, Sound, Story, Screens"><b>${editor[0]}</b>${icon('caret-down')}</button>
     ${m.back ? `<button class="ib backb" title="Back to ${m.back}">${icon('arrow-left')}<span><span class="bw">Back to </span>${m.back}</span></button>` : ''}
     <button class="partn" title="Other parts, other editors and the game's own menu"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}${m.with ? `<span class="pw2">, shown with ${m.with}</span>` : ''}</span>${icon('caret-down')}</button>
-    ${m.editor === 'world' && here === 'Levels' ? `<button class="ib mapb${m.mapOn ? ' on' : ''}" title="Every level on one map. Or pinch out past the whole level">${icon('map-trifold')}<span>Map</span></button>` : ''}
+    ${m.editor === 'world' && here === 'Levels' ? `<button class="ib mapb${m.mapOn ? ' on' : ''}" title="See every level on one map. Pinching out far enough opens it too.">${icon('map-trifold')}<span>Map</span></button>` : ''}
     <span class="fill"></span>
     <button class="ib tu${faint}" title="${fine ? 'Undo (⌘Z)' : 'Undo · or tap with two fingers'}">${icon('arrow-counter-clockwise')}</button><button class="ib tu${faint}" title="${fine ? 'Redo (⇧⌘Z)' : 'Redo · or tap with three fingers'}">${icon('arrow-clockwise')}</button>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
     ${m.checks ? `<button class="ib checks" title="Changes people sent you to check">${icon('list-checks')}<span>${m.checks}<span class="cw"> to check</span></span></button>` : ''}
-    ${m.offline ? `<span class="offl" title="This device can't reach the internet. Your changes stay on it until it can.">${icon('cloud')}<span>No internet</span></span>` : ''}
+    ${m.offline ? `<span class="offl" title="This ${device} can't reach the internet. Your changes stay on it until it can.">${icon('cloud')}<span>No internet</span></span>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}<span>Find</span>${fine ? '<kbd>⌘K</kbd>' : ''}</button>
     ${m.signedOut ? '' : '<span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>'}
     <button class="tplay${m.play ? ' on' : ''}" title="${m.play ? 'Stop playing and go back to building' : 'Play the level here'}${fine ? ' (P)' : ''}">${icon(m.play ? 'stop' : 'play')}<span>${m.play ? 'Stop' : 'Play'}</span></button>
     ${m.waiting && m.more ? `<button class="share put waiting more" title="You made ${m.more} more change${m.more > 1 ? 's' : ''} since you sent your changes to ${m.waiting}. Send ${m.more > 1 ? 'them' : 'it'} too">${icon('paper-plane-tilt')}<span class="w"><b>Send ${m.more} more to ${m.waiting}</b><small class="long">The rest are with ${m.waiting}</small></span><span class="n">${m.more}</span></button>` : m.waiting ? `<button class="share put quiet waiting" title="Your changes are with ${m.waiting} to check. Tap to see them, or take them back">${icon('paper-plane-tilt')}<span class="w"><b>Waiting for ${m.waiting}</b></span></button>` : `<button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.signedOut ? 'download-simple' : m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>`}
   </header>
   ${leftPanel(m)}
-  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show ${m.values.title.replace(/<[^>]+>/g, '')}'s settings">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button><button class="peek" title="Open the settings">${m.values.pic ? pic(m.values.pic) : ''}<span><b>${m.values.title.replace(/<[^>]+>/g, '')}</b> · settings</span>${icon('caret-up')}</button></aside>` : ''}
+  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show ${ofName(m.values, m.values.title.replace(/<[^>]+>/g, ''))} settings">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')} · settings</span></button><button class="peek" title="Open the settings">${m.values.pic ? pic(m.values.pic) : ''}<span><b>${m.values.title.replace(/<[^>]+>/g, '')}</b> · settings</span>${icon('caret-up')}</button></aside>` : ''}
   ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
   ${m.play ? playbar(m.play, m.trycard && { open: true }) : ''}
   ${m.trycard ? `<aside class="float trycard"><header><b>${m.trycard.title}</b><button class="ib" title="Close this card">${icon('x')}</button></header>${m.trycard.rows.map(insRow).join('')}<button class="more">${icon('caret-right')}${m.trycard.more}</button></aside>` : ''}
   <div class="sh-tools">
-    <nav class="tbar">${m.noTools ? `${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button>` : `<button class="tl2 lay" title="${listName}, and things to add">${icon('stack')}<span>${listName}</span></button>${tools}<i class="div u"></i>${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the level shows: grid, zoom, frames">${icon('eye')}<span>Show</span></button>`}<button class="tz" title="How near you are: pinch, or press to pick">${zoomWord}</button></nav>
+    <nav class="tbar">${m.noTools ? `${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button>` : `<button class="tl2 lay" title="${listName}, and things to add">${icon('stack')}<span>${listName}</span></button>${tools}<i class="div u"></i>${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the level shows: grid, zoom, frames">${icon('eye')}<span>Show</span></button>`}<button class="tz" title="How close you are: pinch, or tap to choose">${zoomWord}</button></nav>
     ${m.toolopts && !m.tray ? `<div class="topts">${m.toolopts}</div>` : ''}
     ${m.optsOpen ? `<div class="opop"><b>Show</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
   </div>
@@ -478,6 +494,9 @@ function frame(m) {
   if (m.holdOpen) cls.push('hold-open')
   if (m.checks) cls.push('has-checks')
   if (m.back) cls.push('has-back')
+  // The world map: its top bar says "Levels · Map" on a phone too, and the zoom button sits right under List, since the
+  // rail has no Add and no tools there (the Owner's yes, 2026-11-15).
+  if (m.mapOn) cls.push('map-on')
   // "See-through panels" in Settings (the Owner, 2026-11-15): 'on' or 'off'; absent means "Choose for me", which
   // follows the device. The stylesheet turns the glass solid for `glass-off` and for a device that asks for less.
   if (m.glass) cls.push(`glass-${m.glass}`)
@@ -515,25 +534,26 @@ function frame(m) {
   }
   // What is picked gets a small bar just above it: the everyday acts, where the finger already is. At most four things
   // at any size (Fable pass, F8): several picked get "Line up" (which opens Line up, Space out and Stack); one gets
-  // "Nudge", which opens a four-way pad of finger-sized arrows instead of four small ones (F6); "…" holds the rest.
-  // A thing the level has only one of has no "Make another", and its Delete says why it can't (F5).
+  // "Move", which opens a four-way pad of finger-sized arrows instead of four small ones (F6); "…" holds the rest.
+  // A thing the level has only one of has no "Make a copy", and its Delete says why it can't (F5).
   if (m.act && stage) {
     const a = m.act
     const b = (w, ic, more) => `<button class="ab${more ? ' dd' : ''}" title="${w}">${icon(ic)}<span>${w}</span>${more ? icon('caret-down') : ''}</button>`
     const more = `<button class="ab" title="More things to do">${icon('dots-three')}</button>`
-    // A join (a line from a button to its door) is picked by tapping its line: its bar takes it away (M16).
+    // A join (a line from a button to the gate it opens) is picked by tapping its line: its bar takes the line away, and
+    // says what that does (M16; plain-words check, finding 28).
     const items = a.join
-      ? `<button class="ab" title="Take away this join">${icon('trash')}<span>Take away this join</span></button>${more}`
+      ? `<button class="ab jn" title="Take this line away. ${a.join}">${icon('trash')}<span>Take this line away<small>${a.join}</small></span></button>${more}`
       : a.only
-      ? `${b('Nudge', 'arrows-out-cardinal')}<button class="ab no" title="${a.only}">${icon('trash')}<span>Delete<small>${a.only}</small></span></button>${more}`
+      ? `${b('Move', 'arrows-out-cardinal')}<button class="ab no" title="${a.only}">${icon('trash')}<span>Delete<small>${a.only}</small></span></button>${more}`
       : a.several
-        ? `${b('Line up', 'align-bottom', true)}${b('Make another', 'copy-simple')}${b('Delete', 'trash')}${more}`
-        : `${b('Make another', 'copy-simple')}${b('Delete', 'trash')}${b('Nudge', 'arrows-out-cardinal')}${more}`
+        ? `${b('Line up', 'align-bottom', true)}${b('Make a copy', 'copy-simple')}${b('Delete', 'trash')}${more}`
+        : `${b('Make a copy', 'copy-simple')}${b('Delete', 'trash')}${b('Move', 'arrows-out-cardinal')}${more}`
     const menu = a.menu ? `<div class="amenu"><b>Line them up along</b><span>${[['align-top', 'The top'], ['align-bottom', 'The bottom'], ['align-left', 'The left'], ['align-right', 'The right']].map(([ic, w], i) => `<button class="${i === 1 ? 'on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</span></div>` : ''
-    const pad = a.pad ? `<div class="npad"><b>Nudge one tile</b><span>${[['', ''], ['caret-up', 'Up'], ['', ''], ['caret-left', 'Left'], ['', ''], ['caret-right', 'Right'], ['', ''], ['caret-down', 'Down'], ['', '']].map(([ic, w]) => (ic ? `<button title="Nudge ${w.toLowerCase()}">${icon(ic)}</button>` : w === '' ? '<i></i>' : '')).join('')}</span><button class="sbtn">Done</button></div>` : ''
+    const pad = a.pad ? `<div class="npad"><b>Move it one tile</b><span>${[['', ''], ['caret-up', 'Up'], ['', ''], ['caret-left', 'Left'], ['', ''], ['caret-right', 'Right'], ['', ''], ['caret-down', 'Down'], ['', '']].map(([ic, w]) => (ic ? `<button title="Move ${w.toLowerCase()}">${icon(ic)}</button>` : w === '' ? '<i></i>' : '')).join('')}</span><button class="sbtn">Done</button></div>` : ''
     // The "…" opened (M6): the rest of what can be done to a thing, with its key on a computer. Press and hold on the
     // thing opens the same list. Locking and hiding have their opposite in the same place (Unlock, Show).
-    const rest = [['pencil-simple', 'Rename', 'F2'], [a.locked ? 'lock-simple' : 'lock-simple', a.locked ? 'Unlock it' : 'Lock it', '⌘L'], ['eye-slash', a.hidden ? 'Show it' : 'Hide it', '⌘H'], ['copy', 'Copy', '⌘C'], ['arrow-line-up', 'Bring to front', ']'], ['arrow-fat-line-down', 'Send to back', '['], ['note', 'Add a note', '']]
+    const rest = [['pencil-simple', 'Rename', 'F2'], [a.locked ? 'lock-simple' : 'lock-simple', a.locked ? 'Unlock it' : 'Lock it', '⌘L'], ['eye-slash', a.hidden ? 'Show it' : 'Hide it', '⌘H'], ['copy', 'Copy to paste', '⌘C'], ['arrow-line-up', 'Bring to front', ']'], ['arrow-fat-line-down', 'Send to back', '['], ['note', 'Add a note', '']]
     const restMenu = a.rest ? `<div class="amenu moremenu"><b>${a.rest}</b><span class="mrows">${rest.map(([ic, w, k]) => `<button>${icon(ic)}<span>${w}</span>${fine && k ? `<kbd>${k}</kbd>` : ''}</button>`).join('')}</span></div>` : ''
     // An open menu or pad takes the bar's place, so no more than two things float over the level (S2).
     const inner = menu || restMenu || pad

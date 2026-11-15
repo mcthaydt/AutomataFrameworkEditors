@@ -34,10 +34,10 @@
       : l.from
         ? ''
         : `<i style="filter:hue-rotate(${l.hue || 0}deg)"></i><span class="nm">${l.n}${l.here ? '<b> · You are here</b>' : ''}</span>${l.start ? `<span class="st">${icon('flag-pennant')}Start</span>` : ''}`
-    map.insertAdjacentHTML('beforeend', `<button class="${cls}" data-n="${l.from ? '' : l.n}" title="${l.add ? 'Make a new level' : `${l.n}: tap to go in`}">${inner}</button>`)
+    map.insertAdjacentHTML('beforeend', `<button class="${cls}" data-n="${l.from ? '' : l.n}" title="${l.add ? 'Make a new level' : l.from ? `Where ${l.was || 'it'} was` : `${l.n}: tap to go in`}">${inner}</button>`)
   }
   for (const e of M.edges || []) map.insertAdjacentHTML('beforeend', `<span class="ej ${e.state || ''}" data-a="${e.a}" data-b="${e.b}"><span class="ejc">${icon(e.state === 'wall' ? 'warning' : 'arrows-left-right')}</span></span>`)
-  map.insertAdjacentHTML('beforeend', `<div class="mkey"><span><i class="kbar"></i>Walk straight across</span><span><i class="karrow"></i>Through a door</span><span>${icon('flag-pennant')}Where the game starts</span></div>`)
+  map.insertAdjacentHTML('beforeend', `<div class="mkey"><span><i class="kbar"></i><i class="kmark">${icon('arrows-left-right')}</i>Players walk straight across</span><span><i class="karrow"></i>Through a door</span><span>${icon('flag-pennant')}Where the game starts</span></div>`)
   // A note under the top bar says what just happened; the line along the top waits until it has gone.
   // On a phone held sideways there is no room for it: the key at the bottom says what each mark means.
   if (M.tip && !document.querySelector('.note2') && !matchMedia('(max-height: 500px)').matches) map.insertAdjacentHTML('beforeend', `<span class="tip free mtip">${M.tip}</span>`)

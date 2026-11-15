@@ -24,7 +24,7 @@ const W = BASE.world()
 const l4 = W.levels.find((l) => l.n === 'Level 4')
 W.levels.find((l) => l.n === 'Level 2').here = false
 l4.x = 55; l4.y = 3; l4.lift = true; l4.bad = true
-W.levels.splice(4, 0, { n: '', x: 64, y: 2, w: 20, h: 12, from: true })
+W.levels.splice(4, 0, { n: '', x: 64, y: 2, w: 20, h: 12, from: true, was: 'Level 4' })
 W.hint = { on: 'Level 4', text: 'Levels can\'t sit on top of each other. Let go here and Level 4 goes back where it was.' }
 W.focus = 'Level 4'
 window.MAP = W

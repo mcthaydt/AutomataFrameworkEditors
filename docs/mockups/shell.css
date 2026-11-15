@@ -9200,3 +9200,51 @@ html body.sh .lv2.add .ic {
     overflow-y: auto;
   }
 }
+
+/* ---------- The plain-words round (2026-11-15) ---------- */
+/* The key's round mark: where two levels touch, the map draws a bar with a round orange sign of two arrows on it, so
+   the key shows both. */
+html body.sh .mkey .kmark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1e1e1e;
+}
+
+html body.sh .mkey .kmark .ic {
+  width: 13px;
+  height: 13px;
+}
+
+/* The bar over a picked line says what taking it away does, in a small line under its name. */
+html body.sh .actbar .ab.jn span:not(.ic) {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+html body.sh .actbar .ab.jn small {
+  display: block;
+  font: 500 11px var(--label);
+  color: var(--quiet);
+}
+
+/* On the world map a phone's part button says "Levels · Map" too, so the lit icon beside it is not the only sign that
+   this is the map. */
+@media (max-width: 500px), (max-height: 600px) and (min-width: 600px) {
+  html body.sh.map-on .sh-top .partn .pp {
+    display: inline !important;
+  }
+}
+
+/* An iPad held sideways, on the map: the rail has no Add and no tools, so the zoom button sits right under List and
+   its line, with no gap (the Owner's yes, 2026-11-15). The 58 points are the height of the Add button and its gap. */
+html body.sh.tools-left.left-closed.map-on .sh-tools {
+  top: calc(var(--top-h) + 78px);
+}

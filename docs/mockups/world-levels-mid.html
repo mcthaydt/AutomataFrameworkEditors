@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
-  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
-  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
 </style>
 </head>
@@ -25,14 +25,14 @@
       <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
       <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
-      <div class="door"></div>
+      <div class="gate"></div>
       <div class="press"></div>
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
-      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
-      <div class="pinned" style="left:88%;top:58%"><b>Mia · 10 min ago</b>Can the hero still jump over the door when it is open?</div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
+      <div class="pinned" style="left:88%;top:58%"><b>Mia · 10 min ago</b>Can the hero still jump over the gate when it is open?</div>
     </div>
   </div>
 </div>
@@ -59,7 +59,7 @@ window.MOCK = {
       { n: 'Crate 3', k: 'crate', img: 'art/crate.png' },
       { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
       { n: 'Button', k: 'button', i: 'radio-button' },
-      { n: 'Door', k: 'door', i: 'door' },
+      { n: 'Gate 1', k: 'gate', i: 'gate' },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
       { head: 'Zones', count: 2 },
       { n: 'Start', i: 'map-pin' },
@@ -75,7 +75,8 @@ window.MOCK = {
       { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
       { n: 'Hero', note: 'used once', img: 'art/hero.png' },
       { n: 'Button', note: 'used once', i: 'radio-button' },
-      { n: 'Door', note: 'used once', i: 'door' },
+      { n: 'Gate', note: 'used once', i: 'gate' },
+      { n: 'Door', note: 'not used yet', i: 'door' },
       { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
       { n: 'Coin', note: 'not used yet', i: 'coin' },
       { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },

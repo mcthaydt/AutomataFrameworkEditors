@@ -1,4 +1,4 @@
-Licences of the files in this folder. icons/ is from @phosphor-icons/core 2.1.1 (MIT); fonts/ from Fraunces, Onest and JetBrains Mono (SIL Open Font License 1.1), through Fontsource.
+Licences of the files in this folder. icons/ is from @phosphor-icons/core 2.1.1 (MIT), except icons/gate.svg, which is drawn for this project in the same style (the gate a button opens: bars between two posts); fonts/ from Fraunces, Onest and JetBrains Mono (SIL Open Font License 1.1), through Fontsource.
 
 ==== phosphor-icons-core-2.1.1 ====
 MIT License

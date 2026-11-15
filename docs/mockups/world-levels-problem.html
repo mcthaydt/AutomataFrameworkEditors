@@ -10,8 +10,8 @@
 <body>
 <!-- One problem shown (the end-to-end actions check, M8): "Show me" from the list or from the Put in game sheet closes the list and rings the thing on the level. A strip says which problem it is, what to do, and gives two ways on: the next problem, or back to where you came from, so "Show me" is never a trip with no way back. -->
 <style>
-  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
-  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
 </style>
 <div class="canvas">
@@ -22,13 +22,13 @@
       <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
       <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
       <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
-      <div class="door"></div>
+      <div class="gate"></div>
       <div class="press"></div>
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
-      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
 
     </div>
   </div>
