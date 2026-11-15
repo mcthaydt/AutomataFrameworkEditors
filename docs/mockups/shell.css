@@ -8662,3 +8662,442 @@ html body.sh .share-pop .go.three .sbtn {
     margin: 0;
   }
 }
+
+/* ----- 27. The world map (the level links spec, 2026-11-15): each level at its true size where the world file puts
+   it, edges that touch drawn as a bar (walk straight across), doors as arrows, the start marked. map.js places
+   everything; these say how it looks. "Join" stays the tool that links a button to what it opens (the Owner's word),
+   so levels "touch" and players "walk straight across": the two never share a word. ----- */
+html body.sh .wmap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+html body.sh .wmap .mlinks {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+html body.sh .wmap .mdoor {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.7);
+  stroke-width: 2.5px;
+  stroke-dasharray: 7 5;
+  stroke-linecap: round;
+}
+
+html body.sh .wmap .mtip {
+  position: absolute;
+  left: 32px;
+  top: 16px;
+  max-width: calc(100% - 64px);
+  white-space: normal;
+}
+
+html body.sh .lv2 {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 2px;
+  background: #2f2f2f;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5);
+  color: var(--words);
+  font: 500 12px var(--label);
+  text-align: left;
+}
+
+html body.sh .lv2 > i {
+  position: absolute;
+  inset: 0;
+  background: url("art/level-1-fill.png") 50% 70% / cover no-repeat;
+  image-rendering: pixelated;
+}
+
+html body.sh .lv2 .nm {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgb(20 20 20 / 0.82);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+html body.sh .lv2 .nm b {
+  font-weight: 500;
+  color: var(--accent);
+}
+
+html body.sh .lv2 .st {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgb(20 20 20 / 0.82);
+}
+
+html body.sh .lv2 .st .ic,
+html body.sh .mkey .ic {
+  width: 14px;
+  height: 14px;
+}
+
+html body.sh .lv2.here {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+html body.sh .lv2.picked,
+html body.sh .lv2.held {
+  z-index: 2;
+  box-shadow: 0 0 0 3px var(--words);
+}
+
+/* A level being moved is lifted off the sheet, a little bigger, with its shadow; where it came from stays as a
+   dashed outline, so letting it go somewhere wrong is easy to see and to put back. */
+html body.sh .lv2.lift {
+  z-index: 4;
+  transform: scale(1.03);
+  box-shadow: 0 0 0 3px var(--words), 0 18px 40px rgb(0 0 0 / 0.6);
+}
+
+html body.sh .lv2.from {
+  background: none;
+  box-shadow: none;
+  outline: 2px dashed rgb(255 255 255 / 0.3);
+  outline-offset: -2px;
+}
+
+html body.sh .lv2.bad {
+  box-shadow: 0 0 0 3px #e5484d, 0 18px 40px rgb(0 0 0 / 0.6);
+}
+
+html body.sh .lv2.bad > i {
+  opacity: 0.6;
+}
+
+html body.sh .lv2.add {
+  display: grid;
+  place-items: center;
+  background: none;
+  box-shadow: none;
+  outline: 2px dashed var(--line);
+  outline-offset: -2px;
+  color: var(--quiet);
+}
+
+html body.sh .lv2.add .ic {
+  width: 26px;
+  height: 26px;
+}
+
+html body.sh .lv2.add .nm {
+  top: auto;
+  bottom: 4px;
+  background: none;
+}
+
+/* A stretch where two levels touch and both are open: a bar across the edge, with a small sign that you walk across. */
+html body.sh .ej {
+  position: absolute;
+  z-index: 3;
+  width: 0;
+  height: 0;
+  border-top: 6px solid var(--accent);
+  transform: translateY(-3px);
+  pointer-events: none;
+}
+
+html body.sh .ej.up {
+  border-top: 0;
+  border-left: 6px solid var(--accent);
+  transform: translateX(-3px);
+}
+
+html body.sh .ej.soon {
+  border-color: var(--accent);
+  border-style: dashed;
+}
+
+html body.sh .ej.wall {
+  border-color: #e5484d;
+  border-style: dashed;
+}
+
+html body.sh .ejc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1e1e1e;
+}
+
+html body.sh .ej.up .ejc {
+  left: -3px;
+}
+
+html body.sh .ej:not(.up) .ejc {
+  top: -3px;
+}
+
+html body.sh .ej.wall .ejc {
+  background: #e5484d;
+  color: #fff;
+}
+
+html body.sh .ejc .ic {
+  width: 15px;
+  height: 15px;
+}
+
+html body.sh .ej:not(.up) .ejc .ic {
+  transform: rotate(90deg);
+}
+
+/* What the marks mean, always on the sheet: nobody has to guess what a bar or an arrow is. */
+html body.sh .mkey {
+  position: absolute;
+  z-index: 5;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  color: var(--quiet);
+  font: 500 13px var(--label);
+}
+
+html body.sh .mkey > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+html body.sh .mkey .kbar {
+  width: 6px;
+  height: 18px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+html body.sh .mkey .karrow {
+  width: 22px;
+  border-top: 2.5px dashed rgb(255 255 255 / 0.7);
+}
+
+/* The picked level's own bar, the line beside a level being moved, the move pad and the check's card. */
+html body.sh .mbar,
+html body.sh .mhint,
+html body.sh .mpad,
+html body.sh .mcard {
+  position: absolute;
+  z-index: 6;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--words);
+}
+
+html body.sh .mbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+}
+
+html body.sh .mbar button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--words);
+  font: 500 14px var(--label);
+  white-space: nowrap;
+}
+
+html body.sh .mbar button.main {
+  background: var(--accent);
+  color: #1e1e1e;
+}
+
+html body.sh .mbar .ic {
+  width: 18px;
+  height: 18px;
+}
+
+html body.sh .mhint {
+  max-width: 300px;
+  padding: 10px 14px;
+  border-color: var(--accent);
+  font: 500 14px / 1.35 var(--label);
+}
+
+html body.sh .mhint.no {
+  border-color: #e5484d;
+}
+
+html body.sh .mpad {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 12px;
+  font: 600 14px var(--label);
+}
+
+html body.sh .mpad > span {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  gap: 4px;
+}
+
+html body.sh .mpad > span button {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+}
+
+html body.sh .mpad p {
+  max-width: 220px;
+  margin: 0;
+  color: var(--quiet);
+  font: 400 13px / 1.35 var(--label);
+  text-align: center;
+}
+
+html body.sh .mpad .sbtn {
+  justify-self: stretch;
+  justify-content: center;
+  min-height: 44px;
+}
+
+html body.sh .mcard {
+  width: min(380px, calc(100vw - 32px));
+  padding: 16px;
+}
+
+html body.sh .mcard h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font: 600 16px var(--label);
+}
+
+html body.sh .mcard h3 .ic {
+  width: 20px;
+  height: 20px;
+  color: #e5484d;
+}
+
+html body.sh .mcard p {
+  margin: 0 0 12px;
+  color: var(--quiet);
+  font: 400 14px / 1.4 var(--label);
+}
+
+html body.sh .mcard .go {
+  display: grid;
+  gap: 6px;
+}
+
+html body.sh .mcard .go .sbtn {
+  justify-content: flex-start;
+  min-height: 44px;
+  height: auto;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+html body.sh .mcard .go .sbtn small {
+  display: block;
+  color: var(--quiet);
+  font-size: 12px;
+}
+
+html body.sh .mcard .go .sbtn.main small {
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* On a phone the card and the pad are held to the bottom of the map, just above the key, never off the screen. */
+@media (max-width: 600px), (max-height: 500px) {
+  html body.sh .wmap :is(.mcard, .mpad) {
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: 40px;
+    width: auto;
+  }
+
+  html body.sh .mcard {
+    padding: 12px;
+  }
+
+  html body.sh .mcard .go {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  html body.sh .mcard .go .sbtn.main {
+    grid-column: 1 / -1;
+  }
+
+  html body.sh .mpad {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
+    justify-items: start;
+    column-gap: 16px;
+  }
+
+  html body.sh .mpad > b {
+    grid-column: 1 / -1;
+  }
+
+  html body.sh .mpad > span {
+    grid-row: 2 / 4;
+  }
+
+  html body.sh .mpad p {
+    text-align: left;
+  }
+
+  html body.sh .mpad .sbtn {
+    align-self: end;
+  }
+
+  html body.sh .mkey {
+    gap: 4px 12px;
+    font-size: 12px;
+  }
+}

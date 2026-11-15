@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- The list of problems (the end-to-end actions check, M8). "2 problems" in the top bar opens a small list under it: each problem in plain words, what to do about it, and "Show me", which opens the level at it. A problem is only a warning: it never stops anyone putting changes in. With one problem the list has one row; the sheets' own "Show me" goes to the same place. -->
+<!-- The list of problems (the end-to-end actions check, M8). "3 problems" in the top bar opens a small list under it: each problem in plain words, what to do about it, and "Show me", which opens the level at it. A problem is only a warning: it never stops anyone putting changes in. A problem between two levels (an edge open on one side only, the level links spec) is in the same list, and its "Show me" opens the map at it. With one problem the list has one row; the sheets' own "Show me" goes to the same place. -->
 <style>
   .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
@@ -34,14 +34,15 @@
   </div>
 </div>
 <div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop menup" data-under=".sh-top .warn" role="menu" aria-label="Problems" style="width:min(360px, calc(100vw - 16px))">
-  <h6>2 things to look at</h6>
+  <h6>3 things to look at</h6>
   <button class="mi"><span class="ic" data-i="warning"></span><span>Crate 4 is half in the ground<small>Drag it up so it stands on the floor.</small></span><span class="go2">Show me</span></button>
   <button class="mi"><span class="ic" data-i="warning"></span><span>The Goal is hidden<small>Nobody can finish the level. Show it again.</small></span><span class="go2">Show me</span></button>
+  <button class="mi"><span class="ic" data-i="warning"></span><span>Players would walk into a wall<small>Level 3 is open on its right, where Level 4 has ground. It shows on the map.</small></span><span class="go2">Show me</span></button>
 </section>
 <script src="base.js"></script>
 <script>
 window.MOCK = {
-  ...BASE.mid, closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 2]],
+  ...BASE.mid, closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 3]],
 }
 </script>
 <script src="frame.js"></script>

@@ -6,89 +6,29 @@
 <title>World · A level held on the map (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
-<style>
-  .wmap { position: absolute; inset: 0; }
-  .wmap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .wmap svg path { fill: none; stroke: rgb(255 255 255 / 0.35); stroke-width: 3px; stroke-linecap: round; }
-  /* The tip is one line above the first row, clear of every line (second visual look, M9). */
-  .wmap .tip.free { max-width: none; white-space: nowrap; }
-  .lv { position: absolute; width: 16%; padding: 0; border: 0; background: none; color: var(--words); font: 500 13px var(--label); text-align: left; }
-  /* The thumbnail is the level and nothing else: no strip or line under it (Fable pass, F37). */
-  .lv i { display: block; aspect-ratio: 777 / 465; border-radius: 6px; background: url("art/level-1-fill.png") 49.5% 34.78% / 114.29% 124.73% no-repeat; image-rendering: pixelated; box-shadow: 0 0 0 1px var(--line); }
-  /* Making a level is the map's main act: a card at the end of the map (F30). */
-  .lv.new i { display: grid; place-items: center; background: none; border: 2px dashed var(--line); box-shadow: none; color: var(--quiet); }
-  .lv.new i .ic { width: 28px; height: 28px; }
-  .lv span { display: flex; justify-content: space-between; gap: 6px; margin-top: 6px; }
-  .lv b { font-weight: 500; color: var(--accent); }
-  .lv.here i { box-shadow: 0 0 0 3px var(--accent); }
-  @media (max-width: 500px) { .lv { font-size: 11px; } .lv b { display: none; } .wmap .tip { display: none; } }
-  @media (max-height: 600px) { .lv span { margin-top: 2px; font-size: 11px; } .lv b { display: none; } .wmap .tip { display: none; } }
-  .lv.held i { box-shadow: 0 0 0 3px var(--touch); }
-</style>
 </head>
 <body>
-<!-- A level held on the map (the end-to-end actions check, M12): press and hold a level and a small menu opens by it: Rename, Make a copy, Delete. It is a shortcut: the same three are in the part's menu for the level you are in (the top bar), so nobody has to know the gesture. Delete says what happens and that it can be undone. -->
+<!-- Press and hold a level, or its "...", and a menu opens by it: Go in, Move with buttons, Pull apart (only when it touches another, and it says what that does), Rename, Make a copy, Delete. The same are in the part's menu for the level you are in, so nobody has to know the gesture. Delete says it can be undone. -->
 <div class="canvas">
   <div class="fit">
-    <div class="wmap">
-      <svg aria-hidden="true"><path d=""/></svg>
-      <button class="lv" style="left:4%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 1</span></button><button class="lv" style="left:22%;top:12%"><i style="filter:hue-rotate(25deg)"></i><span>Level 2</span></button><button class="lv" style="left:40%;top:12%"><i style="filter:hue-rotate(50deg)"></i><span>Level 3</span></button><button class="lv here" style="left:58%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 4<b>You are here</b></span></button><button class="lv" style="left:76%;top:12%"><i style="filter:hue-rotate(200deg)"></i><span>Level 5</span></button><button class="lv" style="left:58%;top:42%"><i style="filter:hue-rotate(250deg)"></i><span>Cave 1</span></button><button class="lv" style="left:76%;top:42%"><i style="filter:hue-rotate(280deg)"></i><span>Cave 2</span></button><button class="lv" style="left:40%;top:42%"><i style="filter:hue-rotate(140deg)"></i><span>Secret room</span></button><button class="lv" style="left:4%;top:72%"><i style="filter:hue-rotate(320deg)"></i><span>Level 6</span></button><button class="lv" style="left:22%;top:72%"><i style="filter:hue-rotate(30deg)"></i><span>Level 7</span></button><button class="lv held" style="left:40%;top:72%"><i style="filter:hue-rotate(60deg)"></i><span>Level 8</span></button><button class="lv" style="left:58%;top:72%"><i style="filter:hue-rotate(180deg)"></i><span>The keep</span></button><button class="lv new" style="left:76%;top:72%"><i><span class="ic" data-i="plus"></span></i><span>New level</span></button>
-      <span class="tip free" style="left:4%;top:2%">Tap a level to go in. Press and hold empty ground to make one there.</span>
-    </div>
+    <div class="wmap"></div>
   </div>
 </div>
-<section class="pop menup heldp" data-under=".lv.held" role="menu" aria-label="Level 8"><h6>Level 8</h6><button class="mi"><span class="ic" data-i="pencil-simple"></span><span>Rename</span></button><button class="mi"><span class="ic" data-i="copy"></span><span>Make a copy</span></button><button class="mi"><span class="ic" data-i="trash"></span><span>Delete<small>You can undo it</small></span></button></section>
+<section class="pop menup heldp" data-under=".lv2.held" role="menu" aria-label="Level 4"><h6>Level 4</h6><button class="mi"><span class="ic" data-i="arrow-right"></span><span>Go in</span></button><button class="mi"><span class="ic" data-i="arrows-out-cardinal"></span><span>Move with buttons</span></button><button class="mi"><span class="ic" data-i="arrows-out-line-horizontal"></span><span>Pull apart from Level 3<small>Players can't walk across then</small></span></button><button class="mi"><span class="ic" data-i="pencil-simple"></span><span>Rename</span></button><button class="mi"><span class="ic" data-i="copy"></span><span>Make a copy</span></button><button class="mi"><span class="ic" data-i="trash"></span><span>Delete<small>You can undo it</small></span></button></section>
+<script src="base.js"></script>
 <script>
-window.MOCK = {
-  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', holds: false, mapOn: true, state: 'world map',
-  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
-  tool: 0,
-  // The map has one thing to do with tools, picking, so it has no toolbar; the zoom stays (F30).
-  noTools: true,
-  list: {
-    count: 12,
-    rows: [
-      { head: 'Levels', count: 9, fold: false },
-      { n: 'Level 1', i: 'squares-four', d: 1 }, { n: 'Level 2', i: 'squares-four', d: 1 }, { n: 'Level 3', i: 'squares-four', d: 1 },
-      { n: 'Level 4', i: 'squares-four', d: 1, on: true }, { rest: 'and 5 more', d: 1 },
-      { head: 'Caves and rooms', count: 3, fold: true },
-    ],
-  },
-  library: { open: false },
-  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
-}
+window.MOCK = { ...BASE.map }
 </script>
 <script src="frame.js"></script>
 <script>
-// What leads to what, drawn from where each level's picture really is, so every line starts and ends on a picture at
-// every size (the end-to-end check, E18; second visual look, M9). Side by side: from the middle of one picture's
-// right edge to the next one's left edge. One above another: from under the upper level's name to the top of the
-// lower picture. Drawn once the fonts are in, since a name that wraps moves the line's start.
-document.fonts.ready.then(() => {
-  const map = document.querySelector('.wmap')
-  const box = map.getBoundingClientRect()
-  const level = (name) => [...map.querySelectorAll('.lv')].find((b) => b.querySelector('span').firstChild.textContent.trim() === name)
-  const leads = [
-    ['Level 1', 'Level 2'], ['Level 2', 'Level 3'], ['Level 3', 'Level 4'], ['Level 4', 'Level 5'],
-    ['Level 3', 'Secret room'], ['Level 4', 'Cave 1'], ['Level 5', 'Cave 2'], ['Secret room', 'Cave 1'], ['Cave 1', 'Cave 2'],
-    ['Level 1', 'Level 6'], ['Level 6', 'Level 7'], ['Level 7', 'Level 8'], ['Level 8', 'The keep'],
-  ]
-  let d = ''
-  for (const [a, b] of leads) {
-    const from = level(a).querySelector('i').getBoundingClientRect()
-    const to = level(b).querySelector('i').getBoundingClientRect()
-    if (Math.abs(from.top - to.top) < 4) {
-      const y = from.top + from.height / 2 - box.top
-      d += `M${from.right - box.left + 1} ${y} H${to.left - box.left - 1} `
-    } else {
-      const x = from.left + from.width / 2 - box.left
-      d += `M${x} ${level(a).getBoundingClientRect().bottom - box.top + 6} V${to.top - box.top - 3} `
-    }
-  }
-  const svg = map.querySelector('svg')
-  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`)
-  svg.querySelector('path').setAttribute('d', d.trim())
-})
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.x = 60; l4.held = true
+W.edges.push({ a: 'Level 3', b: 'Level 4', at: [6, 10] })
+W.focus = 'Level 4'
+window.MAP = W
 </script>
+<script src="map.js"></script>
 </body>
 </html>

@@ -103,3 +103,47 @@ window.BASE.mid = {
   ...window.BASE.levels, saved: 'Not saved: 3 changes', changes: 3, list: window.BASE.midList,
   closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
 }
+
+// The world map's game, as the world file and the doors say (the level links spec, 2026-11-15). Places and sizes are
+// in tiles. Level 2 and Level 3 touch along an open stretch, so they are one place: the hero walks straight across, as
+// the test game's second and third levels do. Cave 1 hangs under Level 3, open where they meet, so you can drop in.
+// Level 4 sits apart, reached through a door. A page copies this and changes only what it is about (map.js draws it).
+window.BASE.world = () => ({
+  levels: [
+    { n: 'Level 1', x: 0, y: 2, w: 20, h: 12, hue: 0, start: true },
+    { n: 'Level 2', x: 24, y: 0, w: 20, h: 12, hue: 25, here: true },
+    { n: 'Level 3', x: 44, y: 0, w: 16, h: 12, hue: 50 },
+    { n: 'Cave 1', x: 44, y: 12, w: 16, h: 8, hue: 250 },
+    { n: 'Level 4', x: 64, y: 2, w: 20, h: 12, hue: 200 },
+    { n: 'Secret room', x: 6, y: 18, w: 12, h: 8, hue: 140 },
+    { n: 'The keep', x: 64, y: 18, w: 20, h: 12, hue: 180 },
+    { n: 'New level', x: 26, y: 18, w: 14, h: 8, add: true },
+  ],
+  edges: [
+    { a: 'Level 2', b: 'Level 3', at: [6, 10] },
+    { a: 'Level 3', b: 'Cave 1', at: [50, 54] },
+  ],
+  doors: [
+    { from: [18, 11], to: [26, 9] },
+    { from: [3, 12], to: [9, 23] },
+    { from: [58, 9], to: [66, 11] },
+    { from: [57, 18], to: [67, 27] },
+  ],
+  tip: 'Tap a level to go in. Drag a level against another and players walk straight across. A dashed arrow is a door.',
+})
+
+// What every map page shows around the map: the top bar says "All levels", Map is on, and there are no tools.
+window.BASE.map = {
+  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', holds: false, mapOn: true, state: 'world map',
+  parts: window.BASE.parts, part: 0, tool: 0, noTools: true,
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Levels', count: 7, fold: false },
+      { n: 'Level 1', i: 'squares-four', d: 1 }, { n: 'Level 2', i: 'squares-four', d: 1, on: true }, { n: 'Level 3', i: 'squares-four', d: 1 },
+      { n: 'Cave 1', i: 'squares-four', d: 1 }, { rest: 'and 3 more', d: 1 },
+    ],
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+}

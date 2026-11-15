@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, an edge that touches the next level (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* The stretch of the edge where Level 2 touches Level 3 and both are open: the same bar the map draws, so a person
+     who has seen one knows the other. */
+  .edgebar { position: absolute; z-index: 3; right: 0; top: 44%; height: 19%; width: 8px; transform: translateX(50%); background: #eeb480; border-radius: 2px; }
+  .edgecard { position: absolute; z-index: 5; right: 3%; top: 16%; display: grid; gap: 6px; width: min(300px, 46%); box-sizing: border-box; padding: 12px; border: 1px solid #eeb480; border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); color: var(--words); font: 400 13px / 1.35 var(--label); }
+  .edgecard b { display: flex; align-items: center; gap: 6px; font: 600 14px var(--label); }
+  .edgecard small { color: var(--quiet); font-size: 13px; }
+  .edgecard .sbtn { justify-content: center; min-height: 44px; }
+  .edgecard::after { content: ""; position: absolute; right: -3%; top: 100%; width: 2px; height: 60%; background: #eeb480; opacity: 0.6; }
+  @media (max-width: 600px), (max-height: 500px) {
+    .edgecard { width: 60%; top: 4%; padding: 8px; gap: 4px; }
+    .edgecard small { display: none; }
+    .edgecard::after { display: none; }
+  }
+</style>
+</head>
+<body>
+<!-- An edge that touches the next level (the level links spec, 2026-11-15: levels that touch are one seamless place).
+     Inside Level 2, the stretch of its right edge where it meets Level 3 is drawn as the map draws it, a bar, with a
+     card that says what it means: the hero walks straight across when you play, with no break. "Go to Level 3" opens
+     it; Map shows the two side by side. Nothing has to be marked by hand: the open stretch comes from the empty tiles,
+     so painting ground over it closes it (and the check says so, see the map). -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="edgebar"></div>
+      <div class="edgecard" role="note"><b><span class="ic" data-i="arrows-left-right"></span>Walk straight into Level 3</b><small>Level 2 and Level 3 touch here. When you play, the hero walks across with no break, and so can a crate.</small><button class="sbtn"><span class="ic" data-i="arrow-right"></span>Go to Level 3</button></div>
+    </div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, place: 'Level 2', values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

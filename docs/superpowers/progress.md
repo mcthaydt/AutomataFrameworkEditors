@@ -2,11 +2,34 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
-## The shell and World mockups (roadmap slice 3): the right panel folded away, and the language card on a phone held sideways (2026-11-15)
+## The shell and World mockups (roadmap slice 3): edge-joined levels, the right panel folded away, the language card (2026-11-15)
 
-Two finds of the Owner's, mockups only (no editor code). Progress on this step: **90%** until CI's pictures are read
-and the board is republished. The edge joins from the level links spec wait until the framework has them (the Owner,
-2026-11-15: "Not yet because we haven't built out the edge join yet").
+Mockups only (no editor code). What the merged level links spec (AutomataFramework PR 165,
+`specs/2026-11-15-level-links-and-world-map-design.md`) needs on screen, and two finds of the Owner's ("do collapsed
+right side panel, language screen, and whatever the edge-join spec says needs to be added, then do the review cycle").
+Progress on this step: **85%** until CI's pictures are read at five sizes and the board is republished. Next: the review
+cycle on this pull request, as the coordinator runs it.
+
+- **The world map, redrawn** (`map.js` draws every map page from one description, `BASE.world()` in `base.js`; the
+  stylesheet's section 27): each level at its true size where the world file puts it; where two levels touch and both
+  are open, a bar across the stretch ("Walk straight across"); a door as a dashed arrow from the door to where you come
+  out; the start marked; a key at the bottom so no mark has to be guessed. The test game's shape is in it: Level 2 and
+  Level 3 touch, one seamless place.
+- **Pushing levels together, and back:** `world-map-push` (dragging Level 4 to Level 3: the stretch shows dashed, a
+  line says what letting go does, the old spot is a dashed outline), `world-map-joined` (a note with Undo; the picked
+  level's bar: Go in, Move, Pull apart), `world-map-apart` (the opposite, with Undo), `world-map-move` (four arrows a tile
+  a tap, and the arrow keys, for anyone who cannot drag), `world-map-overlap` (on top of another level: red, and it goes
+  back), `world-map-menu` (held: Go in, Move with buttons, Pull apart, Rename, Make a copy, Delete) and
+  `world-map-deleted` (the door into it goes too; Undo).
+- **The check's messages:** `world-map-wall` (an edge open on one side only: a red dashed bar and a card with four ways
+  out, each undoable), the same problem in the problems list (`world-levels-problems`), and a change that puts two
+  levels together named on the Check changes sheet (`world-levels-check`).
+- **In a level:** `world-levels-edge` (the touching stretch drawn as on the map, "Walk straight into Level 3", "Go to
+  Level 3") and `world-levels-door` (a door's "Leads to" and "You come out", "To Level 2" over it).
+- **Words:** "Join" stays the tool that links a button to what it opens (the Owner's word), so levels "touch" and
+  players "walk straight across"; the two never share a word. What a button opens is a **gate** (drawn as bars), so it
+  never looks like a door into another level, and a button's "Stays open" is the spec's yes or no ("While pressed" or
+  "For good"); the old "for 5 seconds" slider and "Pressed by" are gone, since the spec has neither.
 
 - **The right panel folded away** ("what does it look like when the right side is collapsed"): each World part now has
   a pair, the settings shown and the same page with them folded away, so the board can set them side by side:

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · The check: an edge that leads into a wall (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The check, said on the map (the spec: an edge open on one side and solid on the other always has a sentence). Level 4 was let go higher up, so Level 3 is open where Level 4 has ground. The stretch is a red dashed bar with a warning, and a card says what is wrong in plain words and offers the ways out: clear the ground in Level 4 there, move Level 4 so the openings meet, pull them apart, or leave it for now (it stays in the problems list, and never stops anyone putting changes in). Each one can be undone. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map, saved: 'Not saved: 1 change', changes: 1, closed: [['Changes', 'clock-counter-clockwise', 1], ['Problems', 'warning', 1]] }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.x = 60; l4.y = 0; l4.picked = true
+W.edges.push({ a: 'Level 3', b: 'Level 4', at: [6, 10], state: 'wall' })
+W.card = { on: 'Level 4', html: '<h3><span class="ic" data-i="warning"></span>Players would walk into a wall</h3><p>Level 3 is open on its right side here, but Level 4 has ground in the way.</p><div class="go"><button class="sbtn main"><span class="ic" data-i="eraser"></span><span>Clear the ground in Level 4 there<small>8 tiles. Undo puts them back.</small></span></button><button class="sbtn"><span class="ic" data-i="arrow-down"></span><span>Move Level 4 down 2 tiles<small>So the openings meet</small></span></button><button class="sbtn"><span class="ic" data-i="arrows-out-line-horizontal"></span><span>Pull them apart</span></button><button class="sbtn"><span class="ic" data-i="x"></span><span>Leave it for now<small>It stays in the problems</small></span></button></div>' }
+W.focus = 'Level 4'
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

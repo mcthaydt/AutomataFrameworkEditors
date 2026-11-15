@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Pushing a level against another (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Pushing levels together: drag Level 4 by its picture toward Level 3. As its edge comes within a tile, the stretch where both are open shows as a dashed bar, and a line beside it says what letting go will do. Where it came from stays as a dashed outline. Dragging it away again leaves the two apart, so nothing happens until you let go, and Undo is at the top after. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.x = 61; l4.lift = true
+W.levels.splice(4, 0, { n: '', x: 64, y: 2, w: 20, h: 12, from: true })
+W.edges.push({ a: 'Level 3', b: 'Level 4', at: [6, 10], x: 60, state: 'soon' })
+W.hint = { on: 'Level 4', text: 'Let go here and players walk straight from Level 3 into Level 4. Drag it away to keep them apart.' }
+W.focus = 'Level 4'
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

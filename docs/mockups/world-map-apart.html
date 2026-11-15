@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Two levels pulled apart (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- "Pull apart" (or dragging it away) moves Level 4 four tiles off, so the two no longer touch. The bar is gone, and a note says what that means for players, with Undo. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="arrows-out-line-horizontal"></span><span><b>Level 3 and Level 4 no longer touch</b><small>Players can't walk across now. The door still takes them.</small></span><button class="sbtn">Undo</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map, saved: 'Not saved: 2 changes', changes: 2 }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.picked = true
+W.focus = 'Level 4'
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>
