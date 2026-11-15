@@ -2,6 +2,27 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Cycle 6: the 2D figure builder
+
+Spec: [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md). The Owner asked
+(2026-11-15) that every editor part get its own pipeline; this is the first. The demo game's art comes from the
+builders (the Owner, 2026-11-15), so this is on the path to Release 1. It starts building after Cycle 3's frame and
+level screen are on `main`, and after the framework's rigged-figures cycle (its spec,
+`2026-11-15-rigged-figures-design.md` in AutomataFramework), since the builder can change only what the file holds.
+
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Written; the Owner's Q1 to Q5 answered (2026-11-15); in review with the framework's rigged-figures spec | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
+| 2. Plan (plan G) | Written, in review, 100%. Eighteen tasks in six pull requests (each task is 5% of stage 4; the last 10% is the final green run and the review artifact). Three gates before any of it is built: the Owner's approval of the mockups of all editors (the Owner, 2026-11-15; where the Characters mockup differs, the plan is amended first), the Blueprint redesign's frame on `main`, and the framework's plan R on its `main` as far as each pull request needs. The pull requests: 1, the pin and one change of several files in the API; 2, the Characters frame, a figure on screen as the framework paints it, Body, Colours, the draft, Save and Export; 3, Wear with the library's tray, a shape of your own, Face; 4, Move (walk and stand) and Pose (by handles and joint by joint); 5, front and back views, players' colours, animals and free shapes; 6, New figure, giving a character a picture, Play, every action in the find bar, the first visit, every screen pictured. Rulings for the audit: the page paints the pictures at save and the API checks their size and atlas (it does not paint); a walk's or stand's numbers change the game's own copy of that file; painting stays on the main thread. No dependency is added. No Owner question is open | [`plans/2026-11-15-2d-figure-builder.md`](plans/2026-11-15-2d-figure-builder.md) |
+| 3. Plan audit | Done, 100%: no critical finding, eight important, four minor, all fixed in the plan in the audit's pull request. The ruling that the page paints the pictures is held, with the API now also checking each picture's colour table and a save carrying every picture a shared file repaints; one commit of several files is new GitHub work on the git data routes, with the calls counted; the first pull request needs plan R's new Part 0 (`listContent`); `CLAUDE.md`'s rule on what an editor writes is widened in Task 2; a pose's places are units from the hips; the redesign's Tasks 15 and 16 join gate 2; one shared `allowedPaths` (`service/changed.ts`) decides which files a save, an approval and the waiting list accept, so a waiting figure save can be approved (G-I8, from the scenes audit). No Owner question opened here; the games' art is in Lospec's DUEL palette (256 colours; the Owner, 2026-11-15), so on the demo Add a colour offers the library's DUEL ramps only. The three gates still hold. Nothing was run | [`audits/2026-11-15-2d-figure-builder-plan-audit.md`](audits/2026-11-15-2d-figure-builder-plan-audit.md) |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
 ## The Sound editor cycle
 
 Spec: [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md). Its new file formats are
