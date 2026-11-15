@@ -27,8 +27,9 @@ its side keeps room under the level for the names that hang below it).
 - **New pages:** `shell-tour-pick` (tour step 1, the level: tap the crate), `shell-tour-change` (step 3, a thing's
   settings: drag How heavy) and `world-levels-blocked` (Put in game when a problem must be fixed first; E20).
 - **The Owner's answers:** the helper's colour is now Grayish Lavender A (#b5b1d8), from Wada's combination No. 177,
-  which pairs it with an olive. The fonts are still open: the Owner asked to see main and secondary pairings first, so
-  four are drawn on real screens and the titles stay in Onest until one is picked.
+  which pairs it with an olive. The fonts: after seeing four main and secondary pairings on real screens, the Owner
+  picked Fraunces + Onest, the site's pair. Fraunces is the main font, for the few big titles (the welcome, the tour's
+  cards, a sheet's heading, a new level's card, Help, Settings and the keys); Onest is everything else.
 - **Left (low):** an upright phone's top bar cuts "Put in game 3" when it is also offline; "Start was here" wraps
   to three lines on a phone; the iPad's 240-point column still squeezes a few labels to two lines.
 - **Next:** the Owner's review.

@@ -6580,3 +6580,53 @@ html body.sh.touch[data-device="phone"] .keysheet {
     display: none;
   }
 }
+
+/* ---------- The editors' two fonts (the Owner, 2026-11-15, after seeing four pairings on real screens) ---------- */
+
+/* Fraunces, the website's title face, is the main font, for the few big titles only: the welcome, the tour's cards,
+   a sheet's heading, a new level's card, Help, Settings and the keys. Onest, the secondary font, is everything else.
+   Fraunces has no Russian letters, so a Russian title falls back to Onest; neither has Chinese, Japanese or Korean,
+   which get their own partner fonts in the real editors. Fraunces reads a little smaller than Onest at the same
+   size, so each title is set about two points larger than the Onest it replaces. */
+:root,
+body.sh {
+  --main: "Fraunces Variable", "Onest Variable", Georgia, serif;
+}
+
+html body.sh :is(.onb h2, .coach h3, .share-pop h3, .firstcard h3, .keysheet h2, .helpp > header h3, .setp > header h3) {
+  font-family: var(--main);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+html body.sh .onb h2 {
+  font-size: 24px;
+}
+
+/* The keys sheet's Close sits inside its title, and stays a button in Onest. */
+html body.sh .keysheet h2 .btn {
+  font: 500 13px var(--label);
+}
+
+html body.sh :is(.share-pop h3, .coach h3, .firstcard h3) {
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+html body.sh :is(.keysheet h2, .helpp > header h3, .setp > header h3) {
+  font-size: 20px;
+}
+
+/* A phone, or any screen with little height, keeps the welcome's title to one line, and an upright phone keeps the
+   keys sheet's title beside its Close button. */
+@media (max-width: 500px), (max-height: 600px) {
+  html body.sh .onb h2 {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 500px) {
+  html body.sh .keysheet h2 {
+    font-size: 18px;
+  }
+}
