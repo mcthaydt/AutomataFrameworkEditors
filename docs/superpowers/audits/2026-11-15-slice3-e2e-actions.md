@@ -26,8 +26,8 @@ to bring it back.
 
 ## Status: all 34 drawn (2026-11-15, the fixes round)
 
-Every gap below has a page or a change in the mockups; the pictures at five sizes are read in the fix round's own
-notes in `docs/superpowers/progress.md`. One question for the Owner is left open: **H6**, whether "Ask for a change" is
+Every gap below has a page or a change in the mockups, drawn at all five sizes on PR 64. CI's pictures were read in three
+rounds and the layout faults they showed are fixed (`docs/superpowers/progress.md` lists them). One question for the Owner is left open: **H6**, whether "Ask for a change" is
 enough on the check sheet or a separate "Don't put them in" is wanted. Each fix was held to the drunk-grandma test: the
 action can be found, says what it does, can be undone, and is never only a gesture.
 

@@ -4,14 +4,24 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 ## The shell and World mockups (roadmap slice 3): every action and its opposite, fixed (2026-11-15)
 
-Fixing the [actions check](audits/2026-11-15-slice3-e2e-actions.md) on PR 57, mockups only (no editor code), in one
-Sonnet session: all 34 gaps (6 high, 16 medium, 12 low), the Owner's own rule for each fix being the drunk-grandma
-test on top: find the action, understand what it did, undo a wrong tap, and no gesture nobody is told about (a
-visible button with a plain word wherever a press and hold or a pinch was the only way). Progress on this step:
-**65%**: the pages and the stylesheet are drawn and pushed (now on PR 64, which replaces PR 57: one merge commit on
-that branch carried the wrong author and a force-push is not allowed); the report marks all 34 gaps fixed; CI's
-pictures at five sizes are still to be read, and the board republished.
+Fixing the [actions check](audits/2026-11-15-slice3-e2e-actions.md), mockups only (no editor code), in one Sonnet
+session: all 34 gaps (6 high, 16 medium, 12 low), the Owner's own rule for each fix being the drunk-grandma test on top:
+find the action, understand what it did, undo a wrong tap, and no gesture nobody is told about (a visible button with a
+plain word wherever a press and hold or a pinch was the only way). Progress on this step: **95%**: the pages and the
+stylesheet are drawn and pushed on PR 64 (it replaces PR 57: one merge commit on that branch carried the wrong author and
+a force-push is not allowed); the report marks all 34 gaps fixed; CI's pictures at five sizes were read in three rounds
+(`d220dbe`, `c6fbdd0`, `e8a2b89`) and every layout fault they showed is fixed; the Editor Mockups board
+([the board](https://claude.ai/artifact/W5REbCVDUkABgoPY5Hxy2X)) is republished with 71 screens. What is left is the
+Owner's look, and his answer to H6.
 
+- **What the pictures showed, and the fixes:** three of the new classes (`.who`, `.chg`, `.key`) had the names of older
+  elements (a level's label, the changed dot, a keyframe diamond) and were drawn as those, so the people and changes rows
+  and the access key were crushed (renamed `.wh2`, `.cgr`, `.lkey`); the "..." menu's rows took a grid layout from the
+  line-up menu (a row layout for its own rows); "Show me" wrapped in the problems list; the language and games cards had
+  an empty level behind them; a note for a change made while waiting had no style and ran off the top; a picked join and a
+  deleted level had a hint under their note; the colours to paint with ran off an upright phone (two rows now) as did the
+  brush settings in a tray and the tile strip (six tiles fit, so "New tile" is in sight); Characters' top bar cut "Up to
+  date" on an upright iPad (the back button says "Level 1" there); the scene menu page showed a stray nudge pad.
 - **Shared pieces:** `base.js` (the level every World page shares, so a page only says what it is about),
   `frame.js` (the "..." beside a thing's name, "Done" on a phone's sheet, "Smaller", Undo and Redo as a pair, the back
   button, "Send 1 more", the menus that hang under the button that opened them) and a last section in `shell.css`.

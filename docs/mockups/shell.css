@@ -8558,3 +8558,8 @@ html body.sh.has-tilestrip .tilestrip {
     width: 52px;
   }
 }
+
+/* ----- 22. The tile menu hangs clear of the strip's words ("This tile" is not half covered) ----- */
+html body.sh .menup[data-under=".tt.more"] {
+  margin-top: 10px;
+}
