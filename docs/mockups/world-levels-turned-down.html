@@ -21,7 +21,7 @@
 <script src="base.js"></script>
 <script>
 window.MOCK = {
-  ...BASE.levels, values: null, saved: 'Mia, just now',
+  ...BASE.levels, values: null, saved: 'Mia, just now', list: { ...BASE.levels.list, rows: BASE.levels.list.rows.map((r) => ({ ...r, on: false })) },
 }
 </script>
 <script src="frame.js"></script>

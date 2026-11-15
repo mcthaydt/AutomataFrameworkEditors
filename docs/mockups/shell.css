@@ -8586,3 +8586,16 @@ html body.sh .share-pop .go.three .sbtn {
   flex: 1 1 auto;
   white-space: nowrap;
 }
+
+/* ----- 25. The Tiles pages on an upright phone: the colours are no longer half under the tile strip, and the little
+   "in the game" pictures are no longer cut by the tray. The drawing is a little smaller and the gaps a little tighter, so the
+   whole board (colours, drawing, pictures) fits between the tile strip and the tray. ----- */
+@media (max-width: 500px) {
+  html body.sh.has-tilestrip .board {
+    gap: 8px;
+  }
+
+  html body.sh.has-tilestrip .big canvas {
+    width: 52cqw;
+  }
+}

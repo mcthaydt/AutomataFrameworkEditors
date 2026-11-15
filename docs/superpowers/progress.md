@@ -11,8 +11,8 @@ plain word wherever a press and hold or a pinch was the only way). Progress on t
 stylesheet are drawn and pushed on PR 64 (it replaces PR 57: one merge commit on that branch carried the wrong author and
 a force-push is not allowed); the report marks all 34 gaps fixed; CI's pictures at five sizes were read in three rounds
 (`d220dbe`, `c6fbdd0`, `e8a2b89`) and every layout fault they showed is fixed; the Editor Mockups board
-([the board](https://claude.ai/artifact/W5REbCVDUkABgoPY5Hxy2X)) is republished with 71 screens. What is left is the
-Owner's look, and his answer to H6.
+([the board](https://claude.ai/artifact/W5REbCVDUkABgoPY5Hxy2X)) is republished with 73 screens (the two new ones are the
+turned-down pair, below). What is left is the Owner's look.
 
 - **What the pictures showed, and the fixes:** three of the new classes (`.who`, `.chg`, `.key`) had the names of older
   elements (a level's label, the changed dot, a keyframe diamond) and were drawn as those, so the people and changes rows
@@ -37,6 +37,11 @@ Owner's look, and his answer to H6.
 - **H6 answered (the Owner, 2026-11-15, "add it"):** the check sheet has a third answer, "Don't put them in". It turns the
   changes down with no message; Mia gets a note with an Undo (`world-levels-turned-down`) and Sam a note that nothing
   went in and his changes are still on his iPad (`world-levels-turned-down-sam`).
+- **What the last pictures showed, fixed (2026-11-15):** on an upright phone the Tiles pages had the first row of colours
+  half under the tile strip and the second "in the game" picture cut by the tray, so the drawing is a little smaller and the
+  gaps tighter (the stylesheet's section 25); the colours sit four and four, and "Button 1" stays on one line in the narrow
+  settings panel. A picture set on `ci-screens` can come from a run a newer push cancelled, so it is read only when that
+  run's pictures job finished.
 
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 
