@@ -2,6 +2,29 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The mockups, round three: handoff (2026-11-15, stopped for the night)
+
+The Owner stopped for the night at 07:04 UTC ("we'll revisit this tomorrow; we need to have a roadmap so we stick
+to the plan again"). Work picks up from that roadmap, not from here. Where things stand, all on PR 34
+(`docs/mockups/` only, no editor code):
+
+- **Done and on the branch:** round three's shell, the plain-words audit (122 fixes), design loops one (73)
+  and two (63 plus 19 leftovers), and the phone-name fix (84986a8, CI green, pictures checked).
+- **Pushed, pictures not yet checked:** grill round 1 for the shell and World (309ac5c) and the Apple Pencil report
+  (6f6b588). Grill reports: `/mnt/project-files/reports/2026-11-15-editor-mockups-round3-grill-1-shell-and-world.md`
+  and `...-grill-1b-apple-pencil.md`; LDtk picks: `.../2026-11-15-world-what-to-take-from-ldtk.md`. The Owner's
+  rules taken in: no auto-tiling rules at launch (the Tiles rules pages are gone), nothing in the shell 2D-only (no
+  "layer" on screen, the hold-buttons are a general strip), LDtk picks 1 to 6 and 9 drawn, the world map drawn,
+  Apple Pencil first-class. Ten new pages: `world-levels-place`, `-exact`, `-big`, `-paint`, `-one-start`,
+  `-links`, `-pencil`, and `world-map`.
+- **Not done:** CI's pictures of 6f6b588 checked at five sizes; the review page (artifact W5REbCVDUkABgoPY5Hxy2X,
+  its new list is written in the session's scratch copy but not published); the gate before the Owner sees it (an
+  Opus drunk-grandma audit, then two Fable UI/UX loops, then the grill thread's re-grill).
+- **Deviations to report:** on an upright phone Undo and Play stay at the toolbar's end (no room in the top bar);
+  only World turns on the hold-buttons so far; Levels does not dim the scenery (the hero and crate are in the art);
+  numbers are in the mono font, which reverses the plain-words audit; Pencil double tap's on-screen twin is the
+  toolbar's own Erase, not an extra button; squeeze and the felt tick are only on the Keys page.
+
 ## Must-fix for the first build after the mockups are approved
 
 Editor code is on hold until the Owner approves the mockups (`docs/mockups/`, PR 34). These wait for the first
