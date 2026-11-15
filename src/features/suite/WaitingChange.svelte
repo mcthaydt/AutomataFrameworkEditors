@@ -76,16 +76,11 @@
     if (!after.ok) return undefined
     const was = first.before === undefined ? undefined : parseContent('level', first.before, first.path)
     const before: Level | undefined = was?.ok ? was.value : undefined
-    // A level that was not there before is one thing "other" to say; one that was is told by what moved and the rest.
-    const compared = before === undefined ? undefined : compareLevels(before, after.value)
-    const rest =
-      compared === undefined
-        ? 1
-        : compared.added.length + compared.erased.length + compared.retyped.length + compared.other
+    const compared = before === undefined ? { moved: [], other: 1 } : compareLevels(before, after.value)
     return {
       level: after.value,
-      moved: compared?.moved ?? [],
-      other: rest + (levels.length - 1) + (change.changes.length - levels.length),
+      moved: compared.moved,
+      other: compared.other + (levels.length - 1) + (change.changes.length - levels.length),
     }
   })
 
