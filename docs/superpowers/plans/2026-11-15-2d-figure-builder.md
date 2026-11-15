@@ -29,14 +29,18 @@ listed there under "For the editors" and here under each task's Consumes. Princi
    before we do any code"). No task of this plan starts before that. Where the approved Characters mockup differs
    from the spec's drawings or from a layout in this plan, the mockup wins: amend this plan first, in its own small
    pull request with its own audit, as the zoom amendment was, and only then build.
-2. **The Blueprint redesign's frame is on `main`**: its plan's Tasks 7 to 13 and 17 (the frame, panels that close and
-   open, the notes, Save and Export, the first-visit tips, the find bar, nine languages). This plan names those parts
+2. **The Blueprint redesign's frame is on `main`**: its plan's Tasks 7 to 13, 15, 16 and 17 (the frame, panels that
+   close and open, the notes, Save and Export, the first-visit tips, the find bar, the game's page, the problems
+   shown in place, nine languages; 15 and 16 added by the audit, G-I7, since Task 4 here changes `GameHome` and every
+   panel shows problems the way Task 16 does). This plan names those parts
    as that plan does (`Frame`, `Pill`, `Cluster`, `Switcher`, `ComingSoon`, `Panel`, `Sheet`, `TitleBlock`, `Tip`,
    `FindBar`, `commands.ts`, `layout.ts`'s `shapeOf` and `roomFor`, the pinch and two-finger helpers of the zoom
    amendment, `WORDS`). Before Task 1, read `main` and write into the tracker any part whose name or place differs;
    use the real one. Play (Task 17 here) also needs that plan's Task 19.
 3. **The framework's plan R is on its `main`** as far as each pull request below says, and the pin has moved to it in
-   a pull request of its own.
+   a pull request of its own. Plan R's audit made its `automata.toml` writer (`listContent`, `automata add`) a Part 0
+   built before its Part 1, because this plan's first pull request needs it (G-I1), and renamed two of its names
+   that clashed on the public surface: a body plan is `BodyPlan` and a view is `FigureView`.
 
 ## Global Constraints
 
@@ -54,7 +58,16 @@ order, "the canvas draws the game and nothing else", stop rules). In addition:
   "kit" or "sheet" (add them to `tests/fixtures/banned.ts` for this feature's words). A variant is "colours for
   player 2"; a ramp is "a colour and its shades"; a place is "a hand"; a gait is "how it walks"; a stand is "how it
   stands". A slider's label is the framework's own sentence for it, translated. Every word added is added in all
-  nine languages in the same task.
+  nine languages in the same task. Every name the framework gives that reaches a screen (each slider, face style,
+  piece, gait, stand, the library palette's colours, bone and place) has its words by id, and a test walks the
+  framework's own tables (`PERSON_SLIDERS`, `FACE_STYLES`, `LIBRARY_KIT`, `BONES`, `PLACES` and, from Task 14, the
+  animal's) so a name a later pin adds fails CI until it has all nine (audit G-M1).
+- **The editors' own rule widens, in writing** (audit G-I5). `CLAUDE.md` says an editor "opens, writes and exports
+  only the content files (JSON) a game's `automata.toml` lists". This builder also writes the painted picture and
+  atlas beside a figure (the Owner's earlier decision: pictures are committed and written by the editor's save) and
+  one `[[content]]` block in `automata.toml` (the Owner's Q5: the builder makes new figures), written only by the
+  framework's `listContent`. Task 2 changes that line of `CLAUDE.md` to say so, and nothing else in `automata.toml`
+  is ever written.
 - **A slider at its normal is not written.** "Back to normal" removes the key from the file.
 - **What is saved is the framework's bytes:** content files by `writeContent`, pictures and atlases by `artFiles`,
   the `automata.toml` block by `listContent`. A test compares each.
@@ -71,9 +84,16 @@ order, "the canvas draws the game and nothing else", stop rules). In addition:
   still trusts nothing: it writes every content file itself with `writeContent`, checks each picture's size against
   `figureSheet` and each atlas byte for byte against `atlasOf`, and checks that the whole game loads. A picture whose
   pixels are wrong is caught by the game's own `automata check` in its CI, as a hand-made one would be.
+  **Audited and held** (G-I4), with three conditions written into Task 2: the API also checks each picture's colour
+  table (PNG `PLTE` and `tRNS`) equals the one the painter would write for that figure and kit, which needs no
+  painting and catches a picture recoloured outside its file; a change that alters other figures' pictures carries
+  those pictures too (G-I3); and the ruling leans on the game's CI running `automata check`, which every game made by
+  `automata create` does (`npm run check`) but Examples does not yet (plan D's Task 9.1 adds `artProblems` to its CI
+  before any figure lands there).
 - **Changing a walk's or a stand's numbers** changes a file of its own. For one of the framework's own, the builder
   first makes the game's copy, named `<figure>-walk` or `<figure>-stand`, points the figure at it and lists it; for
   the game's own it changes that file, and the save says which other figures use it. The same rule as the palette.
+  Those other figures' pictures change too, so the save repaints them and carries them (G-I3).
 - **Painting stays on the page's main thread.** One pose is painted on a change (`paintFrame`); strips paint one
   picture at a time when the page is idle; the whole picture is painted only to save or export. Moving it off the
   thread is a follow-up only if the Owner's review finds a lag that is felt.
@@ -143,12 +163,12 @@ Test hooks: `[data-mode="look|move|pose|players|play"]` with `aria-pressed`; `[d
 
 | Pull request | Tasks | Needs of the framework's plan R | A person can |
 |---|---|---|---|
-| 1. The pin and one change of many files | 1, 2 | Parts 1 to 3 on `main` | (nothing new on screen) |
+| 1. The pin and one change of many files | 1, 2 | Parts 0 to 3 on `main` (Part 0 is `listContent`, which Task 2's `list` and Task 10's game copy of a walk need) | (nothing new on screen) |
 | 2. Characters, a figure on screen, Body and Colours | 3 to 6 | the same | open a figure, change its body and colours, undo, save, export |
 | 3. Wear and Face | 7 to 9 | the same | dress it, add a shape of its own, change its face |
 | 4. Move and Pose | 10 to 12 | the same | set its walk and stand, make and mirror poses by handles and joint by joint |
 | 5. Views, Players, animals and free shapes | 13 to 15 | Parts 4 and 5 (a second pin) | add front and back, set players' colours, make an animal or a free shape |
-| 6. New figure, Play, the find bar, the first visit, every screen pictured | 16 to 18 | Part 6 (a third pin) | make a new figure, give a character a picture, play it, and be led in on a first visit |
+| 6. New figure, Play, the find bar, the first visit, every screen pictured | 16 to 18 | Part 6 (a third pin: `STARTERS`) | make a new figure, give a character a picture, play it, and be led in on a first visit |
 
 Each pull request is one branch, opened as a draft, green in every job, with its review artifact published (the
 redesign plan's "Review pictures", the five sizes) before it is reported finished.
@@ -172,9 +192,26 @@ their `automata.toml` blocks; the pretend GitHub's pictures made by `artFiles`, 
 ### Task 2: One change of several files
 
 **Files:** Create `src/features/service/change.ts`, `src/features/game/change.ts`; modify `wire/wire.ts`,
-`service/save.ts` (`saveLevel` becomes a caller), `service/service.ts` (the route), `github/repo.ts` only if it has no
-way to write several files in one commit, `api/api.ts`. Tests: `tests/features/service/change.test.ts`,
-`tests/features/game/change.test.ts`, `tests/journeys/save-problems.journey.test.ts`.
+`service/save.ts` (`saveLevel` becomes a caller), `service/service.ts` (the route), `github/repo.ts`, `api/api.ts`,
+the pretend GitHub under `tests/fixtures/fake-github/`, and `CLAUDE.md` (the one line on what an editor writes; see
+Global Constraints). Tests: `tests/features/service/change.test.ts`, `tests/features/game/change.test.ts`,
+`tests/features/github/repo.test.ts`, `tests/journeys/save-problems.journey.test.ts`.
+
+**`repo.ts` has no way to do this today** (audit G-I2). Its one writer, `saveFile`, is GitHub's contents route: one
+text file a commit. A figure's save is at least three files and one is a PNG. Add
+`saveFiles(save: { branch; files: readonly { path; text?: string; base64?: string; version?: string }[]; message; author })`
+on GitHub's git data routes: a blob for each file (`POST git/blobs`, the PNG as base64), one tree over the branch
+head's tree (`POST git/trees` with `base_tree`), one commit (`POST git/commits`), and the branch moved to it without
+force (`PATCH git/refs/heads/<branch>`, `force: false`). Before the tree, compare each given `version` with the
+file's blob at the head (`changed-elsewhere` naming the paths); a ref move GitHub refuses because the branch moved
+meanwhile is `changed-elsewhere` too, and nothing is half written, since nothing is on the branch until the ref moves.
+The pretend GitHub serves those four routes. `saveLevel` keeps `saveFile`.
+
+**Count GitHub calls** (audit G-I2). `wholeGameLoads` reads every listed file with one call each, and this change adds
+a blob for each file written. A Cloudflare Pages Function on the free plan may make 50 calls out per request. The
+pretend GitHub counts calls, and a test saves a figure into a game of 40 listed files and fails above 45; if it is
+over, read the listed files through one `GET git/trees/<head>?recursive=1` and the blobs it names only for the files
+the load needs, and say in the tracker which plan the editors' Pages project is on.
 
 **Interfaces:**
 - Produces, in `wire.ts`:
@@ -193,14 +230,20 @@ every `content` path is listed in the game's `automata.toml` as that type or is 
 framework's `listContent`; every content file's text is `writeContent(type, value)` and its id is its file's name;
 every `version` given is still the file's on the default branch (`changed-elsewhere`, with the paths in `details`);
 every `picture` and `atlas` sits beside a figure or backdrop in this change or in the game, the picture's PNG header
-says the size `figureSheet` or `backdropSheet` gives, and the atlas is byte for byte `atlasOf`'s; the whole game, with
+says the size `figureSheet` or `backdropSheet` gives, its colour table (`PLTE`, `tRNS`) is the one the painter writes
+for that figure and kit (worked out from the file and kit, with no painting), and the atlas is byte for byte
+`atlasOf`'s; every figure whose sheet the change alters (one that names a gait, stand, piece or palette the change
+writes) has its picture and atlas in the change too, else `broken` naming the figure (G-I3); the whole game, with
 the change laid over it, loads (`broken`, with the framework's sentences). Then one commit to `main` (Edit, Owner) or
 one waiting change (Suggest, Approve), exactly as a level's save goes today. At most 24 files and 6 MB a change:
 `bad-request` beyond.
 
 - [ ] **Step 1: Write the failing tests** against the pretend GitHub: a figure, its picture, atlas and palette in one
   commit; a new figure with its `automata.toml` block; each refusal above writes nothing; Review Focus 3 (the palette
-  moved under a save: `changed-elsewhere` naming it); a Suggest-level person gets one waiting change holding all the
+  moved under a save: `changed-elsewhere` naming it); the branch moved between the check and the ref (the pretend
+  GitHub refuses the ref) is `changed-elsewhere` and the branch is as it was; a picture of the right size with one
+  colour changed in its table is refused; a game gait changed without the other figure that walks with it is
+  refused naming that figure; the call count above; a Suggest-level person gets one waiting change holding all the
   files; `saveLevel` still passes every test it has.
 - [ ] **Step 2: Push; red.** **Step 3: Implement.** **Step 4: Push; green.**
 - [ ] **Step 5: Commit** `feat(service): one change of several files, each checked`
@@ -217,8 +260,9 @@ one waiting change (Suggest, Approve), exactly as a level's save goes today. At 
 
 **Interfaces:**
 - Consumes (framework): `FigureFile`, `RiggedFigure`, `FreeFigure`, `isRigged`, `PaletteFile`, `GaitFile`,
-  `StandFile`, `Character`, `GameContent`, `FigureKit`, `figureKit`, `PERSON_SLIDERS`, `ANIMAL_SLIDERS`,
-  `FACE_SLIDERS`, `FACE_STYLES`, `lightness`, `writeContent`, `artFiles`, `parseContent`.
+  `StandFile`, `Character`, `GameContent`, `FigureKit`, `figureKit`, `PERSON_SLIDERS`, `FACE_SLIDERS`,
+  `FACE_STYLES`, `lightness`, `writeContent`, `artFiles`, `parseContent` (not `ANIMAL_SLIDERS`, which is plan R's
+  Part 5 and this plan's second pin: Task 14 takes it; audit G-I1).
 - Produces:
   ```ts
   interface FigureWork {
@@ -249,7 +293,12 @@ one waiting change (Suggest, Approve), exactly as a level's save goes today. At 
 `change` with the same `merge` word as the step before it replaces that step, so a slider dragged across is one undo
 (`merge` is `slider:<id>`, `place:<pose>:<name>` and so on; a `pointerup` ends it). `filesOf` gives only what differs
 from `opened`, each content file with the version it was opened at, the figure's picture and atlas from `artFiles`,
-and `list` for a new file. `problemsOf` runs the framework's own reading and checks on the work laid over the game
+and `list` for a new file. When the work changes a file other figures use (the game's palette, gait or stand), the
+picture and atlas of **every** figure whose `artFiles` bytes change go in too (audit G-I3): `filesOf` paints the game
+with the work laid over it and keeps each picture that differs from the one the game has, so the save never leaves
+another figure's picture older than its file (which `automata check` would fail). Over the API's 24 files or 6 MB,
+`filesOf` says so before anything is sent (`problemsOf` gives "This change repaints too many pictures to save at
+once"). `problemsOf` runs the framework's own reading and checks on the work laid over the game
 and files each sentence under the panel whose field it names. `shadesOf` makes five shades from one colour: the
 colour itself the middle one, two darker and two lighter by fixed steps of lightness with the hue turned a little
 toward blue in the dark and toward yellow in the light (as the framework's own ramps go), each strictly lighter than
@@ -277,7 +326,7 @@ starts from ("Keeper: longer legs, a new hood").
 **Interfaces:**
 - Consumes: `paintFrame`, `paintFigure`, `figurePoses`, `frameName`; the frame's parts (gate 2).
 - Produces:
-  - `framePixels(work, kit, pose: string, view: View, player: number): ImageData` (cached by the work's identity,
+  - `framePixels(work, kit, pose: string, view: FigureView, player: number): ImageData` (cached by the work's identity,
     pose, view and player; the cache holds 64),
   - `fitFigure(room: { w: number; h: number }, frame: { w: number; h: number }): { scale: number; x: number; y: number }`
     (the biggest whole `scale` from 1 to 32 that leaves 24 px round the figure; never under 1), `stepZoom(scale, by)`,
@@ -337,7 +386,9 @@ target with a note naming the slider and its number while it is dragged; a drag 
 **Interfaces:**
 - Consumes: `saveChange` (Task 2), `filesOf`, `describeChange`, the frame's Save, Export, stamps and Leave.
 - Produces: `ColoursPanel`; `keepWork(store, game, work)`, `takeWork(store, game, figureId)`, `dropWork(…)` under
-  `af.draft:<owner>/<name>:figure:<id>`; `figureCopy(work): { text: string; png: Blob }`.
+  `af.draft:<owner>/<name>:<path>`, the figure file's path, the shape `game/draft.ts` already uses for a level (a
+  new figure has its path from the start; audit G-M2), so `CLAUDE.md`'s list of what the device keeps needs no new
+  shape; `figureCopy(work): { text: string; png: Blob }`.
 
 Colours: each of the palette's colours is a row, its name and its shades together as one 48 px swatch. A person
 touches a named colour of the figure (in a list at the panel's top: Skin, Hair, Eyes, then each piece's; or on the
@@ -441,7 +492,9 @@ the kit's gaits as choices with translated names, then the step's numbers as sli
 sentences; a number changed repaints the walk while it plays; the pictures it makes are a strip under it and a touch
 on one stops there. A run or trot has its own tab when the gait has one. Stand: the kit's stands as pictures of this
 figure standing each way, then "How much it breathes" and "How much it shifts". Changing a number follows the ruling
-above (`setGaitNumber` makes and lists `<figure>-walk` the first time). Watch its clips: a strip of
+above (`setGaitNumber` makes and lists `<figure>-walk` the first time, through Task 2's `list`, which is plan R's
+Part 0 `listContent`; a second change to the game's own gait repaints every figure that walks with it, Task 3's
+`filesOf`, and the save names them first). Watch its clips: a strip of
 `clipsOf`; a touch plays that clip on the figure at its own speed and changes nothing; "Change the clips" is a
 `ComingSoon` link. Motion honours reduced motion: the walk does not start by itself, and Play walk is a button.
 
@@ -460,12 +513,16 @@ above (`setGaitNumber` makes and lists `<figure>-walk` the first time). Watch it
 - Produces: `newPose(work, from: string, name: string): Done`, `renamePose(content, work, id, name): Done`,
   `erasePose(content, work, id): Done` (refused, naming the clips, when a character's clip plays it),
   `mirrorPose(work, id): Done`, `clearPose(work, id): Done`,
-  `movePlace(work, kit, pose: string, place: string, to: { x: number; y: number }, view: View): Done & { stopped?: boolean }`,
+  `movePlace(work, kit, pose: string, place: string, to: { x: number; y: number }, view: FigureView): Done & { stopped?: boolean }`,
   `turnPlace(work, pose, place, by: number): Done`,
   `poseHandles(work, kit, pose, view, scale): readonly { place: string; x: number; y: number; at: { x: number; y: number } }[]`,
   `hitHandle(handles, x, y): string | undefined`.
 
-`movePlace` in the side view writes the place's `x` and `y`; in the front or back view it writes `out` and `y`. A
+`movePlace` in the side view writes the place's `x` and `y`; in the front or back view it writes `out` and `y`. Plan
+R's audit made a place's numbers **units from the hips** (a unit is the figure's height ÷ 24), not frame pixels, so a
+pose survives a change of height or legs in Look (audit G-I6): `movePlace` turns the touch's screen point into the
+frame's pixels by the zoom, then into units from the hips' standing point, and writes those, rounded to one decimal.
+A
 point past the reach is brought back to the reach along the same line and `stopped` is true (the note says "RIGHT
 HAND, as far as it goes"); a point the framework still refuses leaves the work as it was. `poseHandles` puts each
 handle on its place; where two would be closer than 44 px on screen they fan out round their middle with a thin line
@@ -644,3 +701,14 @@ review with the pictures.
   (Task 4), first sliders and groups (Task 5, from the framework's table), handles (Tasks 5 and 11), the tray's order
   and search (Task 7), the main thread (rulings), the cut (the table).
 - **Not here, by the spec:** clips, behaviour, the hero's move switches, movement numbers, 3D, importing a picture.
+
+## Plan audit (2026-11-15)
+
+Audited in [`audits/2026-11-15-2d-figure-builder-plan-audit.md`](../audits/2026-11-15-2d-figure-builder-plan-audit.md).
+The fixes are in this page: the first pull request needs plan R's new Part 0 (`listContent`), and the names each
+task takes are on plan R's parts that come before it (G-I1); a commit of several files is new GitHub work through the
+git data routes, with the calls counted (G-I2); a save repaints and carries every figure a shared file changes
+(G-I3); the API also checks each picture's colour table, and the ruling that the page paints is held (G-I4); the
+editors' own rule on what they write is widened in `CLAUDE.md` (G-I5); a pose's places are units from the hips
+(G-I6); the redesign's Tasks 15 and 16 join gate 2 (G-I7); and the minor ones. The Owner's palette question on plan
+R's audit (Q1) touches this plan only through "Add a colour" on the demo game; nothing here waits for it.
