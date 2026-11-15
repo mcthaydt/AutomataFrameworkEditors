@@ -2,6 +2,28 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the plain-words audit's fixes (2026-11-15)
+
+Pull request 56 (branch `claude/project-thread-3v0bsz`) replaces 55: it carries every commit of 55 and adds the fixes
+from the Opus plain-words audit (`/mnt/project-files/reports/2026-11-15-slice3-plain-words-audit.md`, at 4f0135d,
+52 findings). Progress on this step: **60%** (B1, the words and the simplicity fixes pushed; the layout fixes wait on
+CI's pictures). Branch `claude/project-thread-h6n4o2` (55's) is to be deleted.
+
+- **B1 done:** the icons (192 Phosphor files the pages name) and the three fonts (latin and latin-ext) are copied
+  into `docs/mockups/assets/` with `LICENCES.txt`. No package came back.
+- **Words done (W1 to W24):** "Put in game" / "Send to check" (Share is kept for the people screen) with "3 only on
+  this iPad" / "Everyone has it" as the button's second line; Pick, "Slide the view"; "In this level", "Add things",
+  rail labels "In it" and "Add"; "Show"; zoom in words; "Drag a copy", "Straight lines"; "3 more settings";
+  "Make another" and "…"; "Not the same"; "Your helper"; Crate 1; Fall off; Camera stops here; Ledge; Hurts;
+  "Takes 3 hits"; Patch; the Tiles brush "Draw"; Keys sheet words and one line for what needs the iPad app.
+- **Simplicity done:** S2/B5 (mid-project shows the helper's card with nothing picked; an open menu takes its bar's
+  place), S3, S4, S6, S7, S8, S10, S11, S12, S13, S14. S5: the top bar says "1 problem" in words above phone size.
+- **Deviation:** slider values keep their number, small, beside the new word ("Quite heavy 1.6"): the grill round
+  asked that sliders never hide their numbers, so both stay. W13: the Group line is removed from the Keys sheet.
+- **Still to do here:** look at CI's pictures and fix B2 to B14 and S1 (phone and phone sideways), then republish
+  the review page (artifact W5REbCVDUkABgoPY5Hxy2X) with the shell and World only. Then, in its own thread, the one
+  Fable UI/UX pass.
+
 ## The shell and World mockups (roadmap slice 3): handoff (2026-11-15, 08:10 UTC)
 
 The work is now on pull request 55 (branch `claude/project-thread-h6n4o2`), which carries every commit of pull
