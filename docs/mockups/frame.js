@@ -299,7 +299,7 @@ function frame(m) {
   const editor = EDITORS.find(([word]) => word.toLowerCase() === m.editor)
   const n = changesOf(m)
   const parts = (m.parts || [])
-    .map(([word, , soon], i) => `<button class="${i === m.part ? 'on' : ''}${soon ? ' soon' : ''}">${word}</button>`)
+    .map(([word, , soon], i) => `<button class="${i === m.part ? 'on' : ''}${soon ? ' later' : ''}">${word}</button>`)
     .join('')
   const ws = EDITORS.map(([word]) =>
     word === editor[0]
@@ -323,7 +323,7 @@ function frame(m) {
     <button class="ib cmdk" title="Find or do anything (⌘K)">${icon('magnifying-glass')}<kbd>⌘K</kbd></button>
     <span class="faces"><span class="face">S</span><span class="face b">M</span></span>
     <span class="kept">${n ? 'Kept on this iPad' : `Shared · ${(m.saved || '').replace(/^Not saved.*/, 'just now')}`}</span>
-    <button class="share">${icon('share-network')}<span>Share</span>${n ? `<span class="n">${n}</span>` : ''}</button>
+    <button class="share">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}</span>` : ''}</button>
   </header>
   ${leftPanel(m)}
   ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}</aside>` : ''}
@@ -331,7 +331,7 @@ function frame(m) {
   ${m.play ? playbar(m.play) : ''}
   <div class="sh-tools">
     ${m.settings ? `<div class="opts">${m.settings.join('')}</div>` : ''}
-    <nav class="bar"><button class="tl2 lay" title="Layers and Assets">${icon('stack')}<span>Layers</span></button>${tools}<i class="div"></i><button class="tl2 u" title="Undo">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button></nav>
+    <nav class="tbar"><button class="tl2 lay" title="Layers and Assets">${icon('stack')}<span>Layers</span></button>${tools}<i class="div"></i><button class="tl2 u" title="Undo">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button></nav>
   </div>
   <span class="sh-zoom">${m.zoom || '100%'}</span>
   <div class="mock-tag">Mockup${m.state ? ` · ${m.state}` : ''}</div>`

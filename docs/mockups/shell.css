@@ -308,8 +308,8 @@ body.sh .mock-tag {
   color: var(--words);
 }
 
-.parts button.soon,
-.partsn button.soon {
+.parts button.later,
+.partsn button.later {
   color: var(--faint);
 }
 
@@ -1057,7 +1057,7 @@ body.sh .sh-bottom {
   gap: 6px;
 }
 
-.sh-tools .bar {
+.sh-tools .tbar {
   display: flex;
   align-items: center;
   gap: 2px;
@@ -1351,7 +1351,7 @@ body.sh .dim {
   font-size: 13px;
 }
 
-.share-pop .chg {
+.share-pop .sc {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1360,8 +1360,8 @@ body.sh .dim {
   font-size: 13px;
 }
 
-.share-pop .chg img,
-.share-pop .chg .pic {
+.share-pop .sc img,
+.share-pop .sc .pic {
   width: 20px;
   height: 20px;
   image-rendering: pixelated;
@@ -1369,7 +1369,7 @@ body.sh .dim {
   color: var(--quiet);
 }
 
-.share-pop .chg small {
+.share-pop .sc small {
   margin-left: auto;
   color: var(--faint);
 }
@@ -1557,7 +1557,7 @@ body.sh kbd {
     display: none;
   }
 
-  .sh-top .share span:not(.n) {
+  .sh-top .share .w {
     display: none;
   }
 
@@ -1623,7 +1623,7 @@ body.sh kbd {
     justify-content: flex-start;
   }
 
-  .sh-tools .bar {
+  .sh-tools .tbar {
     flex-direction: column;
     height: 100%;
     border-radius: 0;
@@ -1653,5 +1653,50 @@ body.sh kbd {
   .sh-play {
     left: calc(64px + (100% - 64px - var(--right-w)) / 2);
     top: calc(var(--top-h) + 6px);
+  }
+}
+
+/* Pictures in the lists keep their small square, whatever round two said about .pic. */
+.sh-left .lr .pic,
+.sh-left .lr img.pic {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.sh-left .ai .pic,
+.sh-left .ai img.pic {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+body.sh .daybar {
+  left: calc(var(--left-w) + 12px);
+  top: auto;
+  bottom: calc(var(--bottom2-h) + 20px);
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .compare2 .fine {
+    display: none;
+  }
+
+  body.sh .daybar {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .sh-top .logo {
+    display: none;
+  }
+
+  .partsn button {
+    padding: 0 7px;
   }
 }
