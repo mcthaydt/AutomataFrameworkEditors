@@ -56,12 +56,24 @@ stage 7 is 6)
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Written, in review; Q1 (a map of cards), Q2 (a save missing words waits until all six languages are there) and Q2b (a native speaker may mark words read) answered by the Owner | [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md) |
-| 2. Plan | Written, in review (2026-11-15): 24 tasks in eight pull requests | [`plans/2026-11-15-story-editor.md`](plans/2026-11-15-story-editor.md) |
+| 2. Plan | Written, in review (2026-11-15): 24 tasks in eight pull requests; amended with every finding of the plan audit (2026-11-15) | [`plans/2026-11-15-story-editor.md`](plans/2026-11-15-story-editor.md) |
 | 3. Plan audit | Done (2026-11-15): 2 critical, 12 important, 11 minor; the plan is amended before the tasks each names | [`audits/2026-11-15-story-editor-plan-audit.md`](audits/2026-11-15-story-editor-plan-audit.md) |
-| 4. Execution | Not started; waits for the plan's amendment, the mockups' approval (the Owner, 2026-11-15), plan T and the redesign's build | |
+| 4. Execution | Not started; the plan is amended, so it waits only for the mockups' approval (the Owner, 2026-11-15), plan T and the redesign's build | |
 | 5. Implementation audit | Not started; two audits (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### The plan amended (2026-11-15)
+
+Every finding of the plan audit is now written into the task it changes, tagged with its number. The gates gain
+G3b (the framework's camera shot, plan T's Task 11, before Tasks 15 to 17), G6 (the framework's content folders and
+`withFolders`, plan M) and G7 (the shared several-file save of the figure builder's plan, before Tasks 4 to 6). Story
+writes no `automata.toml` byte of its own and has no save route of its own. The App finishes a complete words change
+when GitHub says its checks passed (`/api/github-hook`), and a change that clashes with `main` is brought up to date
+key by key. An approver reads a Story change in plain lines and can open it in Story; World's stamp says when a save
+joined a change waiting for words (the one change to World). Made ids start with a letter and every key fits 96
+characters; long choices wrap; typing beside the preview never presses it. Nothing was run: this read documents
+only. The percentage stays at 12 until stage 4 starts.
 
 ### Stage 3 finished (2026-11-15)
 
