@@ -9159,3 +9159,33 @@ html body.sh .mcard .go .sbtn.main small {
     margin-bottom: 8px;
   }
 }
+
+/* Two last tidy-ups from the map's pictures: "New level" sits under its plus, not on it, and on a phone held sideways
+   the check's card is a little tighter, so its last way out ("Leave it for now") is whole. */
+html body.sh .lv2.add .ic {
+  margin-bottom: 18px;
+}
+
+@media (max-height: 500px) and (min-width: 600px) {
+  html body.sh .wmap .mcard {
+    bottom: 32px;
+    padding: 10px 12px;
+  }
+
+  html body.sh .mcard h3 {
+    margin-bottom: 2px;
+    font-size: 15px;
+  }
+
+  html body.sh .mcard p {
+    font-size: 13px;
+  }
+
+  html body.sh .mcard .go {
+    gap: 4px;
+  }
+
+  html body.sh .mcard .go .sbtn {
+    padding: 4px 12px;
+  }
+}
