@@ -74,10 +74,10 @@ and reports any that differs before building on it): `Frame`, `Pill`, `Cluster`,
 ## The Owner's answers this plan builds
 
 Q1 A (live play of the real level, the jump drawn as a note), Q2 A (effects after plan F), Q3 B (switches live in
-Characters). **Q4 was changed by the Owner on 2026-11-15, after the spec was merged:** Feel lists its effects folder
+Characters). **Q4 was changed by the Owner on 2026-11-15, after the spec was written:** Feel lists its effects folder
 once in `automata.toml`, as Sound does, and does not add a line for each effect. The spec's Q4 row, its "What Feel
-edits" row for `automata.toml` and its "Adding an effect" bullet need a short amendment to say so; Part 3 below is
-planned the new way.
+edits" row for `automata.toml` and its "Adding an effect" bullet were amended to say so (2026-11-15, with this plan);
+Part 3 below is planned that way.
 
 ## Rulings made by this plan
 
