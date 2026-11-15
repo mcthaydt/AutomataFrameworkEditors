@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World · Levels, mid-project (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
 <style>
   .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
@@ -28,21 +29,12 @@
       <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
-      <span class="chip" style="left:74%;top:56%"><span class="ic" data-i="link"></span>Opens the door</span>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
       <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall out</span></div>
       <div class="pickbox" style="left:36.5%;top:62.5%;width:27%;height:22%"></div>
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
-      <div class="float selbar" style="left:30%;top:46%">
-        <b>3 picked</b>
-        <button><span class="ic" data-i="copy"></span>Copy</button>
-        <button><span class="ic" data-i="align-bottom"></span>Line up</button>
-        <button><span class="ic" data-i="arrows-horizontal"></span>Space out</button>
-        <button><span class="ic" data-i="selection-all"></span>Group</button>
-        <button><span class="ic" data-i="eraser"></span>Erase</button>
-      </div>
       <div class="mate" style="left:20%;top:30%">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2 L18 9 L10 11 L7 18 Z" fill="#b7b492" stroke="#111314" stroke-width="1.2"/></svg>
         <span>Mia</span>
@@ -53,7 +45,7 @@
 </div>
 <script>
 window.MOCK = {
-  editor: 'world', place: 'Level 1', saved: 'Not saved: 3 changes', zoom: '100%', changes: 3, state: 'mid-project',
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 3 changes', zoom: '100%', changes: 3, state: 'mid-project', ghost: { img: 'art/crate.png', at: [76, 72.6], card: [33, 34], who: 'Agent · from your chat', text: 'Crate-4 was half in the ground. I lifted it onto the grass.' },
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],

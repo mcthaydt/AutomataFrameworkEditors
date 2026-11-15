@@ -1,4 +1,4 @@
-// The shared frame every mockup page borrows, built from the page's `window.MOCK`: the pill, the parts and the tool's
+// The shared frame every mockup page borrows, built from the page's `window.MOCK`. Round three draws one shell
 // own settings row, the cluster, the tools (each with its key), the "Everything here" list, the values panel, the
 // Library drawer, the play controls, the selection bar, the notes' switch, the zoom, the title block and undo and
 // redo. It also fills in the Phosphor icons (`data-i`), the flags (`data-flag`) and the sketched pixel figures
@@ -163,231 +163,191 @@ const pic = (r) =>
         ? `<i class="pic swatch" style="background:${r.sw}"></i>`
         : `<span class="pic">${icon(r.i || 'cube')}</span>`
 
-// One row of the values panel. Every row shows the plain words, and under them, small, the name the file uses, so a
-// person and their agent can name the same value. A changed value has a dot and "put back".
-function valueRow(r) {
-  const file = r.f ? `<code>${r.f}</code>` : ''
-  const label = `<span class="vl">${r.ch ? '<i class="chg"></i>' : ''}${r.l}${file}</span>`
-  const back = r.ch ? `<button class="iconbtn back" aria-label="Put back">${icon('arrow-u-up-left')}</button>` : ''
+// ---------- round three: one shell, the canvas is the app ----------
+// The Owner (2026-11-15): Figma-simple. One shell with the five editors as workspaces; the canvas in the middle;
+// Layers and Assets on the left; an inspector on the right that shows the few values that matter and keeps the rest
+// under More; one small toolbar; play in place; edits kept on the device as a draft until Share; a plain dark look
+// with palette No. 310 only for accents.
+
+// The five tools every workspace shares. Each workspace gives them its own meaning (Paint paints tiles in World and
+// notes in Sound; Draw path links cards in Story), so learning one workspace teaches all five.
+const TOOLS = [
+  ['Move', 'cursor', 'V'],
+  ['Place', 'plus-square', 'A'],
+  ['Paint', 'paint-brush', 'B'],
+  ['Draw path', 'path', 'L'],
+  ['Play', 'play', 'P'],
+]
+// Round two's tools, mapped onto the five.
+const TOOL_OF = {
+  pick: 0, hand: 0, pose: 0, erase: 0, mirror: 0, select: 0, find: 0,
+  add: 1, 'add a key': 1, 'add a card': 1, 'add a loop': 1, 'add a part': 1, note: 1, camera: 1, record: 1,
+  paint: 2, pencil: 2, scatter: 2, fill: 2, box: 2, light: 2, 'pick a color': 2,
+  link: 3, zone: 3, measure: 3, line: 3, trim: 3, cut: 3, 'onion skin': 3,
+  play: 4, 'try it': 4,
+}
+
+// What each editor's own changes are, for the Share button.
+const changesOf = (m) => m.changes || Number((/(\d+) change/.exec(m.saved || '') || [])[1] || 0)
+
+function insRow(r) {
+  const tip = r.f ? ` title="${r.f}"` : ''
+  const dot = r.ch ? '<i class="dot"></i>' : ''
+  const label = `<span class="il"${tip}>${dot}${r.l}${r.f ? `<code>${r.f}</code>` : ''}</span>`
   switch (r.t) {
     case 'num':
-      return `<div class="vrow">${label}<span class="vin">${r.v}${r.u ? `<small>${r.u}</small>` : ''}</span><span class="pm"><button class="sq">${icon('minus')}</button><button class="sq">${icon('plus')}</button></span>${back}</div>`
+      return `<div class="ir">${label}<span class="scrub">${r.v}${r.u ? `<small>${r.u}</small>` : ''}</span></div>`
     case 'slider':
-      return `<div class="vrow slide">${label}<span class="vin">${r.v}</span>${back}<span class="rail2"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
+      return `<div class="ir sl">${label}<span class="scrub">${r.v}</span><span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     case 'choice':
-      return `<div class="vrow${r.opts.join('').length > 16 ? ' wide' : ''}">${label}<span class="seg">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span>${back}</div>`
+      return `<div class="ir${r.opts.join('').length > 18 ? ' wide' : ''}">${label}<span class="segs">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span></div>`
     case 'sw':
-      return `<div class="vrow">${label}<span class="knob2${r.on ? ' on' : ''}"></span>${back}</div>`
+      return `<div class="ir">${label}<span class="tog${r.on ? ' on' : ''}"></span></div>`
     case 'pick':
-      return `<div class="vrow">${label}<span class="vpick">${pic(r)}${r.v}${icon('caret-down')}</span>${back}</div>`
+      return `<div class="ir">${label}<span class="drop">${pic(r)}<span>${r.v}</span>${icon('caret-down')}</span></div>`
     case 'text':
-      return `<div class="vrow text">${label}<span class="vtext">${r.v}</span></div>`
+      return `<div class="ir tx">${label}<span class="tbox">${r.v}</span></div>`
     case 'btns':
-      return `<div class="vbtns">${r.b.map(([w, ic, main]) => `<button class="btn small${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
+      return `<div class="ibtns">${r.b.map(([w, ic, main]) => `<button class="sbtn${main ? ' main' : ''}">${icon(ic)}${w}</button>`).join('')}</div>`
     case 'html':
       return r.h
     default:
-      return `<p class="vnote">${r.l}</p>`
+      return `<p class="inote">${r.l}</p>`
   }
 }
 
-function valuesPanel(v, tabs) {
-  const groups = v.groups
-    .map(
-      (g) =>
-        `<div class="group${g.open ? ' open' : ''}"><button class="ghead">${icon(g.open ? 'caret-down' : 'caret-right')}<span class="label">${g.name}</span>${g.count ? `<span class="gcount">${g.count}</span>` : ''}</button>${g.open ? `<div class="grows">${g.rows.map(valueRow).join('')}</div>` : ''}</div>`,
-    )
-    .join('')
-  return `<section class="float panel values">
-    <header class="panel-head">
-      <nav class="tabs">${tabs.map(([t, c, n, ic], i) => `<button class="${c || ''}${i === 0 ? ' on' : ''}" aria-label="${t}">${ic ? icon(ic) : ''}<span class="tw">${t}</span>${n ? `<span class="gcount">${n}</span>` : ''}</button>`).join('')}</nav>
-      <span class="ptitle">${v.pic ? pic(v.pic) : ''}<span><b>${v.title}</b><small>${v.sub || ''}</small></span></span>
-      <button class="iconbtn" aria-label="Close">${icon('x')}</button>
-    </header>
-    ${v.search === false ? '' : `<div class="vsearch">${icon('magnifying-glass')}<span>${v.searchText || 'Find a value'}</span></div>`}
-    <div class="vbody">${v.top || ''}${groups}</div>
-  </section>`
+// The inspector shows the few values that matter for what is picked (at most `keep`), under the group they belong to;
+// everything else is one "More" line. A group still says "Soon" when it is not built yet.
+function inspector(v, keep) {
+  let shown = 0
+  let hidden = 0
+  const parts = []
+  for (const g of v.groups) {
+    const rows = g.open ? g.rows : []
+    const take = []
+    for (const r of rows) {
+      const counts = r.t !== 'btns' && r.t !== 'html' && r.t !== 'note' && r.t !== undefined
+      if (shown < keep || !counts) {
+        if (counts) shown++
+        take.push(r)
+      } else hidden++
+    }
+    if (!g.open) hidden += g.count || 1
+    if (take.length) parts.push(`<div class="igroup"><h4>${g.name}</h4>${take.map(insRow).join('')}</div>`)
+  }
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${v.title}</b><small>${v.sub || ''}</small></span>
+      <button class="ib" aria-label="Show the file's names" title="Show the file's names">${icon('brackets-curly')}</button></header>
+    <div class="ibody">${v.top || ''}${parts.join('')}
+      ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}</div>`
 }
 
-// "Everything here": every thing in what is open, with its picture, its name, an eye and a lock.
-function listPanel(l) {
-  const rows = l.rows
+function layers(l) {
+  return l.rows
     .map((r) =>
       r.head
-        ? `<div class="lhead label">${icon('caret-down')}${r.head}${r.count ? `<span class="gcount">${r.count}</span>` : ''}</div>`
-        : `<div class="lrow${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}">${pic(r)}<span class="ln">${r.n}${r.k ? `<small>${r.k}</small>` : ''}</span><span class="lic">${r.warn ? `<span class="ic warn" data-i="warning"></span>` : ''}${icon(r.hid ? 'eye-slash' : 'eye')}${icon(r.lock ? 'lock-simple' : 'lock-simple-open')}</span></div>`,
+        ? `<div class="lh">${r.head}</div>`
+        : `<div class="lr${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}">${pic(r)}<span class="ln">${r.n}</span>${r.warn ? icon('warning') : ''}${r.hid ? icon('eye-slash') : ''}${r.lock ? icon('lock-simple') : ''}</div>`,
     )
     .join('')
-  return `<section class="float panel listpanel">
-    <header class="panel-head"><button class="iconbtn railopen" aria-label="Open the list">${icon('sidebar-simple')}</button><span class="label">${l.title || 'Everything here'}</span>${l.count ? `<span class="gcount">${l.count}</span>` : ''}<button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
-    <div class="vsearch">${icon('magnifying-glass')}<span>${l.search || 'Find by name'}</span></div>
-    <div class="lbody">${rows}</div>
-    ${l.foot ? `<div class="lfoot">${l.foot}</div>` : ''}
-  </section>`
 }
 
-// The Library: everything the game owns, as pictures, with kinds to filter by. Closed, it is one button.
-function library(lib) {
-  if (!lib.open)
-    return `<button class="float libtab">${icon('books')}<span>Library</span><kbd>L</kbd></button>`
-  const items = lib.items
-    .map((it) => `<div class="litem${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span>${it.note ? `<small>${it.note}</small>` : ''}</div>`)
-    .join('')
-  return `<section class="float library">
-    <header class="panel-head"><span class="label">${icon('books')} Library</span>
-      <span class="vsearch inline">${icon('magnifying-glass')}<span>Find in the game</span></span>
-      <nav class="kinds">${lib.filters.map((f, i) => `<button class="${i === (lib.on || 0) ? 'on' : ''}">${f}</button>`).join('')}</nav>
-      <button class="iconbtn on" aria-label="Pinned open">${icon('push-pin')}</button><button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
-    <div class="litems">${items}</div>
-  </section>`
+function assets(lib) {
+  return `<div class="afil">${(lib.filters || ['All']).map((f, i) => `<button class="${i === (lib.on || 0) ? 'on' : ''}">${f}</button>`).join('')}</div>
+    <div class="agrid">${lib.items.map((it) => `<div class="ai${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></div>`).join('')}</div>`
 }
 
-// Play as a tool: pause, one step, slow, start again, play from here, and the last 30 seconds to drag back through.
-function transport(p) {
-  return `<div class="float transport">
-    <button class="iconbtn">${icon(p.paused ? 'play' : 'pause')}</button>
-    <button class="iconbtn" aria-label="One step">${icon('skip-forward')}</button>
-    <span class="seg">${['1×', '½', '¼'].map((s, i) => `<button class="${i === (p.speed || 0) ? 'on' : ''}">${s}</button>`).join('')}</span>
-    <button class="iconbtn" aria-label="Start again">${icon('arrow-counter-clockwise')}</button>
-    <button class="btn small">${icon('map-pin')}Play from here</button>
-    <span class="rewind"><span class="label">Last 30 s</span><span class="rbar"><i style="--at:${p.at || 100}%"></i></span><span class="num">${p.time || '0:12'}</span></span>
+function leftPanel(m) {
+  const onAssets = !m.list && m.library
+  const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Assets.</p>'
+  return `<aside class="sh-left">
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">Layers</button><button class="${onAssets ? 'on' : ''}">Assets</button><button class="ib" aria-label="Hide">${icon('sidebar-simple')}</button></nav>
+    <div class="lsearch">${icon('magnifying-glass')}<span>Find</span></div>
+    <div class="lbody">${body}</div>
+  </aside>`
+}
+
+// Play in place: the level runs where it is drawn. Pause, one step, slow, start again, play from here, and the
+// last 30 seconds to drag back through.
+function playbar(p) {
+  return `<div class="sh-play">
+    <button class="ib">${icon(p.paused ? 'play' : 'pause')}</button>
+    <button class="ib" title="One step">${icon('skip-forward')}</button>
+    <span class="segs">${['1×', '½', '¼'].map((s, i) => `<button class="${i === (p.speed || 0) ? 'on' : ''}">${s}</button>`).join('')}</span>
+    <button class="ib" title="Start again">${icon('arrow-counter-clockwise')}</button>
+    <button class="ib" title="Play from here">${icon('map-pin')}</button>
+    <span class="rew"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}</span>
+    <button class="ib stop" title="Stop">${icon('stop')}</button>
   </div>`
-}
-
-// A timeline from data: a ruler, then rows each with keys (at % of the length), bars and marked moments.
-function timeline(t) {
-  const ruler = `<div class="ruler-n">${t.unit || 'seconds'}</div><div class="ruler-t">${t.ruler.map((r, i) => `<span style="left:${(i / (t.ruler.length - 1)) * 100}%">${r}</span>`).join('')}</div>`
-  const rows = t.rows
-    .map((r) => {
-      const keys = (r.keys || []).map((k, i) => `<i class="key${r.onKey === i ? ' on' : ''}" style="left:${k}%"></i>`).join('')
-      const bars = (r.bars || []).map(([a, b, w, c]) => `<span class="bar ${c || ''}" style="left:${a}%;width:${b - a}%">${w || ''}</span>`).join('')
-      const evts = (r.evts || []).map(([a, w]) => `<span class="evt" style="left:${a}%"><span>${w}</span></span>`).join('')
-      return `<div class="tn${r.on ? ' on' : ''}" style="--d:${r.d || 0}">${r.i ? icon(r.i) : ''}${r.n}</div><div class="tt">${bars}${keys}${evts}</div>`
-    })
-    .join('')
-  return `<div class="tlwrap" style="--at:${t.at || 0}"><div class="tl" style="--cols:${t.cols || 16}">${ruler}${rows}</div><i class="playhead"></i></div>`
-}
-
-// The panel along the bottom (a timeline, the lanes of a song): attached between the list and the values on a
-// sideways iPad and a computer, with the Library as its second tab.
-function bottomPanel(b, lib) {
-  return `<section class="float dockbottom">
-    <header class="panel-head"><nav class="btabs"><button class="on">${icon(b.icon || 'film-strip')}${b.title}</button>${lib ? `<button>${icon('books')}Library</button>` : ''}</nav>${b.head || ''}<button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
-    <div class="bbody">${b.tl ? timeline(b.tl) : ''}${b.html || ''}</div>
-  </section>`
-}
-
-// One bar along the bottom for the small facts (sideways iPad and computer): the notes, where the pointer is, the
-// zoom as a number, the grid and snap, how many are picked, who saved last, the arrangement of panels, undo and redo.
-function statusBar(m) {
-  const st = m.status || {}
-  const bits = [
-    `<span class="sb"><span class="dot"></span>Drawing notes</span>`,
-    st.pointer === false ? '' : `<span class="sb">${icon('crosshair-simple')}<span class="num">${st.pointer || '12, 4'}</span>${st.unit || 'tiles'}</span>`,
-    `<span class="sb"><span class="num zoomin">${m.zoom || '100%'}</span></span>`,
-    st.grid === false ? '' : `<span class="sb">${icon('grid-four')}${st.grid || 'Grid: tiles'}</span>`,
-    st.snap === false ? '' : `<span class="sb">Snap<span class="knob2 on mini"></span></span>`,
-    m.picked ? `<span class="sb on">${m.picked} picked</span>` : '',
-    st.extra || '',
-  ]
-  return `<footer class="statusbar">${bits.join('')}<span class="sbfill"></span>
-    <span class="sb">${icon('layout')}Panels: ${st.layout || 'Building'}${icon('caret-down')}</span>
-    <span class="sb">${/^not/i.test(m.saved || '') ? m.saved : `Saved: ${m.saved || 'not yet'}`}</span>
-    <button class="iconbtn">${icon('arrow-counter-clockwise')}</button><button class="iconbtn">${icon('arrow-clockwise')}</button></footer>`
 }
 
 function frame(m) {
   const editor = EDITORS.find(([word]) => word.toLowerCase() === m.editor)
+  const n = changesOf(m)
   const parts = (m.parts || [])
-    .map(
-      ([word, ic, soon], i) =>
-        `<button class="${i === m.part ? 'on' : ''}">${icon(ic)}${word}${soon ? ' <span class="soon">Soon</span>' : ''}</button>`,
-    )
+    .map(([word, , soon], i) => `<button class="${i === m.part ? 'on' : ''}${soon ? ' soon' : ''}">${word}</button>`)
     .join('')
-  const tools = m.tools
-    .map(
-      ([word, ic, key, more, soon], i) =>
-        `<button class="tool${i === m.tool ? ' on' : ''}">${icon(ic)}<span class="label">${word}</span>${key ? `<kbd>${key}</kbd>` : ''}${more ? '<i class="more"></i>' : ''}${soon ? '<span class="soon">Soon</span>' : ''}</button>`,
-    )
-    .join('')
-    // A phone has room for the first few tools; "More" opens the rest, each with its word.
-    + (m.tools.length > 5 ? `<button class="tool more-tools">${icon('dots-three')}<span class="label">More</span></button>` : '')
-  const switcher = EDITORS.map(
-    ([word, ic]) => `<button class="${word === editor[0] ? 'on' : ''}">${icon(ic)}<span class="label">${word}</span></button>`,
+  const ws = EDITORS.map(([word]) =>
+    word === editor[0]
+      ? `<span class="ws on"><b>${word}</b><span class="parts">${parts}</span></span>`
+      : `<button class="ws">${word}</button>`,
   ).join('')
-  const settings = m.settings ? `<div class="float settings">${m.settings.join('<span class="ssep"></span>')}</div>` : ''
+  const was = (m.tools?.[m.tool]?.[0] || 'pick').toLowerCase()
+  const tool = m.t ?? (m.play ? 4 : TOOL_OF[was] ?? 0)
+  const tools = TOOLS.map(
+    ([word, ic, key], i) => `<button class="tl2${i === tool ? ' on' : ''}${i === 4 ? ' play' : ''}" title="${word} (${key})">${icon(i === 4 && m.play ? 'stop' : ic)}<span>${i === 4 && m.play ? 'Stop' : word}</span></button>`,
+  ).join('')
+  const problems = (m.closed || []).find(([w]) => w === 'Problems')?.[2]
   const html = `
-  <div class="float pill">
-    <button class="where"><span class="long"><span class="game">Crate Game · </span>${m.place}</span><span class="short">${m.place} · ${editor[0]}</span>${icon('caret-down')}</button>
-    <span class="sep"></span>
-    <nav class="switcher">${switcher}</nav>
+  <header class="sh-top">
+    <button class="game"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
+    <nav class="sh-ws">${ws}</nav>
+    <button class="wsn"><b>${editor[0]}</b>${icon('caret-down')}</button>
+    <nav class="partsn">${parts}</nav>
+    <span class="fill"></span>
+    ${problems ? `<button class="ib warn" title="${problems} problem">${icon('warning')}<span>${problems}</span></button>` : ''}
+    <button class="ib cmdk" title="Find or do anything (⌘K)">${icon('magnifying-glass')}<kbd>⌘K</kbd></button>
+    <span class="faces"><span class="face">S</span><span class="face b">M</span></span>
+    <span class="kept">${n ? 'Kept on this iPad' : `Shared · ${(m.saved || '').replace(/^Not saved.*/, 'just now')}`}</span>
+    <button class="share">${icon('share-network')}<span>Share</span>${n ? `<span class="n">${n}</span>` : ''}</button>
+  </header>
+  ${leftPanel(m)}
+  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}</aside>` : ''}
+  ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
+  ${m.play ? playbar(m.play) : ''}
+  <div class="sh-tools">
+    ${m.settings ? `<div class="opts">${m.settings.join('')}</div>` : ''}
+    <nav class="bar"><button class="tl2 lay" title="Layers and Assets">${icon('stack')}<span>Layers</span></button>${tools}<i class="div"></i><button class="tl2 u" title="Undo">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button></nav>
   </div>
-  <div class="row2">${parts ? `<nav class="float parts">${parts}</nav>` : ''}${settings}</div>
-  <div class="float cluster">
-    <span class="find hide-phone">${icon('magnifying-glass')}<span class="long">Find or do anything</span><span class="key">⌘K</span><span class="short label">Find</span></span>
-    <button class="iconbtn keys hide-narrow" aria-label="Keys and gestures">${icon('keyboard')}</button>
-    <button class="flagbtn" aria-label="English">${flag('us')}</button>
-    <button class="btn small hide-narrow export">${icon('export')}Export</button>
-    <button class="btn small hide-narrow">${icon('share-network')}Share</button>
-    <button class="btn main">${icon('floppy-disk')}<span>Save</span>${m.changes ? `<span class="count">${m.changes}</span>` : ''}<span class="faces"><span class="face">S</span><span class="face b">M</span></span></button>
-  </div>
-  <nav class="float tools">${tools}</nav>
-  ${m.list ? listPanel(m.list) : ''}
-  ${m.library && !m.bottom ? library(m.library) : ''}
-  ${m.play ? transport(m.play) : ''}
-  ${m.bottom ? bottomPanel(m.bottom, m.library) : ''}
-  ${statusBar(m)}
-  <div class="float notes-switch"><span class="dot"></span><span class="label">Drawing notes</span><span class="label touch">On</span></div>
-  <div class="float zoom"><button class="iconbtn">${icon('magnifying-glass-minus')}</button><span class="num zoomv">${m.zoom || '100%'}</span><button class="iconbtn">${icon('magnifying-glass-plus')}</button><button class="iconbtn">${icon('corners-out')}</button></div>
-  <div class="float titleblock">
-    <div><b>Game</b>Crate Game</div><div><b>${m.what || 'Level'}</b>${m.place}</div>
-    <div><b>Editor</b>${editor[0]}</div><div class="keep"><b>Saved</b>${m.saved || 'Not saved yet'}</div>
-  </div>
-  <div class="float undo"><button class="iconbtn">${icon('arrow-counter-clockwise')}</button><button class="iconbtn">${icon('arrow-clockwise')}</button></div>
-  <div class="mock-tag">Mockup · not the build${m.state ? ` · ${m.state}` : ''}</div>`
+  <span class="sh-zoom">${m.zoom || '100%'}</span>
+  <div class="mock-tag">Mockup${m.state ? ` · ${m.state}` : ''}</div>`
   document.body.insertAdjacentHTML('beforeend', html)
-
-  // The right side: the values panel the frame builds, or the page's own panels; with the closed panels' row above.
-  let panels = document.querySelector('.panels')
-  if (!panels) {
-    panels = document.createElement('div')
-    panels.className = 'panels'
-    document.body.append(panels)
-  }
-  const tabs = [
-    ...(m.tabs || []).map((t) => [t]),
-    m.values ? [m.values.tab || m.values.title] : null,
-    m.list ? [m.list.title || 'Everything here', 't-dock'] : null,
-    m.library ? ['Library', 't-dock'] : null,
-    ...(m.closed || []).map(([w, ic, n]) => [w, 't-closed', n, ic]),
-  ].filter(Boolean)
-  if (m.values) panels.insertAdjacentHTML('afterbegin', valuesPanel(m.values, tabs))
-  const closed = (m.closed || [])
-    .map(([w, ic, count]) => `<button class="chipbtn">${icon(ic)}${w}${count ? `<span class="gcount">${count}</span>` : ''}</button>`)
-    .join('')
-  if (closed) panels.insertAdjacentHTML('afterbegin', `<div class="closed">${closed}</div>`)
-  if (m.libraryOpen || (m.library?.open && !m.bottom)) document.body.classList.add('lib-open')
-  if (m.list) document.body.classList.add('has-list')
-  if (m.play) document.body.classList.add('has-play')
-  if (m.bottom) document.body.classList.add('has-bottom')
-  if (m.bottom?.open !== false && m.bottom) document.body.classList.add('bottom-open')
-  if (!m.values) document.body.classList.add('no-values')
-  // Row size follows the hand, not the window: with a pointer (a mouse, a trackpad) the rows are small; with a finger
-  // they stay 44 points. A page can ask for either, to show both.
+  const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
+  if (m.play) cls.push('playing')
+  if (m.bottom) cls.push('has-bottom2')
+  if (m.settings) cls.push('has-opts')
   const fine = m.hand ? m.hand === 'fine' : !(navigator.maxTouchPoints > 0)
-  document.body.classList.add(fine ? 'fine' : 'touch')
-  for (const c of m.body || []) document.body.classList.add(c)
+  cls.push(fine ? 'fine' : 'touch')
+  document.body.classList.add(...cls, ...(m.body || []))
+  // An agent's change waits on the canvas as a ghost: where the thing would go, what the agent says, Keep or Undo.
+  const stage = document.querySelector('.stage')
+  if (m.ghost && stage) {
+    const g = m.ghost
+    stage.insertAdjacentHTML(
+      'beforeend',
+      `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">
+      <div class="agent" style="left:${g.card[0]}%;top:${g.card[1]}%"><b>${icon('sparkle')}${g.who || 'Agent'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
+    )
+  }
 }
 
 frame(window.MOCK)
-// Both sizes of the same panel, side by side: what a finger gets and what a mouse or a trackpad gets.
+// Both row sizes of the same inspector, side by side: what a finger gets and what a mouse or a trackpad gets.
 if (window.MOCK.compare) {
   const c = window.MOCK.compare
-  const one = (hand, words) =>
-    `<figure class="${hand}"><figcaption class="label">${words}</figcaption>${valuesPanel(c, [[c.tab || c.title], ['Changes', 't-closed'], ['Problems', 't-closed']])}</figure>`
+  const one = (hand, words) => `<figure class="${hand}"><figcaption>${words}</figcaption><div class="sh-right inline">${inspector(c, 6)}</div></figure>`
   document.querySelector('.fit').insertAdjacentHTML(
     'beforeend',
-    `<div class="compare">${one('touch', 'With a finger: 44 points a row')}${one('fine', 'With a mouse, a trackpad or a hovering Pencil: small rows')}</div>`,
+    `<div class="compare2">${one('touch', 'With a finger: 44 points a row')}${one('fine', 'With a mouse, a trackpad or a hovering Pencil: small rows')}</div>`,
   )
 }
 Object.assign(PIXELS, window.MOCK.pixels || {})

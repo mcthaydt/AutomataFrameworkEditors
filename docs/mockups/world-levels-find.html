@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Find or do anything (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- ⌘K, or the magnifier in the top bar: one box finds any value, thing or file, and does any command, with its key beside it, so nobody hunts through menus. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+      <span class="chip" style="left:45%;top:66%"><span class="ic" data-i="cube"></span>Crate-1</span>
+      <span class="tip" style="left:22%;top:50%">Drag the crate anywhere</span>
+    </div>
+  </div>
+</div>
+<div class="dim"></div>
+<section class="pop cmd">
+  <div class="q"><span class="ic" data-i="magnifying-glass"></span>jump<i></i></div>
+  <h5>Values</h5>
+  <div class="r on"><span class="ic" data-i="sliders-horizontal"></span>How high it jumps <small>Hero · Feel</small><span class="k">3.5 tiles</span></div>
+  <div class="r"><span class="ic" data-i="sliders-horizontal"></span>Jump just after a ledge <small>Hero · Feel</small><span class="k">0.10 s</span></div>
+  <h5>Things</h5>
+  <div class="r"><span class="ic" data-i="radio-button"></span>Jump button <small>Controls · Feel</small></div>
+  <div class="r"><span class="ic" data-i="speaker-high"></span>Jump sound <small>Sound</small></div>
+  <h5>Do</h5>
+  <div class="r"><span class="ic" data-i="play"></span>Play from here<kbd>P</kbd></div>
+  <div class="r"><span class="ic" data-i="share-network"></span>Share my changes<kbd>⌘S</kbd></div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%', state: 'find open',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Snap to tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Halves</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Crate-1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate-1',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '6', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '7', u: 'tiles' },
+        { t: 'choice', l: 'Facing', f: 'facing', opts: ['Left', 'Right'], on: 1 },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With the hero', 'In front'], on: 1 },
+      ] },
+      { name: 'What it does <span class="soon">Soon</span>', open: true, rows: [
+        { l: 'From the kind “Crate”. Change one here and only this crate changes.' },
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+        { t: 'btns', b: [['Open the kind in Characters', 'arrow-square-out']] },
+      ] },
+      { name: 'Your own values', count: 0, rows: [] },
+      { name: 'Notes for the team', count: 0, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

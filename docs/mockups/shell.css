@@ -1,0 +1,1657 @@
+/* Round three (the Owner, 2026-11-15): one shell, Figma-simple, a plain dark look. Neutral greys carry the frame;
+   palette No. 310's peach (touch) and olive (mark) are only accents: what is picked, what is on, the one main button.
+   Loaded after mockup.css: it re-points the shared colour tokens, so every page's own drawing turns neutral too, and
+   it lays out the new shell, which uses its own class names so none of round two's frame rules reach it. */
+
+:root,
+body.sh {
+  --ground: #1e1e1e;
+  --raised: #2a2a2a;
+  --panel: #252525;
+  --hover: #333333;
+  --line: #383838;
+  --words: #ededed;
+  --quiet: #9c9c9c;
+  --faint: #6e6e6e;
+  --touch: #eeb480;
+  --mark: #a7a24a;
+  --on-touch: #1e1e1e;
+  --edge: var(--line);
+  --title: "Onest Variable", system-ui, sans-serif;
+  --corner: 6px;
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  --top-h: 48px;
+  --left-w: 240px;
+  --right-w: 280px;
+  --bottom2-h: 0px;
+  --tools-h: 76px;
+  --play-h: 0px;
+  --row: 44px;
+  --fs: 15px;
+}
+
+body.sh {
+  background: var(--ground);
+  color: var(--words);
+  font: var(--fs) / 1.35 var(--label);
+}
+
+body.sh.fine {
+  --row: 30px;
+  --fs: 13px;
+  --tools-h: 64px;
+}
+
+body.sh.no-left {
+  --left-w: 48px;
+}
+
+body.sh.no-right {
+  --right-w: 0px;
+}
+
+body.sh.has-bottom2 {
+  --bottom2-h: 34vh;
+}
+
+body.sh.playing {
+  --play-h: 56px;
+}
+
+/* The canvas fills what the panels leave; the drawing area keeps clear of the toolbar. */
+body.sh .canvas {
+  top: var(--top-h);
+  left: var(--left-w);
+  right: var(--right-w);
+  bottom: 0;
+}
+
+body.sh .canvas.paper {
+  background-color: #1a1a1a;
+  background-image: radial-gradient(circle, #333 1px, transparent 1.4px);
+  background-size: 24px 24px;
+}
+
+body.sh .fit {
+  top: calc(16px + var(--play-h));
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--bottom2-h) + var(--tools-h) + 8px);
+}
+
+body.sh .stage.grid::before {
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.12) 1px, transparent 1px);
+}
+
+/* Labels are words, not signage. */
+body.sh .label {
+  font: 500 12px / 1.2 var(--label);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+body.sh .num {
+  font-size: 13px;
+}
+
+/* Floating notes on the canvas stay quiet and small. */
+body.sh .float {
+  background: rgb(37 37 37 / 0.96);
+  backdrop-filter: none;
+  border: 1px solid var(--line);
+  border-radius: var(--corner);
+  box-shadow: var(--shadow);
+}
+
+body.sh .chip {
+  font: 500 12px / 1.2 var(--label);
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgb(30 30 30 / 0.88);
+  color: var(--words);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: none;
+  padding: 4px 7px;
+}
+
+body.sh .chip .ic {
+  color: var(--quiet);
+}
+
+body.sh .tip {
+  font: 500 13px / 1.3 var(--label);
+  background: var(--touch);
+  color: var(--on-touch);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+body.sh .tip::after {
+  border-top-color: var(--touch);
+}
+
+body.sh .ring {
+  border-color: var(--touch);
+  border-style: solid;
+  border-width: 1.5px;
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+body.sh .ring.warn {
+  border-color: #e5484d;
+}
+
+body.sh .pinned {
+  font: 13px / 1.35 var(--label);
+  max-width: 220px;
+  padding: 8px 10px 8px 34px;
+  border-radius: 12px 12px 12px 2px;
+  background: #2f2f2f;
+}
+
+body.sh .pinned::before {
+  content: "M";
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #8fb3a3;
+  color: #1e1e1e;
+  font: 600 11px / 20px var(--label);
+  text-align: center;
+}
+
+body.sh .pinned b {
+  display: block;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--quiet);
+}
+
+body.sh .mock-tag {
+  position: absolute;
+  z-index: 30;
+  right: calc(var(--right-w) + 12px);
+  top: calc(var(--top-h) + 10px);
+  left: auto;
+  bottom: auto;
+  font: 500 11px / 1 var(--label);
+  color: var(--faint);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ib {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--quiet);
+  cursor: pointer;
+}
+
+.touch .ib {
+  min-width: 44px;
+  height: 44px;
+}
+
+.ib .ic {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- the top bar: the game, the five workspaces, find, who is here, Share ---------- */
+
+.sh-top {
+  position: absolute;
+  z-index: 20;
+  inset: 0 0 auto;
+  height: var(--top-h);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.sh-top button {
+  font: inherit;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sh-top .game {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sh-top .logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--touch);
+}
+
+.sh-top .game .ic,
+.sh-top .wsn .ic {
+  width: 12px;
+  height: 12px;
+  color: var(--quiet);
+}
+
+.sh-ws {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 12px;
+}
+
+.sh-ws .ws {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+.sh-ws .ws.on {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 3px 3px 10px;
+  background: var(--raised);
+  color: var(--words);
+}
+
+.sh-ws .ws.on b {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.parts button,
+.partsn button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 5px;
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+.parts button.on,
+.partsn button.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+.parts button.soon,
+.partsn button.soon {
+  color: var(--faint);
+}
+
+.wsn,
+.partsn {
+  display: none;
+}
+
+.sh-top .fill {
+  flex: 1;
+}
+
+.sh-top .cmdk kbd {
+  font: 11px var(--label);
+  color: var(--faint);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  position: static;
+}
+
+.sh-top .warn {
+  color: #f0a35e;
+  font-size: 13px;
+}
+
+.faces {
+  display: flex;
+  margin: 0 6px;
+}
+
+.faces .face {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #c9b3e6;
+  color: #1e1e1e;
+  font: 600 12px var(--label);
+  border: 2px solid var(--panel);
+}
+
+.faces .face.b {
+  margin-left: -6px;
+  background: #8fb3a3;
+}
+
+.kept {
+  color: var(--faint);
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: 6px;
+}
+
+.sh-top .share {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--touch);
+  color: var(--on-touch);
+  font-weight: 600;
+}
+
+.touch .sh-top .share {
+  height: 44px;
+}
+
+.sh-top .share .n {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.18);
+  font-size: 12px;
+}
+
+/* ---------- the left panel: Layers and Assets ---------- */
+
+.sh-left,
+.sh-right {
+  position: absolute;
+  z-index: 10;
+  top: var(--top-h);
+  bottom: 0;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sh-left {
+  left: 0;
+  width: var(--left-w);
+  border-right: 1px solid var(--line);
+}
+
+.ltabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 8px 4px;
+}
+
+.ltabs button {
+  font: 500 13px var(--label);
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--quiet);
+}
+
+.ltabs button.on {
+  background: var(--raised);
+  color: var(--words);
+}
+
+.ltabs .ib {
+  margin-left: auto;
+  min-width: 30px;
+  height: 30px;
+}
+
+.lsearch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 8px 6px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--raised);
+  color: var(--faint);
+  font-size: 13px;
+}
+
+.lsearch .ic {
+  width: 14px;
+  height: 14px;
+}
+
+.lbody {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 6px;
+}
+
+.lh {
+  padding: 10px 8px 4px;
+  font: 500 12px var(--label);
+  color: var(--faint);
+}
+
+.lr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--row);
+  padding: 0 8px 0 calc(8px + var(--d) * 14px);
+  border-radius: 6px;
+  color: var(--words);
+  font-size: 13px;
+}
+
+.lr.on {
+  background: color-mix(in srgb, var(--touch) 18%, transparent);
+}
+
+.lr.hid {
+  color: var(--faint);
+}
+
+.lr .pic {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: grid;
+  place-items: center;
+  color: var(--quiet);
+}
+
+.lr .ln {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lr > .ic {
+  width: 14px;
+  height: 14px;
+  color: var(--faint);
+}
+
+.lr > .ic[data-i="warning"] {
+  color: #f0a35e;
+}
+
+.afil {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 2px 2px 8px;
+}
+
+.afil button {
+  font: 12px var(--label);
+  height: 26px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--raised);
+  color: var(--quiet);
+}
+
+.afil button.on {
+  background: var(--words);
+  color: var(--ground);
+}
+
+.agrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.ai {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px 6px;
+  border-radius: 8px;
+  background: var(--raised);
+  font-size: 11px;
+  color: var(--quiet);
+  text-align: center;
+}
+
+.ai.on {
+  outline: 1.5px solid var(--touch);
+}
+
+.ai .pic {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: grid;
+  place-items: center;
+  color: var(--words);
+}
+
+.ai .pic .ic {
+  width: 24px;
+  height: 24px;
+}
+
+.empty {
+  color: var(--faint);
+  font-size: 13px;
+  padding: 8px;
+}
+
+/* With nothing to list, the left panel is a slim rail with its two tabs as icons. */
+.no-left .sh-left .ltabs button:not(.ib),
+.no-left .sh-left .lsearch,
+.no-left .sh-left .lbody {
+  display: none;
+}
+
+.no-left .sh-left .ltabs {
+  flex-direction: column;
+  padding: 8px 6px;
+}
+
+.no-left .sh-left .ltabs .ib {
+  margin: 0;
+}
+
+/* ---------- the inspector: the few values that matter, the rest under More ---------- */
+
+.sh-right {
+  right: 0;
+  width: var(--right-w);
+  border-left: 1px solid var(--line);
+}
+
+.sh-right.inline {
+  position: static;
+  width: 280px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.ihead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px 10px 16px;
+}
+
+.ihead .pic {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 6px;
+  background: var(--raised);
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: grid;
+  place-items: center;
+  padding: 3px;
+}
+
+.ihead .it {
+  flex: 1;
+  min-width: 0;
+}
+
+.ihead b {
+  display: block;
+  font: 600 15px / 1.2 var(--label);
+}
+
+.ihead small {
+  display: block;
+  color: var(--quiet);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ibody {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 16px 16px;
+}
+
+.igroup {
+  border-top: 1px solid var(--line);
+  padding: 10px 0 6px;
+}
+
+.igroup h4 {
+  margin: 0 0 4px;
+  font: 600 12px / 1.4 var(--label);
+  color: var(--words);
+}
+
+.igroup h4 .soon {
+  font: 500 11px var(--label);
+  color: var(--faint);
+  background: none;
+  border: 0;
+  padding: 0 0 0 4px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ir {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  min-height: var(--row);
+}
+
+.il {
+  color: var(--quiet);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.il code {
+  display: none;
+}
+
+.ir .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--touch);
+  vertical-align: 1px;
+}
+
+/* A number is scrubbed: drag sideways on it to change it, or tap it to type. */
+.scrub {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 64px;
+  justify-content: flex-end;
+  height: calc(var(--row) - 12px);
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--raised);
+  font: 13px var(--measure);
+  cursor: ew-resize;
+}
+
+.scrub small {
+  font: 11px var(--label);
+  color: var(--faint);
+}
+
+.ir.sl {
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: 0;
+  padding-bottom: 4px;
+}
+
+.track {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  margin: 6px 0 4px;
+  border-radius: 2px;
+  background: var(--hover);
+}
+
+.track i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--at);
+  border-radius: 2px;
+  background: var(--quiet);
+}
+
+.track i::after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  top: -5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--words);
+}
+
+.touch .track i::after {
+  right: -9px;
+  top: -7px;
+  width: 18px;
+  height: 18px;
+}
+
+.ir .ends {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--faint);
+  padding: 0;
+}
+
+.segs {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--raised);
+}
+
+.segs button {
+  font: 12px var(--label);
+  height: calc(var(--row) - 16px);
+  padding: 0 9px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+.segs button.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+.ir.wide {
+  grid-template-columns: 1fr;
+  padding-bottom: 6px;
+}
+
+.ir.wide .segs {
+  display: flex;
+}
+
+.ir.wide .segs button {
+  flex: 1;
+}
+
+.tog {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--hover);
+}
+
+.tog::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--quiet);
+}
+
+.tog.on {
+  background: var(--touch);
+}
+
+.tog.on::after {
+  left: 17px;
+  background: var(--on-touch);
+}
+
+.drop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: calc(var(--row) - 12px);
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--raised);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.drop .pic {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.drop .ic {
+  width: 12px;
+  height: 12px;
+  color: var(--faint);
+}
+
+.ir.tx {
+  grid-template-columns: 1fr;
+}
+
+.tbox {
+  display: block;
+  margin: 2px 0 6px;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--raised);
+  font-size: 13px;
+}
+
+.ibtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.sbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: calc(var(--row) - 10px);
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--raised);
+  color: var(--words);
+  font: 500 13px var(--label);
+}
+
+.sbtn.main {
+  background: var(--touch);
+  color: var(--on-touch);
+}
+
+.sbtn .ic {
+  width: 15px;
+  height: 15px;
+}
+
+.inote {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--quiet);
+}
+
+.more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: var(--row);
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--quiet);
+  font: 500 13px var(--label);
+}
+
+.more .ic {
+  width: 12px;
+  height: 12px;
+}
+
+.more .n {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+/* A page's own bits drawn in the inspector (round two's markup) stay inside it. */
+.ibody .vbtns,
+.ibody .vrow {
+  font-size: 13px;
+}
+
+/* ---------- the bottom panel: a timeline or a song's lanes, between the side panels ---------- */
+
+body.sh .sh-bottom {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  z-index: 9;
+  left: var(--left-w);
+  right: var(--right-w);
+  bottom: 0;
+  height: var(--bottom2-h);
+  background: var(--panel);
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.sh-bottom .bh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sh-bottom .bh .btn,
+.sh-bottom .bh .iconbtn {
+  height: 30px;
+  font-size: 12px;
+}
+
+/* ---------- play in place ---------- */
+
+.sh-play {
+  position: absolute;
+  z-index: 12;
+  top: calc(var(--top-h) + 10px);
+  left: calc(var(--left-w) + (100% - var(--left-w) - var(--right-w)) / 2);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+.sh-play .ib {
+  height: 34px;
+  min-width: 34px;
+}
+
+.sh-play .segs button {
+  height: 28px;
+}
+
+.sh-play .rew {
+  position: relative;
+  width: 120px;
+  height: 4px;
+  margin: 0 6px;
+  border-radius: 2px;
+  background: var(--hover);
+}
+
+.sh-play .rew i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--at);
+  border-radius: 2px;
+  background: var(--touch);
+}
+
+.sh-play .t {
+  font: 12px var(--measure);
+  color: var(--quiet);
+}
+
+.sh-play .stop {
+  color: var(--touch);
+}
+
+/* ---------- the toolbar: five tools, Layers, undo and redo ---------- */
+
+.sh-tools {
+  position: absolute;
+  z-index: 15;
+  left: calc(var(--left-w) + (100% - var(--left-w) - var(--right-w)) / 2);
+  bottom: calc(var(--bottom2-h) + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sh-tools .bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.tl2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--quiet);
+  font: 500 11px var(--label);
+  white-space: nowrap;
+}
+
+.fine .tl2 {
+  min-width: 44px;
+  height: 44px;
+  font-size: 10px;
+}
+
+.tl2 .ic {
+  width: 20px;
+  height: 20px;
+}
+
+.tl2.on {
+  background: var(--touch);
+  color: var(--on-touch);
+}
+
+.tl2.lay {
+  display: none;
+}
+
+.sh-tools .div {
+  width: 1px;
+  height: 28px;
+  margin: 0 4px;
+  background: var(--line);
+}
+
+/* A tool's own few settings sit just above the toolbar. */
+.sh-tools .opts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--quiet);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sh-tools .opts .seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--raised);
+  border: 0;
+}
+
+.sh-tools .opts .seg button,
+.sh-tools .opts .btn {
+  font: 12px var(--label);
+  height: 26px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--quiet);
+  box-shadow: none;
+}
+
+.sh-tools .opts .seg button.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+.sh-tools .opts .knob2 {
+  background: var(--hover);
+  border: 0;
+}
+
+.sh-tools .opts .knob2.on {
+  background: var(--touch);
+}
+
+.sh-tools .opts .ic {
+  width: 14px;
+  height: 14px;
+}
+
+.sh-zoom {
+  position: absolute;
+  z-index: 12;
+  right: calc(var(--right-w) + 12px);
+  bottom: calc(var(--bottom2-h) + 14px);
+  font: 12px var(--measure);
+  color: var(--quiet);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+/* ---------- an agent's change, waiting as a ghost ---------- */
+
+.ghost2 {
+  position: absolute;
+  z-index: 4;
+  opacity: 0.55;
+  image-rendering: pixelated;
+  outline: 1.5px dashed #b39cf0;
+  outline-offset: 2px;
+}
+
+.agent {
+  position: absolute;
+  z-index: 6;
+  width: 230px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid #5b4d86;
+  box-shadow: var(--shadow);
+  font: 13px / 1.35 var(--label);
+  color: var(--words);
+}
+
+.agent b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #c4b2f5;
+}
+
+.agent p {
+  margin: 4px 0 8px;
+}
+
+.agent span {
+  display: flex;
+  gap: 6px;
+}
+
+.agent .sbtn {
+  height: 30px;
+}
+
+/* ---------- both row sizes side by side ---------- */
+
+.compare2 {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.compare2 figure {
+  margin: 0;
+}
+
+.compare2 figcaption {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--quiet);
+}
+
+.compare2 .touch {
+  --row: 44px;
+}
+
+.compare2 .fine {
+  --row: 30px;
+}
+
+/* ---------- ⌘K, Share and the keys sheet ---------- */
+
+body.sh .dim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.pop {
+  position: absolute;
+  z-index: 41;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
+  color: var(--words);
+  font-size: 14px;
+}
+
+.cmd {
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, calc(100% - 32px));
+}
+
+.cmd .q {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+}
+
+.cmd .q .ic {
+  color: var(--quiet);
+}
+
+.cmd .q i {
+  width: 2px;
+  height: 20px;
+  background: var(--touch);
+}
+
+.cmd h5 {
+  margin: 0;
+  padding: 10px 16px 4px;
+  font: 500 12px var(--label);
+  color: var(--faint);
+}
+
+.cmd .r {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+}
+
+.cmd .r.on {
+  background: var(--raised);
+}
+
+.cmd .r .ic {
+  color: var(--quiet);
+}
+
+.cmd .r small {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.cmd .r kbd,
+.cmd .r .k {
+  margin-left: auto;
+  font: 12px var(--label);
+  color: var(--faint);
+}
+
+.share-pop {
+  top: calc(var(--top-h) + 6px);
+  right: 8px;
+  width: min(360px, calc(100% - 16px));
+  padding: 16px;
+}
+
+.share-pop h3 {
+  margin: 0 0 4px;
+  font: 600 16px var(--label);
+}
+
+.share-pop p {
+  margin: 0 0 12px;
+  color: var(--quiet);
+  font-size: 13px;
+}
+
+.share-pop .chg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.share-pop .chg img,
+.share-pop .chg .pic {
+  width: 20px;
+  height: 20px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  color: var(--quiet);
+}
+
+.share-pop .chg small {
+  margin-left: auto;
+  color: var(--faint);
+}
+
+.share-pop .go {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.share-pop .go .sbtn {
+  height: 44px;
+  flex: 1;
+  justify-content: center;
+}
+
+body.sh .keysheet {
+  background: var(--panel);
+  border-color: var(--line);
+}
+
+body.sh .keysheet h2 {
+  font: 600 18px var(--label);
+}
+
+body.sh .keysheet h3 {
+  font: 500 12px var(--label);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--faint);
+}
+
+body.sh kbd {
+  background: var(--raised);
+  border-color: var(--line);
+  box-shadow: none;
+  color: var(--words);
+}
+
+/* ---------- desktop: the saved line has room ---------- */
+
+@media (max-width: 1259px) {
+  .kept {
+    display: none;
+  }
+}
+
+/* ---------- narrow: an upright iPad, a phone. The workspace is a menu, the left panel opens from the toolbar,
+   the inspector is a sheet along the bottom. ---------- */
+
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh {
+    --left-w: 0px;
+    --right-w: 0px;
+    --sheet-h: 36vh;
+    --bottom2-h: 0px;
+  }
+
+  body.sh.no-left {
+    --left-w: 0px;
+  }
+
+  body.sh.has-bottom2 {
+    --band-h: 24vh;
+  }
+
+  .sh-left,
+  .sh-ws,
+  .sh-top .game span,
+  .sh-top .game .ic,
+  .faces,
+  .kept,
+  .sh-zoom,
+  .sh-tools .opts,
+  .mock-tag {
+    display: none;
+  }
+
+  .wsn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .partsn {
+    display: flex;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .tl2.lay {
+    display: flex;
+  }
+
+  .sh-right {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: var(--sheet-h);
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 14px 14px 0 0;
+  }
+
+  .sh-right::before {
+    content: "";
+    align-self: center;
+    flex: none;
+    width: 36px;
+    height: 4px;
+    margin-top: 6px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+
+  .ihead {
+    padding-top: 8px;
+  }
+
+  body.sh .canvas {
+    bottom: 0;
+  }
+
+  body.sh .fit {
+    bottom: calc(var(--sheet-h) + var(--band-h, 0px) + var(--tools-h) + 8px);
+  }
+
+  body.sh.no-right .fit {
+    bottom: calc(var(--band-h, 0px) + var(--tools-h) + 8px);
+  }
+
+  .sh-tools {
+    left: 50%;
+    bottom: calc(var(--sheet-h) + var(--band-h, 0px) + 8px);
+  }
+
+  .no-right .sh-tools {
+    bottom: calc(var(--band-h, 0px) + 8px);
+  }
+
+  body.sh .sh-bottom {
+    left: 0;
+    right: 0;
+    bottom: var(--sheet-h);
+    height: var(--band-h);
+  }
+
+  .no-right .sh-bottom {
+    bottom: 0;
+  }
+
+  .sh-play {
+    left: 50%;
+  }
+
+  .sh-play .rew {
+    width: 60px;
+  }
+}
+
+/* A phone held upright: only the tool in use keeps its word. */
+@media (max-width: 500px) {
+  .tl2 {
+    min-width: 44px;
+  }
+
+  .tl2 span {
+    display: none;
+  }
+
+  .tl2.on span {
+    display: block;
+  }
+
+  .tl2.u {
+    display: none;
+  }
+
+  .sh-tools .div {
+    display: none;
+  }
+
+  .sh-top .share span:not(.n) {
+    display: none;
+  }
+
+  .sh-top .cmdk kbd {
+    display: none;
+  }
+
+  .sh-play .segs,
+  .sh-play [title="Play from here"] {
+    display: none;
+  }
+}
+
+/* A phone on its side: the inspector is a narrow panel on the right, the toolbar is a column on the left. */
+@media (max-height: 600px) and (min-width: 600px) {
+  body.sh {
+    --right-w: 300px;
+    --top-h: 44px;
+  }
+
+  body.sh.no-right {
+    --right-w: 0px;
+  }
+
+  body.sh.has-bottom2 {
+    --band-h: 38vh;
+  }
+
+  .sh-right {
+    top: var(--top-h);
+    left: auto;
+    right: 0;
+    width: var(--right-w);
+    height: auto;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .sh-right::before {
+    display: none;
+  }
+
+  body.sh .canvas {
+    right: var(--right-w);
+    left: 64px;
+  }
+
+  body.sh .fit,
+  body.sh.no-right .fit {
+    top: 8px;
+    bottom: calc(var(--band-h, 0px) + 8px);
+    left: 8px;
+    right: 8px;
+  }
+
+  .sh-tools,
+  .no-right .sh-tools {
+    left: 0;
+    top: var(--top-h);
+    bottom: 0;
+    transform: none;
+    justify-content: flex-start;
+  }
+
+  .sh-tools .bar {
+    flex-direction: column;
+    height: 100%;
+    border-radius: 0;
+    border-width: 0 1px 0 0;
+    box-shadow: none;
+    padding: 4px 2px;
+    overflow: hidden;
+  }
+
+  .tl2 {
+    min-width: 58px;
+    height: 46px;
+  }
+
+  .tl2.u,
+  .sh-tools .div {
+    display: none;
+  }
+
+  body.sh .sh-bottom,
+  .no-right .sh-bottom {
+    left: 64px;
+    right: var(--right-w);
+    bottom: 0;
+  }
+
+  .sh-play {
+    left: calc(64px + (100% - 64px - var(--right-w)) / 2);
+    top: calc(var(--top-h) + 6px);
+  }
+}
