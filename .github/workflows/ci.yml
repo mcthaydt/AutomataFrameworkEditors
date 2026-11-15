@@ -29,7 +29,10 @@ jobs:
   #   full      false: the browser tests the change reaches (Vitest's `--changed`), stopping at the first failure
   #   journeys  false when nothing the built page is made of changed; otherwise a draft plays them in Chromium only
   #   pictures  false when nothing that is seen changed (a `.svelte` or `.css` file, the words, the page, the mockups),
-  #             so the screens journey is left out and no pictures are kept; the `pictures` label asks for them
+  #             so the screens journey is left out and no pictures are kept; the `screenshots` label (or the older
+  #             `pictures`) asks for them
+  #   quick     `quick ` on a draft and empty otherwise: the start of every check's name, so a draft's quick run never
+  #             has the name of a check main may require, and only a full run can let a pull request merge
   plan:
     runs-on: ubuntu-latest
     permissions:
@@ -39,6 +42,7 @@ jobs:
       full: ${{ steps.plan.outputs.full }}
       journeys: ${{ steps.plan.outputs.journeys }}
       pictures: ${{ steps.plan.outputs.pictures }}
+      quick: ${{ steps.plan.outputs.full != 'true' && 'quick ' || '' }}
     steps:
       - id: plan
         env:
@@ -53,21 +57,29 @@ jobs:
           if [ "$EVENT" = pull_request ] && [ "$DRAFT" = true ] && [[ " $LABELS " != *" full-tests "* ]] &&
             changed="$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)"; then
             printf 'This draft changes:\n%s\n' "$changed"
-            # A change to how things are installed, built or tested reaches every test.
-            if ! grep -qE '^(package\.json|pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json|\.github/)' <<<"$changed"; then
+            # A change to how things are installed, built or tested, or to the shared test files, reaches every test.
+            if ! grep -qE '^(tests/fixtures/|package\.json|pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json|\.github/)' <<<"$changed"; then
               full=false
-              grep -qE '^(src/|functions/|index\.html|public/|tests/journeys/|tests/fixtures/)' <<<"$changed" || journeys=false
+              grep -qE '^(src/|functions/|index\.html|public/|tests/journeys/)' <<<"$changed" || journeys=false
               grep -qE '(\.svelte|\.css)$|^(src/features/(ui|words)/|index\.html|public/|docs/mockups/|tests/journeys/screens)' <<<"$changed" || pictures=false
             fi
           fi
-          if [[ " $LABELS " == *" pictures "* ]]; then pictures=true; fi
+          if [[ " $LABELS " == *" screenshots "* || " $LABELS " == *" pictures "* ]]; then pictures=true; fi
           echo "full=$full journeys=$journeys pictures=$pictures"
           { echo "full=$full"; echo "journeys=$journeys"; echo "pictures=$pictures"; } >> "$GITHUB_OUTPUT"
 
   check:
+    needs: plan
+    name: ${{ needs.plan.outputs.quick }}check
     runs-on: ubuntu-latest
+    env:
+      # On a draft: the Node tests the change reaches, stopping at the first failure.
+      ONLY: ${{ needs.plan.outputs.full != 'true' && '--changed=origin/main --bail=1 --passWithNoTests' || '' }}
     steps:
+      # The whole history, so `--changed` can compare with `origin/main`.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -78,7 +90,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm knip
       - run: pnpm build
-      - run: pnpm test:node
+      - run: pnpm test:node $ONLY
 
   # Each browser in two shards that run side by side, so a full run takes about half as long (the Owner, 2026-11-15).
   # The screens journey alone takes as long as all the others together, so it is the first shard (with the short
@@ -97,17 +109,17 @@ jobs:
         engine: [chromium, webkit, firefox]
         shard: [1, 2]
     env:
-      CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=HEAD^1' || '' }}
+      CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=origin/main' || '' }}
       BAIL: ${{ needs.plan.outputs.full == 'true' && '15' || '1' }}
       SHARD: ${{ matrix.shard == 1 && 'tests/journeys/screens.journey.test.ts' || '--exclude=tests/journeys/screens.journey.test.ts' }}
       # The screens journey (the first shard's) is left out with the pictures.
       JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (needs.plan.outputs.full == 'true' || matrix.engine == 'chromium') && (matrix.shard == 2 || needs.plan.outputs.pictures == 'true') }}
     steps:
-      # Two commits deep: a pull request's run is on the merge commit, and its first parent is the base, which
-      # `--changed` compares against.
+      # The whole history, so `--changed` can compare with `origin/main`. The journeys drive the built page, which
+      # `--changed` cannot trace back to the files it is made of, so `plan` decides from the paths whether they run.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -151,7 +163,9 @@ jobs:
   # One check per browser, `engines (<browser>)`, green only when both of that browser's shards passed, so the names
   # main's protection may ask for stay as they were.
   engines:
-    needs: browsers
+    needs: [plan, browsers]
+    name: ${{ needs.plan.outputs.quick }}engines (${{ matrix.engine }})
+    # Also on a run a newer one cancelled, so that run shows red: a skipped check would count as passed.
     if: always()
     runs-on: ubuntu-latest
     permissions:
