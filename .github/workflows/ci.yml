@@ -54,7 +54,7 @@ jobs:
             changed="$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)"; then
             printf 'This draft changes:\n%s\n' "$changed"
             # A change to how things are installed, built or tested reaches every test.
-            if ! grep -qE '^(pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json)' <<<"$changed"; then
+            if ! grep -qE '^(package\.json|pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json|\.github/)' <<<"$changed"; then
               full=false
               grep -qE '^(src/|functions/|index\.html|public/|tests/journeys/|tests/fixtures/)' <<<"$changed" || journeys=false
               grep -qE '(\.svelte|\.css)$|^(src/features/(ui|words)/|index\.html|public/|docs/mockups/|tests/journeys/screens)' <<<"$changed" || pictures=false
