@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<!-- World, Levels: the level screen the redesign spec describes, with the crate picked. The art is the demo game's
+     real first level, as the framework draws it today (taken from CI's picture of main). -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+      <span class="chip" style="left:45%;top:66%"><span class="ic" data-i="cube"></span>Crate-1</span>
+      <div class="hline" style="left:0;width:37%;top:78.5%"></div>
+      <span class="chip" style="left:12%;top:86%">From the left <span class="v">6 tiles</span></span>
+      <div class="vline" style="left:40.6%;top:6.9%;height:66.3%"></div>
+      <span class="chip" style="left:41.6%;top:36%">From the top <span class="v">7 tiles</span></span>
+      <span class="tip" style="left:22%;top:50%">Drag the crate anywhere</span>
+    </div>
+  </div>
+</div>
+<div class="panels">
+  <section class="float panel">
+    <header class="panel-head">
+      <nav class="tabs"><button class="on">Crate</button><button>The level</button></nav>
+      <span class="label">The picked thing</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <div><h2>Crate</h2><span class="sub">crate-1</span></div>
+      <p class="quiet">A box the hero can push and stand on.</p>
+      <div class="stepper"><span>From the left</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">6</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
+      <div class="stepper"><span>From the top</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">7</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
+      <span class="sub">What it is</span>
+      <div class="choices">
+        <button class="choice on"><img src="art/crate.png" alt="">Crate</button>
+        <button class="choice"><img src="art/hero.png" alt="">Hero</button>
+      </div>
+      <div class="choices">
+        <button class="btn small"><span class="ic" data-i="person"></span>Change how it looks</button>
+        <button class="btn small"><span class="ic" data-i="mountains"></span>Edit this scene</button>
+      </div>
+      <p class="quiet">How heavy and how bouncy: in Characters and Feel.</p>
+      <button class="btn erase small"><span class="ic" data-i="eraser"></span>Erase</button>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [['Move', 'arrows-out-cardinal'], ['Add', 'plus'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
