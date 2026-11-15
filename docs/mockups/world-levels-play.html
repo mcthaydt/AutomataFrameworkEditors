@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, playing (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .trail { position: absolute; z-index: 1; width: 1.2%; aspect-ratio: 1; border-radius: 50%; background: var(--touch); opacity: 0.8; }
+  .playing { position: absolute; z-index: 3; inset: 0; outline: 3px solid var(--touch); outline-offset: 4px; pointer-events: none; }
+</style>
+</head>
+<body>
+<!-- World, Levels, playing: Play is a tool, not a different screen. The level plays where it is drawn, with pause,
+     one step, slow, start again, play from here, and the last 30 seconds to drag back through. The values panel shows
+     the hero's numbers as they change. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage">
+      <div class="playing"></div>
+      <img class="thing" src="art/hero.png" alt="" style="left:27%;top:52%">
+      <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>
+      <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
+      <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
+      <span class="tip" style="left:30%;top:24%">Drag the line at the top back to see the last 30 seconds again</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%', state: 'playing',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 7,
+  play: { paused: true, speed: 0, at: 40, time: '0:12' },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Hero', sub: 'While it plays · numbers move live', pic: { img: 'art/hero.png' }, tab: 'Hero',
+    groups: [
+      { name: 'Right now', open: true, rows: [
+        { t: 'num', l: 'Going sideways', f: 'velocity.x', v: '3.2', u: 'tiles a second' },
+        { t: 'num', l: 'Going up', f: 'velocity.y', v: '1.4', u: 'tiles a second' },
+        { t: 'choice', l: 'Standing on', opts: ['Ground', 'Crate', 'Nothing'], on: 2 },
+      ] },
+      { name: 'Try a change while it plays', open: true, rows: [
+        { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3.5', lo: 'A hop', hi: 'Over a house', at: 46 },
+        { t: 'choice', l: 'When you stop', opts: ['Keep the change', 'Put it back'], on: 1 },
+      ] },
+      { name: 'Inputs', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

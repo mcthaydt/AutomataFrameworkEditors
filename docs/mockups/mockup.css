@@ -1216,3 +1216,1011 @@ button {
     bottom: 136px;
   }
 }
+
+/* ======================================================================================================
+   Second round, after the design audit (2026-11-15): the list of everything here, the Library, a full
+   values panel, keys on tools, the tool's own settings, play controls, picking several things.
+   ====================================================================================================== */
+
+kbd {
+  font: 11px / 1 var(--measure);
+  color: var(--quiet);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  padding: 2px 4px;
+}
+
+.tool kbd {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  padding: 1px 3px;
+  font-size: 9px;
+}
+
+.tool.on kbd {
+  color: var(--ground);
+  border-color: var(--ground);
+}
+
+/* A tool with choices: a small corner mark, press and hold opens them. */
+.tool .more {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  border: 4px solid transparent;
+  border-bottom-color: currentColor;
+  border-left-color: currentColor;
+}
+
+.tool .soon {
+  top: auto;
+  bottom: 18px;
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.btn .count {
+  font: 600 12px / 1 var(--measure);
+  background: var(--ground);
+  color: var(--touch);
+  border-radius: 9px;
+  padding: 3px 6px;
+}
+
+.gcount {
+  margin-left: auto;
+  font: 12px / 1 var(--measure);
+  color: var(--quiet);
+  border: 1px solid var(--edge);
+  border-radius: 9px;
+  padding: 2px 6px;
+}
+
+.pic {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  object-fit: contain;
+  image-rendering: pixelated;
+  color: var(--touch);
+  line-height: 0;
+}
+
+.pic canvas {
+  max-width: 28px;
+  max-height: 28px;
+  width: auto;
+  height: 28px;
+  image-rendering: pixelated;
+}
+
+.pic.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  border: 1px solid var(--edge);
+}
+
+.vsearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 10px 4px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  color: var(--quiet);
+  font-size: 15px;
+}
+
+.vsearch.inline {
+  margin: 0;
+  min-width: 200px;
+}
+
+/* The values panel: the picked thing's name in the title, groups that fold, every value typed or nudged. */
+.ptitle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ptitle b {
+  display: block;
+  font: 600 21px / 1.1 var(--title);
+}
+
+.ptitle small {
+  display: block;
+  font: 600 11px / 1.3 var(--label);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+
+.values .panel-head .tabs {
+  display: none;
+}
+
+.vbody {
+  overflow: hidden;
+  padding: 0 0 8px;
+}
+
+.group {
+  border-top: 1px solid var(--edge);
+}
+
+.ghead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: var(--words);
+  text-align: left;
+}
+
+.ghead .ic {
+  color: var(--quiet);
+  width: 14px;
+}
+
+.grows {
+  padding: 0 12px 6px;
+  display: grid;
+  gap: 2px;
+}
+
+.vrow {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+
+.vrow.text {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+.vrow.slide {
+  grid-template-columns: 1fr auto auto;
+  row-gap: 2px;
+}
+
+.vl {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  line-height: 1.15;
+  position: relative;
+}
+
+.vl code {
+  font: 11px / 1.2 var(--measure);
+  color: var(--quiet);
+  opacity: 0.85;
+}
+
+.chg {
+  position: absolute;
+  left: -9px;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--touch);
+}
+
+.vin {
+  min-width: 64px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  background: var(--ground);
+  font: 15px var(--measure);
+  color: var(--touch);
+}
+
+.vin small {
+  color: var(--quiet);
+  font: 12px var(--label);
+}
+
+.pm {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.sq {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  background: none;
+  color: var(--touch);
+}
+
+.back {
+  width: 32px;
+  height: 32px;
+}
+
+.rail2 {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  margin: 10px 8px 0;
+  background: var(--edge);
+  border-radius: 2px;
+}
+
+.rail2 i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--at);
+  background: var(--touch);
+  border-radius: 2px;
+}
+
+.rail2 i::after {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: -7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--touch);
+  border: 3px solid var(--ground);
+}
+
+.ends {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--quiet);
+  padding: 2px 0 4px;
+}
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  overflow: hidden;
+}
+
+.seg button {
+  min-height: 34px;
+  padding: 0 9px;
+  border: 0;
+  border-left: 1px solid var(--edge);
+  background: none;
+  color: var(--words);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.seg button:first-child {
+  border-left: 0;
+}
+
+.seg button.on {
+  background: var(--touch);
+  color: var(--ground);
+}
+
+.knob2 {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  border: 1px solid var(--edge);
+  position: relative;
+}
+
+.knob2::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--quiet);
+}
+
+.knob2.on {
+  background: var(--touch);
+  border-color: var(--touch);
+}
+
+.knob2.on::after {
+  left: 21px;
+  background: var(--ground);
+}
+
+.vpick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 8px 0 4px;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  font-size: 15px;
+}
+
+.vpick .pic {
+  width: 24px;
+  height: 24px;
+}
+
+.vtext {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  background: var(--ground);
+  font-size: 15px;
+}
+
+.vnote {
+  margin: 4px 0;
+  font-size: 14px;
+  color: var(--quiet);
+}
+
+.vbtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+/* "Everything here", on the left beside the tools. */
+.listpanel {
+  position: absolute;
+  z-index: 6;
+  top: 128px;
+  left: 84px;
+  width: 236px;
+  bottom: 76px;
+}
+
+.lbody {
+  overflow: hidden;
+  padding: 2px 0 6px;
+}
+
+.lhead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px 2px;
+  color: var(--quiet);
+}
+
+.lhead .ic {
+  width: 12px;
+}
+
+.lrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 8px 0 calc(10px + var(--d) * 16px);
+  font-size: 15px;
+}
+
+.lrow .pic {
+  width: 22px;
+  height: 22px;
+}
+
+.lrow .pic canvas {
+  height: 22px;
+}
+
+.lrow.on {
+  background: color-mix(in srgb, var(--touch) 22%, transparent);
+  box-shadow: inset 3px 0 0 var(--touch);
+}
+
+.lrow.hid .ln {
+  color: var(--quiet);
+  text-decoration: line-through;
+}
+
+.ln {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ln small {
+  margin-left: 6px;
+  font: 11px var(--measure);
+  color: var(--quiet);
+}
+
+.lic {
+  display: inline-flex;
+  gap: 6px;
+  color: var(--quiet);
+}
+
+.lic .ic {
+  width: 15px;
+  height: 15px;
+}
+
+.lic .warn {
+  color: var(--touch);
+}
+
+.lfoot {
+  border-top: 1px solid var(--edge);
+  padding: 8px 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* The tool's own settings, in the row under the pill, after the parts. */
+.settings {
+  top: 72px;
+  left: 336px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 10px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.settings .ssep {
+  width: 1px;
+  height: 22px;
+  background: var(--edge);
+}
+
+.settings .seg button {
+  min-height: 32px;
+}
+
+/* The Library: a button at the bottom; pinned open, a drawer of pictures. */
+.libtab {
+  left: 312px;
+  bottom: var(--gap);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 14px;
+  color: var(--words);
+}
+
+.libtab .ic {
+  color: var(--touch);
+}
+
+.library {
+  left: 84px;
+  right: 344px;
+  bottom: 76px;
+  height: 176px;
+  display: flex;
+  flex-direction: column;
+}
+
+.library .panel-head {
+  gap: 10px;
+  min-height: 46px;
+}
+
+.library .panel-head > .label {
+  flex: none;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.kinds {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  overflow: hidden;
+}
+
+.kinds button {
+  min-height: 34px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--corner);
+  background: none;
+  color: var(--words);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.kinds button.on {
+  background: var(--touch);
+  color: var(--ground);
+}
+
+.iconbtn.on {
+  background: color-mix(in srgb, var(--touch) 22%, transparent);
+}
+
+.litems {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.litem {
+  flex: none;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 1px solid var(--edge);
+  border-radius: var(--corner);
+  font-size: 13px;
+  text-align: center;
+}
+
+.litem.on {
+  border-color: var(--touch);
+  box-shadow: inset 0 0 0 1px var(--touch);
+}
+
+.litem .pic {
+  width: 52px;
+  height: 52px;
+}
+
+.litem .pic .ic {
+  width: 30px;
+  height: 30px;
+}
+
+.litem .pic canvas {
+  height: 52px;
+  max-height: 52px;
+  max-width: 52px;
+}
+
+.litem small {
+  color: var(--quiet);
+  font-size: 11px;
+}
+
+/* Play controls, over the top of the level while it plays. */
+.transport {
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.rewind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--edge);
+}
+
+.rbar {
+  position: relative;
+  width: 140px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--edge);
+}
+
+.rbar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--at);
+  background: var(--touch);
+  border-radius: 3px;
+}
+
+.zoomv {
+  align-self: center;
+  min-width: 50px;
+  text-align: center;
+  color: var(--touch);
+}
+
+/* Picking several things: a box, and a bar beside them. */
+.pickbox {
+  position: absolute;
+  z-index: 2;
+  border: 1px dashed var(--touch);
+  background: color-mix(in srgb, var(--touch) 12%, transparent);
+}
+
+.selbar {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  white-space: nowrap;
+}
+
+.selbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--corner);
+  background: none;
+  color: var(--words);
+  font-size: 14px;
+}
+
+.selbar .ic {
+  color: var(--touch);
+}
+
+.selbar b {
+  padding: 0 8px;
+  align-self: center;
+  font: 600 12px var(--label);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+
+/* A teammate on the canvas, and a note pinned to a thing. */
+.mate {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.mate svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mate span {
+  margin-top: 14px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--quiet);
+  color: var(--ground);
+  font: 600 13px var(--label);
+}
+
+.pinned {
+  position: absolute;
+  z-index: 4;
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 3px 3px 3px 0;
+  background: var(--words);
+  color: var(--ground);
+  font-size: 14px;
+  line-height: 1.25;
+  box-shadow: var(--shadow);
+}
+
+.pinned b {
+  display: block;
+  font-size: 12px;
+}
+
+/* ---------- where the new parts go, by size ---------- */
+
+/* A computer and a sideways tablet: the list on the left, the values on the right, the Library at the bottom. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  :root {
+    --panel-w: 320px;
+    --fit-right: 344px;
+  }
+
+  .has-list {
+    --fit-left: 332px;
+  }
+
+  .lib-open {
+    --fit-bottom: 262px;
+  }
+
+  .lib-open .listpanel {
+    bottom: 262px;
+  }
+
+  .tools {
+    top: 128px;
+  }
+
+  .tool {
+    width: 58px;
+    min-height: 56px;
+  }
+
+  .zoom {
+    left: auto;
+    right: 520px;
+  }
+
+  .libtab {
+    left: 238px;
+  }
+
+  .has-play .settings {
+    display: none;
+  }
+}
+
+/* Narrower than that: the list and the Library become tabs of the one sheet, the settings row and the play
+   controls fold into one strip over the level. */
+@media (max-width: 1000px), (max-height: 600px) {
+  .listpanel,
+  .library,
+  .libtab,
+  .settings,
+  .values .ptitle {
+    display: none;
+  }
+
+  .values .panel-head .tabs {
+    display: flex;
+  }
+
+  .transport {
+    top: auto;
+    bottom: calc(var(--fit-bottom) - 4px);
+  }
+
+  .transport .btn,
+  .transport .rewind .label {
+    display: none;
+  }
+
+  .rbar {
+    width: 90px;
+  }
+}
+
+@media (max-height: 600px) {
+  .transport {
+    bottom: 84px;
+    left: calc(50% + 120px);
+  }
+
+  .transport .seg,
+  .transport .rewind {
+    display: none;
+  }
+}
+
+/* The values panel takes the height it needs and no more; past that, it scrolls (the fade says there is more). */
+.panels .values {
+  flex: 0 1 auto;
+}
+
+.values .vbody {
+  flex: 1;
+  min-height: 0;
+  mask-image: linear-gradient(#000 calc(100% - 28px), transparent);
+}
+
+.ghead .soon,
+.lhead .soon {
+  margin-left: 6px;
+}
+
+.tool.more-tools {
+  display: none;
+}
+
+.cluster .keys {
+  color: var(--words);
+}
+
+/* A phone has room for four or six tools; "More" holds the rest. */
+@media (max-width: 699px) and (min-height: 601px) {
+  .tool:nth-child(n + 5):not(.more-tools) {
+    display: none;
+  }
+
+  .tool.more-tools {
+    display: flex;
+  }
+
+  .tool kbd {
+    display: none;
+  }
+}
+
+@media (max-height: 600px) {
+  .tools {
+    left: 64px;
+    transform: none;
+  }
+
+  .tool:nth-child(n + 7):not(.more-tools) {
+    display: none;
+  }
+
+  .tool.more-tools {
+    display: flex;
+  }
+
+  .tool kbd {
+    display: none;
+  }
+}
+
+/* The stage's own things for the mockups: a thing drawn as a picture, a door, a link between two things, a zone. */
+.thing {
+  position: absolute;
+  z-index: 1;
+  width: 6.2%;
+  height: 9.66%;
+  image-rendering: pixelated;
+}
+
+.zone {
+  position: absolute;
+  z-index: 1;
+  border: 2px dashed var(--words);
+  background: color-mix(in srgb, var(--words) 10%, transparent);
+}
+
+.zone > span {
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  font: 600 11px / 1.2 var(--label);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ground);
+  background: var(--words);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ring.warn {
+  border-color: var(--mark);
+  border-style: dashed;
+}
+
+/* The keys sheet: every key and every gesture, in one place. */
+.keysheet {
+  position: absolute;
+  z-index: 15;
+  inset: 72px 360px 84px 96px;
+  padding: 18px 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 28px;
+  align-content: start;
+  overflow: hidden;
+}
+
+.keysheet h2 {
+  grid-column: 1 / -1;
+  margin: 0 0 6px;
+  font: 600 26px / 1.1 var(--title);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.keysheet h3 {
+  margin: 10px 0 2px;
+  font: 600 12px / 1.2 var(--label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--quiet);
+}
+
+.keysheet .k {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--edge);
+  font-size: 15px;
+}
+
+.keysheet .k span:last-child {
+  display: flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.keysheet .k .ic {
+  color: var(--touch);
+}
+
+.keysheet .col {
+  display: flex;
+  flex-direction: column;
+}
+
+.dim {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  background: rgb(17 19 20 / 0.55);
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .keysheet {
+    inset: 64px 8px 88px 8px;
+    grid-template-columns: 1fr;
+    padding: 14px 16px;
+  }
+
+  .keysheet .col.keyonly {
+    display: none;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1000px) and (min-height: 601px) {
+  .keysheet {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-height: 600px) {
+  .keysheet {
+    grid-template-columns: 1fr 1fr;
+    inset: 64px 8px 76px 8px;
+  }
+}

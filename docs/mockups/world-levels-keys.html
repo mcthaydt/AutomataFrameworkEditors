@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, keys and gestures (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<!-- The keys sheet, opened with ? or the keyboard button: every key and every touch gesture in one place. A phone
+     or an iPad without a keyboard shows only the gestures. Keys follow what people already know from drawing and
+     game tools (V pick, H hand, space to drag the view, ⌘D make another). -->
+<div class="canvas">
+  <div class="fit"><div class="stage grid"></div></div>
+</div>
+<div class="dim"></div>
+<section class="float keysheet">
+  <h2><span class="ic" data-i="keyboard"></span>Keys and gestures<span style="margin-left:auto" class="btn small"><span class="ic" data-i="x"></span>Close</span></h2>
+  <div class="col keyonly">
+    <h3>Tools</h3>
+    <div class="k"><span>Pick</span><span><kbd>V</kbd></span></div>
+    <div class="k"><span>Hand: move the view</span><span><kbd>H</kbd> or hold <kbd>Space</kbd></span></div>
+    <div class="k"><span>Add a thing</span><span><kbd>A</kbd></span></div>
+    <div class="k"><span>Link two things</span><span><kbd>L</kbd></span></div>
+    <div class="k"><span>Draw a zone</span><span><kbd>Z</kbd></span></div>
+    <div class="k"><span>Measure</span><span><kbd>M</kbd></span></div>
+    <div class="k"><span>Play and stop</span><span><kbd>P</kbd></span></div>
+  </div>
+  <div class="col keyonly">
+    <h3>Picked things</h3>
+    <div class="k"><span>Make another like it</span><span><kbd>⌘</kbd><kbd>D</kbd></span></div>
+    <div class="k"><span>Copy and paste</span><span><kbd>⌘</kbd><kbd>C</kbd> <kbd>⌘</kbd><kbd>V</kbd></span></div>
+    <div class="k"><span>Nudge one tile</span><span><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></span></div>
+    <div class="k"><span>Nudge one pixel</span><span><kbd>⇧</kbd> + arrows</span></div>
+    <div class="k"><span>Group</span><span><kbd>⌘</kbd><kbd>G</kbd></span></div>
+    <div class="k"><span>Erase</span><span><kbd>⌫</kbd></span></div>
+    <h3>Anywhere</h3>
+    <div class="k"><span>Find or do anything</span><span><kbd>⌘</kbd><kbd>K</kbd></span></div>
+    <div class="k"><span>Undo, redo</span><span><kbd>⌘</kbd><kbd>Z</kbd> <kbd>⌘</kbd><kbd>⇧</kbd><kbd>Z</kbd></span></div>
+    <div class="k"><span>Save</span><span><kbd>⌘</kbd><kbd>S</kbd></span></div>
+    <div class="k"><span>Show or hide the panels</span><span><kbd>Tab</kbd></span></div>
+  </div>
+  <div class="col">
+    <h3>Touch</h3>
+    <div class="k"><span>Pick</span><span><span class="ic" data-i="hand-tap"></span>tap</span></div>
+    <div class="k"><span>Pick several</span><span><span class="ic" data-i="hand-pointing"></span>press and hold, then tap more</span></div>
+    <div class="k"><span>Move the view</span><span><span class="ic" data-i="hand"></span>two fingers</span></div>
+    <div class="k"><span>Zoom</span><span><span class="ic" data-i="arrows-out"></span>pinch</span></div>
+    <div class="k"><span>Undo</span><span><span class="ic" data-i="hand-tap"></span>two-finger tap</span></div>
+    <div class="k"><span>Redo</span><span><span class="ic" data-i="hand-tap"></span>three-finger tap</span></div>
+    <div class="k"><span>More for a thing</span><span><span class="ic" data-i="hand-pointing"></span>press and hold it</span></div>
+  </div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', state: 'keys sheet open',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
