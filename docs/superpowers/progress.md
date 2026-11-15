@@ -2,6 +2,24 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the right panel folded away, and the language card on a phone held sideways (2026-11-15)
+
+Two finds of the Owner's, mockups only (no editor code). Progress on this step: **90%** until CI's pictures are read
+and the board is republished. The edge joins from the level links spec wait until the framework has them (the Owner,
+2026-11-15: "Not yet because we haven't built out the edge join yet").
+
+- **The right panel folded away** ("what does it look like when the right side is collapsed"): each World part now has
+  a pair, the settings shown and the same page with them folded away, so the board can set them side by side:
+  Levels (`world-levels-settings`, `world-levels-hidden`, already drawn), Tiles (`world-tiles-settings`,
+  `world-tiles-hidden`, from the mid-project slope) and Scenes (`world-scenes-settings`, `world-scenes-hidden`, from
+  Tree 2). The way back is the floating tab at the right edge on an iPad and a computer, and the one-line
+  "<name> · settings" bar on an upright iPad and a phone. Characters, Feel, Sound and Story get theirs with their slices.
+- **The language card on a phone held sideways** had its right column of languages cut off at the card's edge and its
+  sentence cut at the bottom: an older rule for the welcome made it a two-column grid at 780 points while the card was
+  held to 520. The stylesheet's section 26 lays both cards before a game is open (the language and your games) out on
+  purpose there: the title, the sentence and the button down the left, the list on the right, the whole card on the
+  screen.
+
 ## The shell and World mockups (roadmap slice 3): every action and its opposite, fixed (2026-11-15)
 
 Fixing the [actions check](audits/2026-11-15-slice3-e2e-actions.md), mockups only (no editor code), in one Sonnet

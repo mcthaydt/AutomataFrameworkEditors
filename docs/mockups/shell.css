@@ -8599,3 +8599,66 @@ html body.sh .share-pop .go.three .sbtn {
     width: 52cqw;
   }
 }
+
+/* ----- 26. The two cards before a game is open (the language, your games) on a phone held sideways (the Owner's
+   find, 2026-11-15: the right column of languages ran off the card and the sentence was cut at the bottom). The card
+   is as wide as the screen allows, the title, the sentence and the button sit down the left, and the list fills the
+   right, so the whole card fits the short screen with nothing cut off. ----- */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.bare .pop.onb.wide {
+    top: 12px !important;
+    bottom: auto !important;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas: "title list" "words list" "go list" "who list";
+    column-gap: 24px;
+    align-items: start;
+    width: min(800px, calc(100vw - 32px));
+    max-height: calc(100vh - 24px);
+    padding: 18px 20px;
+    overflow-y: auto;
+  }
+
+  html body.sh.bare .pop.onb.wide > .onb-pic {
+    display: none;
+  }
+
+  html body.sh.bare .pop.onb.wide > h2 {
+    grid-area: title;
+    margin: 0 0 8px;
+  }
+
+  html body.sh.bare .pop.onb.wide > p:not(.onb-small) {
+    grid-area: words;
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  html body.sh.bare .pop.onb.wide > .onb-go {
+    grid-area: go;
+    flex-direction: column;
+  }
+
+  html body.sh.bare .pop.onb.wide > .onb-go .sbtn {
+    flex: none;
+  }
+
+  html body.sh.bare .pop.onb.wide > :is(.langs, .gamelist) {
+    grid-area: list;
+    margin: 0;
+  }
+
+  html body.sh.bare .pop.onb.wide > .langs button {
+    min-height: 44px;
+  }
+
+  html body.sh.bare .pop.onb.wide > .who-line {
+    grid-area: who;
+    flex-wrap: wrap;
+    margin: 0;
+  }
+}
