@@ -7,7 +7,6 @@ import type {
   ChangeAsk,
   GameRef,
   OpenAnswer,
-  PictureAsk,
   SaveAnswer,
   SaveAsk,
   SharingAnswer,
@@ -15,7 +14,6 @@ import type {
   Tokens,
   Waiting,
   WaitingChange,
-  WirePicture,
 } from '../wire/wire.ts'
 import { STATUS } from '../wire/wire.ts'
 
@@ -35,8 +33,6 @@ export interface Auth {
 export interface Api {
   games(): Promise<Answer<readonly GameRef[]>>
   open(game: GameRef): Promise<Answer<OpenAnswer>>
-  /** One painted picture of a game, as base64. A visitor may ask for the demo game's. */
-  picture(ask: PictureAsk): Promise<Answer<WirePicture>>
   save(ask: SaveAsk): Promise<Answer<SaveAnswer>>
   waiting(game: GameRef): Promise<Answer<readonly Waiting[]>>
   change(ask: ChangeAsk): Promise<Answer<WaitingChange>>
@@ -112,8 +108,6 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
   return {
     games: () => call('GET', '/api/games'),
     open: (game) => call('GET', `/api/game?${query(game)}`, undefined, true),
-    picture: ({ game, branch, path }) =>
-      call('GET', `/api/picture?${query(game, { branch, path })}`, undefined, true),
     save: (ask) => call('POST', '/api/save', ask),
     waiting: (game) => call('GET', `/api/waiting?${query(game)}`),
     change: ({ game, number }) => call('GET', `/api/change?${query(game, { number: String(number) })}`),

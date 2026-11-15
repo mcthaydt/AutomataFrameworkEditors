@@ -5,20 +5,16 @@ import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { type Browser, type BrowserContext, chromium, firefox, type Page, webkit } from 'playwright'
 import { afterAll, beforeAll } from 'vitest'
+import { WORDS } from '#src/features/words/words.ts'
 import { DEMO } from './api.ts'
 import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/server.ts'
 import { type Site, startSite } from './serve.ts'
-import { WORDS } from './words.ts'
 
 export const SIZES = {
   ipadUpright: { width: 820, height: 1180 },
   ipadSideways: { width: 1180, height: 820 },
   phone: { width: 390, height: 844 },
-  phoneSideways: { width: 844, height: 390 },
-  desktop: { width: 1440, height: 900 },
 } as const
-/** The sizes the old screens run at, until each is rebuilt for all five (Tasks 6 to 16). */
-export const OLD_SIZES = ['ipadUpright', 'ipadSideways', 'phone'] as const
 
 const SITE_PORT = 4800
 const FAKE_PORT = 4801
@@ -49,14 +45,6 @@ export function setupJourneys(): void {
   })
 }
 
-/** How the device looks at the page: its light or dark setting, a wish for less motion, and fonts that never arrive. */
-export interface Look {
-  readonly colorScheme?: 'light' | 'dark'
-  readonly reducedMotion?: 'reduce'
-  /** Every font file is refused, as a blocker or a dead line would: the screens must still read in the device's own font. */
-  readonly blockFonts?: boolean
-}
-
 export interface JourneyPage {
   readonly page: Page
   readonly fake: FakeGitHub
@@ -75,21 +63,12 @@ export async function openPage(
   person: (typeof PEOPLE)[number] = 'grandma',
   /** True: another person at another window of the same pretend GitHub, with everything it holds kept. */
   keep = false,
-  look: Look = {},
 ): Promise<JourneyPage> {
   if (running === undefined) throw new Error('Call setupJourneys() at the top of the journey file.')
   const { fake, site, browser } = running
   if (!keep) fake.reset()
   fake.person = person
-  const context: BrowserContext = await browser.newContext({
-    viewport: SIZES[size],
-    hasTouch: true,
-    ...(look.colorScheme === undefined ? {} : { colorScheme: look.colorScheme }),
-    ...(look.reducedMotion === undefined ? {} : { reducedMotion: look.reducedMotion }),
-  })
-  // A refused font is an answer the page must live with, not a fault of the page: the browser's report of it (a
-  // "Failed to load resource" line) is already left off the list of problems below.
-  if (look.blockFonts === true) await context.route('**/*.woff*', (route) => route.abort())
+  const context: BrowserContext = await browser.newContext({ viewport: SIZES[size], hasTouch: true })
   // The browser reports every rule it refused to obey; a journey fails on any.
   await context.addInitScript(() => {
     const w = window as unknown as { __refused: string[] }
@@ -109,12 +88,9 @@ export async function openPage(
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
     // WebKit also says so, in the console, when Playwright's own screenshot style is turned away by the page's policy;
     // a real refusal is caught by the `securitypolicyviolation` listener above, in every engine.
-    // A font file that cannot be fetched (the line is down, or a blocker refuses it) is also an answer the page lives
-    // with: every screen reads in the device's own font (Firefox says so as a console error).
     const own =
       message.text().startsWith('Failed to load resource') ||
-      message.text().startsWith('Refused to apply a stylesheet') ||
-      message.text().includes('downloadable font: download failed')
+      message.text().startsWith('Refused to apply a stylesheet')
     if (message.type() === 'error' && !own) {
       errors.push(`console: ${message.text()}`)
     }
@@ -191,37 +167,27 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
 /**
  * The colour of the level's picture at a point of the page (CSS pixels), as `#rrggbb`: what a person sees there. The
  * buttons over the picture prove where a thing is for a finger and a screen reader; this proves the picture agrees.
- * The buttons are there before the picture is (it starts Pixi, which takes a moment), so this waits, up to ten
- * seconds, for the canvas to exist and to have been drawn at that point before it answers.
  */
 export async function pictureColourAt(page: Page, at: { x: number; y: number }): Promise<string> {
-  const deadline = Date.now() + 10_000
-  for (;;) {
-    const found = await page.evaluate(({ x, y }) => {
-      const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas')
-      if (canvas === null || canvas.width === 0) return undefined
-      const rect = canvas.getBoundingClientRect()
-      const ratio = canvas.width / rect.width
-      const copy = document.createElement('canvas')
-      copy.width = canvas.width
-      copy.height = canvas.height
-      const context = copy.getContext('2d')
-      if (context === null) throw new Error('No 2D canvas to read the picture with.')
-      context.drawImage(canvas, 0, 0)
-      const [r = 0, g = 0, b = 0, a = 0] = context.getImageData(
-        Math.round((x - rect.left) * ratio),
-        Math.round((y - rect.top) * ratio),
-        1,
-        1,
-      ).data
-      // Nothing drawn there yet: the picture's first frame has not come.
-      if (a === 0) return undefined
-      return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
-    }, at)
-    if (found !== undefined) return found
-    if (Date.now() > deadline) throw new Error('No picture of a level on this page.')
-    await page.waitForTimeout(50)
-  }
+  return page.evaluate(({ x, y }) => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas')
+    if (canvas === null) throw new Error('No picture of a level on this page.')
+    const rect = canvas.getBoundingClientRect()
+    const ratio = canvas.width / rect.width
+    const copy = document.createElement('canvas')
+    copy.width = canvas.width
+    copy.height = canvas.height
+    const context = copy.getContext('2d')
+    if (context === null) throw new Error('No 2D canvas to read the picture with.')
+    context.drawImage(canvas, 0, 0)
+    const [r = 0, g = 0, b = 0] = context.getImageData(
+      Math.round((x - rect.left) * ratio),
+      Math.round((y - rect.top) * ratio),
+      1,
+      1,
+    ).data
+    return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+  }, at)
 }
 
 /** The colour of the picture at the middle of a thing's button: the thing itself, if the picture agrees with it. */

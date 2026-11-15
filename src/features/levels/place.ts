@@ -2,12 +2,8 @@
 // a wall. Plain functions; nothing here knows about a screen or a finger.
 
 import type { Fit } from '@automataframework/framework'
-import type { GameContent, Level } from '@automataframework/framework/headless'
+import type { Level } from '@automataframework/framework/headless'
 import { levelSize } from '@automataframework/framework/headless'
-
-// The fit of a level in the room kept round it comes from the framework, so the editors place a thing exactly where the
-// picture draws it.
-export { fitInRoom, type Room } from '@automataframework/framework'
 
 /** Positions snap to half a tile. */
 export const STEP = 0.5
@@ -36,19 +32,8 @@ export function keepInside(level: Level, size: Size, at: Point): Point {
   return { x: clamp(at.x, size.w / 2, world.w), y: clamp(at.y, size.h / 2, world.h) }
 }
 
-/**
- * Which letters of the level's tiles are solid: its tileset's solid tiles, or, for a level with no tileset (or one the
- * game does not have, while it is being fixed), `#`.
- */
-export function solidOf(content: GameContent, level: Level): (letter: string) => boolean {
-  const tileset = level.tileset === undefined ? undefined : content.tilesets?.[level.tileset]
-  if (tileset === undefined) return (letter) => letter === '#'
-  const letters = new Set(tileset.tiles.filter((tile) => tile.solid).map((tile) => tile.letter))
-  return (letter) => letters.has(letter)
-}
-
-/** True when the box overlaps a solid tile (`solid` says which letters are). */
-export function onSolid(level: Level, size: Size, at: Point, solid: (letter: string) => boolean): boolean {
+/** True when the box overlaps a solid (`#`) tile. */
+export function onSolid(level: Level, size: Size, at: Point): boolean {
   const left = at.x - size.w / 2
   const right = at.x + size.w / 2
   const top = at.y - size.h / 2
@@ -56,8 +41,7 @@ export function onSolid(level: Level, size: Size, at: Point, solid: (letter: str
   for (let row = Math.max(0, Math.floor(top)); row < Math.min(level.tiles.length, Math.ceil(bottom)); row++) {
     const tiles = level.tiles[row] ?? ''
     for (let col = Math.max(0, Math.floor(left)); col < Math.min(tiles.length, Math.ceil(right)); col++) {
-      const letter = tiles[col]
-      if (letter === undefined || !solid(letter)) continue
+      if (tiles[col] !== '#') continue
       const overlapX = right > col + TOLERANCE && left < col + 1 - TOLERANCE
       const overlapY = bottom > row + TOLERANCE && top < row + 1 - TOLERANCE
       if (overlapX && overlapY) return true

@@ -44,8 +44,6 @@ export interface Repo {
   createBranch(branch: string, fromCommit: string): Promise<Answer<true>>
   deleteBranch(branch: string): Promise<Answer<true>>
   readFile(branch: string, path: string): Promise<Answer<FileRead>>
-  /** A file's bytes as base64, for a picture. 'not-found' for a file over GitHub's one megabyte, which it does not send. */
-  readBytes(branch: string, path: string): Promise<Answer<{ base64: string }>>
   /** `version` undefined makes a new file. A version that is no longer the file's is 'changed-elsewhere'. */
   saveFile(save: {
     branch: string
@@ -174,20 +172,6 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
     return { ok: true, value: { path, text: fromBase64(file.content), version: str(file.sha) } }
   }
 
-  const readBytes: Repo['readBytes'] = async (branch, path) => {
-    const got = await call({
-      method: 'GET',
-      path: `${root}/contents/${encPath(path)}`,
-      query: { ref: branch },
-    })
-    if (!got.ok) return got
-    const file = obj(got.value.body)
-    // A file over a megabyte comes with no content and an encoding of "none".
-    if (file.type !== 'file' || file.encoding !== 'base64' || typeof file.content !== 'string')
-      return { ok: false, problem: 'not-found' }
-    return { ok: true, value: { base64: file.content.replace(/\s+/g, '') } }
-  }
-
   const pull: Repo['pull'] = async (number) => {
     const got = await call({ method: 'GET', path: `${root}/pulls/${number}` })
     if (!got.ok) return got
@@ -237,7 +221,6 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
       ),
 
     readFile,
-    readBytes,
 
     saveFile: async ({ branch, path, text, version, message, author }) => {
       const got = await call({

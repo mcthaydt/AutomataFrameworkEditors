@@ -168,7 +168,6 @@ test('user/installations: the installed repos the person can reach, theirs and o
     'grandma/crate-game',
     'grandma/not-a-game',
     'grandma/other-game',
-    'grandma/plain-game',
   ])
   // grandpa is a collaborator on crate-game only, and kid on nothing.
   main().collaborators.add('grandpa')
@@ -304,18 +303,6 @@ test('contents: base64 with a line break every 60 characters, the blob sha, 404 
   expect(Array.isArray((await gh(`${REPO}/contents/content`, { as: token, query: '?ref=main' })).body)).toBe(
     true,
   )
-})
-
-test('contents: a picture of the game is its bytes in base64, and the plain game has none', async () => {
-  const token = await installation()
-  const got = await gh(`${REPO}/contents/content/figures/hero.png`, { as: token, query: '?ref=main' })
-  expect(got.status).toBe(200)
-  expect(got.body.encoding).toBe('base64')
-  const bytes = Uint8Array.from(atob(String(got.body.content).replace(/\s+/g, '')), (c) => c.charCodeAt(0))
-  // A PNG starts with its signature.
-  expect([...bytes.slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47])
-  expect(main().pictures.has('content/figures/hero.png')).toBe(true)
-  expect(fake.repos.get('grandma/plain-game')?.pictures.size).toBe(0)
 })
 
 const put = (token: string, branch: string, text: string, sha: string | undefined, path = LEVEL_PATH) =>
@@ -577,7 +564,7 @@ test('the log keeps every request, oldest first, and reset() empties it', async 
   expect(fake.log).toEqual([])
 })
 
-test('reset() puts the crate back, and the game, the not-a-game, the other game and the plain game are there', async () => {
+test('reset() puts the crate back, and the game, the not-a-game and the other game are there', async () => {
   const token = await installation()
   await put(token, 'main', moved(), blobSha(level()))
   fake.reset()
@@ -587,7 +574,6 @@ test('reset() puts the crate back, and the game, the not-a-game, the other game 
     'grandma/crate-game',
     'grandma/not-a-game',
     'grandma/other-game',
-    'grandma/plain-game',
   ])
   expect(fake.person).toBe('grandma')
   expect(fake.signIn).toBe('allow')

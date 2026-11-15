@@ -4,7 +4,7 @@
 import { PROJECT_FILE, parseProject, writeContent } from '@automataframework/framework/headless'
 import { can } from '../access/access.ts'
 import type { Pull } from '../github/github.ts'
-import { type Answer, APP_ON_GITHUB, type SaveAnswer, type SaveAsk, type Waiting } from '../wire/wire.ts'
+import type { Answer, SaveAnswer, SaveAsk, Waiting } from '../wire/wire.ts'
 import { type Json, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
 import { ownPull, toWaiting } from './pulls.ts'
@@ -117,7 +117,7 @@ export async function saveLevel(deps: ApiDeps, request: Request): Promise<Answer
     const pull = await repo.createPull({
       branch,
       title: message,
-      body: `Made with ${APP_ON_GITHUB} by ${who.login}.`,
+      body: `Made with Automata Editors by ${who.login}.`,
     })
     if (!pull.ok) return pull
     mine = await toWaiting(repo, pull.value, who.login)
