@@ -2,6 +2,21 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The Sound editor cycle
+
+Spec: [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md). Its new file formats are
+the framework's, in AutomataFramework's `docs/superpowers/specs/2026-11-15-sound-formats-design.md` (its Cycle 7).
+Each of the five editors has its own cycle (the Owner, 2026-11-15).
+
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Written, in review. The Owner answered Q1 to Q6 (2026-11-15): opens on the level with sound chips; a new sound starts from a kind with Try another and plain sliders; music as GarageBand-style loops, whole chords and motifs; recorded sounds in; new formats in the framework first, with MIDI to JSON and back; content folders listed once, with a one-time "Set up sounds". Flagged: Feel's cycle lists one line per effect, which differs from Q6 | [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md) |
+| 2. Plan | Not started; waits for the Blueprint redesign's level screen and the framework's sound formats | |
+| 3 to 7 | Not started | |
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
