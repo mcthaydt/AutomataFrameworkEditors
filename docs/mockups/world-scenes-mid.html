@@ -21,7 +21,7 @@
 <body>
 <!-- World, Scenes, mid-project: painting flowers with a Pencil. The Pencil hovers and the brush's outline shows at its real
      size, in the flowers' pink, before it touches; pressing harder paints more flowers (How many does the same
-     for a Pencil with no pressure); a finger on the scene moves the view, so nothing is painted by accident. The brush's own settings sit just above
+     for a Pencil with no pressure); a finger on the scene slides the view, so nothing is painted by accident. The brush's own settings sit just above
      the toolbar, the hero and the crate are faint (they belong to Levels), the Library is open on clumps, dashed frames show what a phone and a computer see, and the day
      can be played through. -->
 <div class="canvas">
@@ -48,12 +48,12 @@ window.MOCK = {
   settings: [
     '<span>What screens see</span><span class="knob2 on"></span>',
   ],
-  list: { title: 'Front to back', tab: 'Everything here', count: 6, search: 'Find something', rows: [
+  list: { title: 'Front to back', count: 6, search: 'Find something', rows: [
       { head: 'In front', count: 1 },
       { n: 'Falling leaves', k: 'close, moves fast', i: 'leaf' },
       { head: 'The level', count: 3 },
-      { n: 'Tree-2', k: 'tree', i: 'tree', on: false },
-      { n: 'Flowers', k: 'clump', i: 'flower', on: true },
+      { n: 'Tree 2', k: 'tree', i: 'tree', on: false },
+      { n: 'Flowers', k: 'patch', i: 'flower', on: true },
       { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
       { head: 'Behind', count: 2 },
       { n: 'Hills', k: 'far away, moves slowly', i: 'mountains' },
@@ -62,7 +62,7 @@ window.MOCK = {
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add scenery</button>',
   },
   library: {
-    open: true, filters: ['All', 'Clumps', 'Trees', 'Rocks', 'Skies'], on: 1,
+    open: true, filters: ['Everything', 'Patches', 'Trees', 'Rocks', 'Skies'], on: 1,
     items: [
       { n: 'Flowers', note: 'pink', i: 'flower', on: true },
       { n: 'Tall grass', i: 'plant' },
@@ -75,11 +75,11 @@ window.MOCK = {
   },
   closed: [['Changes', 'clock-counter-clockwise', 4], ['Problems', 'warning']],
   values: {
-    title: 'Flowers', sub: 'Clump · 5 painted', pic: { i: 'flower' }, tab: 'Flowers',
+    title: 'Flowers', sub: 'A patch · 5 painted', pic: { i: 'flower' }, tab: 'Flowers',
     groups: [
       { name: 'Painted', open: true, rows: [
-        { t: 'slider', l: 'How close together', f: 'spacing', v: '0.6', lo: 'Far apart', hi: 'Packed', at: 60 },
-        { t: 'slider', l: 'Sizes', f: 'sizes', v: '0.3', lo: 'All the same', hi: 'Very mixed', at: 30, ch: true },
+        { t: 'slider', l: 'How close together', f: 'spacing', v: '0.6', w: 'Quite close', lo: 'Far apart', hi: 'Packed', at: 60 },
+        { t: 'slider', l: 'Sizes', f: 'sizes', v: '0.3', w: 'A bit mixed', lo: 'All the same', hi: 'Very mixed', at: 30, ch: true },
         { t: 'btns', b: [['Shuffle them', 'shuffle']] },
       ] },
       { name: 'Colors', open: true, rows: [

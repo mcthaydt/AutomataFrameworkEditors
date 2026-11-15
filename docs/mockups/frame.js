@@ -1,5 +1,5 @@
 // The shared frame every mockup page borrows, built from the page's `window.MOCK`. Round three draws one shell
-// own settings row, the cluster, the tools (each with its key), the "Everything here" list, the values panel, the
+// own settings row, the cluster, the tools (each with its key), the "What's in it" list, the values panel, the
 // Library drawer, the play controls, the selection bar, the notes' switch, the zoom, the title block and undo and
 // redo. It also fills in the Phosphor icons (`data-i`), the flags (`data-flag`) and the sketched pixel figures
 // (`data-pixel`). Static pictures only: no button here does anything.
@@ -176,13 +176,14 @@ const pic = (r) =>
 // notes in Sound; Draw path links cards in Story), so learning one workspace teaches all five. The toolbar holds tools
 // and nothing else: Play, Undo and Redo are in the top bar (the Owner, 2026-11-15).
 const TOOLS = [
-  ['Move', 'cursor', 'V'],
+  // "Pick", not "Move": every hint says pick, and moving the view is "Slide the view" (plain-words audit, W3).
+  ['Pick', 'cursor', 'V'],
   ['Place', 'plus-square', 'A'],
   ['Paint', 'paint-brush', 'B'],
   ['Erase', 'eraser', 'E'],
   ['Draw path', 'path', 'L'],
 ]
-// Pages name tools by round two's numbers (0 Move, 1 Place, 2 Paint, 3 Draw path, 4 Play); this turns one into its
+// Pages name tools by round two's numbers (0 Pick, 1 Place, 2 Paint, 3 Draw path, 4 Play); this turns one into its
 // place in the toolbar. Play is no longer a tool (-1).
 const toolAt = (i) => (i === 3 ? 4 : i === 4 ? -1 : i)
 // Round two's tools, mapped onto the five.
@@ -202,14 +203,16 @@ function insRow(r) {
   const dot = r.ch ? '<i class="dot"></i>' : ''
   const label = r.l ? `<span class="il">${dot}${r.l}</span>` : ''
   switch (r.t) {
+    // A value that is words, not a number ("Not the same"), is set in the words font, not the numbers' (W12).
     case 'num':
-      return `<div class="ir">${label}<span class="scrub">${r.v}${r.u ? `<small>${r.u}</small>` : ''}</span></div>`
+      return `<div class="ir">${label}<span class="scrub${/\d/.test(r.v) ? '' : ' wd'}">${r.v}${r.u ? `<small>${r.u}</small>` : ''}</span></div>`
     case 'read':
       return `<div class="ir">${label}<span class="rd">${r.v}</span></div>`
     // A slider says what its two ends mean in words, and its number sits at the right of its label: a tap opens the
     // number pad, so a value can be matched exactly.
     case 'slider':
-      return `<div class="ir sl">${label}<span class="scrub">${r.v}</span><span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
+      // `w` is a plain word for where the slider sits ("Quite heavy"); the number stays beside it, small (W22).
+      return `<div class="ir sl">${label}<span class="scrub${r.w || !/\d/.test(r.v) || /[a-z]/.test(r.v) ? ' wd' : ''}">${r.w ? `${r.w}<small>${r.v}</small>` : r.v}</span><span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     // Choices that do not fit the panel as segments become a dropdown.
     case 'choice':
       if (r.opts.length >= 4 || r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
@@ -255,9 +258,9 @@ function inspector(v, keep) {
     if (!g.open) hidden += g.count || 1
     if (take.length) parts.push(`<div class="igroup"><h4>${g.name.replace(soon, '')}</h4>${take.map(insRow).join('')}</div>`)
   }
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, not shared yet"></i></span>') : v.title}</b><small>${(v.sub || '').split(' · ')[0]}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, only on this device so far"></i></span>') : v.title}</b><small>${(v.sub || '').split(' · ')[0]}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
-      ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}</div>`
+      ${hidden ? `<button class="more">${icon('caret-right')}${hidden} more setting${hidden > 1 ? 's' : ''}</button>` : ''}</div>`
 }
 
 function layers(l) {
@@ -270,7 +273,7 @@ function layers(l) {
             `<div class="lh fold${r.on ? ' on' : ''}${r.faint ? ' faint' : ''}" style="--d:${r.d || 0}">${r.sw ? `<i class="pic swatch" style="background:${r.sw}"></i>` : ''}${icon(r.fold ? 'caret-right' : 'caret-down')}<span>${r.head}</span><span class="n">${r.count}</span></div>`
         : r.rest
           ? `<div class="lr rest" style="--d:${r.d || 0}">${r.rest}</div>`
-          : `<div class="lr${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}">${pic(r)}<span class="ln">${r.n}</span>${r.warn ? icon('warning') : ''}${r.hid ? icon('eye-slash') : ''}${r.lock ? `<span class="lk" title="Locked so it can't move by mistake. Tap to unlock.">${icon('lock-simple')}</span>` : ''}</div>`,
+          : `<div class="lr${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}"${r.title ? ` title="${r.title}"` : ''}>${pic(r)}<span class="ln">${r.n}</span>${r.warn ? icon('warning') : ''}${r.hid ? icon('eye-slash') : ''}${r.lock ? `<span class="lk" title="Locked so it can't move by mistake. Tap to unlock.">${icon('lock-simple')}</span>` : ''}</div>`,
     )
     .join('')
 }
@@ -284,14 +287,17 @@ function assets(lib) {
 // new person learns the second one is there.
 function leftPanel(m) {
   const hasAssets = true
+  // The list's name says what it lists (W4): this level, this scene, the tiles, or every level on the map.
+  const here = (m.parts || [])[m.part]?.[0]
+  const listName = m.list?.tab || (m.mapOn ? 'All levels' : { Levels: 'In this level', Scenes: 'In this scene', Tiles: 'Tiles' }[here] || "What's in it")
   if (!m.library?.items?.length) m.library = null
   const onAssets = !m.list && m.library
-  const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Assets.</p>'
+  const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Add things.</p>'
   // Closed, on an iPad, the panel is a thin rail: one tap on either opens it (the Owner, 2026-11-15). The top bar's
   // Find filters this list as you type, so the list has no Find of its own.
   return `<aside class="sh-left">
-    <nav class="lrail"><button class="ib on" title="Everything here: open the list">${icon('list-bullets')}</button><button class="ib" title="Assets: open the things to add">${icon('shapes')}</button></nav>
-    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${m.list?.tab || 'Everything here'}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Assets</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button></nav>
+    <nav class="lrail"><button class="ib on" title="What's in it: open the list">${icon('list-bullets')}<span>In it</span></button><button class="ib" title="Add things: open the things to add">${icon('shapes')}<span>Add</span></button></nav>
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${listName}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Add things</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button></nav>
     <div class="lbody">${body}</div>
   </aside>`
 }
@@ -344,13 +350,22 @@ function frame(m) {
   // The device's own word: a computer, a phone (small or on its side), or an iPad.
   const small = window.innerWidth <= 500 || window.innerHeight <= 600
   const device = fine ? 'computer' : small ? 'phone' : 'iPad'
-  const status = n ? `${icon('check')}<span class="long">Saved on this ${device}</span><span class="short">Saved</span>` : `${icon('check')}<span class="long">Everyone has your changes</span><span class="short">Shared</span>`
+  // Where the changes are, in words that cannot be read as "done" (W2): only on this device until they are put in
+  // the game, then everyone has them. It is the button's second line, so the top bar holds one thing fewer (S6).
+  // "Share" is kept for the people screen (who may do what); this button puts changes in the game (W1). Someone
+  // who may only suggest sends them to be checked instead.
+  const put = m.suggest ? 'Send to check' : 'Put in game'
+  const where = n ? `<small class="long">${n} only on this ${device}</small><small class="short">On this ${device}</small>` : `<small class="long">Everyone has it</small><small class="short">Up to date</small>`
   // View holds what the canvas shows; the picked tool's own two or three settings sit beside the toolbar
   // (`toolopts`). "All levels" is the level's menu.
   // The free hand's strip, on a touch screen only: buttons held with the thumb that isn't drawing, where a computer
   // holds a key. It belongs to the shell, not to World: each workspace names its own (3D will add "Turn the view").
-  // World's three are on now; the other workspaces join when they are drawn.
-  const holds = m.holds === false ? null : m.holds || (m.editor === 'world' ? [['Pick several', 'selection-plus'], ['Copy', 'copy'], ['Straight', 'ruler']] : null)
+  // World's three are on now, on Levels and Scenes only, where they do something (S3); the other workspaces join
+  // when they are drawn.
+  const holds = m.holds === false ? null : m.holds || (m.editor === 'world' && ((here === 'Levels' && !m.mapOn) || here === 'Scenes') && !m.compare ? [['Pick several', 'selection-plus'], ['Drag a copy', 'copy'], ['Straight lines', 'ruler']] : null)
+  // The zoom says how near you are in words (W8); the number is only in Show.
+  const pc = /^(\d+)%$/.exec(m.zoom || '100%')
+  const zoomWord = pc ? (Number(pc[1]) === 100 ? 'Fit' : Number(pc[1]) > 100 ? 'Close up' : 'Far away') : m.zoom
   const opts = [...(m.settings || []).filter((o) => !/All levels/.test(o)), `<span>Zoom</span><span class="seg"><button class="on">Fit</button><button>${/%$/.test(m.zoom || '100%') ? m.zoom || '100%' : '100%'}</button></span>`]
   const html = `
   <header class="sh-top">
@@ -361,11 +376,10 @@ function frame(m) {
     <span class="fill"></span>
     <button class="ib tu" title="${fine ? 'Undo (⌘Z)' : 'Undo · or tap with two fingers'}">${icon('arrow-counter-clockwise')}</button><button class="ib tu" title="${fine ? 'Redo (⇧⌘Z)' : 'Redo · or tap with three fingers'}">${icon('arrow-clockwise')}</button>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
-    <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}${fine ? '<kbd>⌘K</kbd>' : '<span>Find</span>'}</button>
+    <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}<span>Find</span>${fine ? '<kbd>⌘K</kbd>' : ''}</button>
     <span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>
-    <span class="kept">${status}</span>
     <button class="tplay${m.play ? ' on' : ''}" title="${m.play ? 'Stop playing and go back to building' : 'Play the level here'}${fine ? ' (P)' : ''}">${icon(m.play ? 'stop' : 'play')}<span>${m.play ? 'Stop' : 'Play'}</span></button>
-    <button class="share${n ? '' : ' quiet'}" title="${n ? 'Put your changes into the game for the team' : 'Nothing new to share'}">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}<span class="nw"> new</span></span>` : ''}</button>
+    <button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>
   </header>
   ${leftPanel(m)}
   ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show the values">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button></aside>` : ''}
@@ -373,9 +387,9 @@ function frame(m) {
   ${m.play ? playbar(m.play) : ''}
   ${m.trycard ? `<aside class="float trycard"><header><b>${m.trycard.title}</b><button class="ib" title="Close this card">${icon('x')}</button></header>${m.trycard.rows.map(insRow).join('')}<button class="more">${icon('caret-right')}${m.trycard.more}</button></aside>` : ''}
   <div class="sh-tools">
-    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div u"></i><button class="tl2 u" title="Undo · or tap with two fingers">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the canvas shows: zoom, grid, frames">${icon('eye')}<span>View</span></button><button class="tz" title="Zoom: pinch, or press to pick">${/%$/.test(m.zoom || '') ? m.zoom : '100%'}</button></nav>
+    <nav class="tbar"><button class="tl2 lay" title="What's in it, and things to add">${icon('stack')}<span>What's in it</span></button>${tools}<i class="div u"></i><button class="tl2 u" title="Undo · or tap with two fingers">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the level shows: grid, zoom, frames">${icon('eye')}<span>Show</span></button><button class="tz" title="How near you are: pinch, or press to pick">${zoomWord}</button></nav>
     ${m.toolopts ? `<div class="topts">${m.toolopts}</div>` : ''}
-    ${m.optsOpen ? `<div class="opop"><b>View</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
+    ${m.optsOpen ? `<div class="opop"><b>Show</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
   </div>
   ${m.tray ? `<div class="tray"><p>${m.tray.tip || 'Tap one, then tap the level. Or drag it in.'}</p><div class="titems">${m.tray.items.map((it) => `<button class="ti${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></button>`).join('')}<button class="ti more2">${icon('squares-four')}<span>All things</span></button></div></div>` : ''}
   ${!fine && !m.play && holds ? `<div class="holds" title="Hold with your free thumb, or tap to keep on">${holds.map(([w, ic], i) => `<button class="hb${m.holdOn === i ? ' on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>` : ''}`
@@ -402,7 +416,7 @@ function frame(m) {
     stage.insertAdjacentHTML(
       'beforeend',
       `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">
-      <div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b>${icon('sparkle')}${g.who || 'Agent'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
+      <div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b title="The AI you're chatting with">${icon('sparkle')}${g.who || 'Your helper'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
     )
   }
   // What is picked gets a small bar just above it: the everyday acts, where the finger already is. Several picked
@@ -413,7 +427,9 @@ function frame(m) {
     const nudge = `<span class="nudge" title="Nudge one step">${[['caret-left', 'left'], ['caret-up', 'up'], ['caret-down', 'down'], ['caret-right', 'right']].map(([ic, w]) => `<button class="ab n" title="Nudge ${w}">${icon(ic)}</button>`).join('')}</span>`
     const several = a.several ? `${b('Line up', 'align-bottom', true)}${b('Space out', 'arrows-out-line-horizontal')}${b('Stack', 'stack')}<i class="adiv"></i>` : ''
     const menu = a.menu ? `<div class="amenu"><b>Line them up along</b><span>${[['align-top', 'The top'], ['align-bottom', 'The bottom'], ['align-left', 'The left'], ['align-right', 'The right']].map(([ic, w], i) => `<button class="${i === 1 ? 'on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</span></div>` : ''
-    stage.insertAdjacentHTML('beforeend', `<div class="actbar${a.below ? ' below' : ''}" style="left:${a.at[0]}%;top:${a.at[1]}%">${several}${b('Duplicate', 'copy-simple')}${b('Delete', 'trash')}<i class="adiv"></i>${nudge}${b('More', 'dots-three')}${menu}</div>`)
+    // An open menu takes the bar's place, so no more than two things float over the level (S2).
+    if (menu) stage.insertAdjacentHTML('beforeend', `<div class="actbar menuonly" style="left:${a.at[0]}%;top:${a.at[1]}%">${menu}</div>`)
+    else stage.insertAdjacentHTML('beforeend', `<div class="actbar${a.below ? ' below' : ''}" style="left:${a.at[0]}%;top:${a.at[1]}%">${several}${b('Make another', 'copy-simple')}${b('Delete', 'trash')}<i class="adiv"></i>${nudge}<button class="ab" title="More things to do">${icon('dots-three')}</button></div>`)
   }
 }
 

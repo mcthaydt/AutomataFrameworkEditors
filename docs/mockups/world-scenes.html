@@ -41,16 +41,16 @@ window.MOCK = {
   ],
   place: 'Meadow', saved: 'Sam, 5 minutes ago', tool: 0,
   act: { at: [37.5, 59.6] },
-  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span>',
   settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
     '<span>Time of day</span><span class="seg"><button>Dawn</button><button class="on">Day</button><button>Dusk</button><button>Night</button></span>',
   ],
-  list: { title: 'Front to back', tab: 'Everything here', count: 6, search: 'Find something', rows: [
+  list: { title: 'Front to back', count: 6, search: 'Find something', rows: [
       { head: 'In front', count: 1 },
       { n: 'Falling leaves', k: 'close, moves fast', i: 'leaf' },
       { head: 'The level', count: 3 },
-      { n: 'Tree-2', k: 'tree', i: 'tree', on: true },
-      { n: 'Flowers', k: 'clump', i: 'flower', on: false },
+      { n: 'Tree 2', k: 'tree', i: 'tree', on: true },
+      { n: 'Flowers', k: 'patch', i: 'flower', on: false },
       { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
       { head: 'Behind', count: 2 },
       { n: 'Hills', k: 'far away, moves slowly', i: 'mountains' },
@@ -61,7 +61,7 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Tree-2', sub: 'Tree · drawn with the hero', pic: { i: 'tree' }, tab: 'Tree-2',
+    title: 'Tree 2', sub: 'Tree · drawn with the hero', pic: { i: 'tree' }, tab: 'Tree 2',
     groups: [
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: '5.4', u: 'tiles' },
@@ -69,9 +69,9 @@ window.MOCK = {
         { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With the hero', 'In front'], on: 1 },
       ] },
       { name: 'Shape', open: true, rows: [
-        { t: 'slider', l: 'How tall', f: 'height', v: '2', lo: 'A bush', hi: 'Over the hills', at: 30 },
-        { t: 'slider', l: 'How leafy', f: 'leafy', v: '0.8', lo: 'Bare', hi: 'Full', at: 80 },
-        { t: 'slider', l: 'Sways in the wind', f: 'sway', v: '0.2', lo: 'Still', hi: 'Storm', at: 20 },
+        { t: 'slider', l: 'How tall', f: 'height', v: '2', w: 'Taller than the hero', lo: 'A bush', hi: 'Over the hills', at: 30 },
+        { t: 'slider', l: 'How leafy', f: 'leafy', v: '0.8', w: 'Very leafy', lo: 'Bare', hi: 'Full', at: 80 },
+        { t: 'slider', l: 'Sways in the wind', f: 'sway', v: '0.2', w: 'A little', lo: 'Still', hi: 'Storm', at: 20 },
         { t: 'btns', b: [['Try another tree', 'dice-five'], ['Flip', 'flip-horizontal']] },
       ] },
       { name: 'Colors', count: 3, rows: [] },

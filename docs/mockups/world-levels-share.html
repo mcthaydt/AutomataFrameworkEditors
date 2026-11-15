@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World · Share (mockup)</title>
+<title>World · Put in game (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
@@ -13,7 +13,7 @@
 </style>
 </head>
 <body class="lib-open">
-<!-- Share: everything is kept on this iPad as you go; Share puts it into the game for the team. When Mia changed the same thing, the list asks whose to keep. Someone who may only suggest sees world-levels-suggest instead. -->
+<!-- Put in game: everything is kept on this iPad as you go; Put in game puts it into the game for the team. ("Share" is kept for the people screen, where you choose who may do what.) Keep a copy as a file is in the game's menu, not here. When Mia changed the same thing, the list asks whose to keep. Someone who may only suggest sees world-levels-suggest instead. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
@@ -28,7 +28,7 @@
         <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
       </svg>
       <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
-      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall out</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
       <div class="pickbox" style="left:36.5%;top:62.5%;width:27%;height:22%"></div>
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
@@ -43,14 +43,13 @@
 </div>
 <div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
 <section class="pop share-pop">
-  <h3>Share 3 changes</h3>
-  <p>They are saved on this iPad until you share them. Then everyone on the team sees them in the game.</p>
+  <h3>Put 3 changes in the game</h3>
+  <p>Only you can see these, on this iPad. Put them in and your team sees them too.</p>
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
   <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
-  <div class="both"><b><span class="ic" data-i="users"></span>Mia moved Crate-2 too</b><span><button class="sbtn on" role="radio" aria-checked="true"><span class="ic" data-i="check-circle"></span>Keep mine</button><button class="sbtn" role="radio" aria-checked="false"><span class="ic" data-i="circle"></span>Keep Mia's</button></span></div>
-  <div class="go"><button class="sbtn main"><span class="ic" data-i="share-network"></span>Share now</button><button class="sbtn">Not yet</button></div>
-  <p class="keep"><span class="ic" data-i="download-simple"></span> Keep a copy as a file</p>
+  <div class="both"><b><span class="ic" data-i="users"></span>Mia moved Crate 2 too</b><span><button class="sbtn on" role="radio" aria-checked="true"><span class="ic" data-i="check-circle"></span>Keep mine</button><button class="sbtn" role="radio" aria-checked="false"><span class="ic" data-i="circle"></span>Keep Mia's</button></span></div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="arrow-circle-up"></span>Put them in</button><button class="sbtn">Not yet</button></div>
 </section>
 <script>
 window.MOCK = {
@@ -71,22 +70,22 @@ window.MOCK = {
     rows: [
       { head: 'Things', count: 8 },
       { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
-      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
-      { n: 'Crate-2', k: 'crate', img: 'art/crate.png', on: true },
-      { n: 'Crate-3', k: 'crate', img: 'art/crate.png', on: true },
-      { n: 'Crate-4', k: 'crate', img: 'art/crate.png', warn: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate 2', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate 3', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
       { n: 'Button', k: 'button', i: 'radio-button' },
       { n: 'Door', k: 'door', i: 'door' },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
       { head: 'Zones', count: 2 },
       { n: 'Start', i: 'map-pin' },
-      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
   },
   library: {
     open: true,
-    filters: ['All', 'Things', 'Scenery', 'Tiles'],
+    filters: ['Everything', 'Things', 'Scenery', 'Tiles'],
     on: 1,
     items: [
       { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
@@ -105,15 +104,15 @@ window.MOCK = {
     title: '3 crates', sub: 'Picked together · change one, change all', pic: { img: 'art/crate.png' }, tab: '3 crates',
     groups: [
       { name: 'Place', open: true, rows: [
-        { t: 'num', l: 'From the left', f: 'x', v: 'Different for each' },
-        { t: 'num', l: 'From the top', f: 'y', v: 'Different for each' },
+        { t: 'num', l: 'From the left', f: 'x', v: 'Not the same' },
+        { t: 'num', l: 'From the top', f: 'y', v: 'Not the same' },
         { t: 'btns', b: [['Line up', 'align-bottom'], ['Space out', 'arrows-horizontal'], ['Stack', 'stack']] },
       ] },
       { name: 'Look', open: true, rows: [
         { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
       ] },
       { name: 'What it does', open: true, rows: [
-        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.6', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 64, ch: true },
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.6', w: 'Quite heavy', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 64, ch: true },
         { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
       ] },
       { name: 'Notes for the team', count: 1, rows: [] },

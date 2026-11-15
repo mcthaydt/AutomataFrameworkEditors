@@ -14,7 +14,7 @@
   <div class="fit">
     <div class="stage grid">
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
-      <span class="tip" style="left:22%;top:50%">Drag the crate anywhere</span>
+      <span class="tip" style="left:22%;top:28%">Drag the crate anywhere</span>
     </div>
   </div>
 </div>
@@ -28,8 +28,8 @@ window.MOCK = {
   ],
   tool: 0,
   act: { at: [40.6, 73.2] },
-  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span>',
   settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
     '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
     '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
   ],
@@ -38,11 +38,11 @@ window.MOCK = {
     rows: [
       { head: 'Things', count: 3 },
       { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
-      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', on: true },
       { n: 'Goal', k: 'flag', i: 'flag-pennant' },
       { head: 'Zones', count: 2 },
       { n: 'Start', i: 'map-pin' },
-      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
       { head: 'Ground and scene', count: 2 },
       { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
       { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
@@ -52,7 +52,7 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Crate-1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate-1',
+    title: 'Crate 1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate 1',
     groups: [
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: '6', u: 'tiles' },
@@ -64,7 +64,7 @@ window.MOCK = {
       ] },
       { name: 'What it does', open: true, rows: [
         { l: 'Every crate starts like this. A change here is for this crate only.' },
-        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', w: 'In the middle', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
         { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
         { t: 'btns', b: [['Change every crate, in Characters', 'arrow-square-out']] },
       ] },

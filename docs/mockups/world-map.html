@@ -30,13 +30,13 @@
         <path d="M20 22 H22 M38 22 H40 M56 22 H58 M74 22 H76 M67 34 V42 M85 34 V42 M74 52 H76 M56 52 H58 M13 34 V72 M20 82 H22 M38 82 H40 M56 82 H58 M49 34 V42"/>
       </svg>
       <button class="lv" style="left:4%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 1</span></button><button class="lv" style="left:22%;top:12%"><i style="filter:hue-rotate(25deg)"></i><span>Level 2</span></button><button class="lv" style="left:40%;top:12%"><i style="filter:hue-rotate(50deg)"></i><span>Level 3</span></button><button class="lv here" style="left:58%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 4<b>You are here</b></span></button><button class="lv" style="left:76%;top:12%"><i style="filter:hue-rotate(200deg)"></i><span>Level 5</span></button><button class="lv" style="left:58%;top:42%"><i style="filter:hue-rotate(250deg)"></i><span>Cave 1</span></button><button class="lv" style="left:76%;top:42%"><i style="filter:hue-rotate(280deg)"></i><span>Cave 2</span></button><button class="lv" style="left:40%;top:42%"><i style="filter:hue-rotate(140deg)"></i><span>Secret room</span></button><button class="lv" style="left:4%;top:72%"><i style="filter:hue-rotate(320deg)"></i><span>Level 6</span></button><button class="lv" style="left:22%;top:72%"><i style="filter:hue-rotate(30deg)"></i><span>Level 7</span></button><button class="lv" style="left:40%;top:72%"><i style="filter:hue-rotate(60deg)"></i><span>Level 8</span></button><button class="lv" style="left:58%;top:72%"><i style="filter:hue-rotate(180deg)"></i><span>The keep</span></button>
-      <span class="tip" style="left:4%;top:44%">Drag a level to arrange the map.<br>Tap one to go in.</span>
+      <span class="tip" style="left:4%;top:44%">Tap a level to go in.</span>
     </div>
   </div>
 </div>
 <script>
 window.MOCK = {
-  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', mapOn: true, state: 'world map',
+  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', holds: false, mapOn: true, state: 'world map',
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   tool: 0,
   off: [1, 2, 3],

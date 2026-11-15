@@ -68,8 +68,8 @@ window.MOCK = {
     ['Pencil', 'pencil-simple', 'B'], ['Line', 'line-segment', 'L'], ['Box', 'square', 'U', true], ['Fill', 'paint-bucket', 'G'],
     ['Select', 'selection', 'M'], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Pick a color', 'eyedropper', 'I'],
   ],
-  place: 'Meadow tiles', off: [1, 3], jobs: ['Move: pick a tile', '', 'Paint: draw on the picked tile'], saved: 'Not saved: 2 changes', changes: 2, tool: 0, zoom: 'Close up', state: 'mid-project',
-  toolopts: '<span class="seg"><button class="on">Pencil</button><button>Fill</button><button>Line</button></span><span>Size</span><span class="seg"><button class="on">1</button><button>2</button><button>4</button></span><span>Mirror</span><span class="knob2"></span>',
+  place: 'Meadow', off: [0, 1, 3], jobs: ['', '', 'Paint: draw on the picked tile'], t: 2, saved: 'Not saved: 2 changes', changes: 2, tool: 0, zoom: 'Close up', state: 'mid-project',
+  toolopts: '<span class="seg"><button class="on">Draw</button><button>Fill</button><button>Line</button></span><span>Size</span><span class="seg"><button class="on">1</button><button>2</button><button>4</button></span><span>Mirror</span><span class="knob2"></span>',
   settings: [
     '<span>Grid</span><span class="knob2 on"></span>',
   ],
@@ -96,7 +96,7 @@ window.MOCK = {
       { name: 'Standing on it', open: true, rows: [
         { t: 'choice', l: 'What the hero can stand on', f: 'solid', opts: ['All of it', 'Only the top', 'The slope', 'Nothing'], on: 2, ch: true },
         { t: 'slider', l: 'How steep', f: 'slope', v: '1 up, 1 across', lo: 'Gentle', hi: 'Steep', at: 50 },
-        { t: 'sw', l: 'Use it flipped for slopes going down', f: 'flip', on: true, ch: true },
+        { t: 'sw', l: 'Also use it for slopes going down', f: 'flip', on: true, ch: true },
       ] },
       { name: 'What it does', count: 2, rows: [] },
     ],

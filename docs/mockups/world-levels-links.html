@@ -40,8 +40,8 @@
       <i class="pt" style="left:22%;top:86%"></i><i class="pt" style="left:50%;top:86%"></i>
       <i class="lend" style="left:73.2%;top:80%"></i><i class="lend to" style="left:88.4%;top:70%"></i>
       <div class="ring" style="left:70%;top:79.8%;width:6.4%;height:4.2%"></div>
-      <span class="tag on" style="left:73.2%;top:88%">Opens Door-1 · 5 seconds</span>
-      <span class="tag" style="left:33%;top:64%">3 hits</span>
+      <span class="tag on" style="left:73.2%;top:88%">Opens Door 1 for 5 seconds</span>
+      <span class="tag" style="left:33%;top:64%">Takes 3 hits</span>
       <span class="tip" style="left:58%;top:44%">Draw from the button to what it opens</span>
     </div>
   </div>
@@ -51,16 +51,16 @@ window.MOCK = {
   editor: 'world', place: 'Level 2', saved: 'Not saved: 2 changes', changes: 2, zoom: '100%',
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   t: 3,
-  toolopts: '<span>Drag from a thing to what it works on, or draw where it walks</span>',
+  toolopts: '<span>Draw from a button to its door. Or draw where someone walks.</span>',
   list: {
     count: 9,
     rows: [
       { head: 'Things', count: 6, fold: false },
       { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true, d: 1 },
-      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', d: 1 },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', d: 1 },
       { n: 'Keeper', k: 'keeper', px: 'keeper', d: 1 },
-      { n: 'Button-1', k: 'button', i: 'radio-button', on: true, d: 1 },
-      { n: 'Door-1', k: 'door', i: 'door', d: 1 },
+      { n: 'Button 1', k: 'button', i: 'radio-button', on: true, d: 1 },
+      { n: 'Door 1', k: 'door', i: 'door', d: 1 },
       { n: 'Goal', k: 'flag', i: 'flag-pennant', d: 1 },
       { head: 'Zones', count: 2, fold: true },
       { head: 'Ground', count: 2, fold: true },
@@ -69,10 +69,10 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
   values: {
-    title: 'Button-1', sub: 'Button · opens something while it is pressed', pic: { i: 'radio-button' }, tab: 'Button-1',
+    title: 'Button 1', sub: 'Button · opens something while it is pressed', pic: { i: 'radio-button' }, tab: 'Button 1',
     groups: [
       { name: 'What it does', open: true, rows: [
-        { t: 'pick', l: 'Opens', f: 'opens', v: 'Door-1', i: 'door', ch: true },
+        { t: 'pick', l: 'Opens', f: 'opens', v: 'Door 1', i: 'door', ch: true },
         { t: 'slider', l: 'Stays open for', f: 'stayOpen', v: '5 seconds', lo: 'Only while pressed', hi: 'For good', at: 30, ch: true },
         { t: 'choice', l: 'Pressed by', f: 'pressedBy', opts: ['The hero', 'A crate', 'Either'], on: 2 },
       ] },

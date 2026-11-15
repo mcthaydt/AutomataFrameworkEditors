@@ -4024,3 +4024,181 @@ body.sh .daybar {
   font-size: 12px;
   color: var(--faint);
 }
+
+/* ---------- The plain-words audit of slice 3 (2026-11-15) ---------- */
+
+/* "Put in game" (or "Send to check") with where the changes are as its second line: "3 only on this iPad", or
+   "Everyone has it" once they are in (W1, W2, S6). With nothing waiting it is quiet and says "Up to date". */
+body.sh .sh-top .share.put {
+  height: 44px;
+  padding: 0 12px;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+body.sh .sh-top .share.put .w {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+body.sh .sh-top .share.put .w b {
+  font: 600 14px / 1.15 var(--label);
+}
+
+body.sh .sh-top .share.put .w small {
+  font: 500 11px / 1.2 var(--label);
+  opacity: 0.85;
+}
+
+body.sh .sh-top .share.put .w small.short {
+  display: none;
+}
+
+body.sh .sh-top .share.put.quiet {
+  background: transparent;
+  color: var(--quiet);
+  box-shadow: inset 0 0 0 1px var(--edge2, rgb(255 255 255 / 0.14));
+}
+
+@media (max-width: 1259px) {
+  body.sh .sh-top .share.put .w small.long {
+    display: none;
+  }
+
+  body.sh .sh-top .share.put .w small.short {
+    display: block;
+  }
+}
+
+@media (max-width: 500px) {
+  body.sh .sh-top .share.put .w small {
+    display: none !important;
+  }
+
+  body.sh .sh-top .share.put {
+    padding: 0 10px;
+  }
+}
+
+/* Find always says Find; on a computer its key sits small beside it (W6). */
+body.sh .sh-top .cmdk {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body.sh .sh-top .cmdk span:not(.ic) {
+  display: inline;
+}
+
+body.sh .sh-top .cmdk kbd {
+  display: inline-block;
+  font: 11px / 1 var(--measure);
+  padding: 3px 5px;
+  border-radius: 4px;
+  background: var(--hover);
+  color: var(--quiet);
+}
+
+/* "1 problem" in words at every size above a phone (B2, S5). */
+@media (min-width: 501px) {
+  body.sh .sh-top .warn .pw {
+    display: inline;
+  }
+}
+
+/* A value in words ("Not the same", "Quite heavy") is in the words font; a number beside it stays small (W12, W22,
+   W24). */
+body.sh .scrub.wd {
+  font-family: var(--label);
+  white-space: nowrap;
+}
+
+body.sh .scrub small {
+  margin-left: 6px;
+  font: 11px var(--measure);
+  color: var(--faint);
+}
+
+/* The inspector's name wins: the kind goes on its own line under it, and a long name wraps rather than being cut
+   to "3 cra…" (B12). */
+body.sh .ihead .it {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+body.sh .ihead .it b {
+  white-space: normal;
+  overflow: visible;
+}
+
+body.sh .ihead .it small {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* "3 more settings" is a sentence, not a word and a number (W10). */
+body.sh .ibody .more {
+  justify-content: flex-start;
+}
+
+/* A label under each rail button, so a closed panel still says what is behind it (S14). */
+body.sh.left-closed .lrail .ib {
+  height: 52px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body.sh .lrail .ib span {
+  font: 500 11px / 1 var(--label);
+}
+
+/* An open menu stands in for the bar it came from (S2, B6): its four buttons are each a word under an icon. */
+body.sh .actbar.menuonly {
+  padding: 8px;
+}
+
+body.sh .actbar .amenu {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: auto;
+}
+
+body.sh .actbar .amenu > span {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 4px;
+}
+
+body.sh .actbar .amenu button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+  min-height: 52px;
+  padding: 6px 8px;
+}
+
+/* A page that compares row sizes for the Owner has no shell round it, so it is not mistaken for a screen (S13). */
+body.sh.bare .sh-top,
+body.sh.bare .sh-tools,
+body.sh.bare .sh-left,
+body.sh.bare .sh-right,
+body.sh.bare .holds {
+  display: none;
+}
+
+body.sh.bare {
+  --left-w: 0px;
+  --right-w: 0px;
+  --top-h: 0px;
+  --tools-h: 0px;
+}
