@@ -80,7 +80,7 @@ document.fonts.ready.then(() => {
     const to = level(b).querySelector('i').getBoundingClientRect()
     if (Math.abs(from.top - to.top) < 4) {
       const y = from.top + from.height / 2 - box.top
-      d += `M${from.right - box.left + 3} ${y} H${to.left - box.left - 3} `
+      d += `M${from.right - box.left + 1} ${y} H${to.left - box.left - 1} `
     } else {
       const x = from.left + from.width / 2 - box.left
       d += `M${x} ${level(a).getBoundingClientRect().bottom - box.top + 6} V${to.top - box.top - 3} `

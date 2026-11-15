@@ -79,7 +79,8 @@ window.MOCK = {
 // sheet along the bottom. Where the settings are closed (a phone's line at the bottom, or the tab at the right on a
 // phone on its side), it rings that, and the card says to open them first. The card stands beside the column, or
 // above the sheet, and points at what is ringed.
-{
+// Measured once the fonts are in, as the frame measures, so the ring fits the button's real width.
+document.fonts.ready.then(() => {
   const row = [...document.querySelectorAll('.sh-right .ir.sl')].find((r) => r.textContent.includes('How heavy'))
   const shown = row && row.getClientRects().length && row.getBoundingClientRect().height > 0
   const closed = [...document.querySelectorAll('.sh-right .peek, .sh-right .itab')].find((el) => el.getClientRects().length && el.getBoundingClientRect().height > 0)
@@ -107,7 +108,7 @@ window.MOCK = {
     c.style.setProperty('--arrow-x', `${cx - x}px`)
     c.classList.add('to-above-thing')
   }
-}
+})
 </script>
 </body>
 </html>

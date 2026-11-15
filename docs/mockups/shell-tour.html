@@ -66,7 +66,8 @@ window.MOCK = {
 // The spotlight rings Place, the one button the step asks for (second visual look, M11: it used to ring the whole
 // toolbar, and on a phone Place has no word under it). The card sits beside the toolbar wherever this size puts it,
 // down the left edge on an iPad held sideways, along the bottom elsewhere, and its pointer aims at Place.
-{
+// Measured once the fonts are in, as the frame measures, so the ring fits the button's real width.
+document.fonts.ready.then(() => {
   const t = document.querySelector('.sh-tools .tbar').getBoundingClientRect()
   const place = [...document.querySelectorAll('.sh-tools .tbar .tl2')].find((b) => b.title.startsWith('Place') || b.textContent.trim() === 'Place')
   const p = (place || document.querySelector('.sh-tools .tbar')).getBoundingClientRect()
@@ -86,7 +87,7 @@ window.MOCK = {
     c.style.setProperty('--arrow-x', `${p.left + p.width / 2 - x}px`)
   }
   c.classList.add(left ? 'to-left' : 'to-below')
-}
+})
 </script>
 </body>
 </html>

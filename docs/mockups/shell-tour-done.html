@@ -65,7 +65,8 @@ window.MOCK = {
 <script src="frame.js"></script>
 <script>
 // The spotlight rings Put in game, and the card hangs under it, kept on the screen.
-{
+// Measured once the fonts are in, as the frame measures, so the ring fits the button's real width.
+document.fonts.ready.then(() => {
   const t = document.querySelector('.sh-top .share').getBoundingClientRect()
   const spot = document.querySelector('.spot')
   // A tight ring, so it never cuts into Play beside it (second visual look, L3).
@@ -74,7 +75,7 @@ window.MOCK = {
   const cw = Math.min(340, innerWidth - 16)
   Object.assign(c.style, { width: `${cw}px`, left: `${Math.max(8, Math.min(t.right - cw, innerWidth - cw - 8))}px`, top: `${t.bottom + 14}px`, maxHeight: `${innerHeight - t.bottom - 22}px`, overflowY: 'auto' })
   c.classList.add('to-above')
-}
+})
 </script>
 </body>
 </html>

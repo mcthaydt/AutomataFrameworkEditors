@@ -66,7 +66,8 @@ window.MOCK = {
 <script>
 // The spotlight rings the crate where this size draws the level; the card stands above it, or beside it when the
 // screen is too short (a phone on its side), and points at it.
-{
+// Measured once the fonts are in, as the frame measures, so the ring fits the button's real width.
+document.fonts.ready.then(() => {
   const s = document.querySelector('.stage').getBoundingClientRect()
   const crate = { left: s.left + s.width * 0.37, top: s.top + s.height * 0.732, width: s.width * 0.072, height: s.height * 0.108 }
   const spot = document.querySelector('.spot')
@@ -94,7 +95,7 @@ window.MOCK = {
     }
     c.style.setProperty('--arrow-y', `${crate.top + crate.height / 2 - y}px`)
   }
-}
+})
 </script>
 </body>
 </html>

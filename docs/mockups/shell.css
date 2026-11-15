@@ -6207,14 +6207,15 @@ html body.sh[data-device="phone"] .no-phone {
 }
 
 /* M1: a phone on its side keeps its tools down the left edge, so the tray lies on the bottom edge and the level takes
-   all the height above it (the rule above lifted the tray by a toolbar that is not there). */
+   all the height above it (the rule above lifted the tray by a toolbar that is not there), with room under the level
+   for the names that hang below it ("Walks here"). */
 @media (max-height: 600px) and (min-width: 600px) {
   html body.sh.has-tray .tray {
     bottom: 8px;
   }
 
   html body.sh.has-tray .fit {
-    bottom: 104px;
+    bottom: 124px;
   }
 }
 

@@ -7,8 +7,10 @@ The tracker every stage reads first and updates last. One section per cycle; new
 Step 4 of the mockup review: a fresh, harsh look at every screen at the five sizes CI pictures, iPad Pro 11 sideways
 first, after the plain-words audit, the Fable pass and the end-to-end check. Report:
 `/mnt/project-files/reports/2026-11-15-slice3-second-visual-look.md` (at 59718fe: 28 findings, 7 high, 13 medium,
-8 low; two questions for the Owner). Progress on this step: **80%** (every high and medium finding and the
-end-to-end leftovers drawn; CI's pictures of the fixes still to check).
+8 low; two questions for the Owner). Progress on this step: **95%** (every high and medium finding and the
+end-to-end leftovers drawn and checked in CI's pictures at d3fb036; a second round fixes what those pictures showed:
+tips slid back inside a phone's screen now keep their width, the tour measures after the fonts load, and a phone on
+its side keeps room under the level for the names that hang below it).
 
 - **Found:** iPad sideways is in good shape; phone sideways is the weakest size. At every size the play screen was
   shrunk inside a peach outline (the page's frame shared a class name with the body's "playing").
@@ -25,7 +27,9 @@ end-to-end leftovers drawn; CI's pictures of the fixes still to check).
 - **New pages:** `shell-tour-pick` (tour step 1, the level: tap the crate), `shell-tour-change` (step 3, a thing's
   settings: drag How heavy) and `world-levels-blocked` (Put in game when a problem must be fixed first; E20).
 - **Asked, not decided:** Fraunces for the few big titles, and the helper's lilac outside palette No. 310.
-- **Next:** check CI's pictures, then the Owner's review.
+- **Left (low):** an upright phone's top bar cuts "Put in game 3" when it is also offline; "Start was here" wraps
+  to three lines on a phone; the iPad's 240-point column still squeezes a few labels to two lines.
+- **Next:** the Owner's review.
 
 ## The shell and World mockups (roadmap slice 3): the end-to-end check (2026-11-15)
 

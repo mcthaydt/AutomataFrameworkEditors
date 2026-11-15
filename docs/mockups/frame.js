@@ -543,7 +543,12 @@ function keepInside() {
     el.style.marginLeft = ''
     const r = el.getBoundingClientRect()
     const dx = Math.max(Math.max(room.left, 0) + 8 - r.left, 0) + Math.min(Math.min(room.right, innerWidth) - 8 - r.right, 0)
-    if (dx) el.style.marginLeft = `${dx}px`
+    if (!dx) continue
+    // Its width is held first: near the level's right edge a tip is as wide as the room left to it, and sliding it
+    // left would only let it grow back to the edge (CI's pictures of the second visual look).
+    el.style.width = `${r.width}px`
+    el.style.boxSizing = 'border-box'
+    el.style.marginLeft = `${dx}px`
   }
 }
 
