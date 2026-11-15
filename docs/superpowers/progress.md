@@ -23,6 +23,49 @@ stage 7 is 6)
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
 
+## The Story editor (its own cycle)
+
+Spec: [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md). The Owner asked that every
+editor get its own full pipeline (2026-11-15). Story has three parts in World's frame: Conversations (a map of cards),
+Cutscenes (a camera frame and actors on the level's real art, over a timeline) and Words (every word a player reads,
+six languages side by side). Its build waits for framework plan T on `main` and for the redesign's build.
+
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Written, in review; Q1 (a map of cards), Q2 (a save missing words waits until all six languages are there) and Q2b (a native speaker may mark words read) answered by the Owner | [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md) |
+| 2. Plan | Not started | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started; waits for plan T and the redesign's build | |
+| 5. Implementation audit | Not started; two audits (drunk-grandma on Opus, visuals on Fable) | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+Nothing was run: this stage wrote documents.
+
+## Cycle 4: the 2D environment builder (World's Scenes part)
+
+Spec: [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md). A full
+scene builder, as powerful as the first attempt's 3D environment builder (the Owner, 2026-11-15); the scene owns the
+ground and the level only places what plays (Q1); all of the 3D builder's powers come, built in six slices (Q2). It is
+on the path to Release 1, because the demo's real art comes from the builders. It is built on Cycle 3's frame, after
+Cycle 3's build and audits. Each slice has a framework plan (AutomataFramework) and a builder plan (here).
+
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done (2026-11-15, in review); Q1 and Q2 answered by the Owner | [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md) |
+| 2. Plan | Not started: slice 1 (ground and materials), framework plan first | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
