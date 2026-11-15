@@ -6,39 +6,76 @@
 <title>Feel · Controls (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <style>
-  .action { display: grid; grid-template-columns: 1fr; gap: 6px; }
-  .keys { display: flex; flex-wrap: wrap; gap: 6px; }
-  .key { display: inline-flex; align-items: center; gap: 6px; min-width: 44px; min-height: 40px; justify-content: center; padding: 0 10px; border: 1px solid var(--edge); border-bottom-width: 3px; border-radius: 4px; font: 15px var(--measure); }
-  .key.pad { font: 15px var(--label); }
-  .key.wait { border-color: var(--touch); color: var(--ground); background: var(--touch); font: 600 15px var(--label); }
-  .key.add { color: var(--touch); border-style: dashed; border-bottom-width: 1px; }
-  .problem { border-left: 3px solid var(--mark); padding: 4px 10px; font-size: 16px; }
+  .device2 { position: relative; width: min(100%, 150cqh); aspect-ratio: 19.5 / 9; border: 10px solid #111314; border-radius: 34px; background: url(art/level-1.png) center / cover; image-rendering: pixelated; box-shadow: 0 0 0 2px var(--edge); }
+  .tb { position: absolute; display: grid; place-items: center; border-radius: 50%; background: rgb(245 236 194 / 0.28); border: 3px solid rgb(245 236 194 / 0.8); color: #111314; font: 600 13px var(--label); }
+  .tb.on { border-color: var(--touch); box-shadow: 0 0 0 4px rgb(238 180 128 / 0.4); }
+  .tb .ic { width: 40%; height: 40%; color: #111314; }
+  .rh { position: absolute; width: 14px; height: 14px; border-radius: 2px; background: var(--touch); border: 2px solid var(--ground); }
+  .thumbzone { position: absolute; bottom: 0; width: 34%; height: 70%; border: 2px dashed rgb(17 19 20 / 0.5); border-bottom: 0; border-radius: 50% 50% 0 0; }
+  .thumbzone span { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: #111314; white-space: nowrap; }
+  .pad { position: relative; width: min(92%, 120cqh); aspect-ratio: 2 / 1.15; }
+  .pad svg { width: 100%; height: 100%; }
+  .callout { position: absolute; display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--raised); border: 1px solid var(--edge); border-radius: var(--corner); font-size: 14px; white-space: nowrap; }
+  .callout.on { border-color: var(--touch); color: var(--touch); }
+  @media (max-width: 699px) and (min-height: 601px) { .callout { font-size: 12px; padding: 2px 6px; } }
 </style>
 </head>
 <body>
-<!-- Feel, Controls: keys and gamepad buttons for the hero's actions (spec: Editors PR 30, part 2). Waiting for a key
-     on "Jump"; with no keyboard the chip opens a list instead. -->
+<!-- Feel, Controls, first look: the touch layout (audit change 9). A phone held sideways, as a player holds it, with
+     the game inside and its touch buttons where the thumbs rest. Drag a button, pull its corner to size it; the dashed
+     arches are where a thumb reaches without stretching. Gamepad and Keys are the other two ways to look. -->
 <div class="canvas">
-  <div class="fit"><div class="stage"></div></div>
-</div>
-<div class="panels">
-  <section class="float panel grow">
-    <header class="panel-head"><span class="label">Controls</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
-    <div class="panel-body">
-      <div class="action"><span>Walk left</span><div class="keys"><span class="key">←</span><span class="key">A</span><span class="key pad"><span class="ic" data-i="game-controller"></span>left stick, left</span></div></div>
-      <div class="action"><span>Walk right</span><div class="keys"><span class="key">→</span><span class="key">D</span><span class="key pad"><span class="ic" data-i="game-controller"></span>left stick, right</span></div></div>
-      <div class="action"><span>Jump</span><div class="keys"><span class="key">Space</span><span class="key">↑</span><span class="key wait">Press a key now…</span><span class="key pad"><span class="ic" data-i="game-controller"></span>the bottom button</span></div></div>
-      <div class="action"><span>Pull the crate</span><div class="keys"><span class="key">Space</span><span class="key add"><span class="ic" data-i="plus"></span></span></div>
-        <p class="problem">Space is used for both “Jump” and “Pull the crate”. Give each its own key.</p></div>
-      <div class="rule"></div>
-      <p class="quiet"><span class="ic" data-i="hand"></span> On a touch screen, the left thumb walks and the right thumb jumps.</p>
+  <div class="fit" style="display:grid;place-items:center">
+    <div class="device2">
+      <div class="thumbzone" style="left:0"><span>Left thumb</span></div>
+      <div class="thumbzone" style="right:0"><span>Right thumb</span></div>
+      <span class="tb" style="left:6%;bottom:10%;width:20%;aspect-ratio:1"><span class="ic" data-i="arrows-left-right"></span></span>
+      <span class="tb on" style="right:6%;bottom:12%;width:14%;aspect-ratio:1"><span class="ic" data-i="arrow-fat-up"></span></span>
+      <i class="rh" style="right:5.2%;bottom:calc(12% + 14% * 19.5 / 9 - 6px)"></i>
+      <span class="tb" style="right:23%;bottom:6%;width:10%;aspect-ratio:1"><span class="ic" data-i="hand"></span></span>
+      <span class="tb" style="right:4%;top:6%;width:7%;aspect-ratio:1"><span class="ic" data-i="pause"></span></span>
     </div>
-  </section>
+  </div>
 </div>
 <script>
 window.MOCK = {
-  editor: 'feel', place: 'Level 1', saved: 'Sam, 2 minutes ago',
-  tools: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true], ['Play', 'play']], tool: 1,
+  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true]], part: 1,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Try it', 'hand-tap', 'T'], ['Play', 'play', 'P']],
+  status: { pointer: false, grid: false, snap: false },
+  place: 'Touch buttons', what: 'Controls', saved: 'Sam, 2 minutes ago', tool: 0, zoom: '100%',
+  settings: [
+    '<span class="seg"><button class="on">Touch</button><button>Gamepad</button><button>Keys</button></span>',
+    '<span>Phone</span><span class="seg"><button class="on">Sideways</button><button>Upright</button><button>Tablet</button></span>',
+  ],
+  list: { title: 'Actions', count: 5, search: 'Find an action', rows: [
+      { head: 'The hero', count: 4 },
+      { n: 'Walk', k: 'stick or ← →', i: 'person-simple-walk' },
+      { n: 'Jump', k: 'Space', i: 'arrow-fat-up', on: true },
+      { n: 'Pull the crate', k: 'Space', i: 'hand', warn: true },
+      { n: 'Dash', k: 'off', i: 'lightning', hid: true },
+      { head: 'The game', count: 1 },
+      { n: 'Pause', k: 'Esc', i: 'pause' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning', 1]],
+  values: {
+    title: 'Jump button', sub: 'Touch · right thumb', pic: { i: 'arrow-fat-up' }, tab: 'Jump button',
+    groups: [
+      { name: 'Place and size', open: true, rows: [
+        { t: 'slider', l: 'Size', f: 'touch.jump.size', v: '64 points', lo: 'Small', hi: 'Big', at: 55 },
+        { t: 'num', l: 'From the right', f: 'touch.jump.right', v: '6', u: '%' },
+        { t: 'num', l: 'From the bottom', f: 'touch.jump.bottom', v: '12', u: '%' },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'slider', l: 'See-through', f: 'touch.alpha', v: '70%', lo: 'Hidden', hi: 'Solid', at: 70 },
+        { t: 'sw', l: 'Players may move it', f: 'touch.movable', on: true },
+        { t: 'sw', l: 'Hide until a thumb touches', f: 'touch.hideIdle', on: false },
+      ] },
+      { name: 'Does', open: true, rows: [
+        { t: 'pick', l: 'Action', f: 'touch.jump.action', v: 'Jump', i: 'arrow-fat-up' },
+      ] },
+    ],
+  },
 }
 </script>
 <script src="frame.js"></script>

@@ -6,79 +6,76 @@
 <title>Story · Cutscenes (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <style>
-  :root { --fit-bottom: 340px; }
-  .camera { position: absolute; z-index: 2; border: 2px dashed var(--words); box-shadow: 0 0 0 1px var(--ground), inset 0 0 0 1px var(--ground); }
-  .actor { position: absolute; z-index: 2; line-height: 0; }
-  .actor canvas { height: 100%; width: auto; image-rendering: pixelated; }
-  .speechbox { position: absolute; z-index: 3; padding: 4px 10px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 15px; }
-  .timeline { position: absolute; z-index: 5; left: 96px; right: 372px; bottom: 100px; height: 236px; display: flex; flex-direction: column; }
-  .tl { display: grid; grid-template-columns: 96px 1fr; grid-auto-rows: 30px; gap: 4px 8px; padding: 8px 14px; position: relative; flex: 1; }
-  .tl .row { position: relative; border-bottom: 1px solid var(--edge); }
-  .tl .ticks { display: flex; justify-content: space-between; font: 13px var(--measure); color: var(--quiet); border-bottom: 2px solid var(--words); }
-  .key { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; transform: rotate(45deg); background: var(--touch); border: 2px solid var(--ground); }
-  .key.on { outline: 2px dashed var(--words); outline-offset: 3px; }
-  .ease { position: absolute; top: 50%; height: 2px; background: var(--words); }
-  .ease span { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--quiet); background: var(--raised); padding: 0 4px; }
-  .bar { position: absolute; top: 4px; bottom: 4px; background: color-mix(in srgb, var(--touch) 35%, var(--raised)); border: 1px solid var(--touch); border-radius: 3px; font-size: 13px; padding: 0 6px; line-height: 22px; white-space: nowrap; overflow: hidden; }
-  .head { position: absolute; top: 4px; bottom: 4px; left: calc(96px + 14px + 8px + (100% - 96px - 36px) * 0.24); width: 2px; background: var(--touch); z-index: 2; }
-  .endline { position: absolute; top: 4px; bottom: 4px; right: 14px; width: 2px; background: var(--words); }
-  @media (max-width: 1000px), (max-height: 600px) {
-    :root { --fit-bottom: 330px; }
-    .timeline { left: var(--gap); right: var(--gap); bottom: 88px; height: 230px; }
-    .panels { display: none; }
-  }
-  @media (max-height: 600px) { :root { --fit-bottom: 84px; --fit-right: 8px; } .timeline { display: none; } .panels { display: flex; } }
-  @media (max-width: 699px) and (min-height: 601px) { :root { --fit-bottom: 380px; } .timeline { bottom: 136px; } .tl { grid-template-columns: 70px 1fr; } }
+  .camframe { position: absolute; z-index: 2; border: 2px solid var(--touch); box-shadow: 0 0 0 9999px rgb(17 19 20 / 0.35); }
+  .camframe > span { position: absolute; left: -2px; top: -24px; padding: 2px 6px; background: var(--touch); color: var(--ground); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+  .walkpath { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; }
+  .tlbox { position: absolute; z-index: 4; border: 1px dashed var(--touch); background: color-mix(in srgb, var(--touch) 14%, transparent); }
+  .ease svg { width: 100%; height: 90px; display: block; border: 1px solid var(--edge); border-radius: 3px; background: var(--ground); }
 </style>
 </head>
 <body>
-<!-- Story, Cutscenes: the stage and the timeline (spec: Story thread). The stage is the level's real art at the
-     playhead; the camera's frame, the actors and the line on screen are drawing notes over it. -->
+<!-- Story, Cutscenes, first look: "Door opens", four seconds. The timeline runs along the bottom the whole width
+     between the panels, with a row for the camera, each character, the door, the words, the music and the sounds,
+     markers on top, play controls in its head, and seconds or ticks. The level shows what the camera sees at the
+     playhead and the keeper's path. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage">
-      <div class="camera" style="left:6%;top:30%;width:52%;height:64%"></div>
-      <span class="chip" style="left:6%;top:22.5%"><span class="ic" data-i="video-camera"></span>Camera · zoom <span class="v">1.5</span></span>
-      <span class="actor" style="left:24%;top:69%;height:15%"><span data-pixel="keeper" data-scale="4" data-flip="1"></span></span>
-      <span class="chip" style="left:22%;top:86%">Keeper</span>
-      <span class="chip" style="left:9%;top:62%">Hero</span>
-      <span class="speechbox" style="left:12%;top:40%">KEEPER: The door is open!</span>
-      <span class="chip" style="left:62%;top:36%">Playhead <span class="v">1.2 s</span></span>
+      <div class="camframe" style="left:18%;top:28%;width:62%;height:62%"><span>The camera at 1.5 s</span></div>
+      <svg class="walkpath" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 78 C30 74, 50 74, 72 78" fill="none" stroke="#f5ecc2" stroke-width="0.6" stroke-dasharray="1.6 1"/></svg>
+      <span data-pixel="keeper" data-scale="2" style="position:absolute;z-index:3;left:30%;top:66%"></span>
+      <span class="chip" style="left:56%;top:64%"><span class="ic" data-i="person"></span>Keeper walks to the door</span>
     </div>
   </div>
-</div>
-<section class="float timeline">
-  <header class="panel-head"><span class="label">Timeline</span><span class="num quiet">Door opens · 5.0 s</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
-  <div class="tl">
-    <span></span><div class="ticks"><span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span><span>5s</span></div>
-    <span class="label">Camera</span><div class="row"><i class="key" style="left:2%"></i><i class="ease" style="left:3%;width:56%"><span>Smooth</span></i><i class="key on" style="left:60%"></i></div>
-    <span class="label">Keeper</span><div class="row"><i class="key" style="left:2%"></i><div class="bar" style="left:4%;width:30%">talk</div></div>
-    <span class="label">Hero</span><div class="row"><i class="key" style="left:30%"></i><i class="ease" style="left:31%;width:28%"><span>Steady</span></i><i class="key" style="left:60%"></i></div>
-    <span class="label">Words</span><div class="row"><div class="bar" style="left:12%;width:40%">“The door is open!”</div></div>
-    <i class="head"></i><i class="endline"></i>
-  </div>
-</section>
-<div class="panels">
-  <section class="float panel">
-    <header class="panel-head">
-      <nav class="tabs"><button class="on">Camera key</button><button>Timeline</button></nav>
-      <span class="label">The picked key</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div><h2>Camera</h2><span class="sub">key 2 of 2</span></div>
-      <div class="stepper"><span>When</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">3.0 s</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      <div class="stepper"><span>How close</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">1.5</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      <span class="sub">How it gets there</span>
-      <div class="choices"><button class="choice">Cut</button><button class="choice">Steady</button><button class="choice on">Smooth</button></div>
-    </div>
-  </section>
 </div>
 <script>
 window.MOCK = {
-  editor: 'story', place: 'Door opens', what: 'Cutscene', saved: 'Not saved yet',
-  parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 1,
-  tools: [['Move', 'arrows-out-cardinal'], ['Add key', 'diamond'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+  editor: 'story', parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 1,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a key', 'diamond', 'K'], ['Camera', 'video-camera', 'C'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
+  status: { pointer: false, grid: 'Snap: ¼ second', snap: true },
+  place: 'Door opens', what: 'Cutscene', saved: 'Sam, 30 minutes ago', tool: 0, zoom: '100%',
+  settings: [
+    '<span>Time in</span><span class="seg"><button class="on">Seconds</button><button>Ticks</button></span>',
+    '<span>Players can skip it</span><span class="knob2 on"></span>',
+  ],
+  list: { title: 'Cutscenes', count: 3, search: 'Find a cutscene', rows: [
+      { head: 'Level 1', count: 2 },
+      { n: 'Door opens', k: '4 s', i: 'film-slate', on: true },
+      { n: 'Well done', k: '3 s', i: 'film-slate' },
+      { head: 'Level 2', count: 1 },
+      { n: 'Into the cave', k: '9 s', i: 'film-slate' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New cutscene</button>',
+  },
+  bottom: {
+    title: 'Door opens · 4 s', icon: 'film-slate',
+    head: '<span class="bhead"><button class="iconbtn"><span class="ic" data-i="play"></span></button><button class="iconbtn"><span class="ic" data-i="repeat"></span></button><span class="num">1.50 s</span><span class="seg hide-narrow"><button class="on">1×</button><button>½</button><button>¼</button></span></span>',
+    tl: { unit: 'seconds', ruler: ['0', '1', '2', '3', '4'], cols: 16, at: 0.375, rows: [
+      { n: 'Markers', i: 'flag-pennant', evts: [[25, 'Door starts'], [75, 'Hand back']] },
+      { n: 'Camera', i: 'video-camera', keys: [0, 37.5, 62.5, 100], onKey: 1, on: true },
+      { n: 'Keeper', i: 'person', bars: [[0, 50, 'Walks to the door'], [50, 100, 'Waves', 'b2']] },
+      { n: 'Door', i: 'door', keys: [25, 50] },
+      { n: 'Words', i: 'chat-circle-text', bars: [[6, 44, '“Off you go, then.”', 'b3']] },
+      { n: 'Music', i: 'music-notes', bars: [[0, 100, 'Meadow tune, quieter', 'b4']] },
+      { n: 'Sound', i: 'speaker-high', evts: [[25, 'Creak'], [50, 'Thud']] },
+    ] },
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Camera key', sub: 'At 1.50 s · 2 of 4', pic: { i: 'video-camera' }, tab: 'Camera key',
+    groups: [
+      { name: 'Where it looks', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'camera[1].x', v: '9.5', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'camera[1].y', v: '6', u: 'tiles' },
+        { t: 'slider', l: 'How close', f: 'camera[1].zoom', v: '1.4×', lo: 'The whole level', hi: 'A face', at: 40 },
+      ] },
+      { name: 'Getting there', open: true, rows: [
+        { t: 'choice', l: 'Moves', f: 'camera[1].ease', opts: ['Even', 'Soft', 'Snap'], on: 1 },
+        { t: 'sw', l: 'Shake a little', f: 'camera[1].shake', on: false },
+      ] },
+    ],
+  },
 }
 </script>
 <script src="frame.js"></script>

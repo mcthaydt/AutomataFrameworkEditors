@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feel · Moves, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .arcs { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; overflow: visible; }
+  .arcs path, .arcs line { fill: none; vector-effect: non-scaling-stroke; }
+  .halo { stroke: var(--ground); stroke-width: 5; }
+  .dash { stroke: var(--words); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .bpath { stroke: var(--touch); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .old { stroke: var(--words); stroke-width: 2; stroke-dasharray: 3 6; opacity: 0.45; }
+  .graph { position: absolute; inset: 8px 12px 8px 12px; }
+  .graph svg { width: 100%; height: 100%; }
+  .legend { position: absolute; right: 16px; top: 10px; display: flex; gap: 14px; font-size: 13px; }
+  .legend i { display: inline-block; width: 22px; height: 0; border-top: 3px dashed var(--words); vertical-align: middle; margin-right: 6px; }
+  .legend i.b { border-color: var(--touch); }
+
+</style>
+</head>
+<body>
+<!-- Feel, Moves, mid-project: A and B. The same run is played again with the new numbers (orange) beside the old ones
+     (pale), so the change is seen and not guessed. The bottom panel draws the jump's height over time for both. The
+     Library holds ready-made feels to start from. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage">
+      <svg class="arcs" viewBox="0 0 888 580" preserveAspectRatio="none" aria-hidden="true">
+        <path class="halo" d="M138 484 Q255 200 372 484"/><path class="dash" d="M138 484 Q255 200 372 484"/>
+        <path class="halo" d="M138 484 Q290 120 442 484"/><path class="bpath" d="M138 484 Q290 120 442 484"/>
+      </svg>
+      <img class="thing" src="art/hero.png" alt="" style="left:30%;top:24%">
+      <img class="thing" src="art/hero.png" alt="" style="left:26%;top:30%;opacity:.4">
+      <span class="chip" style="left:48%;top:22%">B reaches <span class="v">3.6 tiles</span></span>
+      <span class="chip" style="left:8%;top:36%">A reached <span class="v">3 tiles</span></span>
+      <span class="chip" style="left:24%;top:6%"><span class="ic" data-i="repeat"></span>The same run, played again</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true]], part: 0,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Measure', 'ruler', 'M'], ['Play', 'play', 'P']],
+  place: 'Level 1', what: 'Level', saved: 'Not saved: 2 changes', tool: 3, zoom: '100%', state: 'mid-project',
+  changes: 2,
+  play: { paused: false, speed: 1, at: 80, time: '0:04' },
+  status: { pointer: false, grid: false, snap: false, extra: '<span class="sb">Comparing <span class="seg"><button>A</button><button class="on">B</button></span></span>' },
+  bottom: {
+    title: 'Jump over time', icon: 'chart-line',
+    html: `<div class="graph"><div class="legend"><span><i></i>A, before</span><span><i class="b"></i>B, now</span></div><svg viewBox="0 0 400 100" preserveAspectRatio="none"><g stroke="#f5ecc2" stroke-opacity=".2"><line x1="0" y1="25" x2="400" y2="25"/><line x1="0" y1="50" x2="400" y2="50"/><line x1="0" y1="75" x2="400" y2="75"/></g><path d="M0 95 Q90 10 180 95" fill="none" stroke="#f5ecc2" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/><path d="M0 95 Q110 -10 220 95" fill="none" stroke="#eeb480" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg></div>`,
+  },
+  library: {
+    open: false, items: [],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
+  values: {
+    title: 'All the numbers', sub: 'Hero · B is 2 changes from A', pic: { img: 'art/hero.png' }, tab: 'Numbers', searchText: 'Find a number',
+    top: '<div class="vbtns" style="padding:6px 12px 8px"><button class="btn small main"><span class="ic" data-i="check"></span>Keep B</button><button class="btn small"><span class="ic" data-i="arrow-u-up-left"></span>Go back to A</button><button class="btn small"><span class="ic" data-i="books"></span>Ready-made feels</button></div>',
+    groups: [
+      { name: 'Walk', count: 4, open: false, rows: [
+        { t: 'num', l: 'Top speed', f: 'walk.speed', v: '6', u: 'tiles a second' },
+        { t: 'num', l: 'Gets up to speed in', f: 'walk.accel', v: '0.10', u: 's' },
+        { t: 'num', l: 'Stops in', f: 'walk.decel', v: '0.06', u: 's' },
+      ] },
+      { name: 'Jump', count: 5, open: true, rows: [
+        { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3.6 tiles', lo: 'A hop', hi: 'Over a house', at: 62, ch: true },
+        { t: 'slider', l: 'Let go early to jump lower', f: 'jump.cut', v: 'Keeps half', lo: 'Always full', hi: 'Very short', at: 50 },
+        { t: 'num', l: 'Jump just after a ledge', f: 'jump.coyote', v: '0.10', u: 's' },
+        { t: 'num', l: 'Jump pressed a moment early', f: 'jump.buffer', v: '0.08', u: 's' },
+      ] },
+      { name: 'In the air', count: 3, open: true, rows: [
+        { t: 'slider', l: 'Steer in the air', f: 'air.control', v: '0.7', lo: 'Not at all', hi: 'Like on the ground', at: 70 },
+        { t: 'num', l: 'Falls no faster than', f: 'air.maxFall', v: '14', u: 'tiles a second' },
+      ] },
+      { name: 'Double jump', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

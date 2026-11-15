@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Characters · Clips, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .clipstage { display: flex; gap: 6%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
+  .onion { position: relative; line-height: 0; border-bottom: 3px solid #607443; padding: 0 30px; }
+  .onion canvas { height: min(70cqh, 40cqw); width: auto; image-rendering: pixelated; }
+  .onion .before { position: absolute; left: 0; bottom: 0; opacity: 0.25; filter: sepia(1) hue-rotate(150deg); }
+  .onion .after { position: absolute; left: 60px; bottom: 0; opacity: 0.2; filter: sepia(1) hue-rotate(-30deg); }
+  .gamesize { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .gamesize .mini { width: 180px; aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; position: relative; border: 1px solid var(--edge); image-rendering: pixelated; }
+  .gamesize .mini span { position: absolute; left: 20%; top: 66%; line-height: 0; }
+  .gamesize .mini canvas { height: 18px; width: auto; image-rendering: pixelated; }
+  .map { position: relative; width: 100%; height: 100%; }
+  .node { position: absolute; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--edge); border-radius: var(--corner); background: var(--raised); font-size: 15px; transform: translate(-50%, -50%); white-space: nowrap; }
+  .node.on { border-color: var(--touch); box-shadow: inset 0 0 0 1px var(--touch); }
+  .node .ic { color: var(--touch); }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .map .when { position: absolute; font-size: 13px; color: var(--quiet); transform: translate(-50%, -50%); background: var(--ground); padding: 0 4px; white-space: nowrap; }
+  @media (max-width: 699px) and (min-height: 601px) { .gamesize { display: none; } }
+  @media (max-height: 600px) { .gamesize { display: none; } }
+</style>
+</head>
+<body>
+<!-- Characters, Clips, mid-project: the Hero picked. What used to be "kinds" is now the character's own values: what it
+     is, what it looks like, and its moves (double jump, wall jump, dash are switches here, the Owner 2026-11-15). The
+     canvas shows which clip follows which, and when; that map is marked Soon, because the framework's format may not
+     hold it yet. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="map">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="#f5ecc2" stroke-width="0.4" stroke-dasharray="1.2 0.8">
+          <path d="M20 50 L45 25"/><path d="M45 25 L75 25"/><path d="M75 25 L75 70"/><path d="M75 70 L20 50"/><path d="M45 25 L45 75"/><path d="M20 50 L45 75"/>
+        </g>
+      </svg>
+      <span class="node" style="left:20%;top:50%"><span class="ic" data-i="person"></span>Stand</span>
+      <span class="node on" style="left:45%;top:25%"><span class="ic" data-i="person-simple-run"></span>Run</span>
+      <span class="node" style="left:75%;top:25%"><span class="ic" data-i="arrow-fat-up"></span>Jump</span>
+      <span class="node" style="left:75%;top:70%"><span class="ic" data-i="arrow-down"></span>Fall</span>
+      <span class="node" style="left:45%;top:75%"><span class="ic" data-i="hand"></span>Push</span>
+      <span class="when" style="left:31%;top:36%">walks</span>
+      <span class="when" style="left:60%;top:21%">jump pressed</span>
+      <span class="when" style="left:82%;top:48%">going down</span>
+      <span class="when" style="left:47%;top:60%">touches a crate</span>
+      <span class="chip" style="left:4%;top:4%"><span class="ic" data-i="flow-arrow"></span>Which clip follows which <span class="soon">Soon</span></span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 1,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Add a key', 'diamond', 'K'],
+    ['Onion skin', 'stack', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  status: { pointer: false, grid: 'Frame 3 of 8', snap: false },
+  place: 'Hero', what: 'Character', saved: 'Not saved: 1 change', changes: 1, tool: 0, zoom: '100%', state: 'mid-project',
+  settings: [
+    '<span>Show</span><span class="seg"><button>The clip</button><button class="on">Which follows which</button></span>',
+  ],
+  list: { title: 'Characters', count: 5, search: 'Find a character', rows: [
+      { head: 'In this game', count: 5 },
+      { n: 'Hero', k: 'keeper', px: 'keeper', on: true },
+      { n: 'Crate', k: 'box', img: 'art/crate.png' },
+      { n: 'Door', k: 'opens', i: 'door' },
+      { n: 'Button', k: 'pressed', i: 'radio-button' },
+      { n: 'Spring', k: 'not used yet', i: 'arrow-line-up' },
+      { head: 'Clips of the Hero', count: 7 },
+      { n: 'Stand', i: 'person', d: 1 },
+      { n: 'Run', i: 'person-simple-run', d: 1 },
+      { n: 'Jump', i: 'arrow-fat-up', d: 1 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New character</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise', 1], ['Problems', 'warning', 1]],
+  values: {
+    title: 'Hero', sub: 'Character · the one you play', pic: { px: 'keeper' }, tab: 'Hero',
+    groups: [
+      { name: 'What it is', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'figure', v: 'Keeper', px: 'keeper' },
+        { t: 'choice', l: 'Who moves it', f: 'control', opts: ['The player', 'The game'], on: 0 },
+      ] },
+      { name: 'Moves', open: true, rows: [
+        { t: 'sw', l: 'Walk and jump', f: 'moves.walk', on: true },
+        { t: 'sw', l: 'Double jump: jump again in the air', f: 'moves.doubleJump', on: true, ch: true },
+        { t: 'sw', l: 'Wall jump: slide down a wall, jump off', f: 'moves.wallJump', on: false },
+        { t: 'sw', l: 'Dash: a quick burst sideways', f: 'moves.dash', on: false },
+        { t: 'btns', b: [['How high, how fast: in Feel', 'sliders-horizontal']] },
+      ] },
+      { name: 'Body in the game', count: 3, rows: [] },
+      { name: 'Your own values', count: 1, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

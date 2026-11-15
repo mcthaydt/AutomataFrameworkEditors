@@ -6,86 +6,94 @@
 <title>Characters · Figures (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <style>
-  .figure-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
-  .figure { position: relative; border: 1px dashed var(--edge); line-height: 0; padding: 0 20px; }
-  .figure canvas { height: min(60cqh, 80cqw); width: auto; image-rendering: pixelated; }
-  .figure::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px); background-size: calc(100% / 18.5) calc(100% / 22); pointer-events: none; }
-  .groundstrip { width: 100%; height: 14px; background: repeating-linear-gradient(90deg, #afd472 0 18px, #88a45b 18px 20px); border-top: 3px solid #607443; }
-  .handle { position: absolute; z-index: 3; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
-  .views { position: absolute; z-index: 5; left: var(--gap); bottom: 76px; display: flex; gap: 2px; padding: 3px; }
-  .views button { min-height: 40px; padding: 0 12px; border: 0; border-radius: 3px; background: none; color: var(--words); display: inline-flex; gap: 6px; align-items: center; }
-  .views button.on { background: var(--touch); color: var(--ground); }
-  .inlevel { position: absolute; z-index: 4; right: 0; bottom: 0; transform: translate(110%, 0); width: 168px; padding: 6px; }
-  .inlevel .mini { aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; image-rendering: pixelated; position: relative; }
-  .inlevel .mini span { position: absolute; left: 20%; top: 64%; line-height: 0; }
-  .inlevel .mini canvas { height: 22px; width: auto; image-rendering: pixelated; }
-  .wear { display: flex; flex-wrap: wrap; gap: 6px; }
-  @media (max-width: 1000px), (max-height: 600px) { .views { top: 120px; bottom: auto; left: auto; right: var(--gap); } .inlevel { display: none; } }
-  @media (max-width: 699px) and (min-height: 601px) { :root { --fit-top: 184px; } .views { top: 116px; } }
-  @media (max-height: 600px) { .views { top: 72px; right: auto; left: var(--gap); flex-direction: column; } }
+  /* The figure from three sides at once, standing on one line of ground, each with its name. */
+  .views3 { display: flex; gap: 4%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; padding-bottom: 28px; position: relative; }
+  .view { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 3px solid #607443; }
+  .view .fig canvas { height: min(52cqh, 24cqw); width: auto; image-rendering: pixelated; }
+  .view.main .fig { outline: 1px dashed var(--edge); outline-offset: 6px; }
+  .view .label { color: var(--quiet); }
+  .view.main .label { color: var(--touch); }
+  .ghost { position: absolute; left: 10px; bottom: 0; opacity: 0.3; filter: grayscale(1); }
+  .handle { position: absolute; z-index: 3; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
+  .handle.on { background: var(--touch); box-shadow: 0 0 0 4px color-mix(in srgb, var(--touch) 35%, transparent); }
+  .bone { position: absolute; z-index: 2; height: 3px; background: var(--touch); transform-origin: 0 50%; }
+  .arc { position: absolute; z-index: 2; border: 2px dashed var(--touch); border-radius: 50%; border-color: var(--touch) transparent transparent transparent; }
+  .turnbtn { position: absolute; z-index: 4; left: 50%; bottom: -6px; transform: translateX(-50%); }
+  .facing { position: absolute; z-index: 4; left: 0; right: 0; bottom: -2px; text-align: center; color: var(--quiet); font-size: 14px; }
+  @media (max-width: 699px) and (min-height: 601px) { .view .fig canvas { height: 30cqh; } .views3 { gap: 2%; } }
+  @media (max-height: 600px) { .view .fig canvas { height: 46cqh; } }
 </style>
 </head>
 <body>
-<!-- Characters, Figures: the rigged figure builder (specs: Editors PR 29, framework PR 104), in Look with Body open.
-     The keeper is a hand-drawn sketch of what the builder paints; the demo game has no figures yet. -->
+<!-- Characters, Figures, first look: the rigged figure builder (specs: Editors PR 29, framework PR 104). The keeper
+     from the side, the front and the back at once: a change to one shows on all three. "Play a turn" plays the figure
+     turning, the way a game shows it when it walks toward you or away from you (up a ladder, through a door). The
+     keeper is a hand-drawn sketch of what the builder paints; the demo game has no figures yet. -->
 <div class="canvas paper">
   <div class="fit">
-    <div class="figure-wrap">
-      <div class="figure">
-        <span data-pixel="keeper" data-scale="12"></span>
-        <i class="handle" style="left:42%;top:2%"></i>
-        <i class="handle" style="left:40%;top:40%"></i>
-        <i class="handle" style="left:42%;top:70%"></i>
-        <i class="handle" style="left:40%;top:96%"></i>
-        <span class="chip" style="left:62%;top:65%">Legs <span class="v">0.45</span></span>
-        <div class="vline" style="left:calc(100% + 14px);top:0;height:100%"></div>
-        <span class="chip" style="left:calc(100% + 24px);top:44%"><span class="v">30</span> tall</span>
-        <div class="float inlevel"><span class="sub">In Level 1</span><div class="mini"><span data-pixel="keeper" data-scale="1"></span></div></div>
-      </div>
-      <div class="groundstrip"></div>
+    <div class="views3">
+      <div class="view main"><div class="fig"><span data-pixel="keeper" data-scale="12"></span>
+        <div class="vline" style="left:calc(100% + 16px);top:0;height:100%"></div>
+        <span class="chip" style="left:calc(100% + 24px);top:44%"><span class="v">30</span> pixels tall</span></div>
+        <span class="label">From the side</span></div>
+      <div class="view"><div class="fig"><span data-pixel="front" data-scale="12"></span></div><span class="label">From the front</span></div>
+      <div class="view"><div class="fig"><span data-pixel="back" data-scale="12"></span></div><span class="label">From the back</span></div>
+      <span class="facing">Faces front when it walks toward you, its back when it walks away</span>
     </div>
   </div>
-</div>
-<nav class="float views"><button class="on">Side</button><button>Front</button><button>Back</button><button><span class="ic" data-i="arrows-clockwise"></span>Turn</button></nav>
-<div class="panels">
-  <div class="closed">
-    <button class="chipbtn"><span class="ic" data-i="smiley"></span>Face</button>
-    <button class="chipbtn"><span class="ic" data-i="palette"></span>Colors</button>
-  </div>
-  <section class="float panel">
-    <header class="panel-head">
-      <nav class="tabs"><button class="on">Body</button><button>Wear</button><button>Face</button><button>Colors</button></nav>
-      <span class="label">Body</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div class="slider"><span>How tall</span><span class="val">30</span>
-        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:55%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
-      <div class="slider"><span>How wide</span><span class="val">0.40</span>
-        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:40%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
-      <div class="slider"><span>How long the legs are</span><span class="val">0.45</span>
-        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:45%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
-      <div class="choices"><button class="btn small"><span class="ic" data-i="caret-right"></span>More: arms, hips, age</button><button class="btn small"><span class="ic" data-i="shuffle"></span>Surprise me</button></div>
-    </div>
-  </section>
-  <section class="float panel second">
-    <header class="panel-head"><span class="label">Wear</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
-    <div class="panel-body">
-      <div class="wear">
-        <button class="choice on"><span class="ic" data-i="t-shirt"></span>Tunic</button>
-        <button class="choice"><span class="ic" data-i="sneaker"></span>Boots</button>
-        <button class="choice"><span class="ic" data-i="baseball-cap"></span>Hood</button>
-        <button class="choice"><span class="ic" data-i="lamp"></span>Lantern</button>
-        <button class="btn small"><span class="ic" data-i="plus"></span>Add</button>
-      </div>
-    </div>
-  </section>
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', place: 'Keeper', what: 'Figure', saved: 'Not saved yet',
-  parts: [['Figures', 'person'], ['Clips and kinds', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
-  tools: [['Look', 'eye'], ['Move', 'person-simple-walk'], ['Pose', 'person-arms-spread'], ['Players', 'users'], ['Play', 'play']], tool: 0,
+  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Paint', 'paint-brush', 'B', true],
+    ['Add a part', 'plus', 'A', true], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  status: { pointer: '4, 18', unit: 'pixels', grid: 'Grid: pixels' },
+  place: 'Keeper', saved: 'Sam, 1 hour ago', tool: 0, zoom: '1200%',
+  settings: [
+    '<span>Show</span><span class="seg"><button class="on">All three sides</button><button>One side</button></span>',
+    '<button class="btn small"><span class="ic" data-i="arrows-clockwise"></span>Play a turn</button>',
+    '<span>Bones</span><span class="knob2"></span>',
+  ],
+  list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
+      { head: 'Head', count: 3 },
+      { n: 'Head', i: 'circle' },
+      { n: 'Hood', k: 'wear', i: 'baseball-cap', d: 1 },
+      { n: 'Face', i: 'smiley', d: 1 },
+      { head: 'Body', count: 4 },
+      { n: 'Body', i: 'person', on: true },
+      { n: 'Tunic', k: 'wear', i: 't-shirt', d: 1 },
+      { n: 'Left arm', i: 'hand', d: 1, on: false },
+      { n: 'Lantern', k: 'holds', i: 'lamp', d: 2 },
+      { head: 'Legs', count: 4 },
+      { n: 'Left leg', i: 'sneaker' },
+      { n: 'Right leg', i: 'sneaker' },
+      { n: 'Boots', k: 'wear', i: 'boot', d: 1 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a part</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Body', sub: 'Keeper · a person', pic: { px: 'keeper' }, tab: 'Body',
+    groups: [
+      { name: 'Body', open: true, rows: [
+        { t: 'slider', l: 'How tall', f: 'body.height', v: '30', lo: 'A child', hi: 'A giant', at: 55 },
+        { t: 'slider', l: 'How wide', f: 'body.width', v: '0.40', lo: 'Thin', hi: 'Round', at: 40 },
+        { t: 'slider', l: 'How long the legs are', f: 'body.legs', v: '0.45', lo: 'Short', hi: 'Long', at: 45 },
+        { t: 'slider', l: 'How long the arms are', f: 'body.arms', v: '0.40', lo: 'Short', hi: 'Long', at: 40 },
+      ] },
+      { name: 'Kind of body', open: true, rows: [
+        { t: 'choice', l: 'Is a', f: 'rig', opts: ['Person', 'Four legs', 'Free shape'], on: 0 },
+        { t: 'btns', b: [['Surprise me', 'shuffle'], ['Make another like it', 'copy']] },
+      ] },
+      { name: 'Wear', count: 4, rows: [] },
+      { name: 'Face', count: 3, rows: [] },
+      { name: 'Colors', count: 6, rows: [] },
+    ],
+  },
 }
 </script>
 <script src="frame.js"></script>

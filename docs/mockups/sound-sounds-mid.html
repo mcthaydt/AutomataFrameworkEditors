@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound · Sounds, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .wavebox { position: absolute; inset: 10px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .wave2 { position: relative; flex: 1; display: flex; align-items: center; gap: 1px; border: 1px solid var(--edge); border-radius: 3px; padding: 0 2px; }
+  .wave2 i { flex: 1; background: var(--touch); border-radius: 1px; }
+  .wave2 .cut { position: absolute; top: 0; bottom: 0; background: rgb(17 19 20 / 0.55); }
+  .wave2 .trim { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 3px solid var(--words); }
+  .wave2 .trim::after { content: ""; position: absolute; top: 40%; left: -9px; width: 15px; height: 22px; border-radius: 3px; background: var(--words); }
+  .wave2 .fade { position: absolute; top: 0; bottom: 0; }
+  .wave2 .fade svg { width: 100%; height: 100%; }
+  .wave2 .wl { position: absolute; top: 4px; font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--words); }
+  .takes { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+  .takes .vpick.on { border-color: var(--touch); color: var(--touch); }
+  .mixer { position: absolute; inset: 8px 12px; display: flex; gap: 10px; }
+  .strip { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px; border: 1px solid var(--edge); border-radius: var(--corner); min-width: 0; }
+  .strip.on { border-color: var(--touch); }
+  .strip b { font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+  .meters { flex: 1; display: flex; gap: 10px; align-items: stretch; min-height: 0; }
+  .meter { width: 8px; border-radius: 2px; background: var(--edge); position: relative; overflow: hidden; }
+  .meter i { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #afd472 0 70%, #eeb480 70% 90%, #f37f94 90%); }
+  .fader { width: 6px; border-radius: 3px; background: var(--edge); position: relative; }
+  .fader i { position: absolute; left: -9px; width: 24px; height: 12px; border-radius: 3px; background: var(--touch); border: 2px solid var(--ground); }
+  .strip .num { font-size: 12px; color: var(--quiet); }
+  .duck { position: absolute; right: 14px; top: 8px; }
+  @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) { .strip:nth-child(n+4) { display: none; } .takes .label { display: none; } }
+</style>
+</head>
+<body>
+<!-- Sound, Sounds, mid-project: the mixer along the bottom while the level plays. One strip for each group of sounds,
+     each with its meter and its slider, and the music picked: it gets quieter by itself when someone talks. A problem:
+     the wind has no end and no fade, so it clicks when it starts again. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <span class="chip" style="left:6%;top:61%"><span class="ic" data-i="speaker-high"></span>Jump</span>
+      <span class="chip" style="left:45%;top:79%"><span class="ic" data-i="speaker-high"></span>Push</span>
+      <span class="chip" style="left:62%;top:20%;border-color:var(--mark)"><span class="ic" data-i="warning"></span>Wind clicks when it starts again</span>
+      <span class="chip" style="left:50%;top:4%;transform:translateX(-50%)"><span class="ic" data-i="music-notes"></span>Music: <span class="v">Meadow tune</span></span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'sound', parts: [['Sounds', 'speaker-high'], ['Music', 'music-notes']], part: 0,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Record', 'microphone', 'R'], ['Trim', 'scissors', 'T'], ['Play', 'play', 'P']],
+  status: { pointer: '0.12', unit: 's', grid: false, snap: false },
+  place: 'Level 1', what: 'Level', saved: 'Not saved: 3 changes', changes: 3, tool: 4, zoom: '100%', state: 'mid-project',
+  play: { paused: false, speed: 0, at: 55, time: '0:21' },
+  list: { title: 'Sounds', count: 14, search: 'Find a sound', rows: [
+      { head: 'Hero', count: 4 },
+      { n: 'Jump', k: 'made', i: 'arrow-fat-up', on: false },
+      { n: 'Land', k: 'made', i: 'arrow-down' },
+      { n: 'Step', k: '3 takes', i: 'sneaker' },
+      { n: 'Hurt', k: 'recorded', i: 'microphone' },
+      { head: 'Crate', count: 2 },
+      { n: 'Push', k: 'recorded', i: 'hand' },
+      { n: 'Scrape', k: 'made', i: 'wave-sine' },
+      { head: 'The level', count: 3 },
+      { n: 'Door opens', k: 'made', i: 'door' },
+      { n: 'Button', k: 'made', i: 'radio-button' },
+      { n: 'Wind', k: 'loops', i: 'wind', warn: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New sound</button><button class="btn small"><span class="ic" data-i="upload-simple"></span>Bring in a recording</button>',
+  },
+  bottom: { title: 'Mixer', icon: 'sliders', html: `<div class="mixer"><div class="strip on"><b>Music</b><div class="meters"><span class="meter"><i style="height:62%"></i></span><span class="meter"><i style="height:56%"></i></span><span class="fader"><i style="bottom:70%"></i></span></div><span class="num">−5 dB</span><button class="btn small">Alone</button></div><div class="strip"><b>Hero</b><div class="meters"><span class="meter"><i style="height:40%"></i></span><span class="meter"><i style="height:34%"></i></span><span class="fader"><i style="bottom:85%"></i></span></div><span class="num">−2 dB</span><button class="btn small">Alone</button></div><div class="strip"><b>The level</b><div class="meters"><span class="meter"><i style="height:28%"></i></span><span class="meter"><i style="height:22%"></i></span><span class="fader"><i style="bottom:60%"></i></span></div><span class="num">−6 dB</span><button class="btn small">Alone</button></div><div class="strip"><b>Talking</b><div class="meters"><span class="meter"><i style="height:0%"></i></span><span class="meter"><i style="height:-6%"></i></span><span class="fader"><i style="bottom:90%"></i></span></div><span class="num">−1 dB</span><button class="btn small">Alone</button></div><div class="strip"><b>All</b><div class="meters"><span class="meter"><i style="height:58%"></i></span><span class="meter"><i style="height:52%"></i></span><span class="fader"><i style="bottom:80%"></i></span></div><span class="num">−3 dB</span><button class="btn small">Alone</button></div></div>` },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
+  values: {
+    title: 'Music', sub: 'Mixer · a group of sounds', pic: { i: 'music-notes' }, tab: 'Music',
+    groups: [
+      { name: 'Loudness', open: true, rows: [
+        { t: 'slider', l: 'How loud', f: 'mix.music.volume', v: '−5 dB', lo: 'Silent', hi: 'Full', at: 70, ch: true },
+        { t: 'sw', l: 'Players may change it in Settings', f: 'mix.music.setting', on: true },
+      ] },
+      { name: 'Makes room for others', open: true, rows: [
+        { t: 'sw', l: 'Gets quieter when someone talks', f: 'mix.music.duck', on: true, ch: true },
+        { t: 'slider', l: 'How much quieter', f: 'mix.music.duckBy', v: '−9 dB', lo: 'A little', hi: 'Almost silent', at: 50 },
+      ] },
+      { name: 'Echo and space <span class="soon">Soon</span>', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -6,81 +6,115 @@
 <title>Sound · Music (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <style>
-  /* Music as loops on lanes, the way GarageBand does it (the Owner, Q3): whole loops added with one press and laid
-     out, never note by note; a motif is a tune you make once and reuse. MIDI goes in and out (Q5). */
-  .song { width: 100%; height: 100%; display: grid; grid-template-columns: 132px 1fr; grid-auto-rows: minmax(0, 1fr); grid-template-rows: 32px; gap: 6px 8px; padding: 4px 0; }
-  .bars { display: grid; grid-template-columns: repeat(16, 1fr); border-bottom: 2px solid var(--words); align-items: end; }
-  .bars span { font: 13px var(--measure); color: var(--quiet); padding-left: 3px; border-left: 1px solid var(--edge); }
-  .lanehead { display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid var(--edge); border-radius: 3px; background: color-mix(in srgb, var(--raised) 94%, transparent); }
+  /* Music as loops on lanes, the way GarageBand does it (the Owner, Q3): whole loops laid out with one press; a motif
+     is a tune made once and reused. MIDI goes in and out (Q5). */
+  .song { width: 100%; height: 100%; display: grid; grid-template-columns: 170px 1fr; grid-auto-rows: minmax(0, 1fr); grid-template-rows: 26px 26px; gap: 6px 8px; padding: 2px 0; position: relative; }
+  .bars { display: grid; grid-template-columns: repeat(var(--n), 1fr); border-bottom: 2px solid var(--words); align-items: end; }
+  .bars span { font: 12px var(--measure); color: var(--quiet); padding-left: 3px; border-left: 1px solid var(--edge); overflow: hidden; }
+  .sparts { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3px; }
+  .sparts span { border-radius: 3px; padding: 3px 8px; font: 600 12px var(--label); letter-spacing: .06em; text-transform: uppercase; color: var(--ground); white-space: nowrap; overflow: hidden; }
+  .lanehead { display: grid; grid-template-columns: auto 1fr auto auto; grid-template-rows: auto auto; column-gap: 6px; align-items: center; padding: 2px 6px 2px 8px; border: 1px solid var(--edge); border-radius: 3px; background: var(--raised); min-width: 0; }
   .lanehead .ic { color: var(--touch); }
-  .lane { position: relative; display: grid; grid-template-columns: repeat(16, 1fr); gap: 0 3px; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 4 - 1px), var(--edge) calc(100% / 4 - 1px) calc(100% / 4)); }
-  .loop { position: relative; border-radius: 4px; padding: 4px 8px; overflow: hidden; color: var(--ground); font: 600 14px/1.2 var(--label); white-space: nowrap; border: 1px solid var(--ground); }
-  .loop::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; top: 26px; opacity: 0.45; }
+  .lanehead .label { overflow: hidden; white-space: nowrap; }
+  .lanehead .qs { width: 26px; height: 24px; border: 1px solid var(--edge); border-radius: 3px; display: grid; place-items: center; font: 600 12px var(--label); }
+  .lanehead .qs.on { background: var(--touch); color: var(--ground); border-color: var(--touch); }
+  .lanehead .lv { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--edge); position: relative; margin: 3px 0 2px; }
+  .lanehead .lv i { position: absolute; inset: 0 auto 0 0; background: var(--touch); border-radius: 2px; }
+  .lane { position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 0 3px; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 4 - 1px), var(--edge) calc(100% / 4 - 1px) calc(100% / 4)); }
+  .loop { position: relative; border-radius: 4px; padding: 4px 8px; overflow: hidden; color: var(--ground); font: 600 13px/1.2 var(--label); white-space: nowrap; border: 1px solid var(--ground); }
+  .loop.on { outline: 3px solid var(--words); outline-offset: -1px; }
+  .loop::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; top: 24px; opacity: 0.45; }
   .drums { background: #c9c37a; } .drums::after { background: repeating-linear-gradient(90deg, var(--ground) 0 3px, transparent 3px 14px); }
   .bass { background: #e8a06a; } .bass::after { background: repeating-linear-gradient(90deg, var(--ground) 0 18px, transparent 18px 26px); clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%); }
   .chords { background: #d7cfa0; } .chords::after { background: repeating-linear-gradient(90deg, var(--ground) 0 40px, transparent 40px 48px); }
   .tune { background: var(--touch); box-shadow: inset 0 0 0 2px var(--words); } .tune::after { background: radial-gradient(circle, var(--ground) 2px, transparent 3px) 0 0 / 12px 9px; }
   .tune.copy { background: color-mix(in srgb, var(--touch) 70%, var(--ground)); }
-  .tune .ic { width: 14px; height: 14px; vertical-align: -2px; }
-  .playhead { position: absolute; top: -40px; bottom: 0; left: 31%; width: 2px; background: var(--words); z-index: 3; box-shadow: 0 0 0 1px var(--ground); }
-  .loopcard { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; padding: 6px; border: 1px solid var(--edge); border-radius: 3px; }
-  .loopcard .square { border-radius: 50%; }
-  .loopcard .mini { height: 22px; grid-column: 2; border-radius: 3px; }
-  .cats { display: flex; gap: 4px; flex-wrap: wrap; }
-  @media (max-width: 699px) and (min-height: 601px) { .song { grid-template-columns: 92px 1fr; } .lanehead .label { font-size: 11px; } .bars span:nth-child(n+9), .lane > :nth-child(n+5):not(.playhead) { display: none; } .bars, .lane { grid-template-columns: repeat(8, 1fr); } }
+  .tune .ic { width: 13px; height: 13px; vertical-align: -2px; }
+  .ph { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--words); z-index: 3; box-shadow: 0 0 0 1px var(--ground); }
+  .roll { position: absolute; inset: 0; display: grid; grid-template-columns: 64px 1fr; }
+  .keys { display: grid; grid-auto-rows: 1fr; border-right: 1px solid var(--edge); }
+  .keys span { font: 11px var(--measure); color: var(--quiet); padding-left: 6px; display: flex; align-items: center; border-bottom: 1px solid color-mix(in srgb, var(--words) 10%, transparent); }
+  .keys span.b { background: rgb(17 19 20 / 0.35); }
+  .grid2 { position: relative; background-image: linear-gradient(90deg, color-mix(in srgb, var(--words) 10%, transparent) 1px, transparent 1px), linear-gradient(color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px); background-size: calc(100% / 16) 100%, 100% calc(100% / 12); }
+  .note { position: absolute; height: calc(100% / 12 - 3px); margin-top: 1px; border-radius: 3px; background: var(--touch); border: 1px solid var(--ground); }
+  .note.on { background: var(--words); }
+  @media (max-width: 1000px), (max-height: 600px) { .song { grid-template-columns: 110px 1fr; } .lanehead .qs { display: none; } }
+  @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) { .song { --n: 8 !important; } .bars span:nth-child(n+9), .sparts span:nth-child(n+3), .lane > .loop.late { display: none; } }
 </style>
 </head>
 <body>
+<!-- Sound, Music, first look: the meadow tune as loops on four lanes. Play, stop, loop, the beats a minute and the key are
+     in the row at the top; each lane has its quiet (Q), alone (S) and loudness; the song's parts (calm, danger, won)
+     are over the bars and marked Soon. The Library along the bottom is where loops come from: press one to hear it,
+     drag it to a lane. MIDI goes in and out from the list. -->
 <div class="canvas paper">
   <div class="fit">
-    <div class="song">
+    <div class="song" style="--n:16">
+      <span class="label" style="align-self:center">Parts <span class="soon">Soon</span></span>
+      <div class="sparts"><span style="grid-column:1/9;background:#afd472">Calm</span><span style="grid-column:9/13;background:#f37f94">Danger</span><span style="grid-column:13/17;background:#9fd3f0">Won</span></div>
       <span></span>
       <div class="bars"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span></div>
-      <div class="lanehead"><span class="ic" data-i="music-notes-simple"></span><span class="label">Tune</span></div>
-      <div class="lane">
-        <div class="loop tune" style="grid-column:1/5"><span class="ic" data-i="diamond"></span> Keeper's tune</div>
-        <div class="loop tune copy" style="grid-column:9/13"><span class="ic" data-i="diamond"></span> Keeper's tune</div>
-        <div class="playhead"></div>
-      </div>
-      <div class="lanehead"><span class="ic" data-i="piano-keys"></span><span class="label">Chords</span></div>
-      <div class="lane"><div class="loop chords" style="grid-column:1/9">Sunny chords</div><div class="loop chords" style="grid-column:9/17">Sunny chords</div></div>
-      <div class="lanehead"><span class="ic" data-i="wave-sine"></span><span class="label">Bass</span></div>
-      <div class="lane"><div class="loop bass" style="grid-column:3/9">Walking bass</div><div class="loop bass" style="grid-column:9/15">Walking bass</div></div>
-      <div class="lanehead"><span class="ic" data-i="metronome"></span><span class="label">Drums</span></div>
-      <div class="lane"><div class="loop drums" style="grid-column:1/5">Soft beat</div><div class="loop drums" style="grid-column:5/17">Bounce beat</div></div>
+      <div class="lanehead"><span class="ic" data-i="music-notes-simple"></span><span class="label">Tune</span><span class="qs">Q</span><span class="qs">S</span><span class="lv"><i style="width:70%"></i></span></div>
+      <div class="lane"><div class="loop tune" style="grid-column:1/5"><span class="ic" data-i="diamond"></span> Keeper's tune</div><div class="loop tune copy late" style="grid-column:9/13"><span class="ic" data-i="diamond"></span> Keeper's tune</div><i class="ph" style="left:25%"></i></div>
+      <div class="lanehead"><span class="ic" data-i="piano-keys"></span><span class="label">Chords</span><span class="qs">Q</span><span class="qs">S</span><span class="lv"><i style="width:55%"></i></span></div>
+      <div class="lane"><div class="loop chords on" style="grid-column:1/9">Sunny chords</div><div class="loop chords late" style="grid-column:9/17">Rainy chords</div><i class="ph" style="left:25%"></i></div>
+      <div class="lanehead"><span class="ic" data-i="wave-sine"></span><span class="label">Bass</span><span class="qs">Q</span><span class="qs">S</span><span class="lv"><i style="width:60%"></i></span></div>
+      <div class="lane"><div class="loop bass" style="grid-column:3/9">Walking bass</div><div class="loop bass late" style="grid-column:9/15">Walking bass</div><i class="ph" style="left:25%"></i></div>
+      <div class="lanehead"><span class="ic" data-i="metronome"></span><span class="label">Drums</span><span class="qs on">Q</span><span class="qs">S</span><span class="lv"><i style="width:45%"></i></span></div>
+      <div class="lane"><div class="loop drums" style="grid-column:1/5">Soft beat</div><div class="loop drums late" style="grid-column:5/17">Bounce beat</div><i class="ph" style="left:25%"></i></div>
     </div>
   </div>
 </div>
-<div class="panels">
-  <div class="closed"><button class="chipbtn"><span class="ic" data-i="diamond"></span>Motifs</button></div>
-  <section class="float panel">
-    <header class="panel-head">
-      <nav class="tabs"><button class="on">Add a loop</button><button>Motifs</button><button>The song</button></nav>
-      <span class="label">Add a loop</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div class="cats"><button class="choice">Drums</button><button class="choice">Bass</button><button class="choice on">Chords</button><button class="choice">Tunes</button></div>
-      <div class="loopcard"><button class="square"><span class="ic" data-i="play"></span></button><span>Sunny chords<br><span class="quiet num">4 bars</span></span><span class="ic touch" data-i="plus"></span></div>
-      <div class="loopcard"><button class="square"><span class="ic" data-i="play"></span></button><span>Rainy chords<br><span class="quiet num">4 bars</span></span><span class="ic touch" data-i="plus"></span></div>
-      <div class="loopcard"><button class="square"><span class="ic" data-i="play"></span></button><span>Big finish<br><span class="quiet num">2 bars</span></span><span class="ic touch" data-i="plus"></span></div>
-      <div class="choices"><button class="btn small"><span class="ic" data-i="download-simple"></span>Bring in MIDI</button><button class="btn small"><span class="ic" data-i="export"></span>Save as MIDI</button></div>
-    </div>
-  </section>
-  <section class="float panel second">
-    <header class="panel-head"><span class="label">Motifs</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
-    <div class="panel-body">
-      <p><span class="ic touch" data-i="diamond"></span> Keeper's tune <span class="quiet">· used 3 times</span></p>
-      <p class="quiet">Change it once and every copy changes.</p>
-      <button class="btn small"><span class="ic" data-i="plus"></span>Make a motif from the picked loop</button>
-    </div>
-  </section>
-</div>
 <script>
 window.MOCK = {
-  editor: 'sound', place: 'Meadow tune', what: 'Music', saved: 'Mia, 20 minutes ago',
-  parts: [['Sounds', 'speaker-high'], ['Music', 'music-notes']], part: 1,
-  tools: [['Move', 'arrows-out-cardinal'], ['Add', 'plus'], ['Cut', 'scissors'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+  editor: 'sound', parts: [['Sounds', 'speaker-high'], ['Music', 'music-notes']], part: 1,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a loop', 'plus', 'A'], ['Cut', 'scissors', 'C'], ['Pencil', 'pencil-simple', 'B'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
+  status: { pointer: 'bar 5', unit: 'beat 1', grid: 'Snap: 1 bar', snap: false },
+  place: 'Meadow tune', what: 'Music', saved: 'Mia, 20 minutes ago', tool: 0, zoom: '16 bars',
+  settings: ['<button class="iconbtn"><span class="ic" data-i="play"></span></button><button class="iconbtn"><span class="ic" data-i="stop"></span></button><button class="iconbtn on"><span class="ic" data-i="repeat"></span></button>', '<span class="num">120</span><span>beats a minute</span>', '<span>Key</span><span class="vpick">C major</span>', '<span>Click</span><span class="knob2"></span>', '<span class="num">5.1.1</span>'],
+  list: { title: 'The song', count: 9, search: 'Find a loop or motif', rows: [
+      { head: 'Lanes', count: 4 },
+      { n: 'Tune', k: '2 loops', i: 'music-notes-simple' },
+      { n: 'Chords', k: '2 loops', i: 'piano-keys', on: true },
+      { n: 'Bass', k: '2 loops', i: 'wave-sine' },
+      { n: 'Drums', k: 'quiet', i: 'metronome', hid: true },
+      { head: 'Motifs', count: 2 },
+      { n: "Keeper's tune", k: 'used 3 times', i: 'diamond', on: false },
+      { n: 'Danger sting', k: 'used 2 times', i: 'diamond' },
+      { head: 'Other music', count: 3 },
+      { n: 'Cave tune', k: '32 bars', i: 'music-notes' },
+      { n: 'Title screen', k: '16 bars', i: 'music-notes' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="download-simple"></span>Bring in MIDI</button><button class="btn small"><span class="ic" data-i="export"></span>Save as MIDI</button>',
+  },  library: {
+    open: true, filters: ['Drums', 'Bass', 'Chords', 'Tunes', 'Your motifs'], on: 2,
+    items: [
+      { n: 'Sunny chords', note: '4 bars · in the song', i: 'piano-keys', on: true },
+      { n: 'Rainy chords', note: '4 bars · in the song', i: 'piano-keys' },
+      { n: 'Big finish', note: '2 bars', i: 'piano-keys' },
+      { n: 'Night chords', note: '4 bars', i: 'piano-keys' },
+      { n: 'Brave chords', note: '8 bars', i: 'piano-keys' },
+      { n: 'Lullaby', note: '4 bars', i: 'piano-keys' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Sunny chords', sub: 'Chords lane · bars 1 to 8', pic: { i: 'piano-keys' }, tab: 'Sunny chords',
+    groups: [
+      { name: 'The loop', open: true, rows: [
+        { t: 'text', l: 'Chords', f: 'chords', v: 'C · G · A minor · F' },
+        { t: 'pick', l: 'Played on', f: 'instrument', v: 'Soft piano', i: 'piano-keys' },
+        { t: 'num', l: 'Plays for', f: 'bars', v: '8', u: 'bars' },
+      ] },
+      { name: 'Feel', open: true, rows: [
+        { t: 'slider', l: 'How loud', f: 'volume', v: '70%', lo: 'Quiet', hi: 'Loud', at: 70 },
+        { t: 'choice', l: 'How it is played', f: 'style', opts: ['Held', 'Picked', 'Bouncy'], on: 0 },
+      ] },
+      { name: 'Make it yours', open: true, rows: [
+        { t: 'btns', b: [['Make a motif from it', 'diamond'], ['Open the notes', 'piano-keys']] },
+      ] },
+    ],
+  },
 }
 </script>
 <script src="frame.js"></script>

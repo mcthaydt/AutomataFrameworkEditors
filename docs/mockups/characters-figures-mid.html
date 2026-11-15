@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Characters · Figures, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* The figure from three sides at once, standing on one line of ground, each with its name. */
+  .views3 { display: flex; gap: 4%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; padding-bottom: 28px; position: relative; }
+  .view { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 3px solid #607443; }
+  .view .fig canvas { height: min(52cqh, 24cqw); width: auto; image-rendering: pixelated; }
+  .view.main .fig { outline: 1px dashed var(--edge); outline-offset: 6px; }
+  .view .label { color: var(--quiet); }
+  .view.main .label { color: var(--touch); }
+  .ghost { position: absolute; left: 10px; bottom: 0; opacity: 0.3; filter: grayscale(1); }
+  .handle { position: absolute; z-index: 3; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
+  .handle.on { background: var(--touch); box-shadow: 0 0 0 4px color-mix(in srgb, var(--touch) 35%, transparent); }
+  .bone { position: absolute; z-index: 2; height: 3px; background: var(--touch); transform-origin: 0 50%; }
+  .arc { position: absolute; z-index: 2; border: 2px dashed var(--touch); border-radius: 50%; border-color: var(--touch) transparent transparent transparent; }
+  .turnbtn { position: absolute; z-index: 4; left: 50%; bottom: -6px; transform: translateX(-50%); }
+  .facing { position: absolute; z-index: 4; left: 0; right: 0; bottom: -2px; text-align: center; color: var(--quiet); font-size: 14px; }
+  @media (max-width: 699px) and (min-height: 601px) { .view .fig canvas { height: 30cqh; } .views3 { gap: 2%; } }
+  @media (max-height: 600px) { .view .fig canvas { height: 46cqh; } }
+</style>
+</head>
+<body>
+<!-- Characters, Figures, mid-project: posing. The Pose tool shows the bones; the left arm is picked and turned up to
+     hold the lantern high, with the arm's old place as a ghost. The wardrobe is open along the bottom. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="views3">
+      <div class="view main"><div class="fig"><span class="ghost" data-pixel="keeper" data-scale="12"></span><span data-pixel="step" data-scale="12"></span>
+        <i class="bone" style="left:44%;top:6%;width:30%;transform:rotate(90deg)"></i>
+        <i class="bone" style="left:44%;top:40%;width:26%;transform:rotate(-38deg)"></i>
+        <i class="bone" style="left:40%;top:68%;width:28%;transform:rotate(100deg)"></i>
+        <i class="handle" style="left:44%;top:6%"></i>
+        <i class="handle on" style="left:44%;top:40%"></i>
+        <i class="handle" style="left:64%;top:25%"></i>
+        <i class="handle" style="left:40%;top:68%"></i>
+        <div class="arc" style="left:30%;top:22%;width:30%;height:36%"></div>
+        <span class="chip" style="left:68%;top:12%">Left arm <span class="v">−38°</span></span></div>
+        <span class="label">From the side</span></div>
+      <div class="view"><div class="fig"><span data-pixel="front" data-scale="12"></span></div><span class="label">From the front</span></div>
+      <div class="view"><div class="fig"><span data-pixel="back" data-scale="12"></span></div><span class="label">From the back</span></div>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Paint', 'paint-brush', 'B', true],
+    ['Add a part', 'plus', 'A', true], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  status: { pointer: '4, 18', unit: 'pixels', grid: 'Grid: pixels' },
+  place: 'Keeper', saved: 'Not saved: 2 changes', changes: 2, tool: 2, zoom: '1200%', state: 'mid-project', picked: 1,
+  settings: [
+    '<span>Moves with it</span><span class="seg"><button class="on">The hand too</button><button>Only the arm</button></span>',
+    '<span>Bones</span><span class="knob2 on"></span>',
+    '<button class="btn small"><span class="ic" data-i="arrow-counter-clockwise"></span>Stand straight</button>',
+  ],
+  list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
+      { head: 'Head', count: 3 },
+      { n: 'Head', i: 'circle' },
+      { n: 'Hood', k: 'wear', i: 'baseball-cap', d: 1 },
+      { n: 'Face', i: 'smiley', d: 1 },
+      { head: 'Body', count: 4 },
+      { n: 'Body', i: 'person', on: false },
+      { n: 'Tunic', k: 'wear', i: 't-shirt', d: 1 },
+      { n: 'Left arm', i: 'hand', d: 1, on: true },
+      { n: 'Lantern', k: 'holds', i: 'lamp', d: 2 },
+      { head: 'Legs', count: 4 },
+      { n: 'Left leg', i: 'sneaker' },
+      { n: 'Right leg', i: 'sneaker' },
+      { n: 'Boots', k: 'wear', i: 'boot', d: 1 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a part</button>',
+  },
+  library: {
+    open: true, filters: ['Wardrobe', 'Hats', 'Tops', 'Boots', 'Things to hold'], on: 0,
+    items: [
+      { n: 'Hood', note: 'wearing', i: 'baseball-cap', on: true },
+      { n: 'Tunic', note: 'wearing', i: 't-shirt', on: true },
+      { n: 'Boots', note: 'wearing', i: 'boot', on: true },
+      { n: 'Lantern', note: 'holding', i: 'lamp', on: true },
+      { n: 'Scarf', i: 'scribble' },
+      { n: 'Crown', i: 'crown-simple' },
+      { n: 'Sword', i: 'sword' },
+      { n: 'Backpack', i: 'backpack' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
+  values: {
+    title: 'Left arm', sub: 'Keeper · a joint', pic: { i: 'hand' }, tab: 'Left arm',
+    groups: [
+      { name: 'Pose', open: true, rows: [
+        { t: 'num', l: 'Shoulder turn', f: 'pose.arm.l.shoulder', v: '−38', u: '°', ch: true },
+        { t: 'num', l: 'Elbow bend', f: 'pose.arm.l.elbow', v: '20', u: '°' },
+        { t: 'slider', l: 'How far it may turn', f: 'limits.arm', v: '−90 to 160', lo: 'Stiff', hi: 'Free', at: 70 },
+      ] },
+      { name: 'Holds', open: true, rows: [
+        { t: 'pick', l: 'In the hand', f: 'holds', v: 'Lantern', i: 'lamp' },
+      ] },
+      { name: 'Shape', count: 2, rows: [] },
+      { name: 'Colors', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

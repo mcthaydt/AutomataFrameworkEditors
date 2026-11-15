@@ -1844,7 +1844,7 @@ kbd {
 
 .rbar {
   position: relative;
-  width: 140px;
+  width: 110px;
   height: 6px;
   border-radius: 3px;
   background: var(--edge);
@@ -2637,21 +2637,20 @@ kbd {
   }
 
   .mock-tag {
-    top: calc(var(--top) + var(--row2));
-    bottom: auto;
+    top: auto;
+    bottom: calc(var(--status-h) + var(--bottom-h));
     left: calc(var(--tools-w) + var(--list-w) + (100% - var(--tools-w) - var(--list-w) - var(--values-w)) / 2);
-    border-radius: 0 0 2px 2px;
+  }
+
+  /* Playing: the play controls sit along the top of the level, which moves down to make room. */
+  .has-play {
+    --fit-top: calc(var(--top) + var(--row2) + 64px);
   }
 
   .transport {
-    top: calc(var(--top) + 3px);
+    top: calc(var(--top) + var(--row2) + 8px);
     left: calc(var(--tools-w) + var(--list-w) + (100% - var(--tools-w) - var(--list-w) - var(--values-w)) / 2);
     z-index: 6;
-    box-shadow: none;
-  }
-
-  .has-play .row2 .settings {
-    display: none;
   }
 
   .keysheet {
@@ -2881,5 +2880,212 @@ kbd {
 @media (max-height: 600px) {
   .compare figure {
     width: 260px;
+  }
+}
+
+/* A timeline, for clips, cutscenes and songs: a ruler, rows with a name and a track, keys, a playhead. */
+.tl {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--tl-name, 150px) 1fr;
+  grid-auto-rows: var(--tl-row, 30px);
+  align-content: start;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.touch .tl {
+  --tl-row: 40px;
+}
+
+.tl > .tn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 calc(10px + var(--d, 0) * 14px);
+  border-bottom: 1px solid color-mix(in srgb, var(--words) 12%, transparent);
+  border-right: 1px solid var(--edge);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tl > .tn .ic {
+  width: 14px;
+  height: 14px;
+  color: var(--quiet);
+}
+
+.tl > .tn.on {
+  background: color-mix(in srgb, var(--touch) 18%, transparent);
+}
+
+.tl > .tt {
+  position: relative;
+  border-bottom: 1px solid color-mix(in srgb, var(--words) 12%, transparent);
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px);
+  background-size: calc(100% / var(--cols, 16)) 100%;
+}
+
+.tl > .ruler-n {
+  border-bottom: 1px solid var(--edge);
+  border-right: 1px solid var(--edge);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--quiet);
+  font: 12px var(--measure);
+}
+
+.tl > .ruler-t {
+  position: relative;
+  border-bottom: 1px solid var(--edge);
+  font: 11px var(--measure);
+  color: var(--quiet);
+}
+
+.tl > .ruler-t span {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.key {
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -6px 0 0 -6px;
+  transform: rotate(45deg);
+  background: var(--words);
+  border: 1px solid var(--ground);
+}
+
+.key.on {
+  background: var(--touch);
+  outline: 2px solid var(--touch);
+  outline-offset: 2px;
+}
+
+.bar {
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--touch) 70%, transparent);
+  border: 1px solid var(--touch);
+  color: var(--ground);
+  font: 600 12px / 1 var(--label);
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.bar.b2 {
+  background: color-mix(in srgb, var(--quiet) 70%, transparent);
+  border-color: var(--quiet);
+}
+
+.bar.b3 {
+  background: color-mix(in srgb, #9fd3f0 70%, transparent);
+  border-color: #9fd3f0;
+}
+
+.bar.b4 {
+  background: color-mix(in srgb, #f37f94 70%, transparent);
+  border-color: #f37f94;
+}
+
+.evt {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--words);
+}
+
+.evt span {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font: 11px var(--label);
+  white-space: nowrap;
+  color: var(--words);
+}
+
+.playhead {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px solid var(--touch);
+  pointer-events: none;
+}
+
+.playhead::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  border: 6px solid transparent;
+  border-top: 8px solid var(--touch);
+}
+
+.tlwrap {
+  position: absolute;
+  inset: 0;
+}
+
+.tlwrap .playhead {
+  left: calc(var(--tl-name, 150px) + (100% - var(--tl-name, 150px)) * var(--at));
+}
+
+/* The transport inside a bottom panel's head. */
+.bhead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.bhead .num {
+  padding: 0 8px;
+  color: var(--touch);
+}
+
+.bhead .iconbtn {
+  width: 36px;
+  height: 36px;
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .bhead .hide-narrow {
+    display: none;
+  }
+
+  .tl {
+    --tl-name: 110px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 699px) and (min-height: 601px), (max-height: 600px) {
+  .bhead .seg {
+    display: none;
+  }
+}
+
+/* Narrow: the mockup's tag sits at the bottom left of the level's space, where it covers nothing to press. */
+@media (max-width: 1000px), (max-height: 600px) {
+  .mock-tag {
+    top: auto;
+    bottom: calc(var(--fit-bottom) - 16px);
+    left: var(--fit-left);
+    transform: none;
+    border-radius: 2px;
+    font-size: 10px;
   }
 }
