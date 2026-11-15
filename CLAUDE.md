@@ -44,11 +44,12 @@ package.
 - **The demo game** is a small original physics platformer, single-player, with every built-in: saves; title, pause and
   settings screens; keyboard, touch and gamepad with remapping; music and sound with volume; phone, tablet and desktop
   layouts; languages.
-- **Editors:** all nine old 2D editors plus the figure and environment builders, which make 2D art only, combined
-  into five: World (Levels, Tiles, the environment builder), Characters (the figure builder, clips and entity kinds,
-  Schematic), Feel (Feel, Tuner), Sound (Audio) and Story (Writer, Sequence). World and Characters have a 2D and a 3D
-  version; the 2D ones work the way the old 3D builders did. In the browser, and as a Tauri app for iPad, Android
-  and desktop.
+- **Editors:** all nine old 2D editors plus the figure and environment builders, which make 2D art only, combined into
+  six: World (Levels, Tiles, the environment builder), Characters (the figure builder, clips and entity kinds,
+  Schematic), Feel (Feel, Tuner), Sound (Audio), Story (Writer, Sequence) and Screens (the UI and the game's flow: every
+  screen a player sees, such as the menus, pause and what is shown while playing, and how one leads to the next, such as
+  menu, play, pause; the sixth, added by the Owner, 2026-11-15). World and Characters have a 2D and a 3D version; the 2D
+  ones work the way the old 3D builders did. In the browser, and as a Tauri app for iPad, Android and desktop.
 - **Agents working on the code are the primary way a game is made.** The editors are for the authorable content
   only: the JSON files the coding agents produce.
 - **Edits live in the game's GitHub repo.** Save makes a commit; edits that collide merge the way GitHub does.
@@ -60,12 +61,12 @@ package.
 - **Onboarding is one of the most important parts of the product.**
 - **Formats:** game content is JSON; everything else is TOML.
 - **Order inside the editors:** World's Levels part (M1), then Feel with Tuner inside it (the first editor slice),
-  then the rest of the five.
-- **Releases are big and few** (the Owner, 2026-11-13). Release 1 is when 2D is finished (the framework in full and
-  the demo game), Release 2 the 2D editors, Release 3 the website, Release 4 distribution (shipping games and the
-  editor app), Release 5 3D, and the loop repeats for 3D. Milestones are not releases: nothing is published per
-  milestone, and `release.yml` runs only when the Owner starts it by hand. Small releases come back only once the
-  product is officially feature complete.
+  then the rest of the six.
+- **Releases are big and few** (the Owner, 2026-11-13). Release 1 is when 2D is finished (the framework in full and the
+  2D test game; the real 2D demo game comes after Release 2, the Owner, 2026-11-15), Release 2 the 2D editors, Release 3
+  the website, Release 4 distribution (shipping games and the editor app), Release 5 3D, and the loop repeats for 3D.
+  Milestones are not releases: nothing is published per milestone, and `release.yml` runs only when the Owner starts it
+  by hand. Small releases come back only once the product is officially feature complete.
 - **Publish targets:** web, itch.io, Wavedash (if its rules fit the host port) and desktop.
 - **Languages:** games ship English, Spanish, Korean, Japanese, Chinese and Portuguese. Editors add French, Russian and
   German. The list follows the most popular languages for Godot.
@@ -156,9 +157,9 @@ session on Sonnet at xhigh effort, before the next step starts.
 - **The mockups board** (the Owner): every mockup change publishes a new version of the Editor Mockups artifact,
   https://claude.ai/artifact/W5REbCVDUkABgoPY5Hxy2X, before it is reported done; the Owner reviews design work there.
 - **Roadmap: editor-driven slices** (`docs/roadmap.md` in AutomataFramework). Each slice is one editor, in this order:
-  World, Characters, Feel, Sound, Story. Per slice: build what it needs in AutomataFramework, mockups (visual review),
-  the editor, its tests, then the website demo. **Mockups first is a hard stop:** no editor code until the Owner
-  approves the mockups.
+  World, Characters, Feel, Sound, Story, Screens. Per slice: build what it needs in AutomataFramework, mockups (visual
+  review), the editor, its tests, then the website demo. **Mockups first is a hard stop:** no editor code until the
+  Owner approves the mockups.
 - **A flaky test seen twice is fixed before other work.** Batch pushes: each push cancels the running CI.
 
 ## Fast CI
