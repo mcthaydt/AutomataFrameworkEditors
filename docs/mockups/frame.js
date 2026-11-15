@@ -429,7 +429,7 @@ function frame(m) {
     <span class="fill"></span>
     <button class="ib tu${faint}" title="${fine ? 'Undo (⌘Z)' : 'Undo · or tap with two fingers'}">${icon('arrow-counter-clockwise')}</button><button class="ib tu${faint}" title="${fine ? 'Redo (⇧⌘Z)' : 'Redo · or tap with three fingers'}">${icon('arrow-clockwise')}</button>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
-    ${m.checks ? `<button class="ib checks" title="Changes people sent you to check">${icon('list-checks')}<span>${m.checks} to check</span></button>` : ''}
+    ${m.checks ? `<button class="ib checks" title="Changes people sent you to check">${icon('list-checks')}<span>${m.checks}<span class="cw"> to check</span></span></button>` : ''}
     ${m.offline ? `<span class="offl" title="This device can't reach the internet. Your changes stay on it until it can.">${icon('cloud')}<span>No internet</span></span>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}<span>Find</span>${fine ? '<kbd>⌘K</kbd>' : ''}</button>
     ${m.signedOut ? '' : '<span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>'}

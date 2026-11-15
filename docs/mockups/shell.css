@@ -5825,9 +5825,10 @@ html body.sh .sh-right .ir.wide .segs {
 }
 
 html body.sh .sh-right .ir.wide .segs button {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
-  padding-inline: 4px;
+  padding-inline: 6px;
+  white-space: nowrap;
 }
 
 /* E7: a sheet never runs off a short screen. It scrolls inside, and its buttons stay at its foot. */
@@ -6147,6 +6148,36 @@ body.sh .coach .donel .ic {
 
 @media (max-height: 600px) {
   body.sh .firstcard p {
+    display: none;
+  }
+}
+
+/* The fixes' second look (CI's pictures at a7231f5). */
+
+/* Sam's changes are marked in orange on the checker's level, as the sheet says. */
+html body.sh .stage .ring.theirs {
+  border: 2px solid var(--touch);
+  outline: 2px solid rgb(0 0 0 / 0.5);
+}
+
+/* Two long buttons at a sheet's foot go one under the other when the sheet is narrow. */
+html body.sh .share-pop .go {
+  flex-wrap: wrap;
+}
+
+html body.sh .share-pop .go .sbtn {
+  flex: 1 1 150px;
+}
+
+/* An upright phone's top bar has no room for words beside "to check" and "No internet": the icon and the number stay. */
+@media (max-width: 500px) {
+  html body.sh .sh-top .offl > span:not(.ic),
+  html body.sh .sh-top .checks .cw {
+    display: none;
+  }
+
+  /* With its peek line hidden under an open tray, the settings panel leaves no empty box behind. */
+  html body.sh.has-tray .sh-right {
     display: none;
   }
 }
