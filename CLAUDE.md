@@ -144,6 +144,11 @@ session on Sonnet at xhigh effort, before the next step starts.
 - Refresh sessions after 90 minutes.
 - Branches: `main` plus branches with CI running, five at most.
 - **Tests run only in GitHub-hosted CI, never locally.** Verify through the pull request's CI runs.
+- **Affected tests while working, the full suite before merge** (the Owner, 2026-11-15). Open the pull request as a
+  draft: while it is a draft, CI runs only the tests the change reaches, in Chromium for the journeys, and stops at the
+  first failure, so a round takes minutes. Mark it ready for review when the work is done; that run is the whole suite
+  in all three browsers, in six shards, and only a green full run is merged. The `full-tests` label asks for the whole
+  suite on a draft, and the `pictures` label for the screens journey and its pictures when no `.svelte` or `.css` file changed.
 
 ## Particular to this repo
 

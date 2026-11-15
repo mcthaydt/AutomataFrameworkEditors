@@ -1,21 +1,69 @@
-# `check` runs the static checks and the Node tests; `engines` runs the browser tests and the journeys once per
-# browser, in parallel, so a failing engine is named by its job. Every action is pinned to a commit. Nothing is
-# deployed from here (Cloudflare builds the site from this repo itself) and nothing is published.
+# `plan` says how much this run tests; `check` runs the static checks and the Node tests; `browsers` runs the browser
+# tests and the journeys, each browser split in two shards that run side by side; `engines` names each browser's result,
+# one check per browser. Every action is pinned to a commit. Nothing is deployed from here (Cloudflare builds the site
+# from this repo itself) and nothing is published.
+#
+# How much is tested (the Owner, 2026-11-15): while a pull request is a draft, a thread is still working on it, so only
+# what its change reaches runs, and a run stops at its first failure. The whole suite runs once the pull request is
+# ready for review, on every push to main, and on a draft that carries the `full-tests` label.
 name: ci
 
 on:
   pull_request:
+    # `ready_for_review` starts the whole suite as a draft is handed over; `labeled` lets a thread ask for it sooner.
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
   push:
     branches: [main]
 
 permissions:
   contents: read
 
+# A newer push stops the run it replaces, so no one waits on results that no longer count.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # How much this run tests, from the event and the files the pull request changes. Everything is `true` except on a
+  # draft without the `full-tests` label whose change leaves the build and the test setup alone:
+  #   full      false: the browser tests the change reaches (Vitest's `--changed`), stopping at the first failure
+  #   journeys  false when nothing the built page is made of changed; otherwise a draft plays them in Chromium only
+  #   pictures  false when nothing that is seen changed (a `.svelte` or `.css` file, the words, the page, the mockups),
+  #             so the screens journey is left out and no pictures are kept; the `pictures` label asks for them
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      full: ${{ steps.plan.outputs.full }}
+      journeys: ${{ steps.plan.outputs.journeys }}
+      pictures: ${{ steps.plan.outputs.pictures }}
+    steps:
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          full=true journeys=true pictures=true
+          if [ "$EVENT" = pull_request ] && [ "$DRAFT" = true ] && [[ " $LABELS " != *" full-tests "* ]] &&
+            changed="$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)"; then
+            printf 'This draft changes:\n%s\n' "$changed"
+            # A change to how things are installed, built or tested reaches every test.
+            if ! grep -qE '^(package\.json|pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json|\.github/)' <<<"$changed"; then
+              full=false
+              grep -qE '^(src/|functions/|index\.html|public/|tests/journeys/|tests/fixtures/)' <<<"$changed" || journeys=false
+              grep -qE '(\.svelte|\.css)$|^(src/features/(ui|words)/|index\.html|public/|docs/mockups/|tests/journeys/screens)' <<<"$changed" || pictures=false
+            fi
+          fi
+          if [[ " $LABELS " == *" pictures "* ]]; then pictures=true; fi
+          echo "full=$full journeys=$journeys pictures=$pictures"
+          { echo "full=$full"; echo "journeys=$journeys"; echo "pictures=$pictures"; } >> "$GITHUB_OUTPUT"
+
   check:
     runs-on: ubuntu-latest
     steps:
@@ -32,40 +80,96 @@ jobs:
       - run: pnpm build
       - run: pnpm test:node
 
-  engines:
+  # Each browser in two shards that run side by side, so a full run takes about half as long (the Owner, 2026-11-15).
+  # The screens journey alone takes as long as all the others together, so it is the first shard (with the short
+  # browser tests), and every other journey is the second; an even split by file count left one shard twice as long.
+  browsers:
+    needs: plan
+    name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/2)
     runs-on: ubuntu-latest
     # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
-    # failures (`--bail`), so a red run is read in minutes.
+    # failures (`--bail`), or after one on a draft, so a red run is read in minutes.
     timeout-minutes: 30
     strategy:
-      fail-fast: false
+      # On a draft the first failure stops the other shards too; the whole suite lets every shard finish.
+      fail-fast: ${{ needs.plan.outputs.full != 'true' }}
       matrix:
         engine: [chromium, webkit, firefox]
+        shard: [1, 2]
+    env:
+      CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=HEAD^1' || '' }}
+      BAIL: ${{ needs.plan.outputs.full == 'true' && '15' || '1' }}
+      SHARD: ${{ matrix.shard == 1 && 'tests/journeys/screens.journey.test.ts' || '--exclude=tests/journeys/screens.journey.test.ts' }}
+      # The screens journey (the first shard's) is left out with the pictures.
+      JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (needs.plan.outputs.full == 'true' || matrix.engine == 'chromium') && (matrix.shard == 2 || needs.plan.outputs.pictures == 'true') }}
     steps:
+      # Two commits deep: a pull request's run is on the merge commit, and its first parent is the base, which
+      # `--changed` compares against.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24.21.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
-      - run: pnpm test:engine ${{ matrix.engine }}
-      - run: pnpm build:journeys
-      - run: pnpm build:journeys-plain
-      - run: pnpm test:journeys
+      # The browser is kept between runs, by Playwright's version; the system libraries it needs are put in each time.
+      - id: version
+        run: echo "playwright=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: browser
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.version.outputs.playwright }}-${{ matrix.engine }}
+      - if: steps.browser.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
+      - if: steps.browser.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps ${{ matrix.engine }}
+      - if: matrix.shard == 1
+        run: pnpm test:engine ${{ matrix.engine }} $CHANGED --bail=$BAIL
+      - if: env.JOURNEYS == 'true'
+        run: pnpm build:journeys
+      - if: env.JOURNEYS == 'true'
+        run: pnpm build:journeys-plain
+      - if: env.JOURNEYS == 'true'
+        run: pnpm test:journeys $SHARD --bail=$BAIL
         env:
           ENGINE: ${{ matrix.engine }}
       # A red run in a few lines: which journeys failed, and the first line of why.
       - run: node scripts/failed-tests.mjs journeys-result.json
-        if: always()
-      # Pictures a person looks at (the drunk-grandma check); nothing compares them.
+        if: always() && env.JOURNEYS == 'true'
+      # Pictures a person looks at (the drunk-grandma check); nothing compares them. A run that left the pictures out
+      # keeps none, so the `ci-screens` branch keeps the last full set.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: always() && needs.plan.outputs.pictures == 'true'
         with:
-          name: screens-${{ matrix.engine }}
+          name: screens-${{ matrix.engine }}-${{ matrix.shard }}
           path: tests/**/__screenshots__/**
           if-no-files-found: ignore
+
+  # One check per browser, `engines (<browser>)`, green only when both of that browser's shards passed, so the names
+  # main's protection may ask for stay as they were.
+  engines:
+    needs: browsers
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit, firefox]
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Both shards of ${{ matrix.engine }} passed
+        run: |
+          set -euo pipefail
+          results="$(gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --attempt "$GITHUB_RUN_ATTEMPT" --json jobs \
+            --jq '.jobs[] | select(.name | startswith("browsers (${{ matrix.engine }} ")) | "\(.name): \(.conclusion)"')"
+          echo "$results"
+          [ "$(grep -c ': success$' <<<"$results")" -eq 2 ]
 
   # The same pictures, also as plain files on the `ci-screens` branch, because a cloud session can read the repository
   # through the GitHub API but is refused by the host that serves artifacts. Only the newest pictures are kept (the
@@ -114,11 +218,16 @@ jobs:
               *) rm -rf "$old" ;;
             esac
           done
+          # Each browser's pictures come in one folder per shard (`screens-<engine>-<shard>`); they go into one folder
+          # per browser, emptied first so a picture no longer taken does not stay.
           for dir in "${engines[@]}"; do
             engine="${dir##*/screens-}"
-            rm -rf "$LATEST/$engine"
-            mkdir -p "$LATEST/$engine"
-            find "$dir" -name '*.png' -exec cp {} "$LATEST/$engine/" \;
+            rm -rf "${LATEST:?}/${engine%-[0-9]}"
+          done
+          for dir in "${engines[@]}"; do
+            engine="${dir##*/screens-}"
+            mkdir -p "$LATEST/${engine%-[0-9]}"
+            find "$dir" -name '*.png' -exec cp {} "$LATEST/${engine%-[0-9]}/" \;
           done
           git add -A
           if git diff --cached --quiet; then echo "No new pictures."; exit 0; fi
