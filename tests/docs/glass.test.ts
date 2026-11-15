@@ -19,12 +19,14 @@ type Color = [number, number, number, number]
 type Filter = { blur: number; brightness: number; saturate: number }
 type Strength = { tint: string; filter: string }
 
-// The last value a custom property is given anywhere in the stylesheet: what the cascade ends on.
+// The last value a custom property is given anywhere in the stylesheet: what the cascade ends on. A value that only
+// points at another property (`var(--g-quiet)` on a glass surface) is not the colour, so it is passed over.
 const token = (name: string): string => {
   const found = [...css.matchAll(new RegExp(`(?:^|[\\s{;])${name}:\\s*([^;}]+)`, 'g'))]
-  const last = found.at(-1)?.[1]
+  const values = found.map((match) => (match[1] ?? '').trim())
+  const last = values.filter((value) => !value.startsWith('var(')).at(-1)
   if (last === undefined) throw new Error(`token ${name} not found`)
-  return last.trim()
+  return last
 }
 
 // A colour written as `#a8a8a8` or `rgb(30 30 30 / 0.72)`.

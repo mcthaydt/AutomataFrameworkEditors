@@ -2,6 +2,21 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
+
+Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating-glass-docks.md) on PR 57, mockups only
+(no editor code). Progress on this step: **20%** (Task 1 of 6).
+
+- **Task 1 (20%):** the seven glass tokens, the two recipes (glass for the docks, soft glass for the band, menus, Help,
+  Settings and their family), the four solid cases and the contrast check, all in one new last section of
+  `docs/mockups/shell.css` and `tests/docs/glass.test.ts`. The check was written first and failed on CI for the right
+  reason (the section was not there); it passes with the section.
+- **Rulings so far.** (1) The spec's contrast table names `--touch` as peach and `--mark` as olive, but the plain-words
+  audit re-pointed them to greys (`#c8c8c8`, `#8a8a8a`) and made `--accent` the peach; the check measures the colours the
+  cascade ends on, with `--accent` for the peach, and holds `--mark` (a fill and an icon, never words) to 3 to 1.
+  (2) The tour's cards (`.coach`) are light, with dark words and a pointer, like the tips; they stay solid and are not in
+  the soft-glass list. If the Owner wants them frosted, they need their words and pointer redrawn dark.
+
 ## The shell and World mockups (roadmap slice 3): floating glass docks, the spec (2026-11-15)
 
 The Owner, reviewing the floating side panels at 4e7707a: floating docks everywhere, with a little of Apple's

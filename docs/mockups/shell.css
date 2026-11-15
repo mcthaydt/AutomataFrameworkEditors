@@ -7027,3 +7027,151 @@ html body.sh .share-pop .foot .keep {
     margin-top: 10px;
   }
 }
+
+/* ---------- Floating glass docks (the Owner, 2026-11-15) ---------- */
+/* Later wins; every selector starts `html body.sh`, and no earlier rule is edited. Spec:
+   docs/superpowers/specs/2026-11-15-floating-glass-docks-design.md. Every panel that stays on screen floats and is
+   frosted glass in one of two strengths: glass for the docks (a see-through tint, a wide blur, the level's colours
+   glowing through) and soft glass for what you read or decide in (the band along the bottom, menus, Help, Settings and
+   their family: almost solid, a light blur). Tip bubbles and the tour's light cards stay solid, since they are the one
+   thing meant to stand out from the glass. Never glass inside glass: a surface drawn inside another is solid. Neither
+   blur is animated, and both turn into today's solid panel in four cases (see "When there is no glass" below). */
+
+/* ----- 1. The tokens ----- */
+
+html body.sh {
+  /* Glass, for the docks. The tint is the editors' own ground grey, 72% covering; the filter darkens what is behind
+     (that is what keeps words readable over a bright level) and gives its colours a little more glow. */
+  --glass: rgb(30 30 30 / 0.72);
+  --glass-filter: blur(24px) brightness(0.45) saturate(1.4);
+  /* The 1-point edge and the light along the top inside edge ("lit from above"); the old edge colour vanishes on glass. */
+  --glass-edge: rgb(255 255 255 / 0.10);
+  --glass-shine: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  /* Quiet words (labels, hints) on glass: today's quiet grey is a little too dim over a bright level. */
+  --glass-quiet: #a8a8a8;
+  /* Soft glass: today's panel grey, 92% covering, with half the blur. */
+  --glass-soft: rgb(37 37 37 / 0.92);
+  --glass-soft-filter: blur(12px) brightness(0.5) saturate(1.2);
+
+  /* What a surface actually reads. Each points at its token; the four solid cases below re-point them, so no surface
+     needs to know why it is solid. Soft glass shares the edge and the shine. */
+  --g-bg: var(--glass);
+  --g-filter: var(--glass-filter);
+  --g-edge: var(--glass-edge);
+  --g-shine: var(--glass-shine);
+  --g-quiet: var(--glass-quiet);
+  --s-bg: var(--glass-soft);
+  --s-filter: var(--glass-soft-filter);
+}
+
+/* ----- 2. When there is no glass: today's solid panel, nothing else moving ----- */
+
+/* The browser does not draw a blur behind a panel. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html body.sh {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--line);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}
+
+/* The device asks for less see-through (Apple calls it "Reduce Transparency"), unless the person set the panels to On. */
+@media (prefers-reduced-transparency: reduce) {
+  html body.sh:not(.glass-on) {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--line);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}
+
+/* The person set "See-through panels" to Off in Settings. */
+html body.sh.glass-off {
+  --g-bg: var(--panel);
+  --g-filter: none;
+  --g-edge: var(--line);
+  --g-shine: 0 0 #0000;
+  --g-quiet: var(--quiet);
+  --s-bg: var(--panel);
+  --s-filter: none;
+}
+
+/* The device asks for more contrast: solid, with an edge that shows. */
+@media (prefers-contrast: more) {
+  html body.sh {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--quiet);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}
+
+/* ----- 3. The two recipes ----- */
+
+/* Glass: every dock, and the small things that float over the level with them. Setting `--quiet` here is how every
+   quiet word inside one of them becomes `--glass-quiet`. */
+html body.sh :is(
+  .sh-top,
+  .sh-left,
+  .sh-right:not(.inline),
+  .sh-tools .tbar,
+  .sh-tools .topts,
+  .opop,
+  .share-pop,
+  .sh-play,
+  .minimap,
+  .holds .hb,
+  .tray,
+  .actbar,
+  .float:not(.keysheet)
+) {
+  --quiet: var(--g-quiet);
+  background: var(--g-bg);
+  -webkit-backdrop-filter: var(--g-filter);
+  backdrop-filter: var(--g-filter);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), var(--shadow);
+}
+
+/* Soft glass: the band along the bottom, menus, Help, Settings, the welcome and the cards of their family. Its quiet
+   words stay today's grey, which passes on it. The tour's cards are not in this list: they are light, with dark words
+   and a pointer, like the tips. */
+html body.sh :is(.sh-bottom, .pop, .keysheet, .numpad) {
+  background: var(--s-bg);
+  -webkit-backdrop-filter: var(--s-filter);
+  backdrop-filter: var(--s-filter);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), var(--shadow);
+}
+
+/* Words the older rules colour `--faint` (3.6 to 1 over a white level) read `--quiet` on glass, which is
+   `--glass-quiet` there. Icons and edges keep `--faint`: they need only 3 to 1. */
+html body.sh :is(
+  .kept,
+  .sh-top .cmdk kbd,
+  .partsn button.later,
+  .sh-left .lsearch,
+  .sh-left .lh,
+  .sh-left .lr.hid,
+  .sh-left .empty,
+  .sh-right .igroup h4 .soon,
+  .sh-right .scrub small,
+  .sh-right .ir .ends,
+  .sh-right .more .n,
+  .sh-right .ihead .ihide,
+  .sh-tools .topts .pnote,
+  .share-pop .sc small,
+  .actbar .ab.no
+) {
+  color: var(--quiet);
+}
