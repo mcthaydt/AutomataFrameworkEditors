@@ -1,4 +1,5 @@
 // Every word a person reads comes from here, so the whole product can be read at once (and, in M3, translated by
+// (A draft-only CI try, taken out again.)
 // swapping this one file). No screen says repo, repository, commit, branch, pull request, token, JSON, sync, push,
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
