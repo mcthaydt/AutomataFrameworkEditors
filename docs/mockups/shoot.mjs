@@ -19,12 +19,14 @@ const TYPES = {
   '.woff2': 'font/woff2',
   '.woff': 'font/woff',
 }
+// The first size is an iPad Pro 11-inch held sideways (the Owner, 2026-11-15). Phones and iPads are touched, so they
+// say so (rows stay 44 points); the computer has a mouse (small rows).
 const SIZES = {
-  phone: { width: 390, height: 844 },
-  phoneSideways: { width: 844, height: 390 },
-  ipadUpright: { width: 820, height: 1180 },
-  ipadSideways: { width: 1180, height: 820 },
-  desktop: { width: 1280, height: 800 },
+  ipadSideways: { viewport: { width: 1210, height: 834 }, hasTouch: true },
+  desktop: { viewport: { width: 1280, height: 800 }, hasTouch: false },
+  ipadUpright: { viewport: { width: 834, height: 1210 }, hasTouch: true },
+  phone: { viewport: { width: 390, height: 844 }, hasTouch: true },
+  phoneSideways: { viewport: { width: 844, height: 390 }, hasTouch: true },
 }
 
 const server = createServer((request, response) => {
@@ -44,8 +46,8 @@ const base = `http://127.0.0.1:${server.address().port}/docs/mockups/`
 mkdirSync(OUT, { recursive: true })
 const pages = readdirSync(import.meta.dirname).filter((name) => name.endsWith('.html') && name !== 'index.html')
 const browser = await chromium.launch()
-for (const [size, viewport] of Object.entries(SIZES)) {
-  const context = await browser.newContext({ viewport, deviceScaleFactor: 2 })
+for (const [size, { viewport, hasTouch }] of Object.entries(SIZES)) {
+  const context = await browser.newContext({ viewport, hasTouch, deviceScaleFactor: 2 })
   const page = await context.newPage()
   for (const name of pages) {
     await page.goto(base + name, { waitUntil: 'networkidle' })

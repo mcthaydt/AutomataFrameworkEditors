@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Tiles, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Tiles has no spec yet: the mockup's guess. A tile drawn pixel by pixel on a canvas that fills the space, a preview
+     at the game's own size, the tiles of the set on the left and every value of the picked tile on the right. */
+  .board { display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .big { position: relative; border: 1px solid var(--words); line-height: 0; }
+  .big canvas { width: min(78cqh, 52cqw); height: auto; image-rendering: pixelated; }
+  .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.3) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.3) 1px, transparent 1px); background-size: 6.25% 6.25%; }
+  .big .cursor { position: absolute; z-index: 2; width: 6.25%; height: 6.25%; outline: 3px solid var(--touch); outline-offset: -1px; }
+  .mirror { position: absolute; z-index: 2; top: -8px; bottom: -8px; left: 50%; border-left: 2px dashed var(--touch); }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .patch { display: grid; grid-template-columns: repeat(6, auto); line-height: 0; border: 1px solid var(--edge); }
+  .patch canvas { width: min(5.5cqh, 4cqw); height: auto; image-rendering: pixelated; }
+  .patch.real canvas { width: 16px; }
+  .patch > span:empty { width: min(5.5cqh, 4cqw); aspect-ratio: 1; }
+  .ramp { display: flex; gap: 0; margin: 2px 0; }
+  .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
+  .ramp i.on { outline: 3px solid var(--touch); outline-offset: -3px; }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 120px; }
+  .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
+  .rules i.y { background: var(--touch); }
+  .rules i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 3px, transparent 3px 7px); }
+  .rules i.me { background: #afd472; }
+  @media (max-width: 1000px), (max-height: 600px) { .side .sub.hide-narrow { display: none; } }
+  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 12px; } .big canvas { width: 62cqw; } .side { align-items: center; } }
+  @media (max-height: 600px) { .big canvas { width: 70cqh; } .patch canvas { width: 7cqh; } }
+
+</style>
+</head>
+<body>
+<!-- World, Tiles, mid-project: the joining rules of the slope. Each rule is a 3 by 3 square: orange means "a tile of
+     this set is there", stripes mean "nothing is there". Paint on the test patch and the tiles pick themselves. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="board">
+      <div class="side">
+        <span class="sub">The rules for “Slope”</span>
+        <div style="display:flex;gap:14px">
+          <div class="rules"><i class="n"></i><i class="n"></i><i></i><i class="n"></i><i class="me"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i></div>
+          <div class="rules"><i class="n"></i><i class="n"></i><i class="n"></i><i class="y"></i><i class="me"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i></div>
+        </div>
+        <button class="btn small"><span class="ic" data-i="plus"></span>Add a rule</button>
+      </div>
+      <div class="side">
+        <span class="sub">Test patch: paint here, the tiles join by themselves</span>
+        <div class="patch" style="grid-template-columns:repeat(7,auto)">
+          <span></span><span></span><span></span><span></span><span></span><span data-pixel="slope" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span>
+          <span></span><span></span><span></span><span></span><span data-pixel="slope" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span>
+          <span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="slope" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span>
+        </div>
+        <span class="chip" style="position:static"><span class="ic" data-i="check"></span>Every tile found a rule</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const G = (s) => s.split(' ')
+window.MOCK = {
+  editor: 'world', what: 'Tiles', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 1,
+  tools: [
+    ['Pencil', 'pencil-simple', 'B'], ['Line', 'line-segment', 'L'], ['Box', 'square', 'U', true], ['Fill', 'paint-bucket', 'G'],
+    ['Select', 'selection', 'M'], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Pick a color', 'eyedropper', 'I'],
+  ],
+  place: 'Meadow tiles', saved: 'Not saved: 2 changes', changes: 2, tool: 0, zoom: '400%', state: 'mid-project',
+  settings: [
+    '<span>Painting</span><span class="seg"><button class="on">The set</button><button>One tile</button></span>',
+    '<button class="btn small"><span class="ic" data-i="eraser"></span>Clear the patch</button>',
+  ],
+  list: { title: 'Tiles', count: 13, search: 'Find a tile', rows: [
+      { head: 'Meadow tiles', count: 4 },
+      { n: 'Grass top', px: 'grass', on: false },
+      { n: 'Grass corner', px: 'corner' },
+      { n: 'Earth', px: 'earth' },
+      { n: 'Slope', px: 'slope', on: true },
+      { head: 'Cave tiles', count: 6 },
+      { head: 'Water', count: 3 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New tile</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
+  values: {
+    title: 'Slope', sub: 'Meadow tiles · going up to the right', pic: { px: 'slope' }, tab: 'Slope',
+    groups: [
+      { name: 'How it joins', open: true, rows: [
+        { t: 'choice', l: 'Joins with', f: 'joins', opts: ['Itself', 'Meadow', 'Nothing'], on: 1 },
+        { t: 'num', l: 'Rules', v: '2' },
+        { t: 'sw', l: 'Use it flipped for slopes going down', f: 'flip', on: true, ch: true },
+      ] },
+      { name: 'Solid shape', open: true, rows: [
+        { t: 'choice', l: 'The hero stands on', f: 'solid', opts: ['All', 'Top only', 'Slope', 'None'], on: 2, ch: true },
+        { t: 'slider', l: 'How steep', f: 'slope', v: '1 up, 1 across', lo: 'Gentle', hi: 'Steep', at: 50 },
+      ] },
+      { name: 'What it does <span class="soon">Soon</span>', open: true, rows: [
+        { t: 'sw', l: 'Slippery', f: 'slippery', on: false },
+        { t: 'sw', l: 'Hurts the hero', f: 'hurts', on: false },
+      ] },
+      { name: 'Colors', count: 5, rows: [] },
+    ],
+  },
+
+  pal: { g: '#afd472', G: '#88a45b', v: '#607443', e: '#d1aa83', E: '#a07a52' },
+  pixels: {
+    grass: G('gggggggggggggggg gGgggggGggggGggg GvGgGgGvGgGgGvGg vEvGvEvGvEvGvEvG eEeveEeEeveEeEev eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee'),
+    earth: G('eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee'),
+    corner: G('......gggggggggg ....ggGgggggGggg ...gGvGgGgGvGgGg ..gvEvGvEvGvEvGv .geEeveEeEeveEeE .geeeeeeeeeeeeee gGeEeeeeeeeEeeee gveeeeEeeeeeeeEe gEeeeeeeeeeeeeee geEeeeeeeEeeeeee gveeeEeeeeeeeeee geeeeeeeeeeeEeee gveEeeeeeeeeeeee geeeeeeeEeeeeeEe gEeeeeeeeeeeeeee geeeeeeEeeeeeeee'),
+    slope: G('...............g ..............gG .............gGv ............gvEe ...........gEeee ..........gEeEee .........gveeeee ........gveeeEee .......gEeEeeeee ......gveeeeeeEe .....gEeeeEeeeee ....gveeeeeeeeee ...gEeeEeeeeeEee ..gveeeeeeEeeeee .gEeeeeEeeeeeeee gveeeeeeeeeeeEee'),
+  },}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

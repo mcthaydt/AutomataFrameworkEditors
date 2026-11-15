@@ -6,80 +6,102 @@
 <title>World · Tiles (mockup)</title>
 <link rel="stylesheet" href="mockup.css">
 <style>
-  /* Tiles has no spec yet: this is the mockup's guess, a tile drawn pixel by pixel, with how it joins its neighbours. */
-  .board { display: flex; gap: 32px; align-items: center; justify-content: center; width: 100%; height: 100%; }
-  .big { position: relative; border: 1px dashed var(--words); line-height: 0; }
-  .big canvas { width: min(46cqh, 40cqw); height: auto; image-rendering: pixelated; }
-  .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.35) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.35) 1px, transparent 1px); background-size: 6.25% 6.25%; }
-  .joins { display: grid; grid-template-columns: repeat(3, auto); gap: 0; line-height: 0; border: 1px solid var(--edge); }
-  .joins canvas { width: min(9cqh, 8cqw); height: auto; image-rendering: pixelated; }
-  .side { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-  .strip { display: flex; gap: 6px; }
-  .strip span { padding: 4px; border: 1px solid var(--edge); border-radius: 3px; line-height: 0; }
-  .strip span.on { border-color: var(--touch); box-shadow: inset 0 0 0 1px var(--touch); }
-  .strip canvas { width: 40px; height: 40px; image-rendering: pixelated; }
-  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-  .sw i { aspect-ratio: 1; border-radius: 3px; border: 1px solid var(--edge); min-width: 36px; }
-  .sw i.on { outline: 2px solid var(--touch); outline-offset: 2px; }
-  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 14px; } .joinbox .sub, .joinbox .joins { display: none; } .big canvas { width: 48cqw; } .joins canvas { width: 11cqw; } }
+  /* Tiles has no spec yet: the mockup's guess. A tile drawn pixel by pixel on a canvas that fills the space, a preview
+     at the game's own size, the tiles of the set on the left and every value of the picked tile on the right. */
+  .board { display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .big { position: relative; border: 1px solid var(--words); line-height: 0; }
+  .big canvas { width: min(78cqh, 52cqw); height: auto; image-rendering: pixelated; }
+  .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.3) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.3) 1px, transparent 1px); background-size: 6.25% 6.25%; }
+  .big .cursor { position: absolute; z-index: 2; width: 6.25%; height: 6.25%; outline: 3px solid var(--touch); outline-offset: -1px; }
+  .mirror { position: absolute; z-index: 2; top: -8px; bottom: -8px; left: 50%; border-left: 2px dashed var(--touch); }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .patch { display: grid; grid-template-columns: repeat(6, auto); line-height: 0; border: 1px solid var(--edge); }
+  .patch canvas { width: min(5.5cqh, 4cqw); height: auto; image-rendering: pixelated; }
+  .patch.real canvas { width: 16px; }
+  .patch > span:empty { width: min(5.5cqh, 4cqw); aspect-ratio: 1; }
+  .ramp { display: flex; gap: 0; margin: 2px 0; }
+  .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
+  .ramp i.on { outline: 3px solid var(--touch); outline-offset: -3px; }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; width: 120px; }
+  .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
+  .rules i.y { background: var(--touch); }
+  .rules i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 3px, transparent 3px 7px); }
+  .rules i.me { background: #afd472; }
+  @media (max-width: 1000px), (max-height: 600px) { .side .sub.hide-narrow { display: none; } }
+  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 12px; } .big canvas { width: 62cqw; } .side { align-items: center; } }
+  @media (max-height: 600px) { .big canvas { width: 70cqh; } .patch canvas { width: 7cqh; } }
+
 </style>
 </head>
 <body>
+<!-- World, Tiles, first look: the grass tile drawn big, with the pencil's square under the finger, and the same tile
+     beside it the way the game shows it, at real size and as a patch. -->
 <div class="canvas paper">
   <div class="fit">
     <div class="board">
+      <div class="big" data-pixel="grass" data-scale="1"><i class="cursor" style="left:37.5%;top:12.5%"></i></div>
       <div class="side">
-        <div class="big" data-pixel="grass" data-scale="1"></div>
+        <span class="sub">In the game</span>
+        <div class="patch"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span></div>
+        <span class="sub hide-narrow">Real size</span>
+        <div class="patch real hide-narrow"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span></div>
         <span class="chip" style="position:static">Grass top <span class="v">16 × 16</span></span>
-      </div>
-      <div class="side joinbox">
-        <span class="sub">How it joins</span>
-        <div class="joins">
-          <span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span>
-          <span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span>
-        </div>
-        <div class="strip">
-          <span class="on" data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="slope" data-scale="1"></span>
-          <span class="plusbox"><span class="ic touch" data-i="plus" style="width:40px;height:40px"></span></span>
-        </div>
       </div>
     </div>
   </div>
 </div>
-<div class="panels">
-  <div class="closed"><button class="chipbtn"><span class="ic" data-i="map-trifold"></span>Where it is used</button></div>
-  <section class="float panel">
-    <header class="panel-head">
-      <nav class="tabs"><button class="on">Colors</button><button>Where it is used</button></nav>
-      <span class="label">Colors</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div><h2>Meadow tiles</h2><span class="sub">meadow · 4 tiles</span></div>
-      <p class="quiet">Draw with the game's own colors. Every tile that uses this one changes with it.</p>
-      <div class="sw">
-        <i style="background:#afd472"></i><i class="on" style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#d1aa83"></i><i style="background:#a07a52"></i><i style="background:#111314"></i>
-        <i style="background:#f37f94"></i><i style="background:#fdd4bd"></i><i style="background:#9fd3f0"></i><i style="background:#b5651d"></i><i style="background:#8a6d12"></i><i style="background:#587382"></i>
-      </div>
-      <div class="stepper"><span>Pixels a tile</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">16</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      <p class="quiet">Used in Level 1 and the meadow scene.</p>
-    </div>
-  </section>
-</div>
 <script>
 const G = (s) => s.split(' ')
 window.MOCK = {
-  editor: 'world', place: 'Meadow tiles', what: 'Tiles', saved: 'Sam, yesterday',
-  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 1,
-  tools: [['Draw', 'pencil-simple'], ['Fill', 'paint-bucket'], ['Erase', 'eraser'], ['Pick', 'eyedropper'], ['Try it', 'play']], tool: 0,
+  editor: 'world', what: 'Tiles', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 1,
+  tools: [
+    ['Pencil', 'pencil-simple', 'B'], ['Line', 'line-segment', 'L'], ['Box', 'square', 'U', true], ['Fill', 'paint-bucket', 'G'],
+    ['Select', 'selection', 'M'], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Pick a color', 'eyedropper', 'I'],
+  ],
+  place: 'Meadow tiles', saved: 'Sam, yesterday', tool: 0, zoom: '1600%',
+  settings: [
+    '<span>Size</span><span class="seg"><button class="on">1</button><button>2</button><button>3</button></span>',
+    '<span>Mirror while drawing</span><span class="knob2"></span>',
+    '<span>Grid</span><span class="knob2 on"></span>',
+  ],
+  list: { title: 'Tiles', count: 13, search: 'Find a tile', rows: [
+      { head: 'Meadow tiles', count: 4 },
+      { n: 'Grass top', px: 'grass', on: true },
+      { n: 'Grass corner', px: 'corner' },
+      { n: 'Earth', px: 'earth' },
+      { n: 'Slope', px: 'slope', on: false },
+      { head: 'Cave tiles', count: 6 },
+      { head: 'Water', count: 3 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New tile</button><button class="btn small"><span class="ic" data-i="upload-simple"></span>Bring in a picture</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Grass top', sub: 'Meadow tiles · 16 × 16 pixels', pic: { px: 'grass' }, tab: 'Grass top',
+    groups: [
+      { name: 'Colors', open: true, rows: [
+        { l: 'The game\'s colors, in ramps from light to dark. Change one and every tile that uses it changes.' },
+        { t: 'html', h: '<div class="ramp"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#3c4a2a"></i></div><div class="ramp"><i style="background:#f1dcc0"></i><i style="background:#d1aa83" class="on"></i><i style="background:#a07a52"></i><i style="background:#6f5236"></i><i style="background:#3e2d1e"></i></div><div class="ramp"><i style="background:#cfeefc"></i><i style="background:#9fd3f0" class="on"></i><i style="background:#5a9fc8"></i><i style="background:#35607e"></i><i style="background:#1d3448"></i></div>' },
+      ] },
+      { name: 'How it joins', open: true, rows: [
+        { t: 'choice', l: 'Joins with', f: 'joins', opts: ['Itself', 'Meadow', 'Nothing'], on: 1 },
+        { t: 'btns', b: [['Edit the joining rules', 'grid-nine']] },
+      ] },
+      { name: 'Solid shape', open: true, rows: [
+        { t: 'choice', l: 'The hero stands on', f: 'solid', opts: ['All', 'Top only', 'Slope', 'None'], on: 0 },
+      ] },
+      { name: 'What it does <span class="soon">Soon</span>', count: 2, rows: [] },
+    ],
+  },
+
   pal: { g: '#afd472', G: '#88a45b', v: '#607443', e: '#d1aa83', E: '#a07a52' },
   pixels: {
     grass: G('gggggggggggggggg gGgggggGggggGggg GvGgGgGvGgGgGvGg vEvGvEvGvEvGvEvG eEeveEeEeveEeEev eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee'),
     earth: G('eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee'),
     corner: G('......gggggggggg ....ggGgggggGggg ...gGvGgGgGvGgGg ..gvEvGvEvGvEvGv .geEeveEeEeveEeE .geeeeeeeeeeeeee gGeEeeeeeeeEeeee gveeeeEeeeeeeeEe gEeeeeeeeeeeeeee geEeeeeeeEeeeeee gveeeEeeeeeeeeee geeeeeeeeeeeEeee gveEeeeeeeeeeeee geeeeeeeEeeeeeEe gEeeeeeeeeeeeeee geeeeeeEeeeeeeee'),
     slope: G('...............g ..............gG .............gGv ............gvEe ...........gEeee ..........gEeEee .........gveeeee ........gveeeEee .......gEeEeeeee ......gveeeeeeEe .....gEeeeEeeeee ....gveeeeeeeeee ...gEeeEeeeeeEee ..gveeeeeeEeeeee .gEeeeeEeeeeeeee gveeeeeeeeeeeEee'),
-  },
-}
+  },}
 </script>
 <script src="frame.js"></script>
 </body>

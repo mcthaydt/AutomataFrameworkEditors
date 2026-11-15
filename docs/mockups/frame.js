@@ -200,7 +200,7 @@ function valuesPanel(v, tabs) {
     .join('')
   return `<section class="float panel values">
     <header class="panel-head">
-      <nav class="tabs">${tabs.map((t, i) => `<button class="${i === 0 ? 'on' : ''}">${t}</button>`).join('')}</nav>
+      <nav class="tabs">${tabs.map(([t, c, n], i) => `<button class="${c || ''}${i === 0 ? ' on' : ''}">${t}${n ? `<span class="gcount">${n}</span>` : ''}</button>`).join('')}</nav>
       <span class="ptitle">${v.pic ? pic(v.pic) : ''}<span><b>${v.title}</b><small>${v.sub || ''}</small></span></span>
       <button class="iconbtn" aria-label="Close">${icon('x')}</button>
     </header>
@@ -219,7 +219,7 @@ function listPanel(l) {
     )
     .join('')
   return `<section class="float panel listpanel">
-    <header class="panel-head"><span class="label">${l.title || 'Everything here'}</span>${l.count ? `<span class="gcount">${l.count}</span>` : ''}<button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
+    <header class="panel-head"><button class="iconbtn railopen" aria-label="Open the list">${icon('sidebar-simple')}</button><span class="label">${l.title || 'Everything here'}</span>${l.count ? `<span class="gcount">${l.count}</span>` : ''}<button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
     <div class="vsearch">${icon('magnifying-glass')}<span>${l.search || 'Find by name'}</span></div>
     <div class="lbody">${rows}</div>
     ${l.foot ? `<div class="lfoot">${l.foot}</div>` : ''}
@@ -254,6 +254,34 @@ function transport(p) {
   </div>`
 }
 
+// The panel along the bottom (a timeline, the lanes of a song): attached between the list and the values on a
+// sideways iPad and a computer, with the Library as its second tab.
+function bottomPanel(b, lib) {
+  return `<section class="float dockbottom">
+    <header class="panel-head"><nav class="btabs"><button class="on">${icon(b.icon || 'film-strip')}${b.title}</button>${lib ? `<button>${icon('books')}Library</button>` : ''}</nav>${b.head || ''}<button class="iconbtn" aria-label="Close">${icon('x')}</button></header>
+    <div class="bbody">${b.html}</div>
+  </section>`
+}
+
+// One bar along the bottom for the small facts (sideways iPad and computer): the notes, where the pointer is, the
+// zoom as a number, the grid and snap, how many are picked, who saved last, the arrangement of panels, undo and redo.
+function statusBar(m) {
+  const st = m.status || {}
+  const bits = [
+    `<span class="sb"><span class="dot"></span>Drawing notes</span>`,
+    st.pointer === false ? '' : `<span class="sb">${icon('crosshair-simple')}<span class="num">${st.pointer || '12, 4'}</span>${st.unit || 'tiles'}</span>`,
+    `<span class="sb"><span class="num zoomin">${m.zoom || '100%'}</span></span>`,
+    st.grid === false ? '' : `<span class="sb">${icon('grid-four')}${st.grid || 'Grid: tiles'}</span>`,
+    st.snap === false ? '' : `<span class="sb">Snap<span class="knob2 on mini"></span></span>`,
+    m.picked ? `<span class="sb on">${m.picked} picked</span>` : '',
+    st.extra || '',
+  ]
+  return `<footer class="statusbar">${bits.join('')}<span class="sbfill"></span>
+    <span class="sb">${icon('layout')}Panels: ${st.layout || 'Building'}${icon('caret-down')}</span>
+    <span class="sb">Saved: ${m.saved || 'not yet'}</span>
+    <button class="iconbtn">${icon('arrow-counter-clockwise')}</button><button class="iconbtn">${icon('arrow-clockwise')}</button></footer>`
+}
+
 function frame(m) {
   const editor = EDITORS.find(([word]) => word.toLowerCase() === m.editor)
   const parts = (m.parts || [])
@@ -280,8 +308,7 @@ function frame(m) {
     <span class="sep"></span>
     <nav class="switcher">${switcher}</nav>
   </div>
-  ${parts ? `<nav class="float parts">${parts}</nav>` : ''}
-  ${settings}
+  <div class="row2">${parts ? `<nav class="float parts">${parts}</nav>` : ''}${settings}</div>
   <div class="float cluster">
     <span class="find hide-phone">${icon('magnifying-glass')}<span class="long">Find or do anything</span><span class="key">⌘K</span><span class="short label">Find</span></span>
     <button class="iconbtn keys hide-narrow" aria-label="Keys and gestures">${icon('keyboard')}</button>
@@ -292,8 +319,10 @@ function frame(m) {
   </div>
   <nav class="float tools">${tools}</nav>
   ${m.list ? listPanel(m.list) : ''}
-  ${m.library ? library(m.library) : ''}
+  ${m.library && !m.bottom ? library(m.library) : ''}
   ${m.play ? transport(m.play) : ''}
+  ${m.bottom ? bottomPanel(m.bottom, m.library) : ''}
+  ${statusBar(m)}
   <div class="float notes-switch"><span class="dot"></span><span class="label">Drawing notes</span><span class="label touch">On</span></div>
   <div class="float zoom"><button class="iconbtn">${icon('magnifying-glass-minus')}</button><span class="num zoomv">${m.zoom || '100%'}</span><button class="iconbtn">${icon('magnifying-glass-plus')}</button><button class="iconbtn">${icon('corners-out')}</button></div>
   <div class="float titleblock">
@@ -311,19 +340,42 @@ function frame(m) {
     panels.className = 'panels'
     document.body.append(panels)
   }
-  const tabs = [m.values ? m.values.tab || m.values.title : null, m.list ? 'Everything here' : null, m.library ? 'Library' : null]
-  if (m.values) panels.insertAdjacentHTML('afterbegin', valuesPanel(m.values, [...(m.tabs || []), ...tabs.filter(Boolean)]))
+  const tabs = [
+    ...(m.tabs || []).map((t) => [t]),
+    m.values ? [m.values.tab || m.values.title] : null,
+    m.list ? [m.list.title || 'Everything here', 't-dock'] : null,
+    m.library ? ['Library', 't-dock'] : null,
+    ...(m.closed || []).map(([w, , n]) => [w, 't-closed', n]),
+  ].filter(Boolean)
+  if (m.values) panels.insertAdjacentHTML('afterbegin', valuesPanel(m.values, tabs))
   const closed = (m.closed || [])
     .map(([w, ic, count]) => `<button class="chipbtn">${icon(ic)}${w}${count ? `<span class="gcount">${count}</span>` : ''}</button>`)
     .join('')
   if (closed) panels.insertAdjacentHTML('afterbegin', `<div class="closed">${closed}</div>`)
-  if (m.libraryOpen) document.body.classList.add('lib-open')
+  if (m.libraryOpen || (m.library?.open && !m.bottom)) document.body.classList.add('lib-open')
   if (m.list) document.body.classList.add('has-list')
   if (m.play) document.body.classList.add('has-play')
+  if (m.bottom) document.body.classList.add('has-bottom')
+  if (m.bottom?.open !== false && m.bottom) document.body.classList.add('bottom-open')
+  if (!m.values) document.body.classList.add('no-values')
+  // Row size follows the hand, not the window: with a pointer (a mouse, a trackpad) the rows are small; with a finger
+  // they stay 44 points. A page can ask for either, to show both.
+  const fine = m.hand ? m.hand === 'fine' : !(navigator.maxTouchPoints > 0)
+  document.body.classList.add(fine ? 'fine' : 'touch')
   for (const c of m.body || []) document.body.classList.add(c)
 }
 
 frame(window.MOCK)
+// Both sizes of the same panel, side by side: what a finger gets and what a mouse or a trackpad gets.
+if (window.MOCK.compare) {
+  const c = window.MOCK.compare
+  const one = (hand, words) =>
+    `<figure class="${hand}"><figcaption class="label">${words}</figcaption>${valuesPanel(c, [[c.tab || c.title], ['Changes', 't-closed'], ['Problems', 't-closed']])}</figure>`
+  document.querySelector('.fit').insertAdjacentHTML(
+    'beforeend',
+    `<div class="compare">${one('touch', 'With a finger: 44 points a row')}${one('fine', 'With a mouse, a trackpad or a hovering Pencil: small rows')}</div>`,
+  )
+}
 Object.assign(PIXELS, window.MOCK.pixels || {})
 Object.assign(PAL, window.MOCK.pal || {})
 for (const el of document.querySelectorAll('[data-i]')) el.style.setProperty('--icon', `url("${ICONS}${el.dataset.i}.svg")`)

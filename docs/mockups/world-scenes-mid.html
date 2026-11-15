@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Scenes, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .bracket { position: absolute; z-index: 2; border: 2px dashed var(--words); border-top: 0; height: 12px; }
+  .device { position: absolute; z-index: 2; border: 2px dashed var(--words); border-radius: 6px; }
+  .device > span { position: absolute; right: 4px; top: -22px; font: 600 11px/1.2 var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--words); background: var(--ground); padding: 2px 5px; border-radius: 2px; }
+  .brush { position: absolute; z-index: 3; border-radius: 50%; border: 2px dashed var(--touch); }
+  .daybar { position: absolute; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 4px 10px; white-space: nowrap; left: var(--fit-left); bottom: calc(var(--fit-bottom) - 6px); }
+  .daybar .rbar { width: 200px; background: linear-gradient(90deg, #35434b, #f37f94 22%, #9fd3f0 40%, #9fd3f0 62%, #f37f94 78%, #35434b); }
+  .daybar .rbar i { background: none; border-right: 4px solid var(--words); border-radius: 0; }
+  @media (max-width: 1000px), (max-height: 600px) { .daybar .label { display: none; } .device { display: none; } .daybar { left: var(--gap); } }
+  @media (max-height: 600px) { .daybar .rbar { width: 100px; } }
+</style>
+</head>
+<body>
+<!-- World, Scenes, mid-project: painting flowers with a Pencil. The Pencil hovers and the brush's outline shows before
+     it touches; a finger on the scene moves the view, so nothing is painted by accident. The brush's own settings are in
+     the row at the top, the Library is open on clumps, dashed frames show what a phone and a computer see, and the day
+     can be played through. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="device" style="left:6.3%;top:30%;width:52%;height:58%"><span>A phone sees</span></div>
+      <div class="device" style="left:6.3%;top:8%;width:87.4%;height:80%"><span>A computer sees</span></div>
+      <div class="brush" style="left:18%;top:68%;width:9%;height:13.8%"></div>
+      <span class="chip" style="left:28%;top:62%"><span class="ic" data-i="pencil-simple"></span>Pencil hovering · <span class="v">Middle brush</span></span>
+    </div>
+  </div>
+</div>
+<div class="float daybar"><button class="iconbtn"><span class="ic" data-i="play"></span></button><span class="label">Play the day</span><span class="rbar"><i style="--at:45%"></i></span><span class="num">Noon</span></div>
+<script>
+window.MOCK = {
+  editor: 'world', what: 'Scene', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 2,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Paint', 'paint-brush', 'B', true], ['Add', 'plus', 'A', true],
+    ['Scatter', 'dots-nine', 'S'], ['Light', 'sun', 'K'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  place: 'Meadow', saved: 'Not saved: 4 changes', changes: 4, tool: 2, state: 'mid-project',
+  settings: [
+    '<span>Brush</span><span class="seg"><button>Small</button><button class="on">Middle</button><button>Big</button></span>',
+    '<span>How many</span><span class="seg"><button>Few</button><button class="on">Some</button><button>Lots</button></span>',
+    '<span>Only on the ground</span><span class="knob2 on"></span>',
+  ],
+  list: { title: 'Layers', count: 6, search: 'Find a layer or thing', rows: [
+      { head: 'In front', count: 1 },
+      { n: 'Falling leaves', k: 'slides 120%', i: 'leaf' },
+      { head: 'The level', count: 3 },
+      { n: 'Tree-2', k: 'tree', i: 'tree', on: false },
+      { n: 'Flowers', k: 'clump', i: 'flower', on: true },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { head: 'Behind', count: 2 },
+      { n: 'Hills', k: 'slides 30%', i: 'mountains' },
+      { n: 'Sky', k: 'stays still', i: 'cloud', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New layer</button>',
+  },
+  library: {
+    open: true, filters: ['All', 'Clumps', 'Trees', 'Rocks', 'Skies'], on: 1,
+    items: [
+      { n: 'Flowers', note: 'pink', i: 'flower', on: true },
+      { n: 'Tall grass', i: 'plant' },
+      { n: 'Mushrooms', i: 'leaf' },
+      { n: 'Pebbles', i: 'circles-three' },
+      { n: 'Ferns', i: 'plant' },
+      { n: 'Reeds', note: 'by water', i: 'grains' },
+      { n: 'Stones', i: 'hexagon' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 4], ['Problems', 'warning']],
+  values: {
+    title: 'Flowers', sub: 'Clump · 5 painted', pic: { i: 'flower' }, tab: 'Flowers',
+    groups: [
+      { name: 'Painted', open: true, rows: [
+        { t: 'slider', l: 'How close together', f: 'spacing', v: '0.6', lo: 'Far apart', hi: 'Packed', at: 60 },
+        { t: 'slider', l: 'Sizes', f: 'sizes', v: '0.3', lo: 'All the same', hi: 'Very mixed', at: 30, ch: true },
+        { t: 'btns', b: [['Shuffle them', 'shuffle']] },
+      ] },
+      { name: 'Colors', open: true, rows: [
+        { t: 'pick', l: 'Petals', f: 'colors.petal', v: 'Pink', sw: '#f37f94' },
+        { t: 'pick', l: 'Stems', f: 'colors.stem', v: 'Grass', sw: '#88a45b' },
+      ] },
+      { name: 'Light and shadow', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

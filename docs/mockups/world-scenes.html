@@ -7,14 +7,20 @@
 <link rel="stylesheet" href="mockup.css">
 <style>
   .bracket { position: absolute; z-index: 2; border: 2px dashed var(--words); border-top: 0; height: 12px; }
-  .timeofday { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 4px; }
-  .timeofday span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; color: var(--quiet); }
-  .timeofday span.on { color: var(--touch); }
+  .device { position: absolute; z-index: 2; border: 2px dashed var(--words); border-radius: 6px; }
+  .device > span { position: absolute; right: 4px; top: -22px; font: 600 11px/1.2 var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--words); background: var(--ground); padding: 2px 5px; border-radius: 2px; }
+  .brush { position: absolute; z-index: 3; border-radius: 50%; border: 2px dashed var(--touch); }
+  .daybar { position: absolute; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 4px 10px; white-space: nowrap; left: var(--fit-left); bottom: calc(var(--fit-bottom) - 6px); }
+  .daybar .rbar { width: 200px; background: linear-gradient(90deg, #35434b, #f37f94 22%, #9fd3f0 40%, #9fd3f0 62%, #f37f94 78%, #35434b); }
+  .daybar .rbar i { background: none; border-right: 4px solid var(--words); border-radius: 0; }
+  @media (max-width: 1000px), (max-height: 600px) { .daybar .label { display: none; } .device { display: none; } .daybar { left: var(--gap); } }
+  @media (max-height: 600px) { .daybar .rbar { width: 100px; } }
 </style>
 </head>
 <body>
-<!-- World, Scenes: the 2D environment builder (spec: Editors PR 31). The scene is the demo's meadow, which today is
-     the first level's own art; the tree is picked, the hills layer shows how fast it slides. -->
+<!-- World, Scenes, first look: the 2D environment builder (spec: Editors PR 31) on the demo's meadow, which today is
+     the first level's own art. The layers are on the left, from the front to the back, each saying how fast it slides
+     as the camera moves; the tree is picked. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
@@ -22,56 +28,57 @@
       <span class="chip" style="left:43%;top:58%"><span class="ic" data-i="tree"></span>Tree-2</span>
       <div class="vline" style="left:44%;top:66%;height:13%"></div>
       <span class="chip m" style="left:45.2%;top:69%">How tall <span class="v">2 tiles</span></span>
-      <span class="chip" style="left:73%;top:52%"><span class="ic" data-i="stack"></span>Hills · slides <span class="v">30%</span></span>
+      <span class="chip" style="left:62%;top:40%"><span class="ic" data-i="stack"></span>Hills · slides <span class="v">30%</span></span>
       <div class="bracket" style="left:7%;width:24%;top:86.5%"></div>
       <span class="chip" style="left:9%;top:90.5%">Furnished: meadow</span>
     </div>
   </div>
 </div>
-<div class="panels">
-  <div class="closed">
-    <button class="chipbtn"><span class="ic" data-i="stack"></span>Layers</button>
-    <button class="chipbtn"><span class="ic" data-i="palette"></span>Materials</button>
-  </div>
-  <section class="float panel">
-    <header class="panel-head">
-      <nav class="tabs"><button class="on">Tree</button><button>Light and sky</button><button>Layers</button><button>Materials</button></nav>
-      <span class="label">The picked thing</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div><h2>Tree</h2><span class="sub">tree-2 · in front</span></div>
-      <div class="stepper"><span>How tall</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">2</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      <div class="stepper"><span>How leafy</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">0.8</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      <div class="choices">
-        <button class="btn main small"><span class="ic" data-i="dice-five"></span>Another one</button>
-        <button class="btn small"><span class="ic" data-i="flip-horizontal"></span>Flip</button>
-        <button class="btn small"><span class="ic" data-i="stack"></span>Behind</button>
-      </div>
-    </div>
-  </section>
-  <section class="float panel second">
-    <header class="panel-head">
-      <span class="label">Light and sky</span>
-      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
-    </header>
-    <div class="panel-body">
-      <div class="slider"><span>Time of day</span><span class="val">Day</span>
-        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:38%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div>
-      </div>
-      <div class="timeofday">
-        <span><span class="ic" data-i="sun-horizon"></span>Dawn</span><span class="on"><span class="ic" data-i="sun"></span>Day</span><span><span class="ic" data-i="sun-dim"></span>Dusk</span><span><span class="ic" data-i="moon"></span>Night</span>
-      </div>
-      <div class="switch"><span class="ic touch" data-i="cloud-rain"></span>Rain<span class="knob"></span></div>
-      <div class="switch on"><span class="ic touch" data-i="leaf"></span>Falling leaves<span class="knob"></span></div>
-    </div>
-  </section>
-</div>
 <script>
 window.MOCK = {
-  editor: 'world', place: 'Meadow', what: 'Scene', saved: 'Sam, 5 minutes ago',
-  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 2,
-  tools: [['Move', 'arrows-out-cardinal'], ['Paint', 'paint-brush'], ['Add', 'plus'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+  editor: 'world', what: 'Scene', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 2,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Paint', 'paint-brush', 'B', true], ['Add', 'plus', 'A', true],
+    ['Scatter', 'dots-nine', 'S'], ['Light', 'sun', 'K'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  place: 'Meadow', saved: 'Sam, 5 minutes ago', tool: 0,
+  settings: [
+    '<span>Snap to tiles</span><span class="knob2 on"></span>',
+    '<span>Time of day</span><span class="seg"><button>Dawn</button><button class="on">Day</button><button>Dusk</button><button>Night</button></span>',
+  ],
+  list: { title: 'Layers', count: 6, search: 'Find a layer or thing', rows: [
+      { head: 'In front', count: 1 },
+      { n: 'Falling leaves', k: 'slides 120%', i: 'leaf' },
+      { head: 'The level', count: 3 },
+      { n: 'Tree-2', k: 'tree', i: 'tree', on: true },
+      { n: 'Flowers', k: 'clump', i: 'flower', on: false },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { head: 'Behind', count: 2 },
+      { n: 'Hills', k: 'slides 30%', i: 'mountains' },
+      { n: 'Sky', k: 'stays still', i: 'cloud', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New layer</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Tree-2', sub: 'Tree · in the level layer', pic: { i: 'tree' }, tab: 'Tree-2',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '5.4', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '6.2', u: 'tiles' },
+        { t: 'choice', l: 'Layer', f: 'layer', opts: ['Behind', 'Level', 'In front'], on: 1 },
+      ] },
+      { name: 'Shape', open: true, rows: [
+        { t: 'slider', l: 'How tall', f: 'height', v: '2', lo: 'A bush', hi: 'Over the hills', at: 30 },
+        { t: 'slider', l: 'How leafy', f: 'leafy', v: '0.8', lo: 'Bare', hi: 'Full', at: 80 },
+        { t: 'slider', l: 'Sways in the wind', f: 'sway', v: '0.2', lo: 'Still', hi: 'Storm', at: 20 },
+        { t: 'btns', b: [['Another one', 'dice-five', true], ['Flip', 'flip-horizontal']] },
+      ] },
+      { name: 'Colors', count: 3, rows: [] },
+      { name: 'Light and shadow', count: 2, rows: [] },
+    ],
+  },
 }
 </script>
 <script src="frame.js"></script>

@@ -1952,48 +1952,6 @@ kbd {
 
 /* ---------- where the new parts go, by size ---------- */
 
-/* A computer and a sideways tablet: the list on the left, the values on the right, the Library at the bottom. */
-@media (min-width: 1001px) and (min-height: 601px) {
-  :root {
-    --panel-w: 320px;
-    --fit-right: 344px;
-  }
-
-  .has-list {
-    --fit-left: 332px;
-  }
-
-  .lib-open {
-    --fit-bottom: 262px;
-  }
-
-  .lib-open .listpanel {
-    bottom: 262px;
-  }
-
-  .tools {
-    top: 128px;
-  }
-
-  .tool {
-    width: 58px;
-    min-height: 56px;
-  }
-
-  .zoom {
-    left: auto;
-    right: 520px;
-  }
-
-  .libtab {
-    left: 238px;
-  }
-
-  .has-play .settings {
-    display: none;
-  }
-}
-
 /* Narrower than that: the list and the Library become tabs of the one sheet, the settings row and the play
    controls fold into one strip over the level. */
 @media (max-width: 1000px), (max-height: 600px) {
@@ -2222,5 +2180,706 @@ kbd {
   .keysheet {
     grid-template-columns: 1fr 1fr;
     inset: 64px 8px 76px 8px;
+  }
+}
+
+/* ======================================================================================================
+   Third round, the Owner's answers (2026-11-15): on a sideways iPad and a computer the panels attach to the edges
+   (only a phone and an upright iPad keep sheets), and the size of a row follows the hand: 44 points to a finger,
+   small rows to a mouse or a trackpad. One bar along the bottom holds the small facts.
+   ====================================================================================================== */
+
+.statusbar,
+.dockbottom {
+  display: none;
+}
+
+.closed {
+  display: none !important;
+}
+
+.lic .ic.warn {
+  color: var(--touch);
+}
+
+.railopen {
+  display: none;
+}
+
+/* A finger: rows of the list at 44 points. */
+.touch .lrow {
+  min-height: 44px;
+}
+
+/* A pointer: small rows, three times as many values on screen; words never under 13 points. */
+.fine .vrow {
+  min-height: 30px;
+  gap: 4px;
+}
+
+.fine .vl {
+  font-size: 14px;
+}
+
+.fine .vl code {
+  font-size: 10px;
+}
+
+.fine .vin {
+  min-height: 26px;
+  min-width: 52px;
+  font-size: 13px;
+  padding: 0 6px;
+}
+
+.fine .sq {
+  width: 26px;
+  height: 26px;
+}
+
+.fine .sq .ic {
+  width: 14px;
+  height: 14px;
+}
+
+.fine .seg button {
+  min-height: 26px;
+  padding: 0 7px;
+  font-size: 13px;
+}
+
+.fine .knob2 {
+  width: 32px;
+  height: 18px;
+}
+
+.fine .knob2::after {
+  width: 12px;
+  height: 12px;
+}
+
+.fine .knob2.on::after {
+  left: 16px;
+}
+
+.fine .vpick,
+.fine .vtext {
+  min-height: 26px;
+  font-size: 13px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.fine .ghead {
+  min-height: 28px;
+  font-size: 14px;
+}
+
+.fine .grows {
+  padding-bottom: 4px;
+}
+
+.fine .rail2 {
+  margin-top: 6px;
+}
+
+.fine .ends {
+  font-size: 12px;
+}
+
+.fine .lrow {
+  min-height: 28px;
+  font-size: 14px;
+}
+
+.fine .vsearch {
+  min-height: 28px;
+  font-size: 13px;
+  margin: 6px 8px 4px;
+}
+
+.fine .back {
+  width: 24px;
+  height: 24px;
+}
+
+.fine .vbtns .btn.small {
+  min-height: 28px;
+  font-size: 13px;
+  padding: 0 8px;
+}
+
+.fine .litem {
+  width: 80px;
+}
+
+/* ---------- sideways iPad and computer: attached to the edges ---------- */
+@media (min-width: 1001px) and (min-height: 601px) {
+  /* On body, not :root, so the sums below see the hand's and the page's own widths. */
+  body {
+    --top: 56px;
+    --row2: 46px;
+    --tools-w: 68px;
+    --list-w: 220px;
+    --values-w: 300px;
+    --status-h: 32px;
+    --bottom-h: 0px;
+    --fit-top: calc(var(--top) + var(--row2) + 14px);
+    --fit-left: calc(var(--tools-w) + var(--list-w) + 14px);
+    --fit-right: calc(var(--values-w) + 14px);
+    --fit-bottom: calc(var(--status-h) + var(--bottom-h) + 14px);
+  }
+
+  .touch {
+    --list-w: 56px;
+    --status-h: 44px;
+  }
+
+  body:not(.has-list) {
+    --list-w: 0px;
+  }
+
+  .no-values {
+    --values-w: 0px;
+  }
+
+  .has-list.touch.list-open {
+    --list-w: 220px;
+  }
+
+  body:has(.libtab) {
+    --bottom-h: 40px;
+  }
+
+  .lib-open,
+  .bottom-open {
+    --bottom-h: 34vh;
+  }
+
+  .has-bottom:not(.bottom-open) {
+    --bottom-h: 46px;
+  }
+
+  body::before {
+    content: "";
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--top);
+    background: var(--raised);
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .pill,
+  .cluster,
+  .row2 .parts,
+  .row2 .settings {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .pill {
+    top: 2px;
+    left: 4px;
+    z-index: 6;
+  }
+
+  .cluster {
+    top: 2px;
+    right: 6px;
+    z-index: 6;
+  }
+
+  .row2 {
+    position: absolute;
+    z-index: 5;
+    top: var(--top);
+    left: 0;
+    right: var(--values-w);
+    height: var(--row2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    background: var(--raised);
+    border-bottom: 1px solid var(--edge);
+    border-right: 1px solid var(--edge);
+  }
+
+  .row2 .parts,
+  .row2 .settings {
+    position: static;
+    height: auto;
+    padding: 0;
+  }
+
+  .row2 .settings {
+    padding-left: 10px;
+    border-left: 1px solid var(--edge);
+    overflow: hidden;
+  }
+
+  .tools,
+  .listpanel,
+  .panels .values,
+  .library,
+  .libtab,
+  .dockbottom {
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    background: var(--raised);
+  }
+
+  .tools {
+    top: calc(var(--top) + var(--row2));
+    left: 0;
+    bottom: var(--status-h);
+    width: var(--tools-w);
+    padding: 6px 5px;
+    border-width: 0 1px 0 0;
+    align-items: center;
+  }
+
+  .tool {
+    width: 58px;
+  }
+
+  .listpanel {
+    top: calc(var(--top) + var(--row2));
+    left: var(--tools-w);
+    width: var(--list-w);
+    bottom: var(--status-h);
+    border-width: 0 1px 0 0;
+  }
+
+  .panels {
+    top: var(--top);
+    right: 0;
+    bottom: var(--status-h);
+    width: var(--values-w);
+    gap: 0;
+  }
+
+  .panels .values {
+    flex: 1 1 auto;
+    border-width: 0 0 0 1px;
+  }
+
+  .values .panel-head {
+    flex-wrap: wrap;
+    padding: 4px 4px 8px 8px;
+    row-gap: 6px;
+  }
+
+  .values .panel-head .tabs {
+    display: flex;
+    gap: 2px;
+    flex: 1 1 200px;
+    overflow: hidden;
+  }
+
+  .values .panel-head .tabs .t-dock {
+    display: none;
+  }
+
+  .values .panel-head .tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: var(--corner);
+    background: none;
+    white-space: nowrap;
+    font: 600 12px / 1 var(--label);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--words);
+  }
+
+  .values .panel-head .tabs button.on {
+    background: var(--touch);
+    color: var(--ground);
+  }
+
+  .values .panel-head .tabs .gcount {
+    margin: 0;
+    padding: 1px 5px;
+  }
+
+  .values .ptitle {
+    order: 3;
+    flex-basis: 100%;
+    padding-left: 4px;
+  }
+
+  .library,
+  .dockbottom {
+    left: calc(var(--tools-w) + var(--list-w));
+    right: var(--values-w);
+    bottom: var(--status-h);
+    height: var(--bottom-h);
+    border-width: 1px 0 0;
+  }
+
+  .dockbottom {
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+  }
+
+  .libtab {
+    left: calc(var(--tools-w) + var(--list-w));
+    right: var(--values-w);
+    bottom: var(--status-h);
+    height: 40px;
+    border-width: 1px 0 0;
+  }
+
+  .libtab::after {
+    content: "Open";
+    margin-left: auto;
+    font: 600 12px var(--label);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--quiet);
+  }
+
+  .lib-open .listpanel,
+  .has-list .listpanel {
+    bottom: var(--status-h);
+  }
+
+  .statusbar {
+    position: absolute;
+    z-index: 7;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--status-h);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px 0 10px;
+    background: var(--raised);
+    border-top: 1px solid var(--edge);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .statusbar .sb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    height: 100%;
+    border-right: 1px solid var(--edge);
+  }
+
+  .statusbar .sb .ic {
+    width: 14px;
+    height: 14px;
+    color: var(--quiet);
+  }
+
+  .statusbar .sb.on {
+    color: var(--touch);
+  }
+
+  .statusbar .zoomin {
+    min-width: 54px;
+    padding: 2px 6px;
+    border: 1px solid var(--edge);
+    border-radius: var(--corner);
+    text-align: center;
+    color: var(--touch);
+  }
+
+  .statusbar .knob2.mini {
+    width: 28px;
+    height: 16px;
+  }
+
+  .statusbar .knob2.mini::after {
+    width: 10px;
+    height: 10px;
+    top: 2px;
+  }
+
+  .statusbar .knob2.mini.on::after {
+    left: 14px;
+  }
+
+  .statusbar .sbfill {
+    flex: 1;
+  }
+
+  .statusbar .iconbtn {
+    width: 40px;
+    height: calc(var(--status-h) - 4px);
+  }
+
+  .fine .statusbar .sb.hide-fine {
+    display: none;
+  }
+
+  .notes-switch,
+  .zoom,
+  .titleblock,
+  .undo {
+    display: none;
+  }
+
+  .mock-tag {
+    top: calc(var(--top) + var(--row2));
+    bottom: auto;
+    left: calc(var(--tools-w) + var(--list-w) + (100% - var(--tools-w) - var(--list-w) - var(--values-w)) / 2);
+    border-radius: 0 0 2px 2px;
+  }
+
+  .transport {
+    top: calc(var(--top) + 3px);
+    left: calc(var(--tools-w) + var(--list-w) + (100% - var(--tools-w) - var(--list-w) - var(--values-w)) / 2);
+    z-index: 6;
+    box-shadow: none;
+  }
+
+  .has-play .row2 .settings {
+    display: none;
+  }
+
+  .keysheet {
+    inset: calc(var(--top) + 16px) calc(var(--values-w) + 16px) calc(var(--status-h) + 16px) calc(var(--tools-w) + 16px);
+  }
+
+  /* A finger on a sideways iPad: the list starts as a rail of pictures, 56 points wide, and opens on a touch. */
+  .touch:not(.list-open) .listpanel .ln,
+  .touch:not(.list-open) .listpanel .lic,
+  .touch:not(.list-open) .listpanel .lhead,
+  .touch:not(.list-open) .listpanel .vsearch,
+  .touch:not(.list-open) .listpanel .lfoot,
+  .touch:not(.list-open) .listpanel .panel-head > :not(.railopen) {
+    display: none;
+  }
+
+  .touch:not(.list-open) .listpanel .railopen {
+    display: grid;
+  }
+
+  .touch:not(.list-open) .listpanel .panel-head {
+    padding: 4px;
+    justify-content: center;
+  }
+
+  .touch:not(.list-open) .listpanel .lrow {
+    padding: 0;
+    justify-content: center;
+  }
+
+  .touch:not(.list-open) .listpanel .lrow .pic {
+    width: 30px;
+    height: 30px;
+  }
+
+  .touch:not(.list-open) .listpanel .lrow .pic canvas {
+    height: 30px;
+  }
+
+  .touch:not(.list-open) .listpanel .lrow:has(.warn) {
+    box-shadow: inset -3px 0 0 var(--touch);
+  }
+
+  /* The top row is full at the first size: Find is its icon, Export goes behind Share. */
+  .cluster .find {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .cluster .find .long,
+  .cluster .find .key,
+  .cluster .find .short,
+  .cluster .btn.hide-narrow:first-of-type {
+    display: none;
+  }
+}
+
+@media (min-width: 1500px) and (min-height: 601px) {
+  .cluster .find {
+    width: auto;
+    padding: 0 12px;
+  }
+
+  .cluster .find .long,
+  .cluster .find .key,
+  .cluster .btn.hide-narrow:first-of-type {
+    display: inline-flex;
+  }
+}
+
+/* The bottom panel's insides: its tabs and its body. */
+.btabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.btabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--corner);
+  background: none;
+  color: var(--words);
+  font: 600 12px / 1 var(--label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.btabs button.on {
+  background: var(--touch);
+  color: var(--ground);
+}
+
+.bbody {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.has-bottom:not(.bottom-open) .bbody {
+  display: none;
+}
+
+/* An upright iPad and a phone: the bottom panel sits between the level and the sheet. */
+@media (max-width: 1000px), (max-height: 600px) {
+  .dockbottom {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: var(--gap);
+    right: var(--gap);
+    bottom: calc(var(--fit-bottom) - var(--bottom-h) - 4px);
+    height: var(--bottom-h);
+  }
+
+  .has-bottom {
+    --bottom-h: 0px;
+  }
+
+  .has-bottom.bottom-open {
+    --bottom-h: 240px;
+  }
+
+  .row2 {
+    display: contents;
+  }
+}
+
+@media (max-width: 1000px) and (min-width: 700px) and (min-height: 601px) {
+  .has-bottom.bottom-open {
+    --fit-bottom: calc(var(--sheet-h) + 176px + var(--bottom-h) + 8px);
+  }
+}
+
+@media (max-width: 699px) and (min-height: 601px) {
+  .has-bottom.bottom-open {
+    --bottom-h: 190px;
+    --fit-bottom: calc(var(--sheet-h) + 148px + var(--bottom-h) + 8px);
+  }
+}
+
+@media (max-height: 600px) {
+  .has-bottom.bottom-open {
+    --bottom-h: 130px;
+    --fit-bottom: calc(84px + var(--bottom-h) + 8px);
+  }
+
+  .dockbottom {
+    right: 320px;
+  }
+}
+
+/* Both row sizes of one panel, side by side (F7). */
+.compare {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.compare figure {
+  margin: 0;
+  width: 300px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compare figcaption {
+  color: var(--words);
+  min-height: 32px;
+}
+
+.compare .panel {
+  flex: 1;
+  min-height: 0;
+}
+
+.compare .values .panel-head .tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.compare .values .panel-head .tabs button {
+  min-height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--corner);
+  background: none;
+  font: 600 11px / 1 var(--label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--words);
+}
+
+.compare .values .panel-head .tabs button.on {
+  background: var(--touch);
+  color: var(--ground);
+}
+
+.compare .values .panel-head {
+  flex-wrap: wrap;
+}
+
+.compare .values .ptitle {
+  display: flex;
+  flex-basis: 100%;
+  order: 3;
+}
+
+@media (max-width: 699px) and (min-height: 601px) {
+  .compare figure:first-child {
+    display: none;
+  }
+}
+
+@media (max-height: 600px) {
+  .compare figure {
+    width: 260px;
   }
 }
