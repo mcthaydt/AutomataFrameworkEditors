@@ -10,7 +10,7 @@
   .views3 { display: flex; gap: 4%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; padding-bottom: 28px; position: relative; }
   .view { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
   .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 3px solid #607443; }
-  .view .fig canvas { height: min(52cqh, 24cqw); width: auto; image-rendering: pixelated; }
+  .view .fig canvas { height: min(64cqh, 27cqw); width: auto; image-rendering: pixelated; }
   .view.main .fig { outline: 1px dashed var(--edge); outline-offset: 6px; }
   .view .label { color: var(--quiet); }
   .view.main .label { color: var(--touch); }
@@ -59,7 +59,6 @@ window.MOCK = {
   settings: [
     '<span>Moves with it</span><span class="seg"><button class="on">The hand too</button><button>Only the arm</button></span>',
     '<span>Bones</span><span class="knob2 on"></span>',
-    '<button class="btn small"><span class="ic" data-i="arrow-counter-clockwise"></span>Stand straight</button>',
   ],
   list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
       { head: 'Head', count: 3 },
@@ -98,7 +97,7 @@ window.MOCK = {
       { name: 'Pose', open: true, rows: [
         { t: 'num', l: 'Shoulder turn', f: 'pose.arm.l.shoulder', v: '−38', u: '°', ch: true },
         { t: 'num', l: 'Elbow bend', f: 'pose.arm.l.elbow', v: '20', u: '°' },
-        { t: 'slider', l: 'How far it may turn', f: 'limits.arm', v: '−90 to 160', lo: 'Stiff', hi: 'Free', at: 70 },
+        { t: 'slider', l: 'How far it may turn', f: 'limits.arm', v: '−90° to 160°', lo: 'Stiff', hi: 'Free', at: 70 },
       ] },
       { name: 'Holds', open: true, rows: [
         { t: 'pick', l: 'In the hand', f: 'holds', v: 'Lantern', i: 'lamp' },

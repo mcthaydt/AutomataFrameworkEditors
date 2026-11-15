@@ -48,7 +48,7 @@ window.MOCK = {
     title: 'Door opens · 240 ticks', icon: 'film-slate',
     head: '<span class="bhead"><button class="iconbtn"><span class="ic" data-i="play"></span></button><button class="iconbtn"><span class="ic" data-i="repeat"></span></button><span class="num">150 ticks</span></span>',
     html: '<i class="tlbox" style="left:calc(var(--tl-name, 150px) + (100% - var(--tl-name, 150px)) * 0.34);width:calc((100% - var(--tl-name, 150px)) * 0.34);top:calc(var(--tl-row, 30px) * 1.9);height:calc(var(--tl-row, 30px) * 3.2)"></i>',
-    tl: { unit: 'seconds', ruler: ['0', '1', '2', '3', '4'], cols: 16, at: 0.375, rows: [
+    tl: { unit: 'ticks', ruler: ['0', '60', '120', '180', '240'], cols: 16, at: 0.375, rows: [
       { n: 'Markers', i: 'flag-pennant', evts: [[25, 'Door starts'], [75, 'Hand back']] },
       { n: 'Camera', i: 'video-camera', keys: [0, 37.5, 62.5, 100], onKey: 2, on: true },
       { n: 'Keeper', i: 'person', bars: [[0, 50, 'Walks to the door'], [50, 100, 'Waves', 'b2']] },

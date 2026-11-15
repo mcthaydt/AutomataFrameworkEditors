@@ -2704,7 +2704,7 @@ kbd {
   .cluster .find .long,
   .cluster .find .key,
   .cluster .find .short,
-  .cluster .btn.hide-narrow:first-of-type {
+  .cluster .btn.export {
     display: none;
   }
 }
@@ -2717,7 +2717,7 @@ kbd {
 
   .cluster .find .long,
   .cluster .find .key,
-  .cluster .btn.hide-narrow:first-of-type {
+  .cluster .btn.export {
     display: inline-flex;
   }
 }
@@ -2895,7 +2895,7 @@ kbd {
   overflow: hidden;
 }
 
-.touch .tl {
+.touch {
   --tl-row: 40px;
 }
 
@@ -3088,4 +3088,142 @@ kbd {
     border-radius: 2px;
     font-size: 10px;
   }
+}
+
+/* Fourth pass, from the pictures (2026-11-15). */
+.tool kbd {
+  top: 3px;
+  bottom: auto;
+}
+
+.vrow.wide {
+  grid-template-columns: 1fr auto;
+}
+
+.vrow.wide .seg {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+}
+
+.vrow.wide .seg button {
+  flex: 1;
+}
+
+.vrow.wide .back {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.vrow.wide {
+  padding-bottom: 4px;
+}
+
+.listpanel .panel-head .label {
+  white-space: nowrap;
+}
+
+@media (min-width: 1001px) and (min-height: 601px) {
+  .values .panel-head .tabs {
+    gap: 0;
+  }
+
+  .values .panel-head .tabs button {
+    padding: 0 7px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .selbar {
+    left: 3% !important;
+  }
+
+  .selbar b {
+    display: none;
+  }
+
+  .selbar button {
+    font-size: 0;
+    gap: 0;
+    padding: 0 10px;
+  }
+
+  .pinned {
+    max-width: 140px;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 1000px) and (min-width: 700px) and (min-height: 601px) {
+  .titleblock,
+  .notes-switch {
+    bottom: 92px;
+  }
+}
+
+/* A long name in the file never pushes a value out of the panel. */
+.vrow,
+.vrow.slide {
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+}
+
+.vrow.slide {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.vrow.wide {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.vl {
+  min-width: 0;
+}
+
+.vl code {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The values panel's head: the picked thing's tab keeps its name; Changes and Problems become an icon and a count,
+   their names said aloud and shown on a pointer's rest. */
+.values .tabs .ic {
+  width: 15px;
+  height: 15px;
+}
+
+@media (min-width: 1001px) and (min-height: 601px) {
+  .values .panel-head .tabs .t-closed .tw {
+    display: none;
+  }
+
+  .values .panel-head .tabs .t-closed {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .values .tabs .t-closed .ic {
+    display: none;
+  }
+}
+
+/* A long name in the pill never runs under the editors. */
+.pill .where .long {
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ends {
+  padding-top: 8px;
+}
+
+.song .bars span {
+  overflow: visible;
 }

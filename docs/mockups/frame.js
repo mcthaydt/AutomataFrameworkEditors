@@ -175,7 +175,7 @@ function valueRow(r) {
     case 'slider':
       return `<div class="vrow slide">${label}<span class="vin">${r.v}</span>${back}<span class="rail2"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     case 'choice':
-      return `<div class="vrow">${label}<span class="seg">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span>${back}</div>`
+      return `<div class="vrow${r.opts.join('').length > 16 ? ' wide' : ''}">${label}<span class="seg">${r.opts.map((o, i) => `<button class="${i === r.on ? 'on' : ''}">${o}</button>`).join('')}</span>${back}</div>`
     case 'sw':
       return `<div class="vrow">${label}<span class="knob2${r.on ? ' on' : ''}"></span>${back}</div>`
     case 'pick':
@@ -200,7 +200,7 @@ function valuesPanel(v, tabs) {
     .join('')
   return `<section class="float panel values">
     <header class="panel-head">
-      <nav class="tabs">${tabs.map(([t, c, n], i) => `<button class="${c || ''}${i === 0 ? ' on' : ''}">${t}${n ? `<span class="gcount">${n}</span>` : ''}</button>`).join('')}</nav>
+      <nav class="tabs">${tabs.map(([t, c, n, ic], i) => `<button class="${c || ''}${i === 0 ? ' on' : ''}" aria-label="${t}">${ic ? icon(ic) : ''}<span class="tw">${t}</span>${n ? `<span class="gcount">${n}</span>` : ''}</button>`).join('')}</nav>
       <span class="ptitle">${v.pic ? pic(v.pic) : ''}<span><b>${v.title}</b><small>${v.sub || ''}</small></span></span>
       <button class="iconbtn" aria-label="Close">${icon('x')}</button>
     </header>
@@ -292,7 +292,7 @@ function statusBar(m) {
   ]
   return `<footer class="statusbar">${bits.join('')}<span class="sbfill"></span>
     <span class="sb">${icon('layout')}Panels: ${st.layout || 'Building'}${icon('caret-down')}</span>
-    <span class="sb">Saved: ${m.saved || 'not yet'}</span>
+    <span class="sb">${/^not/i.test(m.saved || '') ? m.saved : `Saved: ${m.saved || 'not yet'}`}</span>
     <button class="iconbtn">${icon('arrow-counter-clockwise')}</button><button class="iconbtn">${icon('arrow-clockwise')}</button></footer>`
 }
 
@@ -327,7 +327,7 @@ function frame(m) {
     <span class="find hide-phone">${icon('magnifying-glass')}<span class="long">Find or do anything</span><span class="key">⌘K</span><span class="short label">Find</span></span>
     <button class="iconbtn keys hide-narrow" aria-label="Keys and gestures">${icon('keyboard')}</button>
     <button class="flagbtn" aria-label="English">${flag('us')}</button>
-    <button class="btn small hide-narrow">${icon('export')}Export</button>
+    <button class="btn small hide-narrow export">${icon('export')}Export</button>
     <button class="btn small hide-narrow">${icon('share-network')}Share</button>
     <button class="btn main">${icon('floppy-disk')}<span>Save</span>${m.changes ? `<span class="count">${m.changes}</span>` : ''}<span class="faces"><span class="face">S</span><span class="face b">M</span></span></button>
   </div>
@@ -359,7 +359,7 @@ function frame(m) {
     m.values ? [m.values.tab || m.values.title] : null,
     m.list ? [m.list.title || 'Everything here', 't-dock'] : null,
     m.library ? ['Library', 't-dock'] : null,
-    ...(m.closed || []).map(([w, , n]) => [w, 't-closed', n]),
+    ...(m.closed || []).map(([w, ic, n]) => [w, 't-closed', n, ic]),
   ].filter(Boolean)
   if (m.values) panels.insertAdjacentHTML('afterbegin', valuesPanel(m.values, tabs))
   const closed = (m.closed || [])
