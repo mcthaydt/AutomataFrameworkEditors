@@ -280,6 +280,20 @@ function playbar(p) {
   </div>`
 }
 
+// A timeline from data: a ruler, then rows each with keys (at % of the length), bars and marked moments.
+function timeline(t) {
+  const ruler = `<div class="ruler-n">${t.unit || 'seconds'}</div><div class="ruler-t">${t.ruler.map((r, i) => `<span style="left:${(i / (t.ruler.length - 1)) * 100}%">${r}</span>`).join('')}</div>`
+  const rows = t.rows
+    .map((r) => {
+      const keys = (r.keys || []).map((k, i) => `<i class="key${r.onKey === i ? ' on' : ''}" style="left:${k}%"></i>`).join('')
+      const bars = (r.bars || []).map(([a, b, w, c]) => `<span class="bar ${c || ''}" style="left:${a}%;width:${b - a}%">${w || ''}</span>`).join('')
+      const evts = (r.evts || []).map(([a, w]) => `<span class="evt" style="left:${a}%"><span>${w}</span></span>`).join('')
+      return `<div class="tn${r.on ? ' on' : ''}" style="--d:${r.d || 0}">${r.i ? icon(r.i) : ''}${r.n}</div><div class="tt">${bars}${keys}${evts}</div>`
+    })
+    .join('')
+  return `<div class="tlwrap" style="--at:${t.at || 0}"><div class="tl" style="--cols:${t.cols || 16}">${ruler}${rows}</div><i class="playhead"></i></div>`
+}
+
 function frame(m) {
   const editor = EDITORS.find(([word]) => word.toLowerCase() === m.editor)
   const n = changesOf(m)
