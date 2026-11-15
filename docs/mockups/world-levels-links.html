@@ -14,10 +14,10 @@
   .kp { position: absolute; z-index: 1; width: 5.4%; }
   .kp canvas { width: 100%; height: auto; image-rendering: pixelated; }
   .reach { position: absolute; z-index: 1; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px dashed rgb(255 255 255 / 0.45); }
-  .pt { position: absolute; z-index: 2; width: 12px; height: 12px; transform: translate(-50%, -50%); border-radius: 50%; background: rgb(255 255 255 / 0.55); border: 2px solid #111314; }
+  .wp { position: absolute; z-index: 2; width: 12px; height: 12px; transform: translate(-50%, -50%); border-radius: 50%; background: rgb(255 255 255 / 0.55); border: 2px solid #111314; }
   .lend { position: absolute; z-index: 4; width: 28px; height: 28px; transform: translate(-50%, -50%); border-radius: 50%; background: #eeb480; border: 3px solid #111314; }
   .lend.to { background: #fff; }
-  .tag { position: absolute; z-index: 3; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--measure); white-space: nowrap; opacity: 0.45; }
+  .tag { position: absolute; z-index: 3; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; opacity: 0.45; }
   .tag.on { opacity: 1; box-shadow: inset 0 0 0 1px #eeb480; }
 </style>
 </head>
@@ -37,7 +37,7 @@
         <path d="M22 86 L 50 86" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="0.45" stroke-dasharray="1 1"/>
         <path d="M73.2 80 C 76 64, 82 60, 88.4 70" fill="none" stroke="#eeb480" stroke-width="0.7"/>
       </svg>
-      <i class="pt" style="left:22%;top:86%"></i><i class="pt" style="left:50%;top:86%"></i>
+      <i class="wp" style="left:22%;top:86%"></i><i class="wp" style="left:50%;top:86%"></i>
       <i class="lend" style="left:73.2%;top:80%"></i><i class="lend to" style="left:88.4%;top:70%"></i>
       <div class="ring" style="left:70%;top:79.8%;width:6.4%;height:4.2%"></div>
       <span class="tag on" style="left:73.2%;top:88%">Opens Door 1 for 5 seconds</span>

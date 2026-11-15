@@ -4390,3 +4390,21 @@ body.sh :is(.actbar, .sh-play, .tbar, .sh-top, .holds, .tray, .lrail) span.ic {
     bottom: auto;
   }
 }
+
+/* The zoom is said in words, so it is in the words font. */
+body.sh .tbar .tz.tz {
+  font-family: var(--label);
+}
+
+/* Above phone size, the tool's settings strip sits under the things to place or paint, never on them, and the
+   strip of things is wide enough for its last button (B10, B11). */
+@media (min-width: 501px) and (min-height: 601px) {
+  body.sh.has-tray .tray {
+    bottom: calc(var(--bottom2-h) + var(--tools-h) + 64px);
+    width: min(760px, calc(100vw - var(--left-w) - var(--right-w) - 24px));
+  }
+
+  body.sh.has-tray .fit {
+    bottom: calc(var(--bottom2-h) + var(--tools-h) + 190px);
+  }
+}
