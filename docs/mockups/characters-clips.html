@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Characters · Clips and kinds (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Clips and kinds has no spec yet: this is the mockup's guess. The move switches are here (the Owner, 2026-11-15). */
+  .board { display: flex; flex-direction: column; gap: 18px; align-items: center; max-width: 100%; }
+  .cliplist { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .frames { display: flex; gap: 10px; align-items: flex-end; }
+  .frame { position: relative; padding: 8px 10px 0; border: 1px dashed var(--edge); line-height: 0; }
+  .frame.on { border: 2px solid var(--touch); }
+  .frame canvas { height: min(30cqh, 15cqw); width: auto; image-rendering: pixelated; }
+  .frame .n { position: absolute; left: 4px; top: 4px; line-height: 1; }
+  .ruler { display: flex; justify-content: space-between; width: 100%; border-top: 2px solid var(--words); padding-top: 4px; }
+  .ruler span { position: relative; }
+  .ruler span::before { content: ""; position: absolute; left: 50%; top: -10px; width: 2px; height: 8px; background: var(--words); }
+  .move { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; align-items: center; }
+  .move .ic { color: var(--touch); width: 22px; height: 22px; }
+  .move small { grid-column: 2 / 3; color: var(--quiet); font-size: 15px; }
+  .always { font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--quiet); }
+  @media (max-width: 699px) and (min-height: 601px) { .frames .frame:nth-child(n+4) { display: none; } .frame canvas { height: 22cqh; } }
+  @media (max-height: 600px) { .frames .frame:nth-child(n+4) { display: none; } }
+</style>
+</head>
+<body>
+<div class="canvas paper">
+  <div class="fit">
+    <div class="board">
+      <div class="cliplist">
+        <button class="choice"><span class="ic" data-i="person"></span>Stand</button>
+        <button class="choice on"><span class="ic" data-i="person-simple-run"></span>Run</button>
+        <button class="choice"><span class="ic" data-i="arrow-fat-up"></span>Jump</button>
+        <button class="choice"><span class="ic" data-i="arrow-down"></span>Fall</button>
+        <button class="btn small"><span class="ic" data-i="plus"></span>Add a clip</button>
+      </div>
+      <div class="frames">
+        <div class="frame on"><span class="num n">1</span><span data-pixel="keeper" data-scale="6"></span></div>
+        <div class="frame"><span class="num n">2</span><span data-pixel="step" data-scale="6"></span></div>
+        <div class="frame"><span class="num n">3</span><span data-pixel="keeper" data-scale="6"></span></div>
+        <div class="frame"><span class="num n">4</span><span data-pixel="step" data-scale="6" data-flip="1"></span></div>
+      </div>
+      <div class="ruler num"><span>0 s</span><span>0.1</span><span>0.2</span><span>0.3</span><span>0.4</span></div>
+      <span class="chip" style="position:static">Run · <span class="v">10 pictures a second</span> · plays again and again</span>
+    </div>
+  </div>
+</div>
+<div class="panels">
+  <div class="closed"><button class="chipbtn"><span class="ic" data-i="cube"></span>What it is</button></div>
+  <section class="float panel">
+    <header class="panel-head">
+      <nav class="tabs"><button class="on">Moves</button><button>What it is</button><button>Run</button></nav>
+      <span class="label">What the hero can do</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <div><h2>Hero</h2><span class="sub">looks like: keeper</span></div>
+      <div class="move"><span class="ic" data-i="person-simple-walk"></span>Walk and jump<span class="always">Always on</span></div>
+      <div class="rule"></div>
+      <div class="switch on move"><span class="ic" data-i="arrow-fat-up"></span>Double jump<span class="knob"></span><small>Jump again in the air.</small></div>
+      <div class="switch move"><span class="ic" data-i="arrow-bend-up-right"></span>Wall jump<span class="knob"></span><small>Slide down a wall and jump off it.</small></div>
+      <div class="switch move"><span class="ic" data-i="lightning"></span>Dash<span class="knob"></span><small>A quick burst sideways.</small></div>
+      <button class="btn small"><span class="ic" data-i="sliders-horizontal"></span>How high, how fast: in Feel</button>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'characters', place: 'Hero', what: 'Character', saved: 'Mia, 1 hour ago',
+  parts: [['Figures', 'person'], ['Clips and kinds', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 1,
+  tools: [['Pick', 'hand-pointing'], ['Add', 'plus'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

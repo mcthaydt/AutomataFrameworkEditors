@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Characters · Figures (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .figure-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .figure { position: relative; border: 1px dashed var(--edge); line-height: 0; padding: 0 20px; }
+  .figure canvas { height: min(60cqh, 80cqw); width: auto; image-rendering: pixelated; }
+  .figure::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--words) 8%, transparent) 1px, transparent 1px); background-size: calc(100% / 18.5) calc(100% / 22); pointer-events: none; }
+  .groundstrip { width: 100%; height: 14px; background: repeating-linear-gradient(90deg, #afd472 0 18px, #88a45b 18px 20px); border-top: 3px solid #607443; }
+  .handle { position: absolute; z-index: 3; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
+  .views { position: absolute; z-index: 5; left: var(--gap); bottom: 76px; display: flex; gap: 2px; padding: 3px; }
+  .views button { min-height: 40px; padding: 0 12px; border: 0; border-radius: 3px; background: none; color: var(--words); display: inline-flex; gap: 6px; align-items: center; }
+  .views button.on { background: var(--touch); color: var(--ground); }
+  .inlevel { position: absolute; z-index: 4; right: 0; bottom: 0; transform: translate(110%, 0); width: 168px; padding: 6px; }
+  .inlevel .mini { aspect-ratio: 888/580; background: url(art/level-1.png) 0 0 / 100% 100%; image-rendering: pixelated; position: relative; }
+  .inlevel .mini span { position: absolute; left: 20%; top: 64%; line-height: 0; }
+  .inlevel .mini canvas { height: 22px; width: auto; image-rendering: pixelated; }
+  .wear { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 1000px), (max-height: 600px) { .views { top: 120px; bottom: auto; left: auto; right: var(--gap); } .inlevel { display: none; } }
+  @media (max-height: 600px) { .views { top: 72px; right: auto; left: var(--gap); flex-direction: column; } }
+</style>
+</head>
+<body>
+<!-- Characters, Figures: the rigged figure builder (specs: Editors PR 29, framework PR 104), in Look with Body open.
+     The keeper is a hand-drawn sketch of what the builder paints; the demo game has no figures yet. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="figure-wrap">
+      <div class="figure">
+        <span data-pixel="keeper" data-scale="12"></span>
+        <i class="handle" style="left:42%;top:2%"></i>
+        <i class="handle" style="left:40%;top:40%"></i>
+        <i class="handle" style="left:42%;top:70%"></i>
+        <i class="handle" style="left:40%;top:96%"></i>
+        <span class="chip" style="left:62%;top:65%">Legs <span class="v">0.45</span></span>
+        <div class="vline" style="left:calc(100% + 14px);top:0;height:100%"></div>
+        <span class="chip" style="left:calc(100% + 24px);top:44%"><span class="v">30</span> tall</span>
+        <div class="float inlevel"><span class="sub">In Level 1</span><div class="mini"><span data-pixel="keeper" data-scale="1"></span></div></div>
+      </div>
+      <div class="groundstrip"></div>
+    </div>
+  </div>
+</div>
+<nav class="float views"><button class="on">Side</button><button>Front</button><button>Back</button><button><span class="ic" data-i="arrows-clockwise"></span>Turn</button></nav>
+<div class="panels">
+  <div class="closed">
+    <button class="chipbtn"><span class="ic" data-i="smiley"></span>Face</button>
+    <button class="chipbtn"><span class="ic" data-i="palette"></span>Colors</button>
+  </div>
+  <section class="float panel">
+    <header class="panel-head">
+      <nav class="tabs"><button class="on">Body</button><button>Wear</button><button>Face</button><button>Colors</button></nav>
+      <span class="label">Body</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <div class="slider"><span>How tall</span><span class="val">30</span>
+        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:55%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
+      <div class="slider"><span>How wide</span><span class="val">0.40</span>
+        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:40%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
+      <div class="slider"><span>How long the legs are</span><span class="val">0.45</span>
+        <div class="track"><button class="square"><span class="ic" data-i="minus"></span></button><div class="rail"><i style="--at:45%"></i></div><button class="square"><span class="ic" data-i="plus"></span></button></div></div>
+      <div class="choices"><button class="btn small"><span class="ic" data-i="caret-right"></span>More: arms, hips, age</button><button class="btn small"><span class="ic" data-i="shuffle"></span>Surprise me</button></div>
+    </div>
+  </section>
+  <section class="float panel second">
+    <header class="panel-head"><span class="label">Wear</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
+    <div class="panel-body">
+      <div class="wear">
+        <button class="choice on"><span class="ic" data-i="t-shirt"></span>Tunic</button>
+        <button class="choice"><span class="ic" data-i="sneaker"></span>Boots</button>
+        <button class="choice"><span class="ic" data-i="baseball-cap"></span>Hood</button>
+        <button class="choice"><span class="ic" data-i="lamp"></span>Lantern</button>
+        <button class="btn small"><span class="ic" data-i="plus"></span>Add</button>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'characters', place: 'Keeper', what: 'Figure', saved: 'Not saved yet',
+  parts: [['Figures', 'person'], ['Clips and kinds', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
+  tools: [['Look', 'eye'], ['Move', 'person-simple-walk'], ['Pose', 'person-arms-spread'], ['Players', 'users'], ['Play', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

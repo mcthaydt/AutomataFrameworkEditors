@@ -144,6 +144,8 @@ function frame(m) {
 }
 
 frame(window.MOCK)
+Object.assign(PIXELS, window.MOCK.pixels || {})
+Object.assign(PAL, window.MOCK.pal || {})
 for (const el of document.querySelectorAll('[data-i]')) el.style.setProperty('--icon', `url("${ICONS}${el.dataset.i}.svg")`)
 for (const el of document.querySelectorAll('[data-flag]'))
   el.innerHTML = `<svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[el.dataset.flag]}</svg>`

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Tiles (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Tiles has no spec yet: this is the mockup's guess, a tile drawn pixel by pixel, with how it joins its neighbours. */
+  .board { display: flex; gap: 32px; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .big { position: relative; border: 1px dashed var(--words); line-height: 0; }
+  .big canvas { width: min(46cqh, 40cqw); height: auto; image-rendering: pixelated; }
+  .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.35) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.35) 1px, transparent 1px); background-size: 6.25% 6.25%; }
+  .joins { display: grid; grid-template-columns: repeat(3, auto); gap: 0; line-height: 0; border: 1px solid var(--edge); }
+  .joins canvas { width: min(9cqh, 8cqw); height: auto; image-rendering: pixelated; }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .strip { display: flex; gap: 6px; }
+  .strip span { padding: 4px; border: 1px solid var(--edge); border-radius: 3px; line-height: 0; }
+  .strip span.on { border-color: var(--touch); box-shadow: inset 0 0 0 1px var(--touch); }
+  .strip canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .sw i { aspect-ratio: 1; border-radius: 3px; border: 1px solid var(--edge); min-width: 36px; }
+  .sw i.on { outline: 2px solid var(--touch); outline-offset: 2px; }
+  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 14px; } .big canvas { width: 48cqw; } .joins canvas { width: 11cqw; } }
+</style>
+</head>
+<body>
+<div class="canvas paper">
+  <div class="fit">
+    <div class="board">
+      <div class="side">
+        <div class="big" data-pixel="grass" data-scale="1"></div>
+        <span class="chip" style="position:static">Grass top <span class="v">16 × 16</span></span>
+      </div>
+      <div class="side">
+        <span class="sub">How it joins</span>
+        <div class="joins">
+          <span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span>
+          <span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span>
+        </div>
+        <div class="strip">
+          <span class="on" data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="slope" data-scale="1"></span>
+          <span class="plusbox"><span class="ic touch" data-i="plus" style="width:40px;height:40px"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="panels">
+  <div class="closed"><button class="chipbtn"><span class="ic" data-i="map-trifold"></span>Where it is used</button></div>
+  <section class="float panel">
+    <header class="panel-head">
+      <nav class="tabs"><button class="on">Colors</button><button>Where it is used</button></nav>
+      <span class="label">Colors</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <div><h2>Meadow tiles</h2><span class="sub">meadow · 4 tiles</span></div>
+      <p class="quiet">Draw with the game's own colors. Every tile that uses this one changes with it.</p>
+      <div class="sw">
+        <i style="background:#afd472"></i><i class="on" style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#d1aa83"></i><i style="background:#a07a52"></i><i style="background:#111314"></i>
+        <i style="background:#f37f94"></i><i style="background:#fdd4bd"></i><i style="background:#9fd3f0"></i><i style="background:#b5651d"></i><i style="background:#8a6d12"></i><i style="background:#587382"></i>
+      </div>
+      <div class="stepper"><span>Pixels a tile</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">16</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
+      <p class="quiet">Used in Level 1 and the meadow scene.</p>
+    </div>
+  </section>
+</div>
+<script>
+const G = (s) => s.split(' ')
+window.MOCK = {
+  editor: 'world', place: 'Meadow tiles', what: 'Tiles', saved: 'Sam, yesterday',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 1,
+  tools: [['Draw', 'pencil-simple'], ['Fill', 'paint-bucket'], ['Erase', 'eraser'], ['Pick', 'eyedropper'], ['Try it', 'play']], tool: 0,
+  pal: { g: '#afd472', G: '#88a45b', v: '#607443', e: '#d1aa83', E: '#a07a52' },
+  pixels: {
+    grass: G('gggggggggggggggg gGgggggGggggGggg GvGgGgGvGgGgGvGg vEvGvEvGvEvGvEvG eEeveEeEeveEeEev eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee'),
+    earth: G('eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee'),
+    corner: G('......gggggggggg ....ggGgggggGggg ...gGvGgGgGvGgGg ..gvEvGvEvGvEvGv .geEeveEeEeveEeE .geeeeeeeeeeeeee gGeEeeeeeeeEeeee gveeeeEeeeeeeeEe gEeeeeeeeeeeeeee geEeeeeeeEeeeeee gveeeEeeeeeeeeee geeeeeeeeeeeEeee gveEeeeeeeeeeeee geeeeeeeEeeeeeEe gEeeeeeeeeeeeeee geeeeeeEeeeeeeee'),
+    slope: G('...............g ..............gG .............gGv ............gvEe ...........gEeee ..........gEeEee .........gveeeee ........gveeeEee .......gEeEeeeee ......gveeeeeeEe .....gEeeeEeeeee ....gveeeeeeeeee ...gEeeEeeeeeEee ..gveeeeeeEeeeee .gEeeeeEeeeeeeee gveeeeeeeeeeeEee'),
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
