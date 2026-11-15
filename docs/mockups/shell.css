@@ -5814,3 +5814,339 @@ body.sh .setr .sbtn {
     flex-wrap: nowrap;
   }
 }
+
+/* ---------- The end-to-end check (2026-11-15): the screens between screens ---------- */
+
+/* E13: a row of three choices under its name shares the panel's width, so "In front" is never cut off. */
+html body.sh .sh-right .ir.wide .segs {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+html body.sh .sh-right .ir.wide .segs button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+/* E7: a sheet never runs off a short screen. It scrolls inside, and its buttons stay at its foot. */
+html body.sh .share-pop {
+  max-height: calc(100vh - var(--top-h) - 16px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+html body.sh .share-pop .go {
+  position: sticky;
+  bottom: -16px;
+  margin-bottom: -16px;
+  padding: 10px 0 16px;
+  background: var(--panel);
+}
+
+@media (max-height: 600px) {
+  html body.sh .onb {
+    top: 8px;
+    bottom: auto;
+    transform: translateX(-50%);
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+}
+
+/* E17: on a phone, a Delete that can't happen keeps its reason on a line of its own. */
+html body.sh .actbar .ab.no span:not(.ic) {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+html body.sh .actbar .ab.no small {
+  display: block;
+}
+
+@media (max-width: 500px) {
+  /* E2: while playing on an upright phone, Stop stays in the top bar: the toolbar has stepped aside. */
+  html body.sh.playing .sh-top .tplay {
+    display: flex !important;
+  }
+
+  /* E16: one thing at a time at the bottom of a phone: an open tray hides the settings' peek line. */
+  html body.sh.has-tray .sh-right .peek {
+    display: none;
+  }
+}
+
+/* E1: the game's menu, open under the game's square (on a phone, under the part's name). */
+body.sh .menup {
+  top: calc(var(--top-h) + 4px);
+  left: 8px;
+  width: min(320px, calc(100vw - 16px));
+  max-height: calc(100vh - var(--top-h) - 16px);
+  overflow-y: auto;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+body.sh .menup .mhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+body.sh .menup .mhead .logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--touch);
+}
+
+body.sh .menup .mhead b {
+  display: block;
+  font: 600 15px var(--label);
+}
+
+body.sh .menup .mhead small,
+body.sh .menup .mi small {
+  display: block;
+  color: var(--quiet);
+  font: 400 12px var(--label);
+}
+
+body.sh .menup .mi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--words);
+  font: 500 15px var(--label);
+  text-align: left;
+}
+
+body.sh .menup .mi.on {
+  background: var(--hover);
+}
+
+body.sh .menup .mi .ic {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--quiet);
+}
+
+body.sh .menup .mi kbd {
+  margin-left: auto;
+  color: var(--faint);
+  font: 12px var(--label);
+}
+
+body.sh .menup hr {
+  margin: 6px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* A short message at the top of the level: what just happened, and one thing to press (E5, E8). */
+body.sh .note2 {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: calc(var(--top-h) + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  padding: 8px 8px 8px 14px;
+  font-size: 14px;
+}
+
+body.sh .note2 > .ic {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--touch);
+}
+
+body.sh .note2 b {
+  display: block;
+  font: 600 14px var(--label);
+}
+
+body.sh .note2 small {
+  display: block;
+  color: var(--quiet);
+  font-size: 13px;
+}
+
+body.sh .note2 .sbtn {
+  flex: none;
+  height: 44px;
+}
+
+/* A sheet's quiet card: a note someone wrote, or what went wrong and that nothing is lost (E8, E10). */
+body.sh .share-pop .said {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--touch);
+  border-radius: 6px;
+  background: var(--raised);
+  font-size: 14px;
+}
+
+body.sh .share-pop .said b {
+  display: block;
+  margin-bottom: 2px;
+  font: 600 12px var(--label);
+  color: var(--quiet);
+}
+
+body.sh .share-pop .oops {
+  margin: 0 0 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--raised);
+}
+
+body.sh .share-pop .oops b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 15px var(--label);
+}
+
+body.sh .share-pop .oops p {
+  margin: 6px 0 0;
+}
+
+body.sh .share-pop .or {
+  margin: 16px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+body.sh .share-pop .wide1 {
+  width: 100%;
+  height: 48px;
+  justify-content: center;
+}
+
+/* The top bar's "to check" button, for someone who may approve (E8), and "No internet" (E10). */
+body.sh .sh-top .checks,
+body.sh .sh-top .offl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+body.sh .sh-top .checks {
+  color: var(--touch);
+}
+
+body.sh .sh-top .offl {
+  color: var(--quiet);
+}
+
+/* Things someone else changed, on the checker's level: an orange edge, the same as the share sheet's rows (E8). */
+body.sh .stage .ring.theirs {
+  border-color: var(--touch);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 0.5);
+}
+
+/* A new level (E4): only sky and a flat run of ground, drawn over the level's sheet. */
+body.sh .stage .fresh {
+  position: absolute;
+  left: 6.194%;
+  top: 6.897%;
+  right: 6.306%;
+  bottom: 12.931%;
+  background: linear-gradient(to bottom, #9fd2ef 0 78%, #afd472 78% 81%, #c48a5a 81%);
+}
+
+/* The new level's first card: its name, what it starts with, the first thing to press. */
+body.sh .firstcard {
+  top: calc(var(--top-h) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(400px, calc(100vw - 16px));
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+body.sh .firstcard h3 {
+  margin: 0 0 4px;
+  font: 600 17px var(--label);
+}
+
+body.sh .firstcard p {
+  margin: 0 0 12px;
+  color: var(--quiet);
+  font-size: 14px;
+}
+
+body.sh .firstcard .nm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+body.sh .firstcard .nm .tbox {
+  flex: 1;
+}
+
+body.sh .firstcard .go {
+  display: flex;
+  gap: 8px;
+}
+
+body.sh .firstcard .go .sbtn {
+  flex: 1;
+  height: 48px;
+  justify-content: center;
+}
+
+/* The tour's last step points up at Put in game. */
+body.sh .coach.to-above::after {
+  right: 40px;
+  top: -9px;
+  border-top: 0;
+  border-bottom-color: #f2f2f2;
+}
+
+body.sh .coach .donel {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+body.sh .coach .donel li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+body.sh .coach .donel .ic {
+  width: 18px;
+  height: 18px;
+  color: #2e7d32;
+}
+
+@media (max-height: 600px) {
+  body.sh .firstcard p {
+    display: none;
+  }
+}

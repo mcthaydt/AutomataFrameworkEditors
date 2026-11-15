@@ -399,7 +399,9 @@ function frame(m) {
   // the game, then everyone has them. It is the button's second line, so the top bar holds one thing fewer (S6).
   // "Share" is kept for the people screen (who may do what); this button puts changes in the game (W1). Someone
   // who may only suggest sends them to be checked instead.
-  const put = m.suggest ? 'Send to check' : 'Put in game'
+  const put = m.signedOut ? 'Keep a copy' : m.suggest ? 'Send to check' : 'Put in game'
+  // Sent to be checked, the button says who has them (`m.waiting`) until they are put in or sent back (E8).
+  // Someone who has not signed in (`m.signedOut`) is alone in the demo game: nobody else's face shows (E9).
   // The same words at every size that has room ("3 only on this iPad"); short of room the line goes and the number
   // stays (F14).
   const where = n ? `<small class="long">${n} only on this ${device}</small>` : ''
@@ -427,10 +429,12 @@ function frame(m) {
     <span class="fill"></span>
     <button class="ib tu${faint}" title="${fine ? 'Undo (⌘Z)' : 'Undo · or tap with two fingers'}">${icon('arrow-counter-clockwise')}</button><button class="ib tu${faint}" title="${fine ? 'Redo (⇧⌘Z)' : 'Redo · or tap with three fingers'}">${icon('arrow-clockwise')}</button>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
+    ${m.checks ? `<button class="ib checks" title="Changes people sent you to check">${icon('list-checks')}<span>${m.checks} to check</span></button>` : ''}
+    ${m.offline ? `<span class="offl" title="This device can't reach the internet. Your changes stay on it until it can.">${icon('cloud')}<span>No internet</span></span>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}<span>Find</span>${fine ? '<kbd>⌘K</kbd>' : ''}</button>
-    <span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>
+    ${m.signedOut ? '' : '<span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>'}
     <button class="tplay${m.play ? ' on' : ''}" title="${m.play ? 'Stop playing and go back to building' : 'Play the level here'}${fine ? ' (P)' : ''}">${icon(m.play ? 'stop' : 'play')}<span>${m.play ? 'Stop' : 'Play'}</span></button>
-    <button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>
+    ${m.waiting ? `<button class="share put quiet waiting" title="Your changes are with ${m.waiting} to check. Tap to see them, or take them back">${icon('paper-plane-tilt')}<span class="w"><b>Waiting for ${m.waiting}</b></span></button>` : `<button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.signedOut ? 'download-simple' : m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>`}
   </header>
   ${leftPanel(m)}
   ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show the values">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button><button class="peek" title="Open the settings">${m.values.pic ? pic(m.values.pic) : ''}<span><b>${m.values.title.replace(/<[^>]+>/g, '')}</b> · settings</span>${icon('caret-up')}</button></aside>` : ''}
@@ -555,10 +559,11 @@ for (const tl of document.querySelectorAll('.tl')) {
 // A tip or a note never runs off the screen: one that would is slid back inside it (Fable pass, F33).
 {
   const room = document.querySelector('.canvas')?.getBoundingClientRect()
+  // The level can be wider than a phone's screen, so the screen's own edges count too (E15).
   if (room)
     for (const el of document.querySelectorAll('.stage .tip, .stage .lockpop')) {
       const r = el.getBoundingClientRect()
-      const dx = Math.max(room.left + 8 - r.left, 0) + Math.min(room.right - 8 - r.right, 0)
+      const dx = Math.max(Math.max(room.left, 0) + 8 - r.left, 0) + Math.min(Math.min(room.right, innerWidth) - 8 - r.right, 0)
       if (dx) el.style.marginLeft = `${dx}px`
     }
 }

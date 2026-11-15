@@ -2,6 +2,31 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the end-to-end check (2026-11-15)
+
+The first check of the mockups as journeys rather than screens: every journey a person expects to finish, walked
+screen to screen at five sizes, iPad Pro 11 sideways first. Report: `/mnt/project-files/reports/2026-11-15-slice3-e2e-evaluation.md`
+(at d52c73b: 18 journeys, 9 dead ends or gaps, 9 small things). Progress on this step: **80%** (every gap drawn; CI's
+pictures of the fixes not yet checked).
+
+- **New pages, one per missing step:** `shell-menu` (the game's menu open: the way in to Help, Settings and the keys,
+  plus who can change it, keep a copy, another game, sign out; E1), `shell-tour-done` (the tour's last step, ticks
+  and "Start making"; E3), `shell-signin` (someone not signed in keeps a copy, or signs in for their own game; E9),
+  `world-levels-new` (a new level: ground, Start, Goal and a name; E4), `world-levels-done` (the note after putting
+  changes in; E5), `world-levels-sent` (waiting for Mia; E8), `world-levels-check` (Mia checks Sam's changes: play
+  them, put them in, or ask for a change; E8) and `world-levels-offline` (couldn't put them in, nothing lost, Try
+  again; E10).
+- **Frame:** the top bar's button can say "Waiting for Mia" (`waiting`), "Keep a copy" for someone not signed in
+  (`signedOut`, no faces), "1 to check" (`checks`) and "No internet" (`offline`); tips stay inside a phone's screen.
+- **Fixes:** the welcome no longer points at a button that isn't there yet (E6); the number pad names the row it
+  edits (E12); "In front" fits (E13); sheets scroll with their buttons kept at the foot on a short screen (E7); Stop
+  stays on an upright phone while playing (E2); an open tray hides the phone's settings line (E16); "Delete" and its
+  reason no longer run together (E17).
+- **Default chosen (easy to change):** a new level starts with ground, a Start, a Goal and a Fall off zone, so it
+  can be played at once.
+- **Left:** the phone map's lines (E18), the "Don't let them until it is fixed" sheet (E20), tour steps 1 and 3.
+- **Next:** check CI's pictures of the new pages at five sizes, fix what is off, then the Owner.
+
 ## The shell and World mockups (roadmap slice 3): the Fable UI/UX pass's fixes (2026-11-15)
 
 Pull request 56's work moves to branch `claude/project-thread-95sweh` (a new pull request replaces 56) with the fixes from

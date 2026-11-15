@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The game's menu (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The game's menu (the end-to-end check, E1): the coloured square at the top left, or on an upright phone the part's name, opens it. It is the one way in to Help, Settings and the keys, and it holds what belongs to the whole game: who can change it, keeping a copy of this level as a file, opening another game, signing out. Help also opens with ?. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
+<section class="pop menup" role="menu" aria-label="Crate Game">
+  <div class="mhead"><i class="logo"></i><span><b>Crate Game</b><small>Sam · you can change everything</small></span></div>
+  <button class="mi on"><span class="ic" data-i="question"></span><span>Help<small>Learn the basics, take the tour again</small></span><kbd>?</kbd></button>
+  <button class="mi"><span class="ic" data-i="gear"></span><span>Settings</span></button>
+  <button class="mi"><span class="ic" data-i="keyboard"></span><span>Keys and finger moves</span></button>
+  <hr>
+  <button class="mi"><span class="ic" data-i="users-three"></span><span>Who can change it<small>Mia, Sam and 2 more</small></span></button>
+  <button class="mi"><span class="ic" data-i="download-simple"></span><span>Keep a copy of Level 1<small>As a file, to give to your helper</small></span></button>
+  <button class="mi"><span class="ic" data-i="squares-four"></span><span>Open another game</span></button>
+  <hr>
+  <button class="mi"><span class="ic" data-i="arrow-square-out"></span><span>Sign out</span></button>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
