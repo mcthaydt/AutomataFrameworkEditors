@@ -1,24 +1,17 @@
 // The levels editor in each real browser, driven with real touch pointer events on the real layout.
-// The plain game, with no pictures: every thing is a box on sky, so a pixel says where a thing is drawn. The pictures
-// with art are held in `level-picture.browser.test.ts`.
-import { fitInRoom } from '@automataframework/framework'
-import { type GameContent, type Level, levelSize, loadGame } from '@automataframework/framework/headless'
+import { fitWorld } from '@automataframework/framework'
+import type { Character, Level } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
-import { readFrom } from '../../fixtures/game/read.ts'
-import { plainFiles } from '../../fixtures/plain-game/read.ts'
-import { WORDS } from '../../fixtures/words.ts'
+import { WORDS } from '#src/features/words/words.ts'
+import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
 
-const LEVEL_FILE = 'content/levels/level-1.json'
-const level = JSON.parse(plainFiles[LEVEL_FILE] ?? '{}') as Level
-let content: GameContent
-beforeAll(async () => {
-  const loaded = await loadGame(readFrom(plainFiles))
-  if (!loaded.ok) throw new Error('the plain game did not load')
-  content = loaded.value
-})
-const NO_ROOM = { top: 0, right: 0, bottom: 0, left: 0 }
+const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
+const characters: Record<string, Character> = {
+  crate: JSON.parse(fixtureFiles['content/characters/crate.json'] ?? '{}'),
+  hero: JSON.parse(fixtureFiles['content/characters/hero.json'] ?? '{}'),
+}
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -45,8 +38,8 @@ async function show(over: { canSave?: boolean; status?: Status; onsave?: () => v
     target: box,
     props: {
       level,
-      content,
-      art: undefined,
+      characters,
+      hero: 'hero',
       canSave: over.canSave ?? true,
       status: over.status ?? 'dirty',
       statusText: 'Nothing has changed yet.',
@@ -83,7 +76,7 @@ const centre = (el: Element): { x: number; y: number } => {
 function expectedCentre(tileX: number, tileY: number): { x: number; y: number } {
   const s = stage()
   const rect = s.getBoundingClientRect()
-  const fit = fitInRoom({ w: s.clientWidth, h: s.clientHeight }, NO_ROOM, levelSize(level))
+  const fit = fitWorld({ w: s.clientWidth, h: s.clientHeight }, { w: 16, h: 9 })
   return { x: rect.left + fit.left + tileX * fit.scale, y: rect.top + fit.top + tileY * fit.scale }
 }
 const scale = (): number => Number(stage().dataset.scale)
@@ -110,6 +103,7 @@ function pictureAt(at: { x: number; y: number }): string {
 }
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
+const RING = '#ffffff'
 /** Waits for the first picture to be drawn: the canvas exists once Pixi has started, which is after the screen. */
 const drawn = (): Promise<void> => vi.waitFor(() => expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE))
 
@@ -355,23 +349,28 @@ test('the picture refits when the box turns: the crate is still drawn under its 
   expect(Math.abs(centre(crate()).y - where.y)).toBeLessThanOrEqual(1)
 })
 
-// The ring is the button laid over the thing, not part of the picture: the picture is the game's own art and is never
-// marked on. A selected thing's button takes the focus color as its edge, and unselecting gives it back.
-test('a selected thing is ringed by its button, and unselecting takes the ring away', async () => {
+test('a selected thing is ringed in white, and unselecting takes the ring away', async () => {
   await show()
   await drawn()
-  const edge = (): string => getComputedStyle(crate()).borderTopColor
-  const resting = edge()
+  // The ring is drawn along the crate's edge: look a little out from the edge and a little in, level with its middle.
+  // Which side of the edge Pixi puts a line on is Pixi's business; what matters is that the ring is there and white.
+  const middle = expectedCentre(6.5, 7.5)
+  const edge = middle.x - scale() / 2
+  const near = [
+    { x: edge - 2, y: middle.y },
+    { x: edge + 2, y: middle.y },
+  ]
+  const ringed = (): boolean => near.some((at) => pictureAt(at) === RING)
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
+  expect(ringed()).toBe(false)
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  expect(crate().getAttribute('aria-pressed')).toBe('true')
-  expect(edge()).not.toBe(resting)
+  expect(ringed()).toBe(true)
   const s = stage().getBoundingClientRect()
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
-  expect(crate().getAttribute('aria-pressed')).toBe('false')
-  expect(edge()).toBe(resting)
+  expect(near.map(pictureAt)).toEqual([SKY, CRATE])
 })
 
 test('turning mid-drag cancels the drag', async () => {
@@ -408,8 +407,8 @@ test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a ma
       readOnly: true,
       marked: ['crate-1'],
       level,
-      content,
-      art: undefined,
+      characters,
+      hero: 'hero',
       canSave: false,
       status: 'clean' as const,
       statusText: '',
@@ -442,8 +441,8 @@ test('the two copy buttons are at least 44 px, on with canSave false and status 
     target: box,
     props: {
       level,
-      content,
-      art: undefined,
+      characters,
+      hero: 'hero',
       canSave: false,
       status: 'clean' as const,
       statusText: '',

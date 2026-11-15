@@ -1,6 +1,5 @@
 <script lang="ts">
   import { WORDS } from '../words/words.ts'
-  import Icon from './Icon.svelte'
 
   // A sentence set apart from the rest. Its kind is an icon and a word as well as a colour, and a problem is an
   // alert so a screen reader says it at once.
@@ -9,12 +8,13 @@
     text: string
   }
   let { kind, text }: Props = $props()
+  const ICON = { info: 'ℹ', good: '✓', problem: '⚠' } as const
   const KIND_WORD = { info: WORDS.noticeInfo, good: WORDS.noticeGood, problem: WORDS.noticeProblem } as const
 </script>
 
 <div class="notice {kind}" role={kind === 'problem' ? 'alert' : 'status'}>
-  <Icon name={kind} />
-  <span class="kind label">{KIND_WORD[kind]}.</span>
+  <span class="icon" aria-hidden="true">{ICON[kind]}</span>
+  <span class="kind">{KIND_WORD[kind]}.</span>
   <span class="text">{text}</span>
 </div>
 
@@ -25,18 +25,22 @@
     gap: var(--space-1) var(--space-2);
     align-items: baseline;
     padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--words);
-    border-radius: var(--corner);
-    background: var(--raised);
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
     overflow-wrap: anywhere;
   }
-  .notice :global(.icon) {
-    align-self: center;
+  .info {
+    background: var(--info);
   }
-  /* A problem is the one kind with a mark edge, on the ground, because mark is not seen against raised. */
+  .good {
+    background: var(--good);
+  }
   .problem {
-    border: 2px solid var(--mark);
-    background: var(--ground);
+    background: var(--problem);
+    border-color: var(--danger);
+  }
+  .kind {
+    font-weight: 700;
   }
   .text {
     flex: 1 1 12ch;

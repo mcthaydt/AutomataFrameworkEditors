@@ -1,10 +1,9 @@
 <script lang="ts">
-  import type { Art } from '@automataframework/framework'
   import { formatDiagnostic, type Level, parseContent } from '@automataframework/framework/headless'
   import { onMount } from 'svelte'
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
-  import { loadLevelArt, type Opened, openGame } from '../game/game.ts'
+  import { type Opened, openGame } from '../game/game.ts'
   import { compareLevels, Levels } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
@@ -84,32 +83,6 @@
     }
   })
 
-  /** The pictures the level needs, in the game's art. Loaded before the level is drawn; its picture frees them. */
-  let art = $state.raw<Art | undefined>(undefined)
-  let artMissing = $state(false)
-  /** True once the pictures have been asked for, so the level is not drawn as boxes and then again as art. */
-  let artReady = $state(false)
-  $effect(() => {
-    const id = shown?.level.id
-    const content = opened?.ok ? opened.game : undefined
-    if (id === undefined || content === undefined) return
-    let current = true
-    const ask =
-      content.content.levels[id] === undefined
-        ? Promise.resolve(undefined)
-        : loadLevelArt(api, content, id)
-    void ask.then((got) => {
-      if (!current) return
-      art = got === 'missing' ? undefined : got
-      artMissing = got === 'missing'
-      artReady = true
-    })
-    return () => {
-      current = false
-      artReady = false
-    }
-  })
-
   /** What this person may do with the change. */
   const role = $derived.by(() => {
     if (opened === undefined || !opened.ok || change === undefined) return 'none' as const
@@ -179,24 +152,20 @@
   <Screen title={change.title} {back}>
     <p class="by">{change.mine ? WORDS.waitingMine : WORDS.waitingBy(change.by)}</p>
     {#if shown !== undefined}
-      {#if artMissing}<Notice kind="info" text={WORDS.artMissing} />{/if}
-      <!-- The box is there from the start, so the buttons below do not move when the pictures arrive under a finger. -->
       <div class="picture">
-        {#if artReady}
-          <Levels
-            readOnly
-            level={shown.level}
-            content={opened.game.content}
-            {art}
-            marked={shown.moved.map((m) => m.id)}
-            canSave={false}
-            status="clean"
-            statusText=""
-            title={shown.level.id}
-            onchange={() => {}}
-            onsave={() => {}}
-          />
-        {/if}
+        <Levels
+          readOnly
+          level={shown.level}
+          characters={opened.game.content.characters}
+          hero={opened.game.content.project.hero}
+          marked={shown.moved.map((m) => m.id)}
+          canSave={false}
+          status="clean"
+          statusText=""
+          title={shown.level.id}
+          onchange={() => {}}
+          onsave={() => {}}
+        />
       </div>
       <ul class="lines">
         {#each shown.moved as move (move.id)}<li>{WORDS.changeMoved(move.id)}</li>{/each}

@@ -14,16 +14,13 @@ export interface ExchangeEnv {
   readonly GITHUB_API_URL?: string
 }
 
-/**
- * Every /api answer is made here: JSON, the status from `STATUS`, never cached, never sniffed. A picture is the one
- * answer that may be kept: it says so with `cache`, the `Cache-Control` it is sent with.
- */
-export function answer<T>(result: Answer<T>, cache = 'no-store'): Response {
+/** Every /api answer is made here: JSON, the status from `STATUS`, never cached, never sniffed. */
+export function answer<T>(result: Answer<T>): Response {
   return new Response(JSON.stringify(result), {
     status: result.ok ? 200 : STATUS[result.problem],
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': cache,
+      'cache-control': 'no-store',
       'x-content-type-options': 'nosniff',
     },
   })

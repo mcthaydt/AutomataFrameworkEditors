@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
-import { EN } from '#src/features/words/en.ts'
+import { WORDS } from '#src/features/words/words.ts'
 
 const SRC = join(import.meta.dirname, '../../../src')
 function files(dir: string): string[] {
@@ -12,14 +12,14 @@ function files(dir: string): string[] {
 }
 const all = files(SRC)
 const read = (path: string): string => readFileSync(path, 'utf8')
-const WORDS_DIR = join(SRC, 'features/words')
+const WORDS_FILE = join(SRC, 'features/words/words.ts')
 
 test('every word in WORDS is used by a screen or by the code behind one', () => {
   const code = all
-    .filter((path) => !path.startsWith(WORDS_DIR) && /\.(ts|svelte)$/.test(path))
+    .filter((path) => path !== WORDS_FILE && /\.(ts|svelte)$/.test(path))
     .map(read)
     .join('\n')
-  const dead = Object.keys(EN).filter((key) => !new RegExp(`WORDS\\.${key}\\b`).test(code))
+  const dead = Object.keys(WORDS).filter((key) => !new RegExp(`WORDS\\.${key}\\b`).test(code))
   expect(dead).toEqual([])
 })
 
