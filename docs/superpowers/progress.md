@@ -5,16 +5,16 @@ The tracker every stage reads first and updates last. One section per cycle; new
 ## The Sound editor cycle
 
 Spec: [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md). Its new file formats are
-the framework's, in AutomataFramework's `docs/superpowers/specs/2026-11-15-sound-formats-design.md` (its Cycle 7).
+the framework's, in AutomataFramework's `docs/superpowers/specs/2026-11-15-sound-formats-design.md` (its Cycle 8).
 Each of the five editors has its own cycle (the Owner, 2026-11-15).
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **8%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Written, in review. The Owner answered Q1 to Q6 (2026-11-15): opens on the level with sound chips; a new sound starts from a kind with Try another and plain sliders; music as GarageBand-style loops, whole chords and motifs; recorded sounds in; new formats in the framework first, with MIDI to JSON and back; content folders listed once, with a one-time "Set up sounds". Flagged: Feel's cycle lists one line per effect, which differs from Q6 | [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md) |
-| 2. Plan | Not started; waits for the Blueprint redesign's level screen and the framework's sound formats | |
+| 2. Plan | Written, in review, 100%. Twenty tasks in three parts and eight pull requests (3 points each of stage 4's 60). Part 1, sounds and what plays when: the pin and test games with sound; the API saves a change of several files in one saved change and lists a game's folders; a change held, drafted and saved on the page; what plays when, as edits with undo; the four sliders worked out from the file and a sound's picture; one speaker for everything Sound plays; Sound opens on the level with its chips; a sound's card; a new sound from a kind with Try another; "When…"; Save, "Set up sounds", Export and a waiting change; the first run in nine languages. Part 2, recordings: record or bring in a file; trim, keep and save it. Part 3, music and motifs: every edit of a song; the music screen; make your own loop; motifs; music files in and out; music's first runs and the whole of Sound end to end. It waits for the Owner's yes to the mockups, the redesign's build, and the framework's plan M (AutomataFramework). No new dependency. Settled in the plan: "MIDI" is not written on a screen (the spec bans the word), "Try another" is for this visit only (nothing may remember a kind), a song written as rows of notes is turned into loops, and the save of several files is one for every editor, shared with the Feel plan. No Owner question is open | [`plans/2026-11-15-sound-editor.md`](plans/2026-11-15-sound-editor.md) |
 | 3 to 7 | Not started | |
 
 ## The Story editor (its own cycle)
