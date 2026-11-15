@@ -37,6 +37,7 @@ No task below starts until its gate is open. A closed gate is reported to the co
 | G3 | Framework plan T is on AutomataFramework's `main` (pull request 64): `name` and `conversation` on a character, `cutscene` on a step, `opens` on a cutscene, `openAt`, `nextPlace`, `choosePlace`, `cameraAt`, `actorsAt`, `linesAt`, and the page's `story` feature | Task 1 on |
 | G4 | The redesign's build is on this repo's `main` through its Task 18 (the frame, the find bar, faces, nine languages, zoom, the scenes) | Task 7 on (Tasks 2 to 6 touch no screen and need only G1 to G3) |
 | G5 | The redesign's Task 19 (Play) is on `main` | Task 17's "Try it in the game" only |
+| G6 | The framework's content folders (the sound formats cycle, AutomataFramework pull request 106) are on the pin | "Add a conversation", "Add a cutscene" and their set-up only (ruling 6) |
 
 The framework stays ahead of the editors (the Owner, 2026-11-14): Task 1 is framework work and may start when G2
 and G3 are open, before G1.
@@ -65,7 +66,7 @@ and G3 are open, before G1.
   language with another's words. `'en'` is never a fallback in code.
 - **An editor changes only content files**, with three narrow exceptions, each written only as named here:
   `automata.translations.toml` through the framework's `markRead` and `writeReadMarks` (the Owner, Q2b); and one
-  appended `[[content]]` entry in `automata.toml` when Story adds a conversation or a cutscene (ruling 6).
+  folder entry in `automata.toml`, written once, when a game is set up for conversations or cutscenes (ruling 6).
 - **Same bytes as an agent.** Every file is written by `writeContent` (or `writeReadMarks`). The page works the
   bytes out to show and export them; the API writes its own from the values and trusts nothing the page says.
 - **The device keeps** only what `CLAUDE.md` lists: Story adds `af.tip.story` (under `af.tip.*`) and its draft
@@ -115,15 +116,17 @@ The spec leaves these to the builder. The plan audit may challenge each.
    change started at Suggest then waits for approval as today, and Approve refuses a change that still lacks words.
    **A waiting change for words has failing checks until the words are there**: that is the game's own check
    doing its job on a branch, and the editor says "Waiting for words", never "the checks failed", for it.
-6. **Adding a conversation or a cutscene adds its `[[content]]` entry** to the end of `automata.toml`, changing no
-   other byte, in the same save. The Owner gave this answer for Feel (its spec's Q4, 2026-11-15: "the save that adds
-   an effect also adds that file's entry, and touches nothing else") and chose content folders for Sound (its Q6);
-   Story follows both: when the framework's content folders are on the pin and the game lists a folder for that
-   kind, nothing is added. The new file goes beside the game's first file of that kind, else in
-   `content/conversations/` or `content/cutscenes/`. **This widens the Story spec's "What Story edits" table, so it
-   is reported to the coordinator for the Owner before Task 8 starts**; if the Owner says no, the two "Add" cards
-   say `storyAskAgent` and Tasks 5, 6 and 8 drop the project file. Story never removes a conversation or a cutscene
-   file (an agent does; nothing in the spec asks for it).
+6. **Each kind's folder is listed once, and new files in it just work** (the Owner's one rule across editors,
+   2026-11-15, as Feel and Sound do it through the framework's content folders: a `[[content]]` block with a `type`
+   and a `folder`). A new conversation or cutscene is a new file in the game's folder for that kind, and the save
+   writes nothing else. A game that does not list the folder yet shows `storySetUpTalks` or `storySetUpScenes` in
+   place of the Add card: one press, and the next save also appends that one folder entry
+   (`content/conversations` or `content/cutscenes`) to the end of `automata.toml`, changing no other byte. If
+   Sound's or Feel's build has put this set-up on `main` first, Story uses theirs (the same `wire` functions and
+   the same field on the save) and Task 5 adds only the two kinds. **Gate G6:** the framework's content folders are
+   on the pin; until then the two Add cards and the set-up are not built (Tasks 12 and 17 say so), and nothing
+   else waits. Story never removes a conversation or a cutscene file (an agent does; nothing in the spec asks for
+   it).
 7. **New lines start in the game's own words.** The framework refuses a line whose key the game's own language
    (`source`) lacks, and a game that will not load cannot be opened from its own waiting change. So "Add a line",
    "Add a step", a new choice and a new cutscene line are written in the game's own language: with the map showing
@@ -197,7 +200,7 @@ src/features/wire/
   wire.ts                    SaveManyAsk, SaveManyAnswer, FileSave, MissingWords, WordsHistory,
                              Waiting.words, Waiting.goesIn, 'words-missing'                     Task 5, 6
   missing.ts                 missingWords, otherWordProblems                                    Task 5
-  project-line.ts            newFilePath, withContentLine, onlyLists                            Task 5
+  project-line.ts            folderOf, newFilePath, withFolderLine, onlyListsFolders            Task 5
 src/features/github/repo.ts  saveFiles, lineHistory                                             Task 4
 src/features/service/
   save-many.ts               POST /api/save-many                                                Task 5
@@ -398,6 +401,8 @@ export interface SaveManyAsk {
   readonly game: GameRef; readonly files: readonly FileSave[]; readonly message: string
   /** Add to this waiting change (its number) instead of starting or using my own. */
   readonly into?: number
+  /** List these kinds' folders in the project file in this same save (ruling 6); never with `into`. */
+  readonly setUp?: readonly FolderKind[]
 }
 export interface SaveManyAnswer {
   /** 'words': it waits for words, whatever the person's level. */
@@ -415,12 +420,17 @@ export function missingWords(content: Pick<GameContent, 'project' | 'messages'>)
 /** `translationProblems` with every missing word filled from the game's own, in memory: what is wrong besides missing. */
 export function otherWordProblems(content: GameContent): readonly Diagnostic[]
 export const nothingMissing = (missing: MissingWords): boolean
-// wire/project-line.ts (pure)
-export function newFilePath(project: Project, kind: 'conversation' | 'cutscene', id: string): string   // ruling 6
-/** `text` with `\n[[content]]\ntype = "<kind>"\npath = "<path>"\n` at its end (one newline before it if `text` ends in one). */
-export function withContentLine(text: string, kind: 'conversation' | 'cutscene', path: string): string
-/** True when `after` is `before` with only such entries added, each for a path in `added`. */
-export function onlyLists(before: string, after: string, added: readonly string[]): boolean
+// wire/project-line.ts (pure; ruling 6)
+export type FolderKind = 'conversation' | 'cutscene'
+export const SET_UP_FOLDER: Readonly<Record<FolderKind, string>>   // content/conversations, content/cutscenes
+/** The folder the project lists for a kind, if it lists one. */
+export function folderOf(project: Project, kind: FolderKind): string | undefined
+/** `<folder>/<id>.json`; undefined when the game lists no folder for the kind. */
+export function newFilePath(project: Project, kind: FolderKind, id: string): string | undefined
+/** `text` with `\n[[content]]\ntype = "<kind>"\nfolder = "<folder>"\n` at its end (one newline before it if `text` ends in one). */
+export function withFolderLine(text: string, kind: FolderKind, folder: string): string
+/** True when `after` is `before` with only such entries added, each for a kind in FolderKind and its SET_UP_FOLDER. */
+export function onlyListsFolders(before: string, after: string): boolean
 // game/open.ts
 export interface OpenGame { /* … */ readonly marks: ReadMarks | undefined; readonly marksProblem: readonly Diagnostic[] }
 export function openGame(api: Api, ref: GameRef, change?: number): Promise<Opened>
@@ -436,13 +446,15 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
    `messages` or `read-marks`, else 'not-allowed'); else my own waiting change's branch if I have one; else the
    default branch, for now.
 3. Each file, against the project file on the target branch: `messages`, `character` and an existing `conversation`
-   or `cutscene` must be listed with that type at that path; a new one (`version` undefined) must be at
-   `newFilePath(project, kind, id)`; `read-marks` must be `READ_MARKS_FILE`. Anything else is 'not-allowed'.
+   or `cutscene` must be the project's (listed by path, or in a listed folder) with that type; a new one
+   (`version` undefined) must be at `newFilePath` of the project as step 5 leaves it; `read-marks` must be
+   `READ_MARKS_FILE`. Anything else is 'not-allowed'.
 4. The bytes: `writeContent(kind, value)`, or for marks `writeReadMarks` of the value after it reads back through
    `parseReadMarks`; a throw is 'broken' with the framework's sentences. A file's `id` must match its file name. A
    `character` may differ from the branch's only in `name` and `conversation` ('not-allowed' otherwise). Each mark
    must equal `readMark` of the two texts as this save leaves them, or be a mark the branch's file already has.
-5. For each new file, the project file's text becomes `withContentLine(…)` (ruling 6) and joins the commit.
+5. For each kind in `setUp` whose folder the project does not list, the project file's text becomes
+   `withFolderLine(…, SET_UP_FOLDER[kind])` and joins the commit (ruling 6). A new file needs nothing more.
 6. `wholeGameLoads` with every text in place: 'broken' with its sentences. Then `otherWordProblems` of that game:
    any is 'broken' with its sentences.
 7. `missing = missingWords(…)`. Where it goes: `into`: that branch. My own waiting change: its branch. Else, if
@@ -453,14 +465,16 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
 
 - [ ] **Step 1: Failing tests.** `missingWords`: none for the fixture; `{ ko: 1, ja: 2 }` for `story-gaps`; `{}` for
       `no-korean` and for a game with no words (ruling 9). `otherWordProblems`: none for `story-gaps`; names a
-      Korean text that lost `{count}` and a `controls.jump` of 13 characters. `withContentLine` then
-      `parseProject` lists the new file last and every earlier byte is unchanged; `onlyLists` is false when any
-      other byte differs or the entry names a path not in `added`. `save-many.test.ts`, each as its own test:
+      Korean text that lost `{count}` and a `controls.jump` of 13 characters. `withFolderLine` then
+      `parseProject` lists the folder last and every earlier byte is unchanged; `newFilePath` is in the listed
+      folder and undefined with none; `onlyListsFolders` is false when any other byte differs or the entry names
+      another kind or folder. `save-many.test.ts`, each as its own test:
       an Owner changes `keeper.hello.1` in English only: direct, one commit, one file, and `main` still has no
       translation problem; an Owner adds a line (the conversation and `en.json`): 'words', `{ zh: 1, es: 1, pt: 1,
       ja: 1, ko: 1 }`, on `automata/<login>`, `main` untouched; a Suggest person's complete change: 'suggestion';
       `into` another person's waiting change with `ko.json`: one more commit on their branch by me, and `into`
-      with a conversation is 'not-allowed'; a new conversation adds its file and its entry in one commit; a path
+      with a conversation is 'not-allowed'; a new conversation in a game that lists the folder is one new file and no change to `automata.toml`; in a game
+      that does not, with `setUp`, the file and the folder entry in one commit, and without `setUp` 'not-allowed'; a path
       that is not listed, a level's path, the sharing file, `automata.toml` as a file: 'not-allowed'; a character
       whose `size` changed: 'not-allowed'; a mark that is not the texts' mark: 'broken'; a stale version:
       'changed-elsewhere' and no branch left behind; a visitor: 'signed-out'; Look level: 'not-allowed'; a line
@@ -504,8 +518,7 @@ export function readyToGoIn(deps: ApiDeps, repo: Repo, change: Pull):
 ```
 
 `readyToGoIn` is Approve's steps 2, 4 and 5 as they are today, with two changes: a path may also be
-`READ_MARKS_FILE` (it must read back through `parseReadMarks`), or `automata.toml` when `onlyLists(before, after,
-the paths this change adds)`; and a change whose `missingWords` is not empty is 'words-missing'. `approveChange`
+`READ_MARKS_FILE` (it must read back through `parseReadMarks`), or `automata.toml` when `onlyListsFolders(before, after)`; and a change whose `missingWords` is not empty is 'words-missing'. `approveChange`
 becomes: the door, its own "not your own" rule, `readyToGoIn`, the merge. `POST /api/finish { game, number }`: the
 door (`save`); a waiting change; `goesIn` else 'not-allowed'; `readyToGoIn`; merge that commit with the title
 `Words complete: <title>` and the message `Finished by <login>.`; delete the branch. `showChange`'s `here` uses the
@@ -519,7 +532,7 @@ messages files and the marks file, each line matched to its key by reading the f
       branch gone, `main` has no translation problem; a Suggest person's change 'not-allowed'; a change that also
       touches a level it lists goes in; one that touches `automata.access.toml` or changes another byte of
       `automata.toml` 'not-allowed'. Approve: refuses 'words-missing'; accepts a change with the marks file and
-      one that adds a conversation with its entry. History: after alice writes Korean `keeper.bye.1` and bob ticks
+      one that sets up and adds a conversation. History: after alice writes Korean `keeper.bye.1` and bob ticks
       it, `words.ko['keeper.bye.1'].by` is alice and `read.ko['keeper.bye.1'].by` is bob; a visitor at the demo
       game gets it; a visitor elsewhere 'not-found'.
 - [ ] **Steps 2 to 4:** red, implement, green; every existing approve test still passes unchanged.
@@ -626,8 +639,6 @@ is `'changed'` when any of those versions is no longer the opened file's.
 
 ### Task 8: Story in the frame, and Story's page
 
-**Before this task: the Owner's answer on ruling 6 is in.**
-
 **Files:**
 - Create: `src/features/suite/StoryScreen.svelte`, `src/features/story/StoryPage.svelte`, `MiniMap.svelte`
 - Modify: `src/features/suite/route.ts`, `App.svelte`, `Switcher.svelte` (Story is no longer "Coming soon"),
@@ -662,9 +673,9 @@ name and flag, and sets which the map, the stage and the previews show. Pressing
 map's boxes and lines with no words, from `layoutMap` at fixed sizes once Task 10 is in, a plain row of dots until
 then; and the speakers' faces by the redesign's `character-picture.ts`), the cutscenes as cards (the redesign's
 `Thumb` of its level with a dashed rectangle element laid over it for the first camera key), the Words card
-(`wordsCard(count, language, missing)` or `wordsCardFull(count)`), then `storyAddTalk` and `storyAddScene`. The
-two Add cards open a small panel asking the name (and, for a cutscene, the level, in Task 17); until Tasks 12 and
-17 they are there and say `storySoonAdd`. A Look level sees everything and no Add card. A game with no words shows
+(`wordsCard(count, language, missing)` or `wordsCardFull(count)`), then `storyAddTalk` and `storyAddScene` (built in Tasks 12 and 17, when G6 is open; in a game that does not list
+the kind's folder the card is `storySetUpTalks` or `storySetUpScenes` with `storySetUpWhy` under it, ruling 6).
+The two Add cards open a small panel asking the name (and, for a cutscene, the level). A Look level sees everything and no Add card. A game with no words shows
 one card, `storyNoWords`, and no Add card (ruling 9). A game with words and no conversation or cutscene shows the
 two Add cards and the tip of Task 22.
 
@@ -1130,8 +1141,8 @@ says here. It changes nothing.
 - [ ] **Step 1: Failing tests.** Browser: the two questions, then a cutscene with one camera key, five seconds and
       `touched` listing the new file. Journey (five sizes, three engines): add "Big reveal" in Level 1 and see its
       stage; Try it in the game shows the level, the camera moves and "The door is open!" is on screen in the
-      framework's box, Stop returns to the stage unchanged; a save of the new cutscene puts its file and its entry
-      in the game (the pretend GitHub's `main` loads with `loadGame`).
+      framework's box, Stop returns to the stage unchanged; a save of the new cutscene puts its file
+      in the game's cutscenes folder (the pretend GitHub's `main` loads with `loadGame`).
 - [ ] **Steps 2 to 4:** red, implement, green. **Step 5:** Commit `feat(story): add a cutscene, and try one in the game`.
       Review pictures for Tasks 15 to 17. Report them.
 
@@ -1393,7 +1404,7 @@ after World's, each with its `words` key and the file change it makes in `COMMAN
 | `open-talk:<id>` | Open Keeper | the game has it | nothing |
 | `open-scene:<id>` | Open Door opens | the game has it | nothing |
 | `open-words` | Open the words | the game has words | nothing |
-| `add-talk`, `add-scene` | Add a conversation, Add a cutscene | may change | a new file and its entry in `automata.toml` |
+| `add-talk`, `add-scene` | Add a conversation, Add a cutscene | may change | a new file in the kind's folder (and, once, the folder's entry in `automata.toml`) |
 | `add-step` | Add a step | a conversation is open | a step in `nodes`, a key in the game's own messages file |
 | `add-line`, `add-choice`, `remove-step`, `start-here` | Add a line, Add a choice, Remove this step, Start here | a card is picked | `lines`, `choices`, `nodes`, `start`, and the messages files |
 | `try-talk` | Try it | a conversation is open | nothing |
@@ -1460,7 +1471,9 @@ Names in `()` take values. Every key is in all nine tables in the task that firs
 ```
 storyWords              Words
 storyNoWords            This game has no words yet. Ask your agent to add its words, then come back.
-storyAskAgent           Ask your agent to add one. Then it shows up here.
+storySetUpTalks         Set up conversations
+storySetUpScenes        Set up cutscenes
+storySetUpWhy           This adds one line to your game's list of files, once. After that, new ones just work.
 storyAddTalk            Add a conversation
 storyAddScene           Add a cutscene
 storyNameAsk            What is it called?
@@ -1564,7 +1577,7 @@ storyTipStart           Start a conversation here
 storyWhy…               one plain sentence for each `Why` and `SceneWhy` not named above
 ```
 
-`storySoonSave` and `storySoonAdd` exist only between Tasks 8 and 21 and are removed with their last use; no
+`storySoonSave` exists only between Tasks 8 and 21 and is removed with its last use; no
 "coming soon" is left on any Story screen when Task 24 ends.
 
 ## Appendix B: every Story screen state (the pictures and the scenes)
@@ -1595,7 +1608,7 @@ and `ja` and with the long-names game.
   (rulings 4 and 5, Tasks 4 to 6); the framework asks (ruling 2, Task 1); Export's form (ruling 11); the Words
   groups and a word used twice (rulings 8 and 12); the cut into pull requests (eight, above); every screen state
   (Appendix B).
-- **Not in the spec, added by this plan and flagged:** ruling 6 (the `[[content]]` entry), ruling 7 (new lines in
+- **Not in the spec, added by this plan and flagged:** ruling 6 (the folder listed once, the Owner's rule across editors), ruling 7 (new lines in
   the game's own words), ruling 9 (a language with no file), ruling 13 (history from blame).
 - **Names** used across tasks are defined once: `StoryFiles`, `StoryEdit`, `Did`, `TouchedFile` (7, 9); `MapLayout`
   (10); `MissingWords`, `Waiting.words`, `goesIn` (5, 6); `WordsHistory`, `LineBy` (6, 18, 20); `RowId` (14 to 16).
