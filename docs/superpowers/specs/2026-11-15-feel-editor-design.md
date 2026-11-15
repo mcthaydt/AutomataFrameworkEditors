@@ -193,7 +193,7 @@ ticks is a second) with two decimals and a short word; tiles a second as "tiles 
 | Move | id | What the slider says | Shown as |
 |---|---|---|---|
 | Walk | `walk-speed` | How fast it walks | 6 tiles a second |
-| Walk | `walk-grip` | How quickly it gets going and stops | 0.05 seconds; 0 says "At once" |
+| Walk | `walk-grip` | How fast it starts and stops | 0.05 seconds; 0 says "At once" |
 | Walk | `air-grip` | How quickly it turns in the air | 0.10 seconds; 0 says "At once" |
 | Jump | `jump-speed` | How high it jumps | 12, with the note's height beside it ("3 tiles") |
 | Jump | `jump-cut` | Let go early to jump lower | 1 says "Off", else "Keeps half", "Keeps a third" … as a share |
@@ -205,7 +205,7 @@ ticks is a second) with two decimals and a short word; tiles a second as "tiles 
 | Wall jump | `wall-slide-speed` | How fast it slides down a wall | 3 tiles a second |
 | Wall jump | `wall-jump-out` | How far a wall jump pushes away | 7 tiles a second |
 | Wall jump | `wall-jump-up` | How high a wall jump goes | 11, with its height |
-| Wall jump | `wall-jump-lock` | How long it keeps away from the wall | 0.13 seconds |
+| Wall jump | `wall-jump-lock` | How long it stays off the wall | 0.13 seconds |
 | Dash | `dash-speed` | How fast a dash goes | 18 tiles a second, with its length |
 | Dash | `dash-ticks` | How long a dash lasts | 0.17 seconds, with its length |
 | Dash | `dash-rest` | Wait before the next dash | 0.50 seconds |

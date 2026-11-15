@@ -11,14 +11,14 @@ switches stay in Characters (Q3 B). Q4 changed after the spec (the Owner, 2026-1
 once in `automata.toml`, the way Sound does, and no longer adds a line per effect. The spec is amended to say so
 (2026-11-15), and the plan is written that way.
 
-Overall: **8%** (the same weights as Cycle 3: stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60,
+Overall: **12%** (the same weights as Cycle 3: stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60,
 stage 5 is 10, stage 6 is 12, stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Done; Q1 to Q4 answered by the Owner | [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md) |
 | 2. Plan | Done (2026-11-15, in review): fifteen tasks in three parts, every one with its journeys. The framework's F1 to F3 are their own plan, plan G, in AutomataFramework (`docs/superpowers/plans/2026-11-15-live-tuning.md`) | [`plans/2026-11-15-feel-editor.md`](plans/2026-11-15-feel-editor.md) |
-| 3. Plan audit | Not started | |
+| 3. Plan audit | Done (2026-11-15): sound; three important fixes (two slider words over the 32-character limit, a panel no longer swallows a key's release, and the save follows the figure builder's `saveChange` instead of a second shape) and six small ones, made in the plan and two words in the spec. No Owner question; the order of the Feel and figure builder cycles is the coordinator's | [`audits/2026-11-15-feel-editor-plan-audit.md`](audits/2026-11-15-feel-editor-plan-audit.md) |
 | 4. Execution | Not started; waits for the Owner's yes to the mockups of all the editors (the Owner, 2026-11-15: mockups before any code), Cycle 3's Tasks 1 to 19, the framework's plan H and plan G, and this plan's audit; Part 3 (effects) also waits for the framework's plan F, and its content folders | |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |

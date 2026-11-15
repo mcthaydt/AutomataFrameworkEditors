@@ -61,8 +61,8 @@ Written in the tracker when each is true. Task 1 does not start before all of 1 
    with its amendment, is merged here.
 4. AutomataFramework's plan G is merged.
 5. This plan's audit is merged.
-6. **For Part 3 only (Tasks 13 to 15):** AutomataFramework's plan F (the feel runtime, with F4) and its content
-   folders (the sound formats cycle, AutomataFramework pull request 106's spec) are merged, and a short amendment to
+6. **For Part 3 only (Tasks 13 to 15):** AutomataFramework's plan F (the feel runtime, with F4; pull request 111) and
+   its content folders (the sound formats cycle: spec pull request 106, plan M pull request 112) are merged, and a short amendment to
    Part 3 is merged here (see "Part 3").
 
 **What this plan takes from the redesign as built** (names from its plan; Task 1's first step checks each on `main`
@@ -95,8 +95,11 @@ The spec leaves these to the builder, or is silent. The plan audit may challenge
 5. **A slider is the browser's own range input,** restyled (a 44 px thumb, a `--touch` fill), between a − and a +
    button. It gives arrow keys, touch and a screen reader for free. One slide is the time from its first `input` to
    its `change`.
-6. **A panel keeps its keys.** Every Feel panel stops `keydown` and `keyup` from leaving it, so a key typed in a
-   slider never reaches the game; the framework listens on the window after them. Escape in a panel puts the focus on
+6. **A panel keeps its key presses, never its key releases.** Every Feel panel stops `keydown` from leaving it, so a
+   key typed in a slider or on a button never reaches the game; the framework listens on the window after it (and
+   already leaves a key typed into an `input` alone). A `keyup` always goes on to the window: the framework lets go
+   of a key "wherever the event went" (`input/keyboard.ts`), and a walk key let go while the focus is in a panel
+   must stop the hero (plan audit E2). Escape in a panel puts the focus on
    the game; Escape on the game stops play. Pressing Play or a thumb on the game puts the focus on the game.
 7. **While playing in Feel the frame stays:** the pill, the cluster, the tools (Play reads Stop) and the numbers
    panel. This differs from World's Play, which hides them, because tuning needs them. The find bar's keys are off
@@ -127,8 +130,12 @@ The spec leaves these to the builder, or is silent. The plan audit may challenge
     controls. `plain-game` stays as it is.
 19. **A waiting change that touches a tuning file** shows the game's first level still, with the jump note, and a
     panel listing each number that changed, before and after. Before and After switch the note.
-20. **The API learns "a file the editors may write"** in one place (`EDITABLE` in `wire`), so the next editor adds a
-    kind there and nowhere else.
+20. **The API saves any content file the default branch's `automata.toml` lists**, the rule this repo's `CLAUDE.md`
+    already states, and not a fixed list of kinds. The 2D figure builder's plan (pull request 36, its Task 2) widens
+    the same save into `saveChange`, one change of several content files (and pictures) in one commit, with `list`
+    for new `automata.toml` entries. Whichever of the two cycles builds first builds that call, in that plan's shape;
+    the second adds only what it lacks. Feel needs one content file a change in Parts 1 and 2, and in Part 3 a new
+    file, a removed one and the one folder entry (plan audit E3).
 
 ## Review Focus
 
@@ -156,7 +163,7 @@ Layers, lowest first: `words`, `access`, `wire`, `exchange`, `github`, `service`
 `levels`, **`feel`**, `find`, `suite`. Task 3 adds `feel` to `LAYERS` and `PAGE_SIDE` in `tests/architecture/rules.ts`.
 
 ```
-src/features/wire/wire.ts            EDITABLE, Editable                                   Task 2
+src/features/wire/wire.ts            the change's shape (saveChange's, ruling 20)                 Task 2
 src/features/service/save.ts         saves a level or a tuning file                        Task 2
 src/features/service/open.ts         `last` for tuning files too                           Task 2
 src/features/game/files.ts           NEW contentPath, saveContent, contentCopy, drafts by kind   Task 2
@@ -223,7 +230,9 @@ chips, `[data-add-key]`, `[data-add-pad]`, `[data-picker]`, `[data-clash]`; `[da
 
 - [ ] **Step 1:** Check on `main` every name under "What this plan takes from the redesign as built" (`git grep`).
       Write any that differs in the tracker and report it before Step 2.
-- [ ] **Step 2:** Move the pin to plan G's merge commit, in the three places, as the redesign's Task 1 Steps 1 and 2.
+- [ ] **Step 2:** Move the pin to the framework's `main` as it is then, at or after plan G's merge commit, in the three
+      places, as the redesign's Task 1 Steps 1 and 2. If plan F is on that `main`, every hand-made `Host` in this
+      repo's code and tests gains its `reducedMotion()` in the same commit (plan audit E4).
       If the redesign's Task 19 already gave the fixture's hero `moves`, keep its file and add what is missing.
 - [ ] **Step 3: Failing tests** in `game.test.ts`: the fixture game loads, `usesMoves` is true, its tuning file has
       the eighteen ids of `MOVE_NUMBERS` and `crate-bounce`, and every content file equals `writeContent` of itself
@@ -251,30 +260,31 @@ chips, `[data-add-key]`, `[data-add-pad]`, `[data-picker]`, `[data-clash]`; `[da
 - Produces:
 
 ```ts
-// wire.ts: the kinds of content file an editor may write, shared by the page and the API (ruling 20)
-export const EDITABLE = ['level', 'tuning'] as const
-export type Editable = (typeof EDITABLE)[number]
+// ruling 20: if the figure builder's `saveChange` is on `main`, these are thin calls over it and the API is not
+// changed here; if not, this task builds `saveChange` in that plan's shape, with only its `content` files.
+// `ContentType` is the framework's.
 // game/files.ts
 /** The path of the listed file of this kind whose name is `<id>.json`; undefined when the project lists none. */
-export function contentPath(game: OpenGame, type: Editable, id: string): string | undefined
+export function contentPath(game: OpenGame, type: ContentType, id: string): string | undefined
 /** Saves one content file and brings the opened game up to date, as `saveLevel` did for a level. */
-export function saveContent(api: Api, game: OpenGame, type: Editable, value: { readonly id: string }, message: string): Promise<SaveResult>
+export function saveContent(api: Api, game: OpenGame, type: ContentType, value: { readonly id: string }, message: string): Promise<SaveResult>
 export interface ContentCopy { readonly name: string; readonly text: string }
-export function contentCopy(game: OpenGame, type: Editable, value: { readonly id: string }): ContentCopy | undefined
-export function keepContentDraft(store: Storage, game: OpenGame, type: Editable, value: { readonly id: string }): void
-export function dropContentDraft(store: Storage, game: OpenGame, type: Editable, id: string): void
-export function takeContentDraft<T>(store: Storage, game: OpenGame, type: Editable, id: string): { readonly value: T } | 'changed' | undefined
+export function contentCopy(game: OpenGame, type: ContentType, value: { readonly id: string }): ContentCopy | undefined
+export function keepContentDraft(store: Storage, game: OpenGame, type: ContentType, value: { readonly id: string }): void
+export function dropContentDraft(store: Storage, game: OpenGame, type: ContentType, id: string): void
+export function takeContentDraft<T>(store: Storage, game: OpenGame, type: ContentType, id: string): { readonly value: T } | 'changed' | undefined
 ```
 
-The API's save (`service/save.ts`): the path must be a file the default branch's `automata.toml` lists with a type in
-`EDITABLE`, else `not-allowed`; the bytes are `writeContent(<that type>, value)`; the id must be the file's name;
+The API's save (`service/save.ts`, or `service/change.ts` once it exists): the path must be a file the default
+branch's `automata.toml` lists as that type, else `not-allowed`; the bytes are `writeContent(<that type>, value)`; the id must be the file's name;
 the whole game must still load (so a tuning file with a range outside the framework's limits, or a controls list
 with a clash, is `broken` with the framework's own sentences). Nothing else in the save changes. `open.ts` gives a
 tuning file its `last` (who changed it and when), as a level file has.
 
 - [ ] **Step 1: Failing tests.** `save.test.ts`: an Owner saves the fixture's `hero-moves` with `jump-speed` 15: the
       pretend GitHub's file equals `writeContent('tuning', value)` and no other file changed; a Suggest-level save of
-      it is a waiting change; a character file's path is `not-allowed`; `automata.toml` is `not-allowed`; a tuning
+      it is a waiting change; a path the game does not list is `not-allowed`; a listed path given with another type
+      is `not-allowed`; `automata.toml` is `not-allowed`; a tuning
       value whose `jump-speed` range reaches 50 is `broken` and its details hold `"jump-speed" can be 4 to 30`; a
       controls list with `Space` on two actions is `broken` with the framework's sentence; a value whose id is not
       the file's name is `broken`; a stale `version` is `changed-elsewhere`. `open.test.ts`: the tuning file has
@@ -418,8 +428,9 @@ NumberRow.svelte   props: row: NumberRow, words (its label), shown, reach?: stri
                    onslide(value), onset(value), onstep(steps), onreset(), onrange()
                    `data-number={row.id}`: the label with an info disc (`data-info`, opens the one sentence under it),
                    the value (`data-shown`) and, when given, its reach (`data-reach`, a `.measure`); the Slider; when
-                   `!row.inFile` the quiet line `WORDS.notInFile`; with the info open, Reset (`data-reset`, only for a
-                   built-in number that is not at its start) and Range (`data-range`).
+                   `!row.inFile` the quiet line `WORDS.notInFile`; Reset (`data-reset`, the `reset` icon with its
+                   word, 44 px) beside the value, only for a built-in number that is not at its start, as the spec
+                   puts it; with the info open, Range (`data-range`). Plan audit E6.
 RangePanel.svelte  props: row, limits: { min, max } | undefined, onset(range), onclose()
                    Three number fields (least, most, step) with − and +, the line `WORDS.rangeLimits(min, max)` for a
                    built-in number, and after a `setRange`: its refusal in words, or `WORDS.rangeMoved` when the value
@@ -445,7 +456,7 @@ and no Reset. Reach beside a value comes in as text from Task 6; until then the 
   - `moves-panel.browser.test.ts`: for the fixture, five tabs and More, Jump's five rows in order, each label from
     the words table and none the file's `about`; "How high it jumps" shows `12`; for `walker-game`, two tabs, a
     `fall-speed` row reading "Not in the file yet" at 20, and `[data-moves-off]` reading "Double jump, wall jump and
-    dash are off." with a button that calls `oncharacters`; the info disc opens the sentence and Reset; Reset is
+    dash are off." with a button that calls `oncharacters`; the info disc opens the sentence and Range; Reset shows beside the value once the number has moved and is
     absent at the framework's value; Range opens the panel, a `max` of 50 for `jump-speed` shows the limits line and
     changes nothing, a `max` of 10 with the value at 12 calls `onrange` and shows "moved"; a More row's label is the
     file's `about` with `translate="no"` and has no Reset; on `phone`, one row shows, the arrows change it, and the
@@ -637,7 +648,10 @@ export function startPlay(options: { /* the redesign's */ readonly tunable?: boo
 ```
 
 `hero()` reads the first of `game.heroes()` for the box and the sim's player 1 entity for `Transform`, `Moves.face`
-and `Moves.stood`. World's Play passes no `tunable` and ignores the new members.
+and `Moves.stood`. World's Play passes no `tunable` and ignores the new members. Feel loads `levels/play.ts` only with `await
+import`, the redesign's rule for the one file that starts a sim (plan audit E9). `game.heroes()` is empty for a hero
+with no figure in a level with no view, so in such a game (`walker-game`, whose hero has no figure, as `plain-game`'s
+has none) `hero()` stays undefined and the note stays at the start; no journey plays `walker-game` (plan audit E8).
 
 **What a person sees** (the spec's "Feeling it", with rulings 6, 7 and 8):
 
@@ -664,7 +678,8 @@ and `Moves.stood`. World's Play passes no `tunable` and ignores the new members.
   - `feel-play.browser.test.ts` (three engines): pressing Play gives the frame `data-playing` and the focus to the
     stage; ArrowRight held with the focus on a slider moves the slider and not the hero (ruling 6), and held with
     the focus on the stage moves the hero and not the slider; Escape in the panel moves the focus to the stage and
-    does not stop; Escape again stops; after Stop the tab, `data-scale` and the undo list are as before and the
+    does not stop; Escape again stops; ArrowRight held with the focus on the stage, then a tap on a slider, then
+    ArrowRight let go: the hero stops (plan audit E2); after Stop the tab, `data-scale` and the undo list are as before and the
     slider keeps its value; **(Review Focus 2)** a hundred + presses while playing then a hundred Undos leaves the
     opened value, and the last `tune` call held it; a slide that ends where it began adds no undo step.
   - `feel-play.journey.test.ts` (five sizes, three engines; thumbs on the touch sizes, keys on `desktop`): Play,
@@ -923,7 +938,9 @@ written by the plan stage and read by the plan audit once plan F and the content
 with the framework's real names and changes nothing else:
 
 - **G1:** plan F's call that plays one feel file once at a place in a running game (the spec's F4), and whether a
-  game that is not playing can show one (if not, Show me starts a play, fires it and leaves it playing).
+  game that is not playing can show one (if not, Show me starts a play, fires it and leaves it playing). Plan F's plan
+  (pull request 111, not yet merged) names it `Game.showFeel(file, at?)`, with `Game.feel()`; the amendment checks
+  those names on `main`.
 - **G2:** the content folders' exact form in `automata.toml` and how `loadGame` reads a folder through the editors'
   `/api` (the open call must list a folder's files).
 - **G3:** the names of the events a built-in hero raises, as plan F offers them to a feel file (`hero.landed` and
@@ -931,9 +948,9 @@ with the framework's real names and changes nothing else:
 
 ### Task 13: The API can add a file to a listed folder, take one away, and set the folder up
 
-**Files:** `src/features/wire/wire.ts` (`EDITABLE` gains `'feel'`; `FileAsk`), `src/features/service/save.ts`,
-`src/features/service/files.ts` (new: add and remove), `src/features/github/repo.ts` (a commit of more than one
-file, through GitHub's tree calls), `tests/fixtures/fake-github/server.ts`, `src/features/api/api.ts`,
+**Files:** `src/features/wire/wire.ts`, `src/features/service/change.ts` (the figure builder's `saveChange`, which
+already writes several files in one commit and adds `automata.toml` entries through `list`: this task adds a removed
+file and a file new to a listed folder, and builds the call itself only if neither cycle has yet), `tests/fixtures/fake-github/server.ts`, `src/features/api/api.ts`,
 `src/features/game/files.ts`; tests beside each.
 
 **What it decides:** a feel file is saved like a tuning file when it exists. A new one may be written only into a
@@ -1045,7 +1062,7 @@ republishes the review artifact before the Owner is asked to look.
 | `atOnce`, `cutOff` | At once, Off |
 | `keepsHalf`, `keepsQuarter`, `keepsThreeQuarters`, `keepsShare(percent)` | Keeps half, Keeps a quarter, Keeps three quarters, Keeps {percent}% |
 | `number['walk-speed']` | How fast it walks |
-| `number['walk-grip']` | How quickly it gets going and stops |
+| `number['walk-grip']` | How fast it starts and stops |
 | `number['air-grip']` | How quickly it turns in the air |
 | `number['jump-speed']` | How high it jumps |
 | `number['jump-cut']` | Let go early to jump lower |
@@ -1057,7 +1074,7 @@ republishes the review artifact before the Owner is asked to look.
 | `number['wall-slide-speed']` | How fast it slides down a wall |
 | `number['wall-jump-out']` | How far a wall jump pushes away |
 | `number['wall-jump-up']` | How high a wall jump goes |
-| `number['wall-jump-lock']` | How long it keeps away from the wall |
+| `number['wall-jump-lock']` | How long it stays off the wall |
 | `number['dash-speed']` | How fast a dash goes |
 | `number['dash-ticks']` | How long a dash lasts |
 | `number['dash-rest']` | Wait before the next dash |
@@ -1138,9 +1155,13 @@ still; the others are as playing), `feel-tip-play`, `feel-tip-slide`, `feel-tip-
 - **Where this plan differs from the spec, and why.** Q4 is the Owner's later answer, so nothing appends a line an
   effect (Part 3). Find-bar ids follow the redesign (ruling 16). `jump-cut` has no "third" (ruling 12). The other
   eight languages are the build's (ruling 17). A third test game (ruling 18). A waiting tune has its own view
-  (ruling 19), which the spec does not mention and journey 5 needs. While playing, Feel keeps the frame (ruling 7).
+  (ruling 19), which the spec does not mention and journey 5 needs. While playing, Feel keeps the frame (ruling 7). The spec says both "Moves opens playing" and that Moves opens with
+  the level still and the tip "Press Play and jump."; the plan follows the second, which its first run needs (plan
+  audit E7). Two slider words are shorter than the spec first had them, because the spec's 32-character
+  limit refused them in English: `walk-grip` "How fast it starts and stops" (was 35) and `wall-jump-lock` "How long it
+  stays off the wall" (was 36); the spec's table is amended with them (plan audit E1).
 - **Open.** The three gaps of Part 3, which only the framework's cycles can close, and the Owner's approval of the
   mockups, which may amend the screens.
 - **Types.** `TuneEdit` (Task 3) is what `Feel` reports (Task 5) and `FeelScreen` saves (Task 10); `NumberRow` is
-  what `MovesPanel` draws; `Playing` (Task 8) is what `Feel` drives; `Changed` (Task 12) feeds `step`; `Editable`
-  (Task 2) gains `'feel'` in Task 13.
+  what `MovesPanel` draws; `Playing` (Task 8) is what `Feel` drives; `Changed` (Task 12) feeds `step`; Task 2's
+  content calls take the framework's `ContentType`, and Task 13 adds a removed file and a file new to a folder.
