@@ -8563,3 +8563,18 @@ html body.sh.has-tilestrip .tilestrip {
 html body.sh .menup[data-under=".tt.more"] {
   margin-top: 10px;
 }
+
+/* ----- 23. Two last tidy-ups from the pictures: a thing's name stays on one line in the narrow settings panel, and the
+   colours to paint with sit four and four on an upright phone, so no "+" is left alone on a second row ----- */
+html body.sh .sh-right .ihead {
+  gap: 4px;
+  padding-left: 12px;
+  padding-right: 6px;
+}
+
+@media (max-width: 500px) {
+  html body.sh.has-tilestrip .strip {
+    max-width: 216px;
+    margin-inline: auto;
+  }
+}
