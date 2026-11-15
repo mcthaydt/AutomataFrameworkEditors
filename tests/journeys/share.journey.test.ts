@@ -1,6 +1,7 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
+import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -13,7 +14,6 @@ import {
   signIn,
   thingNamed,
 } from '../fixtures/journey.ts'
-import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 
@@ -91,8 +91,6 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await text(grandpa, WORDS.waitingRow(1))
     await grandpa.page.getByRole('link', { name: /waiting/ }).click()
     await grandpa.page.locator('a.row').first().click()
-    // Grandpa looks at the picture first; the test does too, so no press lands while the page is still settling.
-    await thingNamed(grandpa.page, 'crate-1').waitFor()
     await grandpa.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
     await text(grandpa, WORDS.approved)
 

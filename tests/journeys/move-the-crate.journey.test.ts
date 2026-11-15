@@ -1,22 +1,22 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
+import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
-  OLD_SIZES,
   openLevel,
   openPage,
   pictureColourBeside,
   pictureColourUnder,
   pressSave,
+  SIZES,
   setupJourneys,
   signIn,
   statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
-import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 
@@ -38,27 +38,24 @@ const crateAt = (x: number): Level => ({
   ...level1,
   things: level1.things.map((t) => (t.id === 'crate-1' ? { ...t, x } : t)),
 })
-/** The framework's sky and the crate character's box colour: the game has art, so the picture shows neither at a crate. */
+/** The framework's sky and the crate fixture's colour: what the picture must show where a thing is and is not. */
 const SKY = '#9fd3f0'
-const CRATE_BOX = '#c9a227'
+const CRATE = '#c9a227'
 const says = (j: JourneyPage, words: string) =>
   expect.poll(async () => (await statusLine(j.page).textContent())?.trim()).toBe(words)
 
-describe.each(OLD_SIZES)('at %s', (size) => {
+describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
   test('the owner drags the crate and saves: it is in the game, written as the framework writes it', async () => {
     const j = await open(size)
     await signIn(j.page)
     await openLevel(j.page)
-    // The crate is its figure's picture: not sky, and not the box colour a game with no pictures would show.
-    const crate = await pictureColourUnder(j.page, 'crate-1')
-    expect(crate).not.toBe(SKY)
-    expect(crate).not.toBe(CRATE_BOX)
+    expect(await pictureColourUnder(j.page, 'crate-1')).toBe(CRATE)
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await says(j, WORDS.statusDirty)
-    // What the person sees: the crate's picture is drawn at its new place and is gone from the place it left. The
-    // buttons moving proves nothing about the picture (the first build moved the buttons and never redrew).
-    await expect.poll(() => pictureColourUnder(j.page, 'crate-1')).toBe(crate)
-    await expect.poll(() => pictureColourBeside(j.page, 'crate-1', -2)).not.toBe(crate)
+    // What the person sees: the crate is drawn at its new place and the place it left is sky again. The buttons moving
+    // proves nothing about the picture (the first build moved the buttons and never redrew).
+    await expect.poll(() => pictureColourUnder(j.page, 'crate-1')).toBe(CRATE)
+    await expect.poll(() => pictureColourBeside(j.page, 'crate-1', -2)).toBe(SKY)
     await pressSave(j.page).click()
     await says(j, WORDS.savedDirect)
 

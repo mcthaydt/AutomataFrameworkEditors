@@ -8,7 +8,6 @@ import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
 import { readSharing, writeSharing } from './people.ts'
-import { servePicture } from './picture.ts'
 import { saveLevel } from './save.ts'
 import { listWaiting, showChange } from './waiting.ts'
 
@@ -35,11 +34,7 @@ const ROUTES: Readonly<Record<string, Route>> = {
   'POST /api/sharing': (deps, request) => writeSharing(deps, request),
   'GET /api/game': (deps, request, url) => openGame(deps, request, gameOf(url)),
 }
-const PATHS = new Set([
-  '/api/token',
-  '/api/picture',
-  ...Object.keys(ROUTES).map((key) => key.split(' ')[1] ?? ''),
-])
+const PATHS = new Set(['/api/token', ...Object.keys(ROUTES).map((key) => key.split(' ')[1] ?? '')])
 
 const notFound = (): Response => answer({ ok: false, problem: 'not-found' })
 
@@ -50,11 +45,6 @@ export async function handleApi(request: Request, env: ApiEnv, deps: Partial<Dep
     // Wrapped, because a Worker's `fetch` throws when it is called as a method of another object.
     const fetcher: typeof fetch = deps.fetcher ?? ((input, init) => fetch(input, init))
     if (url.pathname === '/api/token') return await handleTokenRequest(request, env, fetcher)
-    // A picture is the one answer that may be kept, so it makes its own response.
-    if (url.pathname === '/api/picture')
-      return request.method === 'GET'
-        ? await servePicture({ env, fetcher, now: deps.now ?? Date.now }, request, url)
-        : answer({ ok: false, problem: 'bad-request' })
     const route = ROUTES[`${request.method} ${url.pathname}`]
     if (route === undefined) return answer({ ok: false, problem: 'bad-request' })
     return answer(await route({ env, fetcher, now: deps.now ?? Date.now }, request, url))

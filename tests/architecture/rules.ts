@@ -39,6 +39,8 @@ const PAGE_SET: ReadonlySet<string> = new Set(PAGE_SIDE)
 /** Code the API runs must not need a page: these features and the two shared ones. */
 const NO_PAGE: ReadonlySet<string> = new Set([...API_SIDE, 'access', 'wire'])
 const NO_PAGE_PATTERN = /\b(?:window|document|localStorage|sessionStorage|navigator)\b/
+/** The only file that may draw with Pixi. */
+const PIXI_FILE = 'src/features/levels/level-canvas.ts'
 /** The only file a Cloudflare Function may import. */
 const SERVICE_ENTRY = 'src/features/service/service.ts'
 
@@ -222,11 +224,11 @@ export function checkArchitecture(files: SourceFiles): Violation[] {
       if (spec === 'effect' || spec.startsWith('effect/') || spec.startsWith('@effect/')) {
         add(file, 'package-confined', 'Effect is not used here: the API is plain TypeScript.')
       }
-      if (/^pixi\.js(\/|$)/.test(spec)) {
+      if (/^pixi\.js(\/|$)/.test(spec) && file !== PIXI_FILE) {
         add(
           file,
           'package-confined',
-          `${spec} is not imported here: the framework draws the level, with its own Pixi.`,
+          `${spec} is only for ${PIXI_FILE}: PixiJS draws the level and nothing else.`,
         )
       }
       if (spec === 'smol-toml' && feature !== 'access') {

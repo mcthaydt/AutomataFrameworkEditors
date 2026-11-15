@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
+import { WORDS } from '#src/features/words/words.ts'
 import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -13,7 +14,6 @@ import {
   signIn,
   thingNamed,
 } from '../fixtures/journey.ts'
-import { WORDS } from '../fixtures/words.ts'
 
 setupJourneys()
 
