@@ -6,24 +6,19 @@ we do that everywhere? And also add a bit of apple frosted glass semi-transparen
 spec I think." This page is the spec. The plan follows it; nothing here changes a mockup, and the mockups-first stop
 still holds (no editor code until the Owner approves the mockups).
 
-## Questions for the Owner (plain words)
+## The Owner's answers (2026-11-15)
 
-Each has a recommended answer. The plan is written on the recommended answer unless the Owner says otherwise.
+The Owner said "Yes to both" to the two questions this spec asked (18:30 UTC):
 
-1. **Should the level slide under the see-through panels?** Today the level is always fitted into the empty room
-   between the panels, so behind every panel there is only the dark background. Frosted glass over plain dark grey
-   looks almost the same as a solid panel: you would barely see the glass. *Recommended:* the level still **starts**
-   fitted in the clear room, so no panel ever hides it when you open a level, press "Whole level" or turn the device;
-   but once you drag or zoom it yourself, it may slide under a panel, and you see it softly blurred through the glass.
-   *Other choice:* the level never goes under a panel, and the glass is only a faint lift over the dark background.
-2. **Should the top bar float too?** Today the bar along the top (the game, World, the level's name, Play, "Up to
-   date") runs edge to edge. *Recommended:* yes, it becomes a floating bar held off the edges like the other panels,
-   so every panel on every screen looks the same. *Other choice:* the top bar stays where it is, and only the panels
-   under it float.
-3. **A switch for the glass.** *Recommended:* the glass is on, and a "See-through panels" choice goes in Settings,
-   under "For me" (Choose for me, On, Off). "Choose for me" turns the glass off when the iPad, phone or computer is set
-   to reduce see-through things (Apple calls it "Reduce Transparency"). No question needed unless the Owner wants no
-   switch.
+1. **The level slides under the see-through panels once you move it.** It still **starts** fitted in the clear room,
+   so no panel hides it when you open a level, press "Whole level" or turn the device; once you drag or zoom it
+   yourself, it may slide under a panel and you see it softly blurred through the glass (see "The level under the
+   glass").
+2. **The top bar floats too**, as a bar held off the edges like the other panels.
+
+The third point stands as written, with no question asked: the glass is on, and a "See-through panels" choice goes in
+Settings, under "For me" (Choose for me, On, Off). "Choose for me" turns the glass off when the device is set to reduce
+see-through things (Apple calls it "Reduce Transparency").
 
 ## Principles served
 
@@ -75,7 +70,7 @@ glass").
 
 | Size | Today | With floating docks |
 | --- | --- | --- |
-| **iPad sideways** (1210 × 834) and **computer** (1280 × 800) | List or rail, inspector, band and Put in game float (4e7707a); top bar runs edge to edge | The same, and the top bar floats as a bar 8 points in, its height unchanged. The list, rail and inspector start 8 points under it. |
+| **iPad sideways** (1210 × 834) and **computer** (1280 × 800) | List or rail, inspector, band and Put in game float (4e7707a); top bar runs edge to edge | The same, and the top bar floats as a bar 8 points in, its height unchanged (answer 2). The list, rail and inspector start 8 points under it. |
 | **iPad upright** (834 × 1210) | Top bar edge to edge; tools float; settings sheet floats (4e7707a); the list ("In this level") opens over the level | Top bar floats. Tools and sheet as now. The list opens as a floating card from the left edge, 8 points in, as tall as the room between the top bar and the tools. The closed sheet on a page with a band (84 points) floats too. |
 | **Phone upright** (390 × 844) | Top bar edge to edge; peek line and tools float; the open sheet is stuck to the bottom edge | Top bar floats (its 56 points of height stay; the 8-point inset comes from the canvas). Peek and tools as now. The open sheet floats: 8 points in at the sides and the bottom (above the home bar), its lower corners 28, at most 60% of the screen's height, and the level's fit moves up above it as it does today. The tray (Add's choices) floats the same way. |
 | **Phone sideways** (844 × 390) | Top bar edge to edge; the tools are a column stuck to the left edge; the inspector is a strip stuck to the right edge | Top bar floats. The tools become a floating column 8 points in (inside the notch's safe area), only as tall as its tools. The closed inspector becomes a small floating tab on the right with the picked thing's name; opened, it is a floating card 300 points wide, the full height under the top bar. The level is fitted between the two. |
@@ -199,7 +194,7 @@ other content; nothing in the canvas changes for the glass.
 
 ## The level under the glass
 
-On the recommended answer to question 1:
+As the Owner decided (answer 1):
 
 - The level's **starting fit** (opening a level, "Whole level", turning the device, opening or closing a panel) is
   counted from the cards' inner edges, exactly as today. No panel covers any of the level at the start.

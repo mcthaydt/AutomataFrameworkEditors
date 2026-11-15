@@ -6,14 +6,15 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 The Owner, reviewing the floating side panels at 4e7707a: floating docks everywhere, with a little of Apple's
 frosted glass. Spec: [`specs/2026-11-15-floating-glass-docks-design.md`](specs/2026-11-15-floating-glass-docks-design.md).
-Progress on this step: **100%** for the spec (three questions for the Owner at its top, each with a recommended
-answer); the plan is next (Fable, medium), then the mockups. No mockup changed.
+Progress on this step: **100%** for the spec (the Owner said "Yes to both", 18:30 UTC: the level slides under the glass
+once moved, and the top bar floats; "See-through panels" stays); the plan is next (Fable, medium), then the mockups.
+No mockup changed.
 
-- Every dock floats 8 points in at all five sizes, inside the safe areas; the top bar floats too (question 2).
+- Every dock floats 8 points in at all five sizes, inside the safe areas; the top bar floats too (the Owner's yes).
 - Glass: tint `rgb(30 30 30 / 0.72)`, `blur(24px) brightness(0.45) saturate(1.4)`, a faint white edge and a top shine;
   quiet words on glass are `#a8a8a8` so they pass 4.5 to 1 over pure white. Solid when the browser has no
   `backdrop-filter`, when the device asks for less see-through or more contrast, or when "See-through panels" is Off.
-- The level starts clear of every panel but may be dragged under them (question 1); the band along the bottom, menus,
+- The level starts clear of every panel but may be dragged under them (the Owner's yes); the band along the bottom, menus,
   tips and reading cards stay solid; never glass inside glass. Speed is proven on the Owner's iPad with a test page.
 
 ## The shell and World mockups (roadmap slice 3): the Owner's review notes (2026-11-15)
