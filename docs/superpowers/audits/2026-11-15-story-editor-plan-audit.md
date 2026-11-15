@@ -69,13 +69,21 @@ no framework plan builds them yet.
 that kind gets the one-time **Set up stories** card on Story's page, which adds exactly those two folder lines in a
 save of its own, as Sound's "Set up sounds" does". Then:
 
-- A new gate, **G6: the framework's content folders on its `main`, and the pin moved to it**, holding Tasks 5, 6, 8,
-  12 and 17 (the "Add" cards and the paths they write). Everything else can be built without it.
-- `project-line.ts` becomes the folder line: `withFolderLines(text, kinds)` and `onlyAddsFolders(before, after)`,
-  and `newFilePath` gives `<folder>/<id>.json` for the listed folder. Task 5 step 3 accepts a new file only directly
-  in a listed folder of its kind, named for its id. `readyToGoIn` and Approve (Task 6) read what is listed by
-  expanding folders the framework's way (whatever its loader does: one level, file-name order), not by the `path`
-  set `listedContent` returns today (`src/features/service/waiting.ts:11`).
+- A new gate, **G6: the framework's content folders on its `main`, and the pin moved to it** (framework plan M,
+  AutomataFramework pull request 118: `FolderRef`, `Project.folders` and `withFolders` in
+  `src/features/content/project-write.ts`), holding Tasks 5, 6, 8, 12 and 17 (the "Add" cards and the paths they
+  write). Everything else can be built without it.
+- **The editor writes no `automata.toml` bytes of its own.** `project-line.ts` and its `withContentLine` go. "Set up
+  stories" sends the two `FolderRef`s (`conversation` at `content/conversations`, `cutscene` at `content/cutscenes`)
+  and the API writes the project file with the framework's `withFolders(text, refs)`, so the bytes are the ones an
+  agent's `automata` command writes (one blank line, then the block; nothing else touched; the same text back when
+  both are listed). Added 2026-11-15 from the Sound plan audit: an editor-side folder line made different bytes.
+  The page shows and exports the same `withFolders` output. A new file's path is `<folder>/<id>.json` for the folder
+  `Project.folders` lists for its kind. Task 5 step 3 accepts a new file only directly in a listed folder of its
+  kind, named for its id. `readyToGoIn` and Approve (Task 6) read what is listed from `parseProject`'s `content` and
+  `folders` the framework's way (one level, file-name order), not from the `path` set `listedContent` returns today
+  (`src/features/service/waiting.ts:11`), and accept a changed `automata.toml` only when it equals `withFolders` of the
+  default branch's text with the change's refs (the shared `allowedPaths`, I12).
 - `onlyLists` and the `storyAskAgent` fallback are dropped; ruling 6's "reported to the coordinator for the Owner"
   is answered.
 - The CLAUDE.md exception (Task 8) reads "the one-time Set up stories line in `automata.toml`", not one line per file.
@@ -207,7 +215,8 @@ word: Feel and Scenes now save through the figure builder's (plan G's Task 2, Ed
 change of several files, `ChangeAsk` and `ChangeFile` in `wire.ts`, `saveChange(api, game, ask)` on the page, and
 `saveFiles` on the git data routes in `repo.ts`; and Approve and a waiting change's `here` judge every touched path
 with one shared helper, `allowedPaths` in `service/changed.ts` (the Scenes plan audit's E1). Story's plan makes its own
-`/api/save-many`, `SaveManyAsk`, `FileSave`, a second `saveFiles` and its own path rules in `readyToGoIn`. Two save
+`/api/save-many`, `SaveManyAsk`, `FileSave`, a second `saveFiles` and its own path rules in `readyToGoIn`. **`/api/save-many`,
+`SaveManyAsk`, `SaveManyAnswer`, `FileSave` and `api.saveMany` are dropped**: nothing of them survives this finding. Two save
 shapes for one job is the incohesion the audit prompt asks about, and two `saveFiles` would drift. *Amend Tasks 4 to
 7:* Story saves through `saveChange` and `ChangeAsk`, and widens them only where Story needs more, each named once:
 
@@ -218,8 +227,8 @@ shapes for one job is the incohesion the audit prompt asks about, and two `saveF
   Whichever lands first carries I4's fixes (a refused move told by looking, no committer, a truncated tree) and
   Story's versions-on-the-target-branch rule (with `into`, a file's version is checked on that change's branch, not
   the default branch as plan G says).
-- `allowedPaths` gains `READ_MARKS_FILE` and, after C2, a new file directly in a listed folder of its kind and the
-  one-time folder lines; `readyToGoIn` (Task 6) calls it instead of its own rules. `onlyLists` goes (C2).
+- `allowedPaths` gains `READ_MARKS_FILE` and, after C2, a new file directly in a listed folder of its kind and an
+  `automata.toml` equal to the framework's `withFolders` of the default branch's text; `readyToGoIn` (Task 6) calls it instead of its own rules. `onlyLists` goes (C2).
 - `missingWords`, `otherWordProblems` and the words routing (Task 5 steps 6 and 7) stay Story's, called from the
   shared route when the change touches a messages file. Story's character rule (only `name` and `conversation` may
   differ) and its marks rule stay too, as checks inside that route for those kinds.
