@@ -32,15 +32,15 @@ ground and the level only places what plays (Q1); all of the 3D builder's powers
 on the path to Release 1, because the demo's real art comes from the builders. It is built on Cycle 3's frame, after
 Cycle 3's build and audits. Each slice has a framework plan (AutomataFramework) and a builder plan (here).
 
-Overall: **8%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Merged (PR 31, 2026-11-15); Q1 and Q2 answered by the Owner | [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md) |
 | 2. Plan | Slice 1 (ground and materials) written, in review (2026-11-15). The builder's plan: thirteen tasks in five pull requests (Tasks 1 to 12 are 7% each, Task 13 is 6%, the last 10% is the final green run with the review pictures): the pin and the photos served; several files of a game saved in one change; saving a scene with its picture on the API; every change a scene's ground can take; the scene painted in the page by the framework's painter; the Scenes screen on the frame; Paint and Erase (a slope is drawn as a line and fills under itself); the Materials panel; scenes on the game's page, a first scene and "Edit this scene"; Save, Export and the waiting change; the first run; nine languages and every screen pictured; Play. **Its build waits on four gates:** the Owner's approval of the mockups of all editors (the Owner, 2026-11-15), Cycle 3's build and audits, the framework's slice 1 merged, and for Play the level editor's Play and the hero on slopes. Seventeen rulings for the audit; four depart from the spec (the first run until props exist, the empty state's second button, no size control, three tools shown). Slices 2 to 6 are outlined. The framework's plan is in AutomataFramework | [`plans/2026-11-15-scenes-1-ground-and-materials.md`](plans/2026-11-15-scenes-1-ground-and-materials.md); the framework's: [`2026-11-15-scenes-1-ground-and-materials.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/plans/2026-11-15-scenes-1-ground-and-materials.md) |
-| 3. Plan audit | Not started: slice 1, both plans (Opus, medium effort) | |
-| 4. Execution | Not started | |
+| 3. Plan audit | Done (2026-11-15), slice 1, both plans: ready once fixed, and the fixes are in the plans. One blocking finding (a Suggest-level scene save could never be approved: `approve.ts` and `waiting.ts` refuse pictures, atlases and `automata.toml`; one shared `allowedPaths` fixes it for every editor), six important (the save goes through the figure builder's `saveChange`, as Feel's does; ruling 8 kept with a palette check; `readBytes` reads a picture over 1 MB by its blob; the test game's pictures stay uncommitted; the live repaint uses the framework's new `showScene`; the flat scene takes its colours), five minor. **The Owner's four answers (2026-11-15, 01:02 UTC)** are rulings 1, 13, 14 and 15 as written: only working tools; two simple starts; "Paint ground, press Save"; a scene's size by agents only for now. The four gates still hold | [`audits/2026-11-15-scenes-1-plan-audit.md`](audits/2026-11-15-scenes-1-plan-audit.md); the framework's: [`2026-11-15-scenes-1-plan-audit.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/audits/2026-11-15-scenes-1-plan-audit.md) |
+| 4. Execution | Not started: waits on the four gates | |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |

@@ -18,6 +18,9 @@ saves several files of a game in one change. Nothing of the frame is rebuilt: Sc
 journeys with Playwright 1.63.0), `@automataframework/framework` pinned by commit, Cloudflare Pages Functions for
 `/api`. **No new dependency.**
 
+**Plan audit:** [`audits/2026-11-15-scenes-1-plan-audit.md`](../audits/2026-11-15-scenes-1-plan-audit.md) (stage 3,
+2026-11-15). Its fixes are written into this plan; each fixed place names its finding (E1 to E7, M1 to M5).
+
 **Spec:** [`docs/superpowers/specs/2026-11-15-2d-environment-builder-design.md`](../specs/2026-11-15-2d-environment-builder-design.md).
 Read "The builder: World's Scenes part", "Slices" (this is the builder's part of slice 1), "Testing" and
 "Constraints". Principles served: 5 (the environment builder, carried over), 2 (touch first), 1 (every action ends in
@@ -52,7 +55,8 @@ No task here starts until all of the first three are true, each written in the t
   session before the next is opened.
 - **No new dependency.** If a task seems to need one, stop and report.
 - **An editor writes only content files and their painted pictures:** here `content/scenes/<id>.json`, its `.png` and
-  `.atlas.json`, a level's file and `automata.toml` (one added `[[content]]` block, by the framework's `listContent`).
+  `.atlas.json`, a level's file and `automata.toml` (one added `[[content]]` block, by the framework's `listContent`),
+  all through the one multi-file save every editor plan shares, `saveChange` (E2).
   Every JSON byte is `writeContent`'s; every picture byte is `artFiles`'.
 - **The device keeps** only what `CLAUDE.md` lists. This plan adds no key: the first run counts in `af.tip.scenes`
   (the `af.tip.*` family), an unsaved scene is an `af.draft:…` entry, and `af.panels` gains the name `materials`.
@@ -78,9 +82,10 @@ No task here starts until all of the first three are true, each written in the t
 
 ## Rulings made by this plan
 
-The spec leaves these to the builder. The plan audit may challenge each; the Owner may overrule any.
+The spec leaves these to the builder. Rulings 1, 13, 14 and 15 are the Owner's (cards answered 2026-11-15, 01:02
+UTC); the plan audit's changes to the others are marked.
 
-1. **Three tools in this slice: Paint, Erase, Play.** Move and Add have nothing to act on until props (slice 2), so
+1. **Three tools in this slice: Paint, Erase, Play** (the Owner: "Only working ones"). Move and Add have nothing to act on until props (slice 2), so
    they are not shown. Play joins in Task 13.
 2. **Four shapes on screen, nine in the file.** The strip offers Solid, Slope, Ledge and Back wall. Solid, Ledge and
    Back wall paint the tiles a finger passes over. **A slope is drawn as a line:** press where it starts, drag to
@@ -107,15 +112,16 @@ The spec leaves these to the builder. The plan audit may challenge each; the Own
    not show (`top`, `edge`, `turn`, `facet` and the rest) are kept as the file has them.
 7. **A material in use cannot be removed.** Remove says "Paint over this ground first" when a letter of the ground
    uses it.
-8. **The page paints the pictures; the API checks their shape, not their pixels.** On Save the page sends the scene's
-   value and the picture `artFiles` painted from it. The API writes the JSON and the atlas itself, and takes the
-   picture only at the scene's painted path, only as a PNG whose size is what `sceneSheet` says, at most 2 MB.
-   Painting again inside the API would mean carrying the 38 photos (2.9 MB) and the pipeline's work in a Cloudflare
-   Function. A wrong picture cannot break a game: the game's own `automata check` says "This picture is older than its
-   scene file", and the builder repaints on the next save. **The audit should weigh this against painting in the
-   API.**
+8. **The page paints the pictures; the API checks them without painting** (weighed and kept by the plan audit, E3).
+   On Save the page sends the scene's value and the picture `artFiles` painted from it. The API writes the JSON and
+   the atlas itself (`atlasText`), and takes the picture only at the scene's painted path, only as an 8-bit palette
+   PNG (type 3) whose size is what `sceneSheet` says, whose `PLTE` is exactly the scene's paints in order after the
+   clear entry, whose only chunks are `IHDR`, `PLTE`, `tRNS`, `IDAT` and `IEND`, and which `decodePng` reads whole,
+   within the change's 6 MB. Painting again inside the API would mean carrying the 38 photos (2.9 MB) and the
+   pipeline's work in a Cloudflare Function. A wrong picture cannot break a game: the game's own `automata check`
+   says "This picture is older than its scene file", and the builder repaints on the next save.
 9. **One save, one change to the game.** A scene, its picture, its atlas, and (when started from a level) the level
-   and `automata.toml` go into the game together, never one without the others (GitHub's tree and commit calls).
+   and `automata.toml` go into the game together, never one without the others, through `saveChange` (E2).
 10. **Library photos are served by this site** from `/photos/`, copied at build time from the pinned framework
     package's `photos/` folder. A game's own photos are read through `/api/picture`. No photo is uploaded from the
     builder in this slice: a game's own photos are added by its agent.
@@ -124,19 +130,21 @@ The spec leaves these to the builder. The plan audit may challenge each; the Own
 12. **Names.** A scene has only an id; its name in words is `nameOf(id)` ("meadow" is "Meadow"). A scene started
     from a level takes the id the framework's command would (`level-1` gives `scene-1`); a new one is the first free
     `scene-<n>`. Renaming a file is the agent's work.
-13. **The empty state in this slice** has "Start from Level 1" (one button a level that has no scene, the first as
+13. **The empty state in this slice** (the Owner: "Two simple starts") has "Start from Level 1" (one button a level that has no scene, the first as
     the main button) and "Start with flat ground" (32 by 18 tiles at 16 pixels, the bottom three rows solid in the
-    library's `dirt`). "Make a whole scene" replaces the second in slice 5.
-14. **The first run in this slice** (the spec's is "Add a tree", which needs slice 2): the tip **"Paint some
-    ground"** by the paint strip; once a stroke lands, **"Press Save"** (or "Press Export" for a visitor) by the
-    cluster; then the stamp. Slice 2 replaces it with the spec's. *The Owner may want no first run until slice 2;
-    that is the alternative.*
-15. **A scene's size is not changed in the builder in this slice.** The spec names no control for it. Until a slice
+    library's `dirt`, its three paints measured from the photo, E7). "Make a whole scene" replaces the second in
+    slice 5.
+14. **The first run in this slice** (the Owner: "Paint ground, press Save"; the spec's is "Add a tree", which needs
+    slice 2): the tip **"Paint some ground"** by the paint strip; once a stroke lands, **"Press Save"** (or "Press
+    Export" for a visitor) by the cluster; then the stamp. Slice 2 replaces it with the spec's.
+15. **A scene's size is not changed in the builder in this slice** (the Owner: "Agents only for now"). The spec
+    names no control for it. Until a slice
     does (the outline puts it in slice 5), a converted scene has its level's size, a flat one is 32 by 18, and an
-    agent changes `size`. Reported to the coordinator as a gap in the spec.
+    agent changes `size`.
 16. **While a finger drags,** the tiles under it show at once as the material's swatch (page elements over the
     stage), and the painter runs at most once a frame with the newest scene, so the real edges and corners follow as
-    the finger moves and a slow device never queues work.
+    the finger moves and a slow device never queues work. The new picture goes onto the screen by the framework's
+    `LevelPicture.showScene(content, art)` (E6), never by remaking the picture.
 17. **A waiting change that touches a scene** shows the scene's ground before and after, from the painted pictures
     on each side, in the place a level's before and after are shown.
 
@@ -171,7 +179,8 @@ src/features/scenes/
   scenes.ts            the feature's entry                                         Task 4 on
   edit.ts              every change a scene's ground and materials can take         Task 4, 8
   slope.ts             a drag as a slope line; the ground it stands on              Task 4
-  history.ts           undo and redo of whole scenes                                Task 4
+  history.ts           undo and redo of whole scenes (or `src/lib/history.ts`,     Task 4
+                       shared with the figure builder, whichever lands first, M2)
   photos.ts            the photos a scene needs, fetched and decoded                Task 5
   paint.ts             the scene painted in the page; the level made in memory      Task 5
   swatch.ts            a material as a small picture                                Task 5
@@ -209,14 +218,15 @@ painted without reading pixels); `[data-photo="<id>"]` in Add a material; `[data
 **Files:**
 - Modify: `package.json` (the pin, both places), `pnpm-lock.yaml`, `vite.config.ts`, `tests/architecture/rules.ts`
 - Create: `scripts/copy-photos.ts`, `src/features/scenes/scenes.ts` (empty entry with its comment)
-- Create: `tests/fixtures/game/content/scenes/meadow.json`, `meadow.png`, `meadow.atlas.json`,
-  `tests/fixtures/game/content/levels/meadow-walk.json`; modify the fixture's `automata.toml`
+- Create: `tests/fixtures/game/content/scenes/meadow.json`, `tests/fixtures/game/content/levels/meadow-walk.json`;
+  modify the fixture's `automata.toml` and `tests/fixtures/game/pictures.ts` (E5: no picture is committed; `artFiles`
+  is handed the photos, read from the pinned package's `photos/` in Node and fetched from `/photos/` in a browser)
 - Test: `tests/pin.test.ts` (or where the redesign's Task 1 put the pin's test), `tests/fixtures/game.test.ts`,
   `tests/workflows/photos.test.ts`, `tests/architecture/rules.test.ts`
 
 **Interfaces:**
-- Consumes: the framework's `tests/fixtures/scene-game/` (its `meadow` scene and painted files, copied byte for
-  byte, so no picture is made by hand).
+- Consumes: the framework's `tests/fixtures/scene-game/` (its `meadow` scene's JSON, copied byte for byte; its
+  pictures are painted at test time like every picture of the test game, E5).
 - Produces: `/photos/<file>` in `dist/` and on the dev and journey servers; the fixture game's `meadow` (every shape,
   all three kinds of material) used by `meadow-walk` (one crate on the slope's top, one start); `plain-game` keeps no
   scene.
@@ -235,7 +245,11 @@ journey servers it serves the same folder at `/photos/`.
       write the plugin. **Step 4:** Push; green, every existing journey still green (no existing level changed).
 - [ ] **Step 5:** Commit `chore: pin the framework with scenes, and serve its photos`. Report `Task 1`.
 
-### Task 2: Several files of a game in one change
+### Task 2: Several files of a game in one change (only if `saveChange` is not on `main`, E2)
+
+If the figure builder's (or Feel's) `saveChange` has landed, this task is only E4's `readBytes` fallback below and
+Task 3 adds to `saveChange`. If not, this task builds the several-file commit in that plan's shape, and its stale
+answer is `changed-elsewhere`, the problem `saveFile` gives.
 
 **Files:**
 - Modify: `src/features/github/repo.ts`, `src/features/github/github.ts`, `tests/fixtures/fake-github/server.ts`
@@ -253,7 +267,7 @@ export interface FileToSave {
   /** The version this file must still have on the branch; `null`: it must not exist; left out: not checked. */
   readonly version?: string | null
 }
-/** Every file in one commit on `branch`, or none. `stale` (the problem `saveFile` gives for an old version) when a
+/** Every file in one commit on `branch`, or none. `changed-elsewhere` (the problem `saveFile` gives for an old version) when a
  *  checked file's version differs. Tries again, at most three times, when only the branch's head moved. */
 saveFiles(ask: { branch: string; files: readonly FileToSave[]; message: string; author: { name: string; email: string } }):
   Promise<Answer<{ commit: string; versions: Readonly<Record<string, string>> }>>
@@ -268,11 +282,20 @@ five routes over the store it has.
       given; a wrong `version` writes nothing and answers the stale problem ("the file moved"); `version: null` on a
       path that exists writes nothing; a head moved by another file's commit between the read and the `PATCH` still
       saves, on top of it; a head moved three times answers the problem `saveFile` gives when GitHub is busy; a
-      picture's bytes read back with `readBytes` are the bytes sent.
+      picture's bytes read back with `readBytes` are the bytes sent, and so are a 1.5 MB picture's (E4: when the
+      contents call answers `encoding: "none"`, `readBytes` reads `git/blobs/<sha>`, a route the pretend GitHub
+      gains).
 - [ ] **Steps 2 to 4:** red, implement, green. **Step 5:** Commit `feat(github): save several files in one change`.
       Report `Task 2`.
 
-### Task 3: Saving a scene, on the API
+### Task 3: Saving a scene, on the API (in `saveChange`, E2)
+
+The route below is how the work was first planned. As fixed by the audit, nothing new is routed: `saveChange`'s
+`ChangeAsk` carries the scene (`content`, type `scene`), its picture and atlas (`picture`, `atlas`), the level, and a
+`list` entry for a new scene; this task adds to `saveChange`'s checks exactly the steps 2 to 4 below that it lacks
+(the picture beside a `scene`, by `sceneSheet` and ruling 8's palette check; the atlas by `atlasText`; a level in the
+change naming this scene). `SceneSaveAsk`, `SceneSaveAnswer` and `save-scene.ts` are not made; the page's
+`saveScene` (Task 10) calls `saveChange`. The tests below stay, against `saveChange`.
 
 **Files:**
 - Create: `src/features/service/save-scene.ts`
@@ -319,13 +342,14 @@ What the API does, in order, trusting nothing the page says:
    `content/scenes`, and must not be listed; the project's new text is `listContent(text, { type: 'scene', path })`.
 3. `writeContent('scene', value)`; its `id` is the file's name; the same for `level` with `writeContent('level', …)`,
    whose path must be a listed level and whose `scene` must be this scene's id.
-4. The picture: at most 2 MB of bytes; the eight bytes of a PNG's signature; its width and height (bytes 16 to 23)
-   equal the size of `sceneSheet(scene)`. Else `broken` with "The picture sent with this scene is not the scene's
-   picture. Try Save again."
+4. The picture (ruling 8, E3): the eight bytes of a PNG's signature; its width and height (bytes 16 to 23) equal the
+   size of `sceneSheet(scene)`; 8 bits, palette colour; `PLTE` is the scene's paints in order after the clear entry;
+   no chunk but `IHDR`, `PLTE`, `tRNS`, `IDAT`, `IEND`; `decodePng` reads it whole; the change within 6 MB. Else
+   `broken` with "The picture sent with this scene is not the scene's picture. Try Save again."
 5. `wholeGameLoads` with the scene, the level and the project's text in place.
 6. Where it goes (`whereItGoes`, the level save's own rule), then `saveFiles`: the scene's JSON (checked against
    `version`), the picture at `paintedPath`, the atlas (`writeAtlas(sceneSheet(scene))`, or the name the framework
-   gives its atlas writer), the level (checked against its version) and `automata.toml` (checked against the version
+   gives its atlas writer; it is `atlasText(sceneSheet(scene), '<id>.png')`, M4), the level (checked against its version) and `automata.toml` (checked against the version
    read in step 2) when they are part of it. Then the suggestion, as a level's.
 
 - [ ] **Step 1: Failing tests,** against the pretend GitHub with the fixture game: an Edit-level save of `meadow`
@@ -333,7 +357,8 @@ What the API does, in order, trusting nothing the page says:
       save is a waiting change holding the same three; a new scene with a level is one commit of five files, the
       project file's earlier bytes unchanged and the game loads; each refusal writes nothing: signed out, Look
       level, a path that is not a scene, an id that is not the file's name, a value the schema refuses (the
-      framework's sentences come back), a picture that is a JPEG, one of the wrong size, one over 2 MB, a level that
+      framework's sentences come back), a picture that is a JPEG, one of the wrong size, one whose `PLTE` is not the
+      scene's paints, one with an extra chunk, one cut short, a change over 6 MB, a level that
       names another scene, a stale scene version, a stale level version, a scene that breaks the whole game (a level
       thing now inside solid ground is allowed; a level naming a removed scene is not).
 - [ ] **Steps 2 to 4.** **Step 5:** Commit `feat(service): save a scene with its picture`. Open Part A's pull
@@ -408,7 +433,8 @@ the row of the slope's lowest tile, the lowest tile's own column left out.
 
 **Interfaces:**
 - Consumes: the framework's `artFiles`, `photosUsed`, `PHOTO_LIBRARY`, `decodePng`, `materialTile`, `Photos`,
-  `MissingPhotoError`, `paintedPath`, `createLevelPicture`, `loadArt`; `game/pictures.ts`'s `readPictureFor`;
+  `MissingPhotoError`, `paintedPath`, `createLevelPicture`, `LevelPicture.showScene` (E6), `loadArt`;
+  `game/pictures.ts`'s `readPictureFor`;
   `levels/Stage.svelte`.
 - Produces:
 
@@ -437,7 +463,7 @@ export function swatchOf(scene: SceneFile, materialId: string, photos: Photos, t
 - [ ] **Step 1: Failing tests.** `photos.test.ts` (a pretend fetch): a library id is fetched from `/photos/<file>`
       once however often asked; a game's own photo goes through `api.picture`; a 404 is in `missing`.
       `paint.browser.test.ts` (three engines, the fixture game): `paintNow`'s files equal, byte for byte, the
-      fixture's committed `meadow.png` and `meadow.atlas.json`; after `paintTiles` they differ and the atlas does
+      fixture's `meadow.png` and `meadow.atlas.json` as `fixturePictures()` paints them (E5); after `paintTiles` they differ and the atlas does
       not; with `dirt` missing, `whole` is false and nothing throws; mounted in `SceneStage`, the canvas pixel in the
       middle of a painted tile is one of the material's paints; "an old picture in the game is not what is shown"
       (the pretend API serves a blank `meadow.png`; the canvas still shows ground); `data-rows` equals the scene's
@@ -593,8 +619,8 @@ card. Every change is one undo step and repaints the scene.
 export function sceneIdFor(content: GameContent, levelId: string): string
 /** The first free `scene-<n>`. */
 export function nextSceneId(content: GameContent): string
-/** Ruling 13's flat scene. */
-export function flatScene(id: string): SceneFile
+/** Ruling 13's flat scene; `colors` are `photoColors` of the library's `dirt` (E7). */
+export function flatScene(id: string, colors: readonly [string, string, string]): SceneFile
 /** The levels that have no scene, in the project's order. */
 export function levelsToStartFrom(content: GameContent): readonly string[]
 ```
@@ -631,8 +657,15 @@ export function levelsToStartFrom(content: GameContent): readonly string[]
 **Files:**
 - Modify: `src/features/game/save.ts`, `game/draft.ts`, `src/features/suite/SceneScreen.svelte`, `Leave.svelte`
   (only if it names levels), `WaitingChange.svelte`, `src/features/service/waiting.ts` (a scene's file and its
-  picture's path in a `FileChange`), `src/features/words/table.ts`, `en.ts`
+  picture's path in a `FileChange`), `src/features/service/approve.ts`; create `src/features/service/changed.ts`
+  (E1: `allowedPaths`, used by both `waiting.ts`'s `here` and `approve.ts`'s step 2: a listed content file; a picture
+  or atlas beside a painted file listed on the default branch or in the change's own `automata.toml`; or
+  `automata.toml` when its text is the default branch's with only `listContent` blocks added; never
+  `automata.access.toml`; step 4 lays over only `.json` files and `automata.toml`. Built once, by whichever editor
+  cycle builds the multi-file save first), `src/features/words/table.ts`, `en.ts`
 - Test: `tests/features/game/save-scene.test.ts`, `tests/features/service/waiting.test.ts`,
+  `tests/features/service/changed.test.ts` (a scene suggestion with its picture and atlas, and a first scene with its
+  block, are allowed; one more changed line of `automata.toml`, or the sharing file, is not),
   `tests/journeys/save-scene.journey.test.ts`, `tests/journeys/agent-and-person.journey.test.ts`
 
 **Interfaces:**
@@ -687,7 +720,8 @@ run does not come back. On the empty state the first tip is by its main button i
       throws nothing; an empty game's first tip is the empty state's. `first-run-scenes.journey.test.ts`, at
       `phone` and `ipadSideways`, as a visitor on the demo game: Scenes for the first time; "Paint some ground";
       one stroke; "Press Export"; Export; the stamp; under a minute of test time and four presses; a second visit
-      shows no tip; the same signed in ends at Save.
+      shows no tip; the same signed in ends at Save; and a demo with no scene yet (as the real demo is until
+      Examples' plan D moves it, M5): "Start here", Start from Level 1, "Paint some ground", Export, the stamp.
 - [ ] **Steps 2 to 4.** **Step 5:** Commit `feat(scenes): the first visit to Scenes`. Open Part C's pull request when
       green, with its review pictures; report Tasks 9 to 11; message the merge session.
 
@@ -700,7 +734,8 @@ run does not come back. On the empty state the first tip is by its main button i
 **Files:**
 - Modify: the eight other tables in `src/features/words/` (Appendix A's words), `tests/fixtures/scenes.ts` (the
   screens of Appendix B), `tests/journeys/screens.journey.test.ts`, `CLAUDE.md` ("Structure": `scenes`; the layers
-  line; the device's keys unchanged, said so), `README.md` (a "Scenes" paragraph and where its files go),
+  line; the device's keys unchanged, said so; and the rule "An editor changes authorable content and nothing else"
+  names the painted pictures and atlases beside listed files and the `[[content]]` blocks `listContent` adds, M3), `README.md` (a "Scenes" paragraph and where its files go),
   `docs/commands.md`, `docs/superpowers/progress.md`
 - Test: `tests/features/words/words.test.ts` (the redesign's: complete, placeholders kept, banned words, length),
   `tests/docs/`, `tests/journeys/screens.journey.test.ts`
@@ -771,7 +806,8 @@ engines, undo and redo of each change, the agent-and-person journey for its own 
    the scene's real art, and the game's figures): touch one then the scene, or drag it in. The picked prop's card:
    its kind, its numbers in plain words with − and +, Another one, Flip, In front / Behind, its place, Erase. Erase
    takes props. Notes: name chip, place as measure lines. Save sends `<id>.props.png` too (the save call takes a
-   list of pictures). The first run becomes the spec's: "Add a tree", "Press Another one", the stamp.
+   list of pictures). The first run becomes the spec's: "Add a tree", "Press Another one", the stamp. Erase then
+   takes props and ground both (M1).
 3. **Layers.** The Layers panel: every layer back to front with a small picture, "The ground" marked among them,
    Show/Hide, Up and Down, drag to reorder, the layer's card (kind, colors, How high, How fast it slides). Layers
    slide at their speeds while a person drags the view. The `backdrop` bridge goes.
@@ -843,11 +879,11 @@ with tilesets. 11. The scene opened from a level (things faded, Back to level). 
   saving the file and the pictures painted from it, Suggest waiting, Export (3, 10); Play walking a slope (13); the
   journeys the spec lists for this slice, the agent-and-person journey (10) and the pictures (12). Move, Add, the
   Layers and Light panels, Furnish and signs are slices 2 to 6, outlined above.
-- **Where this plan departs from the spec, each a ruling for the audit and the Owner:** the first run (14), the
-  empty state's second button (13), no size control (15), three tools shown instead of five (1).
+- **Where this plan departs from the spec, each approved by the Owner (2026-11-15, 01:02 UTC):** the first run (14),
+  the empty state's second button (13), no size control (15), three tools shown instead of five (1).
 - **Types:** `Tile`, `Brush`, `SlopeLine`, `History`, `FileToSave`, `SceneSaveAsk` and `SceneSaveAnswer` are each
   defined once and used by the same name after.
 - **Review Focus:** each of the five has its test in the task named.
-- **Open to the audit:** ruling 8 (the page paints; the API checks shape only); ruling 2 (a slope as a dragged line
-  that fills under itself); the names of the redesign's parts, which gate 2's amendment confirms; Task 3's atlas
-  writer, named by the framework's build.
+- **Settled by the audit:** ruling 8 kept with the palette check (E3); ruling 2 kept; the save goes through
+  `saveChange` (E2); the atlas writer is `atlasText` (M4). Still open to gate 2's amendment: the names of the
+  redesign's parts.
