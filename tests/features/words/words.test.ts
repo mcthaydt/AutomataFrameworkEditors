@@ -50,7 +50,6 @@ const PINNED: Readonly<Record<string, string>> = {
   export: 'Export',
   signInShort: 'Sign in',
   openGamePage: "Open the game's page",
-  menu: 'Menu',
   toolMove: 'Move',
   blockGame: 'Game',
   blockLevel: 'Level',

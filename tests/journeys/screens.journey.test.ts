@@ -12,9 +12,9 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  leaveLevel,
   OLD_SIZES,
   openGame,
-  leaveLevel,
   openLevel,
   openPage,
   picture,

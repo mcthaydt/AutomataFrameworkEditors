@@ -340,13 +340,16 @@
 {#if opened === undefined}
   <Screen {title} {back}><p>{WORDS.loading}</p></Screen>
 {:else if opened.ok && game !== undefined && start !== undefined && current !== undefined}
+  {@const open = game}
+  {@const from = start}
+  <!-- The snippets below run later, where the narrowing above is lost; these keep what it found. -->
   <div class="level">
     <Frame game={title} level={nameOf(levelId)} onhome={leave} menu={menuFor}>
       {#snippet cluster(shape)}
         <Cluster
           {shape}
           {visitor}
-          login={game?.login}
+          login={open.login}
           {saveDisabled}
           saveKind={asked ? 'plain' : 'primary'}
           onsave={() => void save()}
@@ -358,9 +361,9 @@
       {#snippet children(shape)}
         {#key generation}
           <Levels
-            content={game.content}
+            content={open.content}
             {levelId}
-            {start}
+            start={from}
             {art}
             {shape}
             block={{ game: title, level: nameOf(levelId), saved: savedWords, status: statusText }}
