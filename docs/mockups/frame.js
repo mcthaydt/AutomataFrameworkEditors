@@ -150,4 +150,19 @@ for (const el of document.querySelectorAll('[data-i]')) el.style.setProperty('--
 for (const el of document.querySelectorAll('[data-flag]'))
   el.innerHTML = `<svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[el.dataset.flag]}</svg>`
 for (const el of document.querySelectorAll('[data-pixel]')) paintPixels(el)
+// A map drawn at a fixed size opens whole, as the editors' canvases do: scaled to the space the floating parts leave.
+for (const el of document.querySelectorAll('[data-board]')) {
+  const [w, h] = el.dataset.board.split('x').map(Number)
+  const box = el.parentElement.getBoundingClientRect()
+  const scale = Math.min(box.width / w, box.height / h, 1.25)
+  Object.assign(el.style, {
+    position: 'absolute',
+    width: `${w}px`,
+    height: `${h}px`,
+    left: `${(box.width - w * scale) / 2}px`,
+    top: `${(box.height - h * scale) / 2}px`,
+    transform: `scale(${scale})`,
+    transformOrigin: '0 0',
+  })
+}
 document.documentElement.dataset.ready = 'yes'

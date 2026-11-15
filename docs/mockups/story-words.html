@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story · Words (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .wordsbox { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  table { width: 100%; border-collapse: collapse; background: color-mix(in srgb, var(--raised) 94%, transparent); border: 1px solid var(--words); font-size: 15px; table-layout: fixed; }
+  th, td { border: 1px solid var(--edge); padding: 6px 8px; text-align: left; vertical-align: top; overflow: hidden; }
+  th { font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--quiet); }
+  th .flag { margin-right: 6px; }
+  td.group { font: 600 12px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--quiet); background: var(--ground); }
+  td.missing { color: var(--touch); font-style: italic; }
+  td.changed { box-shadow: inset 3px 0 0 var(--mark); }
+  td.picked { outline: 2px dashed var(--touch); outline-offset: -3px; }
+  td.changed small { display: block; color: var(--quiet); font-size: 12px; }
+  .own { color: var(--touch); display: block; font-size: 10px; }
+  .read { color: var(--touch); }
+  @media (max-width: 1000px), (max-height: 600px) { .c-cn, .c-mx, .c-br, .c-jp { display: none; } }
+  .lineedit { min-height: 56px; padding: 8px 10px; border: 1px solid var(--touch); border-radius: 3px; background: var(--ground); color: var(--quiet); }
+</style>
+</head>
+<body>
+<!-- Story, Words: every word a player reads, in the six game languages side by side (spec: Story thread). On
+     narrower screens two columns show: the game's own words and one language picked by its flag. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="wordsbox">
+      <div class="filters"><button class="choice on">Everything</button><button class="choice">Missing <span class="num touch">1</span></button><button class="choice">Changed <span class="num touch">1</span></button><button class="choice">Not read yet <span class="num touch">4</span></button></div>
+      <table>
+        <thead><tr>
+          <th class="c-cn"><span class="flag" data-flag="cn"></span></th><th class="c-mx"><span class="flag" data-flag="mx"></span></th><th class="c-us"><span class="flag" data-flag="us"></span><span class="own">The game's own words</span></th><th class="c-br"><span class="flag" data-flag="br"></span></th><th class="c-jp"><span class="flag" data-flag="jp"></span></th><th class="c-kr"><span class="flag" data-flag="kr"></span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="group" colspan="6">The keeper · Hello</td></tr>
+          <tr><td class="c-cn">你好！</td><td class="c-mx">¡Hola!</td><td class="c-us">Hello there!</td><td class="c-br">Olá!</td><td class="c-jp">こんにちは！</td><td class="c-kr">안녕하세요! <span class="read">✓</span></td></tr>
+          <tr><td class="c-cn">推箱子的好天气。</td><td class="c-mx">¡Qué buen día para empujar cajas!</td><td class="c-us">Lovely day for pushing crates.</td><td class="c-br">Que dia lindo para empurrar caixas!</td><td class="c-jp">箱を押すのにいい日だね。</td><td class="c-kr missing picked">Not written yet</td></tr>
+          <tr><td class="c-cn">那扇门是什么？</td><td class="c-mx">¿Qué es esa puerta?</td><td class="c-us">What's that door?</td><td class="c-br">Que porta é essa?</td><td class="c-jp">あのドアは何？</td><td class="c-kr">저 문은 뭐예요?</td></tr>
+          <tr><td class="group" colspan="6">Door opens</td></tr>
+          <tr><td class="c-cn">门开了！</td><td class="c-mx">¡La puerta está abierta!</td><td class="c-us">The door is open!</td><td class="c-br changed">A porta abriu!<small>The words it was made from changed. Check it still fits.</small></td><td class="c-jp">ドアが開いた！</td><td class="c-kr">문이 열렸어요!</td></tr>
+          <tr><td class="group" colspan="6">Buttons</td></tr>
+          <tr><td class="c-cn">开始</td><td class="c-mx">Jugar</td><td class="c-us">Play</td><td class="c-br">Jogar</td><td class="c-jp">プレイ</td><td class="c-kr">시작</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="panels">
+  <section class="float panel">
+    <header class="panel-head"><span class="label">The picked words</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
+    <div class="panel-body">
+      <div><h2><span class="flag" data-flag="kr"></span> Korean</h2><span class="sub">The keeper · Hello · line 2</span></div>
+      <p class="quiet"><span class="flag" data-flag="us"></span> Lovely day for pushing crates.</p>
+      <div class="lineedit">Type the Korean words…</div>
+      <div class="switch"><span class="ic touch" data-i="seal-check"></span>Read by someone who speaks it<span class="knob"></span></div>
+      <p class="quiet">This line waits as a suggestion until all six languages have it.</p>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'story', place: 'Words', what: 'Words', saved: 'Mia, 1 hour ago',
+  parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 2,
+  tools: [['Pick', 'hand-pointing'], ['Find', 'magnifying-glass'], ['Try it', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

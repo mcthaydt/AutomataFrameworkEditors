@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feel · Controls (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .action { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px; }
+  .key { display: inline-flex; align-items: center; gap: 6px; min-width: 44px; min-height: 40px; justify-content: center; padding: 0 10px; border: 1px solid var(--edge); border-bottom-width: 3px; border-radius: 4px; font: 15px var(--measure); }
+  .key.pad { font: 15px var(--label); }
+  .key.wait { border-color: var(--touch); color: var(--ground); background: var(--touch); font: 600 15px var(--label); }
+  .key.add { color: var(--touch); border-style: dashed; border-bottom-width: 1px; }
+  .problem { border-left: 3px solid var(--mark); padding: 4px 10px; font-size: 16px; }
+</style>
+</head>
+<body>
+<!-- Feel, Controls: keys and gamepad buttons for the hero's actions (spec: Editors PR 30, part 2). Waiting for a key
+     on "Jump"; with no keyboard the chip opens a list instead. -->
+<div class="canvas">
+  <div class="fit"><div class="stage"></div></div>
+</div>
+<div class="panels">
+  <section class="float panel grow">
+    <header class="panel-head"><span class="label">Controls</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
+    <div class="panel-body">
+      <div class="action"><span>Walk left</span><div class="keys"><span class="key">←</span><span class="key">A</span><span class="key pad"><span class="ic" data-i="game-controller"></span>left stick, left</span></div></div>
+      <div class="action"><span>Walk right</span><div class="keys"><span class="key">→</span><span class="key">D</span><span class="key pad"><span class="ic" data-i="game-controller"></span>left stick, right</span></div></div>
+      <div class="action"><span>Jump</span><div class="keys"><span class="key">Space</span><span class="key">↑</span><span class="key wait">Press a key now…</span><span class="key pad"><span class="ic" data-i="game-controller"></span>the bottom button</span></div></div>
+      <div class="action"><span>Pull the crate</span><div class="keys"><span class="key">Space</span><span class="key add"><span class="ic" data-i="plus"></span></span></div>
+        <p class="problem">Space is used for both “Jump” and “Pull the crate”. Give each its own key.</p></div>
+      <div class="rule"></div>
+      <p class="quiet"><span class="ic" data-i="hand"></span> On a touch screen, the left thumb walks and the right thumb jumps.</p>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'feel', place: 'Level 1', saved: 'Sam, 2 minutes ago',
+  tools: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true], ['Play', 'play']], tool: 1,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

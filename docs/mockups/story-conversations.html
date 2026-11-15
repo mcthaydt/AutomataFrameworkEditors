@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story · Conversations (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .card { position: absolute; z-index: 2; background: var(--raised); border: 1px solid var(--words); border-radius: 3px; font-size: 17px; }
+  .card.on { outline: 3px dashed var(--touch); outline-offset: 5px; }
+  .card.faint { opacity: 0.55; border-color: var(--mark); }
+  .card header { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--edge); }
+  .card header .label { flex: 1; }
+  .card header canvas { width: 28px; height: auto; image-rendering: pixelated; display: block; }
+  .card p { margin: 0; padding: 6px 12px; }
+  .card .tag { font: 600 11px var(--label); letter-spacing: 0.07em; text-transform: uppercase; color: var(--touch); }
+  .card .problem { border-top: 1px solid var(--mark); color: var(--quiet); font-size: 15px; }
+  .links { position: absolute; inset: 0; z-index: 1; overflow: visible; }
+  .links path { fill: none; stroke: var(--words); stroke-width: 2; }
+  .links .head { fill: var(--words); stroke: none; }
+  .speech { position: relative; aspect-ratio: 888 / 300; background: url(art/level-1.png) 0 70% / 100% auto; image-rendering: pixelated; border-radius: 3px; overflow: hidden; }
+  .speech div { position: absolute; left: 6%; right: 6%; bottom: 8%; padding: 6px 10px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 14px; line-height: 1.3; }
+  .lineedit { min-height: 44px; padding: 8px 10px; border: 1px solid var(--edge); border-radius: 3px; background: var(--ground); }
+</style>
+</head>
+<body>
+<!-- Story, Conversations: a map of cards (the Owner, Q1 = A; spec: Story thread). Each step is a card; each choice is a
+     labelled line to where it goes. The keeper is the figure-builder sketch; his face comes from his figure. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div data-board="980x520">
+      <svg class="links" viewBox="0 0 980 520" aria-hidden="true">
+        <path d="M280 110 C340 110 340 90 400 90"/><path class="head" d="M400 90l-10 -6v12z"/>
+        <path d="M700 110 C780 110 820 160 820 300"/><path class="head" d="M820 300l-6 -10h12z"/>
+        <path d="M160 190 C160 400 400 400 690 380"/><path class="head" d="M690 380l-10 -6v12z"/>
+      </svg>
+      <span class="chip" style="left:300px;top:58px">“What's that door?”</span>
+      <span class="chip" style="left:770px;top:190px">Then</span>
+      <span class="chip" style="left:330px;top:362px">“Bye!”</span>
+      <div class="card" style="left:20px;top:40px;width:260px">
+        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag">▶ Starts here</span></header>
+        <p>“Hello there!”</p><p>“Lovely day for pushing crates.”</p>
+      </div>
+      <div class="card on" style="left:400px;top:40px;width:300px">
+        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span></header>
+        <p>“The door opens if you push the crate onto the button.”</p>
+      </div>
+      <div class="card" style="left:690px;top:300px;width:270px">
+        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag">Ends</span></header>
+        <p>“Off you go, then.”</p><p class="tag" style="padding:6px 12px"><span class="ic" data-i="film-slate"></span> Plays: Door opens</p>
+      </div>
+      <div class="card faint" style="left:20px;top:420px;width:330px">
+        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span></header>
+        <p class="problem">Nothing leads to this step. Remove it, or point a choice at it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="panels">
+  <section class="float panel">
+    <header class="panel-head">
+      <span class="label">The picked step</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <span class="sub">Who says it</span>
+      <div class="choices"><button class="choice on"><span data-pixel="head" data-scale="2"></span>Keeper</button><button class="choice"><img src="art/hero.png" alt="">Hero</button></div>
+      <span class="sub">What they say</span>
+      <div class="lineedit">The door opens if you push the crate onto the button.</div>
+      <button class="btn small"><span class="ic" data-i="plus"></span>Add a line</button>
+      <span class="sub">Then</span>
+      <div class="choices"><button class="choice">The player picks</button><button class="choice on">It goes on</button><button class="choice">It ends</button></div>
+      <span class="sub">As the player sees it</span>
+      <div class="speech"><div>KEEPER: The door opens if you push the crate onto the button.</div></div>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'story', place: 'Keeper', what: 'Conversation', saved: 'Not saved yet',
+  parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 0,
+  tools: [['Move', 'arrows-out-cardinal'], ['Add step', 'plus'], ['Erase', 'eraser'], ['Try it', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story · Cutscenes (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+  :root { --fit-bottom: 300px; }
+  .camera { position: absolute; z-index: 2; border: 2px dashed var(--words); box-shadow: 0 0 0 1px var(--ground), inset 0 0 0 1px var(--ground); }
+  .actor { position: absolute; z-index: 2; line-height: 0; }
+  .actor canvas { height: 100%; width: auto; image-rendering: pixelated; }
+  .speechbox { position: absolute; z-index: 3; padding: 4px 10px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 15px; }
+  .timeline { position: absolute; z-index: 5; left: 96px; right: 372px; bottom: 76px; height: 216px; display: flex; flex-direction: column; }
+  .tl { display: grid; grid-template-columns: 96px 1fr; grid-auto-rows: 32px; gap: 4px 8px; padding: 8px 14px; position: relative; flex: 1; }
+  .tl .row { position: relative; border-bottom: 1px solid var(--edge); }
+  .tl .ticks { display: flex; justify-content: space-between; font: 13px var(--measure); color: var(--quiet); border-bottom: 2px solid var(--words); }
+  .key { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; transform: rotate(45deg); background: var(--touch); border: 2px solid var(--ground); }
+  .key.on { outline: 2px dashed var(--words); outline-offset: 3px; }
+  .ease { position: absolute; top: 50%; height: 2px; background: var(--words); }
+  .ease span { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--quiet); background: var(--raised); padding: 0 4px; }
+  .bar { position: absolute; top: 4px; bottom: 4px; background: color-mix(in srgb, var(--touch) 35%, var(--raised)); border: 1px solid var(--touch); border-radius: 3px; font-size: 13px; padding: 0 6px; line-height: 22px; white-space: nowrap; overflow: hidden; }
+  .head { position: absolute; top: 4px; bottom: 4px; left: calc(96px + 14px + 8px + (100% - 96px - 36px) * 0.24); width: 2px; background: var(--touch); z-index: 2; }
+  .endline { position: absolute; top: 4px; bottom: 4px; right: 14px; width: 2px; background: var(--words); }
+  @media (max-width: 1000px), (max-height: 600px) {
+    :root { --fit-bottom: 330px; }
+    .timeline { left: var(--gap); right: var(--gap); bottom: 88px; height: 230px; }
+    .panels { display: none; }
+  }
+  @media (max-height: 600px) { :root { --fit-bottom: 84px; --fit-right: 8px; } .timeline { display: none; } .panels { display: flex; } }
+  @media (max-width: 699px) and (min-height: 601px) { :root { --fit-bottom: 380px; } .timeline { bottom: 136px; } .tl { grid-template-columns: 70px 1fr; } }
+</style>
+</head>
+<body>
+<!-- Story, Cutscenes: the stage and the timeline (spec: Story thread). The stage is the level's real art at the
+     playhead; the camera's frame, the actors and the line on screen are drawing notes over it. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage">
+      <div class="camera" style="left:6%;top:30%;width:52%;height:64%"></div>
+      <span class="chip" style="left:6%;top:22.5%"><span class="ic" data-i="video-camera"></span>Camera · zoom <span class="v">1.5</span></span>
+      <span class="actor" style="left:24%;top:69%;height:15%"><span data-pixel="keeper" data-scale="4" data-flip="1"></span></span>
+      <span class="chip" style="left:22%;top:86%">Keeper</span>
+      <span class="chip" style="left:9%;top:62%">Hero</span>
+      <span class="speechbox" style="left:12%;top:40%">KEEPER: The door is open!</span>
+      <span class="chip" style="left:62%;top:36%">Playhead <span class="v">1.2 s</span></span>
+    </div>
+  </div>
+</div>
+<section class="float timeline">
+  <header class="panel-head"><span class="label">Timeline</span><span class="num quiet">Door opens · 5.0 s</span><button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button></header>
+  <div class="tl">
+    <span></span><div class="ticks"><span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span><span>5s</span></div>
+    <span class="label">Camera</span><div class="row"><i class="key" style="left:2%"></i><i class="ease" style="left:3%;width:56%"><span>Smooth</span></i><i class="key on" style="left:60%"></i></div>
+    <span class="label">Keeper</span><div class="row"><i class="key" style="left:2%"></i><div class="bar" style="left:4%;width:30%">talk</div></div>
+    <span class="label">Hero</span><div class="row"><i class="key" style="left:30%"></i><i class="ease" style="left:31%;width:28%"><span>Steady</span></i><i class="key" style="left:60%"></i></div>
+    <span class="label">Words</span><div class="row"><div class="bar" style="left:12%;width:40%">“The door is open!”</div></div>
+    <i class="head"></i><i class="endline"></i>
+  </div>
+</section>
+<div class="panels">
+  <section class="float panel">
+    <header class="panel-head">
+      <nav class="tabs"><button class="on">Camera key</button><button>Timeline</button></nav>
+      <span class="label">The picked key</span>
+      <button class="iconbtn" aria-label="Close"><span class="ic" data-i="x"></span></button>
+    </header>
+    <div class="panel-body">
+      <div><h2>Camera</h2><span class="sub">key 2 of 2</span></div>
+      <div class="stepper"><span>When</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">3.0 s</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
+      <div class="stepper"><span>How close</span><button class="square"><span class="ic" data-i="minus"></span></button><span class="val">1.5</span><button class="square"><span class="ic" data-i="plus"></span></button></div>
+      <span class="sub">How it gets there</span>
+      <div class="choices"><button class="choice">Cut</button><button class="choice">Steady</button><button class="choice on">Smooth</button></div>
+    </div>
+  </section>
+</div>
+<script>
+window.MOCK = {
+  editor: 'story', place: 'Door opens', what: 'Cutscene', saved: 'Not saved yet',
+  parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 1,
+  tools: [['Move', 'arrows-out-cardinal'], ['Add key', 'diamond'], ['Erase', 'eraser'], ['Play', 'play']], tool: 0,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
