@@ -17,7 +17,11 @@ editor at a time, moving on only when the Owner is satisfied (so the shell and W
 round of fixes); LDtk is World's big inspiration; no auto-tiling rules at launch, and nothing may tie the editors to
 2D only, since they will serve 3D later. What World takes from LDtk, with each pick checked for iPad and for 3D, is
 [`audits/2026-11-15-world-what-to-take-from-ldtk.md`](audits/2026-11-15-world-what-to-take-from-ldtk.md): written,
-100%, three questions with the Owner. Rounds 2 to 5 (Characters, Feel, Sound, Story) wait for the Owner. Overall:
+100%; the Owner answered its three questions yes (the picks that need only drawing join this round; values and
+links on things, and the world map, are drawn now and each gets a framework spec). The Owner also ruled that the
+Apple Pencil gets first-class support; the shell and World are held to that in
+[`audits/2026-11-15-editor-mockups-grill-1b-apple-pencil.md`](audits/2026-11-15-editor-mockups-grill-1b-apple-pencil.md):
+written, 100%, 13 findings (3 High), no question open. Rounds 2 to 5 (Characters, Feel, Sound, Story) wait for the Owner. Overall:
 20%. Nothing was run.
 
 ## The mockups of all five editors: design audit
