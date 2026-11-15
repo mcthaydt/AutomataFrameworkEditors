@@ -4666,7 +4666,8 @@ body.sh .peek {
 
 /* Things to place or paint: one row, as wide as its tiles, with the tool's one setting at its right end; nothing
    else floats at the bottom (F3, F10). */
-html body.sh .tray {
+html body.sh .tray,
+html body.sh.has-tray .tray {
   width: auto;
   max-width: calc(100vw - var(--left-w) - var(--right-w) - 24px);
   bottom: calc(var(--bottom2-h) + var(--tools-h) + 20px);
@@ -4719,16 +4720,16 @@ body.sh .holds .hfold {
 }
 
 /* ----- An iPad held sideways: the tools go down the left edge, in the rail with the list (the Owner: F2) ----- */
-body.sh.side {
+body.sh.tools-left {
   --right-w: 240px;
   --tools-h: 0px;
 }
 
-body.sh.side.no-right {
+body.sh.tools-left.no-right {
   --right-w: 0px;
 }
 
-body.sh.side .sh-tools {
+body.sh.tools-left .sh-tools {
   left: 0;
   top: calc(var(--top-h) + 128px);
   bottom: auto;
@@ -4737,7 +4738,7 @@ body.sh.side .sh-tools {
   align-items: center;
 }
 
-body.sh.side .sh-tools .tbar {
+body.sh.tools-left .sh-tools .tbar {
   flex-direction: column;
   gap: 4px;
   padding: 0;
@@ -4746,7 +4747,7 @@ body.sh.side .sh-tools .tbar {
   box-shadow: none;
 }
 
-body.sh.side .tl2 {
+body.sh.tools-left .tl2 {
   width: 48px;
   min-width: 48px;
   height: 52px;
@@ -4754,18 +4755,18 @@ body.sh.side .tl2 {
   font-size: 11px;
 }
 
-body.sh.side .tl2.u,
-body.sh.side .sh-tools .div.u {
+body.sh.tools-left .tl2.u,
+body.sh.tools-left .sh-tools .div.u {
   display: none;
 }
 
-body.sh.side .sh-tools .div.o {
+body.sh.tools-left .sh-tools .div.o {
   width: 32px;
   height: 1px;
   margin: 4px 0;
 }
 
-body.sh.side .tbar .tz {
+body.sh.tools-left .tbar .tz {
   width: 48px;
   height: auto;
   min-height: 44px;
@@ -4777,7 +4778,7 @@ body.sh.side .tbar .tz {
   text-align: center;
 }
 
-body.sh.side .lrail .rdiv {
+body.sh.tools-left .lrail .rdiv {
   display: block;
   width: 32px;
   height: 1px;
@@ -4790,13 +4791,13 @@ body.sh .lrail .rdiv {
 }
 
 /* With the list open the tools float down the level's left edge instead. */
-body.sh.side:not(.left-closed) .sh-tools {
+body.sh.tools-left:not(.left-closed) .sh-tools {
   left: calc(var(--left-w) + 8px);
   top: calc(var(--top-h) + 12px);
   width: auto;
 }
 
-body.sh.side:not(.left-closed) .sh-tools .tbar {
+body.sh.tools-left:not(.left-closed) .sh-tools .tbar {
   padding: 4px;
   border-radius: 12px;
   background: var(--panel);
@@ -4804,50 +4805,50 @@ body.sh.side:not(.left-closed) .sh-tools .tbar {
   box-shadow: var(--shadow);
 }
 
-body.sh.side.no-left .sh-tools {
+body.sh.tools-left.no-left .sh-tools {
   left: 0;
   top: calc(var(--top-h) + 12px);
 }
 
-body.sh.side.no-left .sh-tools .tbar {
+body.sh.tools-left.no-left .sh-tools .tbar {
   padding: 0;
   background: none;
   border: 0;
   box-shadow: none;
 }
 
-body.sh.side.no-left {
+body.sh.tools-left.no-left {
   --left-w: 56px;
 }
 
 /* The free thumb's buttons sit in the bottom left corner, under the tools. */
-body.sh.side .holds {
+body.sh.tools-left .holds {
   top: auto;
   bottom: 12px;
   transform: none;
 }
 
-body.sh.side .fit {
+body.sh.tools-left .fit {
   top: 16px;
   bottom: 16px;
   left: 84px;
 }
 
-body.sh.side:not(.left-closed) .fit {
+body.sh.tools-left:not(.left-closed) .fit {
   left: 80px;
 }
 
-html body.sh.side.has-tray .fit {
+html body.sh.tools-left.has-tray .fit {
   bottom: 104px;
 }
 
-html body.sh.side .tray {
+html body.sh.tools-left.has-tray .tray {
   bottom: 12px;
   max-width: calc(100vw - var(--left-w) - var(--right-w) - 176px);
 }
 
 /* A tool's settings with no tray sit alone at the bottom, centred under the level. */
-body.sh.side .sh-tools .topts {
+body.sh.tools-left .sh-tools .topts {
   position: fixed;
   left: calc(var(--left-w) + (100vw - var(--left-w) - var(--right-w)) / 2);
   bottom: 12px;
@@ -4855,12 +4856,12 @@ body.sh.side .sh-tools .topts {
   transform: translateX(-50%);
 }
 
-body.sh.side.has-topts-only .fit {
+body.sh.tools-left.has-topts-only .fit {
   bottom: 76px;
 }
 
 /* Show opens beside the tools. */
-body.sh.side .opop {
+body.sh.tools-left .opop {
   position: fixed;
   left: calc(var(--left-w) + 8px);
   right: auto;
@@ -4868,36 +4869,42 @@ body.sh.side .opop {
   bottom: auto;
 }
 
-body.sh.side.left-closed .opop {
+body.sh.tools-left.left-closed .opop {
   left: 64px;
 }
 
 /* The big level: the list opens over the level and closes with a tap on it, so the level keeps its room (F1). */
-body.sh.side.left-over {
+body.sh.tools-left.left-over {
   --left-w: 56px;
 }
 
-body.sh.side.left-over .sh-left {
+body.sh.tools-left.left-over .sh-left {
+  left: 56px;
   width: 260px;
   z-index: 16;
   box-shadow: var(--shadow);
 }
 
-body.sh.side.left-over .sh-tools {
+body.sh.tools-left.left-over .sh-tools {
   left: 0;
   top: calc(var(--top-h) + 12px);
   z-index: 15;
 }
 
-body.sh.side.left-over .sh-tools .tbar {
+body.sh.tools-left.left-over .sh-tools .tbar {
   padding: 0;
   background: none;
   border: 0;
   box-shadow: none;
 }
 
-body.sh.side.left-over .fit {
-  left: 84px;
+/* The mockup draws the view slid right, so the picked hero shows beside the open list. */
+body.sh.tools-left.left-over .fit {
+  left: 332px;
+}
+
+body.sh.tools-left.left-over .minimap {
+  left: 332px;
 }
 
 /* ----- Play (F7, F21) ----- */
@@ -4968,6 +4975,18 @@ body.sh .tb[title="Move"] {
     overflow: hidden;
   }
 
+}
+
+/* An upright phone: the camera follows the hero across a level wider than the screen, as the game does. The stage is
+   placed without a transform there, so the controls can sit in the screen's corners. */
+@media (max-width: 500px) {
+  html body.sh.playing .stage {
+    left: -12.03cqw;
+    top: calc(50cqh - 59.62cqw);
+    width: 194.3cqw;
+    transform: none;
+  }
+
   html body.sh.playing .tb {
     position: fixed !important;
     left: auto !important;
@@ -4993,13 +5012,7 @@ body.sh .tb[title="Move"] {
   }
 }
 
-@media (max-width: 500px) {
-  html body.sh.playing .stage {
-    left: 0;
-    width: calc(100cqh * 888 / 465);
-    transform: translate(-6.194%, -46.983%);
-  }
-}
+
 
 /* ----- The "Put in game" sheet (F9, F19, F23, F24) ----- */
 /* On an iPad or a computer it takes the whole right column while it is open, so no half-panel shows under it. */
@@ -5157,7 +5170,7 @@ html body.sh .keysheet .k span:last-child .ic {
 
 @media (max-width: 1000px) and (min-height: 601px) {
   /* Things to place or paint, above the toolbar: the tool's setting wraps to its own line when the tiles fill it. */
-  html body.sh .tray {
+  html body.sh.has-tray .tray {
     left: 50%;
     max-width: calc(100vw - 16px);
   }
@@ -5218,7 +5231,7 @@ html body.sh .keysheet .k span:last-child .ic {
     object-fit: contain;
   }
 
-  body.sh .sh-right .peek > span:not(.ic) {
+  body.sh .sh-right .peek > span:not(.ic):not(.pic) {
     flex: 1;
     text-align: left;
     color: var(--quiet);
@@ -5238,16 +5251,52 @@ html body.sh .keysheet .k span:last-child .ic {
   }
 }
 
-body.sh.side.left-over .sh-tools {
-  left: 268px;
+/* The Put in game sheet takes the whole right column, wide enough for its rows. */
+body.sh.tools-left:has(.share-pop) {
+  --right-w: 340px;
 }
 
-body.sh.side.left-over .sh-tools .tbar {
-  padding: 4px;
-  border-radius: 12px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+/* A button in the inspector wraps its words instead of cutting them. */
+body.sh .ibtns .sbtn {
+  white-space: normal;
+  height: auto;
+  min-height: 40px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  line-height: 1.2;
+}
+
+/* The helper's card wraps its sentence on narrow screens instead of cutting it. */
+@media (max-width: 1000px), (max-height: 600px) {
+  html body.sh .agent p {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* The free thumb's tab: at the top right on an upright screen, at the bottom left on a phone on its side, clear of
+   the small map and the level's start. */
+@media (max-width: 1000px) and (min-height: 601px) {
+  html body.sh .holds {
+    left: auto;
+    right: 8px;
+    top: calc(var(--top-h) + 8px);
+    transform: none;
+  }
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .holds {
+    top: auto;
+    bottom: 8px;
+    left: 72px;
+    transform: none;
+  }
+
+  html body.sh.has-tray .tray {
+    max-width: calc(100vw - 64px - var(--right-w) - 16px);
+  }
 }
 
 body.sh .share-pop .both .hint2 {

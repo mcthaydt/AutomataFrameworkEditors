@@ -456,7 +456,7 @@ function frame(m) {
   // A hovering Pencil gets the small rows a mouse gets (the Owner, 2026-11-15), and keeps the touch screen's
   // hold-buttons. Rows change size only when a panel next opens, never under a moving hand.
   cls.push(fine || m.hand === 'pencil' ? 'fine' : 'touch')
-  if (side) cls.push('side')
+  if (side) cls.push('tools-left')
   if (m.toolopts && !m.tray) cls.push('has-topts-only')
   // The big level's list opens over the level instead of pushing it (F1).
   if (m.leftOver) cls.push('left-over')
@@ -551,5 +551,15 @@ for (const tl of document.querySelectorAll('.tl')) {
   }
   const head = tl.closest('.sh-bottom')?.querySelector('.bh')
   if (hidden && head) head.insertAdjacentHTML('beforeend', `<span class="morerows">${hidden} more row${hidden > 1 ? 's' : ''} below</span>`)
+}
+// A tip or a note never runs off the screen: one that would is slid back inside it (Fable pass, F33).
+{
+  const room = document.querySelector('.canvas')?.getBoundingClientRect()
+  if (room)
+    for (const el of document.querySelectorAll('.stage .tip, .stage .lockpop')) {
+      const r = el.getBoundingClientRect()
+      const dx = Math.max(room.left + 8 - r.left, 0) + Math.min(room.right - 8 - r.right, 0)
+      if (dx) el.style.marginLeft = `${dx}px`
+    }
 }
 document.documentElement.dataset.ready = 'yes'
