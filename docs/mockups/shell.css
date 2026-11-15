@@ -6841,6 +6841,25 @@ html body.sh :is(.helpp, .setp) header {
     --left-w: 64px;
   }
 
+  /* A card is 8 points narrower than its slot, so each slot is 8 wider than the old docked panel: the list and the
+     inspector keep the room their rows were drawn for. */
+  html body.sh.has-left:not(.left-closed):not(.left-over) {
+    --left-w: 248px;
+  }
+
+  body.sh.has-right:not(.tools-left) {
+    --right-w: 288px;
+  }
+
+  body.sh.tools-left {
+    --right-w: 248px;
+  }
+
+  /* The Put in game sheet takes the whole right column, which is wider still. */
+  body.sh.tools-left:has(.share-pop) {
+    --right-w: 348px;
+  }
+
   /* With nothing to list, a computer has no left panel at all. */
   html body.sh.no-left:not(.tools-left) {
     --left-w: 0px;
@@ -6863,6 +6882,10 @@ html body.sh :is(.helpp, .setp) header {
     background-image: radial-gradient(circle, #333 1px, transparent 1.4px);
     background-size: 24px 24px;
     background-position: var(--left-w) var(--top-h);
+  }
+
+  html body.sh .ltabs button {
+    white-space: nowrap;
   }
 
   html body.sh .sh-left {
@@ -6894,6 +6917,18 @@ html body.sh :is(.helpp, .setp) header {
     border-radius: 12px;
     box-shadow: var(--shadow);
     overflow: hidden;
+  }
+
+  /* The Put in game sheet (and the sheets built like it) is the right column's card while it is open. */
+  html body.sh .share-pop {
+    top: calc(var(--top-h) + 8px);
+    right: 8px;
+    bottom: 8px;
+    width: max(calc(var(--right-w) - 8px), 340px);
+    max-height: calc(100vh - var(--top-h) - 16px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
   }
 
   /* The rail: the tools go down inside its card, under List and Add. */
