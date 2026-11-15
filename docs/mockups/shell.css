@@ -9101,3 +9101,46 @@ html body.sh .mcard .go .sbtn.main small {
     font-size: 12px;
   }
 }
+
+/* A phone held sideways: the check's card and the move pad stand at the right, under the top bar, and the levels keep
+   to the left of them; the line along the top is left out (the key at the bottom says what each mark means). On an
+   upright phone the card's ways out are one under another, so none is squeezed. */
+@media (max-height: 500px) and (min-width: 600px) {
+  html body.sh .wmap :is(.mcard, .mpad) {
+    left: auto !important;
+    right: 8px;
+    top: 8px !important;
+    bottom: 40px;
+    width: min(360px, 46vw);
+    overflow-y: auto;
+  }
+
+  html body.sh .wmap .mtip {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  html body.sh .mcard .go {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A level held on the map, on a phone held sideways: the menu's two columns have room for their words, under its name. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .pop.menup.heldp {
+    width: min(440px, calc(100vw - 16px));
+  }
+
+  html body.sh .pop.menup.heldp h6 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* The settings folded away on an upright iPad: the tab that brings them back sits under the Hold button, not behind
+   it (the pictures of the folded-away pairs, 2026-11-15: the two were drawn on top of each other). */
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh.values-hidden .sh-right:not(.inline) {
+    top: calc(var(--top-h) + var(--dock-gap) + 76px);
+  }
+}

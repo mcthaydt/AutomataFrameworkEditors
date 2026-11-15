@@ -38,11 +38,15 @@
   }
   for (const e of M.edges || []) map.insertAdjacentHTML('beforeend', `<span class="ej ${e.state || ''}" data-a="${e.a}" data-b="${e.b}"><span class="ejc">${icon(e.state === 'wall' ? 'warning' : 'arrows-left-right')}</span></span>`)
   map.insertAdjacentHTML('beforeend', `<div class="mkey"><span><i class="kbar"></i>Walk straight across</span><span><i class="karrow"></i>Through a door</span><span>${icon('flag-pennant')}Where the game starts</span></div>`)
-  if (M.tip) map.insertAdjacentHTML('beforeend', `<span class="tip free mtip">${M.tip}</span>`)
+  // A note under the top bar says what just happened; the line along the top waits until it has gone.
+  if (M.tip && !document.querySelector('.note2')) map.insertAdjacentHTML('beforeend', `<span class="tip free mtip">${M.tip}</span>`)
   if (M.bar) map.insertAdjacentHTML('beforeend', `<div class="mbar">${M.bar.items.map(([w, ic, main]) => `<button class="${main ? 'main' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>`)
   if (M.hint) map.insertAdjacentHTML('beforeend', `<div class="mhint">${M.hint.text}</div>`)
   if (M.card) map.insertAdjacentHTML('beforeend', `<section class="mcard" role="dialog">${M.card.html}</section>`)
   if (M.pad) map.insertAdjacentHTML('beforeend', `<div class="mpad"><b>Move ${M.pad.on} one tile</b><span>${['', 'caret-up', '', 'caret-left', '', 'caret-right', '', 'caret-down', ''].map((ic, i) => (ic ? `<button title="Move ${['', 'up', '', 'left', '', 'right', '', 'down'][i]}">${icon(ic)}</button>` : '<i></i>')).join('')}</span>${M.pad.note ? `<p>${M.pad.note}</p>` : ''}<button class="sbtn">Done</button></div>`)
+
+  // frame.js gives every icon its picture as the page loads; these were added after, so they get theirs here.
+  for (const el of map.querySelectorAll('[data-i]')) el.style.setProperty('--icon', `url("${ICONS}${el.dataset.i}.svg")`)
 
   const draw = () => {
     const box = map.getBoundingClientRect()
@@ -56,8 +60,13 @@
     if (note) top = Math.max(top, note.getBoundingClientRect().bottom + 16)
     let bottom = key.getBoundingClientRect().top - 16
     // On a phone the check's card and the move pad sit at the bottom of the map, so the levels keep above them.
+    // On a phone held sideways they stand at the right instead, so the levels keep to the left of them.
     const sheet = matchMedia('(max-width: 600px), (max-height: 500px)').matches && map.querySelector('.mcard, .mpad')
-    if (sheet) bottom = Math.min(bottom, sheet.getBoundingClientRect().top - 12)
+    const sideways = matchMedia('(max-height: 500px) and (min-width: 600px)').matches
+    let right = box.right
+    if (sheet && sideways) right = sheet.getBoundingClientRect().left - 4
+    else if (sheet) bottom = Math.min(bottom, sheet.getBoundingClientRect().top - 12)
+    const width = right - box.left
     const pad = small ? 12 : 32
     const real = M.levels.filter((l) => !l.add)
     const x0 = Math.min(...M.levels.map((l) => l.x))
@@ -66,12 +75,12 @@
     const y1 = Math.max(...M.levels.map((l) => l.y + l.h))
     // As big as fits, but never so small that a level is less than a finger's width (a 20-tile level at least 130
     // points): then the map runs past the screen's edge, as a canvas does, and the level in focus stays in sight.
-    const fit = Math.min((box.width - 2 * pad) / (x1 - x0), (bottom - top) / (y1 - y0))
+    const fit = Math.min((width - 2 * pad) / (x1 - x0), (bottom - top) / (y1 - y0))
     const s = Math.max(fit, 6.5)
     const focus = byName(M.focus) || real.find((l) => l.here) || real[0]
-    let ox = box.left + pad + Math.max(0, (box.width - 2 * pad - (x1 - x0) * s) / 2) - x0 * s
-    if ((x1 - x0) * s > box.width - 2 * pad) ox = Math.min(box.left + pad - x0 * s, box.left + box.width / 2 - (focus.x + focus.w / 2) * s)
-    ox = Math.max(ox, Math.min(box.left + pad - x0 * s, box.right - pad - x1 * s))
+    let ox = box.left + pad + Math.max(0, (width - 2 * pad - (x1 - x0) * s) / 2) - x0 * s
+    if ((x1 - x0) * s > width - 2 * pad) ox = Math.min(box.left + pad - x0 * s, box.left + width / 2 - (focus.x + focus.w / 2) * s)
+    ox = Math.max(ox, Math.min(box.left + pad - x0 * s, right - pad - x1 * s))
     const oy = top + Math.max(0, (bottom - top - (y1 - y0) * s) / 2) - y0 * s
     const px = (x) => ox + x * s - box.left
     const py = (y) => oy + y * s - box.top
@@ -104,7 +113,7 @@
     })
     const svg = map.querySelector('.mlinks')
     svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`)
-    svg.querySelector('path').setAttribute('d', d.join(' '))
+    svg.querySelector('.mdoor').setAttribute('d', d.join(' '))
     for (const { from } of M.doors || []) {
       svg.insertAdjacentHTML('beforeend', `<circle cx="${px(from[0])}" cy="${py(from[1])}" r="5" fill="#ededed" stroke="#111" stroke-width="2"/>`)
     }
