@@ -6990,10 +6990,12 @@ html body.sh :is(.helpp, .setp) header {
    padding, so that line slid under them. Now the foot has its own room, line included, and on a screen too short for
    the sheet it stays at the bottom while the rest scrolls, so the line is always read beside the buttons. A negative
    margin cancels the sheet's own bottom padding (the foot's padding takes its place), so the room under the line is
-   counted once, and the same size as the sides. */
+   counted once, and the same size as the sides. A sticky block measures from the inside of the sheet's padding, so
+   its offset is that padding too: with 0 it was pulled 20 points up into the list even on a sheet that fits (the
+   first pictures showed the buttons crowding the rows and a wide empty strip under the line). */
 html body.sh .share-pop .foot {
   position: sticky;
-  bottom: 0;
+  bottom: calc(var(--card-pad) * -1);
   margin: 16px 0 calc(var(--card-pad) * -1);
   padding: 12px 0 var(--card-pad);
   background: var(--panel);
@@ -7016,6 +7018,7 @@ html body.sh .share-pop .foot .keep {
    leaves 16 under the line, where the sheet fades. */
 @media (max-height: 600px) {
   html body.sh .share-pop .foot {
+    bottom: -16px;
     margin: 12px 0 -16px;
     padding: 10px 0 16px;
   }
