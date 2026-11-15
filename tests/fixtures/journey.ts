@@ -191,27 +191,37 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
 /**
  * The colour of the level's picture at a point of the page (CSS pixels), as `#rrggbb`: what a person sees there. The
  * buttons over the picture prove where a thing is for a finger and a screen reader; this proves the picture agrees.
+ * The buttons are there before the picture is (it starts Pixi, which takes a moment), so this waits, up to ten
+ * seconds, for the canvas to exist and to have been drawn at that point before it answers.
  */
 export async function pictureColourAt(page: Page, at: { x: number; y: number }): Promise<string> {
-  return page.evaluate(({ x, y }) => {
-    const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas')
-    if (canvas === null) throw new Error('No picture of a level on this page.')
-    const rect = canvas.getBoundingClientRect()
-    const ratio = canvas.width / rect.width
-    const copy = document.createElement('canvas')
-    copy.width = canvas.width
-    copy.height = canvas.height
-    const context = copy.getContext('2d')
-    if (context === null) throw new Error('No 2D canvas to read the picture with.')
-    context.drawImage(canvas, 0, 0)
-    const [r = 0, g = 0, b = 0] = context.getImageData(
-      Math.round((x - rect.left) * ratio),
-      Math.round((y - rect.top) * ratio),
-      1,
-      1,
-    ).data
-    return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
-  }, at)
+  const deadline = Date.now() + 10_000
+  for (;;) {
+    const found = await page.evaluate(({ x, y }) => {
+      const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas')
+      if (canvas === null || canvas.width === 0) return undefined
+      const rect = canvas.getBoundingClientRect()
+      const ratio = canvas.width / rect.width
+      const copy = document.createElement('canvas')
+      copy.width = canvas.width
+      copy.height = canvas.height
+      const context = copy.getContext('2d')
+      if (context === null) throw new Error('No 2D canvas to read the picture with.')
+      context.drawImage(canvas, 0, 0)
+      const [r = 0, g = 0, b = 0, a = 0] = context.getImageData(
+        Math.round((x - rect.left) * ratio),
+        Math.round((y - rect.top) * ratio),
+        1,
+        1,
+      ).data
+      // Nothing drawn there yet: the picture's first frame has not come.
+      if (a === 0) return undefined
+      return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+    }, at)
+    if (found !== undefined) return found
+    if (Date.now() > deadline) throw new Error('No picture of a level on this page.')
+    await page.waitForTimeout(50)
+  }
 }
 
 /** The colour of the picture at the middle of a thing's button: the thing itself, if the picture agrees with it. */

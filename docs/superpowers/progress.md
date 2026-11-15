@@ -2,7 +2,7 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
-## Cycle 4: the 2D figure builder (Characters, Figures)
+## Cycle 6: the 2D figure builder
 
 Spec: [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md). The Owner asked
 (2026-11-15) that every editor part get its own pipeline; this is the first. The demo game's art comes from the
@@ -17,31 +17,117 @@ stage 7 is 6)
 |---|---|---|
 | 1. Spec | Written; the Owner's Q1 to Q5 answered (2026-11-15); in review with the framework's rigged-figures spec | [`specs/2026-11-15-2d-figure-builder-design.md`](specs/2026-11-15-2d-figure-builder-design.md) |
 | 2. Plan (plan G) | Written, in review, 100%. Eighteen tasks in six pull requests (each task is 5% of stage 4; the last 10% is the final green run and the review artifact). Three gates before any of it is built: the Owner's approval of the mockups of all editors (the Owner, 2026-11-15; where the Characters mockup differs, the plan is amended first), the Blueprint redesign's frame on `main`, and the framework's plan R on its `main` as far as each pull request needs. The pull requests: 1, the pin and one change of several files in the API; 2, the Characters frame, a figure on screen as the framework paints it, Body, Colours, the draft, Save and Export; 3, Wear with the library's tray, a shape of your own, Face; 4, Move (walk and stand) and Pose (by handles and joint by joint); 5, front and back views, players' colours, animals and free shapes; 6, New figure, giving a character a picture, Play, every action in the find bar, the first visit, every screen pictured. Rulings for the audit: the page paints the pictures at save and the API checks their size and atlas (it does not paint); a walk's or stand's numbers change the game's own copy of that file; painting stays on the main thread. No dependency is added. No Owner question is open | [`plans/2026-11-15-2d-figure-builder.md`](plans/2026-11-15-2d-figure-builder.md) |
-| 3. Plan audit | Done, 100%: no critical finding, seven important, four minor, all fixed in the plan in the audit's pull request. The ruling that the page paints the pictures is held, with the API now also checking each picture's colour table and a save carrying every picture a shared file repaints; one commit of several files is new GitHub work on the git data routes, with the calls counted; the first pull request needs plan R's new Part 0 (`listContent`); `CLAUDE.md`'s rule on what an editor writes is widened in Task 2; a pose's places are units from the hips; the redesign's Tasks 15 and 16 join gate 2. No Owner question opened here (the framework audit's Q1 on the demo's palette touches only Add a colour on the demo). The three gates still hold. Nothing was run | [`audits/2026-11-15-2d-figure-builder-plan-audit.md`](audits/2026-11-15-2d-figure-builder-plan-audit.md) |
+| 3. Plan audit | Done, 100%: no critical finding, eight important, four minor, all fixed in the plan in the audit's pull request. The ruling that the page paints the pictures is held, with the API now also checking each picture's colour table and a save carrying every picture a shared file repaints; one commit of several files is new GitHub work on the git data routes, with the calls counted; the first pull request needs plan R's new Part 0 (`listContent`); `CLAUDE.md`'s rule on what an editor writes is widened in Task 2; a pose's places are units from the hips; the redesign's Tasks 15 and 16 join gate 2; one shared `allowedPaths` (`service/changed.ts`) decides which files a save, an approval and the waiting list accept, so a waiting figure save can be approved (G-I8, from the scenes audit). No Owner question opened here; the games' art is in Lospec's DUEL palette (256 colours; the Owner, 2026-11-15), so on the demo Add a colour offers the library's DUEL ramps only. The three gates still hold. Nothing was run | [`audits/2026-11-15-2d-figure-builder-plan-audit.md`](audits/2026-11-15-2d-figure-builder-plan-audit.md) |
 | 4. Execution | Not started | |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+## The Sound editor cycle
+
+Spec: [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md). Its new file formats are
+the framework's, in AutomataFramework's `docs/superpowers/specs/2026-11-15-sound-formats-design.md` (its Cycle 8).
+Each of the five editors has its own cycle (the Owner, 2026-11-15).
+
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Written, in review. The Owner answered Q1 to Q6 (2026-11-15): opens on the level with sound chips; a new sound starts from a kind with Try another and plain sliders; music as GarageBand-style loops, whole chords and motifs; recorded sounds in; new formats in the framework first, with MIDI to JSON and back; content folders listed once, with a one-time "Set up sounds". Flagged: Feel's cycle lists one line per effect, which differs from Q6 | [`specs/2026-11-15-sound-editor-design.md`](specs/2026-11-15-sound-editor-design.md) |
+| 2. Plan | Written, in review, 100%. Twenty tasks in three parts and eight pull requests (3 points each of stage 4's 60). Part 1, sounds and what plays when: the pin and test games with sound; the API saves a change of several files in one saved change and lists a game's folders; a change held, drafted and saved on the page; what plays when, as edits with undo; the four sliders worked out from the file and a sound's picture; one speaker for everything Sound plays; Sound opens on the level with its chips; a sound's card; a new sound from a kind with Try another; "When…"; Save, "Set up sounds", Export and a waiting change; the first run in nine languages. Part 2, recordings: record or bring in a file; trim, keep and save it. Part 3, music and motifs: every edit of a song; the music screen; make your own loop; motifs; music files in and out; music's first runs and the whole of Sound end to end. It waits for the Owner's yes to the mockups, the redesign's build, and the framework's plan M (AutomataFramework). No new dependency. Settled in the plan: "MIDI" is not written on a screen (the spec bans the word), "Try another" is for this visit only (nothing may remember a kind), a song written as rows of notes is turned into loops, and the save of several files is one for every editor, shared with the Feel plan. No Owner question is open | [`plans/2026-11-15-sound-editor.md`](plans/2026-11-15-sound-editor.md) |
+| 3. Plan audit | Written, in review, 100%. Sound, with one critical fault fixed (Task 1 gave the fixture game folder lines before the page and the API could list a folder, which would have broken every journey) and seven important and five minor, all fixed in the plan: Play makes the game's sound over Sound's one speaker; chips follow how the framework names events (`hero.*`, a touch event by `kind`); no framework English, "MIDI" or "event" on a screen (Sound words the framework's codes); one save shared with the Feel, Story and Scenes plans (the figure builder’s `saveChange` and its shared `allowedPaths`, widened for recordings, removals and `setUp`; folder lines only by the framework’s `withFolders`); a brought-in song may be one step of up to 200 files; `CLAUDE.md` widened for `.wav` files and folder lines; the hero's eighth event worded. The spec's MIDI buttons and chip rule amended to match. No Owner question | [`audits/2026-11-15-sound-editor-plan-audit.md`](audits/2026-11-15-sound-editor-plan-audit.md) |
+| 4 to 7 | Not started | |
+
+## Cycle 5: the Feel editor (2D)
+
+Spec: [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md). Its own cycle (the Owner,
+2026-11-15: every editor tab gets its own pipeline). Feel tunes the built-in hero's move numbers by playing the real
+level with a drawn jump (Q1 A), changes the controls, and after the framework's plan F the effects (Q2 A). Move
+switches stay in Characters (Q3 B). Q4 changed after the spec (the Owner, 2026-11-15): Feel lists its effects folder
+once in `automata.toml`, the way Sound does, and no longer adds a line per effect. The spec is amended to say so
+(2026-11-15), and the plan is written that way.
+
+Overall: **12%** (the same weights as Cycle 3: stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60,
+stage 5 is 10, stage 6 is 12, stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done; Q1 to Q4 answered by the Owner | [`specs/2026-11-15-feel-editor-design.md`](specs/2026-11-15-feel-editor-design.md) |
+| 2. Plan | Done (2026-11-15, in review): fifteen tasks in three parts, every one with its journeys. The framework's F1 to F3 are their own plan, plan G, in AutomataFramework (`docs/superpowers/plans/2026-11-15-live-tuning.md`) | [`plans/2026-11-15-feel-editor.md`](plans/2026-11-15-feel-editor.md) |
+| 3. Plan audit | Done (2026-11-15): sound; three important fixes (two slider words over the 32-character limit, a panel no longer swallows a key's release, and the save follows the figure builder's `saveChange` instead of a second shape) and six small ones, made in the plan and two words in the spec. No Owner question; the order of the Feel and figure builder cycles is the coordinator's | [`audits/2026-11-15-feel-editor-plan-audit.md`](audits/2026-11-15-feel-editor-plan-audit.md) |
+| 4. Execution | Not started; waits for the Owner's yes to the mockups of all the editors (the Owner, 2026-11-15: mockups before any code), Cycle 3's Tasks 1 to 19, the framework's plan H and plan G, and this plan's audit; Part 3 (effects) also waits for the framework's plan F, and its content folders | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
+Nothing was run: this stage wrote documents.
 
 ## The Story editor (its own cycle)
 
 Spec: [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md). The Owner asked that every
 editor get its own full pipeline (2026-11-15). Story has three parts in World's frame: Conversations (a map of cards),
 Cutscenes (a camera frame and actors on the level's real art, over a timeline) and Words (every word a player reads,
-six languages side by side). Its build waits for framework plan T on `main` and for the redesign's build.
+six languages side by side). Its build waits for the Owner's approval of the mockups of all editors, for framework
+plan T on `main` and for the redesign's build.
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Written, in review; Q1 (a map of cards), Q2 (a save missing words waits until all six languages are there) and Q2b (a native speaker may mark words read) answered by the Owner | [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md) |
-| 2. Plan | Not started | |
-| 3. Plan audit | Not started | |
-| 4. Execution | Not started; waits for plan T and the redesign's build | |
+| 2. Plan | Written, in review (2026-11-15): 24 tasks in eight pull requests | [`plans/2026-11-15-story-editor.md`](plans/2026-11-15-story-editor.md) |
+| 3. Plan audit | Done (2026-11-15): 2 critical, 12 important, 11 minor; the plan is amended before the tasks each names | [`audits/2026-11-15-story-editor-plan-audit.md`](audits/2026-11-15-story-editor-plan-audit.md) |
+| 4. Execution | Not started; waits for the plan's amendment, the mockups' approval (the Owner, 2026-11-15), plan T and the redesign's build | |
 | 5. Implementation audit | Not started; two audits (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 3 finished (2026-11-15)
+
+The audit accepts the plan's two questions (Q-A: new lines start in the game's own words, which the framework forces;
+Q-B: an organization's admin approves their own words change once it is complete) and finds two critical problems to
+amend before any task: adding words to someone's waiting change let a Suggest-level person's words go in without
+approval (C1), and ruling 6's one `automata.toml` line per new file contradicts the Owner's content-folders decision
+(C2: Story uses a listed folder, an older game gets a one-time "Set up stories", and a new gate G6 waits for the
+framework's folders). The important ones: three framework names to export (I1), the camera's frame to come from the
+framework once plan T's Task 11 is in (I2), the key rule into the framework's content skill (I3), a blocked branch
+move told from a changed one (I4), clashes with `main` (I6), what an approver sees (I7), an Owner's World saves joining
+their words change (I8), the preview's keys (I9), ids that start with a digit (I10), and a missing language file
+blocking every save (I11); and Story saves through the shared several-file save (`saveChange`, `allowedPaths`)
+the figure builder, Feel and Scenes use, widened only where Story needs more (I12).
+
+**The Owner's answer (I5, 2026-11-15): the App finishes it itself.** The spec says a complete words change goes in
+once its checks pass; the plan only finished it when someone opened the game. Now the App hears GitHub's
+`check_suite` event at one new route, `/api/github-hook` (signed with a webhook secret kept in Cloudflare, set at
+deploy), and finishes the change itself. Task 21 is no longer held.
+
+**Next:** the plan's amendment, then stage 4 once the gates open. Nothing was run: this stage read documents and code.
+
+### Stage 2 finished (2026-11-15)
+
+The plan has 24 tasks in eight pull requests: the speech box shown on its own (one small pull request in
+AutomataFramework); the framework pin; several files saved as one change, a change that waits for its words and goes
+in when they are there; Story in the frame with its own page; conversations (the changes, the map's layout, the map
+on screen, changing it, the speech box and Try it); cutscenes (the changes, the stage, the timeline and Play, a new
+cutscene and Try it in the game); Words (the table, writing a word, read marks, Save and Export); and the first run,
+the find bar, and every screen pictured. Every task has end-to-end journeys at five sizes in three browsers.
+
+**Gates.** No task in this repo starts before the Owner approves the mockups of all editors (if Story's mockup
+differs from the plan's screens, the plan is amended first); the framework's task may start once plan T is on its
+`main` and this plan is audited. "Try it in the game" also waits for the redesign's Play.
+
+**Ruling 6, settled by the Owner's one rule across editors (2026-11-15):** each kind's folder is listed once in
+`automata.toml` and new files in it just work, as for Feel and Sound. A new conversation or cutscene is a new file
+in its folder; a game that does not list the folder yet has a one-press set-up that adds the one entry. The two Add
+cards wait for the framework's content folders on the pin.
+
+**For the plan audit:** Q-A, new lines start in the game's own language, because the framework refuses a line the
+game's own language lacks; Q-B, a change started by someone who is an Owner only through GitHub (an organization's
+admin) waits for approval once its words are there. Also new in the plan and flagged there: a language with no
+words file never makes a save wait (ruling 9), and "Changed" and "who read it" come from the game's history
+(ruling 13).
 
 Nothing was run: this stage wrote documents.
 
@@ -53,15 +139,15 @@ ground and the level only places what plays (Q1); all of the 3D builder's powers
 on the path to Release 1, because the demo's real art comes from the builders. It is built on Cycle 3's frame, after
 Cycle 3's build and audits. Each slice has a framework plan (AutomataFramework) and a builder plan (here).
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
-| 1. Spec | Done (2026-11-15, in review); Q1 and Q2 answered by the Owner | [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md) |
-| 2. Plan | Not started: slice 1 (ground and materials), framework plan first | |
-| 3. Plan audit | Not started | |
-| 4. Execution | Not started | |
+| 1. Spec | Merged (PR 31, 2026-11-15); Q1 and Q2 answered by the Owner | [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md) |
+| 2. Plan | Slice 1 (ground and materials) written, in review (2026-11-15). The builder's plan: thirteen tasks in five pull requests (Tasks 1 to 12 are 7% each, Task 13 is 6%, the last 10% is the final green run with the review pictures): the pin and the photos served; several files of a game saved in one change; saving a scene with its picture on the API; every change a scene's ground can take; the scene painted in the page by the framework's painter; the Scenes screen on the frame; Paint and Erase (a slope is drawn as a line and fills under itself); the Materials panel; scenes on the game's page, a first scene and "Edit this scene"; Save, Export and the waiting change; the first run; nine languages and every screen pictured; Play. **Its build waits on four gates:** the Owner's approval of the mockups of all editors (the Owner, 2026-11-15), Cycle 3's build and audits, the framework's slice 1 merged, and for Play the level editor's Play and the hero on slopes. Seventeen rulings for the audit; four depart from the spec (the first run until props exist, the empty state's second button, no size control, three tools shown). Slices 2 to 6 are outlined. The framework's plan is in AutomataFramework | [`plans/2026-11-15-scenes-1-ground-and-materials.md`](plans/2026-11-15-scenes-1-ground-and-materials.md); the framework's: [`2026-11-15-scenes-1-ground-and-materials.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/plans/2026-11-15-scenes-1-ground-and-materials.md) |
+| 3. Plan audit | Done (2026-11-15), slice 1, both plans: ready once fixed, and the fixes are in the plans. One blocking finding (a Suggest-level scene save could never be approved: `approve.ts` and `waiting.ts` refuse pictures, atlases and `automata.toml`; one shared `allowedPaths` fixes it for every editor), six important (the save goes through the figure builder's `saveChange`, as Feel's does; ruling 8 kept with a palette check; `readBytes` reads a picture over 1 MB by its blob; the test game's pictures stay uncommitted; the live repaint uses the framework's new `showScene`; the flat scene takes its colours), five minor. **The Owner's four answers (2026-11-15, 01:02 UTC)** are rulings 1, 13, 14 and 15 as written: only working tools; two simple starts; "Paint ground, press Save"; a scene's size by agents only for now. The four gates still hold | [`audits/2026-11-15-scenes-1-plan-audit.md`](audits/2026-11-15-scenes-1-plan-audit.md); the framework's: [`2026-11-15-scenes-1-plan-audit.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/superpowers/audits/2026-11-15-scenes-1-plan-audit.md) |
+| 4. Execution | Not started: waits on the four gates | |
 | 5. Implementation audit | Not started | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
@@ -112,6 +198,20 @@ the pull request's CI.
 - Task 7b (the framework pin, zoom plan): the pin moves from `b57d00a` to `504c278`, the merge of AutomataFramework pull
   request 102 (`LevelPicture.setView`, which the zoom needs). Same three places as Task 1: `package.json`, the
   `onlyBuiltDependencies` line and the lockfile, whose checksum was worked out from the downloaded tarball.
+- Fix (pull request 27): a waiting change's picture box is there before the game's art loads, so Approve does not move
+  under a finger; the share journey also waits for the picture. It came from a one-off Firefox failure of that journey.
+- Task 6 (every change a level can take): `edit.ts` gains redo (`future` on `LevelEdit`), add, erase, another character
+  and start points as hit ids (`start-<player>`, the hero's size); `ids.ts` names a new thing (`crate-2`); `compareLevels`
+  returns moved, added, erased, retyped and other, and `describeChange` names each kind. Ruling: a joint that goes with
+  an erased thing is not counted in `other`, so an erase still reads as an erase. Ruling: `setCharacter` also keeps the
+  new, possibly bigger, box inside the level, or the file would fail the framework's check. Ruling: `startId` and
+  `nextId` are used inside the feature, so only `nextId` joins the entry, which a test reads.
+- Task 7, part 1 (the pure parts, `levels/layout.ts`, `ui/panels.ts`, `levels/view.ts`): Task 7 is a whole new level
+  screen with the zoom amendment, so it goes up as several pull requests, each green on its own, in the plan's order:
+  1 the pure parts (this), 2 `Stage`, 3 the frame and its floating parts, 4 panels that close and open, 5 the zoom
+  buttons and keys, 6 the journeys. Ruling: the plan's "one pull request a task" is kept by task, not by size; the
+  report `Task 7` comes with the sixth. The room numbers are the zoom amendment's (`mid` right 92, `narrow` bottom
+  232), so they are never built twice.
 
 ### Stage 3 finished (2026-11-14)
 
