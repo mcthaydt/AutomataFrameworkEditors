@@ -151,19 +151,20 @@ session on Sonnet at xhigh effort, before the next step starts.
 Two speeds (the Owner, 2026-11-15), set up in `.github/workflows/ci.yml`; its `plan` job reads the pull request's
 changed files and decides.
 
-- **A draft gets the quick run.** The Node and browser tests the change reaches (Vitest `--changed=origin/main
-  --bail=1`); the journeys in Chromium only, and only when what the built suite is made of changed (`src/`,
-  `functions/`, the page, `public/`, the journeys), stopping at the first failure; the screens journey and its pictures
-  only when something seen changed (a `.svelte` or `.css` file, the words, the page, the mockups) or the pull request has
-  the `screenshots` label (`pictures` still works). Every job's name starts with `quick ` on a draft, so a quick run
-  never counts as a required check.
+- **A draft gets the quick run.** The Node tests the change reaches (Vitest `--changed=origin/main --bail=1`); the
+  browser tests whole, since they take seconds and Vitest's `--changed` fails in browser mode here; the journeys in
+  Chromium only, and only when what the built suite is made of changed (`src/`, `functions/`, the page, `public/`, the
+  journeys), stopping at the first failure; the screens journey and its pictures only when something seen changed (a
+  `.svelte` or `.css` file, the words, the page, the mockups) or the pull request has the `screenshots` label
+  (`pictures` still works). Every job's name starts with `quick ` on a draft, so a quick run never counts as a required
+  check.
 - **The full run gates merge.** Marking the pull request ready for review, every push to `main`, the `full-tests` label,
   or a change to the build or test setup (`package.json`, the lockfile, `.pnpmfile.cjs`, any `*.config.*`,
   `tsconfig*.json`, `tests/fixtures/`, `.github/`) runs everything in all three browsers, in six shards (`browsers
   (<engine> <n>/2)`: the screens journey and the short browser tests in the first, every other journey in the second),
   each engine's `engines (<engine>)` check green only when both its shards passed. The `screens` job puts both shards'
   pictures on `ci-screens`.
-- **Always:** checkout with `fetch-depth: 0` (so `origin/main` is there to compare with), installs and Playwright
+- **Always:** the Node tests' checkout with `fetch-depth: 0` (so `origin/main` is there to compare with), installs and Playwright
   browsers cached, and a new push cancels the run it replaces.
 - **How to use it:** open the pull request as a draft, push as often as you like, and mark it ready for review when the
   work is done. Only a green full run is merged.
