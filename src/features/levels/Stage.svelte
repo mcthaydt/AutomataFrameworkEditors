@@ -131,6 +131,8 @@
   }
   /** Fingers and the wheel: once a frame, however many events came. */
   function queue(view: LevelView, by: 'fingers' | 'wheel'): void {
+    // A person's hand takes over from a glide that is still on its way.
+    cancelAnimationFrame(gliding)
     next = { view, by }
     if (frame !== 0) return
     frame = requestAnimationFrame(() => {
@@ -203,6 +205,7 @@
     const step = far ? (across ? clear.w : clear.h) / 2 : fit.scale
     // The level goes the other way: pressing right brings what is to the right into the middle.
     const by = way === 'right' || way === 'down' ? -step : step
+    cancelAnimationFrame(gliding)
     take(panBy(now, home, clear, world, across ? by : 0, across ? 0 : by), 'buttons')
   }
 
