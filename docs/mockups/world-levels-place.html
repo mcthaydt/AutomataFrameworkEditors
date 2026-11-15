@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, placing a thing (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- World, Levels, placing: Place is picked and its tray of things sits above the toolbar. Tap a thing, then tap the
+     level; or drag one straight in. The crate is picked in the tray, and a faint crate shows where a tap would put it.
+     Nothing in the level is picked, so the inspector is closed and the level gets the screen. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:62.5%;top:73.8%;opacity:.55;outline:2px dashed #fff;outline-offset:2px">
+      <span class="tip" style="left:48%;top:56%">Tap the level to put a crate there</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+  ],
+  t: 1,
+  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span><span>Keep placing</span><span class="knob2"></span>',
+  tray: {
+    tip: 'Tap one, then tap the level. Or drag it in.',
+    items: [
+      { n: 'Crate', img: 'art/crate.png', on: true },
+      { n: 'Spring', i: 'arrow-line-up' },
+      { n: 'Coin', i: 'coin' },
+      { n: 'Button', i: 'radio-button' },
+      { n: 'Door', i: 'door' },
+      { n: 'Moving floor', i: 'arrows-left-right' },
+      { n: 'Sign', i: 'signpost' },
+    ],
+  },
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate-1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -20,13 +20,15 @@
 </head>
 <body>
 <!-- World, Scenes, first look: the 2D environment builder (spec: Editors PR 31) on the demo's meadow, which today is
-     the first level's own art. The layers are on the left, from the front to the back, each saying how fast it slides
-     as the camera moves; the tree is picked. -->
+     the first level's own art. The scenery is listed on the left, from the front to the back, each saying how fast it slides
+     as the camera moves; the tree is picked, with its bar of everyday acts above it. The hero and the crate are faint:
+     they belong to Levels, and here the scenery is what you work on. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
+      <div class="veil" style="left:12.4%;top:72.6%;width:6.3%;height:11.2%" title="The hero, faint: it belongs to Levels"></div>
+      <div class="veil" style="left:37.2%;top:73.6%;width:6.8%;height:10.2%" title="The crate, faint: it belongs to Levels"></div>
       <div class="ring" style="left:33%;top:59.6%;width:9%;height:19.5%;border-radius:50% 50% 3px 3px"></div>
-      <span class="chip" style="left:43%;top:58%"><span class="ic" data-i="tree"></span>Tree-2</span>
     </div>
   </div>
 </div>
@@ -38,11 +40,12 @@ window.MOCK = {
     ['Scatter', 'dots-nine', 'S'], ['Light', 'sun', 'K'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
   ],
   place: 'Meadow', saved: 'Sam, 5 minutes ago', tool: 0,
+  act: { at: [37.5, 59.6] },
+  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span>',
   settings: [
-    '<span>Line up with tiles</span><span class="knob2 on"></span>',
     '<span>Time of day</span><span class="seg"><button>Dawn</button><button class="on">Day</button><button>Dusk</button><button>Night</button></span>',
   ],
-  list: { title: 'Layers', tab: 'Everything here', count: 6, search: 'Find a layer or thing', rows: [
+  list: { title: 'Front to back', tab: 'Everything here', count: 6, search: 'Find something', rows: [
       { head: 'In front', count: 1 },
       { n: 'Falling leaves', k: 'close, moves fast', i: 'leaf' },
       { head: 'The level', count: 3 },
@@ -53,7 +56,7 @@ window.MOCK = {
       { n: 'Hills', k: 'far away, moves slowly', i: 'mountains' },
       { n: 'Sky', k: 'stays still', i: 'cloud', lock: true },
     ],
-    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New layer</button>',
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add scenery</button>',
   },
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],

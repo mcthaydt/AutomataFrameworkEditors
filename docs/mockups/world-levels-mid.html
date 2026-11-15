@@ -14,7 +14,7 @@
 </head>
 <body class="lib-open">
 <!-- World, Levels, mid-project: the same level a few hours in. Three crates picked at once with the bar beside them,
-     a button linked to a door, two zones, a problem (a crate in the ground), a teammate's pointer and a pinned note,
+     a button linked to a door, two zones, a problem (a crate in the ground), a teammate's note pinned on the door,
      and the Library pinned open. The extra crates, the door and the button are drawn for the mockup. -->
 <div class="canvas">
   <div class="fit">
@@ -35,11 +35,7 @@
       <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
       <div class="ring" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
-      <div class="mate" style="left:20%;top:30%">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 2 L18 9 L10 11 L7 18 Z" fill="#b7b492" stroke="#111314" stroke-width="1.2"/></svg>
-        <span>Mia</span>
-      </div>
-      <div class="pinned" style="left:66%;top:22%"><b>Mia · 10 min ago</b>Can the hero still jump over the door when it is open?</div>
+      <div class="pinned" style="left:88%;top:58%"><b>Mia · 10 min ago</b>Can the hero still jump over the door when it is open?</div>
     </div>
   </div>
 </div>
@@ -52,8 +48,10 @@ window.MOCK = {
     ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
   ],
   tool: 0,
+  holdOn: 0,
+  act: { at: [50, 62.5], several: true, menu: true },
+  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span>',
   settings: [
-    '<span>Line up with tiles</span><span class="knob2 on"></span>',
     '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
     '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
   ],
@@ -98,7 +96,6 @@ window.MOCK = {
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: 'Different for each' },
         { t: 'num', l: 'From the top', f: 'y', v: 'Different for each' },
-        { t: 'btns', b: [['Line up', 'align-bottom'], ['Space out', 'arrows-horizontal'], ['Stack', 'stack']] },
       ] },
       { name: 'Look', open: true, rows: [
         { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },

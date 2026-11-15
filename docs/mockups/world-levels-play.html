@@ -12,9 +12,10 @@
 </style>
 </head>
 <body>
-<!-- World, Levels, playing: Play is a tool, not a different screen. The level plays where it is drawn, with pause,
-     one step, slow, start again, play from here, and the last 30 seconds to drag back through. The values panel shows
-     the hero's numbers as they change. -->
+<!-- World, Levels, playing: Play sits beside Share, and the level plays where it is drawn, with pause, one step,
+     slow, start again, play from here, and the last 30 seconds to drag back through. On a touch screen the game's own
+     touch controls are over the level, so it can be played on the iPad. The inspector stays closed; one small card
+     holds the change worth trying while it plays. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage">
@@ -25,6 +26,10 @@
       <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
       <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
       <span class="tip up" style="left:12px;top:2%">Drag the line above back to see it again</span>
+      <span class="tb" style="left:3%;bottom:4%;width:14%;aspect-ratio:1" title="Move"><span class="ic" data-i="arrows-left-right"></span></span>
+      <span class="tb" style="right:3%;bottom:6%;width:10%;aspect-ratio:1" title="Jump"><span class="ic" data-i="arrow-fat-up"></span></span>
+      <span class="tb" style="right:15%;bottom:3%;width:7.5%;aspect-ratio:1" title="Pull"><span class="ic" data-i="hand"></span></span>
+      <span class="chip keyhint" style="left:2%;top:90%">Arrow keys move · Space jumps</span>
     </div>
   </div>
 </div>
@@ -36,7 +41,6 @@ window.MOCK = {
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
     ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
   ],
-  tool: 7,
   play: { paused: true, speed: 0, at: 40, time: '0:12' },
   list: {
     count: 7,
@@ -56,20 +60,13 @@ window.MOCK = {
   },
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
-  values: {
-    title: 'Hero', sub: 'While it plays · these change as it moves', pic: { img: 'art/hero.png' }, tab: 'Hero',
-    groups: [
-      { name: 'Right now', open: true, rows: [
-        { t: 'read', l: 'Going sideways', v: 'Fast, to the right' },
-        { t: 'read', l: 'Going up', v: 'Slowly' },
-        { t: 'read', l: 'Standing on', v: 'Nothing: in the air' },
-      ] },
-      { name: 'Try a change while it plays', open: true, rows: [
-        { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3.5', lo: 'A hop', hi: 'Over a house', at: 46 },
-        { t: 'choice', l: 'When you stop', opts: ['Keep the change', 'Put it back'], on: 1 },
-      ] },
-      { name: 'Buttons pressed', count: 2, rows: [] },
+  trycard: {
+    title: 'Try a change while it plays',
+    rows: [
+      { t: 'slider', l: 'How high the hero jumps', f: 'jump.height', v: '3.5', lo: 'A hop', hi: 'Over a house', at: 46 },
+      { t: 'choice', l: 'When you stop', opts: ['Keep it', 'Put it back'], on: 1 },
     ],
+    more: 'Everything about the hero',
   },
 }
 </script>

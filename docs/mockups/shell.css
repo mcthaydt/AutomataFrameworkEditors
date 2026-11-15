@@ -3132,3 +3132,865 @@ body.sh .filters .choice .num {
     padding: 0 6px;
   }
 }
+
+/* ---------- the grill, round 1: the shell and World (2026-11-15) ---------- */
+
+/* Numbers in the mono font everywhere; words a person reads never fainter than about 4.6 to 1. */
+:root,
+body.sh {
+  --measure: "JetBrains Mono", ui-monospace, monospace;
+  --faint: #8c8c8c;
+}
+
+body.sh :is(.scrub, .rd, .sh-play .t, .tz, .num, .daybar .num) {
+  font-family: var(--measure);
+}
+
+/* The top bar: one switcher for the editor, one for the part and the file, at every size. */
+.sh-top .sh-ws,
+.sh-top .place {
+  display: none !important;
+}
+
+.sh-top .wsn,
+.sh-top .partn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--raised);
+  white-space: nowrap;
+}
+
+.sh-top .wsn b {
+  font-weight: 600;
+}
+
+.sh-top .partn .pp {
+  display: inline !important;
+  color: var(--quiet);
+}
+
+/* Undo and Redo are two small buttons in the top bar; Play sits beside Share, where every game engine puts it. */
+.sh-top .tu {
+  color: var(--quiet);
+}
+
+.sh-top .tplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sh-top .tplay.on {
+  background: var(--words);
+  color: var(--ground);
+  border-color: var(--words);
+}
+
+.touch .sh-top .tplay {
+  height: 44px;
+}
+
+/* Share is quiet until there is something to share; then the accent means something. */
+.sh-top .share.quiet {
+  background: none;
+  color: var(--quiet);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* The toolbar holds tools only: Undo and Play show there on an upright phone alone, where the top bar has no room. */
+.tbar .tl2.u,
+.tbar .div.u {
+  display: none !important;
+}
+
+.tbar .tl2.ob span:not(.ic) {
+  display: inline !important;
+}
+
+/* The picked tool's own settings sit just above the toolbar while that tool is picked. */
+.topts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  color: var(--quiet);
+  white-space: nowrap;
+  order: -1;
+}
+
+.topts .seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--raised);
+}
+
+.topts .seg button {
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--quiet);
+  font: 13px var(--label);
+}
+
+.fine .topts .seg button {
+  height: 24px;
+}
+
+.topts .seg button.on {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+.topts .sw {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid rgb(0 0 0 / 0.4);
+}
+
+.topts .sw.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* While playing the toolbar steps aside: Stop is in the top bar, the play bar is over the level. */
+body.sh.playing .sh-tools {
+  display: none;
+}
+
+body.sh.playing {
+  --tools-h: 0px;
+}
+
+/* The left panel, closed to its rail on an iPad held sideways. */
+.lrail {
+  display: none;
+}
+
+body.sh.rail {
+  --left-w: 56px;
+}
+
+body.sh.rail .sh-left > :not(.lrail) {
+  display: none;
+}
+
+body.sh.rail .lrail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+body.sh.rail .lrail .ib {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  color: var(--quiet);
+}
+
+body.sh.rail .lrail .ib.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+/* A picked row is a lighter grey with a thin accent edge, never the accent mixed into grey. */
+body.sh .lr.on {
+  background: #363636;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* The inspector's head is one line: the name, then its kind. */
+.ihead .it {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.ihead .it b {
+  font-weight: 600;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ihead .it small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.sh .igroup h4 {
+  font-weight: 600;
+  color: var(--words);
+}
+
+/* A slider's number sits at the right of its label, tappable. */
+.ir.sl .scrub {
+  justify-self: end;
+}
+
+/* What is picked: the accent, two points, with corner handles a finger can find. */
+body.sh .ring:not(.warn) {
+  border: 2px solid var(--accent);
+  border-radius: 1px;
+  outline: 0;
+  background:
+    linear-gradient(var(--accent), var(--accent)) left top / 10px 10px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right top / 10px 10px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) left bottom / 10px 10px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right bottom / 10px 10px no-repeat;
+  background-origin: border-box;
+}
+
+body.sh .pickbox {
+  border: 1.5px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Zones are part of the game: a dark tint and a dark label. What a screen sees is a preview aid: a thin dotted line. */
+body.sh .zone {
+  border: 2px dashed #111314;
+  background: rgb(17 19 20 / 0.14);
+}
+
+body.sh .zone > span {
+  font: 600 12px / 1.2 var(--label);
+  text-transform: none;
+  letter-spacing: 0;
+  color: #fff;
+  background: #111314;
+  border-radius: 3px;
+}
+
+body.sh .device {
+  border: 1.5px dotted rgb(255 255 255 / 0.85);
+  background: none;
+}
+
+body.sh .device > span {
+  font: 500 12px / 1.2 var(--label);
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgb(30 30 30 / 0.85);
+  color: var(--words);
+  border-radius: 3px;
+}
+
+/* The grid is faint, so the art stays art. */
+body.sh .stage.grid::before {
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.06) 1px, transparent 1px);
+}
+
+/* The level's picture ends at the level: no sky strips, no marks outside its walls. */
+body.sh .stage {
+  background-image: url("art/level-1-edge.png");
+}
+
+/* The bar above what is picked. */
+.actbar {
+  position: absolute;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  transform: translate(-50%, calc(-100% - 10px));
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+.actbar.below {
+  transform: translate(-50%, 10px);
+}
+
+.actbar .ab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--words);
+  font: 500 13px var(--label);
+}
+
+.touch .actbar .ab {
+  height: 44px;
+}
+
+.fine .actbar .ab {
+  height: 30px;
+}
+
+.actbar .ab .ic {
+  width: 16px;
+  height: 16px;
+}
+
+.actbar .ab.n {
+  padding: 0 6px;
+  color: var(--quiet);
+}
+
+.actbar .ab.dd .ic:last-child {
+  width: 10px;
+  height: 10px;
+  color: var(--quiet);
+}
+
+.actbar .adiv {
+  width: 1px;
+  height: 24px;
+  margin: 0 3px;
+  background: var(--line);
+}
+
+.actbar .nudge {
+  display: inline-flex;
+}
+
+.amenu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+}
+
+.amenu b {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--quiet);
+}
+
+.amenu span {
+  display: grid;
+  grid-template-columns: repeat(4, 64px);
+  gap: 4px;
+}
+
+.amenu button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+  font: 12px var(--label);
+}
+
+.amenu button.on {
+  background: #4a4a4a;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.amenu .ic {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hold-buttons for the free thumb, at the canvas's left edge: Shift, Alt and a straight edge for a finger. They go
+   away when a keyboard is attached. */
+.holds {
+  position: absolute;
+  z-index: 11;
+  left: calc(var(--left-w) + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.holds .hb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 64px;
+  min-height: 56px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(37 37 37 / 0.94);
+  color: var(--quiet);
+  font: 500 11px / 1.15 var(--label);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.holds .hb .ic {
+  width: 18px;
+  height: 18px;
+}
+
+.holds .hb.on {
+  background: var(--words);
+  color: var(--ground);
+  border-color: var(--words);
+}
+
+body.sh.touch .fit {
+  left: 84px;
+}
+
+/* Place's tray: the things to add, just above the toolbar. */
+.tray {
+  position: absolute;
+  z-index: 14;
+  left: calc(var(--left-w) + (100% - var(--left-w) - var(--right-w)) / 2);
+  bottom: calc(var(--bottom2-h) + var(--tools-h) + 16px);
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - var(--left-w) - var(--right-w) - 24px));
+  padding: 10px 12px 12px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.tray p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--quiet);
+}
+
+.tray .titems {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.tray .ti {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 76px;
+  padding: 8px 4px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+  font: 12px var(--label);
+}
+
+.tray .ti .pic {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.tray .ti.on {
+  background: #3a3a3a;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.tray .ti.more2 {
+  color: var(--quiet);
+}
+
+body.sh.has-tray .fit {
+  bottom: calc(var(--bottom2-h) + var(--tools-h) + 132px);
+}
+
+/* Scenes: the game's own things are faint, so the scenery is what you see. */
+.veil {
+  position: absolute;
+  z-index: 1;
+  background: rgb(30 30 30 / 0.55);
+  pointer-events: none;
+}
+
+/* One bar for anything that plays: the day in Scenes looks and sits like the play bar. */
+body.sh .daybar {
+  left: calc(var(--left-w) + (100% - var(--left-w) - var(--right-w)) / 2);
+  transform: translateX(-50%);
+  height: 44px;
+  padding: 0 12px 0 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+/* The number pad, beside the value it changes. */
+.numpad {
+  position: absolute;
+  z-index: 30;
+  width: 264px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.numpad .nv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--quiet);
+}
+
+.numpad .nv b {
+  font: 500 26px var(--measure);
+  color: var(--words);
+}
+
+.numpad .nk {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.numpad .nk button {
+  height: 48px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+  font: 500 18px var(--measure);
+}
+
+.numpad .nk button.k {
+  font: 500 13px var(--label);
+  color: var(--quiet);
+}
+
+.numpad .nk button.done {
+  grid-column: span 2;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 15px var(--label);
+}
+
+/* A narrow screen: the rail and the hold-buttons stay out of a drawer layout. */
+@media (max-width: 1000px), (max-height: 600px) {
+  body.sh.touch .fit {
+    left: 8px;
+  }
+
+  .holds {
+    left: 8px;
+    top: auto;
+    bottom: calc(var(--sheet-h, 0px) + var(--band-h, 0px) + var(--tools-h) + 20px);
+    transform: none;
+    flex-direction: row;
+  }
+
+  .holds .hb {
+    width: 56px;
+    min-height: 48px;
+    font-size: 10px;
+  }
+
+  .tray {
+    bottom: calc(var(--sheet-h, 0px) + var(--tools-h) + 16px);
+    left: 50%;
+    width: calc(100vw - 16px);
+  }
+}
+
+/* A phone held upright: the top bar keeps the part's name, problems, Find and Share; Undo and Play stay at the end
+   of the toolbar, under the thumb. */
+@media (max-width: 500px) {
+  .sh-top .wsn,
+  .sh-top .tu,
+  .sh-top .tplay {
+    display: none !important;
+  }
+
+  .tbar .tl2.u,
+  .tbar .div.u {
+    display: flex !important;
+  }
+
+  .tbar .tl2.u.r {
+    display: none !important;
+  }
+
+  .tbar .tl2.ob span:not(.ic) {
+    display: none !important;
+  }
+
+  .sh-top .partn .pp {
+    display: none !important;
+  }
+
+  .actbar .ab:not(.n) span {
+    display: none;
+  }
+}
+
+/* A phone on its side: the hold-buttons are a column beside the tool column. */
+@media (max-height: 600px) and (min-width: 600px) {
+  .holds {
+    left: 72px;
+    top: calc(var(--top-h) + 8px);
+    bottom: auto;
+    flex-direction: column;
+  }
+
+  .sh-top .wsn,
+  .sh-top .partn .pp {
+    display: none !important;
+  }
+
+  .actbar .ab:not(.n) span {
+    display: none;
+  }
+}
+
+/* Play in place keeps the inspector closed: one small card holds the change worth trying while it plays. */
+.trycard {
+  position: absolute;
+  z-index: 12;
+  right: 12px;
+  top: calc(var(--top-h) + 72px);
+  width: 280px;
+  padding: 10px 12px 6px;
+}
+
+.trycard header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font: 600 14px var(--label);
+}
+
+.trycard .more {
+  margin: 4px 0 0;
+  padding-left: 0;
+}
+
+/* The game's own touch controls, drawn over the level while it plays on a touch screen. */
+.tb {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(245 236 194 / 0.28);
+  border: 3px solid rgb(245 236 194 / 0.8);
+}
+
+.tb .ic {
+  width: 40%;
+  height: 40%;
+  color: #111314;
+}
+
+.fine .tb,
+.touch .keyhint {
+  display: none;
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .trycard {
+    width: auto;
+    top: auto;
+    right: 8px;
+    bottom: 12px;
+    padding: 6px 10px;
+  }
+
+  .trycard > :not(header) {
+    display: none;
+  }
+
+  .trycard header {
+    margin: 0;
+    gap: 10px;
+  }
+}
+
+/* Groups that fold, for a level with hundreds of things: the caret, the name and the count on one row. */
+.lh.fold {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--row);
+  padding: 0 8px 0 calc(4px + var(--d) * 14px);
+  color: var(--words);
+  font-weight: 600;
+}
+
+.lh.fold .ic {
+  width: 12px;
+  height: 12px;
+  color: var(--quiet);
+}
+
+.lh.fold .n {
+  margin-left: auto;
+  font: 500 12px var(--measure);
+  color: var(--quiet);
+}
+
+.lr.rest {
+  color: var(--quiet);
+}
+
+/* The small map of a long level: all of it in one strip, the part on screen boxed. */
+.minimap {
+  position: absolute;
+  z-index: 9;
+  left: calc(var(--left-w) + 12px);
+  top: calc(var(--top-h) + 10px);
+  width: 300px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.minimap .mm {
+  position: relative;
+  height: 34px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: url("art/level-1.png") 0 0 / 25% 100% repeat-x;
+  image-rendering: pixelated;
+}
+
+.minimap .mm i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  box-shadow: 0 0 0 999px rgb(30 30 30 / 0.5);
+}
+
+.minimap .mw {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--quiet);
+}
+
+.minimap .mw b {
+  font: 500 12px var(--measure);
+  color: var(--words);
+}
+
+/* A locked thing, tapped: one line on why, one button to unlock. */
+.lockpop {
+  position: absolute;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 12px;
+  transform: translate(-50%, calc(-100% - 10px));
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.lockpop .ic {
+  width: 16px;
+  height: 16px;
+  color: var(--quiet);
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .minimap {
+    left: 8px;
+    width: 220px;
+  }
+}
+
+/* The row picked in the list picks the tool and fills the tray; the other rows go faint. */
+.lh.fold.on {
+  background: #363636;
+  border-radius: 6px;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.lh.fold.faint {
+  opacity: 0.55;
+}
+
+.lh.fold .pic.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+/* The world map's button, beside the level's name: pinch alone cannot be seen. */
+.sh-top .mapb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 0 10px;
+  font: 500 13px var(--label);
+}
+
+.sh-top .mapb.on {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+@media (max-width: 500px) {
+  .sh-top .mapb span:not(.ic) {
+    display: none;
+  }
+
+  .sh-top .mapb {
+    padding: 0 8px;
+  }
+}

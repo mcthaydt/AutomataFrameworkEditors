@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, a big level (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* Inside a level its neighbours show faintly at the edges (taken from LDtk's world). */
+  .nbr { position: absolute; z-index: 2; top: 30%; bottom: 30%; width: 4.5%; display: grid; place-items: center; background: url("art/level-1.png") center / cover; opacity: 0.4; font: 600 11px var(--label); color: #fff; writing-mode: vertical-rl; text-shadow: 0 1px 2px #000; }
+  .nbr.l { left: 0; border-radius: 0 6px 6px 0; }
+  .nbr.r { right: 0; border-radius: 6px 0 0 6px; }
+</style>
+</head>
+<body>
+<!-- World, Levels, a big level: twelve screens long and 214 things. The small map at the top left shows all of it,
+     with the part on screen boxed; drag the box, or tap the map, to go there. The list is open with its groups folded
+     and their counts, so 214 things fit in one short list; the top bar's Find narrows it as you type. The hero is
+     locked, and tapping it says so, with one button to unlock. The levels before and after show faintly at the edges. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:64.2%">
+      <span class="nbr l" title="The level before: drag past the edge to go there">Level 3</span>
+      <span class="nbr r" title="The next level: drag past the edge to go there">Level 5</span>
+      <div class="ring" style="left:12.4%;top:72.6%;width:6.3%;height:11.2%"></div>
+      <div class="lockpop" style="left:15.6%;top:72.6%"><span class="ic" data-i="lock-simple"></span>Locked, so it can't move by mistake<button class="sbtn">Unlock</button></div>
+    </div>
+  </div>
+</div>
+<div class="minimap" title="All of the level: drag the box to go there">
+  <div class="mm"><i style="left:16%;width:8.3%"></i></div>
+  <div class="mw"><span>Screen <b>3</b> of <b>12</b></span><span>Tap or drag to go there</span></div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 4', saved: 'Sam, 2 minutes ago', zoom: '50%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+  ],
+  tool: 0,
+  leftOpen: true,
+  list: {
+    count: 214,
+    rows: [
+      { head: 'Things', count: 196, fold: false },
+      { head: 'Coins', count: 120, fold: true, d: 1 },
+      { head: 'Crates', count: 41, fold: true, d: 1 },
+      { head: 'Springs', count: 12, fold: true, d: 1 },
+      { head: 'Doors and buttons', count: 8, fold: false, d: 1 },
+      { n: 'Door-1', k: 'door', i: 'door', d: 2 },
+      { n: 'Button-1', k: 'button', i: 'radio-button', d: 2 },
+      { n: 'Door-2', k: 'door', i: 'door', d: 2 },
+      { rest: 'and 5 more', d: 2 },
+      { head: 'People', count: 15, fold: false, d: 1 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true, on: true, d: 2 },
+      { rest: 'and 14 more', d: 2 },
+      { head: 'Zones', count: 16, fold: true },
+      { head: 'Ground and scene', count: 2, fold: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Hero', sub: 'Hero · locked so it can\'t move by mistake', pic: { img: 'art/hero.png' }, tab: 'Hero',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'read', l: 'From the left', v: '4 tiles' },
+        { t: 'read', l: 'From the top', v: '7 tiles' },
+        { l: 'Locked: unlock it to move it or change its place.' },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Hero', img: 'art/hero.png' },
+      ] },
+      { name: 'What it does', count: 4, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

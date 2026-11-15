@@ -9,7 +9,8 @@
 </head>
 <body>
 <!-- The keys sheet, opened with ? or the keyboard button: every key and every touch gesture in one place. A phone
-     or an iPad without a keyboard shows only the gestures. Keys follow the five tools (V Move, A Place, B Paint, L Draw path, P Play) and what people know from drawing tools. -->
+     or an iPad without a keyboard shows only the gestures. Keys follow the five tools (V Move, A Place, B Paint, E Erase, L Draw path) and what people know from drawing tools.
+     Press and hold has one job only: a thing's menu. One rule for Pencil and finger holds in every editor. -->
 <div class="canvas">
   <div class="fit"><div class="stage grid"></div></div>
 </div>
@@ -21,8 +22,8 @@
     <div class="k"><span>Move</span><span><kbd>V</kbd></span></div>
     <div class="k"><span>Place</span><span><kbd>A</kbd></span></div>
     <div class="k"><span>Paint</span><span><kbd>B</kbd></span></div>
+    <div class="k"><span>Erase</span><span><kbd>E</kbd></span></div>
     <div class="k"><span>Draw path</span><span><kbd>L</kbd></span></div>
-    <div class="k"><span>Play and stop</span><span><kbd>P</kbd></span></div>
     <div class="k"><span>Move the view</span><span>hold <kbd>Space</kbd></span></div>
   </div>
   <div class="col keyonly">
@@ -33,6 +34,7 @@
     <div class="k"><span>Group</span><span><kbd>⌘</kbd><kbd>G</kbd></span></div>
     <div class="k"><span>Delete</span><span><kbd>⌫</kbd></span></div>
     <h3>Anywhere</h3>
+    <div class="k"><span>Play and stop</span><span><kbd>P</kbd></span></div>
     <div class="k"><span>Find or do anything</span><span><kbd>⌘</kbd><kbd>K</kbd></span></div>
     <div class="k"><span>Undo, redo</span><span><kbd>⌘</kbd><kbd>Z</kbd> <kbd>⌘</kbd><kbd>⇧</kbd><kbd>Z</kbd></span></div>
     <div class="k"><span>Share my changes</span><span><kbd>⌘</kbd><kbd>S</kbd></span></div>
@@ -41,13 +43,17 @@
   <div class="col">
     <h3>Touch</h3>
     <div class="k"><span>Pick</span><span><span class="ic" data-i="hand-tap"></span>tap</span></div>
-    <div class="k"><span>Pick several</span><span><span class="ic" data-i="hand-pointing"></span>press and hold, then tap more</span></div>
+    <div class="k"><span>Pick several</span><span><span class="ic" data-i="selection-plus"></span>hold Pick several, or drag a box on empty ground</span></div>
     <div class="k"><span>Move the view</span><span><span class="ic" data-i="hand"></span>two fingers</span></div>
     <div class="k"><span>Zoom</span><span><span class="ic" data-i="arrows-out"></span>pinch</span></div>
     <div class="k"><span>Undo</span><span><span class="ic" data-i="hand-tap"></span>two-finger tap</span></div>
     <div class="k"><span>Redo</span><span><span class="ic" data-i="hand-tap"></span>three-finger tap</span></div>
-    <div class="k"><span>Redo, another way</span><span><span class="ic" data-i="hand-pointing"></span>press and hold Undo</span></div>
-    <div class="k"><span>More for a thing</span><span><span class="ic" data-i="hand-pointing"></span>press and hold it</span></div>
+    <div class="k"><span>A thing's menu</span><span><span class="ic" data-i="hand-pointing"></span>press and hold it</span></div>
+    <div class="k"><span>Paint with what is there</span><span><span class="ic" data-i="hand-pointing"></span>press and hold, with Paint picked</span></div>
+    <h3>Pencil and finger</h3>
+    <div class="k"><span>With a Pencil</span><span><span class="ic" data-i="pencil-simple"></span>the Pencil uses the tool, a finger moves the view</span></div>
+    <div class="k"><span>Paint, then Erase</span><span><span class="ic" data-i="pencil-simple"></span>double tap the Pencil</span></div>
+    <div class="k"><span>With no Pencil</span><span><span class="ic" data-i="hand-tap"></span>one finger uses the tool, two fingers move</span></div>
   </div>
 </section>
 <script>

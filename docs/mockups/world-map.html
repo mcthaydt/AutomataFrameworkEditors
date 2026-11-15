@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · the world map (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .wmap { position: absolute; inset: 0; }
+  .wmap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wmap svg path { fill: none; stroke: rgb(255 255 255 / 0.35); stroke-width: 3px; vector-effect: non-scaling-stroke; }
+  .lv { position: absolute; width: 16%; padding: 0; border: 0; background: none; color: var(--words); font: 500 13px var(--label); text-align: left; }
+  .lv i { display: block; aspect-ratio: 888 / 540; border-radius: 6px; background: url("art/level-1.png") center / cover; image-rendering: pixelated; box-shadow: 0 0 0 1px var(--line); }
+  .lv span { display: flex; justify-content: space-between; gap: 6px; margin-top: 6px; }
+  .lv b { font-weight: 500; color: var(--accent); }
+  .lv.here i { box-shadow: 0 0 0 3px var(--accent); }
+  @media (max-width: 500px) { .lv { font-size: 11px; } .lv b { display: none; } .wmap .tip { display: none; } }
+  @media (max-height: 600px) { .lv span { margin-top: 2px; font-size: 11px; } .lv b { display: none; } .wmap .tip { display: none; } }
+</style>
+</head>
+<body>
+<!-- World, the world map (taken from LDtk): pinch out past the whole level, or press Map beside the level's name, and
+     the level shrinks into a sheet of every level as a small picture. Lines show what leads to what. Drag a level to
+     arrange the sheet; tap one to go in. Twelve levels, to look like a real game. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M20 22 H22 M38 22 H40 M56 22 H58 M74 22 H76 M67 34 V42 M85 34 V42 M74 52 H76 M56 52 H58 M13 34 V72 M20 82 H22 M38 82 H40 M56 82 H58 M49 34 V42"/>
+      </svg>
+      <button class="lv" style="left:4%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 1</span></button><button class="lv" style="left:22%;top:12%"><i style="filter:hue-rotate(25deg)"></i><span>Level 2</span></button><button class="lv" style="left:40%;top:12%"><i style="filter:hue-rotate(50deg)"></i><span>Level 3</span></button><button class="lv here" style="left:58%;top:12%"><i style="filter:hue-rotate(0deg)"></i><span>Level 4<b>You are here</b></span></button><button class="lv" style="left:76%;top:12%"><i style="filter:hue-rotate(200deg)"></i><span>Level 5</span></button><button class="lv" style="left:58%;top:42%"><i style="filter:hue-rotate(250deg)"></i><span>Cave 1</span></button><button class="lv" style="left:76%;top:42%"><i style="filter:hue-rotate(280deg)"></i><span>Cave 2</span></button><button class="lv" style="left:40%;top:42%"><i style="filter:hue-rotate(140deg)"></i><span>Secret room</span></button><button class="lv" style="left:4%;top:72%"><i style="filter:hue-rotate(320deg)"></i><span>Level 6</span></button><button class="lv" style="left:22%;top:72%"><i style="filter:hue-rotate(30deg)"></i><span>Level 7</span></button><button class="lv" style="left:40%;top:72%"><i style="filter:hue-rotate(60deg)"></i><span>Level 8</span></button><button class="lv" style="left:58%;top:72%"><i style="filter:hue-rotate(180deg)"></i><span>The keep</span></button>
+      <span class="tip" style="left:4%;top:44%">Drag a level to arrange the map.<br>Tap one to go in.</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'All levels', saved: 'Sam, 2 minutes ago', zoom: '8%', mapOn: true, state: 'world map',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tool: 0,
+  off: [1, 2, 3],
+  list: {
+    count: 12,
+    rows: [
+      { head: 'Levels', count: 9, fold: false },
+      { n: 'Level 1', i: 'squares-four', d: 1 }, { n: 'Level 2', i: 'squares-four', d: 1 }, { n: 'Level 3', i: 'squares-four', d: 1 },
+      { n: 'Level 4', i: 'squares-four', d: 1, on: true }, { rest: 'and 5 more', d: 1 },
+      { head: 'Caves and rooms', count: 3, fold: true },
+    ],
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

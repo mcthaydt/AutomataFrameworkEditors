@@ -172,21 +172,26 @@ const pic = (r) =>
 // with palette No. 310 only for accents.
 
 // The five tools every workspace shares. Each workspace gives them its own meaning (Paint paints tiles in World and
-// notes in Sound; Draw path links cards in Story), so learning one workspace teaches all five.
+// notes in Sound; Draw path links cards in Story), so learning one workspace teaches all five. The toolbar holds tools
+// and nothing else: Play, Undo and Redo are in the top bar (the Owner, 2026-11-15).
 const TOOLS = [
   ['Move', 'cursor', 'V'],
   ['Place', 'plus-square', 'A'],
   ['Paint', 'paint-brush', 'B'],
+  ['Erase', 'eraser', 'E'],
   ['Draw path', 'path', 'L'],
-  ['Play', 'play', 'P'],
 ]
+// Pages name tools by round two's numbers (0 Move, 1 Place, 2 Paint, 3 Draw path, 4 Play); this turns one into its
+// place in the toolbar. Play is no longer a tool (-1).
+const toolAt = (i) => (i === 3 ? 4 : i === 4 ? -1 : i)
 // Round two's tools, mapped onto the five.
 const TOOL_OF = {
-  pick: 0, hand: 0, pose: 0, erase: 0, mirror: 0, select: 0, find: 0,
+  pick: 0, hand: 0, pose: 0, mirror: 0, select: 0, find: 0,
   add: 1, 'add a key': 1, 'add a card': 1, 'add a loop': 1, 'add a part': 1, note: 1, camera: 1, record: 1,
   paint: 2, pencil: 2, scatter: 2, fill: 2, box: 2, light: 2, 'pick a color': 2,
   link: 3, zone: 3, measure: 3, line: 3, trim: 3, cut: 3, 'onion skin': 3,
   play: 4, 'try it': 4,
+  // erase is the toolbar's own Erase, set apart below
 }
 
 // What each editor's own changes are, for the Share button.
@@ -200,9 +205,10 @@ function insRow(r) {
       return `<div class="ir">${label}<span class="scrub">${r.v}${r.u ? `<small>${r.u}</small>` : ''}</span></div>`
     case 'read':
       return `<div class="ir">${label}<span class="rd">${r.v}</span></div>`
-    // A slider says what its two ends mean; its number is in More (a page can ask for it with `num`).
+    // A slider says what its two ends mean in words, and its number sits at the right of its label: a tap opens the
+    // number pad, so a value can be matched exactly.
     case 'slider':
-      return `<div class="ir sl">${label}${r.num ? `<span class="scrub">${r.v}</span>` : '<span></span>'}<span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
+      return `<div class="ir sl">${label}<span class="scrub">${r.v}</span><span class="track"><i style="--at:${r.at}%"></i></span><span class="ends"><span>${r.lo}</span><span>${r.hi}</span></span></div>`
     // Choices that do not fit the panel as segments become a dropdown.
     case 'choice':
       if (r.opts.length >= 4 || r.opts.join('').length > 30) return insRow({ ...r, t: 'pick', v: r.opts[r.on] })
@@ -248,18 +254,22 @@ function inspector(v, keep) {
     if (!g.open) hidden += g.count || 1
     if (take.length) parts.push(`<div class="igroup"><h4>${g.name.replace(soon, '')}</h4>${take.map(insRow).join('')}</div>`)
   }
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, not shared yet"></i></span>') : v.title}</b><small>${v.sub || ''}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, not shared yet"></i></span>') : v.title}</b><small>${(v.sub || '').split(' · ')[0]}</small></span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
-      ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}
-      <button class="astext">${icon('file-text')}Show as text, for agents</button></div>`
+      ${hidden ? `<button class="more">${icon('caret-right')}More<span class="n">${hidden}</span></button>` : ''}</div>`
 }
 
 function layers(l) {
   return l.rows
     .map((r) =>
       r.head
-        ? `<div class="lh">${r.head}</div>`
-        : `<div class="lr${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}">${pic(r)}<span class="ln">${r.n}</span>${r.warn ? icon('warning') : ''}${r.hid ? icon('eye-slash') : ''}${r.lock ? `<span title="Locked so it can't move by mistake. Tap to unlock.">${icon('lock-simple')}</span>` : ''}</div>`,
+        ? r.fold === undefined
+          ? `<div class="lh">${r.head}</div>`
+          : // A group that folds: its caret, its name and how many are in it, so a list of hundreds stays short.
+            `<div class="lh fold${r.on ? ' on' : ''}${r.faint ? ' faint' : ''}" style="--d:${r.d || 0}">${r.sw ? `<i class="pic swatch" style="background:${r.sw}"></i>` : ''}${icon(r.fold ? 'caret-right' : 'caret-down')}<span>${r.head}</span><span class="n">${r.count}</span></div>`
+        : r.rest
+          ? `<div class="lr rest" style="--d:${r.d || 0}">${r.rest}</div>`
+          : `<div class="lr${r.on ? ' on' : ''}${r.hid ? ' hid' : ''}" style="--d:${r.d || 0}">${pic(r)}<span class="ln">${r.n}</span>${r.warn ? icon('warning') : ''}${r.hid ? icon('eye-slash') : ''}${r.lock ? `<span class="lk" title="Locked so it can't move by mistake. Tap to unlock.">${icon('lock-simple')}</span>` : ''}</div>`,
     )
     .join('')
 }
@@ -276,9 +286,11 @@ function leftPanel(m) {
   if (!m.library?.items?.length) m.library = null
   const onAssets = !m.list && m.library
   const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Assets.</p>'
+  // Closed, on an iPad, the panel is a thin rail: one tap on either opens it (the Owner, 2026-11-15). The top bar's
+  // Find filters this list as you type, so the list has no Find of its own.
   return `<aside class="sh-left">
-    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${m.list?.tab || 'Everything here'}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Assets</button>` : ''}<button class="ib" aria-label="Hide" title="Hide this panel">${icon('sidebar-simple')}</button></nav>
-    <div class="lsearch">${icon('magnifying-glass')}<span>Find</span></div>
+    <nav class="lrail"><button class="ib on" title="Everything here: open the list">${icon('list-bullets')}</button><button class="ib" title="Assets: open the things to add">${icon('shapes')}</button></nav>
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${m.list?.tab || 'Everything here'}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Assets</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button></nav>
     <div class="lbody">${body}</div>
   </aside>`
 }
@@ -287,13 +299,13 @@ function leftPanel(m) {
 // last 30 seconds to drag back through. Every control says what it does.
 function playbar(p) {
   return `<div class="sh-play">
-    <button class="ib" title="${p.paused ? 'Go on' : 'Pause'}">${icon(p.paused ? 'play' : 'pause')}</button>
-    <button class="ib" title="One step">${icon('skip-forward')}</button>
+    <button class="ib w" title="${p.paused ? 'Go on' : 'Pause'}">${icon(p.paused ? 'play' : 'pause')}<span>${p.paused ? 'Go on' : 'Pause'}</span></button>
+    <button class="ib w" title="One step">${icon('skip-forward')}<span>One step</span></button>
     <span class="segs">${['Normal', 'Slow', 'Slower'].map((s, i) => `<button class="${i === (p.speed || 0) ? 'on' : ''}">${s}</button>`).join('')}</span>
     <button class="ib w" title="Start again">${icon('arrow-counter-clockwise')}<span>Start again</span></button>
     <button class="ib w" title="Play from here">${icon('map-pin')}<span>Play from here</span></button>
     <span class="rew" title="Drag back to see it again"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}<button class="spd" title="How fast">${['Normal', 'Slow', 'Slower'][p.speed || 0]}${icon('caret-down')}</button></span>
-    <button class="ib big" title="Bigger: hide the panels while playing">${icon('arrows-out')}</button>
+    <button class="ib w big" title="Bigger: hide the panels while playing">${icon('arrows-out')}<span>Bigger</span></button>
   </div>`
 }
 
@@ -315,56 +327,63 @@ function frame(m) {
   const editor = EDITORS.find(([word]) => word.toLowerCase() === m.editor)
   const n = changesOf(m)
   const fine = m.hand ? m.hand === 'fine' : !(navigator.maxTouchPoints > 0)
-  const parts = (m.parts || [])
-    .map(([word], i) => `<button class="${i === m.part ? 'on' : ''}">${word}</button>`)
-    .join('')
   const here = (m.parts || [])[m.part]?.[0] || ''
-  const ws = EDITORS.map(([word]) =>
-    word === editor[0]
-      ? `<span class="ws on"><b>${word}</b><span class="parts">${parts}</span></span>`
-      : `<button class="ws">${word}</button>`,
-  ).join('')
   const was = (m.tools?.[m.tool]?.[0] || 'pick').toLowerCase()
-  const tool = m.t ?? (m.play ? 4 : TOOL_OF[was] ?? 0)
-  // A tool with no job on this page is dimmed, and says why when pressed; `jobs` names each tool's job here.
-  const off = m.off || []
+  const tool = m.play ? -1 : m.t != null ? toolAt(m.t) : was === 'erase' ? 3 : toolAt(TOOL_OF[was] ?? 0)
+  // A tool with no job on this page is left out; Erase goes with Paint. `jobs` names each tool's job here.
+  const off = (m.off || []).map(toolAt)
+  if (off.includes(2) && !m.erase) off.push(3)
+  const jobs = []
+  for (const [i, j] of (m.jobs || []).entries()) if (j) jobs[toolAt(i)] = j
   const tools = TOOLS.map(([word, ic, key], i) => {
-    const job = m.jobs?.[i] || word
-    const why = off.includes(i) ? ` · nothing to ${word.toLowerCase()} here` : ''
-    return `<button class="tl2${i === tool ? ' on' : ''}${off.includes(i) || (m.play && i < 4) ? ' off' : ''}" title="${job}${why}${fine ? ` (${key})` : ''}">${icon(i === 4 && m.play ? 'stop' : ic)}<span>${i === 4 && m.play ? 'Stop' : word}</span></button>`
+    const job = jobs[i] || word
+    return `<button class="tl2${i === tool ? ' on' : ''}${off.includes(i) ? ' off' : ''}" title="${job}${fine ? ` (${key})` : ''}">${icon(ic)}<span>${word}</span></button>`
   }).join('')
   const problems = (m.closed || []).find(([w]) => w === 'Problems')?.[2]
   // The device's own word: a computer, a phone (small or on its side), or an iPad.
   const small = window.innerWidth <= 500 || window.innerHeight <= 600
   const device = fine ? 'computer' : small ? 'phone' : 'iPad'
   const status = n ? `${icon('check')}<span class="long">Saved on this ${device}</span><span class="short">Saved</span>` : `${icon('check')}<span class="long">Everyone has your changes</span><span class="short">Shared</span>`
-  // The tool's own options sit inside the toolbar, beside the tool they belong to. "All levels" is the level's menu.
+  // View holds what the canvas shows; the picked tool's own two or three settings sit beside the toolbar
+  // (`toolopts`). "All levels" is the level's menu.
+  // The free hand's strip, on a touch screen only: buttons held with the thumb that isn't drawing, where a computer
+  // holds a key. It belongs to the shell, not to World: each workspace names its own (3D will add "Turn the view").
+  // World's three are on now; the other workspaces join when they are drawn.
+  const holds = m.holds === false ? null : m.holds || (m.editor === 'world' ? [['Pick several', 'selection-plus'], ['Copy', 'copy'], ['Straight', 'ruler']] : null)
   const opts = [...(m.settings || []).filter((o) => !/All levels/.test(o)), `<span>Zoom</span><span class="seg"><button class="on">Fit</button><button>${/%$/.test(m.zoom || '100%') ? m.zoom || '100%' : '100%'}</button></span>`]
   const html = `
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
-    <nav class="sh-ws">${ws}</nav>
-    ${m.place && m.place !== here ? `<button class="place" title="All ${here.toLowerCase()}">${m.place}${icon('caret-down')}</button>` : ''}
-    <button class="wsn"><b>${editor[0]}</b>${icon('caret-down')}</button>
+    <button class="wsn" title="The five editors: World, Characters, Feel, Sound, Story"><b>${editor[0]}</b>${icon('caret-down')}</button>
     <button class="partn" title="Other parts, other editors and the game's own menu"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}</span>${icon('caret-down')}</button>
+    ${m.editor === 'world' && here === 'Levels' ? `<button class="ib mapb${m.mapOn ? ' on' : ''}" title="Every level on one map. Or pinch out past the whole level">${icon('map-trifold')}<span>Map</span></button>` : ''}
     <span class="fill"></span>
+    <button class="ib tu" title="${fine ? 'Undo (⌘Z)' : 'Undo · or tap with two fingers'}">${icon('arrow-counter-clockwise')}</button><button class="ib tu" title="${fine ? 'Redo (⇧⌘Z)' : 'Redo · or tap with three fingers'}">${icon('arrow-clockwise')}</button>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}${fine ? '<kbd>⌘K</kbd>' : '<span>Find</span>'}</button>
     <span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>
     <span class="kept">${status}</span>
-    <button class="share">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}<span class="nw"> new</span></span>` : ''}</button>
+    <button class="tplay${m.play ? ' on' : ''}" title="${m.play ? 'Stop playing and go back to building' : 'Play the level here'}${fine ? ' (P)' : ''}">${icon(m.play ? 'stop' : 'play')}<span>${m.play ? 'Stop' : 'Play'}</span></button>
+    <button class="share${n ? '' : ' quiet'}" title="${n ? 'Put your changes into the game for the team' : 'Nothing new to share'}">${icon('share-network')}<span class="w">Share</span>${n ? `<span class="n">${n}<span class="nw"> new</span></span>` : ''}</button>
   </header>
   ${leftPanel(m)}
   ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show the values">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button></aside>` : ''}
   ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
   ${m.play ? playbar(m.play) : ''}
+  ${m.trycard ? `<aside class="float trycard"><header><b>${m.trycard.title}</b><button class="ib" title="Close this card">${icon('x')}</button></header>${m.trycard.rows.map(insRow).join('')}<button class="more">${icon('caret-right')}${m.trycard.more}</button></aside>` : ''}
   <div class="sh-tools">
-    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div"></i><button class="tl2 u" title="${fine ? 'Undo (⌘Z)' : 'Undo · press and hold for Redo'}">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u r" title="Redo">${icon('arrow-clockwise')}<span>Redo</span></button>${opts.length ? `<i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="How this tool works and what the canvas shows">${icon('sliders-horizontal')}<span>Options</span></button>` : ''}<button class="tz" title="Zoom: pinch, or press to pick">${/%$/.test(m.zoom || '') ? m.zoom : '100%'}</button></nav>
-    ${opts.length && m.optsOpen ? `<div class="opop"><b>Options</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
-  </div>`
+    <nav class="tbar"><button class="tl2 lay" title="Everything here and Assets">${icon('stack')}<span>List</span></button>${tools}<i class="div u"></i><button class="tl2 u" title="Undo · or tap with two fingers">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the canvas shows: zoom, grid, frames">${icon('eye')}<span>View</span></button><button class="tz" title="Zoom: pinch, or press to pick">${/%$/.test(m.zoom || '') ? m.zoom : '100%'}</button></nav>
+    ${m.toolopts ? `<div class="topts">${m.toolopts}</div>` : ''}
+    ${m.optsOpen ? `<div class="opop"><b>View</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
+  </div>
+  ${m.tray ? `<div class="tray"><p>${m.tray.tip || 'Tap one, then tap the level. Or drag it in.'}</p><div class="titems">${m.tray.items.map((it) => `<button class="ti${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></button>`).join('')}<button class="ti more2">${icon('squares-four')}<span>All things</span></button></div></div>` : ''}
+  ${!fine && !m.play && holds ? `<div class="holds" title="Hold with your free thumb, or tap to keep on">${holds.map(([w, ic], i) => `<button class="hb${m.holdOn === i ? ' on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>` : ''}`
   document.body.insertAdjacentHTML('beforeend', html)
   for (const el of document.querySelectorAll('.pop')) el.innerHTML = el.innerHTML.replaceAll('this iPad', `this ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
+  // An iPad held sideways starts with the left panel closed to its rail; a computer starts with it open.
+  if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen) cls.push('rail')
+  if (m.tray) cls.push('has-tray')
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')
   if (opts.length) cls.push('has-opts')
@@ -381,6 +400,16 @@ function frame(m) {
       `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">
       <div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b>${icon('sparkle')}${g.who || 'Agent'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
     )
+  }
+  // What is picked gets a small bar just above it: the everyday acts, where the finger already is. Several picked
+  // add Line up, Space out and Stack; nudge arrows stand in for a mouse's fine movement; "…" holds the rest.
+  if (m.act && stage) {
+    const a = m.act
+    const b = (w, ic, more) => `<button class="ab${more ? ' dd' : ''}" title="${w}">${icon(ic)}<span>${w}</span>${more ? icon('caret-down') : ''}</button>`
+    const nudge = `<span class="nudge" title="Nudge one step">${[['caret-left', 'left'], ['caret-up', 'up'], ['caret-down', 'down'], ['caret-right', 'right']].map(([ic, w]) => `<button class="ab n" title="Nudge ${w}">${icon(ic)}</button>`).join('')}</span>`
+    const several = a.several ? `${b('Line up', 'align-bottom', true)}${b('Space out', 'arrows-out-line-horizontal')}${b('Stack', 'stack')}<i class="adiv"></i>` : ''
+    const menu = a.menu ? `<div class="amenu"><b>Line them up along</b><span>${[['align-top', 'The top'], ['align-bottom', 'The bottom'], ['align-left', 'The left'], ['align-right', 'The right']].map(([ic, w], i) => `<button class="${i === 1 ? 'on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</span></div>` : ''
+    stage.insertAdjacentHTML('beforeend', `<div class="actbar${a.below ? ' below' : ''}" style="left:${a.at[0]}%;top:${a.at[1]}%">${several}${b('Duplicate', 'copy-simple')}${b('Delete', 'trash')}<i class="adiv"></i>${nudge}${b('More', 'dots-three')}${menu}</div>`)
   }
 }
 

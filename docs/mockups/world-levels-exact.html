@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, an exact number (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .ibody .igroup:first-of-type .ir:first-of-type .scrub { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .numpad { right: calc(var(--right-w) + 12px); top: calc(var(--top-h) + 64px); }
+  @media (max-width: 1000px), (max-height: 600px) { .numpad { right: auto; left: 50%; top: auto; bottom: calc(var(--sheet-h, 0px) + 12px); transform: translateX(-50%); } }
+  @media (max-height: 600px) { .numpad { bottom: auto; top: 8px; width: 240px; padding: 8px; } .numpad .nk button { height: 40px; } .numpad .nv { margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+<!-- World, Levels, an exact number: tapping "6 tiles" opens a number pad beside it, with minus and plus for one
+     step either way. Dragging the number left or right still changes it, finer when the finger moves away from it.
+     A keyboard types the number straight in. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+    </div>
+  </div>
+</div>
+<div class="numpad" role="dialog" aria-label="From the left">
+  <div class="nv"><span>From the left, in tiles</span><b>6.5</b></div>
+  <div class="nk">
+    <button>7</button><button>8</button><button>9</button><button class="k" title="One less">− 1</button>
+    <button>4</button><button>5</button><button>6</button><button class="k" title="One more">+ 1</button>
+    <button>1</button><button>2</button><button>3</button><button class="k" title="Take away the last number">⌫</button>
+    <button>0</button><button>.</button><button class="done">Done</button>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+  ],
+  tool: 0,
+  act: { at: [40.6, 73.2] },
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall out', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Crate-1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate-1',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '6', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '7', u: 'tiles' },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With the hero', 'In front'], on: 1 },
+      ] },
+      { name: 'What it does', open: true, rows: [
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+      ] },
+      { name: 'Your own values', count: 0, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
