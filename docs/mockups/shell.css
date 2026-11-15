@@ -8528,6 +8528,9 @@ html body.sh.has-tilestrip .tilestrip {
 /* ----- 19. The paint brush's settings in a tray wrap onto two lines on an upright phone, like the tile tool's (M4, M15) ----- */
 @media (max-width: 500px) {
   html body.sh .tray .tset {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
     flex-wrap: wrap;
     justify-content: center;
     row-gap: 4px;
@@ -8542,5 +8545,16 @@ html body.sh.has-tilestrip .tilestrip {
 @media (max-width: 1000px) {
   html body.sh .sh-top .backb .bw {
     display: none;
+  }
+}
+
+/* ----- 21. The tile strip fits "New tile" on an upright phone: six tiles in a row, a little narrower ----- */
+@media (max-width: 500px) {
+  html body.sh.has-tilestrip .tilestrip {
+    gap: 4px;
+  }
+
+  html body.sh.has-tilestrip .tilestrip .tt {
+    width: 52px;
   }
 }
