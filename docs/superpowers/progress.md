@@ -2,6 +2,17 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Must-fix for the first build after the mockups are approved
+
+Editor code is on hold until the Owner approves the mockups (`docs/mockups/`, PR 34). These wait for the first
+build after that approval and go before any other editor work:
+
+- **WebKit sign-in journey fails now and then.** `tests/journeys/open-game.journey.test.ts > when the sign-in is
+  gone for good the person is on Welcome, told so` failed in `engines (webkit)` at 3bda1c3, with the page error
+  "/api/token due to access control checks", and passed when the job was run again. That commit changed only
+  `docs/mockups/`, so the fault is in the editors' code or the journey server. Find it and fix it; do not retry
+  past it.
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
