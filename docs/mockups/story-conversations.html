@@ -7,45 +7,54 @@
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
-  .card { position: absolute; z-index: 2; background: var(--raised); border: 1px solid var(--words); border-radius: 3px; font-size: 16px; }
-  .card.on { outline: 3px dashed var(--touch); outline-offset: 5px; }
-  .card.faint { opacity: 0.6; border-color: var(--mark); }
+  .card { position: absolute; z-index: 2; background: var(--raised); border: 1px solid var(--line); border-radius: 3px; font-size: 16px; }
+  .card.on { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .card.faint { border-style: dashed; border-color: var(--quiet); }
   .card header { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--edge); }
   .card header .label { flex: 1; }
   .card header canvas { width: 26px; height: auto; image-rendering: pixelated; display: block; }
   .card p { margin: 0; padding: 6px 12px; }
-  .card .tag { font: 600 11px var(--label); letter-spacing: 0.07em; text-transform: uppercase; color: var(--touch); }
-  .card .problem { border-top: 1px solid var(--mark); color: var(--quiet); font-size: 14px; }
-  .card .cond { border-top: 1px solid var(--edge); font-size: 13px; color: var(--quiet); display: flex; gap: 6px; align-items: center; }
-  .card .cond .ic { color: var(--touch); width: 14px; height: 14px; }
+  .card .tag { font: 500 15px var(--label); color: var(--quiet); display: inline-flex; gap: 6px; align-items: center; }
+  .card .tag .flag svg { width: 21px; height: 14px; display: block; }
+  .card .ask { display: flex; gap: 8px; padding: 0 12px 10px; }
+  .card .problem { border-top: 1px solid var(--line); color: var(--words); font-size: 15px; }
+  .card .cond { border-top: 1px solid var(--line); font-size: 15px; color: var(--quiet); display: flex; gap: 6px; align-items: center; }
+  .card .cond .ic { color: var(--quiet); width: 16px; height: 16px; }
   .clinks { position: absolute; inset: 0; z-index: 1; overflow: visible; }
-  .clinks path { fill: none; stroke: var(--words); stroke-width: 2; }
-  .clinks .head { fill: var(--words); stroke: none; }
-  .minimap { position: absolute; z-index: 4; right: 10px; bottom: 10px; width: 150px; height: 90px; padding: 6px; }
+  .clinks path { fill: none; stroke: var(--quiet); stroke-width: 2; }
+  .clinks .head { fill: var(--quiet); stroke: none; }
+  .minimap { position: absolute; z-index: 4; right: 10px; top: 10px; width: 150px; height: 90px; padding: 6px; }
   .minimap i { position: absolute; background: var(--quiet); border-radius: 1px; }
-  .minimap .view { background: none; border: 2px solid var(--touch); }
+  .minimap .view { background: none; border: 2px solid var(--accent); }
   .script { width: min(100%, 680px); margin: 0 auto; height: 100%; overflow: hidden; padding: 18px 26px; background: var(--raised); border: 1px solid var(--edge); border-radius: 3px; font-size: 16px; line-height: 1.45; }
   .script h3 { margin: 0 0 10px; font: 600 20px var(--title); }
-  .script .who { font: 600 12px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--touch); margin-top: 10px; }
+  .script .who { font: 500 14px var(--label); color: var(--quiet); margin-top: 12px; }
   .script .line { margin: 0 0 0 18px; }
-  .script .line.on { background: color-mix(in srgb, var(--touch) 18%, transparent); box-shadow: -18px 0 0 color-mix(in srgb, var(--touch) 18%, transparent); }
+  .script .line.on { background: var(--hover); box-shadow: -18px 0 0 var(--hover), inset 3px 0 0 var(--accent); }
   .script .choice2 { margin: 6px 0 0 18px; color: var(--quiet); }
   .script .choice2 b { color: var(--words); }
-  .script .miss { display: inline-flex; gap: 4px; align-items: center; margin-left: 8px; font-size: 12px; color: var(--quiet); vertical-align: 2px; }
+  .script .miss { display: inline-flex; gap: 4px; align-items: center; margin-left: 8px; font-size: 14px; color: var(--quiet); vertical-align: 2px; }
   .speech { position: relative; aspect-ratio: 888 / 300; background: url(art/level-1.png) 0 70% / 100% auto; image-rendering: pixelated; border-radius: 3px; overflow: hidden; margin: 4px 0; }
   .speech div { position: absolute; left: 6%; right: 6%; bottom: 8%; padding: 5px 9px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 13px; line-height: 1.3; }
   .langs { display: flex; flex-wrap: wrap; gap: 4px; }
   .langs span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border: 1px solid var(--edge); border-radius: 3px; font-size: 12px; }
   .langs span.miss { border-color: var(--mark); color: var(--quiet); border-style: dashed; }
   .langs .flag svg { width: 16px; height: 11px; display: block; }
-  @media (max-width: 1000px), (max-height: 600px) { .minimap { display: none; } }
+  .script .miss .flag svg, .langrow .flag svg { width: 21px; height: 14px; display: block; }
+  .langrow { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; }
+  .langrow b { font-weight: 500; flex: 1; } .langrow small { color: var(--quiet); font-size: 14px; }
+  .script .more3 { margin: 14px 0 0; color: var(--quiet); font-size: 14px; }
+  .script.phone { display: none; }
+  @media (max-width: 699px) and (min-height: 601px), (max-height: 600px) and (max-width: 940px) { [data-board] { display: none !important; } .script.phone { display: block; } }
+  body.sh .pinned.sam::before { content: "S"; background: #b3a38f; }
+  @media (max-width: 1180px), (max-height: 600px) { .minimap { display: none; } }
 </style>
 </head>
 <body>
 <!-- Story, Conversations, first look: a map of cards (the Owner, Q1 = A). Each step is a card; each choice is a labelled
-     line to where it goes. New here: "only if" on a card (shown only when the door is shut) and "remember" (the game
-     remembers the hero met the keeper), both marked Soon; a mark on a card that misses a language; a writer's note; a
-     small map of the whole conversation; Tidy up in the row at the top. -->
+     line to where it goes. "Only if" on a card (shown only when the door is shut) and "remember" (the game remembers
+     the hero met the keeper); a mark on a card that misses a language; a writer's note; a small map of the whole
+     conversation on a computer; Tidy up in the toolbar. -->
 <div class="canvas paper">
   <div class="fit">
     <div data-board="980x520">
@@ -63,19 +72,30 @@
         <p class="cond"><span class="ic" data-i="bookmark-simple"></span>Remember: met the keeper</p>
       </div>
       <div class="card on" style="left:400px;top:40px;width:300px">
-        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag" style="color:var(--quiet)">한국어 missing</span></header>
+        <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag"><span class="flag" data-flag="kr"></span>Korean missing</span></header>
         <p>“The door opens if you push the crate onto the button.”</p>
         <p class="cond"><span class="ic" data-i="door"></span>Only if the door is shut</p>
       </div>
       <div class="card" style="left:690px;top:300px;width:270px">
         <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span><span class="tag">Ends</span></header>
-        <p>“Off you go, then.”</p><p class="tag" style="padding:6px 12px"><span class="ic" data-i="film-slate"></span> Plays: Door opens</p>
+        <p>“Off you go, then.”</p><p class="tag" style="padding:6px 12px"><span class="ic" data-i="film-slate"></span> Then plays: Door opens</p>
       </div>
       <div class="card faint" style="left:20px;top:420px;width:330px">
         <header><span data-pixel="head" data-scale="2"></span><span class="label">Keeper</span></header>
-        <p class="problem">Nothing leads to this step. Remove it, or point a choice at it.</p>
+        <p class="problem">No arrow points to this card. Delete it, or draw an arrow to it.</p><div class="ask"><button class="btn small">Delete this card</button></div>
       </div>
-      <div class="pinned" style="left:730px;top:40px"><b>Sam · writer</b>Keep the keeper's lines short: the box fits two lines on a phone.</div>
+      <div class="pinned sam" style="left:730px;top:40px"><b>Sam · writer</b>Keep the keeper's lines short: the box fits two lines on a phone.</div>
+    </div>
+    <div class="script phone">
+      <h3>Keeper at the door · 4 cards</h3>
+      <div class="who">Keeper · starts here</div>
+      <p class="line">“Hello there! Lovely day for pushing crates.”</p>
+      <p class="choice2"><b>Hero chooses:</b> “What's that door?” · “Bye!”</p>
+      <div class="who">Keeper · only if the door is shut</div>
+      <p class="line on">“The door opens if you push the crate onto the button.”<span class="miss"><span class="flag" data-flag="kr"></span>Korean missing</span></p>
+      <div class="who">Keeper · ends · then plays: Door opens</div>
+      <p class="line">“Off you go, then.”</p>
+      <p class="more3">On a phone, a conversation opens as a script. The map is on a tablet or a computer.</p>
     </div>
     <div class="float minimap"><i style="left:8%;top:10%;width:26%;height:22%"></i><i style="left:42%;top:10%;width:30%;height:18%"></i><i style="left:70%;top:58%;width:26%;height:20%"></i><i style="left:8%;top:78%;width:32%;height:14%"></i><i class="view" style="left:4%;top:4%;width:92%;height:90%"></i></div>
   </div>
@@ -85,11 +105,11 @@ window.MOCK = {
   editor: 'story', parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 0,
   tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a card', 'plus', 'A'], ['Link', 'arrow-bend-up-right', 'L'], ['Note', 'note', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
   status: { pointer: false, grid: false, snap: false },
-  place: 'Keeper at the door', what: 'Conversation', saved: 'Sam, 10 minutes ago', tool: 0, zoom: '100%',
+  place: 'Keeper at the door', off: [2], jobs: ['Move: pick and move a card', 'Place: add a card', '', 'Draw path: draw an arrow from one card to another'], what: 'Conversation', saved: 'Sam, 10 minutes ago', tool: 0, zoom: '100%',
   settings: [
     '<span class="seg"><button class="on">Map</button><button>Script</button></span>',
     '<button class="btn small"><span class="ic" data-i="magic-wand"></span>Tidy up</button>',
-    '<span>Read in</span><span class="seg"><button class="on">English</button><button>한국어</button><button>…</button></span>',
+    '<span>Show words in</span><span class="vpick">English ▾</span>',
   ],
   list: { title: 'Conversations', count: 4, search: 'Find a line or a card', rows: [
       { head: 'Level 1', count: 2 },
@@ -103,18 +123,17 @@ window.MOCK = {
   },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning', 2]],
   values: {
-    title: 'Card 2', sub: 'Keeper speaks · 1 line', pic: { px: 'head' }, tab: 'Card 2',
+    title: '“The door opens…”', sub: 'Keeper speaks · 1 line', pic: { px: 'head' }, tab: '“The door opens…”',
     groups: [
       { name: 'The line', open: true, rows: [
         { t: 'pick', l: 'Who speaks', f: 'speaker', v: 'Keeper', px: 'head' },
         { t: 'text', l: 'Words', f: 'lines[0]', v: '“The door opens if you push the crate onto the button.”' },
-        { t: 'html', h: '<div class="speech"><div>The door opens if you push the crate onto the button.</div></div>' },
-        { t: 'html', h: '<div class="langs"><span><span class="flag" data-flag="us"></span>English</span><span><span class="flag" data-flag="mx"></span>Español</span><span><span class="flag" data-flag="br"></span>Português</span><span><span class="flag" data-flag="jp"></span>日本語</span><span><span class="flag" data-flag="cn"></span>中文</span><span class="miss"><span class="flag" data-flag="kr"></span>한국어 missing</span></div>' },
+                { t: 'html', h: '<div class="langrow"><span class="flag" data-flag="kr"></span><b>5 of 6 languages</b><small>Korean missing</small><span class="ic" data-i="caret-right"></span></div>' },
       ] },
-      { name: 'Only if <span class="soon">Soon</span>', open: true, rows: [
+      { name: 'Only if', count: 1, rows: [
         { t: 'pick', l: 'Shown only if', f: 'when', v: 'The door is shut', i: 'door' },
       ] },
-      { name: 'Remember <span class="soon">Soon</span>', open: true, rows: [
+      { name: 'Remember', count: 1, rows: [
         { t: 'pick', l: 'After this, remember', f: 'remember', v: 'Met the keeper', i: 'bookmark-simple' },
       ] },
       { name: 'Notes for the team', count: 1, rows: [] },

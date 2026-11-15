@@ -41,7 +41,7 @@
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 1,
+  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 1,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Add a key', 'diamond', 'K'],
     ['Onion skin', 'stack', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
@@ -49,8 +49,8 @@ window.MOCK = {
   status: { pointer: false, grid: 'Frame 3 of 8', snap: false },
   place: 'Keeper', what: 'Figure', saved: 'Mia, 1 hour ago', tool: 2, zoom: '1400%',
   settings: [
-    '<span>Before and after</span><span class="seg"><button>Off</button><button class="on">1 frame</button><button>2</button></span>',
-    '<span>Ease</span><span class="seg"><button>Even</button><button class="on">Soft</button><button>Snappy</button></span>',
+    '<span>Show the poses before and after</span><span class="seg"><button>None</button><button class="on">One</button><button>Two</button></span>',
+    '<span>Between poses</span><span class="seg"><button>Steady</button><button class="on">Smooth</button><button>Snappy</button></span>',
   ],
   list: { title: 'Clips', count: 7, search: 'Find a clip', rows: [
       { head: 'Keeper', count: 7 },
@@ -64,8 +64,8 @@ window.MOCK = {
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New clip</button>',
   },  bottom: {
-    title: 'Run · 0.8 s', icon: 'film-strip',
-    head: '<span class="bhead"><button class="iconbtn"><span class="ic" data-i="play"></span></button><button class="iconbtn"><span class="ic" data-i="repeat"></span></button><span class="num">0.30 s</span><span class="seg hide-narrow"><button class="on">1×</button><button>½</button><button>¼</button></span></span>',
+    title: 'Run', icon: 'film-strip',
+    head: '<span class="bhead"><span class="lg">◆ a pose</span></span>',
     tl: { unit: 'seconds', ruler: ['0', '0.2', '0.4', '0.6', '0.8'], cols: 8, at: 0.375, rows: [
       { n: 'Whole body', i: 'person', keys: [0, 25, 50, 75, 100] },
       { n: 'Head', i: 'circle', d: 1, keys: [0, 50, 100] },
@@ -82,14 +82,14 @@ window.MOCK = {
     title: 'Run', sub: 'Keeper · a clip', pic: { i: 'person-simple-run' }, tab: 'Run',
     groups: [
       { name: 'Plays', open: true, rows: [
-        { t: 'num', l: 'How long', f: 'length', v: '0.8', u: 's' },
+        { t: 'read', l: 'How long', v: 'Under a second' },
         { t: 'choice', l: 'Plays', f: 'loop', opts: ['Once', 'Again and again'], on: 1 },
-        { t: 'slider', l: 'Speed follows the hero', f: 'speedFollows', v: '0.6', lo: 'Never', hi: 'Fully', at: 60 },
+        { t: 'slider', l: 'Plays faster when the hero runs faster', f: 'speedFollows', v: '0.6', lo: 'Never', hi: 'Fully', at: 60 },
       ] },
-      { name: 'The picked key', open: true, rows: [
-        { t: 'num', l: 'At', f: 'keys[1].at', v: '0.30', u: 's' },
-        { t: 'num', l: 'Left arm turn', f: 'keys[1].arm.l', v: '−24', u: '°' },
-        { t: 'choice', l: 'Ease', f: 'keys[1].ease', opts: ['Even', 'Soft', 'Snappy'], on: 1 },
+      { name: 'The picked pose', open: true, rows: [
+        { t: 'read', l: 'When', v: 'A third of the way in' },
+        { t: 'slider', l: 'Left arm raised', f: 'keys[1].arm.l', v: '−24', lo: 'Down', hi: 'Up', at: 40 },
+        { t: 'choice', l: 'Into the next pose', f: 'keys[1].ease', opts: ['Steady', 'Smooth', 'Snappy'], on: 1 },
       ] },
       { name: 'Moments', count: 2, rows: [] },
     ],

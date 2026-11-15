@@ -34,8 +34,8 @@
       </svg>
       <img class="thing" src="art/hero.png" alt="" style="left:30%;top:24%">
       <img class="thing" src="art/hero.png" alt="" style="left:26%;top:30%;opacity:.4">
-      <span class="chip" style="left:48%;top:22%">B reaches <span class="v">3.6 tiles</span></span>
-      <span class="chip" style="left:8%;top:36%">A reached <span class="v">3 tiles</span></span>
+      <span class="chip" style="left:48%;top:22%">New: 3.6 tiles high</span>
+      <span class="chip" style="left:8%;top:36%">Old: 3 tiles high</span>
       <span class="chip" style="left:24%;top:6%"><span class="ic" data-i="repeat"></span>The same run, played again</span>
     </div>
   </div>
@@ -44,38 +44,39 @@
 window.MOCK = {
   editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true]], part: 0,
   tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Measure', 'ruler', 'M'], ['Play', 'play', 'P']],
-  place: 'Level 1', what: 'Level', saved: 'Not saved: 2 changes', tool: 3, zoom: '100%', state: 'mid-project',
+  place: 'Level 1', what: 'Level', off: [1, 2, 3], saved: 'Not saved: 2 changes', tool: 3, zoom: '100%', state: 'mid-project',
   changes: 2,
   play: { paused: false, speed: 1, at: 80, time: '0:04' },
   status: { pointer: false, grid: false, snap: false, extra: '<span class="sb">Comparing <span class="seg"><button>A</button><button class="on">B</button></span></span>' },
   bottom: {
     title: 'Jump over time', icon: 'chart-line',
-    html: `<div class="graph"><div class="legend"><span><i></i>A, before</span><span><i class="b"></i>B, now</span></div><svg viewBox="0 0 400 100" preserveAspectRatio="none"><g stroke="#f5ecc2" stroke-opacity=".2"><line x1="0" y1="25" x2="400" y2="25"/><line x1="0" y1="50" x2="400" y2="50"/><line x1="0" y1="75" x2="400" y2="75"/></g><path d="M0 95 Q90 10 180 95" fill="none" stroke="#f5ecc2" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/><path d="M0 95 Q110 -10 220 95" fill="none" stroke="#eeb480" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg></div>`,
+    html: `<div class="graph"><div class="legend"><span><i></i>Old</span><span><i class="b"></i>New</span><span class="ax">Height ↑ · Time →</span></div><svg viewBox="0 0 400 100" preserveAspectRatio="none"><g stroke="#f5ecc2" stroke-opacity=".2"><line x1="0" y1="25" x2="400" y2="25"/><line x1="0" y1="50" x2="400" y2="50"/><line x1="0" y1="75" x2="400" y2="75"/></g><path d="M0 95 Q110 15 220 95" fill="none" stroke="#bdbdbd" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/><path d="M0 95 Q110 -10 220 95" fill="none" stroke="#ededed" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg></div>`,
   },
   library: {
     open: false, items: [],
   },
   closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
   values: {
-    title: 'All the numbers', sub: 'Hero · B is 2 changes from A', pic: { img: 'art/hero.png' }, tab: 'Numbers', searchText: 'Find a number',
-    top: '<div class="vbtns" style="padding:6px 12px 8px"><button class="btn small main"><span class="ic" data-i="check"></span>Keep B</button><button class="btn small"><span class="ic" data-i="arrow-u-up-left"></span>Go back to A</button><button class="btn small"><span class="ic" data-i="books"></span>Ready-made feels</button></div>',
+    title: 'How the hero moves', sub: 'Hero · 2 changes from the old jump', pic: { img: 'art/hero.png' }, tab: 'Numbers', searchText: 'Find a number',
+    top: '<div class="ibtns"><button class="sbtn main"><span class="ic" data-i="check"></span>Keep the new jump</button><button class="sbtn"><span class="ic" data-i="arrow-u-up-left"></span>Go back to the old one</button></div>',
     groups: [
       { name: 'Walk', count: 4, open: false, rows: [
-        { t: 'num', l: 'Top speed', f: 'walk.speed', v: '6', u: 'tiles a second' },
-        { t: 'num', l: 'Gets up to speed in', f: 'walk.accel', v: '0.10', u: 's' },
-        { t: 'num', l: 'Stops in', f: 'walk.decel', v: '0.06', u: 's' },
+        { t: 'slider', l: 'Top speed', f: 'walk.speed', v: '6', lo: 'A stroll', hi: 'A sprint', at: 55 },
+        { t: 'slider', l: 'Gets up to speed', f: 'walk.accel', v: '0.10', lo: 'At once', hi: 'Slowly', at: 20 },
+        { t: 'slider', l: 'Stops', f: 'walk.decel', v: '0.06', lo: 'At once', hi: 'Slides a bit', at: 15 },
       ] },
       { name: 'Jump', count: 5, open: true, rows: [
         { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3.6 tiles', lo: 'A hop', hi: 'Over a house', at: 62, ch: true },
         { t: 'slider', l: 'Let go early to jump lower', f: 'jump.cut', v: 'Keeps half', lo: 'Always full', hi: 'Very short', at: 50 },
-        { t: 'num', l: 'Jump just after a ledge', f: 'jump.coyote', v: '0.10', u: 's' },
-        { t: 'num', l: 'Jump pressed a moment early', f: 'jump.buffer', v: '0.08', u: 's' },
+        { t: 'slider', l: 'Can still jump just after a ledge', f: 'jump.coyote', v: '0.10', lo: 'Not at all', hi: 'Kindly', at: 40 },
+        { t: 'slider', l: 'Counts a jump pressed a moment early', f: 'jump.buffer', v: '0.08', lo: 'Not at all', hi: 'Kindly', at: 35 },
       ] },
       { name: 'In the air', count: 3, open: true, rows: [
         { t: 'slider', l: 'Steer in the air', f: 'air.control', v: '0.7', lo: 'Not at all', hi: 'Like on the ground', at: 70 },
-        { t: 'num', l: 'Falls no faster than', f: 'air.maxFall', v: '14', u: 'tiles a second' },
+        { t: 'slider', l: 'Falls', f: 'air.maxFall', v: '14', lo: 'Floats down', hi: 'Drops like a stone', at: 60 },
       ] },
       { name: 'Double jump', count: 2, rows: [] },
+      { name: 'Ready-made feels', count: 6, rows: [] },
     ],
   },
 }

@@ -46,7 +46,7 @@
         <div class="patch"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span></div>
         <span class="sub hide-narrow">Real size</span>
         <div class="patch real hide-narrow"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span></div>
-        <span class="chip" style="position:static">Grass top <span class="v">16 × 16</span></span>
+        
       </div>
     </div>
   </div>
@@ -59,9 +59,9 @@ window.MOCK = {
     ['Pencil', 'pencil-simple', 'B'], ['Line', 'line-segment', 'L'], ['Box', 'square', 'U', true], ['Fill', 'paint-bucket', 'G'],
     ['Select', 'selection', 'M'], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Pick a color', 'eyedropper', 'I'],
   ],
-  place: 'Meadow tiles', saved: 'Sam, yesterday', tool: 0, zoom: '1600%',
+  place: 'Meadow tiles', off: [1, 3], jobs: ['Move: pick a tile', '', 'Paint: draw on the picked tile'], saved: 'Sam, yesterday', tool: 0, zoom: 'Close up',
   settings: [
-    '<span>Size</span><span class="seg"><button class="on">1</button><button>2</button><button>3</button></span>',
+    '<span>Brush size</span><span class="seg"><button class="on">Small</button><button>Middle</button><button>Big</button></span>',
     '<span>Mirror while drawing</span><span class="knob2"></span>',
     '<span>Grid</span><span class="knob2 on"></span>',
   ],
@@ -79,20 +79,20 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Grass top', sub: 'Meadow tiles · 16 × 16 pixels', pic: { px: 'grass' }, tab: 'Grass top',
+    title: 'Grass top', sub: 'Meadow tiles · the top of the ground', pic: { px: 'grass' }, tab: 'Grass top',
     groups: [
       { name: 'Colors', open: true, rows: [
-        { l: 'The game\'s colors, in ramps from light to dark. Change one and every tile that uses it changes.' },
+        { l: 'The game\'s colors, in rows from light to dark. Change one and every tile that uses it changes.' },
         { t: 'html', h: '<div class="ramp"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#3c4a2a"></i></div><div class="ramp"><i style="background:#f1dcc0"></i><i style="background:#d1aa83" class="on"></i><i style="background:#a07a52"></i><i style="background:#6f5236"></i><i style="background:#3e2d1e"></i></div><div class="ramp"><i style="background:#cfeefc"></i><i style="background:#9fd3f0" class="on"></i><i style="background:#5a9fc8"></i><i style="background:#35607e"></i><i style="background:#1d3448"></i></div>' },
       ] },
-      { name: 'How it joins', open: true, rows: [
-        { t: 'choice', l: 'Joins with', f: 'joins', opts: ['Itself', 'Meadow', 'Nothing'], on: 1 },
-        { t: 'btns', b: [['Edit the joining rules', 'grid-nine']] },
+      { name: 'What fits next to it', open: true, rows: [
+        { t: 'choice', l: 'Fits next to', f: 'joins', opts: ['The same tile', 'Any meadow tile', 'Nothing'], on: 1 },
+        { t: 'btns', b: [['Choose which tiles fit together', 'grid-nine']] },
       ] },
-      { name: 'Solid shape', open: true, rows: [
-        { t: 'choice', l: 'The hero stands on', f: 'solid', opts: ['All', 'Top only', 'Slope', 'None'], on: 0 },
+      { name: 'Standing on it', open: true, rows: [
+        { t: 'choice', l: 'What the hero can stand on', f: 'solid', opts: ['All of it', 'Only the top', 'The slope', 'Nothing'], on: 0 },
       ] },
-      { name: 'What it does <span class="soon">Soon</span>', count: 2, rows: [] },
+      { name: 'What it does', count: 2, rows: [] },
     ],
   },
 

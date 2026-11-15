@@ -41,7 +41,7 @@
         <i class="handle" style="left:64%;top:25%"></i>
         <i class="handle" style="left:40%;top:68%"></i>
         <div class="arc" style="left:30%;top:22%;width:30%;height:36%"></div>
-        <span class="chip" style="left:68%;top:12%">Left arm <span class="v">−38°</span></span></div>
+        <span class="chip" style="left:68%;top:12%">Left arm · raised a little</span></div>
         <span class="label">From the side</span></div>
       <div class="view"><div class="fig"><span data-pixel="front" data-scale="12"></span></div><span class="label">From the front</span></div>
       <div class="view"><div class="fig"><span data-pixel="back" data-scale="12"></span></div><span class="label">From the back</span></div>
@@ -50,7 +50,7 @@
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
+  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 0,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Paint', 'paint-brush', 'B', true],
     ['Add a part', 'plus', 'A', true], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
@@ -59,7 +59,7 @@ window.MOCK = {
   place: 'Keeper', saved: 'Not saved: 2 changes', changes: 2, tool: 2, zoom: '1200%', state: 'mid-project', picked: 1,
   settings: [
     '<span>Moves with it</span><span class="seg"><button class="on">The hand too</button><button>Only the arm</button></span>',
-    '<span>Bones</span><span class="knob2 on"></span>',
+    '<span>Show the joints</span><span class="knob2 on"></span>',
   ],
   list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
       { head: 'Head', count: 3 },
@@ -93,12 +93,12 @@ window.MOCK = {
   },
   closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning']],
   values: {
-    title: 'Left arm', sub: 'Keeper · a joint', pic: { i: 'hand' }, tab: 'Left arm',
+    title: 'Left arm', sub: 'Keeper · bends at the shoulder', pic: { i: 'hand' }, tab: 'Left arm',
     groups: [
       { name: 'Pose', open: true, rows: [
-        { t: 'num', l: 'Shoulder turn', f: 'pose.arm.l.shoulder', v: '−38', u: '°', ch: true },
-        { t: 'num', l: 'Elbow bend', f: 'pose.arm.l.elbow', v: '20', u: '°' },
-        { t: 'slider', l: 'How far it may turn', f: 'limits.arm', v: '−90° to 160°', lo: 'Stiff', hi: 'Free', at: 70 },
+        { t: 'slider', l: 'Raised', f: 'pose.arm.l.shoulder', v: '−38', lo: 'Down', hi: 'Straight up', at: 35, ch: true },
+        { t: 'slider', l: 'Elbow', f: 'pose.arm.l.elbow', v: '20', lo: 'Straight', hi: 'Folded', at: 15 },
+        { t: 'slider', l: 'How far it can bend', f: 'limits.arm', v: '−90° to 160°', lo: 'Stiff', hi: 'Free', at: 70 },
       ] },
       { name: 'Holds', open: true, rows: [
         { t: 'pick', l: 'In the hand', f: 'holds', v: 'Lantern', i: 'lamp' },

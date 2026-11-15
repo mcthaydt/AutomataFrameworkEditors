@@ -7,22 +7,22 @@
 <link rel="stylesheet" href="mockup.css">
 <link rel="stylesheet" href="shell.css">
 <style>
-  .camframe { position: absolute; z-index: 2; border: 2px solid var(--touch); box-shadow: 0 0 0 9999px rgb(17 19 20 / 0.35); }
-  .camframe > span { position: absolute; left: -2px; top: -24px; padding: 2px 6px; background: var(--touch); color: var(--ground); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+  .camframe { position: absolute; z-index: 2; border: 2px solid var(--accent); box-shadow: 0 0 0 9999px rgb(17 19 20 / 0.35); }
+  .camframe > span { position: absolute; left: -2px; top: -24px; padding: 3px 8px; background: var(--panel); color: var(--words); font: 500 14px var(--label); white-space: nowrap; border-radius: 6px 6px 0 0; }
   .walkpath { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; }
-  .tlbox { position: absolute; z-index: 4; border: 1px dashed var(--touch); background: color-mix(in srgb, var(--touch) 14%, transparent); }
+  .tlbox { position: absolute; z-index: 4; border: 1px dashed var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
   .ease svg { width: 100%; height: 90px; display: block; border: 1px solid var(--edge); border-radius: 3px; background: var(--ground); }
 </style>
 </head>
 <body>
 <!-- Story, Cutscenes, first look: "Door opens", four seconds. The timeline runs along the bottom the whole width
      between the panels, with a row for the camera, each character, the door, the words, the music and the sounds,
-     markers on top, play controls in its head, and seconds or ticks. The level shows what the camera sees at the
+     moments on top; Play is the toolbar's. The level shows what the camera sees at the
      playhead and the keeper's path. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage">
-      <div class="camframe" style="left:18%;top:28%;width:62%;height:62%"><span>The camera at 1.5 s</span></div>
+      <div class="camframe" style="left:18%;top:28%;width:62%;height:62%"><span>What the camera sees at 1.5 seconds</span></div>
       <svg class="walkpath" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 78 C30 74, 50 74, 72 78" fill="none" stroke="#f5ecc2" stroke-width="0.6" stroke-dasharray="1.6 1"/></svg>
       <span data-pixel="keeper" data-scale="2" style="position:absolute;z-index:3;left:30%;top:66%"></span>
       <span class="chip" style="left:56%;top:64%"><span class="ic" data-i="person"></span>Keeper walks to the door</span>
@@ -32,27 +32,26 @@
 <script>
 window.MOCK = {
   editor: 'story', parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 1,
-  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a key', 'diamond', 'K'], ['Camera', 'video-camera', 'C'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a camera stop', 'diamond', 'K'], ['Camera', 'video-camera', 'C'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
   status: { pointer: false, grid: 'Snap: ¼ second', snap: true },
-  place: 'Door opens', what: 'Cutscene', saved: 'Sam, 30 minutes ago', tool: 0, zoom: '100%',
+  place: 'Door opens', off: [2], jobs: ['Move: pick and move a stop', 'Place: add a camera stop', '', 'Draw path: draw where someone walks'], what: 'Cutscene', saved: 'Sam, 30 minutes ago', tool: 0, zoom: '100%',
   settings: [
-    '<span>Time in</span><span class="seg"><button class="on">Seconds</button><button>Ticks</button></span>',
-    '<span>Players can skip it</span><span class="knob2 on"></span>',
+        '<span>Players can skip it</span><span class="knob2 on"></span>',
   ],
   list: { title: 'Cutscenes', count: 3, search: 'Find a cutscene', rows: [
       { head: 'Level 1', count: 2 },
-      { n: 'Door opens', k: '4 s', i: 'film-slate', on: true },
-      { n: 'Well done', k: '3 s', i: 'film-slate' },
+      { n: 'Door opens', k: '4 seconds', i: 'film-slate', on: true },
+      { n: 'Well done', k: '3 seconds', i: 'film-slate' },
       { head: 'Level 2', count: 1 },
-      { n: 'Into the cave', k: '9 s', i: 'film-slate' },
+      { n: 'Into the cave', k: '9 seconds', i: 'film-slate' },
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New cutscene</button>',
   },
   bottom: {
-    title: 'Door opens · 4 s', icon: 'film-slate',
-    head: '<span class="bhead"><button class="iconbtn"><span class="ic" data-i="play"></span></button><button class="iconbtn"><span class="ic" data-i="repeat"></span></button><span class="num">1.50 s</span><span class="seg hide-narrow"><button class="on">1×</button><button>½</button><button>¼</button></span></span>',
+    title: 'Door opens · 4 seconds', icon: 'film-slate',
+    head: '<span class="bhead"><span class="num">1.5 seconds</span></span>',
     tl: { unit: 'seconds', ruler: ['0', '1', '2', '3', '4'], cols: 16, at: 0.375, rows: [
-      { n: 'Markers', i: 'flag-pennant', evts: [[25, 'Door starts'], [75, 'Hand back']] },
+      { n: 'Moments', i: 'flag-pennant', evts: [[25, 'Door starts'], [75, 'Player takes over']] },
       { n: 'Camera', i: 'video-camera', keys: [0, 37.5, 62.5, 100], onKey: 1, on: true },
       { n: 'Keeper', i: 'person', bars: [[0, 50, 'Walks to the door'], [50, 100, 'Waves', 'b2']] },
       { n: 'Door', i: 'door', keys: [25, 50] },
@@ -64,15 +63,15 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Camera key', sub: 'At 1.50 s · 2 of 4', pic: { i: 'video-camera' }, tab: 'Camera key',
+    title: 'Camera stop 2 of 4', sub: 'At 1.5 seconds', pic: { i: 'video-camera' }, tab: 'Camera stop 2 of 4',
     groups: [
       { name: 'Where it looks', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'camera[1].x', v: '9.5', u: 'tiles' },
         { t: 'num', l: 'From the top', f: 'camera[1].y', v: '6', u: 'tiles' },
-        { t: 'slider', l: 'How close', f: 'camera[1].zoom', v: '1.4×', lo: 'The whole level', hi: 'A face', at: 40 },
+        { t: 'slider', l: 'How close', f: 'camera[1].zoom', v: 'close', lo: 'The whole level', hi: 'A face', at: 40 },
       ] },
       { name: 'Getting there', open: true, rows: [
-        { t: 'choice', l: 'Moves', f: 'camera[1].ease', opts: ['Even', 'Soft', 'Snap'], on: 1 },
+        { t: 'choice', l: 'Moves', f: 'camera[1].ease', opts: ['Steady', 'Smooth', 'Snappy'], on: 1 },
         { t: 'sw', l: 'Shake a little', f: 'camera[1].shake', on: false },
       ] },
     ],

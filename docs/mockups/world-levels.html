@@ -29,8 +29,8 @@ window.MOCK = {
   ],
   tool: 0,
   settings: [
-    '<span>Snap to tiles</span><span class="knob2 on"></span>',
-    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Halves</button></span>',
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
     '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
   ],
   list: {
@@ -57,17 +57,16 @@ window.MOCK = {
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: '6', u: 'tiles' },
         { t: 'num', l: 'From the top', f: 'y', v: '7', u: 'tiles' },
-        { t: 'choice', l: 'Facing', f: 'facing', opts: ['Left', 'Right'], on: 1 },
       ] },
       { name: 'Look', open: true, rows: [
         { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
         { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With the hero', 'In front'], on: 1 },
       ] },
-      { name: 'What it does <span class="soon">Soon</span>', open: true, rows: [
-        { l: 'From the kind “Crate”. Change one here and only this crate changes.' },
+      { name: 'What it does', open: true, rows: [
+        { l: 'Every crate starts like this. A change here is for this crate only.' },
         { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
         { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
-        { t: 'btns', b: [['Open the kind in Characters', 'arrow-square-out']] },
+        { t: 'btns', b: [['Change every crate', 'arrow-square-out']] },
       ] },
       { name: 'Your own values', count: 0, rows: [] },
       { name: 'Notes for the team', count: 0, rows: [] },

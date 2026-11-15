@@ -35,8 +35,9 @@
   <div class="fit">
     <div class="map">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <g fill="none" stroke="#f5ecc2" stroke-width="0.4" stroke-dasharray="1.2 0.8">
-          <path d="M20 50 L45 25"/><path d="M45 25 L75 25"/><path d="M75 25 L75 70"/><path d="M75 70 L20 50"/><path d="M45 25 L45 75"/><path d="M20 50 L45 75"/>
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#bdbdbd"/></marker></defs>
+        <g fill="none" stroke="#bdbdbd" stroke-width="0.35" marker-end="url(#ah)">
+          <path d="M24 46 L41 29"/><path d="M50 25 L70 25"/><path d="M75 30 L75 65"/><path d="M71 74 C 60 96, 24 92, 20 55"/><path d="M23 54 L41 71"/>
         </g>
       </svg>
       <span class="node" style="left:20%;top:50%"><span class="ic" data-i="person"></span>Stand</span>
@@ -44,17 +45,17 @@
       <span class="node" style="left:75%;top:25%"><span class="ic" data-i="arrow-fat-up"></span>Jump</span>
       <span class="node" style="left:75%;top:70%"><span class="ic" data-i="arrow-down"></span>Fall</span>
       <span class="node" style="left:45%;top:75%"><span class="ic" data-i="hand"></span>Push</span>
-      <span class="when" style="left:31%;top:36%">walks</span>
-      <span class="when" style="left:60%;top:21%">jump pressed</span>
-      <span class="when" style="left:82%;top:48%">going down</span>
-      <span class="when" style="left:47%;top:60%">touches a crate</span>
-      <span class="chip" style="left:4%;top:4%"><span class="ic" data-i="flow-arrow"></span>Which clip follows which <span class="soon">Soon</span></span>
+      <span class="when" style="left:26%;top:33%">walks</span>
+      <span class="when" style="left:54%;top:19%">jump pressed</span>
+      <span class="when" style="left:77%;top:46%">going down</span>
+      <span class="when" style="left:21%;top:66%">touches a crate</span><span class="when" style="left:44%;top:88%">lands</span>
+      <span class="chip" style="left:4%;top:4%"><span class="ic" data-i="flow-arrow"></span>How it works: which clip plays next</span>
     </div>
   </div>
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 1,
+  editor: 'characters', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 1,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Add a key', 'diamond', 'K'],
     ['Onion skin', 'stack', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
@@ -62,7 +63,7 @@ window.MOCK = {
   status: { pointer: false, grid: 'Frame 3 of 8', snap: false },
   place: 'Hero', what: 'Character', saved: 'Not saved: 1 change', changes: 1, tool: 0, zoom: '100%', state: 'mid-project',
   settings: [
-    '<span>Show</span><span class="seg"><button>The clip</button><button class="on">Which follows which</button></span>',
+    '<span>Show</span><span class="seg"><button>The clip</button><button class="on">How it works</button></span>',
   ],
   list: { title: 'Characters', count: 5, search: 'Find a character', rows: [
       { head: 'In this game', count: 5 },
@@ -75,6 +76,10 @@ window.MOCK = {
       { n: 'Stand', i: 'person', d: 1 },
       { n: 'Run', i: 'person-simple-run', d: 1 },
       { n: 'Jump', i: 'arrow-fat-up', d: 1 },
+      { n: 'Fall', i: 'arrow-down', d: 1 },
+      { n: 'Push', i: 'hand', d: 1 },
+      { n: 'Turn', i: 'arrows-clockwise', d: 1 },
+      { n: 'Climb', i: 'ladder', d: 1, warn: true },
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New character</button>',
   },

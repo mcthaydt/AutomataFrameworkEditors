@@ -29,9 +29,9 @@
       <span class="chip" style="left:43%;top:58%"><span class="ic" data-i="tree"></span>Tree-2</span>
       <div class="vline" style="left:44%;top:66%;height:13%"></div>
       <span class="chip m" style="left:45.2%;top:69%">How tall <span class="v">2 tiles</span></span>
-      <span class="chip" style="left:62%;top:40%"><span class="ic" data-i="stack"></span>Hills · slides <span class="v">30%</span></span>
+      <span class="chip" style="left:62%;top:40%"><span class="ic" data-i="stack"></span>Hills: far away, move slowly</span>
       <div class="bracket" style="left:7%;width:24%;top:86.5%"></div>
-      <span class="chip" style="left:9%;top:90.5%">Furnished: meadow</span>
+      <span class="chip" style="left:9%;top:90.5%">Ready-made: Meadow</span>
     </div>
   </div>
 </div>
@@ -44,18 +44,18 @@ window.MOCK = {
   ],
   place: 'Meadow', saved: 'Sam, 5 minutes ago', tool: 0,
   settings: [
-    '<span>Snap to tiles</span><span class="knob2 on"></span>',
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
     '<span>Time of day</span><span class="seg"><button>Dawn</button><button class="on">Day</button><button>Dusk</button><button>Night</button></span>',
   ],
-  list: { title: 'Layers', count: 6, search: 'Find a layer or thing', rows: [
+  list: { title: 'Layers', tab: 'Everything here', count: 6, search: 'Find a layer or thing', rows: [
       { head: 'In front', count: 1 },
-      { n: 'Falling leaves', k: 'slides 120%', i: 'leaf' },
+      { n: 'Falling leaves', k: 'close, moves fast', i: 'leaf' },
       { head: 'The level', count: 3 },
       { n: 'Tree-2', k: 'tree', i: 'tree', on: true },
       { n: 'Flowers', k: 'clump', i: 'flower', on: false },
       { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
       { head: 'Behind', count: 2 },
-      { n: 'Hills', k: 'slides 30%', i: 'mountains' },
+      { n: 'Hills', k: 'far away, moves slowly', i: 'mountains' },
       { n: 'Sky', k: 'stays still', i: 'cloud', lock: true },
     ],
     foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New layer</button>',
@@ -63,18 +63,18 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Tree-2', sub: 'Tree · in the level layer', pic: { i: 'tree' }, tab: 'Tree-2',
+    title: 'Tree-2', sub: 'Tree · drawn with the hero', pic: { i: 'tree' }, tab: 'Tree-2',
     groups: [
       { name: 'Place', open: true, rows: [
         { t: 'num', l: 'From the left', f: 'x', v: '5.4', u: 'tiles' },
         { t: 'num', l: 'From the top', f: 'y', v: '6.2', u: 'tiles' },
-        { t: 'choice', l: 'Layer', f: 'layer', opts: ['Behind', 'Level', 'In front'], on: 1 },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With the hero', 'In front'], on: 1 },
       ] },
       { name: 'Shape', open: true, rows: [
         { t: 'slider', l: 'How tall', f: 'height', v: '2', lo: 'A bush', hi: 'Over the hills', at: 30 },
         { t: 'slider', l: 'How leafy', f: 'leafy', v: '0.8', lo: 'Bare', hi: 'Full', at: 80 },
         { t: 'slider', l: 'Sways in the wind', f: 'sway', v: '0.2', lo: 'Still', hi: 'Storm', at: 20 },
-        { t: 'btns', b: [['Another one', 'dice-five', true], ['Flip', 'flip-horizontal']] },
+        { t: 'btns', b: [['Try another tree', 'dice-five'], ['Flip', 'flip-horizontal']] },
       ] },
       { name: 'Colors', count: 3, rows: [] },
       { name: 'Light and shadow', count: 2, rows: [] },

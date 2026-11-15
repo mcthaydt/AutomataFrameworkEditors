@@ -147,7 +147,7 @@ body.sh .ring.warn {
 }
 
 body.sh .pinned {
-  font: 13px / 1.35 var(--label);
+  font: 14px / 1.4 var(--label);
   max-width: 220px;
   padding: 8px 10px 8px 34px;
   border-radius: 12px 12px 12px 2px;
@@ -1698,5 +1698,497 @@ body.sh .daybar {
 
   .partsn button {
     padding: 0 7px;
+  }
+}
+
+/* ---------- the plain-words audit (2026-11-15): orange only for Share and what is picked; no code signs, no
+   capitals, numbers in the words' font; the saved line on every size ---------- */
+
+:root,
+body.sh {
+  --accent: #eeb480;
+  --touch: #c8c8c8;
+  --mark: #8a8a8a;
+  --measure: var(--label);
+}
+
+body.sh * {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+body.sh .canvas,
+body.sh .canvas.paper {
+  background-color: #181818;
+}
+
+.sh-top .logo,
+.sh-top .share {
+  background: var(--accent);
+}
+
+body.sh .ring {
+  border-color: var(--accent);
+}
+
+.lr.on {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.ai.on {
+  outline-color: var(--accent);
+}
+
+.tl2.on {
+  background: var(--hover);
+  color: var(--words);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tl2.off {
+  opacity: 0.35;
+}
+
+.sbtn.main {
+  background: var(--words);
+  color: var(--ground);
+}
+
+.tog.on {
+  background: #d6d6d6;
+}
+
+.tog.on::after {
+  background: var(--ground);
+}
+
+.ir .dot,
+.legend .dot {
+  background: var(--accent);
+}
+
+.sh-play .rew i {
+  background: var(--quiet);
+}
+
+.sh-play .stop {
+  color: var(--words);
+}
+
+body.sh .tip {
+  background: #f2f2f2;
+  color: #1e1e1e;
+}
+
+body.sh .tip::after {
+  border-top-color: #f2f2f2;
+}
+
+body.sh .pinned {
+  color: var(--words);
+}
+
+.ihead small {
+  white-space: normal;
+  overflow: visible;
+}
+
+.legend {
+  margin: -4px 16px 6px;
+  font-size: 12px;
+  color: var(--quiet);
+}
+
+.astext {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  font: 12px var(--label);
+}
+
+.astext .ic {
+  width: 13px;
+  height: 13px;
+}
+
+.rd {
+  color: var(--words);
+  font-size: 13px;
+}
+
+/* The saved line, every size: "Saved on this iPad", "Everyone has your changes"; on a phone just "Saved". */
+.kept,
+.kept .long {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kept .ic {
+  width: 14px;
+  height: 14px;
+  color: #7fbf8f;
+}
+
+.kept .short {
+  display: none;
+}
+
+.sh-top .place {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: var(--words);
+  white-space: nowrap;
+}
+
+.sh-top .place .ic,
+.sh-top .partn .ic {
+  width: 12px;
+  height: 12px;
+  color: var(--quiet);
+}
+
+.partn {
+  display: none;
+}
+
+.sh-top .cmdk span:not(.ic),
+.sh-top .warn span:not(.ic) {
+  font-size: 13px;
+}
+
+.sh-top .cmdk {
+  color: var(--quiet);
+}
+
+.sh-top .share .n {
+  min-width: 0;
+  padding: 0 7px;
+}
+
+body.sh .mock-tag {
+  top: auto;
+  bottom: 10px;
+  left: calc(var(--left-w) + 12px);
+  right: auto;
+}
+
+/* The tool's options live inside the toolbar, after the tools. */
+.tbar .opts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - var(--left-w) - var(--right-w) - 400px);
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--quiet);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tbar .opts .osep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+}
+
+.tbar .opts .seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--raised);
+  border: 0;
+}
+
+.tbar .opts .seg button,
+.tbar .opts .btn {
+  font: 12px var(--label);
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--quiet);
+  box-shadow: none;
+}
+
+.tbar .opts .seg button.on {
+  background: var(--hover);
+  color: var(--words);
+}
+
+.tbar .opts .knob2 {
+  background: var(--hover);
+  border: 0;
+}
+
+.tbar .opts .knob2.on {
+  background: #d6d6d6;
+}
+
+.has-opts .tl2 {
+  min-width: 46px;
+}
+
+/* Play controls carry their words on an iPad and a computer. */
+.sh-play .ib.w {
+  gap: 6px;
+  font-size: 12px;
+  color: var(--words);
+}
+
+.sh-play .segs button {
+  font-size: 12px;
+}
+
+/* A sheet over the work hides the toolbar under it. */
+body.sh:has(.dim) .sh-tools {
+  display: none;
+}
+
+/* While an agent's card is open, a teammate's note folds to its pin. */
+body.has-ghost .pinned {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  overflow: hidden;
+  color: transparent;
+  border-radius: 50%;
+}
+
+body.has-ghost .pinned b {
+  display: none;
+}
+
+body.has-ghost .pinned::before {
+  left: 3px;
+  top: 3px;
+}
+
+.agent::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--panel);
+  border: 1px solid #5b4d86;
+  border-width: 0 1px 1px 0;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+@media (max-width: 1259px) {
+  .kept {
+    display: inline-flex;
+  }
+
+  .sh-top .game span {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px), (max-height: 600px) {
+  .kept,
+  .faces {
+    display: inline-flex;
+  }
+
+  .faces {
+    display: none;
+  }
+
+  .kept .long,
+  .sh-top .place {
+    display: none;
+  }
+
+  .kept .short {
+    display: inline;
+  }
+
+  .partn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: 6px;
+    background: var(--raised);
+    white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sh-top .warn {
+    display: none;
+  }
+
+  .sh-play .ib.w span,
+  .sh-play .segs {
+    display: none;
+  }
+
+  .agent {
+    position: fixed;
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: calc(var(--sheet-h) + var(--tools-h) + 12px);
+    width: auto;
+    z-index: 16;
+  }
+
+  .agent::before {
+    display: none;
+  }
+
+  body.sh {
+    --sheet-h: 32vh;
+  }
+}
+
+@media (max-width: 500px) {
+  .tl2.u {
+    display: flex;
+  }
+
+  .tl2.u.r,
+  .sh-top .cmdk span:not(.ic) {
+    display: none;
+  }
+
+  .sh-top .share .w {
+    display: inline;
+  }
+
+  .sh-top .share {
+    padding: 0 10px;
+  }
+
+  .sh-top .share .n {
+    display: none;
+  }
+
+  .sh-top .wsn {
+    padding: 0 4px;
+  }
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  .tl2.u {
+    display: flex;
+  }
+
+  .tl2.u.r,
+  .sh-tools .div {
+    display: none;
+  }
+
+  .agent {
+    bottom: 12px;
+    left: 72px !important;
+    right: calc(var(--right-w) + 8px);
+  }
+}
+
+.share-pop {
+  width: min(400px, calc(100% - 16px));
+}
+
+.share-pop .both {
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--raised);
+  font-size: 13px;
+}
+
+.share-pop .both b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.share-pop .both span {
+  display: flex;
+  gap: 6px;
+}
+
+.share-pop .both .sbtn {
+  background: var(--hover);
+}
+
+.share-pop .both .sbtn.on {
+  outline: 1.5px solid var(--accent);
+}
+
+.share-pop .keep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+}
+
+.share-pop .tbox {
+  margin-top: 4px;
+}
+
+.sh-left .lr .pic canvas,
+.ihead .pic canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.sh-left .lr .pic {
+  overflow: hidden;
+}
+
+body.sh .views3 {
+  align-items: center;
+  padding-bottom: 0;
+}
+
+.bh .lg {
+  color: var(--quiet);
+  font-size: 12px;
+}
+
+/* Timeline bars are grey whatever row they are on; only what is picked takes the accent. */
+body.sh .bar,
+body.sh .bar.b2,
+body.sh .bar.b3,
+body.sh .bar.b4 {
+  background: var(--hover);
+  border-color: var(--line);
+  color: var(--words);
+  font-weight: 500;
+}
+
+/* Tool words read the same on an upright iPad as on a sideways one. */
+.tl2 {
+  font-size: 12px;
+}
+
+.fine .tl2 {
+  font-size: 11px;
+}
+
+/* An upright iPad: the sheet starts low, with its handle to pull it up. */
+@media (min-width: 601px) and (max-width: 1000px) and (min-height: 601px) {
+  body.sh {
+    --sheet-h: 26vh;
   }
 }

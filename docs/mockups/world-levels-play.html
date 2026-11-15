@@ -24,7 +24,7 @@
       <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>
       <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
       <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
-      <span class="tip" style="left:30%;top:24%">Drag the line at the top back to see the last 30 seconds again</span>
+      <span class="tip" style="left:30%;top:24%">Drag back to see it again</span>
     </div>
   </div>
 </div>
@@ -41,18 +41,18 @@ window.MOCK = {
   library: { open: false },
   closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
   values: {
-    title: 'Hero', sub: 'While it plays · numbers move live', pic: { img: 'art/hero.png' }, tab: 'Hero',
+    title: 'Hero', sub: 'While it plays · these change as it moves', pic: { img: 'art/hero.png' }, tab: 'Hero',
     groups: [
       { name: 'Right now', open: true, rows: [
-        { t: 'num', l: 'Going sideways', f: 'velocity.x', v: '3.2', u: 'tiles a second' },
-        { t: 'num', l: 'Going up', f: 'velocity.y', v: '1.4', u: 'tiles a second' },
-        { t: 'choice', l: 'Standing on', opts: ['Ground', 'Crate', 'Nothing'], on: 2 },
+        { t: 'read', l: 'Going sideways', v: 'Fast, to the right' },
+        { t: 'read', l: 'Going up', v: 'Slowly' },
+        { t: 'read', l: 'Standing on', v: 'Nothing: in the air' },
       ] },
       { name: 'Try a change while it plays', open: true, rows: [
         { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3.5', lo: 'A hop', hi: 'Over a house', at: 46 },
         { t: 'choice', l: 'When you stop', opts: ['Keep the change', 'Put it back'], on: 1 },
       ] },
-      { name: 'Inputs', count: 2, rows: [] },
+      { name: 'Buttons pressed', count: 2, rows: [] },
     ],
   },
 }

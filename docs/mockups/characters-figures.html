@@ -35,8 +35,7 @@
   <div class="fit">
     <div class="views3">
       <div class="view main"><div class="fig"><span data-pixel="keeper" data-scale="12"></span>
-        <div class="vline" style="left:-8px;top:0;height:100%"></div>
-        <span class="chip" style="left:0;top:-34px"><span class="v">30</span> pixels tall</span></div>
+</div>
         <span class="label">From the side</span></div>
       <div class="view"><div class="fig"><span data-pixel="front" data-scale="12"></span></div><span class="label">From the front</span></div>
       <div class="view"><div class="fig"><span data-pixel="back" data-scale="12"></span></div><span class="label">From the back</span></div>
@@ -46,7 +45,7 @@
 </div>
 <script>
 window.MOCK = {
-  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['Schematic', 'flow-arrow', true]], part: 0,
+  editor: 'characters', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 0,
   tools: [
     ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Paint', 'paint-brush', 'B', true],
     ['Add a part', 'plus', 'A', true], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
@@ -55,8 +54,8 @@ window.MOCK = {
   place: 'Keeper', saved: 'Sam, 1 hour ago', tool: 0, zoom: '1200%',
   settings: [
     '<span>Show</span><span class="seg"><button class="on">All three sides</button><button>One side</button></span>',
-    '<button class="btn small"><span class="ic" data-i="arrows-clockwise"></span>Play a turn</button>',
-    '<span>Bones</span><span class="knob2"></span>',
+    '<button class="btn small"><span class="ic" data-i="arrows-clockwise"></span>Turn around</button>',
+    '<span>Show the joints</span><span class="knob2"></span>',
   ],
   list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
       { head: 'Head', count: 3 },
@@ -83,13 +82,12 @@ window.MOCK = {
       { name: 'Body', open: true, rows: [
         { t: 'slider', l: 'How tall', f: 'body.height', v: '30', lo: 'A child', hi: 'A giant', at: 55 },
         { t: 'slider', l: 'How wide', f: 'body.width', v: '0.40', lo: 'Thin', hi: 'Round', at: 40 },
-        { t: 'slider', l: 'How long the legs are', f: 'body.legs', v: '0.45', lo: 'Short', hi: 'Long', at: 45 },
-        { t: 'slider', l: 'How long the arms are', f: 'body.arms', v: '0.40', lo: 'Short', hi: 'Long', at: 40 },
       ] },
       { name: 'Kind of body', open: true, rows: [
         { t: 'choice', l: 'Is a', f: 'rig', opts: ['Person', 'Four legs', 'Free shape'], on: 0 },
-        { t: 'btns', b: [['Surprise me', 'shuffle'], ['Make another like it', 'copy']] },
+        { t: 'btns', b: [['Surprise me', 'shuffle']] },
       ] },
+      { name: 'Legs, arms and copies', count: 3, rows: [] },
       { name: 'Wear', count: 4, rows: [] },
       { name: 'Face', count: 3, rows: [] },
       { name: 'Colors', count: 6, rows: [] },

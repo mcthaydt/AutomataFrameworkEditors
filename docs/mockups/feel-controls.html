@@ -32,21 +32,20 @@
       <div class="thumbzone" style="right:0"><span>Right thumb</span></div>
       <span class="tb" style="left:6%;bottom:10%;width:20%;aspect-ratio:1"><span class="ic" data-i="arrows-left-right"></span></span>
       <span class="tb on" style="right:6%;bottom:12%;width:14%;aspect-ratio:1"><span class="ic" data-i="arrow-fat-up"></span></span>
-      <i class="rh" style="right:5.2%;bottom:calc(12% + 14% * 19.5 / 9 - 6px)"></i>
-      <span class="tb" style="right:23%;bottom:6%;width:10%;aspect-ratio:1"><span class="ic" data-i="hand"></span></span>
+      <span class="tb" style="right:23%;bottom:6%;width:10%;aspect-ratio:1"><span class="ic" data-i="hand"></span></span><span class="chip" style="right:22%;bottom:-1%;left:auto;top:auto">Pull</span><span class="chip" style="right:5%;bottom:3%;left:auto;top:auto">Jump</span>
       <span class="tb" style="right:4%;top:6%;width:7%;aspect-ratio:1"><span class="ic" data-i="pause"></span></span>
     </div>
   </div>
 </div>
 <script>
 window.MOCK = {
-  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true]], part: 1,
+  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle']], part: 1,
   tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Try it', 'hand-tap', 'T'], ['Play', 'play', 'P']],
   status: { pointer: false, grid: false, snap: false },
   place: 'Touch buttons', what: 'Controls', saved: 'Sam, 2 minutes ago', tool: 0, zoom: '100%',
   settings: [
-    '<span class="seg"><button class="on">Touch</button><button>Gamepad</button><button>Keys</button></span>',
-    '<span>Phone</span><span class="seg"><button class="on">Sideways</button><button>Upright</button><button>Tablet</button></span>',
+    '<span>Show</span><span class="seg"><button class="on">Touch</button><button>Gamepad</button><button>Keys</button></span>',
+    '<span>On</span><span class="seg"><button>Phone upright</button><button class="on">Phone sideways</button><button>Tablet</button></span>',
   ],
   list: { title: 'Actions', count: 5, search: 'Find an action', rows: [
       { head: 'The hero', count: 4 },
@@ -64,11 +63,11 @@ window.MOCK = {
     groups: [
       { name: 'Place and size', open: true, rows: [
         { t: 'slider', l: 'Size', f: 'touch.jump.size', v: '64 points', lo: 'Small', hi: 'Big', at: 55 },
-        { t: 'num', l: 'From the right', f: 'touch.jump.right', v: '6', u: '%' },
-        { t: 'num', l: 'From the bottom', f: 'touch.jump.bottom', v: '12', u: '%' },
+        { l: 'Drag it on the phone to move it, or nudge it:' },
+        { t: 'btns', b: [['Left', 'arrow-left'], ['Right', 'arrow-right'], ['Up', 'arrow-up'], ['Down', 'arrow-down']] },
       ] },
       { name: 'Look', open: true, rows: [
-        { t: 'slider', l: 'See-through', f: 'touch.alpha', v: '70%', lo: 'Hidden', hi: 'Solid', at: 70 },
+        { t: 'slider', l: 'How solid', f: 'touch.alpha', v: '70%', lo: 'Faint', hi: 'Solid', at: 70 },
         { t: 'sw', l: 'Players may move it', f: 'touch.movable', on: true },
         { t: 'sw', l: 'Hide until a thumb touches', f: 'touch.hideIdle', on: false },
       ] },
