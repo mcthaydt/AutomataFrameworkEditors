@@ -1132,7 +1132,7 @@ body.sh .sh-bottom {
   z-index: 4;
   opacity: 0.55;
   image-rendering: pixelated;
-  outline: 1.5px dashed #b39cf0;
+  outline: 1.5px dashed var(--agent);
   outline-offset: 2px;
 }
 
@@ -1143,7 +1143,7 @@ body.sh .sh-bottom {
   padding: 10px 12px;
   border-radius: 10px;
   background: var(--panel);
-  border: 1px solid #5b4d86;
+  border: 1px solid var(--agent-edge);
   box-shadow: var(--shadow);
   font: 13px / 1.35 var(--label);
   color: var(--words);
@@ -1154,7 +1154,7 @@ body.sh .sh-bottom {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #c4b2f5;
+  color: var(--agent);
 }
 
 .agent p {
@@ -1954,7 +1954,7 @@ body.has-ghost .pinned::before {
   width: 12px;
   height: 12px;
   background: var(--panel);
-  border: 1px solid #5b4d86;
+  border: 1px solid var(--agent-edge);
   border-width: 0 1px 1px 0;
   transform: translateX(-50%) rotate(45deg);
 }
@@ -2714,11 +2714,14 @@ body.sh .daybar .rbar {
 
 /* ---------- design loop two ---------- */
 
-/* An agent's colour is a token, used only for what an agent did. */
+/* An agent's colour is a token, used only for what an agent did. It comes from the same book as palette No. 310
+   (the Owner, 2026-11-15: "the closest colour to lilac in one of the palettes"): Grayish Lavender A, #b5b1d8, which
+   the book pairs with Buffy Citrine, an olive, in combination No. 177. It reads at 7.5 to 1 on the panel. Its edge is
+   the same colour mixed into the panel, as the site mixes its quiet shades. */
 :root,
 body.sh {
-  --agent: #c4b2f5;
-  --agent-edge: #5b4d86;
+  --agent: #b5b1d8;
+  --agent-edge: color-mix(in srgb, #b5b1d8 45%, #252525);
   --tools-h: 84px;
 }
 
