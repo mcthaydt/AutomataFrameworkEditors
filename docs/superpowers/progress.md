@@ -198,6 +198,19 @@ the pull request's CI.
   `Stage` owns the view and tells the screen through `onview`, with `zoom()`, `reveal()` and `pan()` exported; it does
   not take a bindable `view` (the plan's word), because nothing outside it needs to set one and a new level must open
   whole. Ruling: mode `look` picks but does not drag. Not wired into `Levels` yet: the frame (part 3) does that.
+- Task 7, part 3 (the frame, `suite/Frame.svelte` and the floating parts): the level fills the window; the pill, the
+  cluster, the tools, the title block, undo and redo float over it, set by the window's shape, and the level is fitted
+  into what they leave clear (`Levels` measures its slots). The strip and the bar are gone from the level screen. Parts
+  2 and 3 go up as one pull request, because only one branch may be open and each merge waits on the one before.
+  Rulings: `Sheet` waits for Task 8, where the card needs it. Panel `data-part="block"` and the title block's own
+  `data-block` are two things (the panel and its content). The cluster on a phone upright keeps only Save; Export and
+  sign in or out move into the menu there, and a visitor keeps Save (it asks for a sign-in). No "Coming soon" tag shows
+  in the wide switcher row (its card says it). The visually hidden status line holds the whole sentence for a screen
+  reader, and the title block shows it in short. The notices (what just happened, what it asks) float under the
+  cluster. The arrow buttons are gone until the card of Task 8, so journeys move a thing with the arrow keys. The
+  waiting change's picture is now a `Stage` in mode `read`. The first-run, visitor, screens, approve, save-problems and
+  move-the-crate journeys are patched only as far as the new screen needs (no strip on a level, `leaveLevel`,
+  `pressExport`); Task 12 rewrites the first run.
 
 ### Stage 3 finished (2026-11-14)
 
