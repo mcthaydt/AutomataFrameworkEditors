@@ -221,3 +221,39 @@ test('a phone on its side gets a floating column of tools and a tab at least 44 
   expect(block('html body.sh .sh-right .itab')).toContain('background: transparent')
   expect(section).toMatch(/\.itab \{\s*height: auto;\s*min-height: 44px;/)
 })
+
+test('Settings offers See-through panels, three ways, under For me', () => {
+  const settings = read('docs/mockups/shell-settings.html')
+  expect(settings.indexOf('See-through panels')).toBeGreaterThan(settings.indexOf('<h4>For me'))
+  expect(settings).toMatch(/See-through panels[\s\S]*?Choose for me[\s\S]*?On[\s\S]*?Off/)
+})
+
+test('the page with the setting off says so, and the line for a computer is hidden on one', () => {
+  const solid = read('docs/mockups/world-levels-solid.html')
+  expect(solid).toContain("glass: 'off'")
+  expect(solid).toContain('<title>World · Levels, see-through panels off (mockup)</title>')
+  expect(section).toContain('html body.sh[data-device="computer"] .no-computer')
+})
+
+test('CLAUDE.md names the device key', () => {
+  expect(read('CLAUDE.md')).toContain('`af.me.glass`')
+})
+
+test('the speed page holds the seven values word for word, loads nothing, and says what it measures', () => {
+  const page = read('docs/mockups/shell-glass-speed.html')
+  const values = [
+    'rgb(30 30 30 / 0.72)',
+    'blur(24px) brightness(0.45) saturate(1.4)',
+    'rgb(255 255 255 / 0.10)',
+    'inset 0 1px 0 rgb(255 255 255 / 0.06)',
+    '#a8a8a8',
+    'rgb(37 37 37 / 0.92)',
+    'blur(12px) brightness(0.5) saturate(1.2)',
+  ]
+  for (const value of values) expect(page, value).toContain(value)
+  expect(page).not.toMatch(/\b(?:src|href)\s*=/)
+  expect(page).toContain('Frames a second')
+  expect(page).toContain('Slowest so far')
+  expect(page).toContain('Start')
+  expect(page).toContain("document.documentElement.dataset.ready = 'yes'")
+})

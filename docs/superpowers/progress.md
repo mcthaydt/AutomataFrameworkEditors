@@ -5,7 +5,7 @@ The tracker every stage reads first and updates last. One section per cycle; new
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 
 Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating-glass-docks.md) on PR 57, mockups only
-(no editor code). Progress on this step: **60%** (Task 3 of 6 drawn; its pictures are still to be checked).
+(no editor code). Progress on this step: **90%** (Task 5 of 6 written; the pictures of Tasks 3 to 5 are still to be checked).
 
 - **Task 1 (20%):** the seven glass tokens, the two recipes (glass for the docks, soft glass for the band, menus, Help,
   Settings and their family), the four solid cases and the contrast check, all in one new last section of
@@ -23,6 +23,18 @@ Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating
   everything measured from it keeps its 8 points under the bar. A phone on its side has a floating column of tools and
   a floating tab for the inspector; an upright iPad and a phone have a floating band above the sheet; the dark canvas
   runs edge to edge at every size; the safe areas (notch, home bar) are kept clear by every dock.
+- **Task 4 (75%):** Settings has a "See-through panels" row under "Row size" in "For me" (Choose for me, On, Off; the
+  line under it names this device's own setting, "Reduce Transparency" on an iPad or phone), `world-levels-solid.html`
+  is the glass page with the setting Off, and `CLAUDE.md` lists the device key `af.me.glass` (`auto`, `on` or `off`)
+  with the other "For me" choices the device may keep.
+- **Task 5 (90%):** `shell-glass-speed.html` is one page that measures how smooth the glass is on a real iPad: a
+  picture sliding behind stand-in panels in the same two glasses, a solid card in the middle with the frames a second
+  and the slowest second, and five choices that make a little more of the screen solid, one step at a time. Nothing in
+  it loads from anywhere, so it can be published on its own. **Pages over 0.40 wide blur** (the share of the window
+  the 24-point blur covers; measured on CI at 7d70541, so the numbers are before Task 3): a normal wide page is about
+  0.45 (the list, the inspector and the top bar), and the Put in game family (`world-levels-share`, `-blocked`,
+  `-check`, `-offline`, `-suggest`) is highest: 0.62 on an iPad sideways, 0.68 on a computer, 0.75 to 0.77 on a phone,
+  0.74 on a phone on its side. Those, and the upright iPad (up to 0.51), are what the Owner's speed test decides.
 - **Rulings so far.** (1) The spec's contrast table names `--touch` as peach and `--mark` as olive, but the plain-words
   audit re-pointed them to greys (`#c8c8c8`, `#8a8a8a`) and made `--accent` the peach; the check measures the colours the
   cascade ends on, with `--accent` for the peach, and holds `--mark` (a fill and an icon, never words) to 3 to 1.

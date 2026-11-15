@@ -154,8 +154,9 @@ implementations or incomplete integrations. Do your best work."
   change is an ordinary branch and pull request. A screen that keeps state anywhere else is a defect. The
   device may keep only these, and none is something an agent needs: an unsaved draft (`af.draft:…`), the first-run tips
   and what they have counted (`af.guide.done`, `af.tip.*`, and `af.saved`, that the person has saved once and how), the
-  sign-in (`af.tokens`, and the short-lived `af.signin.*`) and the games this device has opened (`af.recent`). A kept
-  copy is the content file itself, byte for byte.
+  sign-in (`af.tokens`, and the short-lived `af.signin.*`), the games this device has opened (`af.recent`) and the
+  person's own "For me" choices in Settings (`af.me.*`: row size, the Pencil and hand choices, tips, and `af.me.glass`
+  for "See-through panels": `auto`, `on` or `off`). A kept copy is the content file itself, byte for byte.
 - **Touch first.** Every screen is designed and tested at iPad size, upright and sideways, then at phone size. Touch
   targets are at least 44 px, primary actions 48 px. Anything that can be dragged can also be moved with buttons and
   with the keyboard.

@@ -7459,3 +7459,11 @@ html body.sh.fine:not(.playing):not(.bare):not(.tools-left) {
     max-width: calc(100vw - 80px - var(--safe-l) - var(--right-w) - 16px);
   }
 }
+
+/* ----- 7. The setting, in words ----- */
+
+/* A line only the other devices need: the iPad's and phone's "Reduce Transparency" line is left out on a computer
+   (frame.js puts the device on the body; `.only-computer` and `.only-ipad` already do the same for their lines). */
+html body.sh[data-device="computer"] .no-computer {
+  display: none;
+}
