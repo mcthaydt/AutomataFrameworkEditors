@@ -97,6 +97,19 @@ document and overall progress percentage dynamically."
 relative to the spec and relative to the codebase. Assume nothing. Verify everything. Investigate any incomplete
 implementations or incomplete integrations. Do your best work."
 
+## Visual review process
+
+Every mockup or UI round goes through these steps before the Owner sees it, and all of it lands in one pull request.
+Each review step is a find-only session: it writes a report and changes nothing. Its fixes are then made in a separate
+session on Sonnet at xhigh effort, before the next step starts.
+
+1. **Plain-words check** (Opus, medium effort): every word passes the drunk-grandma test.
+2. **Design pass** (Fable, medium effort): every screen, device and orientation, for layout, touch size and polish.
+3. **End-to-end check**: walk every real user journey from first open to playing the result; fully usable, nothing
+   missing, no dead ends.
+4. **Second visual look** (Opus, xhigh effort): a fresh, harsh look after all the fixes.
+5. **Owner review.**
+
 ## Sessions and reporting
 
 - One long-lived coordinator. One long-lived merge session merges each finished stage branch to `main` by pull request
@@ -131,6 +144,11 @@ implementations or incomplete integrations. Do your best work."
 - Refresh sessions after 90 minutes.
 - Branches: `main` plus branches with CI running, five at most.
 - **Tests run only in GitHub-hosted CI, never locally.** Verify through the pull request's CI runs.
+- **Affected tests while working, the full suite before merge** (the Owner, 2026-11-15). Open the pull request as a
+  draft: while it is a draft, CI runs only the tests the change reaches, in Chromium for the journeys, and stops at the
+  first failure, so a round takes minutes. Mark it ready for review when the work is done; that run is the whole suite
+  in all three browsers, in six shards, and only a green full run is merged. The `full-tests` label asks for the whole
+  suite on a draft, and the `pictures` label for the screens journey and its pictures when no `.svelte` or `.css` file changed.
 
 ## Particular to this repo
 
