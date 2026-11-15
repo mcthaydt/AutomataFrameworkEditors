@@ -4408,3 +4408,67 @@ body.sh .tbar .tz.tz {
     bottom: calc(var(--bottom2-h) + var(--tools-h) + 190px);
   }
 }
+
+/* The phone's toolbar spans the screen, so each tool keeps a finger's width and the picked one's word fits. */
+@media (max-width: 500px) {
+  body.sh .sh-tools {
+    left: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  body.sh .tbar {
+    width: 100%;
+  }
+
+  body.sh .tbar .tl2 {
+    min-width: 40px;
+  }
+
+  /* The things to place sit above the tool's settings strip, and the level above them (B3). */
+  body.sh.has-tray .tray {
+    bottom: calc(var(--tools-h) + 64px);
+  }
+
+  body.sh.has-tray .fit {
+    bottom: calc(var(--tools-h) + 170px);
+  }
+
+  /* A long settings line wraps instead of running off the screen. */
+  body.sh .sh-tools .topts {
+    max-width: calc(100vw - 16px);
+    white-space: normal;
+  }
+}
+
+/* A phone on its side: the "Put in game" sheet is wider and tighter, so its two buttons sit under the whole list
+   instead of on top of it (B4). */
+@media (max-height: 600px) and (min-width: 600px) {
+  body.sh .share-pop {
+    width: min(580px, calc(100vw - 16px));
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  body.sh .share-pop p {
+    margin-bottom: 4px;
+  }
+
+  body.sh .share-pop .sc {
+    height: 30px;
+  }
+
+  body.sh .share-pop .both {
+    padding: 6px 10px;
+  }
+
+  body.sh .share-pop .both b {
+    margin-bottom: 4px;
+  }
+
+  body.sh .share-pop .go {
+    margin-top: 8px;
+    position: static;
+  }
+}

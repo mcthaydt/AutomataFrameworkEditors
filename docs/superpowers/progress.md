@@ -6,8 +6,8 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 Pull request 56 (branch `claude/project-thread-3v0bsz`) replaces 55: it carries every commit of 55 and adds the fixes
 from the Opus plain-words audit (`/mnt/project-files/reports/2026-11-15-slice3-plain-words-audit.md`, at 4f0135d,
-52 findings). Progress on this step: **60%** (B1, the words and the simplicity fixes pushed; the layout fixes wait on
-CI's pictures). Branch `claude/project-thread-h6n4o2` (55's) is to be deleted.
+52 findings). Progress on this step: **90%** (every finding has a fix pushed; the last phone fixes wait on CI's
+pictures, then the review page). Branch `claude/project-thread-h6n4o2` (55's) is already deleted.
 
 - **B1 done:** the icons (192 Phosphor files the pages name) and the three fonts (latin and latin-ext) are copied
   into `docs/mockups/assets/` with `LICENCES.txt`. No package came back.
@@ -20,8 +20,15 @@ CI's pictures). Branch `claude/project-thread-h6n4o2` (55's) is to be deleted.
   place), S3, S4, S6, S7, S8, S10, S11, S12, S13, S14. S5: the top bar says "1 problem" in words above phone size.
 - **Deviation:** slider values keep their number, small, beside the new word ("Quite heavy 1.6"): the grill round
   asked that sliders never hide their numbers, so both stay. W13: the Group line is removed from the Keys sheet.
-- **Still to do here:** look at CI's pictures and fix B2 to B14 and S1 (phone and phone sideways), then republish
-  the review page (artifact W5REbCVDUkABgoPY5Hxy2X) with the shell and World only. Then, in its own thread, the one
+- **Layout done (B2 to B14, S1, S9), checked in CI's pictures at 3e84820:** icons were hidden with their words on
+  phones (a span rule); the phone toolbar, tray and top bar fit; on a phone on its side the tray is one row along
+  the bottom and nothing else floats while it is open; the Keys sheet wraps; Links' part name was drawn as a dot
+  (the page's `.pt` class); the tray clears the settings strip; Scenes mid has no frames or day bar.
+- **Deviations:** on an upright phone, Show and the zoom readout leave the toolbar (pinch zooms) so the five tools,
+  the list, Undo and Play fit; the nudge arrows leave the bar on touch screens below iPad sideways; Line up's menu
+  is not drawn open on any page now (the only page that drew it was mid-project, which now shows the helper's card
+  alone).
+- **Still to do here:** republish the review page (artifact W5REbCVDUkABgoPY5Hxy2X) with the shell and World only. Then, in its own thread, the one
   Fable UI/UX pass.
 
 ## The shell and World mockups (roadmap slice 3): handoff (2026-11-15, 08:10 UTC)
