@@ -9189,3 +9189,14 @@ html body.sh .lv2.add .ic {
     padding: 4px 12px;
   }
 }
+
+/* The list of problems on a phone held sideways: one column, wide enough for each problem's words on a line or two
+   (the game's menu there is two columns; a list of problems reads down). */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .pop.menup.probs {
+    display: block;
+    width: min(560px, calc(100vw - 16px)) !important;
+    max-height: calc(100vh - var(--top-h) - 16px);
+    overflow-y: auto;
+  }
+}
