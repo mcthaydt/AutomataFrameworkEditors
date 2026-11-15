@@ -346,7 +346,7 @@ function frame(m) {
     <nav class="sh-ws">${ws}</nav>
     ${m.place && m.place !== here ? `<button class="place" title="All ${here.toLowerCase()}">${m.place}${icon('caret-down')}</button>` : ''}
     <button class="wsn"><b>${editor[0]}</b>${icon('caret-down')}</button>
-    <button class="partn"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}</span>${icon('caret-down')}</button>
+    <button class="partn" title="Other parts, other editors and the game's own menu"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}</span>${icon('caret-down')}</button>
     <span class="fill"></span>
     ${problems ? `<button class="ib warn" title="Open the list of problems">${icon('warning')}<span>${problems}<span class="pw"> problem${problems > 1 ? 's' : ''}</span></span></button>` : ''}
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}${fine ? '<kbd>⌘K</kbd>' : '<span>Find</span>'}</button>

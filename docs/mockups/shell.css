@@ -3110,3 +3110,25 @@ body.sh .filters .choice .num {
     flex: 1 1 auto;
   }
 }
+
+/* A phone: the game's menu joins the part's menu, so the bar has no empty button and the part's whole name fits. */
+@media (max-width: 500px) {
+  .sh-top .game {
+    display: none;
+  }
+
+  body.sh .sh-top {
+    gap: 4px;
+    padding-left: 12px;
+    padding-right: 8px;
+  }
+
+  .sh-top .partn {
+    padding: 0 6px;
+    font-size: 15px;
+  }
+
+  .sh-top .warn {
+    padding: 0 6px;
+  }
+}
