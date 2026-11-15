@@ -6,8 +6,9 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 Pull request 56's work moves to branch `claude/project-thread-95sweh` (a new pull request replaces 56) with the fixes from
 the one Fable UI/UX pass (`/mnt/project-files/reports/2026-11-15-slice3-fable-uiux-pass.md`, at 7b7039d, 37 findings)
-and the Owner's answers to its three questions (2026-11-15, 09:01 UTC). Progress on this step: **80%** (every finding
-drawn; CI's pictures still to check at five sizes, then the review page).
+and the Owner's answers to its three questions (2026-11-15, 09:01 UTC). Progress on this step: **100%** (every finding
+drawn; CI's pictures checked at five sizes at 1eca759 after two rounds of fixes; the review page is republished as
+version 8). Next: the Owner's review.
 
 - **The Owner's answers:** F2 yes, the tools go down the left edge on an iPad held sideways (in the rail with the list
   when it is closed, a floating column beside the open list; the free thumb's buttons move to the bottom left); F9 a
