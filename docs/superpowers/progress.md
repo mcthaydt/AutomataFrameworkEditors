@@ -115,6 +115,14 @@ the pull request's CI.
 - Task 7b (the framework pin, zoom plan): the pin moves from `b57d00a` to `504c278`, the merge of AutomataFramework pull
   request 102 (`LevelPicture.setView`, which the zoom needs). Same three places as Task 1: `package.json`, the
   `onlyBuiltDependencies` line and the lockfile, whose checksum was worked out from the downloaded tarball.
+- Fix (pull request 27): a waiting change's picture box is there before the game's art loads, so Approve does not move
+  under a finger; the share journey also waits for the picture. It came from a one-off Firefox failure of that journey.
+- Task 6 (every change a level can take): `edit.ts` gains redo (`future` on `LevelEdit`), add, erase, another character
+  and start points as hit ids (`start-<player>`, the hero's size); `ids.ts` names a new thing (`crate-2`); `compareLevels`
+  returns moved, added, erased, retyped and other, and `describeChange` names each kind. Ruling: a joint that goes with
+  an erased thing is not counted in `other`, so an erase still reads as an erase. Ruling: `setCharacter` also keeps the
+  new, possibly bigger, box inside the level, or the file would fail the framework's check. Ruling: `startId` and
+  `nextId` are used inside the feature, so only `nextId` joins the entry, which a test reads.
 
 ### Stage 3 finished (2026-11-14)
 
