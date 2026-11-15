@@ -20,6 +20,16 @@ The third point stands as written, with no question asked: the glass is on, and 
 Settings, under "For me" (Choose for me, On, Off). "Choose for me" turns the glass off when the device is set to reduce
 see-through things (Apple calls it "Reduce Transparency").
 
+Then, at 18:31 UTC, on what this spec had first kept solid: "Menus, Help, Settings and the bottom band should also be
+frosted just much less transparent and more subtle."
+
+3. **There are two strengths of glass.** The docks keep the glass above ("glass"). Menus, Help, Settings, the band
+   along the bottom, and the cards of the same family (the welcome, the tour's cards, the new level's card, the keys
+   sheet, the find bar) get **soft glass**: almost solid, with a light blur, so a little colour comes through and no
+   shapes. The Owner named the first four; the others are the same kind of card, and one look for the family is the
+   point of this spec. The tip bubbles ("Drag the crate anywhere") stay solid and light: they are the one thing meant
+   to stand out from the glass.
+
 ## Principles served
 
 - **2. iPad-first editors.** The point is the iPad: one look for every panel at every size and way up, the level given
@@ -54,7 +64,7 @@ Every dock, at every size:
   8 points inside the notch, not 8 points from the glass;
 - has rounded corners: **12** for docks, **14** for sheets; on a phone, the open sheet's two lower corners are larger
   (**28**) so they follow the phone's own rounded corners instead of fighting them;
-- has the glass look below (or, for the few docks named in "Which surfaces get glass", a solid card), one thin
+- has the glass look below (soft glass for the band along the bottom, see "Which surfaces get glass"), one thin
   edge and the shadow the toolbar has today;
 - keeps every touch size it has today: 44 points for a control, 48 for a main button. Insets come out of the canvas,
   never out of a panel or a button;
@@ -63,8 +73,8 @@ Every dock, at every size:
   inner edges.
 
 Screens that are not docks do not float as docks: the welcome, the tour's cards, the new level's card, Help, Settings,
-the keys sheet and the find bar already sit as cards over a dimmed screen. They stay solid (see "Which surfaces get
-glass").
+the keys sheet and the find bar already sit as cards over a dimmed screen. They stay where they are and get soft glass
+(see "Which surfaces get glass").
 
 ### Size by size
 
@@ -94,7 +104,7 @@ pages, which are not in the review now, must at least not break (one look at eac
 
 ### The recipe
 
-One recipe, as tokens in the last section of `shell.css`, used by every glass surface:
+Two strengths, as tokens in the last section of `shell.css`. The first, for the docks:
 
 | Token | Value | What it is for |
 | --- | --- | --- |
@@ -113,6 +123,16 @@ backdrop-filter: var(--glass-filter);
 border: 1px solid var(--glass-edge);
 box-shadow: var(--glass-shine), var(--shadow);
 ```
+
+The second, **soft glass**, is the same five lines with a tint that covers far more and a lighter filter:
+
+| Token | Value | What it is for |
+| --- | --- | --- |
+| `--glass-soft` | `rgb(37 37 37 / 0.92)` | The tint: today's `--panel` grey, 92% covering. |
+| `--glass-soft-filter` | `blur(12px) brightness(0.5) saturate(1.2)` | Half the blur. Only a breath of what is behind comes through. |
+
+Its edge, shine and shadow are the docks' (`--glass-edge`, `--glass-shine`, the surface's own shadow), so the two
+strengths read as one family. Its quiet words stay today's `--quiet`, which passes on it (see the table).
 
 Both spellings of `backdrop-filter` are written: Safari before 18 knows only `-webkit-backdrop-filter`.
 
@@ -137,6 +157,16 @@ so pure white is the true worst case.
 | Helper `--agent` #b5b1d8 | 5.9 | 6.5 | 8.6 | Passes |
 | Olive `--mark` #a7a24a | 4.6 | 5.0 | 6.6 | Passes |
 
+The same sums for soft glass (`--glass-soft` and `--glass-soft-filter`):
+
+| Colour | Over pure white | Over the dark canvas | Rule |
+| --- | --- | --- | --- |
+| Words `--words` #ededed | 11.9 | 13.4 | Passes |
+| Quiet `--quiet` #9c9c9c | 5.0 | 5.7 | Passes: soft glass keeps today's quiet words |
+| Peach `--touch` #eeb480 | 7.6 | 8.5 | Passes |
+| Helper `--agent` #b5b1d8 | 6.8 | 7.6 | Passes |
+| Olive `--mark` #a7a24a | 5.3 | 5.9 | Passes |
+
 Buttons that carry their own solid colour (the white main buttons, the peach Put in game, the helper's lavender) are
 solid on the glass, so their words keep their contrast today (dark on peach is 9.1 to 1).
 
@@ -145,21 +175,24 @@ darkening that makes words unreadable fails CI. It measures against pure white, 
 
 ### Which surfaces get glass
 
-- **Glass:** every dock in "One rule: every dock floats" except the band along the bottom (solid, see "Speed on an
-  iPad"), and the small floating things that sit over the level with
-  them: the tool's options (`.opop`), the bar over a picked thing (Make another, Delete, Nudge), the tray, the small
-  map, the hold buttons and the helper's card.
-- **Solid** (today's `--panel` or `--raised`): what you read or decide in, which sits over a dimmed screen: the welcome,
-  the tour's cards, the new level's card, Help, Settings, the keys sheet, the find bar, menus and drop-down lists, and
-  the tip bubbles ("Drag the crate anywhere"), which stay the light, solid thing that catches the eye.
-- **Never glass inside glass.** A surface inside a glass surface (a menu opened from the inspector, a slider's thumb)
-  is solid. Safari blurs only what is under the outer glass for an inner one, so glass on glass looks wrong, and each
-  extra layer costs speed.
+- **Glass:** every dock in "One rule: every dock floats" except the band along the bottom, and the small floating
+  things that sit over the level with them: the tool's options (`.opop`), the bar over a picked thing (Make another,
+  Delete, Nudge), the tray, the small map, the hold buttons and the helper's card.
+- **Soft glass** (the Owner, 18:31 UTC): the band along the bottom, and what you read or decide in: menus and
+  drop-down lists, Help, Settings, the welcome, the tour's cards, the new level's card, the keys sheet and the find
+  bar.
+- **Solid:** the tip bubbles ("Drag the crate anywhere"), which stay the light thing that catches the eye; the
+  controls inside any panel (a button, a slider's thumb, a row that is picked); and anything that follows a finger.
+- **Never glass inside glass**, of either strength. A surface that sits inside another glass surface on the page (a
+  drop-down list opened inside Settings, a menu drawn inside the inspector) is solid (`--raised`). A menu that hangs
+  from a dock but is drawn beside it, over the level (the game's menu under the top bar), is soft glass. Safari blurs
+  only what is under the outer glass for an inner one, so glass on glass looks wrong, and each extra layer costs
+  speed.
 
 ### When there is no glass
 
-The glass turns into today's solid panel (`--panel`, `--line` edge, no shine, `--quiet` words) in each of these cases,
-with nothing else moving:
+Both strengths turn into today's solid panel (`--panel`, `--line` edge, no shine, `--quiet` words) in each of these
+cases, with nothing else moving:
 
 - the browser does not know `backdrop-filter` (`@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))`);
 - the device asks for less see-through (`@media (prefers-reduced-transparency: reduce)`), unless the person has set
@@ -177,16 +210,21 @@ the rule; it is also where "Row size" and the other "For me" choices should be n
 Blurring what is behind a panel is done again every time what is behind it changes, which is every frame while the
 level is dragged, zoomed or played. On an iPad the cost grows with the blurred area and the blur's size. So:
 
-- **A budget.** Glass covers at most about a third of the screen at once. On iPad sideways the list, the inspector and
-  the top bar are about 30%; a band along the bottom with both side panels open is over it, so **the band is solid**
-  (it is also where timelines are read closely).
-- **One blur size** (24) everywhere, never animated. A panel that opens or closes slides; its blur does not grow.
+- **A budget.** The docks' glass covers at most about a third of the screen at once. On iPad sideways the list, the
+  inspector and the top bar are about 30%; a band along the bottom with both side panels open is over it, so **the
+  band is soft glass, never the docks' glass** (it is also where timelines are read closely). Soft glass costs less
+  (half the blur) but is not free, so the band is the first thing to go solid if the iPad is slow.
+- **Cards over a dimmed screen cost almost nothing.** Help, Settings, the welcome and their family sit over a level
+  that is not moving, so their blur is worked out once.
+- **Two blur sizes** (24 for glass, 12 for soft glass), never animated. A panel that opens or closes slides; its blur
+  does not grow.
 - **No glass inside glass**, as above.
 - **Moving things are solid.** What follows a finger (a thing being dragged, the drawing line) is never glass.
 - **Proof.** CI has no iPad and no GPU, so it cannot prove the speed. The plan adds a mockup page that pans the level
   under the glass by itself, with a frame counter on it, and asks the Owner to open it on the iPad Pro 11 (a real-device
-  test is the Owner's). It is fine at 60 frames a second or more while panning. If it is not, the first step is a
-  smaller blur (16), then glass on the top bar and the small floating things only. That fallback is decided by the
+  test is the Owner's). It is fine at 60 frames a second or more while panning. The page has the band open with both side panels, since that is the heaviest
+  screen. If it is not fine, the first step is a solid band, then a smaller blur (16), then glass on the top bar and
+  the small floating things only. That fallback is decided by the
   Owner after the test, not switched on by the editor by itself.
 
 The real editor draws the level with PixiJS into one canvas. Safari blurs a canvas behind a glass panel like any
@@ -205,7 +243,8 @@ As the Owner decided (answer 1):
 
 The mockups are still pictures, so to show this the plan adds one page, `world-levels-glass.html`, with the level
 dragged so that its sky and hills sit under the list and the inspector, at all five sizes; and one page,
-`world-levels-solid.html`, the same scene with "See-through panels" set to Off, so the Owner sees both.
+`world-levels-solid.html`, the same scene with "See-through panels" set to Off, so the Owner sees both. Soft glass over a moving level is seen on the speed page,
+which has the band open; soft glass over a dimmed level is seen on Help, Settings, the menu and the welcome.
 
 ## What the plan must cover
 
