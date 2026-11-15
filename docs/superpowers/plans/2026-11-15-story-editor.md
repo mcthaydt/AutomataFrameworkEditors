@@ -28,6 +28,10 @@ below, with its zoom amendment). The framework's story is plan T,
 
 ## Before anything is built (the gates)
 
+> **The plan audit** ([`audits/2026-11-15-story-editor-plan-audit.md`](../audits/2026-11-15-story-editor-plan-audit.md))
+> lists amendments to make before the tasks each names (its last table). Ruling 6's folders below already follow its
+> C2; the rest, `/api/save-many` giving way to the shared `saveChange` (I12) among them, are still to be written in.
+
 No task below starts until its gate is open. A closed gate is reported to the coordinator, never worked round.
 
 | Gate | What must be true | Holds |
@@ -37,7 +41,7 @@ No task below starts until its gate is open. A closed gate is reported to the co
 | G3 | Framework plan T is on AutomataFramework's `main` (pull request 64): `name` and `conversation` on a character, `cutscene` on a step, `opens` on a cutscene, `openAt`, `nextPlace`, `choosePlace`, `cameraAt`, `actorsAt`, `linesAt`, and the page's `story` feature | Task 1 on |
 | G4 | The redesign's build is on this repo's `main` through its Task 18 (the frame, the find bar, faces, nine languages, zoom, the scenes) | Task 7 on (Tasks 2 to 6 touch no screen and need only G1 to G3) |
 | G5 | The redesign's Task 19 (Play) is on `main` | Task 17's "Try it in the game" only |
-| G6 | The framework's content folders (the sound formats cycle, AutomataFramework pull request 106) are on the pin | "Add a conversation", "Add a cutscene" and their set-up only (ruling 6) |
+| G6 | The framework's content folders (framework plan M, AutomataFramework pull request 118: `FolderRef`, `Project.folders` and `withFolders` in `content/project-write.ts`) are on `main` and on the pin | "Add a conversation", "Add a cutscene" and their set-up only (ruling 6) |
 
 The framework stays ahead of the editors (the Owner, 2026-11-14): Task 1 is framework work and may start when G2
 and G3 are open, before G1.
@@ -200,7 +204,7 @@ src/features/wire/
   wire.ts                    SaveManyAsk, SaveManyAnswer, FileSave, MissingWords, WordsHistory,
                              Waiting.words, Waiting.goesIn, 'words-missing'                     Task 5, 6
   missing.ts                 missingWords, otherWordProblems                                    Task 5
-  project-line.ts            folderOf, newFilePath, withFolderLine, onlyListsFolders            Task 5
+  project-line.ts            folderOf, newFilePath, onlyListsFolders (bytes: the framework's withFolders) Task 5
 src/features/github/repo.ts  saveFiles, lineHistory                                             Task 4
 src/features/service/
   save-many.ts               POST /api/save-many                                                Task 5
@@ -427,9 +431,9 @@ export const SET_UP_FOLDER: Readonly<Record<FolderKind, string>>   // content/co
 export function folderOf(project: Project, kind: FolderKind): string | undefined
 /** `<folder>/<id>.json`; undefined when the game lists no folder for the kind. */
 export function newFilePath(project: Project, kind: FolderKind, id: string): string | undefined
-/** `text` with `\n[[content]]\ntype = "<kind>"\nfolder = "<folder>"\n` at its end (one newline before it if `text` ends in one). */
-export function withFolderLine(text: string, kind: FolderKind, folder: string): string
-/** True when `after` is `before` with only such entries added, each for a kind in FolderKind and its SET_UP_FOLDER. */
+// No editor-side writer of automata.toml (plan audit C2): its bytes are always the framework's
+// `withFolders(text, refs)`, so an agent's command and the editor write the same file.
+/** True when `after` is exactly `withFolders(before, refs)` for refs of kinds in FolderKind at SET_UP_FOLDER. */
 export function onlyListsFolders(before: string, after: string): boolean
 // game/open.ts
 export interface OpenGame { /* … */ readonly marks: ReadMarks | undefined; readonly marksProblem: readonly Diagnostic[] }
@@ -454,7 +458,7 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
    `character` may differ from the branch's only in `name` and `conversation` ('not-allowed' otherwise). Each mark
    must equal `readMark` of the two texts as this save leaves them, or be a mark the branch's file already has.
 5. For each kind in `setUp` whose folder the project does not list, the project file's text becomes
-   `withFolderLine(…, SET_UP_FOLDER[kind])` and joins the commit (ruling 6). A new file needs nothing more.
+   the framework's `withFolders(text, [{ type: kind, folder: SET_UP_FOLDER[kind] }])` and joins the commit (ruling 6). A new file needs nothing more.
 6. `wholeGameLoads` with every text in place: 'broken' with its sentences. Then `otherWordProblems` of that game:
    any is 'broken' with its sentences.
 7. `missing = missingWords(…)`. Where it goes: `into`: that branch. My own waiting change: its branch. Else, if
@@ -465,7 +469,7 @@ What `POST /api/save-many` does, in order; any refusal writes nothing:
 
 - [ ] **Step 1: Failing tests.** `missingWords`: none for the fixture; `{ ko: 1, ja: 2 }` for `story-gaps`; `{}` for
       `no-korean` and for a game with no words (ruling 9). `otherWordProblems`: none for `story-gaps`; names a
-      Korean text that lost `{count}` and a `controls.jump` of 13 characters. `withFolderLine` then
+      Korean text that lost `{count}` and a `controls.jump` of 13 characters. `withFolders` (the framework's) then
       `parseProject` lists the folder last and every earlier byte is unchanged; `newFilePath` is in the listed
       folder and undefined with none; `onlyListsFolders` is false when any other byte differs or the entry names
       another kind or folder. `save-many.test.ts`, each as its own test:
