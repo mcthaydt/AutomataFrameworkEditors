@@ -75,11 +75,13 @@ Written in the tracker when each is true. Task 1 does not start before all of 1 
 4. This plan's audit is merged.
 5. The Feel editor's plan is read as it is on `main` then: if its Task 2 (`EDITABLE`, `game/files.ts`) or its Task
    13 (a commit of several files) is built, Task 2 and Task 3 here **widen** those files and keep their names; if
-   not, they are built as written here, and Feel's tasks widen these. One save path, whichever editor is first. The Story plan (Editors PR 38: `/api/save-many`, an editors-side
-   `withFolderLine`) and the Scenes plan (PR 37: `Repo.saveFiles`) plan the same pieces; the plan audit (I4) settles
-   the shared names as this plan's Task 2 now writes them: `Repo.saveFiles` (Story's and Scenes' name and shape, with
-   `base64` for bytes), one `POST /api/files` with `setUp` as kinds from one `SET_UP_FOLDER` table, and the folder
-   line always the framework's `withFolders`. Whichever builds first builds those; the others widen them.
+   not, they are built as written here, and Feel's tasks widen these. One save path, whichever editor is first. **The one save is the figure builder's** (the coordinator, 2026-11-15,
+   after Editors PR 43; plan audit I4): Feel, Scenes and Sound all save through plan G's Task 2 (`ChangeAsk`,
+   `ChangeFile`, `ChangeAnswer` in `wire.ts`; `service/change.ts` and its route; `Repo.saveFiles` on git's data
+   routes; the page's `saveChange` in `game/change.ts`), with every editor's path rules in one shared
+   `allowedPaths` (`service/changed.ts`). Task 2 and Task 3 here **widen** those and build no save of their own; if
+   Sound is built first, they build them under those names and plan G's Task 2 widens them. The folder line is
+   always the framework's (`withFolders`, beside `listContent` in `project-write.ts`).
 
 **What this plan takes from the redesign as built** (names from its plan; Task 1's first step checks each on `main`
 and reports any that differs before building on it): `Frame`, `Pill`, `Cluster`, `Switcher`, `ComingSoon`, `Panel`,
@@ -245,10 +247,10 @@ Layers, lowest first: `words`, `access`, `wire`, `exchange`, `github`, `service`
 src/features/wire/wire.ts            EDITABLE + sound, cues, music, loop, motif; FileWrite, FilesAsk, FilesAnswer;
                                      OpenAnswer.folders; RecordingAsk                               Task 2
 src/features/github/repo.ts          saveFiles (several files, one commit), listFolder, readBytes    Task 2
-src/features/service/files.ts        the save of a change of several files                           Task 2
+src/features/service/changed.ts      Sound's kinds in the shared allowedPaths (plan G's save)          Task 2
 src/features/service/open.ts         folder files, and the folders' names                            Task 2
 src/features/service/recording.ts    one recording's bytes                                            Task 2
-src/features/game/change.ts          Change, saveChange, drafts and copies of a change               Task 3
+src/features/game/change.ts          (plan G's) + Change, askOf, drafts and copies of a change         Task 3
 src/features/game/open.ts            loadGame with the folders the API listed                         Task 3
 src/features/sound/
   sound.ts                           the feature's entry                                              Task 4
@@ -310,6 +312,15 @@ tests/                               mirrors the above; tests/fixtures/old-song-
       `Task 1: <commit>, <test count>, surprises`. No screen changed: no review artifact.
 
 ### Task 2: The API saves a change of several files, and lists a game's folders
+
+**This widens the figure builder's save** ("Before starting" 5; plan audit I4). The shapes below are what Sound
+adds to plan G's, under plan G's names: `FilesAsk` is `ChangeAsk` (its `writes` are `files`; `setUp` is a new
+field); `FileWrite`'s JSON write is `ChangeFile`'s `content`, and it gains `{ kind: 'recording'; path; base64;
+version? }` and `{ kind: 'remove'; path; version }`; `FilesAnswer` is `ChangeAnswer` with `versions`;
+`saveFiles(ask)` on the `api` is plan G's change call and its route, not a new `POST /api/files`;
+`service/files.ts` is plan G's `service/change.ts`; and rules 2 to 5 below are Sound's kinds' entries in the
+shared `allowedPaths` (`service/changed.ts`), not a check of their own. Rule 6's caps are plan G's (24 files, 6 MB),
+widened only for ruling 23's one big step (200 files). `Repo.saveFiles` is plan G's (Story and Scenes name the same).
 
 **Files:**
 - Modify: `src/features/wire/wire.ts`, `src/features/github/repo.ts`, `src/features/service/open.ts`,
@@ -417,7 +428,8 @@ export function withChange(game: OpenGame, change: Change): { readonly game: Ope
 export function folderFor(game: OpenGame, type: Editable): string | undefined
 /** A free id in the game for a kind: `jump`, then `jump-2`. */
 export function freeId(game: OpenGame, type: Editable, wanted: string): string
-export function saveChange(api: Api, game: OpenGame, change: Change, message: string): Promise<SaveResult>
+/** The figure builder's `saveChange(api, game, ask)` is the one that sends (plan audit I4); Sound hands it this. */
+export function askOf(game: OpenGame, change: Change, message: string): Omit<ChangeAsk, 'game'>
 /** Every file of a change as a named download: JSON as text, a recording as its bytes. */
 export function changeCopies(game: OpenGame, change: Change): { readonly name: string; readonly data: string | Uint8Array }[]
 /** A change kept on the device, without its recordings, against the versions it was made from. */

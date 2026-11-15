@@ -78,10 +78,13 @@ codes (`MidiDropped.what`, `why`), and Sound says each in its own words (new App
 type and folder pairs), the Feel plan's Task 13 (adding a folder line by itself on the first save), the Story plan
 (`/api/save-many`, `Repo.saveFiles`, and `withFolderLine`, an editors-side writer whose bytes differ from the
 framework's) and the Scenes plan (`Repo.saveFiles`, and the framework's `listContent` for a path block). **Fixed
-here:** this plan uses `Repo.saveFiles` (the name and shape Story and Scenes share, `base64` for bytes), keeps one
-`POST /api/files`, takes `setUp` as kinds from one `SET_UP_FOLDER` table in `wire.ts` for every editor, and writes a
-folder line only with the framework's `withFolders`. The coordinator is told, so the Story, Scenes and Feel plans
-follow when they are next amended.
+here** (with the coordinator's ruling after the figure builder's audit, Editors PR 43): there is one save, the figure
+builder's (its Task 2: `ChangeAsk`, `ChangeFile`, `service/change.ts`, `Repo.saveFiles` on git's data routes, the
+page's `saveChange`), with every editor's path rules in one shared `allowedPaths` (`service/changed.ts`). This plan's
+Tasks 2 and 3 now widen it and build none of their own: `ChangeFile` gains a recording (`base64`) and a removal,
+`ChangeAsk` gains `setUp` (kinds from one `SET_UP_FOLDER` table), Sound's path rules are its kinds' entries in
+`allowedPaths`, and the page hands `askOf(change)` to `saveChange`. A folder line is written only by the framework's
+`withFolders`. The Story plan follows the same ruling when it is next amended.
 
 **I5. A brought-in song could never be saved.** Ruling 23 held a change to 20 files, but one MIDI file can make far
 more loops than that and cannot be cut in two. **Fixed:** with plan M's fix (I7 there: about one loop each eight bars
