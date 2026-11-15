@@ -19,7 +19,7 @@
   td.changed small { display: block; color: var(--quiet); font-size: 12px; }
   .own { color: var(--touch); display: block; font-size: 10px; }
   .read { color: var(--touch); }
-  @media (max-width: 1000px), (max-height: 600px) { .c-cn, .c-mx, .c-br, .c-jp { display: none; } }
+  @media (max-width: 1000px), (max-height: 600px) { table { table-layout: auto; } .filters .choice:nth-child(n+3) { display: none; } .c-cn, .c-mx, .c-br, .c-jp { display: none; } }
   .lineedit { min-height: 56px; padding: 8px 10px; border: 1px solid var(--touch); border-radius: 3px; background: var(--ground); color: var(--quiet); }
 </style>
 </head>

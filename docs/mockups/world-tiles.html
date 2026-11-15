@@ -21,7 +21,7 @@
   .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
   .sw i { aspect-ratio: 1; border-radius: 3px; border: 1px solid var(--edge); min-width: 36px; }
   .sw i.on { outline: 2px solid var(--touch); outline-offset: 2px; }
-  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 14px; } .big canvas { width: 48cqw; } .joins canvas { width: 11cqw; } }
+  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 14px; } .joinbox .sub, .joinbox .joins { display: none; } .big canvas { width: 48cqw; } .joins canvas { width: 11cqw; } }
 </style>
 </head>
 <body>
@@ -32,7 +32,7 @@
         <div class="big" data-pixel="grass" data-scale="1"></div>
         <span class="chip" style="position:static">Grass top <span class="v">16 × 16</span></span>
       </div>
-      <div class="side">
+      <div class="side joinbox">
         <span class="sub">How it joins</span>
         <div class="joins">
           <span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span>

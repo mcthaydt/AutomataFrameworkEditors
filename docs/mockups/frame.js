@@ -22,7 +22,7 @@ const FLAGS = {
   mx: '<rect width="10" height="20" fill="#006847"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ce1126"/><circle cx="15" cy="10" r="2.6" fill="#8c5a2b"/>',
   br: '<rect width="30" height="20" fill="#009c3b"/><path d="M15 2 28 10 15 18 2 10z" fill="#ffdf00"/><circle cx="15" cy="10" r="4.6" fill="#002776"/>',
   cn: '<rect width="30" height="20" fill="#de2910"/><path d="M6 3l1.2 3.6H11L8 8.8l1.1 3.6L6 10.2l-3.1 2.2L4 8.8 1 6.6h3.8z" fill="#ffde00"/>',
-  kr: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#0047a0"/><path d="M10 10a5 5 0 0 1 10 0a2.5 2.5 0 0 1-5 0a2.5 2.5 0 0 0-5 0z" fill="#cd2e3a"/>',
+  kr: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#0047a0"/><path d="M10 10a5 5 0 0 1 10 0z" fill="#cd2e3a"/>',
   jp: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#bc002d"/>',
 }
 
@@ -119,13 +119,13 @@ function frame(m) {
   ).join('')
   const html = `
   <div class="float pill">
-    <button class="where"><span class="long">Crate Game · ${m.place}</span><span class="short">${m.place} · ${editor[0]}</span>${icon('caret-down')}</button>
+    <button class="where"><span class="long"><span class="game">Crate Game · </span>${m.place}</span><span class="short">${m.place} · ${editor[0]}</span>${icon('caret-down')}</button>
     <span class="sep"></span>
     <nav class="switcher">${switcher}</nav>
   </div>
   ${parts ? `<nav class="float parts">${parts}</nav>` : ''}
   <div class="float cluster">
-    <span class="find">${icon('magnifying-glass')}<span class="long">Find or do anything</span><span class="key">⌘K</span><span class="short label">Find</span></span>
+    <span class="find hide-phone">${icon('magnifying-glass')}<span class="long">Find or do anything</span><span class="key">⌘K</span><span class="short label">Find</span></span>
     <button class="flagbtn" aria-label="English">${flag('us')}</button>
     <button class="btn small hide-narrow">${icon('export')}Export</button>
     <button class="btn small hide-narrow">${icon('share-network')}Share</button>
@@ -135,7 +135,7 @@ function frame(m) {
   <div class="float notes-switch"><span class="dot"></span><span class="label">Drawing notes</span><span class="label touch">On</span></div>
   <div class="float zoom"><button class="iconbtn">${icon('magnifying-glass-minus')}</button><button class="iconbtn">${icon('magnifying-glass-plus')}</button><button class="iconbtn">${icon('corners-out')}</button></div>
   <div class="float titleblock">
-    <div><b>Game</b>Crate Game</div><div class="keep"><b>${m.what || 'Level'}</b>${m.place}</div>
+    <div><b>Game</b>Crate Game</div><div><b>${m.what || 'Level'}</b>${m.place}</div>
     <div><b>Editor</b>${editor[0]}</div><div class="keep"><b>Saved</b>${m.saved || 'Not saved yet'}</div>
   </div>
   <div class="float undo"><button class="iconbtn">${icon('arrow-counter-clockwise')}</button><button class="iconbtn">${icon('arrow-clockwise')}</button></div>

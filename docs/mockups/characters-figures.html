@@ -21,6 +21,7 @@
   .inlevel .mini canvas { height: 22px; width: auto; image-rendering: pixelated; }
   .wear { display: flex; flex-wrap: wrap; gap: 6px; }
   @media (max-width: 1000px), (max-height: 600px) { .views { top: 120px; bottom: auto; left: auto; right: var(--gap); } .inlevel { display: none; } }
+  @media (max-width: 699px) and (min-height: 601px) { :root { --fit-top: 184px; } .views { top: 116px; } }
   @media (max-height: 600px) { .views { top: 72px; right: auto; left: var(--gap); flex-direction: column; } }
 </style>
 </head>

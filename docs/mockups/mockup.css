@@ -499,7 +499,7 @@ button {
   position: absolute;
   top: 72px;
   right: var(--gap);
-  bottom: 76px;
+  bottom: 100px;
   width: var(--panel-w);
   display: flex;
   flex-direction: column;
@@ -902,6 +902,7 @@ button {
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
+  pointer-events: none;
   padding: 2px 10px;
   background: var(--mark);
   color: var(--ground);
@@ -914,8 +915,21 @@ button {
 
 /* ---------- sizes ---------- */
 
-/* Narrow computers and iPads sideways: Find becomes a button with its word. */
+/* Narrow computers and iPads sideways: Find becomes a button with its word, and the pill drops the game's name
+   (the title block still has it), so the five editors never run under the cluster. */
 @media (max-width: 1360px) {
+  .pill .game {
+    display: none;
+  }
+
+  .switcher button {
+    padding: 0 7px;
+  }
+
+  .cluster {
+    gap: 4px;
+  }
+
   .find {
     width: auto;
   }
@@ -964,6 +978,12 @@ button {
 
   .zoom {
     display: none;
+  }
+
+  .mock-tag {
+    top: var(--fit-top);
+    bottom: auto;
+    border-radius: 0 0 2px 2px;
   }
 
   .titleblock {
@@ -1034,11 +1054,11 @@ button {
   }
 
   .panels {
-    bottom: 140px;
+    bottom: 166px;
   }
 
   :root {
-    --fit-bottom: calc(var(--sheet-h) + 148px);
+    --fit-bottom: calc(var(--sheet-h) + 176px);
   }
 }
 
@@ -1051,9 +1071,20 @@ button {
   }
 
   .parts {
-    top: auto;
-    bottom: 84px;
-    left: var(--gap);
+    top: var(--gap);
+    left: 236px;
+  }
+
+  .parts button {
+    font-size: 15px;
+    padding: 0 7px;
+  }
+
+  .cluster .find,
+  .hline,
+  .vline,
+  .chip.m {
+    display: none;
   }
 
   .panels {
@@ -1091,7 +1122,7 @@ button {
   :root {
     --gap: 8px;
     --sheet-h: 300px;
-    --fit-top: 112px;
+    --fit-top: 128px;
     --fit-bottom: calc(var(--sheet-h) + 148px);
   }
 
@@ -1109,7 +1140,15 @@ button {
     gap: 4px;
   }
 
-  .cluster .hide-phone {
+  .cluster .hide-phone,
+  .hline,
+  .vline,
+  .chip.m {
+    display: none;
+  }
+
+  .parts .ic,
+  .parts .soon {
     display: none;
   }
 
