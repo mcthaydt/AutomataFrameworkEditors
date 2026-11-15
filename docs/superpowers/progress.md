@@ -8,8 +8,10 @@ The Owner asked (2026-11-15) for mockups of every editor before any editor code,
 the tools professional developers use. The audit is
 [`audits/2026-11-15-editor-mockups-design-audit.md`](audits/2026-11-15-editor-mockups-design-audit.md): written, 100%.
 Its verdict: the mockups show the first minute of a game and the frame has no list of what is here, no library and no
-full values panel. It lists 26 changes in three ranks and two questions for the Owner (panels attached to the edges on
-a computer; smaller rows with a mouse). The mockups (pull request 34) are revised from it; no editor is built from a
+full values panel. It lists 27 changes in three ranks, judged on a sideways iPad Pro 11-inch first (the Owner, 2026-11-15), and
+records the Owner's two answers of the same day: panels attach to the edges on a sideways iPad and a computer, with
+drawers only on a phone; touch keeps 44-point targets and small rows apply with a trackpad, mouse or hovering Pencil.
+Both change the redesign spec, which still needs its amendment. The mockups (pull request 34) are revised from it; no editor is built from a
 mockup until the Owner approves the revised set. Nothing was run.
 
 ## Cycle 6: the 2D figure builder

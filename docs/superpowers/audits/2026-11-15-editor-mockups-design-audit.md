@@ -5,14 +5,20 @@ tool that an experienced developer could realistically use, and this session can
 them with the tools those developers use every day.
 
 It serves principle 2 (iPad-first editors, with the desktop as a serious tool and not an afterthought) and principle 1
-(agent-first: a person and an agent must be able to name the same thing). The bar is the redesign spec's: "what Figma
+(agent-first: a person and an agent must be able to name the same thing).
+
+**The first size is an iPad Pro 11-inch held sideways** (the Owner, 2026-11-15: "Our editor's an iPad Pro 11-inch
+first"). That is about 1210 × 834 points on the newest model and 1194 × 834 on the ones before it; the mockups'
+"tablet sideways" picture, 1180 × 820, is the nearest. Every finding below is judged there first, then on a computer,
+then upright, then on a phone. The bar is the redesign spec's: "what Figma
 is to Photoshop", and a drunk grandma can still use it.
 
 ## What was read, and what was not
 
 - **The mockups:** the twelve screens of pull request 34 (`docs/mockups/`, pictures from commit `82e11f8` on the
-  `ci-screens` branch). All twelve were looked at at computer size (1280 × 800). Seven were looked at on an upright
-  phone, two on a sideways phone and three on an upright tablet. The sideways tablet pictures were not opened.
+  `ci-screens` branch). All twelve were looked at on a sideways tablet (1180 × 820, the first size) and at computer
+  size (1280 × 800). Seven were looked at on an upright phone, two on a sideways phone and three on an upright
+  tablet.
 - **This repo:** the redesign spec (`specs/2026-11-14-editors-blueprint-redesign-design.md`) for what is already
   decided, and the tracker.
 - **The web:** 21 pages, listed under "Sources" with what each was used for. They are forum threads, vendors' own
@@ -38,7 +44,8 @@ Three things are missing from every screen, and every tool a developer has used 
 3. **A full list of the picked thing's values.** Every engine has an Inspector. The mockups' card has two numbers.
 
 Beyond those three: there is no way to pick more than one thing, no keyboard shortcut is shown anywhere, Play has no
-pause or step, and at computer size the screen is spent on big touch rows that a mouse does not need.
+pause or step, and the panels float over the level instead of standing beside it. On the iPad the right-hand card
+covers a quarter of the screen and shows two values; with a trackpad or a mouse the big touch rows are not needed.
 
 **What is already better than the big engines, and must be kept:** the measure notes that write the file's own number
 on the canvas; the jump drawn on the level in Feel; sound chips on the level; plain words; Save beside the faces of the
@@ -145,28 +152,42 @@ opens the same list as a menu.
 Play), buttons show theirs when the pointer rests on them, the find bar lists each action's key beside its name, and a
 "Keys" sheet opens with `?`. On touch, the Procreate gestures: two fingers tap to undo, three to redo.
 
-**F6. On a computer the frame wastes the screen and hides the level.** At 1280 × 800 the Levels card shows two values
-in 760 pixels of height, and the level slides under five floating parts. Figma tried this and reversed it [S1].
-Proposal, which touches a decision already made (the redesign spec's "tools floating"), so it is **the Owner's
-question Q1**: on a computer the panels **attach to the edges** (list left, values right, library and timeline bottom),
-resizable by their edge, and the canvas is the space between; each can still be closed, and each can be pulled off to
-float. On touch sizes nothing changes: they float and become sheets as drawn.
+**F6. Floating panels hide the level and waste the screen.** On the sideways iPad the Levels card shows two values in
+460 points of height, and the level slides under five floating parts. Figma tried this and reversed it [S1]. **The
+Owner's answer (2026-11-15, A1 below): panels attach to the edges on a sideways iPad and on a computer; only a phone
+keeps pull-up drawers.** This changes the redesign spec's "tools floating" for those sizes. How to draw it:
+- list on the left, values on the right, library and timeline along the bottom; the canvas is the space between, and
+  the level is fitted to that space, never under a panel;
+- each panel is resized by dragging its edge, still closes, and remembers its width;
+- **the iPad's width is the budget.** Of 1210 points: values 300, the list 220, and the canvas keeps at least 640. So
+  on the iPad the list starts as a slim rail of pictures (56 points) that opens to 220 on a touch, and the values
+  panel is open; on a computer both start open;
+- the bottom panel (library, timeline) starts closed as a bar with its name, opens to a third of the height, and can
+  be dragged taller;
+- the tool strip stays where it is, on the left edge beside the list, under the thumb of a hand holding the iPad;
+- the layout follows the window, not the device: an iPad sharing its screen with another app, or a narrow computer
+  window, gets the upright layout.
 
-**F7. Row size should follow the hand, not the window.** With a mouse, rows of 28 to 32 pixels and 14 pixel words
-(the spec's label minimum is 13) give three times as many values per panel. With touch, 44 and 48 stay. A sideways
-tablet with a mouse gets the small rows; a touch laptop gets the big ones. **The Owner's question Q2**, because the
-spec sets sentences at 17 pixels.
+Held upright (834 points wide) there is no room for a side panel beside the level. My reading, not the Owner's words:
+upright keeps the bottom sheet as drawn, with the list as one of its tabs.
+
+**F7. Row size should follow the hand, not the window.** **The Owner's answer (2026-11-15, A2 below): touch keeps
+44-point targets; small rows apply whenever a trackpad, a mouse or a hovering Pencil is in use.** Small rows are 28 to
+32 points with 14-point words (the spec's label minimum is 13), three times as many values per panel. An iPad on its
+keyboard and trackpad gets the small rows; a touch laptop used by finger gets the big ones. Two rules for drawing it:
+the size never changes under a finger or in the middle of a drag (it changes the next time a panel opens or the
+pointer comes to rest), and show both sizes of the same panel side by side in the mockups.
 
 **F8. Play is a button, not a tool.** Add to the frame, shown while playing: Pause, one step forward, slow (half and
 quarter speed), Start again, and **Play from here** (the hero starts where the view is, not at the level's start).
 Because the game replays exactly, add what no engine above has: a bar of the last 30 seconds that can be dragged back,
 to see what happened and to try again from that moment. While playing, a touched thing still shows its values, live.
 
-**F9. There is no place for the small facts.** On a computer, one thin bar along the bottom replaces three floating
-parts (the notes switch, the title block, undo and redo) and adds what is missing: where the pointer is in tiles, the
+**F9. There is no place for the small facts.** On a sideways iPad and a computer, one bar along the bottom (thin
+with a pointer, 44 points with a finger) replaces three floating parts (the notes switch, the title block, undo and redo) and adds what is missing: where the pointer is in tiles, the
 zoom as a number that can be typed, the grid's size and a snap switch, how many things are picked, and "Saved by Sam,
-2 minutes ago". The title block repeats the pill (the level's name is on screen twice); on a computer its facts move
-to this bar. On touch the row stays as drawn.
+2 minutes ago". The title block repeats the pill (the level's name is on screen twice); its facts move to this bar. Upright and on a phone the row stays as
+drawn.
 
 **F10. Nothing shows what Save will send.** For a tool whose Save is a change to a team's game, add a **Changes**
 panel: each thing changed since the last save in plain words ("Crate-1 moved 2 tiles right", "Jump is higher: 10 to
@@ -184,8 +205,8 @@ name on the canvas, a note pinned to a thing ("Too far to jump? Mia"), and a wai
 changes. This is where the Figma comparison is earned, and the access levels (Suggest, Approve) already need it.
 
 **F13. Show a real project.** Every mockup gets a second state, "mid-project": Level 3 of 12 with forty things, a
-figure with all its parts, a song of 64 bars, a conversation of thirty cards. Reviews judge that state at computer
-size first. The first-visit state stays as it is.
+figure with all its parts, a song of 64 bars, a conversation of thirty cards. Reviews judge that state on the sideways iPad
+first. The first-visit state stays as it is.
 
 **F14. Faults in the pictures themselves.**
 - Scenes, computer: the tree's card cuts "Behind" in half and the Light and sky panel cuts "Falling leaves".
@@ -194,8 +215,24 @@ size first. The first-visit state stays as it is.
 - Cutscenes, upright tablet: the notes switch and the title block sit on top of the timeline's Words row.
 - Feel: the "Soon" stamp sits on top of the Effects icon.
 - Phone: the "Mockup" tag covers the Words filter row.
+- Sideways tablet, Tiles and Music: the pill and the cluster meet, and "Story" is cut to "Stor". At the first size
+  the top row is already full. Put Export and Share behind one Share button there, and Find as its icon.
+- Sideways tablet, Cutscenes: the stage is 490 points wide of 1180 and the timeline floats over empty sky.
 - Words: the columns have a flag and no name. A flag is a country, not a language (Portuguese is drawn as Brazil,
   Spanish as Mexico); write the language's own name beside each flag.
+
+**F15. The iPad's own hands and tools are not in the mockups.** An iPad Pro is used four ways, and a professional
+switches between them in one sitting: fingers, Pencil, a keyboard with a trackpad, and all of them together.
+- **Keyboard:** every key in F5 works on the iPad's keyboard, and the keys are listed where iPadOS shows an app's
+  shortcuts when Command is held.
+- **Pencil:** the Pencil draws and picks; a finger on the canvas moves the view, so nobody paints by accident while
+  moving. A hovering Pencil shows the brush's outline before it touches. Whether a page in a browser can see the
+  Pencil's double tap or squeeze was not checked; if it can, it flips between the tool and the eraser.
+- **Fingers:** two-finger tap to undo, three to redo, pinch and two-finger move as already decided; press and hold
+  for the menu.
+- **Reach:** what is touched most (tools, undo, Play) stays at the left and right edges where thumbs rest, never in
+  the middle of the top row.
+- **Screen edges:** nothing touchable in the bottom 20 points, where the home bar is.
 
 ## Findings for each screen
 
@@ -210,7 +247,7 @@ Good: the measure notes, the name chip, the first-visit tip.
 - No zones: where the level ends, where the camera may go, where the hero starts, areas that do something (a goal, a
   fall). Each is a thing with a dashed outline.
 - No layers switch: show or hide the scene, the things, the zones and the notes separately.
-- The card needs F3; the canvas needs rulers in tiles along the top and left on a computer.
+- The card needs F3; the canvas needs rulers in tiles along the top and left.
 - "What it is" (Crate or Hero) offers two kinds; with twenty kinds it needs the Library's search.
 
 ### World: Tiles
@@ -234,7 +271,7 @@ This was a guess, and it is the furthest from what a pixel artist expects [S12].
 
 Good: the "Hills slides 30%" note, Another one, Light and sky.
 
-- Layers is closed. It is the main panel of a scene builder: on a computer it is open on the left (F1) with eye, lock,
+- Layers is closed. It is the main panel of a scene builder: it is the list on the left (F1) with eye, lock,
   how far it slides, and drag to reorder.
 - Paint has no settings: brush size, how thick, which material, scatter (many small things at once, each a little
   different). These sit in the tool's own row (F11).
@@ -252,7 +289,7 @@ Good: handles on the figure, the height note, the picture of it in Level 1, Surp
 
 - No list of parts. The old builder's power is in its parts: head, hair, body, arms, legs, each with pieces to pick.
   "Everything here" (F1) is that list, with hide and lock.
-- On a computer the canvas is two thirds empty. Show Side, Front and Back together, at once, and the game-size figure
+- On a sideways iPad and a computer the canvas is two thirds empty. Show Side, Front and Back together, at once, and the game-size figure
   beside them; "Turn" plays the turn.
 - Wear is five chips. A real wardrobe is a grid of pictures by place (head, body, feet, hands) with search and colour.
   That is the Library (F2) filtered to this figure.
@@ -347,8 +384,8 @@ Good: cards with faces, labelled lines, the speech box preview, the faded card n
 
 ### Story: Cutscenes
 
-- The stage is small and the timeline floats over empty sky. On a computer the timeline belongs along the whole bottom
-  edge, resizable (F6), with the stage filling the rest.
+- The stage is small and the timeline floats over empty sky. On a sideways iPad and a computer the timeline belongs
+  along the whole bottom edge, resizable (F6), with the stage filling the rest.
 - **Transport:** Play, loop, step by one tick, snap on or off, zoom the time ruler.
 - **More kinds of row,** added with a button: a sound, the music, an effect, a camera shake, "wait for the player to
   press", "hide the touch buttons". Each row has quiet and lock.
@@ -380,58 +417,63 @@ Good: the grid, the filters with counts, "the words it was made from changed".
 | 1 | Add the "Everything here" list to the frame, in every editor | F1 |
 | 2 | Add the Library drawer to the frame | F2 |
 | 3 | Make the picked thing's card a full values panel: groups, search, typed numbers, the file's names, "put back" | F3 |
-| 4 | Computer layout: panels attached to the edges and resizable, small rows with a mouse, one status bar (after Q1, Q2) | F6, F7, F9 |
+| 4 | Sideways iPad and computer: panels attached to the edges and resizable, small rows with a pointer, one bar for the small facts | F6, F7, F9 |
 | 5 | Picking several things, the selection bar and the press-and-hold menu | F4 |
 | 6 | Keys shown on tools, buttons and the find bar; the Keys sheet; the two touch gestures | F5 |
 | 7 | Play as a tool: pause, step, slow, play from here, drag back in time | F8 |
 | 8 | Clips: a real timeline; kinds move into the character's values | Clips and kinds |
 | 9 | Controls: the touch layout part and the gamepad drawing | Controls |
-| 10 | A mid-project state of every screen, judged at computer size first | F13 |
+| 10 | A mid-project state of every screen, judged on the sideways iPad first | F13 |
 | 11 | Fix the cut-off and covered parts | F14 |
+| 12 | The iPad's hands: keys on its keyboard, Pencil draws and finger moves, the hover outline | F15 |
 
 **Second: the depth each editor needs to be believed by its own kind of professional.**
 
 | # | Change | Screen |
 |---|---|---|
-| 12 | Tiles: fill the canvas, the missing drawing tools, palette ramps, the joining rules as an editor, solid shapes | Tiles |
-| 13 | Scenes: Layers open on the left, the brush's settings row, device frames | Scenes |
-| 14 | Levels: the world view of all levels, drawn links between things, zones | Levels |
-| 15 | Figures: three views at once, the parts list, the wardrobe grid, posing handles | Figures |
-| 16 | Sounds: the list of all sounds, variation, trim and fade on the wave, the mixer | Sounds |
-| 17 | Music: transport, lane headers, the note grid for a loop, parts of the song | Music |
-| 18 | Conversations: "only if" and "remember", the script view, the small map | Conversations |
-| 19 | Cutscenes: timeline along the bottom, transport, more kinds of row, box-picking keys | Cutscenes |
-| 20 | Words: search, "does it fit", notes for translators, bring in and save out a sheet | Words |
-| 21 | Feel: all the numbers, A and B, try the same run again | Moves |
-| 22 | The longer tool strip with press-and-hold choices and a settings row | F11 |
-| 23 | The Changes panel and the Problems list | F10 |
+| 13 | Tiles: fill the canvas, the missing drawing tools, palette ramps, the joining rules as an editor, solid shapes | Tiles |
+| 14 | Scenes: Layers open on the left, the brush's settings row, device frames | Scenes |
+| 15 | Levels: the world view of all levels, drawn links between things, zones | Levels |
+| 16 | Figures: three views at once, the parts list, the wardrobe grid, posing handles | Figures |
+| 17 | Sounds: the list of all sounds, variation, trim and fade on the wave, the mixer | Sounds |
+| 18 | Music: transport, lane headers, the note grid for a loop, parts of the song | Music |
+| 19 | Conversations: "only if" and "remember", the script view, the small map | Conversations |
+| 20 | Cutscenes: timeline along the bottom, transport, more kinds of row, box-picking keys | Cutscenes |
+| 21 | Words: search, "does it fit", notes for translators, bring in and save out a sheet | Words |
+| 22 | Feel: all the numbers, A and B, try the same run again | Moves |
+| 23 | The longer tool strip with press-and-hold choices and a settings row | F11 |
+| 24 | The Changes panel and the Problems list | F10 |
 
 **Third: what earns the comparison with Figma.**
 
 | # | Change | Finding |
 |---|---|---|
-| 24 | A teammate's pointer, notes pinned to things, waiting changes marked on the canvas | F12 |
-| 25 | Saved arrangements of panels ("Building", "Tuning", "Writing"), one per editor to start | F6 |
-| 26 | A list of what was done, to step back through | F10 |
+| 25 | A teammate's pointer, notes pinned to things, waiting changes marked on the canvas | F12 |
+| 26 | Saved arrangements of panels ("Building", "Tuning", "Writing"), one per editor to start | F6 |
+| 27 | A list of what was done, to step back through | F10 |
 
-Changes 1 to 7 are the frame's and are drawn once. The redesign's build (the frame that is being built now) does not
+Changes 1 to 7 and 12 are the frame's and are drawn once. The redesign's build (the frame that is being built now) does not
 have 1, 2, 4 or 5; whoever plans next should treat them as an amendment to that frame, not as part of one editor.
 
-## Questions for the Owner
+## The Owner's answers
 
-- **Q1. On a computer, do panels attach to the edges?** The redesign spec says tools float. Figma tried floating
-  panels and went back to fixed ones for people who work in it all day [S1]. Recommended: yes on a computer (still
-  closable, still able to float); no change on a phone or tablet.
-- **Q2. With a mouse, may rows and words be smaller?** The spec sets sentences at 17 pixels and touch targets at 44.
-  Recommended: yes, 14 pixel words and 28 to 32 pixel rows only when a mouse is in use; touch keeps today's sizes.
+Both were asked as questions in this audit's first version and answered the same day (2026-11-15), after the Owner
+said the editor is an iPad Pro 11-inch first.
 
-Until these are answered the mockup thread can draw everything else; change 4 waits.
+- **A1. Panels attach to the edges on a sideways iPad and on a computer. Only a phone keeps pull-up drawers.** This
+  replaces the redesign spec's "tools floating" at those sizes. F6 says how to draw it.
+- **A2. Touch keeps 44-point targets. Small rows apply whenever a trackpad, a mouse or a hovering Pencil is in use.**
+  This adds a second size to the spec's 17-point sentences. F7 says how to draw it.
+
+Not answered, and drawn as my reading until it is: an iPad held upright keeps the bottom sheet (F6).
 
 ## What this audit does not settle
 
-- Whether the framework's formats hold what changes 14, 17 and 18 show (links, parts of a song, "only if"). Each
+- Whether the framework's formats hold what changes 15, 18 and 19 show (links, parts of a song, "only if"). Each
   editor's plan thread should check its own before a mockup promises it.
 - Schematic and Effects are "Soon" and were not judged.
+- The redesign spec and the frame being built from it still say panels float. A1 and A2 need an amendment to that
+  spec and plan; this page does not make it.
 - The words on the new parts ("Everything here", "Library", "Changes", "Problems", "Keys") are proposals and need the
   usual drunk-grandma pass.
 
