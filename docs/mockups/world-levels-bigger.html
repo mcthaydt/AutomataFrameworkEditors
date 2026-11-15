@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Playing bigger (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .trail { position: absolute; z-index: 1; width: 1.2%; aspect-ratio: 1; border-radius: 50%; background: var(--touch); opacity: 0.8; }
+  .playframe { position: absolute; z-index: 3; inset: 6.897% 6.306% 12.931% 6.194%; outline: 3px solid var(--touch); outline-offset: 3px; pointer-events: none; }
+</style>
+</head>
+<body>
+<!-- Playing bigger (the end-to-end actions check, M7): "Bigger" in the play bar hides the list and the settings so the level fills the screen. The play bar stays, with Stop in the top bar and a "Smaller" button where "Bigger" was, so the panels come back with one tap. A first-time person is told nothing is lost: the panels are only out of the way. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage">
+      <div class="playframe"></div>
+      <i style="position:absolute;z-index:1;left:12.8%;top:73.3%;width:6.2%;height:9.66%;background:url(art/level-1.png) 20.8% 81.1% / calc(100% / 0.062) calc(100% / 0.0966);image-rendering:pixelated"></i>
+      <img class="thing" src="art/hero.png" alt="" style="left:27%;top:52%">
+      <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>
+      <i class="trail" style="left:20.6%;top:58.5%"></i><i class="trail" style="left:23.4%;top:55.5%"></i>
+      <span class="chip" style="left:34%;top:46%"><span class="ic" data-i="pause"></span>Paused at 0:12</span>
+      <span class="tb" style="left:8%;bottom:15.5%;width:13%;aspect-ratio:1" title="Move"><span class="ic" data-i="arrows-left-right"></span></span>
+      <span class="tb" style="right:8.5%;bottom:16%;width:9.5%;aspect-ratio:1" title="Jump"><span class="ic" data-i="arrow-fat-up"></span></span>
+      <span class="tb" style="right:20%;bottom:14.5%;width:7%;aspect-ratio:1" title="Pull"><span class="ic" data-i="hand"></span></span>
+      <span class="chip keyhint" style="left:7%;top:80%">Arrow keys move · Space jumps</span>
+    </div>
+  </div>
+</div>
+
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%', state: 'playing',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  play: { big: true, paused: true, speed: 0, at: 40, time: '0:12', hint: 'Drag the line in the bar back to see it again' },
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  trycard: {
+    title: 'Try a change while it plays',
+    rows: [
+      { t: 'slider', l: 'How high the hero jumps', f: 'jump.height', v: '3.5', w: 'Quite high', lo: 'A hop', hi: 'Over a house', at: 46 },
+      { t: 'choice', l: 'When you stop', opts: ['Keep it', 'Put it back'], on: 1 },
+    ],
+    more: 'Everything about the hero',
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

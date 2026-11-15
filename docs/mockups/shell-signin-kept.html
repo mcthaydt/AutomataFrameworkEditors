@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · A copy kept (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- After "Keep a copy" (the end-to-end actions check, L4): the sheet closes and a note says it worked, what the file is called and where it went, with a button to find it. The top bar goes on saying how many changes are only on this device. Nothing was put in the game, because the demo game is for trying. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="check-circle"></span><span><b>Kept a copy of Level 1</b><small>The file is called level-1.json. It is in your Downloads.</small></span><button class="sbtn">Show me</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, signedOut: true, changes: 2, saved: 'Not saved: 2 changes',
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

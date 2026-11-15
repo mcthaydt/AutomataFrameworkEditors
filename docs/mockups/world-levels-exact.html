@@ -31,6 +31,7 @@
     </div>
   </div>
 </div>
+<!-- The actions check (H2, L1): on a phone the number pad now stands over the open settings sheet, so the step before it (opening the settings) is drawn, and Cancel leaves the number as it was. -->
 <div class="numpad" role="dialog" aria-label="How heavy">
   <div class="nv"><span>How heavy</span><b>1.0</b></div>
   <p class="nw2 only-ipad">Or write the number in the box with the Pencil.</p>
@@ -40,10 +41,12 @@
     <button>4</button><button>5</button><button>6</button><button class="k" title="One more">+ 1</button>
     <button>1</button><button>2</button><button>3</button><button class="k" title="Take away the last number">⌫</button>
     <button>0</button><button>.</button><button class="done">Done</button>
+    <button class="cancel" title="Leave the number as it was">Cancel</button>
   </div>
 </div>
 <script>
 window.MOCK = {
+  sheetOpen: true,
   editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
   parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
   settings: [

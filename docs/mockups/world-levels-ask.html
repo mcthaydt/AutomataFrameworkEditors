@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Ask for a change (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Mia asking Sam for a change (the end-to-end actions check, M10), after "Ask for a change" on the check sheet. A box to say what she would like different, in her own words, "Send to Sam" and "Back" (which goes back to the sheet with nothing sent). The 3 changes go back to Sam with her words; nothing goes in the game. -->
+<style>
+  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
+      <div class="door"></div>
+      <div class="press"></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
+      </svg>
+      <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="Ask Sam for a change">
+  <div class="hdr"><h3>Ask Sam to change something</h3></div>
+  <p>Say what you would like different. Sam gets your words along with the 3 changes. Nothing goes in the game.</p>
+  <div class="tarea">Can the button sit nearer the door? The hero can't reach it from the ledge.</div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="paper-plane-tilt"></span>Send to Sam</button><button class="sbtn"><span class="ic" data-i="arrow-left"></span>Back</button></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.mid, checks: 1, saved: 'Mia, just now', closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

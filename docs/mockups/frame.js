@@ -24,6 +24,10 @@ const FLAGS = {
   cn: '<rect width="60" height="40" fill="#de2910"/><polygon points="11.0,4.0 12.6,8.8 17.7,8.8 13.5,11.8 15.1,16.7 11.0,13.7 6.9,16.7 8.5,11.8 4.3,8.8 9.4,8.8" fill="#ffde00"/><polygon points="20.2,2.3 21.2,3.7 22.8,3.1 21.9,4.5 22.9,5.8 21.3,5.3 20.4,6.7 20.3,5.0 18.7,4.6 20.3,4.0" fill="#ffde00"/><polygon points="25.4,7.7 25.6,9.4 27.3,9.7 25.8,10.4 26.0,12.1 24.8,10.9 23.3,11.6 24.1,10.1 23.0,8.9 24.6,9.2" fill="#ffde00"/><polygon points="24.8,14.7 25.5,16.2 27.1,16.1 25.9,17.2 26.5,18.7 25.1,17.9 23.8,19.0 24.2,17.3 22.8,16.5 24.4,16.3" fill="#ffde00"/><polygon points="20.2,20.8 21.2,22.2 22.8,21.6 21.9,23.0 22.9,24.3 21.3,23.8 20.4,25.2 20.3,23.5 18.7,23.1 20.3,22.5" fill="#ffde00"/>',
   kr: '<rect width="60" height="40" fill="#ffffff"/><path d="M21 20a9 9 0 0 1 18 0z" fill="#cd2e3a"/><path d="M39 20a9 9 0 0 1-18 0z" fill="#0047a0"/><circle cx="34.5" cy="20" r="4.5" fill="#cd2e3a"/><circle cx="25.5" cy="20" r="4.5" fill="#0047a0"/><path d="M-4.5 -2.4H4.5M-4.5 0H4.5M-4.5 2.4H4.5" transform="translate(8 7) rotate(-34)" stroke="#000000" stroke-width="1.3" fill="none"/><path d="M-4.5 -2.4H4.5M-4.5 0H4.5M-4.5 2.4H4.5" transform="translate(52 7) rotate(34)" stroke="#000000" stroke-width="1.3" fill="none"/><path d="M-4.5 -2.4H4.5M-4.5 0H4.5M-4.5 2.4H4.5" transform="translate(8 33) rotate(34)" stroke="#000000" stroke-width="1.3" fill="none"/><path d="M-4.5 -2.4H4.5M-4.5 0H4.5M-4.5 2.4H4.5" transform="translate(52 33) rotate(-34)" stroke="#000000" stroke-width="1.3" fill="none"/>',
   jp: '<rect width="60" height="40" fill="#ffffff"/><circle cx="30" cy="20" r="12" fill="#bc002d"/>',
+  // The editors' own three extra languages (the language card, before the welcome): Russian, German, French.
+  ru: '<rect width="60" height="13.4" fill="#ffffff"/><rect y="13.3" width="60" height="13.4" fill="#0039a6"/><rect y="26.6" width="60" height="13.4" fill="#d52b1e"/>',
+  de: '<rect width="60" height="13.4" fill="#000000"/><rect y="13.3" width="60" height="13.4" fill="#dd0000"/><rect y="26.6" width="60" height="13.4" fill="#ffce00"/>',
+  fr: '<rect width="20" height="40" fill="#0055a4"/><rect x="20" width="20" height="40" fill="#ffffff"/><rect x="40" width="20" height="40" fill="#ef4135"/>',
 }
 
 // A hooded keeper with a lantern, as a sketch of what the figure builder paints, from the side, the front and the
@@ -295,7 +299,10 @@ function inspector(v, keep) {
     const row = (r) => insRow(r) + (r.ch === 'open' ? `<div class="dotpop"><i class="dot"></i><span>Changed, only on this iPad so far.</span><button class="sbtn">Put it back</button></div>` : '')
     if (take.length) parts.push(`<div class="igroup"><h4>${g.name.replace(soon, '')}</h4>${take.map(row).join('')}</div>`)
   }
-  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, only on this device so far"></i></span>') : v.title}</b>${kindLine(v)}</span><button class="ib ihide" title="Hide this panel">${icon('sidebar-simple')}</button></header>
+  // Hiding the settings says where they go: a tab at the right edge, named for the thing, brings them back (the
+  // end-to-end actions check, H1). On a phone the sheet closes with Done instead (H2); only one of the two shows.
+  const named = String(v.title).replace(/<[^>]+>/g, '')
+  return `<header class="ihead">${v.pic ? pic(v.pic) : ''}<span class="it" title="${(v.sub || '').replace(/"/g, '')}"><b>${changed ? v.title.replace(/(\S+)$/, '<span class="nw">$1<i class="dot" title="Changed, only on this device so far"></i></span>') : v.title}</b>${kindLine(v)}</span><button class="ib imore" title="More to do with ${named}: rename it, lock it, hide it, copy it, add a note">${icon('dots-three')}</button><button class="ib ihide" title="Hide the settings. Tap ${named} at the right edge to bring them back">${icon('sidebar-simple')}</button><button class="sbtn idone" title="Close the settings">Done</button></header>
     <div class="ibody">${v.top || ''}${parts.join('')}
       ${hidden ? `<button class="more">${icon('caret-right')}${hidden} more setting${hidden > 1 ? 's' : ''}</button>` : ''}</div>`
 }
@@ -337,7 +344,7 @@ function leftPanel(m) {
   // Find filters this list as you type, so the list has no Find of its own.
   return `<aside class="sh-left">
     <nav class="lrail"><button class="ib on" title="${listName}: open the list">${icon('list-bullets')}<span>List</span></button>${m.mapOn ? '' : `<button class="ib" title="Add things: open the things to add">${icon('shapes')}<span>Add</span></button>`}<i class="rdiv"></i></nav>
-    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${listName}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Add things</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button></nav>
+    <nav class="ltabs"><button class="${onAssets ? '' : 'on'}">${listName}</button>${hasAssets ? `<button class="${onAssets ? 'on' : ''}">Add things</button>` : ''}<button class="ib" aria-label="Hide" title="Close to the rail">${icon('sidebar-simple')}</button><button class="sbtn lclose" title="Close the list">Close</button></nav>
     <div class="lbody">${body}</div>
   </aside>`
 }
@@ -350,10 +357,10 @@ function playbar(p, tryIt) {
     <button class="ib w" title="One step">${icon('skip-forward')}<span>One step</span></button>
     <span class="segs">${['Normal', 'Slow', 'Slower'].map((s, i) => `<button class="${i === (p.speed || 0) ? 'on' : ''}">${s}</button>`).join('')}</span>
     <button class="ib w" title="From the start">${icon('skip-back')}<span>From the start</span></button>
-    <button class="ib w" title="Play from here: tap the level where the hero should start">${icon('map-pin')}<span>Play from here</span></button>
+    <button class="ib w${p.pick ? ' on' : ''}" title="Play from here: tap the level where the hero should start">${icon('map-pin')}<span>Play from here</span></button>
     <span class="rew" title="Drag back to see it again"><i style="--at:${p.at || 100}%"></i></span><span class="t">${p.time || '0:12'}<button class="spd" title="How fast">${['Normal', 'Slow', 'Slower'][p.speed || 0]}${icon('caret-down')}</button></span>
     ${tryIt ? `<button class="ib w try${tryIt.open ? ' on' : ''}" title="Try a change while it plays">${icon('sliders-horizontal')}<span>Try a change</span></button>` : ''}
-    <button class="ib w big" title="Bigger: hide the panels while playing">${icon('arrows-out')}<span>Bigger</span></button>
+    ${p.big ? `<button class="ib w big on" title="Smaller: bring the panels back">${icon('arrows-in')}<span>Smaller</span></button>` : `<button class="ib w big" title="Bigger: hide the panels while playing">${icon('arrows-out')}<span>Bigger</span></button>`}
     ${p.hint ? `<span class="phint">${p.hint}</span>` : ''}
   </div>`
 }
@@ -420,10 +427,15 @@ function frame(m) {
   // Nothing changed yet means nothing to undo: Undo and Redo are drawn faint (F15).
   const faint = n ? '' : ' faint'
   const listName = listNameOf(m)
+  // Undo and Redo are a pair on an upright phone, where the top bar has no room for them (the end-to-end actions check,
+  // M5): both at the toolbar's end, Redo faint until something has been undone. On the world map, which has no
+  // toolbar of tools, a phone keeps just this pair and Play.
+  const undoPair = `<button class="tl2 u${faint}" title="Undo · or tap with two fingers">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u rd${m.redo ? '' : ' faint'}" title="Redo · or tap with three fingers">${icon('arrow-clockwise')}<span>Redo</span></button>`
   const html = `
   <header class="sh-top">
     <button class="game" title="Crate Game: open another game, keep a copy, settings"><i class="logo"></i><span>Crate Game</span>${icon('caret-down')}</button>
     <button class="wsn" title="The five editors: World, Characters, Feel, Sound, Story"><b>${editor[0]}</b>${icon('caret-down')}</button>
+    ${m.back ? `<button class="ib backb" title="Back to ${m.back}">${icon('arrow-left')}<span>Back to ${m.back}</span></button>` : ''}
     <button class="partn" title="Other parts, other editors and the game's own menu"><span class="pt">${here}${m.place && m.place !== here ? `<span class="pp"> · ${m.place}</span>` : ''}${m.with ? `<span class="pw2">, shown with ${m.with}</span>` : ''}</span>${icon('caret-down')}</button>
     ${m.editor === 'world' && here === 'Levels' ? `<button class="ib mapb${m.mapOn ? ' on' : ''}" title="Every level on one map. Or pinch out past the whole level">${icon('map-trifold')}<span>Map</span></button>` : ''}
     <span class="fill"></span>
@@ -434,20 +446,20 @@ function frame(m) {
     <button class="ib cmdk" title="Find or do anything">${icon('magnifying-glass')}<span>Find</span>${fine ? '<kbd>⌘K</kbd>' : ''}</button>
     ${m.signedOut ? '' : '<span class="faces" title="Sam and Mia are here"><span class="face">S</span><span class="face b">M</span></span>'}
     <button class="tplay${m.play ? ' on' : ''}" title="${m.play ? 'Stop playing and go back to building' : 'Play the level here'}${fine ? ' (P)' : ''}">${icon(m.play ? 'stop' : 'play')}<span>${m.play ? 'Stop' : 'Play'}</span></button>
-    ${m.waiting ? `<button class="share put quiet waiting" title="Your changes are with ${m.waiting} to check. Tap to see them, or take them back">${icon('paper-plane-tilt')}<span class="w"><b>Waiting for ${m.waiting}</b></span></button>` : `<button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.signedOut ? 'download-simple' : m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>`}
+    ${m.waiting && m.more ? `<button class="share put waiting more" title="You made ${m.more} more change${m.more > 1 ? 's' : ''} since you sent your changes to ${m.waiting}. Send ${m.more > 1 ? 'them' : 'it'} too">${icon('paper-plane-tilt')}<span class="w"><b>Send ${m.more} more to ${m.waiting}</b><small class="long">The rest are with ${m.waiting}</small></span><span class="n">${m.more}</span></button>` : m.waiting ? `<button class="share put quiet waiting" title="Your changes are with ${m.waiting} to check. Tap to see them, or take them back">${icon('paper-plane-tilt')}<span class="w"><b>Waiting for ${m.waiting}</b></span></button>` : `<button class="share put${n ? '' : ' quiet'}" title="${n ? (m.suggest ? 'Send your changes to be checked before they go in the game' : 'Put your changes in the game, so your team sees them') : 'Everyone on the team has your changes'}${fine ? ' (⌘S)' : ''}">${icon(n ? (m.signedOut ? 'download-simple' : m.suggest ? 'paper-plane-tilt' : 'arrow-circle-up') : 'check')}<span class="w"><b>${n ? put : 'Up to date'}</b>${n ? where : ''}</span>${n ? `<span class="n">${n}</span>` : ''}</button>`}
   </header>
   ${leftPanel(m)}
-  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show the values">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button><button class="peek" title="Open the settings">${m.values.pic ? pic(m.values.pic) : ''}<span><b>${m.values.title.replace(/<[^>]+>/g, '')}</b> · settings</span>${icon('caret-up')}</button></aside>` : ''}
+  ${m.values ? `<aside class="sh-right">${inspector(m.values, m.keep || 5)}<button class="itab" title="Show ${m.values.title.replace(/<[^>]+>/g, '')}'s settings">${icon('sidebar-simple')}<span>${m.values.title.replace(/<[^>]+>/g, '')}</span></button><button class="peek" title="Open the settings">${m.values.pic ? pic(m.values.pic) : ''}<span><b>${m.values.title.replace(/<[^>]+>/g, '')}</b> · settings</span>${icon('caret-up')}</button></aside>` : ''}
   ${m.bottom ? `<section class="dockbottom sh-bottom"><header class="bh"><b>${m.bottom.title}</b>${m.bottom.head || ''}</header><div class="bbody">${m.bottom.tl ? timeline(m.bottom.tl) : ''}${m.bottom.html || ''}</div></section>` : ''}
   ${m.play ? playbar(m.play, m.trycard && { open: true }) : ''}
   ${m.trycard ? `<aside class="float trycard"><header><b>${m.trycard.title}</b><button class="ib" title="Close this card">${icon('x')}</button></header>${m.trycard.rows.map(insRow).join('')}<button class="more">${icon('caret-right')}${m.trycard.more}</button></aside>` : ''}
   <div class="sh-tools">
-    <nav class="tbar">${m.noTools ? '' : `<button class="tl2 lay" title="${listName}, and things to add">${icon('stack')}<span>${listName}</span></button>${tools}<i class="div u"></i><button class="tl2 u${faint}" title="Undo · or tap with two fingers">${icon('arrow-counter-clockwise')}<span>Undo</span></button><button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the level shows: grid, zoom, frames">${icon('eye')}<span>Show</span></button>`}<button class="tz" title="How near you are: pinch, or press to pick">${zoomWord}</button></nav>
+    <nav class="tbar">${m.noTools ? `${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button>` : `<button class="tl2 lay" title="${listName}, and things to add">${icon('stack')}<span>${listName}</span></button>${tools}<i class="div u"></i>${undoPair}<button class="tl2 u pl" title="Play the level here">${icon('play')}<span>Play</span></button><i class="div o"></i><button class="tl2 ob${m.optsOpen ? ' on' : ''}" title="What the level shows: grid, zoom, frames">${icon('eye')}<span>Show</span></button>`}<button class="tz" title="How near you are: pinch, or press to pick">${zoomWord}</button></nav>
     ${m.toolopts && !m.tray ? `<div class="topts">${m.toolopts}</div>` : ''}
     ${m.optsOpen ? `<div class="opop"><b>Show</b>${opts.map((o) => `<div class="orow">${o}</div>`).join('')}</div>` : ''}
   </div>
   ${m.tray ? `<div class="tray">${m.tray.first ? `<p>${m.tray.tip}</p>` : ''}<div class="trow"><div class="titems">${m.tray.items.map((it) => `<button class="ti${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></button>`).join('')}${m.tray.more === false ? '' : `<button class="ti more2">${icon('squares-four')}<span>${m.tray.more || 'All things'}</span></button>`}</div>${m.toolopts ? `<div class="tset">${m.toolopts}</div>` : ''}</div></div>` : ''}
-  ${!fine && !m.play && holds ? `<div class="holds" title="Hold with your free thumb, or tap to keep on"><button class="hb hfold" title="Buttons to hold with your free thumb">${icon('hand')}<span>Hold</span>${icon('caret-right')}</button>${holds.map(([w, ic], i) => `<button class="hb${m.holdOn === i ? ' on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>` : ''}`
+  ${!fine && !m.play && holds ? `<div class="holds${m.holdOpen ? ' open' : ''}" title="Hold with your free thumb, or tap to keep on"><button class="hb hfold" title="${m.holdOpen ? 'Fold the buttons away' : 'Buttons to hold with your free thumb'}">${icon('hand')}<span>Hold</span>${icon(m.holdOpen ? 'caret-left' : 'caret-right')}</button>${holds.map(([w, ic], i) => `<button class="hb${m.holdOn === i ? ' on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>` : ''}`
   document.body.insertAdjacentHTML('beforeend', html)
   // Every "this iPad" on the page says the device it is on: a sheet, a toast, a tour card or a settings row
   // (second visual look, M7). The body says which device it is, so a line that only one device needs (the
@@ -457,11 +469,24 @@ function frame(m) {
   for (let t = walk.nextNode(); t; t = walk.nextNode())
     if (/[Tt]his iPad/.test(t.data)) t.data = t.data.replace(/([Tt])his iPad/g, `$1his ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
+  // The end-to-end actions check: the settings hidden (a tab at the right edge brings them back, H1), the settings
+  // open as a sheet on a phone (H2), a level playing bigger (M7), the free thumb's strip unfolded (L8), "to check" in
+  // the top bar (L9), and a computer's list closed to its rail (M1).
+  if (m.values && m.hiddenRight) cls.push('values-hidden')
+  if (m.values && m.sheetOpen) cls.push('sheet-open')
+  if (m.play?.big) cls.push('play-big')
+  if (m.holdOpen) cls.push('hold-open')
+  if (m.checks) cls.push('has-checks')
+  if (m.back) cls.push('has-back')
   // "See-through panels" in Settings (the Owner, 2026-11-15): 'on' or 'off'; absent means "Choose for me", which
   // follows the device. The stylesheet turns the glass solid for `glass-off` and for a device that asks for less.
   if (m.glass) cls.push(`glass-${m.glass}`)
   // An iPad held sideways starts with the left panel closed to its rail; a computer starts with it open.
   if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen && !m.leftOver) cls.push('left-closed')
+  // A computer shows the list open; `leftClosed` draws it closed to the same rail an iPad has (M1). A phone and an
+  // upright iPad open the list over the level (`listSheet`, M2).
+  else if ((m.list || m.library) && m.leftClosed && window.innerWidth > 1000) cls.push('left-closed')
+  if ((m.list || m.library) && m.listSheet && (window.innerWidth <= 1000 || window.innerHeight <= 600)) cls.push('list-sheet')
   if (m.tray) cls.push('has-tray')
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')
@@ -496,15 +521,22 @@ function frame(m) {
     const a = m.act
     const b = (w, ic, more) => `<button class="ab${more ? ' dd' : ''}" title="${w}">${icon(ic)}<span>${w}</span>${more ? icon('caret-down') : ''}</button>`
     const more = `<button class="ab" title="More things to do">${icon('dots-three')}</button>`
-    const items = a.only
+    // A join (a line from a button to its door) is picked by tapping its line: its bar takes it away (M16).
+    const items = a.join
+      ? `<button class="ab" title="Take away this join">${icon('trash')}<span>Take away this join</span></button>${more}`
+      : a.only
       ? `${b('Nudge', 'arrows-out-cardinal')}<button class="ab no" title="${a.only}">${icon('trash')}<span>Delete<small>${a.only}</small></span></button>${more}`
       : a.several
         ? `${b('Line up', 'align-bottom', true)}${b('Make another', 'copy-simple')}${b('Delete', 'trash')}${more}`
         : `${b('Make another', 'copy-simple')}${b('Delete', 'trash')}${b('Nudge', 'arrows-out-cardinal')}${more}`
     const menu = a.menu ? `<div class="amenu"><b>Line them up along</b><span>${[['align-top', 'The top'], ['align-bottom', 'The bottom'], ['align-left', 'The left'], ['align-right', 'The right']].map(([ic, w], i) => `<button class="${i === 1 ? 'on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</span></div>` : ''
     const pad = a.pad ? `<div class="npad"><b>Nudge one tile</b><span>${[['', ''], ['caret-up', 'Up'], ['', ''], ['caret-left', 'Left'], ['', ''], ['caret-right', 'Right'], ['', ''], ['caret-down', 'Down'], ['', '']].map(([ic, w]) => (ic ? `<button title="Nudge ${w.toLowerCase()}">${icon(ic)}</button>` : w === '' ? '<i></i>' : '')).join('')}</span><button class="sbtn">Done</button></div>` : ''
+    // The "…" opened (M6): the rest of what can be done to a thing, with its key on a computer. Press and hold on the
+    // thing opens the same list. Locking and hiding have their opposite in the same place (Unlock, Show).
+    const rest = [['pencil-simple', 'Rename', 'F2'], [a.locked ? 'lock-simple' : 'lock-simple', a.locked ? 'Unlock it' : 'Lock it', '⌘L'], ['eye-slash', a.hidden ? 'Show it' : 'Hide it', '⌘H'], ['copy', 'Copy', '⌘C'], ['arrow-line-up', 'Bring to front', ']'], ['arrow-fat-line-down', 'Send to back', '['], ['note', 'Add a note', '']]
+    const restMenu = a.rest ? `<div class="amenu moremenu"><b>${a.rest}</b><span class="mrows">${rest.map(([ic, w, k]) => `<button>${icon(ic)}<span>${w}</span>${fine && k ? `<kbd>${k}</kbd>` : ''}</button>`).join('')}</span></div>` : ''
     // An open menu or pad takes the bar's place, so no more than two things float over the level (S2).
-    const inner = menu || pad
+    const inner = menu || restMenu || pad
     stage.insertAdjacentHTML('beforeend', inner ? `<div class="actbar menuonly" style="left:${a.at[0]}%;top:${a.at[1]}%">${inner}</div>` : `<div class="actbar${a.below ? ' below' : ''}" style="left:${a.at[0]}%;top:${a.at[1]}%">${items}</div>`)
     // The bar never leaves the screen and never sits on what is picked: it goes above, below if there is no room
     // above, and slides sideways to stay inside the level's space (F8, F12).
@@ -540,6 +572,17 @@ function frame(m) {
 // (Fable pass, F33). It runs once the fonts are in, since a line's width changes with its font (second visual look,
 // M12); the level can be wider than a phone's screen, so the screen's own edges count too (E15).
 function keepInside() {
+  // A menu or a note that belongs to a button in the top bar (`data-under="<selector>"`) hangs just under it, as far
+  // left as the button, and never past the screen's right edge (the end-to-end actions check: menus drawn open).
+  for (const el of document.querySelectorAll('[data-under]')) {
+    // The first of the named buttons that is on the screen at this size (a phone has no workspace button).
+    const anchor = [...document.querySelectorAll(el.dataset.under)].find((a) => getComputedStyle(a).display !== 'none')
+    if (!anchor) continue
+    const a = anchor.getBoundingClientRect()
+    const w = el.getBoundingClientRect().width
+    el.style.top = `${a.bottom + 6}px`
+    el.style.left = `${Math.max(8, Math.min(a.left, innerWidth - w - 8))}px`
+  }
   const room = document.querySelector('.canvas')?.getBoundingClientRect()
   if (!room) return
   for (const el of document.querySelectorAll('.stage .tip, .stage .lockpop, .stage .actbar')) {

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · What changed (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- What changed (the end-to-end actions check, M9), from the game's menu and from "See what changed" after putting changes in. Every change the team has put in, newest first: who, what, which level, when. "Show me" opens that level with the change marked. Changes people have sent to check are not here until they are in the game; they wait under "to check" in the top bar. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="What changed">
+  <div class="hdr"><h3>What changed in Crate Game</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></div>
+  <p>Newest first. These are in the game now.</p>
+  <div class="chg"><span class="face2 ">S</span><span class="who"><b>Sam <img class="mini" src="art/crate.png" alt="">moved 3 crates</b><small>Level 1 · 2 minutes ago</small></span><button class="sbtn"><span class="ic" data-i="eye"></span>Show me</button></div>
+  <div class="chg"><span class="face2 b">M</span><span class="who"><b>Mia added a door</b><small>Level 1 · Today, 10:20</small></span><button class="sbtn"><span class="ic" data-i="eye"></span>Show me</button></div>
+  <div class="chg"><span class="face2 c">L</span><span class="who"><b>Lee <img class="mini" src="art/crate.png" alt="">made every crate heavier</b><small>Every crate · Today, 9:05</small></span><button class="sbtn"><span class="ic" data-i="eye"></span>Show me</button></div>
+  <div class="chg"><span class="face2 b">M</span><span class="who"><b>Mia painted the meadow's flowers</b><small>Scenes · Meadow · Yesterday</small></span><button class="sbtn"><span class="ic" data-i="eye"></span>Show me</button></div>
+  <div class="chg"><span class="face2 ">S</span><span class="who"><b>Sam made Level 2</b><small>Level 2 · Yesterday</small></span><button class="sbtn"><span class="ic" data-i="eye"></span>Show me</button></div>
+  <p class="keep" style="margin-top:8px">That is everything from the last 7 days.</p>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

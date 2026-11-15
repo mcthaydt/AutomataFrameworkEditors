@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Waiting for Mia (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The sheet behind "Waiting for Mia" (the end-to-end actions check, M10): what Mia has, that it is not in the game yet, and two buttons: see them on the level, or take them back. Anything Sam changes while waiting stays on his iPad until he sends it (the top bar then says "Send 1 more to Mia"). -->
+<style>
+  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
+      <div class="door"></div>
+      <div class="press"></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
+      </svg>
+      <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall off</span></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="With Mia to check">
+  <div class="hdr"><h3>With Mia, to check</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></div>
+  <p>Mia has your 3 changes. They are not in the game yet. You can keep working while you wait.</p>
+  <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
+  <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
+  <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="eye"></span>Show me on the level</button><button class="sbtn"><span class="ic" data-i="arrow-u-up-left"></span>Take them back</button></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.mid, suggest: true, waiting: 'Mia', changes: 0, saved: 'Sam, just now',
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

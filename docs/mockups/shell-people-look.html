@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Who can change it, read only (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Who can change Crate Game, for someone who is not an owner (Mia). She sees the same list, so she knows who to ask, but nothing on it can be changed: each person's level is words, not a drop-down, and there is no Add. The sheet says who to ask, with one button that asks them, so there is no dead end (the end-to-end actions check, H4). -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="Who can change Crate Game">
+  <div class="hdr"><h3>Who can change Crate Game</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></div>
+  <p>Only an owner can change who is on this list.</p>
+  <div class="pp"><span class="face2 ">S</span><span class="who"><b>Sam</b><small>Started the game</small></span><span class="lvl fixed">Owner</span></div>
+  <div class="pp"><span class="face2 b">M</span><span class="who"><b>Mia (you)</b><small>Joined last week</small></span><span class="lvl fixed">Can check and put in</span></div>
+  <div class="pp"><span class="face2 c">L</span><span class="who"><b>Lee</b><small>Joined last week</small></span><span class="lvl fixed">Can change</span></div>
+  <div class="pp"><span class="face2 d">J</span><span class="who"><b>Jo</b><small>Joined yesterday</small></span><span class="lvl fixed">Can suggest</span></div>
+  <div class="key"><b>What the words mean</b><div><b>Can look</b><span>Sees everything. Changes nothing.</span></div><div><b>Can suggest</b><span>Changes things, then sends them to be checked.</span></div><div><b>Can check and put in</b><span>Suggests, and checks other people's changes.</span></div><div><b>Can change</b><span>Changes the game straight away.</span></div><div><b>Owner</b><span>Everything, and who is on this list.</span></div></div>
+  <button class="sbtn wide1"><span class="ic" data-i="chat-circle-text"></span>Ask Sam to change what I can do</button>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, saved: 'Mia, just now',
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

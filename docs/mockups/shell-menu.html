@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- The game's menu (the end-to-end check, E1): the coloured square at the top left, or on an upright phone the part's name, opens it. It is the one way in to Help, Settings and the keys, and it holds what belongs to the whole game: who can change it, keeping a copy of this level as a file, opening another game, signing out. Help also opens with ?. -->
+<!-- The game's menu (the end-to-end check, E1): the coloured square at the top left, or on an upright phone the part's name, opens it. It is the one way in to Help, Settings and the keys, and it holds what belongs to the whole game: who can change it (shell-people), what changed (shell-changes), keeping a copy of this level as a file, your games (shell-games), signing out. Signed out, it is shell-menu-out. Help also opens with ?. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid"></div>
@@ -22,8 +22,10 @@
   <button class="mi"><span class="ic" data-i="keyboard"></span><span>Keys and finger moves</span></button>
   <hr>
   <button class="mi"><span class="ic" data-i="users-three"></span><span>Who can change it<small>Mia, Sam and 2 more</small></span></button>
+  <button class="mi"><span class="ic" data-i="clock-counter-clockwise"></span><span>What changed<small>Everything the team put in, newest first</small></span></button>
   <button class="mi"><span class="ic" data-i="download-simple"></span><span>Keep a copy of Level 1<small>As a file, to give to your helper</small></span></button>
-  <button class="mi"><span class="ic" data-i="squares-four"></span><span>Open another game</span></button>
+  <hr>
+  <button class="mi"><span class="ic" data-i="squares-four"></span><span>Your games<small>Open another game</small></span></button>
   <hr>
   <button class="mi"><span class="ic" data-i="arrow-square-out"></span><span>Sign out</span></button>
 </section>

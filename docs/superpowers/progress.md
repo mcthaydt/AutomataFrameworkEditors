@@ -2,6 +2,30 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): every action and its opposite, fixed (2026-11-15)
+
+Fixing the [actions check](audits/2026-11-15-slice3-e2e-actions.md) on PR 57, mockups only (no editor code), in one
+Sonnet session: all 34 gaps (6 high, 16 medium, 12 low), the Owner's own rule for each fix being the drunk-grandma
+test on top: find the action, understand what it did, undo a wrong tap, and no gesture nobody is told about (a
+visible button with a plain word wherever a press and hold or a pinch was the only way). Progress on this step:
+**55%**: the pages and the stylesheet are drawn and pushed; CI's pictures at five sizes are still to be read and the
+board republished.
+
+- **Shared pieces:** `base.js` (the level every World page shares, so a page only says what it is about),
+  `frame.js` (the "..." beside a thing's name, "Done" on a phone's sheet, "Smaller", Undo and Redo as a pair, the back
+  button, "Send 1 more", the menus that hang under the button that opened them) and a last section in `shell.css`.
+- **Pages made (30):** the settings hidden and opened (`world-levels-hidden`, `-settings`), the parts menu, the five
+  editors, which scene level, people (open, and read only), your games, the language, what changed, the problems, one
+  problem shown, a note opened and a note added, the "..." menu, press and hold on the ground, playing bigger, play from
+  here, ask for a change, asked, waiting, a change while waiting, a level held on the map and deleted, the list opened,
+  Add things opened, the list put away, Show, a join taken away, a copy kept, the menu signed out, ask your helper,
+  and this tile.
+- **Pages changed:** the check sheet ("Not now" at the top, Play first), keep a copy ("Not now"), Find (Cancel on a
+  touch screen), the number pad (Cancel, over the open sheet on a phone), the game's menu (What changed, Your games),
+  Characters (a back button to Level 1), the tile strip ("This tile").
+- **One question left for the Owner (H6):** is "Ask for a change" enough on the check sheet, or is a separate "Don't put
+  them in" wanted? The page has "Ask for a change" and "Not now" until he says.
+
 ## The shell and World mockups (roadmap slice 3): floating glass docks, built (2026-11-15)
 
 Executing [`plans/2026-11-15-floating-glass-docks.md`](plans/2026-11-15-floating-glass-docks.md) on PR 57, mockups only

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Your language (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The very first card, before the welcome (the end-to-end actions check, M14): the language, with the one this device uses already chosen, so most people only press "Go on". Every language is written in its own words with its flag, so someone who cannot read English can still find theirs. The editors come in English, Spanish, Korean, Japanese, Chinese and Portuguese, and French, Russian and German. It can be changed any time in Settings, in the same list. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+
+    </div>
+  </div>
+</div>
+<section class="pop onb wide" role="dialog" aria-label="Language">
+  <div class="onb-pic"><span class="ic" data-i="translate"></span></div>
+  <h2>Choose your language</h2>
+  <p>We picked the language this iPad uses. Tap another one if you like. You can change it later in Settings.</p>
+  <div class="langs"><button class="on"><span class="flag" data-flag="us"></span>English<span class="ic" data-i="check"></span></button><button class=""><span class="flag" data-flag="mx"></span>Español</button><button class=""><span class="flag" data-flag="kr"></span>한국어</button><button class=""><span class="flag" data-flag="jp"></span>日本語</button><button class=""><span class="flag" data-flag="cn"></span>中文</button><button class=""><span class="flag" data-flag="br"></span>Português</button><button class=""><span class="flag" data-flag="fr"></span>Français</button><button class=""><span class="flag" data-flag="ru"></span>Русский</button><button class=""><span class="flag" data-flag="de"></span>Deutsch</button></div>
+  <div class="onb-go"><button class="sbtn main"><span class="ic" data-i="arrow-right"></span>Go on</button></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: null, body: ['bare'],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

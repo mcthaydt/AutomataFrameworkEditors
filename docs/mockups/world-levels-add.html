@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Add things opened (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- "Add things" opened (the end-to-end actions check, M2): the second tab of the list, where the game's things are (a crate, a button, a door, things from Characters), each saying how many times this level uses it. Dragging one onto the level puts it there; on a phone, tap one and then tap the level. It closes the same way the list does, and the Place tool's "All things" opens it too. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, list: null, library: BASE.library, listSheet: true, leftOpen: true,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

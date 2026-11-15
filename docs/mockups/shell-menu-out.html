@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The game's menu, not signed in (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The game's menu for someone who has not signed in (the end-to-end actions check, L5): it says so under the name. There is no "Who can change it" and no "Your games", since both need a person, and it says "Sign in" where the signed-in menu says "Sign out". "Keep a copy" stays at the top, because that is what this person came to do. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop menup" role="menu" aria-label="Crate Game">
+  <div class="mhead"><i class="logo"></i><span><b>Crate Game</b><small>Not signed in · you can try it and keep a copy</small></span></div>
+  <button class="mi on"><span class="ic" data-i="question"></span><span>Help<small>Learn the basics, take the tour again</small></span><kbd>?</kbd></button>
+  <button class="mi"><span class="ic" data-i="gear"></span><span>Settings</span></button>
+  <button class="mi"><span class="ic" data-i="keyboard"></span><span>Keys and finger moves</span></button>
+  <hr>
+  <button class="mi"><span class="ic" data-i="download-simple"></span><span>Keep a copy of Level 1<small>As a file, to give to your helper</small></span></button>
+  <hr>
+  <button class="mi"><span class="ic" data-i="key"></span><span>Sign in with GitHub<small>Open your own games, and put changes in</small></span></button>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, signedOut: true, changes: 2, saved: 'Not saved: 2 changes',
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

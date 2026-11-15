@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- Someone who has not signed in, trying the demo game (the end-to-end check, E9; the Owner, 2026-11-13: anyone can change the demo game without signing in and keep a copy; every other game is its team's). Their top-bar button says "Keep a copy", because their changes can't go into a game that isn't theirs. The sheet says so in one line, keeps the level as its file first, and offers signing in only to open their own game. Nobody else's face shows: they are on their own. -->
+<!-- Someone who has not signed in, trying the demo game (the end-to-end check, E9; the Owner, 2026-11-13: anyone can change the demo game without signing in and keep a copy; every other game is its team's). Their top-bar button says "Keep a copy", because their changes can't go into a game that isn't theirs. The sheet says so in one line, keeps the level as its file first, and offers signing in only to open their own game. "Not now" at the top closes it, so someone who wants to go on playing is never pushed to choose (the actions check, M11). Nobody else's face shows: they are on their own. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid"></div>
@@ -16,7 +16,7 @@
 </div>
 <div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
 <section class="pop share-pop">
-  <h3>Keep what you made</h3>
+  <div class="hdr"><h3>Keep what you made</h3><button class="sbtn">Not now</button></div>
   <p>Crate Game is here for anyone to try, so changes can't go into it. Keep a copy of your level instead: a file you can give to your helper, or put in your own game.</p>
   <div class="sc"><img src="art/crate.png" alt="">Put in 2 crates<small>Level 1</small></div>
   <button class="sbtn main wide1" style="margin-top:8px"><span class="ic" data-i="download-simple"></span>Keep a copy of Level 1</button>

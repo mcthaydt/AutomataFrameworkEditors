@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Adding a note (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Adding a note (the end-to-end actions check, M13): "Add a note" in a thing's "..." menu, or press and hold empty ground. The note is pinned to what was picked (or the spot that was held), and the team sees it at once, even before changes are put in. It stays until somebody marks it done. -->
+<style>.pin { position:absolute; z-index:3; width:14px; height:14px; border-radius:50%; background: var(--touch); box-shadow: 0 0 0 4px rgb(238 180 128 / 0.3); }</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+      <span class="pin" style="left:43%;top:62%"></span>
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="Add a note">
+  <div class="hdr"><h3>Add a note</h3><button class="sbtn"><span class="ic" data-i="x"></span>Cancel</button></div>
+  <p>It is pinned to Crate 1, and your team can see it. It stays until someone marks it done.</p>
+  <div class="tarea">Can this crate be a bit lighter?</div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="note"></span>Pin the note</button></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

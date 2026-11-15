@@ -7505,3 +7505,967 @@ html body.sh[data-device="computer"] .no-computer {
 html body.sh .share-pop .foot {
   background: linear-gradient(var(--g-bg), var(--g-bg)), #1c1c1c;
 }
+
+/* ---------- Every action and its opposite (the Owner, 2026-11-15) ---------- */
+/* The end-to-end actions check (docs/superpowers/audits/2026-11-15-slice3-e2e-actions.md) found controls whose way
+   back, way in or way out was never drawn. This section draws them. Later wins, and every selector starts
+   `html body.sh`. It sits after the glass section, so a blur here is always `var(--g-filter)` or `var(--s-filter)` and
+   nothing is animated (tests/docs/glass.test.ts reads this section). The gaps it closes are named in the comments by
+   their number in that report (H1 to H6, M1 to M16, L1 to L12). */
+
+/* ----- 1. The settings hidden: a tab at the right edge brings them back (H1) ----- */
+/* The panel's own "Hide" button and the tab are two halves of one thing. Hidden, the panel leaves the same floating tab
+   a phone on its side has: the thing's picture, its name written upright, a tap opens it. The level takes the room the
+   panel gave up, minus the tab. */
+@media (min-width: 501px) and (min-height: 601px) {
+  html body.sh.values-hidden.values-hidden.values-hidden {
+    --right-w: 60px;
+    --sheet-h: 0px;
+  }
+
+  html body.sh.values-hidden .sh-right:not(.inline) {
+    top: calc(var(--top-h) + var(--dock-gap));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: auto;
+    left: auto;
+    width: 44px;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  html body.sh.values-hidden .sh-right::before,
+  html body.sh.values-hidden .sh-right > :not(.itab) {
+    display: none;
+  }
+
+  html body.sh.values-hidden .sh-right .itab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 44px;
+    height: auto;
+    min-height: 44px;
+    padding: 12px 0;
+    border: 0;
+    background: transparent;
+    color: var(--words);
+    font: 500 13px var(--label);
+  }
+
+  html body.sh.values-hidden .sh-right .itab span {
+    writing-mode: vertical-rl;
+    max-height: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ----- 2. The settings open on a phone, and how they close (H2) ----- */
+/* "Done" closes the sheet; it is the one close a phone shows (the upright iPad and bigger sizes have Hide instead). */
+html body.sh .sh-right .idone {
+  display: none;
+  flex: none;
+  min-height: 44px;
+  padding: 0 18px;
+  justify-content: center;
+}
+
+/* An upright phone: the one-line bar is pulled up into a sheet over the lower half, above the toolbar, with a grab
+   handle, the thing's name and Done. The level is fitted into the room above it. */
+@media (max-width: 500px) {
+  html body.sh.sheet-open .sh-right {
+    display: flex;
+    flex-direction: column;
+    left: calc(var(--dock-gap) + var(--safe-l));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: calc(var(--tools-h) + 8px);
+    height: min(44vh, 400px);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  html body.sh.sheet-open .sh-right::before {
+    display: block;
+    flex: none;
+    align-self: center;
+    width: 36px;
+    height: 4px;
+    margin-top: 6px;
+    border-radius: 2px;
+    background: var(--line);
+    content: "";
+  }
+
+  html body.sh.sheet-open .sh-right > .ihead {
+    display: flex;
+  }
+
+  html body.sh.sheet-open .sh-right > .ibody {
+    display: block;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  html body.sh.sheet-open .sh-right .peek,
+  html body.sh.sheet-open .sh-right .ihide {
+    display: none;
+  }
+
+  html body.sh.sheet-open .sh-right .idone {
+    display: inline-flex;
+  }
+
+  html body.sh.sheet-open.has-right .fit {
+    bottom: calc(var(--tools-h) + min(44vh, 400px) + 16px);
+  }
+}
+
+/* A phone on its side: the tab opens into a panel at the right edge, with Done at its top. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.sheet-open.sheet-open {
+    --right-w: calc(332px + var(--safe-r));
+  }
+
+  html body.sh.sheet-open .sh-right:not(.inline) {
+    top: calc(var(--top-h) + var(--dock-gap));
+    right: calc(var(--dock-gap) + var(--safe-r));
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+    width: 316px;
+    height: auto;
+    overflow: hidden;
+  }
+
+  html body.sh.sheet-open .sh-right > .ihead {
+    display: flex;
+  }
+
+  html body.sh.sheet-open .sh-right > .ibody {
+    display: block;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  html body.sh.sheet-open .sh-right .itab,
+  html body.sh.sheet-open .sh-right .ihide {
+    display: none;
+  }
+
+  html body.sh.sheet-open .sh-right .idone {
+    display: inline-flex;
+  }
+}
+
+/* ----- 3. Menus drawn open (H3, L10): where to go, and the other editors ----- */
+html body.sh .menup h6 {
+  margin: 8px 8px 2px;
+  color: var(--quiet);
+  font: 600 12px var(--label);
+}
+
+html body.sh .menup .mi.here {
+  background: var(--hover);
+}
+
+html body.sh .menup .mi .tick {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  color: var(--touch);
+}
+
+html body.sh .menup .mi .go2 {
+  margin-left: auto;
+  color: var(--touch);
+  font: 500 13px var(--label);
+}
+
+/* The parts and the editors are one menu on a phone, which has no workspace button (the top bar keeps only the part's
+   name there); the game's menu is one more row on an upright phone, which has no square for it. */
+html body.sh .menup .phone-only,
+html body.sh .menup .upright-only {
+  display: none;
+}
+
+@media (max-width: 500px), (max-height: 600px) and (min-width: 600px) {
+  html body.sh .menup .phone-only {
+    display: block;
+  }
+}
+
+@media (max-width: 500px) {
+  html body.sh .menup .upright-only {
+    display: block;
+  }
+}
+
+/* A phone on its side is short, so the two lists stand side by side. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .menup.wherep {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 8px;
+    width: min(620px, calc(100vw - 16px));
+  }
+
+  html body.sh .menup.wherep > hr,
+  html body.sh .menup.wherep > .wfoot {
+    grid-column: 1 / -1;
+  }
+}
+
+html body.sh .menup .mi.mi-small {
+  min-height: 44px;
+}
+
+/* A solid (not frosted) list that opens inside a panel that is already glass: never glass inside glass. */
+html body.sh .dropopen {
+  margin: 4px 0 8px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+}
+
+html body.sh .dropopen button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--words);
+  font: 500 14px var(--label);
+  text-align: left;
+}
+
+html body.sh .dropopen button.on {
+  background: var(--hover);
+}
+
+html body.sh .dropopen button .ic {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  color: var(--touch);
+}
+
+/* ----- 4. Sheets: who can change the game, your games, what changed, the people (H4, H5, M9) ----- */
+html body.sh .share-pop .pp,
+html body.sh .share-pop .chg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+html body.sh .share-pop .pp .who,
+html body.sh .share-pop .chg .who {
+  flex: 1;
+  min-width: 0;
+}
+
+html body.sh .share-pop .pp .who b,
+html body.sh .share-pop .chg .who b {
+  display: block;
+  font: 600 15px var(--label);
+}
+
+html body.sh .share-pop .pp .who small,
+html body.sh .share-pop .chg .who small {
+  display: block;
+  color: var(--quiet);
+  font: 400 13px var(--label);
+}
+
+/* A person's round picture: their first letter, a colour of their own. */
+html body.sh .face2 {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #8fb3a3;
+  color: #1e1e1e;
+  font: 600 15px var(--label);
+}
+
+html body.sh .face2.b {
+  background: #c8b5e0;
+}
+
+html body.sh .face2.c {
+  background: #e6c27a;
+}
+
+html body.sh .face2.d {
+  background: #e29a9a;
+}
+
+/* What a person may do, as a drop-down you can read (the plain-words level, then what it means under it). */
+html body.sh .share-pop .lvl {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--words);
+  font: 500 14px var(--label);
+}
+
+html body.sh .share-pop .lvl .ic {
+  width: 16px;
+  height: 16px;
+  color: var(--quiet);
+}
+
+html body.sh .share-pop .lvl.fixed {
+  border-color: transparent;
+  background: none;
+  color: var(--quiet);
+}
+
+html body.sh .share-pop .key {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--raised);
+  font-size: 13px;
+}
+
+html body.sh .share-pop .key b {
+  font-weight: 600;
+}
+
+html body.sh .share-pop .key div {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  color: var(--quiet);
+}
+
+html body.sh .share-pop .key div b {
+  flex: none;
+  min-width: 96px;
+  color: var(--words);
+}
+
+html body.sh .share-pop .addrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+html body.sh .share-pop .addrow .tbox {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+html body.sh .share-pop .addrow .sbtn {
+  flex: none;
+  height: 44px;
+}
+
+/* A game in the list of games: its picture, its name, and what you may do in it. */
+html body.sh .gr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--words);
+  text-align: left;
+}
+
+html body.sh .gr.on {
+  background: var(--hover);
+}
+
+html body.sh .gr .gpic {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--raised);
+  overflow: hidden;
+}
+
+html body.sh .gr .gpic img {
+  width: 36px;
+  height: 36px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+html body.sh .gr .gpic .ic {
+  width: 26px;
+  height: 26px;
+}
+
+html body.sh .gr .gw {
+  flex: 1;
+  min-width: 0;
+}
+
+html body.sh .gr .gw b {
+  display: block;
+  font: 600 16px var(--label);
+}
+
+html body.sh .gr .gw small {
+  display: block;
+  color: var(--quiet);
+  font: 400 14px var(--label);
+}
+
+html body.sh .gr > .ic {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--quiet);
+}
+
+html body.sh .gamelist hr,
+html body.sh .langs hr {
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* The two screens before a game is open (your games, the language): a plain dark page and one card, centred. */
+html body.sh.bare .onb.wide {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+html body.sh.bare .onb .who-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  color: var(--quiet);
+  font-size: 14px;
+}
+
+/* The language card: two columns of languages, each with its flag, in its own words. */
+html body.sh .langs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+html body.sh .langs button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--words);
+  font: 500 15px var(--label);
+  text-align: left;
+}
+
+html body.sh .langs button.on {
+  border-color: var(--touch);
+  background: var(--hover);
+}
+
+html body.sh .langs button .flag {
+  flex: none;
+  width: 28px;
+  height: 19px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+html body.sh .langs button .flag svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+html body.sh .langs button .ic {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--touch);
+}
+
+@media (max-width: 380px) {
+  html body.sh .langs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- 5. An upright phone: a toolbar of two rows, so Redo and Show have a place (M3, M5) ----- */
+/* The tools keep the top row, and the row under it holds what is done to the level: Undo, Redo, Show and Play.
+   Every button there says its word, so nothing is learned from an icon alone. */
+@media (max-width: 500px) {
+  html body.sh.sh:not(.playing):not(.bare):not(.tools-left) {
+    --tools-h: calc(140px + var(--safe-b));
+  }
+
+  html body.sh.sh.no-tools:not(.playing):not(.bare):not(.tools-left) {
+    --tools-h: calc(84px + var(--safe-b));
+  }
+
+  html body.sh.no-tools .sh-tools {
+    display: flex;
+  }
+
+  html body.sh .sh-tools .tbar {
+    flex-wrap: wrap;
+    justify-content: stretch;
+    row-gap: 4px;
+  }
+
+  /* The line break between the two rows. */
+  html body.sh .sh-tools .tbar .div.u {
+    display: block !important;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 0;
+    margin: 0;
+    background: none;
+    order: 1;
+  }
+
+  html body.sh .sh-tools .tbar .tl2.u:not(.pl) {
+    order: 2;
+  }
+
+  html body.sh .sh-tools .tbar .tl2.ob {
+    display: flex !important;
+    order: 3;
+  }
+
+  html body.sh .sh-tools .tbar .tl2.pl {
+    order: 4;
+  }
+
+  html body.sh .sh-tools .tbar .tl2.u span:not(.ic),
+  html body.sh .sh-tools .tbar .tl2.ob span:not(.ic) {
+    display: block !important;
+    font-size: 11px;
+  }
+
+  html body.sh.no-tools .sh-tools .tbar .tz {
+    display: none !important;
+  }
+}
+
+/* The world map on a phone: its tip stays, in the words' own line under the top bar. */
+@media (max-width: 500px), (max-height: 600px) {
+  html body.sh .wmap .tip.free {
+    display: block;
+    max-width: 100%;
+    font-size: 12px;
+    white-space: normal;
+  }
+}
+
+/* ----- 6. A tool's tray no longer hides the picked thing's settings on a phone (M4) ----- */
+@media (max-width: 500px) {
+  html body.sh.has-tray.has-right:not(.sheet-open) .sh-right {
+    display: flex;
+    bottom: calc(var(--tools-h) + 120px);
+    height: 52px;
+  }
+
+  html body.sh.has-tray.has-right .sh-right .peek {
+    display: flex;
+  }
+
+  html body.sh.has-tray.has-right .fit {
+    bottom: calc(var(--tools-h) + 190px);
+  }
+}
+
+/* ----- 7. The list, opened over the level on a phone and an upright iPad (M2) ----- */
+html body.sh .sh-left .ltabs .lclose {
+  display: none;
+  flex: none;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 0 16px;
+}
+
+@media (max-width: 1000px) and (min-height: 601px), (max-height: 600px) and (min-width: 600px) {
+  html body.sh.list-sheet .sh-left {
+    display: flex;
+    z-index: 25;
+    top: calc(var(--top-h) + var(--dock-gap));
+    bottom: calc(var(--dock-gap) + var(--safe-b));
+    left: calc(var(--dock-gap) + var(--safe-l));
+    width: min(340px, calc(100vw - 16px));
+    border-radius: 12px;
+  }
+
+  html body.sh.list-sheet .sh-left .ltabs .ib {
+    display: none;
+  }
+
+  html body.sh.list-sheet .sh-left .ltabs .lclose {
+    display: inline-flex;
+  }
+
+  html body.sh.list-sheet .sh-left .ltabs button:not(.ib):not(.lclose) {
+    min-height: 44px;
+  }
+
+  html body.sh.list-sheet .sh-left .lbody {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+/* A phone: the whole width, the whole height. */
+@media (max-width: 500px) {
+  html body.sh.list-sheet .sh-left {
+    width: auto;
+    right: calc(var(--dock-gap) + var(--safe-r));
+  }
+}
+
+/* ----- 8. Playing bigger, and picking where the hero starts (M7, L2) ----- */
+html body.sh.play-big .sh-left,
+html body.sh.play-big .sh-right,
+html body.sh.play-big .holds {
+  display: none;
+}
+
+html body.sh.play-big.play-big.play-big {
+  --left-w: 0px;
+  --right-w: 0px;
+}
+
+html body.sh .sh-play .ib.big.on {
+  color: var(--words);
+}
+
+html body.sh .sh-play .ib.big.on span:not(.ic) {
+  display: inline !important;
+}
+
+/* The strip that says what a tap does while the hero's start is being picked. */
+html body.sh .pickstrip {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: calc(var(--top-h) + var(--play-h) + 20px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  padding: 8px 8px 8px 16px;
+  font: 500 14px var(--label);
+}
+
+html body.sh .pickstrip .ic {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--touch);
+}
+
+html body.sh .pickstrip .sbtn {
+  flex: none;
+  height: 44px;
+}
+
+/* ----- 9. The free thumb's strip, unfolded (L8) ----- */
+@media (max-width: 1000px) and (min-height: 601px), (max-height: 600px) and (min-width: 600px) {
+  html body.sh.hold-open .holds .hb:not(.hfold) {
+    display: flex;
+    width: 88px;
+    min-height: 52px;
+  }
+
+  html body.sh.hold-open .holds .hfold {
+    width: 88px;
+  }
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.hold-open .holds {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+/* ----- 10. The top bar: a button back to where you came from, "to check" on a phone, a second send (L7, L9) ----- */
+html body.sh .sh-top .backb {
+  flex: none;
+  gap: 6px;
+  min-width: 44px;
+  color: var(--words);
+  font: 500 14px var(--label);
+}
+
+@media (max-width: 500px) {
+  /* With "to check" in the bar, an upright phone has no room for "Up to date" in words: the tick is enough. */
+  html body.sh.has-checks .sh-top .share.quiet .w {
+    display: none;
+  }
+
+  html body.sh.has-checks .sh-top .share.quiet {
+    min-width: 44px;
+    padding: 0 10px;
+  }
+
+  html body.sh .sh-top .backb span:not(.ic) {
+    display: none;
+  }
+}
+
+/* ----- 11. Things in a sheet's top: Play first, the changes next (L12) ----- */
+html body.sh .share-pop .wide1.first {
+  margin: 4px 0 10px;
+}
+
+/* ----- 12. Small things: Cancel beside a pad and beside Find; a join picked; the "…" menu (L1, M11, M16, M6) ----- */
+html body.sh .numpad .nk .cancel {
+  grid-column: 1 / -1;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--words);
+  font: 500 15px var(--label);
+}
+
+html body.sh .cmd .q .cx {
+  display: none;
+  flex: none;
+  min-height: 44px;
+  margin-left: 8px;
+}
+
+html body.sh.touch .cmd .q .cx {
+  display: inline-flex;
+}
+
+html body.sh .stage .links path.picked {
+  stroke: var(--touch);
+  stroke-dasharray: none;
+  stroke-width: 1;
+}
+
+html body.sh .actbar .amenu.moremenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 220px;
+}
+
+html body.sh .actbar .moremenu .mrows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+html body.sh .actbar .moremenu .mrows button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--words);
+  font: 500 14px var(--label);
+  text-align: left;
+}
+
+html body.sh .actbar .moremenu .mrows button .ic {
+  width: 18px;
+  height: 18px;
+  color: var(--quiet);
+}
+
+html body.sh .actbar .moremenu .mrows button kbd {
+  margin-left: auto;
+  padding-left: 16px;
+  color: var(--faint);
+  font: 12px var(--label);
+}
+
+/* A note opened: the thread, an answer box and Done. */
+html body.sh .share-pop .thread {
+  margin: 4px 0 8px;
+}
+
+html body.sh .share-pop .thread .said {
+  margin: 0 0 8px;
+}
+
+html body.sh .share-pop .thread .said.mine {
+  border-left-color: var(--faint);
+}
+
+html body.sh .share-pop .thread .said small {
+  margin-top: 6px;
+  display: block;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+html body.sh .share-pop textarea,
+html body.sh .share-pop .tarea {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  box-sizing: border-box;
+  margin: 6px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--words);
+  font: 400 15px / 1.4 var(--label);
+}
+
+/* A small menu next to what was held (a level on the map, a tile in the strip): the same rows as the other menus. */
+html body.sh .pop.menup.heldp {
+  width: min(240px, calc(100vw - 16px));
+  z-index: 30;
+}
+
+/* The "…" is also a visible button in the settings' header, so the rest of what can be done to a thing is never only
+   a press and hold (the Owner, 2026-11-15: visible buttons with plain labels, not hidden gestures). */
+html body.sh .sh-right .ihead .imore {
+  flex: none;
+}
+
+/* The game's list of changes needs a picture inline in its words. */
+html body.sh .share-pop .chg .mini {
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  vertical-align: -3px;
+  image-rendering: pixelated;
+}
+
+/* A short message with buttons that may not fit one line (a problem shown, a note from a teammate): it wraps. */
+html body.sh .note2.stack {
+  flex-wrap: wrap;
+  width: min(480px, calc(100vw - 16px));
+}
+
+html body.sh .note2.stack > span:not(.ic) {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+html body.sh .note2.stack .sbtn {
+  flex: 1 1 140px;
+  justify-content: center;
+}
+
+/* ----- 13. A sheet's title with its own Close; a drop-down's rows with what each means (H4, M9, M13) ----- */
+html body.sh .share-pop .hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+}
+
+html body.sh .share-pop .hdr h3 {
+  margin: 0;
+}
+
+html body.sh .share-pop .hdr .sbtn {
+  flex: none;
+  height: 44px;
+}
+
+html body.sh .dropopen button > span:not(.ic) {
+  display: block;
+  text-align: left;
+}
+
+html body.sh .dropopen button small {
+  display: block;
+  color: var(--quiet);
+  font: 400 12px var(--label);
+}
+
+html body.sh .dropopen button.out {
+  color: var(--words);
+}
+
+html body.sh .dropopen hr {
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ----- 14. The rest: this level's three buttons in the part menu, this tile's button, a third way out, a held spot (M12, L11, M6) ----- */
+html body.sh .menup .lvrows {
+  display: flex;
+  flex-direction: column;
+}
+
+html body.sh .menup .mi.off {
+  color: var(--faint);
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .menup .lvrows {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 8px;
+  }
+
+  html body.sh .menup .wfoot > hr {
+    display: none;
+  }
+
+  html body.sh .menup .wfoot > h6 {
+    margin-top: 4px;
+  }
+}
+
+html body.sh.has-tilestrip .tilestrip .tt.more .ic {
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.has-tilestrip .tilestrip .tt.more .ic {
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+  }
+}

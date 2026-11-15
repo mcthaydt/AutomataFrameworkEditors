@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Ask your helper (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Ask your helper (the end-to-end actions check, L6), from Help. It says what a helper is, what to tell it and what happens next, then gives the one thing that needs doing here: a copy of the level to give it. Whatever the helper changes comes back as a ghost on the level with Keep or Undo, so a mistake is one tap to put right. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop share-pop" role="dialog" aria-label="Ask your helper">
+  <div class="hdr"><h3>Ask your helper</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></div>
+  <p>Your helper is the AI you chat with. It can change Crate Game for you.</p>
+  <div class="sc"><span class="ic" data-i="chat-circle-text"></span>Tell it what you want<small>One sentence is enough</small></div>
+  <div class="said"><b>For example</b>Make the door open when the hero stands on the button.</div>
+  <div class="sc"><span class="ic" data-i="eye"></span>It shows you<small>On the level, as a ghost</small></div>
+  <div class="sc"><span class="ic" data-i="check"></span>You choose<small>Keep, or Undo</small></div>
+  <p class="or" style="margin-top:10px">If your helper wants to see the level first, give it a copy.</p>
+  <button class="sbtn main wide1"><span class="ic" data-i="download-simple"></span>Keep a copy of Level 1</button>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

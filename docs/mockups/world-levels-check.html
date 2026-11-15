@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<!-- Checking someone's changes (the end-to-end check, E8), for a person who may approve (Mia). The top bar says "1 to check"; tapped, it opens this sheet over the level, where the changes are marked in orange. Mia can play the level with them, put them in the game, or ask Sam to change something, with a note. Asking sends them back: Sam's top bar then says what Mia asked. A problem shows here too, the same as on Put in game. -->
+<!-- Checking someone's changes (the end-to-end check, E8; the actions check, H6, L12), for a person who may approve (Mia). The top bar says "1 to check"; tapped, it opens this sheet over the level, where the changes are marked in orange. "Not now" at the top leaves it, and "1 to check" stays in the top bar until Mia decides, so looking is never a decision. Playing the level with the changes is the first button, so it is in sight on a short screen. Then Mia can put them in the game, or ask Sam to change something (the box is on world-levels-ask). -->
 <style>
   .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
@@ -37,14 +37,14 @@
 </div>
 <div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
 <section class="pop share-pop">
-  <h3>Sam sent 3 changes to check</h3>
-  <p>They are marked in orange on the level. Nobody else sees them until you put them in.</p>
+  <div class="hdr"><h3>Sam sent 3 changes to check</h3><button class="sbtn">Not now</button></div>
+  <p>They are marked in orange on the level. Nobody else sees them until you put them in. They stay under “1 to check” until you decide.</p>
+  <button class="sbtn wide1 first"><span class="ic" data-i="play"></span>Play the level with them</button>
   <div class="said"><b>Sam's note</b>The door needs a button near it, I think.</div>
   <div class="prob"><b><span class="ic" data-i="warning"></span>1 problem: Crate 4 is half in the ground</b><small>You can still put them in. Whether this warns you first is in Settings.</small><button class="sbtn"><span class="ic" data-i="magnifying-glass"></span>Show me</button></div>
   <div class="sc"><img src="art/crate.png" alt="">Moved 3 crates<small>Level 1</small></div>
   <div class="sc"><img src="art/crate.png" alt="">Made crates heavier<small>Every crate</small></div>
   <div class="sc"><span class="pic"><span class="ic" data-i="door"></span></span>Added a door<small>Level 1</small></div>
-  <button class="sbtn wide1" style="margin-top:10px"><span class="ic" data-i="play"></span>Play the level with them</button>
   <div class="go"><button class="sbtn main"><span class="ic" data-i="check"></span>Put them in the game</button><button class="sbtn"><span class="ic" data-i="chat-circle-text"></span>Ask for a change</button></div>
 </section>
 <script>

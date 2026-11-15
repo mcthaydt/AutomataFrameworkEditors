@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Scenes, which level to show it with (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .bracket { position: absolute; z-index: 2; border: 2px dashed var(--words); border-top: 0; height: 12px; }
+  .device { position: absolute; z-index: 2; border: 2px dashed var(--words); border-radius: 6px; }
+  .device > span { position: absolute; right: 4px; top: -22px; font: 600 11px/1.2 var(--label); letter-spacing: .07em; text-transform: uppercase; color: var(--words); background: var(--ground); padding: 2px 5px; border-radius: 2px; }
+  .brush { position: absolute; z-index: 3; border-radius: 50%; border: 2px dashed var(--touch); }
+  .daybar { position: absolute; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 4px 10px; white-space: nowrap; left: var(--fit-left); bottom: calc(var(--fit-bottom) - 6px); }
+  .daybar .rbar { width: 200px; background: linear-gradient(90deg, #35434b, #f37f94 22%, #9fd3f0 40%, #9fd3f0 62%, #f37f94 78%, #35434b); }
+  .daybar .rbar i { background: none; border-right: 4px solid var(--words); border-radius: 0; }
+  @media (max-width: 1000px), (max-height: 600px) { .daybar .label { display: none; } .device { display: none; } .daybar { left: var(--gap); } }
+  @media (max-height: 600px) { .daybar .rbar { width: 100px; } }
+</style>
+</head>
+<body>
+<!-- Which level a scene is shown with (the end-to-end actions check, L10). The top bar says "Meadow, shown with Level 1" on a computer or an iPad, and drops the words on a phone, so the way to change it is in the part's menu too: under the three parts, the levels that use this scene, the one shown ticked. A scene looks different behind each level, so the picture changes to the one picked. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="veil" style="left:12.4%;top:72.6%;width:6.3%;height:11.2%" title="The hero, faint: it belongs to Levels"></div>
+      <div class="veil" style="left:37.2%;top:73.6%;width:6.8%;height:10.2%" title="The crate, faint: it belongs to Levels"></div>
+      <div class="ring" style="left:33%;top:59.6%;width:9%;height:19.5%;border-radius:50% 50% 3px 3px"></div>
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop menup wherep" data-under=".partn" role="menu" aria-label="Go to">
+  <div class="wcol"><h6>In World</h6><button class="mi"><span class="ic" data-i="squares-four"></span><span>Levels<small>Put things in a level</small></span></button><button class="mi"><span class="ic" data-i="grid-four"></span><span>Tiles<small>Paint the ground</small></span></button><button class="mi here"><span class="ic" data-i="mountains"></span><span>Scenes<small>Paint what is behind the level</small></span><span class="ic tick" data-i="check"></span></button></div>
+  <div class="wcol"><h6>Show this scene with</h6><button class="mi mi-small here"><span class="ic" data-i="squares-four"></span><span>Level 1</span><span class="ic tick" data-i="check"></span></button><button class="mi mi-small"><span class="ic" data-i="squares-four"></span><span>Level 2</span></button><button class="mi mi-small"><span class="ic" data-i="squares-four"></span><span>Level 3</span></button></div>
+  <div class="wcol phone-only"><h6>Other editors</h6><button class="mi mi-small here"><span class="ic" data-i="map-trifold"></span><span>World</span><span class="ic tick" data-i="check"></span></button><button class="mi mi-small"><span class="ic" data-i="person"></span><span>Characters</span></button><button class="mi mi-small"><span class="ic" data-i="sliders-horizontal"></span><span>Feel</span></button><button class="mi mi-small"><span class="ic" data-i="music-notes-simple"></span><span>Sound</span></button><button class="mi mi-small"><span class="ic" data-i="book-open"></span><span>Story</span></button></div>
+  <div class="wfoot"><div class="upright-only"><hr><button class="mi"><span class="ic" data-i="list"></span><span>Crate Game menu<small>Help, settings, who can change it</small></span></button></div></div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', what: 'Scene', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 2,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Paint', 'paint-brush', 'B', true], ['Add', 'plus', 'A', true],
+    ['Scatter', 'dots-nine', 'S'], ['Light', 'sun', 'K'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  place: 'Meadow', saved: 'Sam, 5 minutes ago', tool: 0,
+  act: { at: [37.5, 59.6], h: 19.5, pad: true },
+  with: 'Level 1',
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Time of day</span><span class="seg"><button>Dawn</button><button class="on">Day</button><button>Dusk</button><button>Night</button></span>',
+  ],
+  list: { title: 'Front to back', count: 6, search: 'Find something', rows: [
+      { head: 'In front', count: 1 },
+      { n: 'Falling leaves', k: 'close, moves fast', i: 'leaf' },
+      { head: 'The level', count: 3 },
+      { n: 'Tree 2', k: 'tree', i: 'tree', on: true },
+      { n: 'Flowers', k: 'patch', i: 'flower', on: false },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { head: 'Behind', count: 2 },
+      { n: 'Hills', k: 'far away, moves slowly', i: 'mountains' },
+      { n: 'Sky', k: 'stays still', i: 'cloud', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add scenery</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Tree 2', sub: 'Tree · drawn with the hero', pic: { i: 'tree' }, tab: 'Tree 2',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '5.4', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '6.2', u: 'tiles' },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With hero', 'In front'], on: 1 },
+      ] },
+      { name: 'Shape', open: true, rows: [
+        { t: 'slider', l: 'How tall', f: 'height', v: '2', w: 'Taller than the hero', lo: 'A bush', hi: 'Over the hills', at: 30 },
+        { t: 'slider', l: 'How leafy', f: 'leafy', v: '0.8', w: 'Very leafy', lo: 'Bare', hi: 'Full', at: 80 },
+        { t: 'slider', l: 'Sways in the wind', f: 'sway', v: '0.2', w: 'A little', lo: 'Still', hi: 'Storm', at: 20 },
+        { t: 'btns', b: [['Try another tree', 'dice-five'], ['Flip', 'flip-horizontal']] },
+      ] },
+      { name: 'Colors', count: 3, rows: [] },
+      { name: 'Light and shadow', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

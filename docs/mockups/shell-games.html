@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Your games (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Your games (the end-to-end actions check, H5): the first screen after signing in with GitHub, and where "Your games" in the game's menu goes. Each game this person may open has its picture, its name and what they may do in it, in plain words. One tap opens it. If the person came from a link to one game, it opens straight away and this screen is only a place to come back to. A game that is not in the list says what to do: ask its owner to add you. Signing out is here too, so it is never hidden. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+
+    </div>
+  </div>
+</div>
+<section class="pop onb wide" role="dialog" aria-label="Your games">
+  <div class="onb-pic"><span class="ic" data-i="squares-four"></span></div>
+  <h2>Pick a game to open</h2>
+  <p>These are the games you can open. Each says what you can do in it.</p>
+  <div class="gamelist">
+    <button class="gr on"><span class="gpic"><img src="art/crate.png" alt=""></span><span class="gw"><b>Crate Game</b><small>You can change everything</small></span><span class="ic" data-i="caret-right"></span></button>
+    <button class="gr"><span class="gpic"><span class="ic" data-i="plant"></span></span><span class="gw"><b>Moonlight Farm</b><small>You can suggest changes</small></span><span class="ic" data-i="caret-right"></span></button>
+    <button class="gr"><span class="gpic"><span class="ic" data-i="leaf"></span></span><span class="gw"><b>Tidepool</b><small>You can look, but not change</small></span><span class="ic" data-i="caret-right"></span></button>
+    <hr>
+    <p class="onb-small">Not in the list? Ask the game's owner to add you, with your GitHub name.</p>
+  </div>
+  <div class="who-line"><span class="face2">S</span>Signed in as Sam<button class="sbtn" style="margin-left:auto"><span class="ic" data-i="arrow-square-out"></span>Sign out</button></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: null, body: ['bare'],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
