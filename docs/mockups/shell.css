@@ -1541,11 +1541,11 @@ body.sh kbd {
     min-width: 44px;
   }
 
-  .tl2 span {
+  .tl2 span:not(.ic) {
     display: none;
   }
 
-  .tl2.on span {
+  .tl2.on span:not(.ic) {
     display: block;
   }
 
