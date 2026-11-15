@@ -129,7 +129,7 @@ function frame(m) {
     <button class="flagbtn" aria-label="English">${flag('us')}</button>
     <button class="btn small hide-narrow">${icon('export')}Export</button>
     <button class="btn small hide-narrow">${icon('share-network')}Share</button>
-    <button class="btn main">${icon('floppy-disk')}<span class="hide-phone">Save</span><span class="faces"><span class="face">S</span><span class="face b">M</span></span></button>
+    <button class="btn main">${icon('floppy-disk')}<span>Save</span><span class="faces"><span class="face">S</span><span class="face b">M</span></span></button>
   </div>
   <nav class="float tools">${tools}</nav>
   <div class="float notes-switch"><span class="dot"></span><span class="label">Drawing notes</span><span class="label touch">On</span></div>
