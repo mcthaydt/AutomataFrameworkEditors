@@ -2,6 +2,27 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## Cycle 4: the 2D environment builder (World's Scenes part)
+
+Spec: [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md). A full
+scene builder, as powerful as the first attempt's 3D environment builder (the Owner, 2026-11-15); the scene owns the
+ground and the level only places what plays (Q1); all of the 3D builder's powers come, built in six slices (Q2). It is
+on the path to Release 1, because the demo's real art comes from the builders. It is built on Cycle 3's frame, after
+Cycle 3's build and audits. Each slice has a framework plan (AutomataFramework) and a builder plan (here).
+
+Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+stage 7 is 6)
+
+| Stage | State | Output |
+|---|---|---|
+| 1. Spec | Done (2026-11-15, in review); Q1 and Q2 answered by the Owner | [`specs/2026-11-15-2d-environment-builder-design.md`](specs/2026-11-15-2d-environment-builder-design.md) |
+| 2. Plan | Not started: slice 1 (ground and materials), framework plan first | |
+| 3. Plan audit | Not started | |
+| 4. Execution | Not started | |
+| 5. Implementation audit | Not started | |
+| 6. Fixes | Not started | |
+| 7. Owner review | Not started | |
+
 ## Cycle 3: the Blueprint redesign
 
 Spec: [`specs/2026-11-14-editors-blueprint-redesign-design.md`](specs/2026-11-14-editors-blueprint-redesign-design.md).
