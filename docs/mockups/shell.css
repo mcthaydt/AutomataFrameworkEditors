@@ -2203,3 +2203,14 @@ body.sh .bar.b4 {
     display: none;
   }
 }
+
+/* An iPad held sideways: the top bar keeps Share whole by using the short saved words. */
+@media (max-width: 1259px) {
+  .kept .long {
+    display: none;
+  }
+
+  .kept .short {
+    display: inline;
+  }
+}
