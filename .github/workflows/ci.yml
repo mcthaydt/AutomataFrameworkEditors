@@ -109,7 +109,7 @@ jobs:
         engine: [chromium, webkit, firefox]
         shard: [1, 2]
     env:
-      CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=origin/main' || '' }}
+      CHANGED: ${{ needs.plan.outputs.full != 'true' && '--changed=HEAD^1' || '' }}
       BAIL: ${{ needs.plan.outputs.full == 'true' && '15' || '1' }}
       SHARD: ${{ matrix.shard == 1 && 'tests/journeys/screens.journey.test.ts' || '--exclude=tests/journeys/screens.journey.test.ts' }}
       # The screens journey (the first shard's) is left out with the pictures.
