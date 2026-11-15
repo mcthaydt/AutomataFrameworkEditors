@@ -6984,3 +6984,43 @@ html body.sh :is(.helpp, .setp) header {
     box-shadow: var(--shadow);
   }
 }
+
+/* The foot of a sheet: the buttons and the line of words under them are one block (the Owner's review, 2026-11-15:
+   "Your changes are safe" was half hidden under Not yet). The buttons used to pull the next line up under their own
+   padding, so that line slid under them. Now the foot has its own room, line included, and on a screen too short for
+   the sheet it stays at the bottom while the rest scrolls, so the line is always read beside the buttons. A negative
+   margin cancels the sheet's own bottom padding (the foot's padding takes its place), so the room under the line is
+   counted once, and the same size as the sides. */
+html body.sh .share-pop .foot {
+  position: sticky;
+  bottom: 0;
+  margin: 16px 0 calc(var(--card-pad) * -1);
+  padding: 12px 0 var(--card-pad);
+  background: var(--panel);
+}
+
+/* The buttons no longer stick or pull anything themselves; the foot does. */
+html body.sh .share-pop .foot .go {
+  position: static;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+/* The line is clear of the buttons: 16 points, the same as the welcome card's small line. */
+html body.sh .share-pop .foot .keep {
+  margin: 16px 0 0;
+}
+
+/* A short screen (a phone on its side): the sheet's padding is 16 points top and bottom, so the foot cancels 16 and
+   leaves 16 under the line, where the sheet fades. */
+@media (max-height: 600px) {
+  html body.sh .share-pop .foot {
+    margin: 12px 0 -16px;
+    padding: 10px 0 16px;
+  }
+
+  html body.sh .share-pop .foot .keep {
+    margin-top: 10px;
+  }
+}

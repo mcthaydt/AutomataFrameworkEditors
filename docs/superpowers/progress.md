@@ -4,10 +4,11 @@ The tracker every stage reads first and updates last. One section per cycle; new
 
 ## The shell and World mockups (roadmap slice 3): the Owner's review notes (2026-11-15)
 
-Two changes the Owner asked for while reviewing PR 57, made without the review cycle (the Owner: "don't run the full
-cycle"). Progress on this step: **100%** (both drawn in `shell.css`'s last section and checked in CI's pictures at
-4e7707a: the welcome at all five sizes, the World list, the Put in game sheet and the Sound page at iPad sideways and
-computer, the Put in game sheet on an upright iPad; the owner's review is next).
+Three changes the Owner asked for while reviewing PR 57, made without the review cycle (the Owner: "don't run the full
+cycle"). Progress on this step: **90%** (the first two were drawn in `shell.css`'s last section and checked in CI's
+pictures at 4e7707a: the welcome at all five sizes, the World list, the Put in game sheet and the Sound page at iPad
+sideways and computer, the Put in game sheet on an upright iPad; the third is drawn and its pictures are still to be
+checked).
 
 - **Room to breathe:** the welcome card's foot was cramped (step 3 against the buttons, narrow buttons, the small
   line touching them, 20 points of padding under them). It now has 28 points of padding on every side, 28 between step 3
@@ -23,6 +24,13 @@ computer, the Put in game sheet on an upright iPad; the owner's review is next).
   The first pictures showed three things, fixed in the next commit: a card is 8 points narrower than its slot, so each
   slot is 8 wider (the list, the inspector and the Put in game sheet keep the widths they had); the list's two tabs
   stay on one line; and the Put in game sheet, which still sat square against the edge, floats like the rest.
+- **The foot of the Put in game sheet** (the Owner, on an iPad held sideways: the line "Your changes are safe" was
+  half hidden under Not yet): the buttons pulled the line under them with a negative margin meant to cancel their own
+  padding, so the line slid under the opaque buttons. The buttons and the line are now one foot (`.foot` in the page,
+  the last block of `shell.css`) with its own room: 16 points above the line, the sheet's own padding under it, and
+  the foot still stays at the bottom of a sheet that has to scroll, so the line is read with the buttons. The same
+  fault was on the "Send to Mia" sheet ("After you send, the top bar says…"), so it has the same foot. The other
+  sheets end on their buttons and are unchanged.
 
 ## The shell and World mockups (roadmap slice 3): the second visual look (2026-11-15)
 
