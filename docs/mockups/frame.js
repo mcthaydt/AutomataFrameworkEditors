@@ -257,6 +257,7 @@ function assets(lib) {
 }
 
 function leftPanel(m) {
+  if (!m.library?.items) m.library = null
   const onAssets = !m.list && m.library
   const body = m.list ? layers(m.list) : m.library ? assets(m.library) : '<p class="empty">Nothing here yet. Press Place, or drag something in from Assets.</p>'
   return `<aside class="sh-left">
@@ -335,7 +336,7 @@ function frame(m) {
   <span class="sh-zoom">${m.zoom || '100%'}</span>
   <div class="mock-tag">Mockup${m.state ? ` · ${m.state}` : ''}</div>`
   document.body.insertAdjacentHTML('beforeend', html)
-  const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
+  const cls = ['sh', m.list || m.library?.items ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')
   if (m.settings) cls.push('has-opts')
