@@ -2,6 +2,24 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the Owner's review notes (2026-11-15)
+
+Two changes the Owner asked for while reviewing PR 57, made without the review cycle (the Owner: "don't run the full
+cycle"). Progress on this step: **90%** (both drawn in `shell.css`'s last section; CI's pictures at the five sizes
+are still to be checked).
+
+- **Room to breathe:** the welcome card's foot was cramped (step 3 against the buttons, narrow buttons, the small
+  line touching them, 20 points of padding under them). It now has 28 points of padding on every side, 28 between step 3
+  and the buttons, 12 between the two buttons (the editors' `--gap`), 16 above the small line, and the buttons wrap
+  one above the other on a phone. The same air is given to the tour's cards, the new level's card, the Put in game sheet
+  and the sheets built like it, Help, Settings and the helper's card, so they match (one shared `--card-pad`, 20 points).
+  The cause of the small line touching the buttons: an older rule for the card's paragraphs out-ranked its own margin.
+- **Floating side panels** (the Owner said yes to the coordinator's proposal): on an iPad held sideways and on a
+  computer, the list, the rail, the inspector and a band along the bottom are cards inset 8 points from the window and
+  the top bar, with the floating toolbar's corners, edge and shadow, and the dark canvas runs edge to edge behind
+  them. The level is still fitted between the panels, so nothing of it is hidden. An upright iPad keeps its settings
+  sheet from the bottom, now floating too, so the level is never covered. Phones keep their sheet and peek as they were.
+
 ## The shell and World mockups (roadmap slice 3): the second visual look (2026-11-15)
 
 Step 4 of the mockup review: a fresh, harsh look at every screen at the five sizes CI pictures, iPad Pro 11 sideways

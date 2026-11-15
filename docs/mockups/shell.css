@@ -6630,3 +6630,322 @@ html body.sh :is(.keysheet h2, .helpp > header h3, .setp > header h3) {
     font-size: 18px;
   }
 }
+
+/* ---------- The Owner's review of the slice 3 mockups (2026-11-15): room to breathe, and side panels that float ---------- */
+/* Later wins. Two jobs, both asked for in this review. The first gives every card and sheet that ends in buttons the
+   same air: the card's own padding on every side, the words clear of the buttons, the buttons clear of each other and
+   of the small line under them. The second turns the docked side panels into cards that float, as the toolbar already
+   does, on an iPad held sideways and on a computer. */
+
+/* The card padding the small cards and sheets share; the welcome, the biggest card, has its own 28. Between two
+   buttons the editors' own `--gap` (12 points) is used. */
+:root,
+body.sh {
+  --card-pad: 20px;
+}
+
+/* ----- 1. The welcome ----- */
+
+html body.sh .onb {
+  padding: 28px;
+}
+
+html body.sh .onb .onb-pic {
+  margin-bottom: 16px;
+}
+
+/* The sentence under the title keeps clear of the three steps. */
+html body.sh .onb > p:not(.onb-small) {
+  margin-bottom: 20px;
+}
+
+/* The steps are a little further apart, and step 3 is well clear of the buttons under it. */
+html body.sh .onb-steps {
+  gap: 14px;
+  margin: 0 0 28px;
+}
+
+/* The two buttons: room inside, room between, and on a phone one above the other instead of squeezed side by side. */
+html body.sh .onb-go {
+  flex-wrap: wrap;
+  gap: var(--gap);
+}
+
+html body.sh .onb-go .sbtn {
+  flex: 1 1 180px;
+  height: auto;
+  min-height: 48px;
+  padding: 0 16px;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* The small line keeps its own space under the buttons (an older rule for the card's paragraphs had been taking its
+   margin away, so it sat right against them). */
+html body.sh .onb > .onb-small {
+  margin: 16px 0 0;
+  color: var(--quiet);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+@media (max-height: 600px) {
+  html body.sh .onb {
+    padding: 20px 24px;
+  }
+
+  html body.sh .onb-steps {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  html body.sh .onb > .onb-small {
+    margin-top: 12px;
+  }
+}
+
+/* ----- 2. The tour's cards ----- */
+
+html body.sh .coach {
+  padding: var(--card-pad);
+}
+
+html body.sh .coach h3 {
+  margin: 6px 0 8px;
+}
+
+html body.sh .coach p {
+  margin: 0 0 12px;
+}
+
+html body.sh .coach .coach-do {
+  padding: 10px 12px;
+}
+
+html body.sh .coach .donel {
+  margin-bottom: 16px;
+}
+
+html body.sh .coach .coach-go {
+  gap: var(--gap);
+  margin-top: var(--card-pad);
+}
+
+html body.sh .coach .sbtn {
+  padding: 0 20px;
+}
+
+html body.sh .coach .coach-x {
+  margin-top: 12px;
+}
+
+/* ----- 3. The new level's card ----- */
+
+html body.sh .firstcard {
+  padding: var(--card-pad);
+}
+
+html body.sh .firstcard h3 {
+  margin-bottom: 6px;
+}
+
+html body.sh .firstcard p {
+  margin-bottom: 16px;
+}
+
+html body.sh .firstcard .nm {
+  margin-bottom: var(--card-pad);
+}
+
+html body.sh .firstcard .go {
+  gap: var(--gap);
+}
+
+html body.sh .firstcard .go .sbtn {
+  padding: 0 16px;
+}
+
+/* ----- 4. The Put in game sheet, and the sheets built like it (sign in, keep a copy, blocked, check, offline) ----- */
+
+html body.sh .share-pop {
+  padding: var(--card-pad);
+}
+
+html body.sh .share-pop h3 {
+  margin-bottom: 6px;
+}
+
+/* The two buttons stay at the sheet's foot when it scrolls; the offsets are the sheet's padding, so they sit exactly
+   where its bottom edge would have the padding. */
+html body.sh .share-pop .go {
+  gap: var(--gap);
+  margin: 16px 0 calc(var(--card-pad) * -1);
+  padding: 12px 0 var(--card-pad);
+  bottom: calc(var(--card-pad) * -1);
+}
+
+html body.sh .share-pop .go .sbtn {
+  padding: 0 16px;
+}
+
+@media (max-height: 600px) {
+  html body.sh .share-pop {
+    padding: 16px 20px;
+  }
+
+  html body.sh .share-pop .go {
+    margin: 12px 0 -16px;
+    padding: 10px 0 16px;
+    bottom: -16px;
+  }
+}
+
+/* ----- 5. Help and Settings ----- */
+
+html body.sh :is(.helpp, .setp) {
+  padding: var(--card-pad);
+}
+
+html body.sh :is(.helpp, .setp) header {
+  margin-bottom: 16px;
+}
+
+/* ----- 6. The helper's card beside what it is about (not the one-line strips on a phone) ----- */
+
+@media (min-width: 501px) and (min-height: 601px) {
+  html body.sh .agent {
+    padding: 14px 16px;
+  }
+
+  html body.sh .agent p {
+    margin: 6px 0 14px;
+  }
+
+  html body.sh .agent > span {
+    gap: var(--gap);
+  }
+}
+
+/* ----- 7. Side panels that float: an iPad held sideways and a computer ----- */
+/* Each side panel is a card, inset from the window's edges and from the top bar, with the same rounded corners, edge
+   and shadow as the floating toolbar. The dark canvas runs edge to edge behind them (the page itself is canvas
+   coloured). The level is still fitted to the room between the panels, so a panel never hides part of it. Every
+   place that measures from `--left-w` or `--right-w` keeps working, because each panel's card sits inside its own
+   slot: the card's outer edge on the level's side is the slot's edge. */
+
+@media (min-width: 1001px) and (min-height: 601px) {
+  /* The rail's slot is 8 points wider than the old strip, so its card floats inside it. */
+  html body.sh.left-closed,
+  html body.sh.tools-left.left-over,
+  html body.sh.tools-left.no-left {
+    --left-w: 64px;
+  }
+
+  /* With nothing to list, a computer has no left panel at all. */
+  html body.sh.no-left:not(.tools-left) {
+    --left-w: 0px;
+  }
+
+  html body.sh.no-left .sh-left {
+    display: none;
+  }
+
+  /* A band along the bottom floats too, so the room under the level is counted from the card's top edge. */
+  html body.sh.has-bottom2 {
+    --bottom2-h: calc(34vh + 8px);
+  }
+
+  html body.sh {
+    background: #181818;
+  }
+
+  html body.sh:has(.canvas.paper) {
+    background-image: radial-gradient(circle, #333 1px, transparent 1.4px);
+    background-size: 24px 24px;
+    background-position: var(--left-w) var(--top-h);
+  }
+
+  html body.sh .sh-left {
+    top: calc(var(--top-h) + 8px);
+    bottom: 8px;
+    left: 8px;
+    width: calc(var(--left-w) - 8px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  html body.sh .sh-right:not(.inline) {
+    top: calc(var(--top-h) + 8px);
+    right: 8px;
+    bottom: 8px;
+    width: calc(var(--right-w) - 8px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  html body.sh .sh-bottom {
+    left: calc(var(--left-w) + 8px);
+    right: calc(var(--right-w) + 8px);
+    bottom: 8px;
+    height: calc(var(--bottom2-h) - 8px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* The rail: the tools go down inside its card, under List and Add. */
+  html body.sh.tools-left.left-closed .sh-tools {
+    left: 8px;
+    top: calc(var(--top-h) + 136px);
+  }
+
+  html body.sh.tools-left.left-closed .opop {
+    left: calc(var(--left-w) + 8px);
+    top: calc(var(--top-h) + 136px);
+  }
+
+  /* With the list open, or with no list, the tools are a card of their own, level with the list's card. */
+  html body.sh.tools-left:not(.left-closed) .sh-tools {
+    top: calc(var(--top-h) + 8px);
+  }
+
+  html body.sh.tools-left:is(.left-over, .no-left) .sh-tools {
+    left: 8px;
+    width: auto;
+  }
+
+  html body.sh.tools-left:is(.left-over, .no-left) .sh-tools .tbar {
+    padding: 4px 3px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+
+  /* The big level's list floats beside the tools' card, over the level, and the small map starts beside it. */
+  html body.sh.tools-left.left-over .sh-left {
+    left: calc(var(--left-w) + 8px);
+    width: 260px;
+  }
+
+  html body.sh.tools-left.left-over .minimap {
+    left: 348px;
+  }
+}
+
+/* An upright iPad keeps the settings as a sheet that comes up from the bottom, so the level is never covered; it
+   floats like the other panels, held 8 points off the edges. A phone keeps its own sheet and peek as they were. */
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh .sh-right:not(.inline) {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    height: calc(var(--sheet-h) - 8px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+}
