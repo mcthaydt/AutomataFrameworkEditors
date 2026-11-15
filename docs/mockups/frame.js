@@ -457,6 +457,9 @@ function frame(m) {
   for (let t = walk.nextNode(); t; t = walk.nextNode())
     if (/[Tt]his iPad/.test(t.data)) t.data = t.data.replace(/([Tt])his iPad/g, `$1his ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
+  // "See-through panels" in Settings (the Owner, 2026-11-15): 'on' or 'off'; absent means "Choose for me", which
+  // follows the device. The stylesheet turns the glass solid for `glass-off` and for a device that asks for less.
+  if (m.glass) cls.push(`glass-${m.glass}`)
   // An iPad held sideways starts with the left panel closed to its rail; a computer starts with it open.
   if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen && !m.leftOver) cls.push('left-closed')
   if (m.tray) cls.push('has-tray')

@@ -7175,3 +7175,60 @@ html body.sh :is(
 ) {
   color: var(--quiet);
 }
+
+/* ----- 4. The level under the glass (the page world-levels-glass.html) ----- */
+/* Once the person drags or zooms the level, it may slide under the panels, and its colours show softly through them
+   (the Owner's yes, 2026-11-15); it still starts fitted in the clear room. This is that moved state, drawn: the canvas
+   runs under every panel, and the level is zoomed and shifted so that sky and hills sit behind the top bar and the
+   panels, with the picked crate left in the clear room between them. `--moved-sw` is the level's width in hundredths of
+   the window's width; `--moved-mx` and `--moved-my` shift it, in hundredths of the window's width and height. The class
+   is written three times only to out-rank the older, more specific rules for where the level fits at each size. */
+
+html body.sh.moved.moved.moved .canvas,
+html body.sh.moved.moved.moved .fit {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+html body.sh.moved.moved.moved .stage {
+  width: calc(var(--moved-sw) * 1cqw);
+  margin: calc(var(--moved-my) * 1cqh) 0 0 calc(var(--moved-mx) * 1cqw);
+}
+
+/* An iPad held sideways and a computer. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  html body.sh.moved {
+    --moved-sw: 115;
+    --moved-mx: 0;
+    --moved-my: -11;
+  }
+}
+
+/* An iPad held upright: the level is zoomed so its sky reaches the top bar; the ground ends above the sheet. */
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh.moved {
+    --moved-sw: 150;
+    --moved-mx: 12;
+    --moved-my: -32;
+  }
+}
+
+/* A phone held upright. */
+@media (max-width: 500px) {
+  html body.sh.moved {
+    --moved-sw: 300;
+    --moved-mx: 28;
+    --moved-my: -26.5;
+  }
+}
+
+/* A phone on its side. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.moved {
+    --moved-sw: 150;
+    --moved-mx: 15.4;
+    --moved-my: -62;
+  }
+}
