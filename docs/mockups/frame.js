@@ -387,7 +387,10 @@ function frame(m) {
   if (m.play) cls.push('playing')
   if (m.bottom) cls.push('has-bottom2')
   if (opts.length) cls.push('has-opts')
-  cls.push(fine ? 'fine' : 'touch')
+  // A hovering Pencil gets the small rows a mouse gets (the Owner, 2026-11-15), and keeps the touch screen's
+  // hold-buttons. Rows change size only when a panel next opens, never under a moving hand.
+  cls.push(fine || m.hand === 'pencil' ? 'fine' : 'touch')
+  if (m.hand === 'pencil') cls.push('pencil')
   document.body.classList.add(...cls, ...(m.body || []))
   // An agent's change waits on the canvas as a ghost: where the thing would go, what the agent says, Keep or Undo.
   // Its card sits beside the ghost with a pointer; a teammate's note folds to a pin while it is open.

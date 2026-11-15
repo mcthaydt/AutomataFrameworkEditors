@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .ibody .igroup:first-of-type .ir:first-of-type .scrub { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .numpad .nw2 { margin: -4px 0 10px; font-size: 12px; color: var(--quiet); }
   .numpad { right: calc(var(--right-w) + 12px); top: calc(var(--top-h) + 64px); }
   @media (max-width: 1000px), (max-height: 600px) { .numpad { right: auto; left: 50%; top: auto; bottom: calc(var(--sheet-h, 0px) + 12px); transform: translateX(-50%); } }
   @media (max-height: 600px) { .numpad { bottom: auto; top: 8px; width: 240px; padding: 8px; } .numpad .nk button { height: 40px; } .numpad .nv { margin-bottom: 6px; } }
@@ -16,7 +17,8 @@
 <body>
 <!-- World, Levels, an exact number: tapping "6 tiles" opens a number pad beside it, with minus and plus for one
      step either way. Dragging the number left or right still changes it, finer when the finger moves away from it.
-     A keyboard types the number straight in. -->
+     A keyboard types the number straight in, and the Pencil writes it in the box,
+     which grows to take handwriting when the Pencil comes near. -->
 <div class="canvas">
   <div class="fit">
     <div class="stage grid">
@@ -26,6 +28,7 @@
 </div>
 <div class="numpad" role="dialog" aria-label="From the left">
   <div class="nv"><span>From the left, in tiles</span><b>6.5</b></div>
+  <p class="nw2">Or write the number in the box with the Pencil.</p>
   <div class="nk">
     <button>7</button><button>8</button><button>9</button><button class="k" title="One less">− 1</button>
     <button>4</button><button>5</button><button>6</button><button class="k" title="One more">+ 1</button>

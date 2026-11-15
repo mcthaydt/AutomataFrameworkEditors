@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, with the Pencil (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+  .loop { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; }
+  .tipdot { position: absolute; z-index: 4; width: 14px; height: 14px; transform: translate(-50%, -50%); border-radius: 50%; background: #fff; border: 3px solid #111314; }
+</style>
+</head>
+<body>
+<!-- World, Levels, with the Pencil: the same level as "a few hours in", drawn as an iPad shows it once the Pencil has
+     touched the screen. The rows are the small ones a mouse gets; they changed when the panel last opened, never under
+     the hand. A loop drawn with the Pencil on empty ground picked the three crates inside it. A finger moves the view;
+     a finger tap still picks and presses buttons. View has "Draw with a finger too" and "I draw with my left hand",
+     which mirrors the hold-buttons and the panels. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="door"></div>
+      <div class="press"></div>
+      <svg class="loop" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M35 70 C 36 60, 50 58, 58 61 C 66 63, 66 80, 60 86 C 52 90, 40 89, 36 84 C 33 80, 34 74, 37 71" fill="rgb(255 255 255 / 0.06)" stroke="#fff" stroke-width="0.4" stroke-dasharray="1.2 0.8"/>
+      </svg>
+      <i class="tipdot" style="left:37%;top:71%"></i>
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+      <div class="ring" style="left:49.5%;top:73.2%;width:7.2%;height:10.8%"></div>
+      <div class="ring" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
+      <span class="tip" style="left:6%;top:40%">Draw a loop around things to pick them</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 3 changes', zoom: '100%', changes: 3, state: 'Pencil in use', hand: 'pencil',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  act: { at: [50, 58], several: true },
+  toolopts: '<span>Line up with tiles</span><span class="knob2 on"></span>',
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<span>Draw with a finger too</span><span class="knob2"></span>',
+    '<span>I draw with my left hand</span><span class="knob2"></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 12,
+    rows: [
+      { head: 'Things', count: 8 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate-1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate-2', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate-3', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Crate-4', k: 'crate', img: 'art/crate.png', warn: true },
+      { n: 'Button', k: 'button', i: 'radio-button' },
+      { n: 'Door', k: 'door', i: 'door' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall out', i: 'arrow-fat-line-down' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: {
+    open: false,
+    filters: ['All', 'Things', 'Scenery', 'Tiles'],
+    on: 1,
+    items: [
+      { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
+      { n: 'Hero', note: 'used once', img: 'art/hero.png' },
+      { n: 'Button', note: 'used once', i: 'radio-button' },
+      { n: 'Door', note: 'used once', i: 'door' },
+      { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
+      { n: 'Coin', note: 'not used yet', i: 'coin' },
+      { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },
+      { n: 'Sign', note: 'not used yet', i: 'signpost' },
+      { n: 'Keeper', note: 'from Characters', px: 'keeper' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
+  values: {
+    title: '3 crates', sub: 'Picked together · change one, change all', pic: { img: 'art/crate.png' }, tab: '3 crates',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: 'Different for each' },
+        { t: 'num', l: 'From the top', f: 'y', v: 'Different for each' },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+      ] },
+      { name: 'What it does', open: true, rows: [
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.6', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 64, ch: true },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+      ] },
+      { name: 'Notes for the team', count: 1, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
