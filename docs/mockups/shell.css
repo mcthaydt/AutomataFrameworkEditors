@@ -9144,3 +9144,18 @@ html body.sh .mcard .go .sbtn.main small {
     top: calc(var(--top-h) + var(--dock-gap) + 76px);
   }
 }
+
+/* The check's card on a phone held sideways: its four ways out one under another, each one line, so all four fit. */
+@media (max-height: 500px) and (min-width: 600px) {
+  html body.sh .mcard .go {
+    grid-template-columns: 1fr;
+  }
+
+  html body.sh .mcard .go .sbtn small {
+    display: none;
+  }
+
+  html body.sh .mcard p {
+    margin-bottom: 8px;
+  }
+}

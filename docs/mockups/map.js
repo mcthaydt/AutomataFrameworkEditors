@@ -39,7 +39,8 @@
   for (const e of M.edges || []) map.insertAdjacentHTML('beforeend', `<span class="ej ${e.state || ''}" data-a="${e.a}" data-b="${e.b}"><span class="ejc">${icon(e.state === 'wall' ? 'warning' : 'arrows-left-right')}</span></span>`)
   map.insertAdjacentHTML('beforeend', `<div class="mkey"><span><i class="kbar"></i>Walk straight across</span><span><i class="karrow"></i>Through a door</span><span>${icon('flag-pennant')}Where the game starts</span></div>`)
   // A note under the top bar says what just happened; the line along the top waits until it has gone.
-  if (M.tip && !document.querySelector('.note2')) map.insertAdjacentHTML('beforeend', `<span class="tip free mtip">${M.tip}</span>`)
+  // On a phone held sideways there is no room for it: the key at the bottom says what each mark means.
+  if (M.tip && !document.querySelector('.note2') && !matchMedia('(max-height: 500px)').matches) map.insertAdjacentHTML('beforeend', `<span class="tip free mtip">${M.tip}</span>`)
   if (M.bar) map.insertAdjacentHTML('beforeend', `<div class="mbar">${M.bar.items.map(([w, ic, main]) => `<button class="${main ? 'main' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>`)
   if (M.hint) map.insertAdjacentHTML('beforeend', `<div class="mhint">${M.hint.text}</div>`)
   if (M.card) map.insertAdjacentHTML('beforeend', `<section class="mcard" role="dialog">${M.card.html}</section>`)
@@ -126,8 +127,14 @@
       const lb = py(l.y + l.h)
       let y = lt - r.height - gap
       if (y + box.top < top - 8) y = lb + gap
-      if (y + r.height + box.top > Math.min(innerHeight, box.bottom) - 8) y = Math.max(8, lb - r.height - gap)
       let x = px(l.x + l.w / 2) - r.width / 2
+      // Neither above nor below has room: it stands beside the level, on the side with more room, never over it.
+      if (y + r.height + box.top > Math.min(innerHeight, box.bottom) - 8) {
+        y = Math.max(8, Math.min(lt, box.height - r.height - 48))
+        const leftRoom = px(l.x)
+        const rightRoom = box.width - px(l.x + l.w)
+        x = leftRoom > rightRoom ? px(l.x) - r.width - gap : px(l.x + l.w) + gap
+      }
       x = Math.max(8, Math.min(x, Math.min(box.width, innerWidth - box.left) - r.width - 8))
       Object.assign(el.style, { left: `${x}px`, top: `${y}px` })
     }
