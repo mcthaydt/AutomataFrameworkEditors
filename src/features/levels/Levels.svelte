@@ -35,7 +35,7 @@
     /** What the title block says. `saved` is its short words ("Not saved yet"); `status` is the whole sentence. */
     block: { readonly game: string; readonly level: string; readonly saved: string; readonly status: string }
     /** What the screen has to say about what just happened: notices and what they ask, floating under the cluster. */
-    notices?: Snippet
+    notices?: Snippet | undefined
     /** After every change and every step back or forward. */
     onchange: (edit: LevelEdit) => void
   }

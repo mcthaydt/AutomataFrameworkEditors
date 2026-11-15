@@ -287,17 +287,17 @@
   const saveDisabled = $derived(!canSave || status === 'clean' || status === 'saving' || status === 'saved')
 
   /** What the pill's menu holds after the editors: the game's page, and on a phone the buttons the cluster has no room for. */
-  const menuFor = (shape: Shape): readonly MenuItem[] => [
-    { id: 'game', label: WORDS.openGamePage, icon: 'open', onpress: leave },
-    ...(shape === 'narrow'
-      ? ([
-          { id: 'export', label: WORDS.export, icon: 'export', onpress: () => void copyText() },
-          visitor
-            ? { id: 'sign-in', label: WORDS.signIn, icon: 'signIn', onpress: onsignin }
-            : { id: 'sign-out', label: WORDS.signOut, icon: 'signOut', onpress: onsignout },
-        ] as const)
-      : []),
-  ]
+  const menuFor = (shape: Shape): readonly MenuItem[] => {
+    const items: MenuItem[] = [{ id: 'game', label: WORDS.openGamePage, icon: 'open', onpress: leave }]
+    if (shape !== 'narrow') return items
+    items.push({ id: 'export', label: WORDS.export, icon: 'export', onpress: () => void copyText() })
+    items.push(
+      visitor
+        ? { id: 'sign-in', label: WORDS.signIn, icon: 'signIn', onpress: onsignin }
+        : { id: 'sign-out', label: WORDS.signOut, icon: 'signOut', onpress: onsignout },
+    )
+    return items
+  }
   const title = $derived(opened?.ok ? (game?.content.project.name ?? `${ref.owner}/${ref.name}`) : (gameName ?? `${ref.owner}/${ref.name}`))
   const back = $derived({ label: WORDS.back, onpress: onback })
   const standing = $derived(

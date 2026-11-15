@@ -22,7 +22,7 @@
       class:soon={!here}
       data-editor={id}
       aria-current={here ? 'page' : undefined}
-      aria-description={here ? undefined : WORDS.comingSoon}
+      aria-haspopup={here ? undefined : 'dialog'}
       onclick={(e) => {
         if (!here) onsoon(id, e.currentTarget)
       }}
