@@ -449,7 +449,13 @@ function frame(m) {
   ${m.tray ? `<div class="tray">${m.tray.first ? `<p>${m.tray.tip}</p>` : ''}<div class="trow"><div class="titems">${m.tray.items.map((it) => `<button class="ti${it.on ? ' on' : ''}">${pic(it)}<span>${it.n}</span></button>`).join('')}${m.tray.more === false ? '' : `<button class="ti more2">${icon('squares-four')}<span>${m.tray.more || 'All things'}</span></button>`}</div>${m.toolopts ? `<div class="tset">${m.toolopts}</div>` : ''}</div></div>` : ''}
   ${!fine && !m.play && holds ? `<div class="holds" title="Hold with your free thumb, or tap to keep on"><button class="hb hfold" title="Buttons to hold with your free thumb">${icon('hand')}<span>Hold</span>${icon('caret-right')}</button>${holds.map(([w, ic], i) => `<button class="hb${m.holdOn === i ? ' on' : ''}">${icon(ic)}<span>${w}</span></button>`).join('')}</div>` : ''}`
   document.body.insertAdjacentHTML('beforeend', html)
-  for (const el of document.querySelectorAll('.pop')) el.innerHTML = el.innerHTML.replaceAll('this iPad', `this ${device}`)
+  // Every "this iPad" on the page says the device it is on: a sheet, a toast, a tour card or a settings row
+  // (second visual look, M7). The body says which device it is, so a line that only one device needs (the
+  // Pencil's) can be left out of the others (`.only-ipad`, `.only-computer`, `.no-phone`).
+  document.body.dataset.device = device
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  for (let t = walk.nextNode(); t; t = walk.nextNode())
+    if (/[Tt]his iPad/.test(t.data)) t.data = t.data.replace(/([Tt])his iPad/g, `$1his ${device}`)
   const cls = ['sh', m.list || m.library ? 'has-left' : 'no-left', m.values ? 'has-right' : 'no-right']
   // An iPad held sideways starts with the left panel closed to its rail; a computer starts with it open.
   if ((m.list || m.library) && !fine && window.innerWidth > 1000 && !m.leftOpen && !m.leftOver) cls.push('left-closed')
@@ -473,11 +479,11 @@ function frame(m) {
   if (m.ghost && stage) {
     const g = m.ghost
     document.body.classList.add('has-ghost')
-    stage.insertAdjacentHTML(
-      'beforeend',
-      `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">
-      <div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b title="The AI you're chatting with">${icon('sparkle')}${g.who || 'Your helper'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`,
-    )
+    const card = `<div class="agent" style="--ax:${g.card[0]}%;--ay:${g.card[1]}%;left:${g.card[0]}%;top:${g.card[1]}%"><b title="The AI you're chatting with">${icon('sparkle')}${g.who || 'Your helper'}</b><p>${g.text}</p><span><button class="sbtn main">Keep</button><button class="sbtn">Undo</button></span></div>`
+    stage.insertAdjacentHTML('beforeend', `<img class="ghost2" src="${g.img}" alt="" style="left:${g.at[0]}%;top:${g.at[1]}%;width:${g.w || 6.25}%">`)
+    // On a phone the card is a strip held to the screen, not to the level: the level moves (and can be wider than
+    // the screen), so a card inside it ran off the edge with Keep and Undo out of reach (second visual look, H2).
+    ;(small ? document.body : stage).insertAdjacentHTML('beforeend', card)
   }
   // What is picked gets a small bar just above it: the everyday acts, where the finger already is. At most four things
   // at any size (Fable pass, F8): several picked get "Line up" (which opens Line up, Space out and Stack); one gets
@@ -507,8 +513,37 @@ function frame(m) {
       bar.style.top = `${a.at[1] + (a.h || 11)}%`
       r = bar.getBoundingClientRect()
     }
-    const dx = Math.max(room.left + 8 - r.left, 0) + Math.min(room.right - 8 - r.right, 0)
-    if (dx) bar.style.marginLeft = `${dx}px`
+    // Neither above nor below has room (a tall pad on a phone on its side): it stands beside the thing, on the side
+    // with room, and slides up or down to stay on the screen (second visual look, H3).
+    if (r.bottom > room.bottom - 8 || r.top < room.top + 8) {
+      const w = a.w || 7
+      bar.classList.remove('below')
+      bar.classList.add('beside')
+      bar.style.top = `${a.at[1] + (a.h || 11) / 2}%`
+      bar.style.left = `${a.at[0] + w / 2}%`
+      r = bar.getBoundingClientRect()
+      if (r.right > room.right - 8) {
+        bar.classList.add('l')
+        bar.style.left = `${a.at[0] - w / 2}%`
+        r = bar.getBoundingClientRect()
+      }
+      const dy = Math.max(room.top + 8 - r.top, 0) + Math.min(room.bottom - 8 - r.bottom, 0)
+      if (dy) bar.style.marginTop = `${dy}px`
+    }
+  }
+}
+
+// A tip, a note or the bar over what is picked never runs off the screen: one that would is slid back inside it
+// (Fable pass, F33). It runs once the fonts are in, since a line's width changes with its font (second visual look,
+// M12); the level can be wider than a phone's screen, so the screen's own edges count too (E15).
+function keepInside() {
+  const room = document.querySelector('.canvas')?.getBoundingClientRect()
+  if (!room) return
+  for (const el of document.querySelectorAll('.stage .tip, .stage .lockpop, .stage .actbar')) {
+    el.style.marginLeft = ''
+    const r = el.getBoundingClientRect()
+    const dx = Math.max(Math.max(room.left, 0) + 8 - r.left, 0) + Math.min(Math.min(room.right, innerWidth) - 8 - r.right, 0)
+    if (dx) el.style.marginLeft = `${dx}px`
   }
 }
 
@@ -556,15 +591,8 @@ for (const tl of document.querySelectorAll('.tl')) {
   const head = tl.closest('.sh-bottom')?.querySelector('.bh')
   if (hidden && head) head.insertAdjacentHTML('beforeend', `<span class="morerows">${hidden} more row${hidden > 1 ? 's' : ''} below</span>`)
 }
-// A tip or a note never runs off the screen: one that would is slid back inside it (Fable pass, F33).
-{
-  const room = document.querySelector('.canvas')?.getBoundingClientRect()
-  // The level can be wider than a phone's screen, so the screen's own edges count too (E15).
-  if (room)
-    for (const el of document.querySelectorAll('.stage .tip, .stage .lockpop')) {
-      const r = el.getBoundingClientRect()
-      const dx = Math.max(Math.max(room.left, 0) + 8 - r.left, 0) + Math.min(Math.min(room.right, innerWidth) - 8 - r.right, 0)
-      if (dx) el.style.marginLeft = `${dx}px`
-    }
-}
-document.documentElement.dataset.ready = 'yes'
+// The page is ready for its picture once the fonts are in and everything is slid inside the screen.
+document.fonts.ready.then(() => {
+  keepInside()
+  document.documentElement.dataset.ready = 'yes'
+})

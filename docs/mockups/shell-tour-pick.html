@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The tour, step 1 (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The tour, step 1 of 4 (second visual look, closing the end-to-end check's leftover): the level itself. Everything
+     is dimmed but the crate, and the card says what the level is and asks for one thing, a tap on the crate. Tapping
+     it moves the tour on to the tools (shell-tour, step 2). There is no Back on the first step; Skip the tour is
+     always there. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="spot"></div>
+<section class="coach" role="dialog" aria-label="The tour, step 1 of 4">
+  <span class="coach-n">1 of 4</span>
+  <h3>This is your level</h3>
+  <p>The hero, the crate and the ground are all here, the way the game shows them. Tap a thing to pick it.</p>
+  <p class="coach-do"><span class="ic" data-i="hand-tap"></span>Try it: tap the crate.</p>
+  <div class="coach-go"><button class="sbtn" disabled style="visibility:hidden">Back</button><span class="dots"><i class="on"></i><i></i><i></i><i></i></span><button class="sbtn main">Next</button></div>
+  <button class="coach-x">Skip the tour</button>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+  // Picking is the step: nothing is picked yet, so the level has no bar over anything.
+}
+</script>
+<script src="frame.js"></script>
+<script>
+// The spotlight rings the crate where this size draws the level; the card stands above it, or beside it when the
+// screen is too short (a phone on its side), and points at it.
+{
+  const s = document.querySelector('.stage').getBoundingClientRect()
+  const crate = { left: s.left + s.width * 0.37, top: s.top + s.height * 0.732, width: s.width * 0.072, height: s.height * 0.108 }
+  const spot = document.querySelector('.spot')
+  Object.assign(spot.style, { left: `${crate.left - 6}px`, top: `${crate.top - 6}px`, width: `${crate.width + 12}px`, height: `${crate.height + 12}px` })
+  const c = document.querySelector('.coach')
+  const cw = Math.min(340, innerWidth - 16)
+  c.style.width = `${cw}px`
+  const h = c.offsetHeight
+  const top = document.querySelector('.sh-top').getBoundingClientRect().bottom + 8
+  const cx = crate.left + crate.width / 2
+  if (crate.top - 18 - h >= top) {
+    const x = Math.min(Math.max(8, cx - cw / 2), innerWidth - cw - 8)
+    Object.assign(c.style, { left: `${x}px`, top: `${crate.top - 18 - h}px` })
+    c.style.setProperty('--arrow-x', `${cx - x}px`)
+    c.classList.add('to-above-thing')
+  } else {
+    const right = crate.left + crate.width + 18
+    const y = Math.max(top, Math.min(crate.top + crate.height / 2 - 40, innerHeight - h - 8))
+    if (right + cw <= innerWidth - 8) {
+      Object.assign(c.style, { left: `${right}px`, top: `${y}px` })
+      c.classList.add('to-left')
+    } else {
+      Object.assign(c.style, { left: `${crate.left - 18 - cw}px`, top: `${y}px` })
+      c.classList.add('to-right')
+    }
+    c.style.setProperty('--arrow-y', `${crate.top + crate.height / 2 - y}px`)
+  }
+}
+</script>
+</body>
+</html>

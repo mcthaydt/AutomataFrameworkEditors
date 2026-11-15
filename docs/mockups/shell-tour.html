@@ -63,18 +63,28 @@ window.MOCK = {
 </script>
 <script src="frame.js"></script>
 <script>
-// The spotlight and the card follow the toolbar wherever this size puts it: down the left edge on an iPad held
-// sideways, along the bottom elsewhere.
+// The spotlight rings Place, the one button the step asks for (second visual look, M11: it used to ring the whole
+// toolbar, and on a phone Place has no word under it). The card sits beside the toolbar wherever this size puts it,
+// down the left edge on an iPad held sideways, along the bottom elsewhere, and its pointer aims at Place.
 {
   const t = document.querySelector('.sh-tools .tbar').getBoundingClientRect()
+  const place = [...document.querySelectorAll('.sh-tools .tbar .tl2')].find((b) => b.title.startsWith('Place') || b.textContent.trim() === 'Place')
+  const p = (place || document.querySelector('.sh-tools .tbar')).getBoundingClientRect()
   const spot = document.querySelector('.spot')
-  Object.assign(spot.style, { left: `${t.left - 6}px`, top: `${t.top - 6}px`, width: `${t.width + 12}px`, height: `${t.height + 12}px` })
+  Object.assign(spot.style, { left: `${p.left - 4}px`, top: `${p.top - 4}px`, width: `${p.width + 8}px`, height: `${p.height + 8}px` })
   const c = document.querySelector('.coach')
   const left = t.width < 120
   const cw = Math.min(340, innerWidth - 16)
   c.style.width = `${cw}px`
-  if (left) Object.assign(c.style, { left: `${t.right + 18}px`, top: `${Math.max(56, t.top)}px` })
-  else Object.assign(c.style, { left: `${Math.min(Math.max(8, t.left + t.width / 2 - cw / 2), innerWidth - cw - 8)}px`, bottom: `${innerHeight - t.top + 18}px` })
+  if (left) {
+    const top = Math.max(56, Math.min(p.top - 20, innerHeight - c.offsetHeight - 8))
+    Object.assign(c.style, { left: `${t.right + 18}px`, top: `${top}px` })
+    c.style.setProperty('--arrow-y', `${p.top + p.height / 2 - top}px`)
+  } else {
+    const x = Math.min(Math.max(8, p.left + p.width / 2 - cw / 2), innerWidth - cw - 8)
+    Object.assign(c.style, { left: `${x}px`, bottom: `${innerHeight - t.top + 18}px` })
+    c.style.setProperty('--arrow-x', `${p.left + p.width / 2 - x}px`)
+  }
   c.classList.add(left ? 'to-left' : 'to-below')
 }
 </script>

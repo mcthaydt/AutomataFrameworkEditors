@@ -6181,3 +6181,398 @@ html body.sh .share-pop .go .sbtn {
     display: none;
   }
 }
+
+/* ---------- The second visual look of slice 3 (2026-11-15): what the five sizes still got wrong ---------- */
+/* Findings and their numbers are in the second look's report. Every rule here starts with `html body.sh`, so it wins
+   over the rounds above without leaning on their order. */
+
+/* M7, L6: a line only one device needs. The Pencil's lines show on an iPad, the keyboard's on a computer, and a phone
+   shows neither (frame.js puts the device on the body). */
+html body.sh:not([data-device="iPad"]) .only-ipad,
+html body.sh:not([data-device="computer"]) .only-computer,
+html body.sh[data-device="phone"] .no-phone {
+  display: none !important;
+}
+
+/* H7: on an upright iPad the settings sheet is under the toolbar, so a tray of things to place or join sits above
+   both, never on the sheet's rows. */
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh.has-right.has-tray .tray {
+    bottom: calc(var(--sheet-h) + var(--band-h, 0px) + var(--tools-h) + 20px);
+  }
+
+  html body.sh.has-right.has-tray .fit {
+    bottom: calc(var(--sheet-h) + var(--band-h, 0px) + var(--tools-h) + 112px);
+  }
+}
+
+/* M1: a phone on its side keeps its tools down the left edge, so the tray lies on the bottom edge and the level takes
+   all the height above it (the rule above lifted the tray by a toolbar that is not there). */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.has-tray .tray {
+    bottom: 8px;
+  }
+
+  html body.sh.has-tray .fit {
+    bottom: 104px;
+  }
+}
+
+/* H2, L5: the helper's card on an upright phone is held to the screen under the top bar, clear of the Hold tab, and
+   keeps its "Your helper" line, so it is never mistaken for the person's own note. */
+@media (max-width: 500px) {
+  html body.sh .agent {
+    display: block;
+    right: 72px;
+    padding: 10px 12px;
+  }
+
+  html body.sh .agent b {
+    display: flex;
+  }
+
+  html body.sh .agent p {
+    margin: 4px 0 8px;
+  }
+
+  html body.sh .agent span {
+    display: flex;
+    gap: 6px;
+  }
+}
+
+/* H3: a bar or a pad with no room above or below what is picked stands beside it. */
+html body.sh .actbar.beside {
+  transform: translate(14px, -50%);
+}
+
+html body.sh .actbar.beside.l {
+  transform: translate(calc(-100% - 14px), -50%);
+}
+
+/* M2: while the number pad is open, the bar over what is picked steps aside on a narrow screen: the pad is the one
+   thing floating there. */
+@media (max-width: 1000px), (max-height: 600px) {
+  html body.sh:has(.numpad) .actbar {
+    display: none;
+  }
+}
+
+/* H4: the welcome on a phone on its side is one wide card: what this is and the two buttons on the left, the three
+   steps on the right, so both buttons are in sight without scrolling. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .pop.onb {
+    top: calc(var(--top-h) + 6px) !important;
+    bottom: auto !important;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: 28px;
+    width: min(780px, calc(100vw - 32px));
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  html body.sh .onb > h2 {
+    grid-area: 1 / 1;
+  }
+
+  html body.sh .onb > p:not(.onb-small) {
+    grid-area: 2 / 1;
+  }
+
+  html body.sh .onb > .onb-go {
+    grid-area: 3 / 1;
+    flex-direction: column;
+  }
+
+  html body.sh .onb > .onb-go .sbtn {
+    flex: none;
+  }
+
+  html body.sh .onb > .onb-small {
+    grid-area: 4 / 1;
+    text-align: left;
+  }
+
+  html body.sh .onb > .onb-steps {
+    grid-area: 1 / 2 / 5 / 3;
+    margin: 4px 0 0;
+    gap: 10px;
+  }
+}
+
+/* M4: the new level's card keeps its own height on a phone on its side, and its sentence. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .pop.firstcard {
+    bottom: auto !important;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  html body.sh .firstcard p {
+    display: block;
+  }
+}
+
+/* M13: the game's menu on a phone on its side is two columns, so Open another game and Sign out are in sight. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .pop.menup {
+    bottom: auto !important;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 8px;
+    width: min(620px, calc(100vw - 16px));
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  html body.sh .menup .mhead {
+    grid-column: 1 / -1;
+    margin-bottom: 6px;
+  }
+
+  html body.sh .menup hr {
+    display: none;
+  }
+}
+
+/* L1: a touch screen has no "?" key to show. */
+html body.sh.touch .menup .mi kbd {
+  display: none;
+}
+
+/* M6: the small map of a long level starts beside the tools on a phone on its side, not under them. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .minimap {
+    left: 72px;
+  }
+}
+
+/* M10: a sheet or a menu takes the whole screen's attention, so the Hold buttons go with the tools; on an upright
+   screen a message at the top takes their corner while it shows. */
+html body.sh:has(.dim) .holds {
+  display: none;
+}
+
+@media (max-width: 1000px) and (min-height: 601px) {
+  html body.sh:has(.note1, .note2) .holds {
+    display: none;
+  }
+}
+
+/* M8: on an upright iPad the top bar keeps the part's name whole. Map, Find, "No internet" and "to check" keep their
+   icon (and number) and drop the word; each still says what it is when pressed and held. */
+@media (min-width: 501px) and (max-width: 1000px) and (min-height: 601px) {
+  html body.sh .sh-top :is(.mapb, .cmdk) > span:not(.ic),
+  html body.sh .sh-top .offl > span:not(.ic),
+  html body.sh .sh-top .checks .cw {
+    display: none;
+  }
+
+  html body.sh .sh-top .partn {
+    flex-shrink: 0;
+  }
+}
+
+/* H6: playing on an upright phone. The play bar is two rows: its buttons, then the line to drag back with the time,
+   as wide as the screen. Bigger has nothing to do (the game already takes the screen), and the top bar holds Stop
+   and nothing to put in while the game runs. */
+@media (max-width: 500px) {
+  html body.sh.playing {
+    --play-h: 96px;
+  }
+
+  html body.sh .sh-play {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: 4px;
+    height: auto;
+    padding: 6px;
+  }
+
+  html body.sh .sh-play .rew {
+    order: 9;
+    flex: 1 1 calc(100% - 140px);
+    min-width: 0;
+    margin: 0 8px;
+  }
+
+  html body.sh .sh-play .t {
+    order: 10;
+  }
+
+  html body.sh .sh-play .ib.big,
+  html body.sh.playing .sh-top .share {
+    display: none;
+  }
+}
+
+/* H5: the page that compares the two row sizes shows both panels at every size: side by side where they fit, one
+   under the other on a phone, scrolling inside the page. */
+@media (max-width: 1000px), (max-height: 600px) {
+  html body.sh.bare .fit {
+    display: block;
+    overflow-y: auto;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  html body.sh.bare .compare2 {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  html body.sh.bare .compare2 .fine {
+    display: block;
+  }
+
+  html body.sh.bare .compare2 .sh-right.inline {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    width: min(320px, calc(100vw - 32px));
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  html body.sh.bare .compare2 .sh-right.inline::before {
+    display: none;
+  }
+
+  html body.sh.bare .compare2 .sh-right.inline > .ihead {
+    display: flex;
+  }
+
+  html body.sh.bare .compare2 .sh-right.inline > .ibody {
+    display: block;
+    columns: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* M3: Tiles on a phone on its side. The strip of tiles is one short row (its words on one line), the colours sit in
+   two columns, and the drawing fits between the strip and the tool's settings at the bottom. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh.has-tilestrip .tilestrip {
+    top: 6px;
+    gap: 4px;
+    padding: 4px;
+  }
+
+  html body.sh.has-tilestrip .tilestrip .tt {
+    width: 58px;
+    gap: 2px;
+    padding: 2px;
+    font-size: 10px;
+  }
+
+  html body.sh.has-tilestrip .tilestrip .tt > span:last-child {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  html body.sh.has-tilestrip .tilestrip .tt canvas,
+  html body.sh.has-tilestrip .tilestrip .tt.add .ic {
+    width: 28px;
+    height: 28px;
+  }
+
+  html body.sh.has-tilestrip .tilestrip .tt.add .ic {
+    padding: 6px;
+  }
+
+  html body.sh.has-tilestrip .fit {
+    top: 70px;
+    bottom: 60px;
+  }
+
+  html body.sh.has-tilestrip .strip {
+    display: grid;
+    grid-template-columns: repeat(2, 32px);
+  }
+}
+
+/* L7: on a computer, a page with only a tool's settings strip (Tiles) keeps its drawing above the strip. */
+@media (min-width: 1001px) and (min-height: 601px) {
+  html body.sh.fine.has-topts-only:not(.tools-left) .fit {
+    bottom: calc(var(--bottom2-h) + var(--tools-h) + 64px);
+  }
+}
+
+/* L2: in the iPad's 240-point settings column, the changed dot's note keeps its words on two lines, with Put it back
+   under them. */
+html body.sh.tools-left .sh-right .dotpop {
+  flex-wrap: wrap;
+}
+
+html body.sh.tools-left .sh-right .dotpop span {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+html body.sh.tools-left .sh-right .dotpop .sbtn {
+  flex: 1 0 100%;
+}
+
+/* L8: on an upright phone a strip of things to place fades where it is cut, so it reads as "more to the right". */
+@media (max-width: 500px) {
+  html body.sh .tray .titems {
+    overflow-x: auto;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  }
+}
+
+/* M11: the tour's card points at the one button its step is about. */
+html body.sh .coach.to-below::after {
+  left: calc(var(--arrow-x, 50%) - 9px);
+}
+
+html body.sh .coach.to-left::after {
+  top: calc(var(--arrow-y, 37px) - 9px);
+}
+
+/* The tour's card can point down from above, at a thing in the level or in the settings. */
+html body.sh .coach.to-above-thing::after {
+  left: calc(var(--arrow-x, 50%) - 9px);
+  bottom: -9px;
+  border-bottom: 0;
+  border-top-color: #f2f2f2;
+}
+
+html body.sh .coach.to-right::after {
+  right: -9px;
+  top: calc(var(--arrow-y, 37px) - 9px);
+  border-right: 0;
+  border-left-color: #f2f2f2;
+}
+
+/* E20: Put in game when the game's setting is "Don't let them until it is fixed". The problem is the first thing,
+   with Show me as the main button; putting in is shown, switched off, with why under it. */
+html body.sh .share-pop .prob.must .sbtn {
+  height: 44px;
+}
+
+html body.sh .share-pop .go .sbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* L6: a phone's keys sheet is the touch column alone, as wide as it needs, since a phone has no Pencil. */
+html body.sh.touch[data-device="phone"] .keysheet {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(520px, calc(100vw - 16px));
+}
+
+/* An open sheet on an upright phone covers the screen, so the settings line under it goes too. */
+@media (max-width: 500px) {
+  html body.sh:has(.dim) .sh-right {
+    display: none;
+  }
+}

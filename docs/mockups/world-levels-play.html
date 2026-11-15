@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   .trail { position: absolute; z-index: 1; width: 1.2%; aspect-ratio: 1; border-radius: 50%; background: var(--touch); opacity: 0.8; }
-  .playing { position: absolute; z-index: 3; inset: 6.897% 6.306% 12.931% 6.194%; outline: 3px solid var(--touch); outline-offset: 3px; pointer-events: none; }
+  .playframe { position: absolute; z-index: 3; inset: 6.897% 6.306% 12.931% 6.194%; outline: 3px solid var(--touch); outline-offset: 3px; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -20,7 +20,7 @@
 <div class="canvas">
   <div class="fit">
     <div class="stage">
-      <div class="playing"></div>
+      <div class="playframe"></div>
       <i style="position:absolute;z-index:1;left:12.8%;top:73.3%;width:6.2%;height:9.66%;background:url(art/level-1.png) 20.8% 81.1% / calc(100% / 0.062) calc(100% / 0.0966);image-rendering:pixelated"></i>
       <img class="thing" src="art/hero.png" alt="" style="left:27%;top:52%">
       <i class="trail" style="left:15.5%;top:72%"></i><i class="trail" style="left:18%;top:64%"></i>

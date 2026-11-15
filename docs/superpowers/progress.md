@@ -2,6 +2,31 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The shell and World mockups (roadmap slice 3): the second visual look (2026-11-15)
+
+Step 4 of the mockup review: a fresh, harsh look at every screen at the five sizes CI pictures, iPad Pro 11 sideways
+first, after the plain-words audit, the Fable pass and the end-to-end check. Report:
+`/mnt/project-files/reports/2026-11-15-slice3-second-visual-look.md` (at 59718fe: 28 findings, 7 high, 13 medium,
+8 low; two questions for the Owner). Progress on this step: **80%** (every high and medium finding and the
+end-to-end leftovers drawn; CI's pictures of the fixes still to check).
+
+- **Found:** iPad sideways is in good shape; phone sideways is the weakest size. At every size the play screen was
+  shrunk inside a peach outline (the page's frame shared a class name with the body's "playing").
+- **Frame:** "this iPad" says the device it is on, everywhere on a page; the body carries the device, so a Pencil
+  line shows only on an iPad (`only-ipad`, `only-computer`, `no-phone`); the helper's card on a phone is held to the
+  screen, not to the level; a bar or pad with no room above or below what is picked stands beside it; tips and bars
+  are kept on the screen once the fonts are in.
+- **Fixes:** the play screen's frame (H1) and the phone's two-row play bar (H6); trays on phone sideways lie on the
+  bottom edge (M1) and on an upright iPad sit above the settings sheet (H7); the welcome, the new level's card and the
+  game's menu fit a phone on its side (H4, M4, M13); the rows page shows both panels at every size (H5); the number
+  pad sits clear of the toolbar and the bar steps aside (M2); Tiles fits a phone on its side (M3); the top bar keeps
+  the part's name on an upright iPad (M8); the map's lines are drawn from where each level really is (M9, E18); Hold
+  goes with the tools under a sheet (M10); the tour rings Place, not the toolbar (M11).
+- **New pages:** `shell-tour-pick` (tour step 1, the level: tap the crate), `shell-tour-change` (step 3, a thing's
+  settings: drag How heavy) and `world-levels-blocked` (Put in game when a problem must be fixed first; E20).
+- **Asked, not decided:** Fraunces for the few big titles, and the helper's lilac outside palette No. 310.
+- **Next:** check CI's pictures, then the Owner's review.
+
 ## The shell and World mockups (roadmap slice 3): the end-to-end check (2026-11-15)
 
 The first check of the mockups as journeys rather than screens: every journey a person expects to finish, walked

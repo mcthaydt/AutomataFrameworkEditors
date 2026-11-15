@@ -68,7 +68,8 @@ window.MOCK = {
 {
   const t = document.querySelector('.sh-top .share').getBoundingClientRect()
   const spot = document.querySelector('.spot')
-  Object.assign(spot.style, { left: `${t.left - 4}px`, top: `${t.top - 4}px`, width: `${t.width + 8}px`, height: `${t.height + 8}px` })
+  // A tight ring, so it never cuts into Play beside it (second visual look, L3).
+  Object.assign(spot.style, { left: `${t.left - 1}px`, top: `${t.top - 1}px`, width: `${t.width + 2}px`, height: `${t.height + 2}px` })
   const c = document.querySelector('.coach')
   const cw = Math.min(340, innerWidth - 16)
   Object.assign(c.style, { width: `${cw}px`, left: `${Math.max(8, Math.min(t.right - cw, innerWidth - cw - 8))}px`, top: `${t.bottom + 14}px`, maxHeight: `${innerHeight - t.bottom - 22}px`, overflowY: 'auto' })

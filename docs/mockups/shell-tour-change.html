@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The tour, step 3 (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The tour, step 3 of 4 (second visual look, closing the end-to-end check's leftover): a thing's settings. The
+     crate the person picked in step 1 is still picked; everything is dimmed but its "How heavy" slider, and the card
+     asks for one change, made by dragging. On a phone the settings are a line at the bottom (on its side, a tab at the
+     right), so the spotlight rings that and the card says to open it first. Playing it is step 4 (shell-tour-done
+     ticks "Made it heavier"). -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+    </div>
+  </div>
+</div>
+<div class="spot"></div>
+<section class="coach" role="dialog" aria-label="The tour, step 3 of 4">
+  <span class="coach-n">3 of 4</span>
+  <h3>Change how it works</h3>
+  <p>A picked thing shows its settings. Each slider says what its two ends mean: here, light as a leaf or heavy as a rock.</p>
+  <p class="coach-do"><span class="ic" data-i="hand-tap"></span><span class="do-text">Try it: drag How heavy to the right.</span></p>
+  <div class="coach-go"><button class="sbtn">Back</button><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><button class="sbtn main">Next</button></div>
+  <button class="coach-x">Skip the tour</button>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 1 change', changes: 1, zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Crate 1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate 1',
+    groups: [
+      { name: 'What it does', open: true, rows: [
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', w: 'In the middle', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With hero', 'In front'], on: 1 },
+      ] },
+      { name: 'Place', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+<script>
+// The spotlight rings the How heavy slider where this size shows the settings: the column at the right, or the
+// sheet along the bottom. Where the settings are closed (a phone's line at the bottom, or the tab at the right on a
+// phone on its side), it rings that, and the card says to open them first. The card stands beside the column, or
+// above the sheet, and points at what is ringed.
+{
+  const row = [...document.querySelectorAll('.sh-right .ir.sl')].find((r) => r.textContent.includes('How heavy'))
+  const shown = row && row.getClientRects().length && row.getBoundingClientRect().height > 0
+  const closed = [...document.querySelectorAll('.sh-right .peek, .sh-right .itab')].find((el) => el.getClientRects().length && el.getBoundingClientRect().height > 0)
+  const target = shown ? row : closed
+  if (!shown) document.querySelector('.coach .do-text').textContent = "Try it: open Crate 1's settings, then drag How heavy to the right."
+  const t = target.getBoundingClientRect()
+  const spot = document.querySelector('.spot')
+  Object.assign(spot.style, { left: `${t.left - 6}px`, top: `${t.top - 6}px`, width: `${t.width + 12}px`, height: `${t.height + 12}px` })
+  const c = document.querySelector('.coach')
+  const cw = Math.min(340, innerWidth - 16)
+  c.style.width = `${cw}px`
+  const h = c.offsetHeight
+  const top = document.querySelector('.sh-top').getBoundingClientRect().bottom + 8
+  if (t.left - 18 - cw >= 8 && t.top < innerHeight / 2 + 120) {
+    // The column at the right, or the tab: the card stands to its left, level with it.
+    const y = Math.max(top, Math.min(t.top + t.height / 2 - 40, innerHeight - h - 8))
+    Object.assign(c.style, { left: `${t.left - 18 - cw}px`, top: `${y}px` })
+    c.style.setProperty('--arrow-y', `${t.top + t.height / 2 - y}px`)
+    c.classList.add('to-right')
+  } else {
+    // The sheet or the line along the bottom: the card stands above it.
+    const cx = t.left + Math.min(t.width, 300) / 2
+    const x = Math.min(Math.max(8, cx - cw / 2), innerWidth - cw - 8)
+    Object.assign(c.style, { left: `${x}px`, top: `${Math.max(top, t.top - 18 - h)}px` })
+    c.style.setProperty('--arrow-x', `${cx - x}px`)
+    c.classList.add('to-above-thing')
+  }
+}
+</script>
+</body>
+</html>
