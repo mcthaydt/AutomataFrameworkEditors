@@ -8469,3 +8469,16 @@ html body.sh.has-tilestrip .tilestrip .tt.more .ic {
     padding: 6px;
   }
 }
+
+/* ----- 15. The tile tool's settings wrap instead of running off an upright phone (M15) ----- */
+@media (max-width: 500px) {
+  html body.sh.sh .sh-tools .topts {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 4px;
+    overflow: visible;
+    white-space: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}

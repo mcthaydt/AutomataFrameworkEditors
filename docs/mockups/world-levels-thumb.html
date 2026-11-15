@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · The thumb buttons, unfolded (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The free thumb's buttons unfolded (the end-to-end actions check, L8): on a phone and an upright iPad the "Hold" tab folds three buttons away (Pick several, Drag a copy, Straight lines). Tapped once, it opens them, each with its word, so nobody has to guess what is behind it; tapped again, it folds them back. A computer holds these with keys, so it does not draw them. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, holdOpen: true, act: { at: [40.6, 73.2] },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

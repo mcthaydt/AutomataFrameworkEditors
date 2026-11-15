@@ -24,9 +24,53 @@ to bring it back.
 | Medium | It can be done, but the way is not drawn, is hidden, or needs a gesture nobody is told about. |
 | Low | A small missing state or "it worked" moment; nobody is stuck. |
 
+## Status: all 34 drawn (2026-11-15, the fixes round)
+
+Every gap below has a page or a change in the mockups; the pictures at five sizes are read in the fix round's own
+notes in `docs/superpowers/progress.md`. One question for the Owner is left open: **H6**, whether "Ask for a change" is
+enough on the check sheet or a separate "Don't put them in" is wanted. Each fix was held to the drunk-grandma test: the
+action can be found, says what it does, can be undone, and is never only a gesture.
+
+| Gap | Fixed by |
+|---|---|
+| H1 | world-levels-hidden: the hidden settings leave a floating tab at the right edge on an iPad and a computer, the same tab a phone on its side has; the Hide button's tip says where they went. |
+| H2 | world-levels-settings: the phone's settings open as a sheet (upright) or a panel (sideways) with Done; world-levels-exact now shows the number pad over the open sheet. |
+| H3 | world-levels-parts and shell-editors: both menus drawn open; on a phone the parts and the other editors are one menu, and an upright phone has the game's menu as its last row. |
+| H4 | shell-people (the list, each level's drop-down open with what it means, take someone off the list, add someone) and shell-people-look (read only, with who to ask). |
+| H5 | shell-games (after signing in, and "Your games" in the game's menu); signing out is on it. |
+| H6 | world-levels-check: "Not now" at the top, and "1 to check" stays in the top bar. "Ask for a change" stays the one other answer until the Owner says otherwise (open question). |
+| M1 | world-levels-rail: a computer's closed list is the same rail an iPad has. |
+| M2 | world-levels-list and world-levels-add: the list and Add things open over the level on a phone and an upright iPad, each with Close. |
+| M3 | An upright phone's toolbar has a second row with Undo, Redo, Show and Play, each with its word; world-levels-show draws the menu. |
+| M4 | The settings bar stays above Join's and Paint's trays on an upright phone (world-levels-links, world-scenes-mid). |
+| M5 | Undo and Redo are a pair on an upright phone, and the map keeps Undo, Redo and Play there. |
+| M6 | world-levels-more draws the "..." menu (Rename, Lock or Unlock, Hide or Show, Copy, front, back, Add a note); the "..." is also a visible button in the settings' header, and world-levels-hold draws press and hold on the ground. |
+| M7 | world-levels-bigger: Smaller where Bigger was, Stop and the play bar still there. |
+| M8 | world-levels-problems (the list) and world-levels-problem (one shown, with Next problem and Back to Put in game). |
+| M9 | shell-changes, from the game's menu ("What changed") and from "See what changed". |
+| M10 | world-levels-ask (Mia's box), world-levels-asked (what Sam sees), world-levels-waiting (see them or take them back) and world-levels-waiting-more ("Send 1 more to Mia"). |
+| M11 | shell-signin has "Not now" at the top; Find has Cancel on a touch screen (world-levels-find). |
+| M12 | The part menu has "This level": Rename, Make a copy, Delete; world-map-menu is the press and hold shortcut; world-map-deleted has the note with Undo. |
+| M13 | world-levels-note (the thread, an answer box, "Done: hide this note") and world-levels-note-new ("Add a note", from the "..." menu or press and hold). |
+| M14 | shell-language: the very first card, the device's language already chosen. |
+| M15 | The tile settings row wraps onto two lines on an upright phone (world-tiles, world-tiles-mid). |
+| M16 | world-levels-unjoin: tap a join's line to pick it, "Take away this join" in its bar, and "Nothing" first in Opens. |
+| L1 | The number pad has Cancel beside Done (world-levels-exact). |
+| L2 | world-levels-play-from: the strip "Tap the level where the hero should start" with Cancel. |
+| L3 | The map keeps its tip on a phone, and Play, Undo and Redo in a bottom bar on an upright phone. |
+| L4 | shell-signin-kept: "Kept a copy of Level 1" with the file's name. |
+| L5 | shell-menu-out: the menu signed out ("Sign in with GitHub", no "Who can change it"). |
+| L6 | shell-helper: what a helper is, what to tell it, what comes back, and Keep a copy. |
+| L7 | A "Back to Level 1" button in the top bar of Characters (characters-figures and -mid). |
+| L8 | world-levels-thumb: the thumb buttons unfolded, each with its word. |
+| L9 | With "to check" in the top bar, "Up to date" drops to the tick on an upright phone. |
+| L10 | world-scenes-parts: "Show this scene with" is in the part menu, so a phone has it. |
+| L11 | A "This tile" button at the end of the tile strip, and world-tiles-menu (Rename, Make a copy, Delete). |
+| L12 | world-levels-check: "Play the level with them" is the first thing in the sheet, so it is in sight on a short screen. |
+
 ## High
 
-### H1. Hiding the settings panel has no way back (iPad upright, iPad sideways, computer)
+### H1. Hiding the settings panel has no way back (iPad upright, iPad sideways, computer) (fixed)
 
 - **Where:** every page with a picked thing (`world-levels`, `-exact`, `-big`, `-links`, `-scenes`, `-tiles-mid`,
   and the rest). The panel's header has a "Hide this panel" button (`frame.js`, `.ihead .ihide`).
@@ -40,7 +84,7 @@ to bring it back.
   all five sizes. Say in the hide button's tip where it goes ("Hide. Tap Crate 1 at the right edge to show it
   again").
 
-### H2. On a phone, a picked thing's settings are never drawn open, so they can't be closed either
+### H2. On a phone, a picked thing's settings are never drawn open, so they can't be closed either (fixed)
 
 - **Where:** phone upright (the "Crate 1 · settings ⌃" bar) and phone held sideways (the "Crate 1" tab at the right).
 - **What's missing:** no page shows the bar pulled up or the tab opened, at either phone size. So changing a setting
@@ -51,7 +95,7 @@ to bring it back.
   "Done" (or ⌄) at its top right; sideways, the panel open at the right edge with the same close. Make
   `world-levels-exact` show the pad over the open sheet at phone sizes.
 
-### H3. Moving between Levels, Tiles and Scenes, and to the other editors, is never drawn
+### H3. Moving between Levels, Tiles and Scenes, and to the other editors, is never drawn (fixed)
 
 - **Where:** the top bar's "World ⌄" and "Levels · Level 1 ⌄" buttons, every size.
 - **What's missing:** neither menu is drawn open on any page, so there is no drawn way from Levels to Tiles or
@@ -63,7 +107,7 @@ to bring it back.
   workspace menu open (the five). On an upright phone, put both in one menu: the parts at the top, the five editors
   under them, then "Crate Game menu" (or keep the coloured square for the game's menu on phones too).
 
-### H4. "Who can change it" leads to a screen that isn't drawn
+### H4. "Who can change it" leads to a screen that isn't drawn (fixed)
 
 - **Where:** the game's menu (`shell-menu`), all sizes: "Who can change it · Mia, Sam and 2 more".
 - **What's missing:** the people screen (the Share screen in the Owner's decisions: Look, Suggest, Approve, Edit,
@@ -73,7 +117,7 @@ to bring it back.
   "Can check and put in", "Can change", "Owner"), "Add someone" (by GitHub name, with a line saying they need GitHub
   only to sign in), and Close. Show it read-only for someone who isn't an Owner, with who to ask.
 
-### H5. Opening your team's game is never drawn
+### H5. Opening your team's game is never drawn (fixed)
 
 - **Where:** first open for a signed-in person; "Open another game" in the game's menu; "Sign in with GitHub" on
   `shell-signin`.
@@ -85,7 +129,7 @@ to bring it back.
   isn't there ("Ask its owner to add you"). Coming back from GitHub lands here, or straight in the game if it was
   the one being opened.
 
-### H6. The "check changes" sheet has no way out except deciding
+### H6. The "check changes" sheet has no way out except deciding (fixed)
 
 - **Where:** `world-levels-check`, all sizes.
 - **What's missing:** Mia's only buttons are "Put them in the game" and "Ask for a change" (and "Play the level with
@@ -97,14 +141,14 @@ to bring it back.
 
 ## Medium
 
-### M1. The list hidden on a computer: its closed state is not drawn
+### M1. The list hidden on a computer: its closed state is not drawn (fixed)
 
 - **Where:** computer, every page with the list. The list's tab row has a hide button (`.ltabs .ib`).
 - **What's missing:** on a touch screen the closed list is a thin rail (List, Add) and the pictures show it; on a
   computer the rail is never drawn (`frame.js` sets `left-closed` only when `!fine`). The way back is not shown.
 - **Fix:** draw a computer page with the list closed to the same rail, and keep the rail at every size.
 
-### M2. The list is never drawn open on a phone or an upright iPad
+### M2. The list is never drawn open on a phone or an upright iPad (fixed)
 
 - **Where:** phone upright, phone sideways, iPad upright. The toolbar's first button ("In this level", the stack
   icon) opens it.
@@ -114,7 +158,7 @@ to bring it back.
 - **Fix:** a page with the list open at these sizes: a sheet from the left on an upright iPad, a full-height sheet on
   a phone, each with a Close at its top and the two tabs (In this level, Add things).
 
-### M3. An upright phone has no "Show" button
+### M3. An upright phone has no "Show" button (fixed)
 
 - **Where:** phone upright, every page. The toolbar is list, Pick, Place, Paint, Erase, Join, Undo, Play.
 - **What's missing:** the "Show" menu (grid, line up with tiles, zoom, "Show what it is", the screens' frames, "Draw
@@ -122,7 +166,7 @@ to bring it back.
   both send people to it.
 - **Fix:** put Show at the end of the phone's toolbar, or move its rows into the part menu (H3) on a phone.
 
-### M4. On an upright phone, a tray hides the picked thing's settings
+### M4. On an upright phone, a tray hides the picked thing's settings (fixed)
 
 - **Where:** phone upright, `world-levels-links` (Button 1 picked, Join's tray open) and `world-scenes-mid`
   (Flowers picked, Paint's tray open). `shell.css` hides `.peek` when there is a tray.
@@ -131,7 +175,7 @@ to bring it back.
 - **Fix:** keep the settings bar above the tray, one line tall, or put a small "Button 1 · settings" button at the
   tray's left end.
 
-### M5. An upright phone has no Redo button, and the map has no Undo
+### M5. An upright phone has no Redo button, and the map has no Undo (fixed)
 
 - **Where:** phone upright, every page; phone upright, `world-map`.
 - **What's missing:** the toolbar has Undo but no Redo, and the top bar hides both. Redo is only "tap with three
@@ -140,7 +184,7 @@ to bring it back.
 - **Fix:** make Undo a pair on phones (Undo, and Redo once there is something to redo), and keep Undo and Redo in
   the top bar on the map at phone size.
 
-### M6. The "…" menu over a picked thing is never drawn open
+### M6. The "…" menu over a picked thing is never drawn open (fixed)
 
 - **Where:** the bar over a picked thing, every size ("Make another, Delete, Nudge, …").
 - **What's missing:** the "…" holds the rest, but nothing shows what. So there is no drawn way to lock a thing (only
@@ -150,14 +194,14 @@ to bring it back.
 - **Fix:** draw the "…" menu open: Rename, Lock (or Unlock), Hide (or Show), Copy, Bring to front, Send to back,
   each with its key on a computer. The same menu opens on press and hold.
 
-### M7. "Bigger" while playing has no way back drawn
+### M7. "Bigger" while playing has no way back drawn (fixed)
 
 - **Where:** play bar, iPad and computer ("Bigger: hide the panels while playing").
 - **What's missing:** no page shows the level playing bigger, so it isn't shown whether Stop, the play bar or a
   "Smaller" button is still on the screen.
 - **Fix:** draw play in "Bigger" with a "Smaller" button where Bigger was and Stop still visible.
 
-### M8. The list of problems is not drawn
+### M8. The list of problems is not drawn (fixed)
 
 - **Where:** top bar, "⚠ 1 problem", every size (its tip: "Open the list of problems").
 - **What's missing:** tapping it goes nowhere drawn. The sheets' "Show me" goes to one problem, but with two or more
@@ -165,14 +209,14 @@ to bring it back.
 - **Fix:** a small list under the button: each problem in plain words with Show me, and on the level a strip "Crate 4
   is half in the ground · Next problem · Back to Put in game" while one is shown.
 
-### M9. "See what changed" leads nowhere
+### M9. "See what changed" leads nowhere (fixed)
 
 - **Where:** `world-levels-done` ("In the game" note), every size; `MOCK.closed` lists "Changes" but no page draws it.
 - **What's missing:** the game's list of changes (who changed what, when) is promised and not drawn, and there is no
   other way to see what a teammate did.
 - **Fix:** one page "What changed": newest first, each with who, when, the level and a picture, and "Show me".
 
-### M10. After "Send to check", the back and forth is only half drawn
+### M10. After "Send to check", the back and forth is only half drawn (fixed)
 
 - **Where:** `world-levels-sent`, `world-levels-check`.
 - **What's missing:** (a) Mia's "Ask for a change" opens nothing drawn (where she writes what to change); (b) Sam
@@ -182,7 +226,7 @@ to bring it back.
 - **Fix:** draw Mia's note box, Sam's "Mia asked for a change" note with "Show me" and "Send again", and say where a
   new change goes while waiting (for example the button becomes "Send 1 more to Mia").
 
-### M11. Two sheets have no close: "Keep what you made" and Find on a touch screen
+### M11. Two sheets have no close: "Keep what you made" and Find on a touch screen (fixed)
 
 - **Where:** `shell-signin` (all sizes); `world-levels-find` on a phone and an iPad.
 - **What's missing:** the sign-in sheet has Keep a copy and Sign in, but no "Not now" for someone who wants to go on
@@ -190,7 +234,7 @@ to bring it back.
   on-screen keyboard will cover the screen's lower half.
 - **Fix:** "Not now" at the foot of the sign-in sheet; a "Cancel" at the right of Find's box on touch screens.
 
-### M12. A level can be made on the map but not deleted, renamed later or joined to another
+### M12. A level can be made on the map but not deleted, renamed later or joined to another (fixed)
 
 - **Where:** `world-map`, `world-levels-new`.
 - **What's missing:** "New level" works, and its card has Rename, but after the card goes there is no drawn way to
@@ -200,14 +244,14 @@ to bring it back.
 - **Fix:** press and hold a level on the map opens Rename, Make a copy, Delete (with "Undo" in a note after); the
   level's own name in the top bar is renamable.
 
-### M13. Teammates' notes can be read but not written, answered or cleared
+### M13. Teammates' notes can be read but not written, answered or cleared (fixed)
 
 - **Where:** `world-levels-mid`, `-share`, `-blocked` (Mia's pinned note).
 - **What's missing:** no way to write a note, answer one or mark it done is drawn. The note just stays.
 - **Fix:** a note opened: the thread, an answer box, "Done" (which hides it); and "Add a note" in the "…" menu (M6)
   and on press and hold of empty ground.
 
-### M14. The language picked before the welcome is not drawn
+### M14. The language picked before the welcome is not drawn (fixed)
 
 - **Where:** first open, before `shell-welcome` ("the language was picked before it").
 - **What's missing:** the editors' nine-language picker (games' six plus Russian, German, French) is not drawn, so the
@@ -215,14 +259,14 @@ to bring it back.
 - **Fix:** draw the picker as the very first card, the device's language already chosen, flags and names in their
   own language, one "Go on". Settings › Language is already drawn for later.
 
-### M15. Tiles on an upright phone: the tool's settings run off the screen
+### M15. Tiles on an upright phone: the tool's settings run off the screen (fixed)
 
 - **Where:** `world-tiles`, `world-tiles-mid`, phone upright.
 - **What's missing:** the row "Draw, Fill, Line · Size 1 2 4 · Mirror · The hero stands on" is cut after Mirror, so
   "The hero stands on" can't be reached. The colour strip's last buttons (add a colour) are cut the same way.
 - **Fix:** wrap the row onto two lines, or move "The hero stands on" into the tile's settings.
 
-### M16. A join can be made but not taken away
+### M16. A join can be made but not taken away (fixed)
 
 - **Where:** `world-levels-links`, all sizes.
 - **What's missing:** drawing from the button to the door is drawn; removing that link is not (no handle with an ×,
@@ -232,29 +276,29 @@ to bring it back.
 
 ## Low
 
-- **L1. The number pad has Done but no Cancel** (`world-levels-exact`, all sizes). Undo covers it. Fix: a "Cancel"
+- **L1. The number pad has Done but no Cancel** (fixed) (`world-levels-exact`, all sizes). Undo covers it. Fix: a "Cancel"
   beside Done, or tapping outside keeps the old number.
-- **L2. "Play from here" has no picking state** (play bar, all sizes): the "tap where the hero should start" moment
+- **L2. "Play from here" has no picking state** (fixed) (play bar, all sizes): the "tap where the hero should start" moment
   and its cancel aren't drawn. Fix: a strip "Tap where the hero starts · Cancel".
-- **L3. The map on a phone:** no Play on an upright phone (the toolbar holds it there); the tip ("Tap a level to go
+- **L3. The map on a phone:** (fixed) no Play on an upright phone (the toolbar holds it there); the tip ("Tap a level to go
   in") is missing on a phone held sideways. Fix: Play in the top bar on the map at phone size; keep the tip.
-- **L4. "Keep a copy" has no "it worked"** (`shell-signin`, the game's menu). Fix: a note "Saved Level 1 as a file:
+- **L4. "Keep a copy" has no "it worked"** (fixed) (`shell-signin`, the game's menu). Fix: a note "Saved Level 1 as a file:
   level-1.json · Show".
-- **L5. Signed out, the game's menu isn't drawn** (it should say "Sign in", not "Sign out", and have no "Who can
+- **L5. Signed out, the game's menu isn't drawn** (fixed) (it should say "Sign in", not "Sign out", and have no "Who can
   change it"). Fix: draw it on `shell-signin`'s state.
-- **L6. Help's "Ask your helper" leads nowhere drawn.** Fix: a short card saying what to paste to your helper, with
+- **L6. Help's "Ask your helper" leads nowhere drawn.** (fixed) Fix: a short card saying what to paste to your helper, with
   Keep a copy.
-- **L7. "Change every crate, in Characters"** leaves World for an editor outside this slice, with no way back drawn.
+- **L7. "Change every crate, in Characters"** (fixed) leaves World for an editor outside this slice, with no way back drawn.
   Fix, when Characters is drawn: "Back to Level 1" in its top bar.
-- **L8. The free thumb's "Hold" strip is only drawn folded** on phones and the upright iPad. Fix: one picture
+- **L8. The free thumb's "Hold" strip is only drawn folded** (fixed) on phones and the upright iPad. Fix: one picture
   unfolded, with how it folds again.
-- **L9. "Up to date" wraps onto two lines** on an upright phone when "1 to check" is in the top bar
+- **L9. "Up to date" wraps onto two lines** (fixed) on an upright phone when "1 to check" is in the top bar
   (`world-levels-check`). Fix: drop the words to the tick only at that width.
-- **L10. "Shown with Level 1"** (Scenes) has no way to switch level on a phone, where the words are hidden. Fix: put
+- **L10. "Shown with Level 1"** (fixed) (Scenes) has no way to switch level on a phone, where the words are hidden. Fix: put
   it in the part menu (H3).
-- **L11. A tile can be added but not renamed or deleted** (`world-tiles`). Fix: press and hold a tile in the strip
+- **L11. A tile can be added but not renamed or deleted** (fixed) (`world-tiles`). Fix: press and hold a tile in the strip
   opens Rename, Make a copy, Delete.
-- **L12. Phone held sideways, `world-levels-check`:** "Play the level with them" is reached only by scrolling inside
+- **L12. Phone held sideways, `world-levels-check`:** (fixed) "Play the level with them" is reached only by scrolling inside
   the sheet. Fix: put it beside the two buttons at this height.
 
 ## What works both ways
