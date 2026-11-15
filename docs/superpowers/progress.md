@@ -31,20 +31,67 @@ Nothing was run: this stage wrote documents.
 Spec: [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md). The Owner asked that every
 editor get its own full pipeline (2026-11-15). Story has three parts in World's frame: Conversations (a map of cards),
 Cutscenes (a camera frame and actors on the level's real art, over a timeline) and Words (every word a player reads,
-six languages side by side). Its build waits for framework plan T on `main` and for the redesign's build.
+six languages side by side). Its build waits for the Owner's approval of the mockups of all editors, for framework
+plan T on `main` and for the redesign's build.
 
-Overall: **4%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
+Overall: **12%** (stage 1 counts 4 points, stage 2 is 4, stage 3 is 4, stage 4 is 60, stage 5 is 10, stage 6 is 12,
 stage 7 is 6)
 
 | Stage | State | Output |
 |---|---|---|
 | 1. Spec | Written, in review; Q1 (a map of cards), Q2 (a save missing words waits until all six languages are there) and Q2b (a native speaker may mark words read) answered by the Owner | [`specs/2026-11-15-story-editor-design.md`](specs/2026-11-15-story-editor-design.md) |
-| 2. Plan | Not started | |
-| 3. Plan audit | Not started | |
-| 4. Execution | Not started; waits for plan T and the redesign's build | |
+| 2. Plan | Written, in review (2026-11-15): 24 tasks in eight pull requests | [`plans/2026-11-15-story-editor.md`](plans/2026-11-15-story-editor.md) |
+| 3. Plan audit | Done (2026-11-15): 2 critical, 12 important, 11 minor; the plan is amended before the tasks each names | [`audits/2026-11-15-story-editor-plan-audit.md`](audits/2026-11-15-story-editor-plan-audit.md) |
+| 4. Execution | Not started; waits for the plan's amendment, the mockups' approval (the Owner, 2026-11-15), plan T and the redesign's build | |
 | 5. Implementation audit | Not started; two audits (drunk-grandma on Opus, visuals on Fable) | |
 | 6. Fixes | Not started | |
 | 7. Owner review | Not started | |
+
+### Stage 3 finished (2026-11-15)
+
+The audit accepts the plan's two questions (Q-A: new lines start in the game's own words, which the framework forces;
+Q-B: an organization's admin approves their own words change once it is complete) and finds two critical problems to
+amend before any task: adding words to someone's waiting change let a Suggest-level person's words go in without
+approval (C1), and ruling 6's one `automata.toml` line per new file contradicts the Owner's content-folders decision
+(C2: Story uses a listed folder, an older game gets a one-time "Set up stories", and a new gate G6 waits for the
+framework's folders). The important ones: three framework names to export (I1), the camera's frame to come from the
+framework once plan T's Task 11 is in (I2), the key rule into the framework's content skill (I3), a blocked branch
+move told from a changed one (I4), clashes with `main` (I6), what an approver sees (I7), an Owner's World saves joining
+their words change (I8), the preview's keys (I9), ids that start with a digit (I10), and a missing language file
+blocking every save (I11); and Story saves through the shared several-file save (`saveChange`, `allowedPaths`)
+the figure builder, Feel and Scenes use, widened only where Story needs more (I12).
+
+**The Owner's answer (I5, 2026-11-15): the App finishes it itself.** The spec says a complete words change goes in
+once its checks pass; the plan only finished it when someone opened the game. Now the App hears GitHub's
+`check_suite` event at one new route, `/api/github-hook` (signed with a webhook secret kept in Cloudflare, set at
+deploy), and finishes the change itself. Task 21 is no longer held.
+
+**Next:** the plan's amendment, then stage 4 once the gates open. Nothing was run: this stage read documents and code.
+
+### Stage 2 finished (2026-11-15)
+
+The plan has 24 tasks in eight pull requests: the speech box shown on its own (one small pull request in
+AutomataFramework); the framework pin; several files saved as one change, a change that waits for its words and goes
+in when they are there; Story in the frame with its own page; conversations (the changes, the map's layout, the map
+on screen, changing it, the speech box and Try it); cutscenes (the changes, the stage, the timeline and Play, a new
+cutscene and Try it in the game); Words (the table, writing a word, read marks, Save and Export); and the first run,
+the find bar, and every screen pictured. Every task has end-to-end journeys at five sizes in three browsers.
+
+**Gates.** No task in this repo starts before the Owner approves the mockups of all editors (if Story's mockup
+differs from the plan's screens, the plan is amended first); the framework's task may start once plan T is on its
+`main` and this plan is audited. "Try it in the game" also waits for the redesign's Play.
+
+**For the Owner, through the coordinator (ruling 6):** adding a conversation or a cutscene is a new file, which
+`automata.toml` must list. The plan has Story add that one entry in the same save, as the Owner answered for Feel (its
+Q4) and with content folders as for Sound (its Q6). The Story spec's table of what Story edits does not name the
+project file, so this is reported before Task 8 starts; a "no" turns the two Add cards into "Ask your agent to add
+one".
+
+**For the plan audit:** Q-A, new lines start in the game's own language, because the framework refuses a line the
+game's own language lacks; Q-B, a change started by someone who is an Owner only through GitHub (an organization's
+admin) waits for approval once its words are there. Also new in the plan and flagged there: a language with no
+words file never makes a save wait (ruling 9), and "Changed" and "who read it" come from the game's history
+(ruling 13).
 
 Nothing was run: this stage wrote documents.
 
