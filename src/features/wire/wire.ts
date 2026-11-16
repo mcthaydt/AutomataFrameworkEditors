@@ -79,6 +79,8 @@ export interface Waiting {
   /** True when it is the asking person's own. */
   readonly mine: boolean
   readonly checks: Checks
+  /** Someone who may approve asked for a change and the author has not sent a new one yet. */
+  readonly asked?: { readonly by: string; readonly words: string; readonly at: number }
 }
 
 /** What opening a game gives the page. */
@@ -94,6 +96,8 @@ export interface OpenAnswer {
   readonly mine: Waiting | undefined
   /** How many changes wait in all. */
   readonly waiting: number
+  /** Your own change was turned down: who did, and when. Undefined when nothing of yours was. */
+  readonly turnedDown: { readonly by: string; readonly at: number } | undefined
   /** `automata.toml` and every file it lists (one that is missing is left out). */
   readonly files: readonly WireFile[]
 }

@@ -4,7 +4,7 @@
 // anything is written. Nothing is written unless every file is.
 import { PROJECT_FILE, parseProject, writeContent } from '@automataframework/framework/headless'
 import { can } from '../access/access.ts'
-import { changeProject, EDITORS_FILE, type ProjectChange, parseEditors } from '../files/files.ts'
+import { changeProject, type ProjectChange } from '../files/files.ts'
 import type { Pull } from '../github/github.ts'
 import type { Answer, PutAnswer, PutAsk, PutFile, Waiting, WireFile } from '../wire/wire.ts'
 import { allowedFiles } from './allowed.ts'
@@ -12,7 +12,7 @@ import { type Json, isObject, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
 import { oneLine } from './message.ts'
 import { ownPull, toWaiting } from './pulls.ts'
-import { wholeGameLoads } from './whole.ts'
+import { stopsOnProblems, wholeGameLoads } from './whole.ts'
 
 /** More files than a person could have changed by hand in one sitting: refused, not cut. */
 const MOST_FILES = 200
@@ -161,10 +161,9 @@ export async function putFiles(deps: ApiDeps, request: Request): Promise<Answer<
   }
 
   // 4. When the game asks for it, the whole game with the change in place must load.
-  const editors = await repo.readFile(readFrom, EDITORS_FILE)
-  if (!editors.ok && editors.problem !== 'not-found') return editors
-  const settings = parseEditors(editors.ok ? editors.value.text : undefined)
-  if (settings.ok && settings.value.problems === 'stop') {
+  const stops = await stopsOnProblems(repo, readFrom)
+  if (!stops.ok) return stops
+  if (stops.value) {
     const after = parseProject(projectText ?? project.value.text)
     if (!after.ok) {
       return { ok: false, problem: 'broken', details: [`${PROJECT_FILE}: this file would not read.`] }

@@ -4,7 +4,10 @@
 import { fromBase64, toBase64 } from '../../lib/base64.ts'
 import type { Answer, Checks, GameRef } from '../wire/wire.ts'
 import { appJwt } from './app-token.ts'
+import { type Author, type CommitCalls, commitCalls } from './commit.ts'
 import { type As, type Deps, type RateWatch, type Reply, send } from './request.ts'
+
+export type { Author }
 
 export interface RepoFacts {
   /** The default branch. */
@@ -31,12 +34,8 @@ export interface Pull {
   /** Milliseconds. */
   readonly createdAt: number
 }
-export interface Author {
-  readonly name: string
-  readonly email: string
-}
 
-export interface Repo {
+export interface Repo extends CommitCalls {
   readonly facts: RepoFacts
   /** The share of GitHub's allowance still left, from its last answer; undefined until it has said. */
   allowance(): number | undefined
@@ -53,29 +52,16 @@ export interface Repo {
     message: string
     author: Author
   }): Promise<Answer<{ version: string; commit: string }>>
-  /**
-   * Every file in one commit, or nothing. `text` undefined takes the file away. `version` is the file's version the
-   * person started from (undefined for a new file); any that is no longer true is 'changed-elsewhere', with the paths in
-   * `details`, and nothing is written. A branch that moved while the commit was made is 'changed-elsewhere' too.
-   */
-  commitFiles(change: {
-    branch: string
-    files: readonly { path: string; text: string | undefined; version: string | undefined }[]
-    message: string
-    author: Author
-  }): Promise<Answer<{ commit: string; versions: Readonly<Record<string, string>> }>>
-  /**
-   * The newest commits on `branch` that touched anything under `folder` (GitHub's list of commits filters by one path,
-   * and a folder matches every file inside it): one call, newest first, at most `limit` (at most 50). A row has who,
-   * when and the message, not its files.
-   */
-  history(
-    branch: string,
-    folder: string,
-    limit: number,
-  ): Promise<Answer<readonly { commit: string; by: string; at: number; message: string }[]>>
-  /** The paths one commit touched: one call. */
-  commitPaths(commit: string): Promise<Answer<readonly string[]>>
+  /** A comment the App writes on a waiting change (an ordinary pull request). */
+  comment(number: number, text: string): Promise<Answer<true>>
+  /** The comments on a change, newest first (the newest hundred of them). */
+  comments(number: number): Promise<Answer<readonly { at: number; text: string }[]>>
+  /** Opens a pull that was closed again; 'not-found' when GitHub will not (its branch is gone, or it was merged). */
+  reopenPull(number: number): Promise<Answer<true>>
+  /** The newest closed, unmerged pull whose head is `branch`; undefined when there is none. */
+  closedPull(branch: string): Promise<Answer<Pull | undefined>>
+  /** One pull whatever its state: open, closed, or merged. */
+  anyPull(number: number): Promise<Answer<Pull & { readonly state: 'open' | 'closed' | 'merged' }>>
   openPulls(): Promise<Answer<readonly Pull[]>>
   pull(number: number): Promise<Answer<Pull>>
   pullPaths(number: number): Promise<Answer<readonly string[]>>
@@ -271,95 +257,62 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
       return { ok: true, value: { version: str(obj(body.content).sha), commit: str(obj(body.commit).sha) } }
     },
 
-    commitFiles: async ({ branch, files, message, author }) => {
-      const head = await repo.branchHead(branch)
-      if (!head.ok) return head
-      // Every version the person started from must still be true, or nothing is written.
-      const stale: string[] = []
-      for (const file of files)
-        if ((await versionOn(branch, file.path)) !== file.version) stale.push(file.path)
-      if (stale.length > 0) return { ok: false, problem: 'changed-elsewhere', details: stale }
+    ...commitCalls({ call, root, branchHead: (branch) => repo.branchHead(branch), versionOn }),
 
-      const base = await call({ method: 'GET', path: `${root}/git/commits/${enc(head.value)}` })
-      if (!base.ok) return base
-      const baseTree = str(obj(obj(base.value.body).tree).sha)
-      const entries: Json[] = []
-      const versions: Record<string, string> = {}
-      for (const file of files) {
-        if (file.text === undefined) {
-          // A file that was never there has nothing to take away.
-          if (file.version !== undefined)
-            entries.push({ path: file.path, mode: '100644', type: 'blob', sha: null })
-          continue
-        }
-        const blob = await call({
-          method: 'POST',
-          path: `${root}/git/blobs`,
-          body: { content: toBase64(file.text), encoding: 'base64' },
-        })
-        if (!blob.ok) return blob
-        const sha = str(obj(blob.value.body).sha)
-        versions[file.path] = sha
-        entries.push({ path: file.path, mode: '100644', type: 'blob', sha })
-      }
-      const tree = await call({
-        method: 'POST',
-        path: `${root}/git/trees`,
-        body: { base_tree: baseTree, tree: entries },
-      })
-      if (!tree.ok) return tree
-      // Only the author is sent: with no committer GitHub signs the commit as the App (see saveFile).
-      const made = await call({
-        method: 'POST',
-        path: `${root}/git/commits`,
-        body: { message, tree: str(obj(tree.value.body).sha), parents: [head.value], author },
-      })
-      if (!made.ok) return made
-      const commit = str(obj(made.value.body).sha)
-      const moved = await call({
+    comment: (number, text) =>
+      ask(
+        call({ method: 'POST', path: `${root}/issues/${number}/comments`, body: { body: text } }),
+        () => true as const,
+      ),
+
+    comments: (number) =>
+      ask(
+        call({ method: 'GET', path: `${root}/issues/${number}/comments`, query: { per_page: '100' } }),
+        // GitHub lists the oldest first.
+        (r) =>
+          (Array.isArray(r.body) ? r.body.map(obj) : [])
+            .map((c) => ({ at: Date.parse(str(c.created_at)), text: str(c.body) }))
+            .reverse(),
+      ),
+
+    reopenPull: async (number) => {
+      const got = await call({
         method: 'PATCH',
-        path: `${root}/git/refs/heads/${encPath(branch)}`,
-        body: { sha: commit, force: false },
-        pass: [409, 422],
+        path: `${root}/pulls/${number}`,
+        body: { state: 'open' },
+        pass: [422],
       })
-      if (!moved.ok) return moved
-      if (moved.value.status === 409 || moved.value.status === 422) {
-        // Settled by looking: a branch that is not where it was moved under us; one that is, a rule refused the App.
-        const now = await repo.branchHead(branch)
-        return now.ok && now.value === head.value
-          ? { ok: false, problem: 'blocked' }
-          : { ok: false, problem: 'changed-elsewhere' }
-      }
-      return { ok: true, value: { commit, versions } }
+      if (!got.ok) return got
+      return got.value.status === 422 ? { ok: false, problem: 'not-found' } : { ok: true, value: true }
     },
 
-    history: (branch, folder, limit) =>
+    closedPull: (branch) =>
       ask(
         call({
           method: 'GET',
-          path: `${root}/commits`,
-          query: { sha: branch, path: folder, per_page: String(Math.max(1, Math.min(50, limit))) },
+          path: `${root}/pulls`,
+          query: {
+            state: 'closed',
+            head: `${repoFacts.ownerLogin}:${branch}`,
+            sort: 'updated',
+            direction: 'desc',
+            per_page: '30',
+          },
         }),
         (r) =>
-          (Array.isArray(r.body) ? r.body.map(obj) : []).map((row) => {
-            const made = obj(row.commit)
-            const who = obj(made.author)
-            return {
-              commit: str(row.sha),
-              by: str(who.name) || str(obj(row.author).login),
-              at: Date.parse(str(who.date)),
-              message: str(made.message),
-            }
-          }),
+          (Array.isArray(r.body) ? r.body.map(obj) : [])
+            .filter((p) => p.merged_at === null || p.merged_at === undefined)
+            .map(toPull)
+            .find((p) => p.head === branch && p.headIsHere),
       ),
 
-    commitPaths: (commit) =>
-      ask(call({ method: 'GET', path: `${root}/commits/${enc(commit)}` }), (r) =>
-        (Array.isArray(obj(r.body).files) ? (obj(r.body).files as unknown[]).map(obj) : []).flatMap((f) => [
-          str(f.filename),
-          ...(typeof f.previous_filename === 'string' ? [f.previous_filename] : []),
-        ]),
-      ),
+    anyPull: (number) =>
+      ask(call({ method: 'GET', path: `${root}/pulls/${number}` }), (r) => {
+        const pull = obj(r.body)
+        const state: 'open' | 'closed' | 'merged' =
+          pull.state === 'open' ? 'open' : pull.merged === true ? 'merged' : 'closed'
+        return { ...toPull(r.body), state }
+      }),
 
     openPulls,
     pull,

@@ -218,6 +218,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       title: pull.title,
       state: pull.state === 'open' ? 'open' : 'closed',
       merged: pull.state === 'merged',
+      merged_at: pull.state === 'merged' ? new Date(facts.createdAt).toISOString() : null,
       created_at: new Date(facts.createdAt).toISOString(),
       head: { ref: pull.head, sha: repo.heads.get(pull.head) ?? '', repo: { full_name: facts.fork ?? own } },
       base: { ref: pull.base, repo: { full_name: own } },
@@ -558,7 +559,17 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     if (rest === '/pulls' && method === 'GET') {
       const wanted = url.searchParams.get('state') ?? 'open'
       const base = url.searchParams.get('base') ?? main
-      const list = repo.pulls.filter((p) => (wanted === 'all' || p.state === wanted) && p.base === base)
+      // `head` is `owner:branch`; `closed` includes the merged, as on GitHub; `direction=desc` is the newest first.
+      const head = url.searchParams.get('head')?.split(':').slice(1).join(':')
+      const newest = url.searchParams.get('direction') === 'desc'
+      const list = repo.pulls
+        .filter(
+          (p) =>
+            (wanted === 'all' || p.state === wanted || (wanted === 'closed' && p.state === 'merged')) &&
+            p.base === base &&
+            (head === undefined || p.head === head),
+        )
+        .sort((a, b) => (newest ? b.number - a.number : a.number - b.number))
       return send(
         200,
         list.map((p) => pullJson(repo, p, false)),
@@ -587,6 +598,13 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       if (m[2] === undefined && method === 'GET') return send(200, pullJson(repo, pull, true))
       if (m[2] === undefined && method === 'PATCH') {
         if (body.state === 'closed' && pull.state === 'open') pull.state = 'closed'
+        if (body.state === 'open' && pull.state !== 'open') {
+          // GitHub will not open a pull that was merged, or whose branch is gone, or when another is open from it.
+          const another = repo.pulls.some((p) => p.head === pull.head && p.state === 'open')
+          if (pull.state === 'merged' || !repo.branches.has(pull.head) || another)
+            return send(422, { message: 'Validation Failed' })
+          pull.state = 'open'
+        }
         return send(200, pullJson(repo, pull, true))
       }
       if (m[2] === '/files' && method === 'GET') {
@@ -600,6 +618,37 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
         )
       }
       if (m[2] === '/merge' && method === 'PUT') return merge(repo, pull, body)
+    }
+
+    // Comments on a pull (GitHub keeps them with its issues), and reviews. A pull's author may not approve it or ask for
+    // changes on it: the App opened every waiting change, so the App's own review is refused, as GitHub refuses it.
+    if ((m = /^\/issues\/(\d+)\/comments$/.exec(rest))) {
+      const number = Number(m[1])
+      if (!repo.pulls.some((p) => p.number === number)) return NOT_FOUND
+      const list = repo.comments.get(number) ?? []
+      if (method === 'GET') {
+        return send(
+          200,
+          list.map((c) => ({ body: c.text, created_at: new Date(c.at).toISOString() })),
+        )
+      }
+      if (method === 'POST') {
+        repo.comments.set(number, [...list, { at: repo.clock(), text: str(body.body) }])
+        return send(201, { body: str(body.body), created_at: new Date(repo.clock()).toISOString() })
+      }
+    }
+    if (method === 'POST' && (m = /^\/pulls\/(\d+)\/reviews$/.exec(rest))) {
+      const pull = repo.pulls.find((p) => p.number === Number(m?.[1]))
+      if (pull === undefined) return NOT_FOUND
+      const event = str(body.event)
+      const byFork = repo.pullFacts.get(pull.number)?.fork !== undefined
+      if (!byFork && event === 'REQUEST_CHANGES') {
+        return send(422, { message: 'Can not request changes on your own pull request' })
+      }
+      if (!byFork && event === 'APPROVE') {
+        return send(422, { message: 'Can not approve your own pull request' })
+      }
+      return send(200, { state: event })
     }
 
     if (method === 'GET' && rest === '/commits') {

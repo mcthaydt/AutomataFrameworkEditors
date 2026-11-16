@@ -5,6 +5,7 @@
 
 import type { ContentRef } from '@automataframework/framework/headless'
 import { formatDiagnostic, loadGame } from '@automataframework/framework/headless'
+import { EDITORS_FILE, parseEditors } from '../files/files.ts'
 import type { Repo } from '../github/github.ts'
 import type { Answer } from '../wire/wire.ts'
 
@@ -35,4 +36,15 @@ export async function wholeGameLoads(
   return game.ok
     ? { ok: true, value: true }
     : { ok: false, problem: 'broken', details: game.diagnostics.map(formatDiagnostic) }
+}
+
+/**
+ * Whether the game asks the editors to refuse a change that leaves a problem in it: its `automata.editors.toml` on
+ * `branch` says `problems = "stop"`. With no such file, or one that cannot be read, a problem is shown and never in the way.
+ */
+export async function stopsOnProblems(repo: Repo, branch: string): Promise<Answer<boolean>> {
+  const read = await repo.readFile(branch, EDITORS_FILE)
+  if (!read.ok) return read.problem === 'not-found' ? { ok: true, value: false } : read
+  const settings = parseEditors(read.value.text)
+  return { ok: true, value: settings.ok && settings.value.problems === 'stop' }
 }

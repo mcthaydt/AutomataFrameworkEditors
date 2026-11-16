@@ -2,6 +2,7 @@
 import { PROJECT_FILE, parseProject } from '@automataframework/framework/headless'
 import type { Answer, GameRef, OpenAnswer, Waiting, WireFile } from '../wire/wire.ts'
 import { type ApiDeps, enter } from './enter.ts'
+import { turnedDownOf, withAsked } from './ask.ts'
 import { isWaiting, ownPull, toWaiting } from './pulls.ts'
 
 export async function openGame(deps: ApiDeps, request: Request, game: GameRef): Promise<Answer<OpenAnswer>> {
@@ -12,6 +13,7 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
   let branch = repo.facts.branch
   let mine: Waiting | undefined
   let waiting = 0
+  let turnedDown: OpenAnswer['turnedDown']
   // How busy a team is, is the team's business: a visitor sees none of it.
   if (who !== undefined) {
     const pulls = await repo.openPulls()
@@ -20,7 +22,10 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
     const own = ownPull(pulls.value, who.login)
     if (own !== undefined) {
       branch = own.head
-      mine = await toWaiting(repo, own, who.login)
+      mine = await withAsked(repo, await toWaiting(repo, own, who.login), own)
+    } else {
+      // Nothing of yours waits: was your last change turned down?
+      turnedDown = await turnedDownOf(repo, who.login)
     }
   }
 
@@ -38,6 +43,6 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
   }
   return {
     ok: true,
-    value: { game, login: who?.login, level, branch, mine, waiting, files },
+    value: { game, login: who?.login, level, branch, mine, waiting, turnedDown, files },
   }
 }

@@ -73,6 +73,8 @@ export interface FakeRepo {
     }
   >
   readonly pulls: FakePull[]
+  /** The comments on each pull, by its number, oldest first: when (the repo's clock) and the text. */
+  readonly comments: Map<number, { readonly at: number; readonly text: string }[]>
   /** The time, for new pulls. The server sets it to its own clock. */
   clock: () => number
   readonly heads: Map<string, string>
@@ -161,6 +163,7 @@ function makeRepo(
     trees: new Map(),
     gitCommits: new Map(),
     pulls: [],
+    comments: new Map(),
     clock: () => Date.now(),
     heads,
     commitDates,
