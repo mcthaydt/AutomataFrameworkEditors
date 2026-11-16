@@ -310,7 +310,7 @@
 
   function openList(tab: 'list' | 'add'): void {
     rows = rowSize(pointers, me.rows)
-    docks.list = tab === 'add' ? 'add' : 'list'
+    docks = { ...docks, list: tab === 'add' ? 'add' : 'list' }
   }
 
   /** Asks first when something is not saved; `then` is what the person wanted to do. */
@@ -575,7 +575,7 @@
         inset={lay.toolbar === 'left'}
         mirror={lay.mirror}
         onopen={openList}
-        onhide={() => (docks.list = 'closed')}
+        onhide={() => (docks = { ...docks, list: 'closed' })}
       >
         {#snippet row(at)}
           {@const thing = things[at]}
@@ -601,8 +601,8 @@
         mode={lay.settings}
         name={nameOf(placed.id)}
         mirror={lay.mirror}
-        onhide={() => (docks.settings = 'hidden')}
-        onshow={() => (docks.settings = 'shown')}
+        onhide={() => (docks = { ...docks, settings: 'hidden' })}
+        onshow={() => (docks = { ...docks, settings: 'shown' })}
       >
         <div class="pad">
           <button type="button" class="up" onclick={() => nudge(placed.id, 'up')}>{WORDS.moveUp}</button>

@@ -73,7 +73,7 @@
 
   const toGames = (): void => go({ screen: 'games' })
   const back = { label: WORDS.back, onpress: toGames }
-  const title = `${ref.owner}/${ref.name}`
+  const title = $derived(`${ref.owner}/${ref.name}`)
   /** The level the address asks for, or the game's start; it must be one the game has. */
   const wanted = $derived(
     opened?.ok && route.screen === 'level' && route.level !== undefined
