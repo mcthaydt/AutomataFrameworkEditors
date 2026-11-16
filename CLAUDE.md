@@ -11,7 +11,7 @@ anything new, is the owner's call.
 
 ## Stack and checks
 
-- Stack: TypeScript, strict; pnpm workspaces; Node 24. PixiJS 8 for drawing; Koota (ECS) for the sim; `@dimforge/rapier2d-deterministic` 0.21.0 for physics; Zod as the one schema language; Svelte 5 where noted below; Paraglide for words. Vite, Vitest 5 (Node, Chromium, WebKit, Firefox browser modes), Playwright 1.63 journeys, Biome, knip. GitHub-hosted CI; Svelte 5 for the page; the API is Cloudflare Pages Functions acting as the editors' GitHub App; `smol-toml` for the TOML files.
+- Stack: TypeScript, strict; pnpm; Node 24. Svelte 5 for the page; PixiJS 8 (only the two canvas files); Zod; `smol-toml` for the TOML files; the framework as a git dependency pinned to a commit. Vite, Vitest 5 (Node, Chromium, WebKit, Firefox browser modes), Playwright 1.63 journeys, Biome, knip. The API is Cloudflare Pages Functions acting as the editors' GitHub App. GitHub-hosted CI.
 - Install: `pnpm install --frozen-lockfile`
 - Lint: `pnpm lint && pnpm knip`
 - Typecheck: `pnpm typecheck`
@@ -319,7 +319,7 @@ Change a number or a model here and nowhere else.
 
 ## This repo
 
-What is particular to this repo, kept from its earlier notes.
+What is particular to this repo, kept from its earlier notes and the 2026-11-16 handoff.
 
 - **For other teams' games**, in their own repos. Nothing may assume this project's repos or merge workflow;
   AutomataFrameworkExamples is only the test game.
