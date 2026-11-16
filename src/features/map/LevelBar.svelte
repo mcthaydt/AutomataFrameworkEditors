@@ -25,6 +25,21 @@
   let { lang, level, moving, touching, more, ongo, onmove, onapart, onmore, onrename, oncopy, onremove }: Props = $props()
 
   const words = $derived(wordsIn(lang).arrange)
+  // The menu hangs from the bar; where that would take it past the sheet's edge it slides in, opens upward, or sits over the bar.
+  let menuEl: HTMLElement | undefined = $state()
+  // It is set straight on the element, which is new at every opening, so nothing earlier is left to measure around.
+  $effect(() => {
+    const room = menuEl?.closest('[role="region"]')?.getBoundingClientRect()
+    if (menuEl === undefined || room === undefined) return
+    const at = menuEl.getBoundingClientRect()
+    const bar = (menuEl.parentElement as HTMLElement).getBoundingClientRect()
+    const dx = at.left < room.left ? room.left - at.left : at.right > room.right ? room.right - at.right : 0
+    const up = at.bottom > room.bottom && bar.top - at.height - 6 >= room.top
+    // With room neither below nor above the bar, it covers the bar rather than leave the sheet.
+    const dy = at.bottom > room.bottom && !up ? room.bottom - at.bottom : 0
+    menuEl.classList.toggle('up', up)
+    menuEl.style.translate = `${dx}px ${dy}px`
+  })
   /** A choice in the menu closes it first. */
   const choose = (what: () => void) => () => {
     onmore()
@@ -47,7 +62,7 @@
     <Icon name="dots-three" />
   </button>
   {#if more}
-    <div class="menu" role="menu">
+    <div class="menu" role="menu" bind:this={menuEl}>
       <button type="button" role="menuitem" class="item" onclick={choose(ongo)}>
         <Icon name="arrow-right" /><span class="label">{text(words.goIn)}</span>
       </button>
@@ -122,6 +137,10 @@
     border: 1px solid var(--glass-edge);
     background: var(--panel);
     box-shadow: var(--shadow);
+  }
+  .menu:global(.up) {
+    top: auto;
+    bottom: calc(100% + 6px);
   }
   .item {
     justify-content: flex-start;

@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 18:47 UTC (from `date`).
+Last updated: 2026-11-16 18:58 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -102,6 +102,12 @@ None.
   Welcome, told so". Text: `locator.waitFor: Timeout 10000ms exceeded. waiting for getByRole('heading', { name:
   'Automata Editors', level: 1 }) to be visible`, at `title` (line 29) from line 91. It was one full local run of all 347
   journeys in Chromium on `abe0ee7`, at 18:34 UTC, under the load of the whole run; alone it passed (15 of 15).
-- WebKit failed once in CI on `83c7274` (run 43928020067, shard `browsers (webkit 6/6)`):
-  `approve.journey.test.ts`, "grandpa opens the game…" at iPad upright; the crate drag did not register as a change.
-  Cause not found; the run for `abe0ee7` shows whether it recurs.
+- WebKit failed once in CI on `83c7274` (run 43928020067, shard `browsers (webkit 6/6)`): `approve.journey.test.ts`, "grandpa
+  opens the game…" at iPad upright. Text: `TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for
+  locator('button.put:not(.quiet)')`, at `pressPut` from `kidHasSaved` (line 72): the kid's setup drag of the crate did not
+  register as a change. The same test passed on the run before (43925736127) and in all 353 journeys in Chromium here.
+  WebKit is not installed in this container, so it could not be run here. The likely place: `dragByTouch` reads the
+  crate's box the moment `[data-thing]` exists and presses there, with no wait for the level to settle, so a late size
+  change in WebKit moves the crate out from under the press. That is a guess, not a finding. The next full run's result
+  for the pull request's head shows whether it recurs; the fix, if so, is to wait for the crate's box to hold still in
+  `tests/fixtures/journey.ts` (lane 2), not here.

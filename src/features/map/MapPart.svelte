@@ -162,13 +162,15 @@
   const touching = $derived(picked === undefined ? [] : neighbours(working, picked))
   const pairWalls = $derived(open?.kind === 'wall' ? marks.walls.filter((one) => one.a === open.a && one.b === open.b) : [])
 
+  // `clientWidth` rounds down, so a float is taken a pixel wider: it never runs a hair past the edge.
+  const whole = (size: { w: number; h: number }) => ({ w: size.w + 1, h: size.h + 1 })
   let barSize = $state({ w: 0, h: 0 })
   let cardSize = $state({ w: 0, h: 0 })
   const screen = $derived({ x: 0, y: 0, w: size.w, h: size.h })
   const keyRect = $derived({ x: 0, y: size.h - KEY_ROOM, w: size.w, h: KEY_ROOM })
   const pickedRect = $derived(picked === undefined ? undefined : rectFor(picked))
   const barAt = $derived(
-    pickedRect === undefined || drag !== undefined ? undefined : placeCard(barSize, pickedRect, [keyRect], screen),
+    pickedRect === undefined || drag !== undefined ? undefined : placeCard(whole(barSize), pickedRect, [keyRect], screen),
   )
   const cardAt = $derived.by(() => {
     if (open === undefined) return undefined
@@ -177,7 +179,7 @@
     if (anchor === undefined) return undefined
     const others = open.kind === 'wall' ? [open.a, open.b].filter((id) => id !== mine) : touching
     const clear = others.flatMap((id) => rectFor(id) ?? [])
-    return placeCard(cardSize, anchor, [keyRect, ...(barAt === undefined ? [] : [barAt]), ...clear], screen)
+    return placeCard(whole(cardSize), anchor, [keyRect, ...(barAt === undefined ? [] : [barAt]), ...clear], screen)
   })
 
   /** A level moved: one step, and a card for the wall when it now meets one and joins nothing. */

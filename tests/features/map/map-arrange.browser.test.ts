@@ -436,3 +436,27 @@ test('what Move apart does is said on the screen, not in a hover tip, and only f
   await tick()
   expect(box.textContent).not.toContain('so players can')
 })
+
+test('on a phone the bar and its menu stay inside the screen, whichever level was picked before', async () => {
+  size(390, 700)
+  await show()
+  const sheetRect = (): DOMRect => sheet().getBoundingClientRect()
+  const inside = (el: Element, what: string): void => {
+    const r = el.getBoundingClientRect()
+    const s = sheetRect()
+    expect(r.left, `${what} left`).toBeGreaterThanOrEqual(s.left)
+    expect(r.top, `${what} top`).toBeGreaterThanOrEqual(s.top)
+    expect(r.right, `${what} right`).toBeLessThanOrEqual(s.right)
+    expect(r.bottom, `${what} bottom`).toBeLessThanOrEqual(s.bottom)
+  }
+  for (const id of ['room-1', 'room-3', 'room-2', 'room-3']) {
+    level(id).click()
+    await tick()
+    await wait(50)
+    inside(box.querySelector('[role="toolbar"]') as Element, `${id}'s bar`)
+    await press('More')
+    await wait(50)
+    inside(box.querySelector('[role="menu"]') as Element, `${id}'s menu`)
+    await press('More')
+  }
+})
