@@ -140,4 +140,55 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await page.getByRole('button', { name: 'Undo' }).last().click()
     await page.locator('[data-level="cellar"]').waitFor()
   })
+  test('the map zooms with Ctrl and the wheel, slides with the wheel, and "Whole world" brings every level back', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await openMap(page, size)
+    const scaleNow = async (): Promise<number> =>
+      Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+    const whole = page.getByRole('button', { name: 'Whole world', exact: true })
+    const fitted = await scaleNow()
+    expect(await whole.getAttribute('aria-pressed')).toBe('true')
+    const room = await page.locator('[data-level="room-2"]').boundingBox()
+    if (room === null) throw new Error('no room-2 on the map')
+    await page.mouse.move(room.x + room.width / 2, room.y + room.height / 2)
+    await page.keyboard.down('Control')
+    await page.mouse.wheel(0, -500)
+    await page.keyboard.up('Control')
+    await page.waitForFunction(
+      (was) => Number(document.querySelector('[data-scale]')?.getAttribute('data-scale')) > was * 1.5,
+      fitted,
+    )
+    expect(await whole.getAttribute('aria-pressed')).toBe('false')
+    // The wheel on its own slides the zoomed map: the level moves up the screen as the wheel turns down. A bar or a card
+    // over the pointer keeps the wheel for itself, so it turns over a spot of the map clear of them.
+    const clear = await page.evaluate(() => {
+      const sheet = document.querySelector('[role="region"]')?.getBoundingClientRect()
+      if (sheet === undefined) return null
+      for (let y = sheet.top + 80; y < sheet.bottom - 80; y += 40) {
+        for (let x = sheet.left + 20; x < sheet.right - 20; x += 40) {
+          const hit = document.elementFromPoint(x, y)
+          if (hit !== null && hit.closest('[role="region"]') !== null && hit.closest('[data-ui]') === null)
+            return { x, y }
+        }
+      }
+      return null
+    })
+    if (clear === null) throw new Error('no spot on the map clear of the buttons')
+    await page.mouse.move(clear.x, clear.y)
+    const before = await page.locator('[data-level="room-2"]').boundingBox()
+    await page.mouse.wheel(0, 120)
+    await page.waitForFunction(
+      (top) =>
+        (document.querySelector('[data-level="room-2"]')?.getBoundingClientRect().top ?? top) < top - 60,
+      before?.y ?? 0,
+    )
+    // Two frames on, what the page shows is what is drawn.
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))))
+    await picture(page, `map-zoomed-${size}`)
+    await whole.click()
+    expect(await scaleNow()).toBe(fitted)
+    expect(await whole.getAttribute('aria-pressed')).toBe('true')
+    expect(await page.locator('[data-level]').count()).toBe(3)
+  })
 })

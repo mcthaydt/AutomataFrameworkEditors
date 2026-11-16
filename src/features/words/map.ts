@@ -7,6 +7,7 @@ type Key =
   | 'mapWord'
   | 'mapAbout'
   | 'listLevels'
+  | 'wholeWorld'
   | 'markJoin'
   | 'markWall'
   | 'markDoor'
@@ -24,6 +25,7 @@ export const map = {
     mapWord: 'Map',
     mapAbout: 'Every level on one sheet',
     listLevels: 'Levels',
+    wholeWorld: 'Whole world',
     markJoin: (a, b) => `Players walk straight from ${a} into ${b}`,
     markWall: (a, b) => `${a} and ${b} meet at a wall`,
     markDoor: (from, to) => `A door in ${from} leads to ${to}`,
@@ -40,6 +42,7 @@ export const map = {
     mapWord: 'Mapa',
     mapAbout: 'Todos los niveles en una hoja',
     listLevels: 'Niveles',
+    wholeWorld: 'El mundo entero',
     markJoin: (a, b) => `Los jugadores caminan directo de ${a} a ${b}`,
     markWall: (a, b) => `${a} y ${b} se tocan en un muro`,
     markDoor: (from, to) => `Una puerta de ${from} lleva a ${to}`,
@@ -56,6 +59,7 @@ export const map = {
     mapWord: '지도',
     mapAbout: '모든 레벨을 한 장에',
     listLevels: '레벨',
+    wholeWorld: '월드 전체',
     markJoin: (a, b) => `플레이어가 ${a}에서 ${b}로 곧장 걸어가요`,
     markWall: (a, b) => `${a}와(과) ${b}이(가) 벽으로 만나요`,
     markDoor: (from, to) => `${from}의 문이 ${to}(으)로 이어져요`,
@@ -72,6 +76,7 @@ export const map = {
     mapWord: 'マップ',
     mapAbout: 'すべてのレベルを1枚に',
     listLevels: 'レベル',
+    wholeWorld: 'ワールド全体',
     markJoin: (a, b) => `プレイヤーは${a}から${b}へそのまま歩いて行けます`,
     markWall: (a, b) => `${a}と${b}は壁で接しています`,
     markDoor: (from, to) => `${from}のドアは${to}につながっています`,
@@ -88,6 +93,7 @@ export const map = {
     mapWord: '地图',
     mapAbout: '所有关卡在一张图上',
     listLevels: '关卡',
+    wholeWorld: '整个世界',
     markJoin: (a, b) => `玩家可以直接从${a}走到${b}`,
     markWall: (a, b) => `${a}和${b}在一堵墙处相接`,
     markDoor: (from, to) => `${from}里的一扇门通向${to}`,
@@ -104,6 +110,7 @@ export const map = {
     mapWord: 'Mapa',
     mapAbout: 'Todos os níveis numa folha',
     listLevels: 'Níveis',
+    wholeWorld: 'Mundo inteiro',
     markJoin: (a, b) => `Os jogadores andam direto de ${a} para ${b}`,
     markWall: (a, b) => `${a} e ${b} se encontram num muro`,
     markDoor: (from, to) => `Uma porta em ${from} leva a ${to}`,
@@ -120,6 +127,7 @@ export const map = {
     mapWord: 'Carte',
     mapAbout: 'Tous les niveaux sur une seule feuille',
     listLevels: 'Niveaux',
+    wholeWorld: 'Le monde entier',
     markJoin: (a, b) => `Les joueurs marchent tout droit de ${a} à ${b}`,
     markWall: (a, b) => `${a} et ${b} se touchent par un mur`,
     markDoor: (from, to) => `Une porte de ${from} mène à ${to}`,
@@ -136,6 +144,7 @@ export const map = {
     mapWord: 'Карта',
     mapAbout: 'Все уровни на одном листе',
     listLevels: 'Уровни',
+    wholeWorld: 'Весь мир',
     markJoin: (a, b) => `Игроки идут прямо из ${a} в ${b}`,
     markWall: (a, b) => `${a} и ${b} соединены стеной`,
     markDoor: (from, to) => `Дверь в ${from} ведёт в ${to}`,
@@ -152,6 +161,7 @@ export const map = {
     mapWord: 'Karte',
     mapAbout: 'Alle Level auf einem Blatt',
     listLevels: 'Level',
+    wholeWorld: 'Ganze Welt',
     markJoin: (a, b) => `Spieler gehen direkt von ${a} nach ${b}`,
     markWall: (a, b) => `${a} und ${b} stoßen an einer Wand zusammen`,
     markDoor: (from, to) => `Eine Tür in ${from} führt nach ${to}`,

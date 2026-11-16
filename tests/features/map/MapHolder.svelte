@@ -19,6 +19,7 @@
   export const now = (): Edits['now'] => edits.now
   export const steps = (): number => edits.past.length
   export const pickedNow = (): string | undefined => picked
+  export const pick = (level: string | undefined): void => void (picked = level)
   export const undo = (): void => void (edits = stepBack(edits))
 </script>
 
