@@ -4,6 +4,7 @@
 import { type GameContent, loadGame } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { userEvent } from 'vitest/browser'
 import { startEdits } from '#src/features/game/game.ts'
 import { readFrom } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
@@ -252,10 +253,14 @@ test('tabbing to a level that is out of sight brings it into sight, without the 
   const sight = sheet().getBoundingClientRect()
   const centred = (r: DOMRect): boolean =>
     r.left + r.width / 2 > sight.left && r.left + r.width / 2 < sight.right
-  const out = ['room-1', 'room-2', 'room-3'].find((id) => !centred(at(id)))
-  expect(out).toBeDefined()
-  level(out as string).focus()
-  await vi.waitFor(() => expect(centred(at(out as string))).toBe(true))
+  // The last level in the page's order, so the Tab key has to pass the others to reach it.
+  expect(centred(at('room-3'))).toBe(false)
+  ;(document.activeElement as HTMLElement | null)?.blur()
+  for (let presses = 0; presses < 6 && document.activeElement !== level('room-3'); presses += 1) {
+    await userEvent.tab()
+  }
+  expect(document.activeElement).toBe(level('room-3'))
+  await vi.waitFor(() => expect(centred(at('room-3'))).toBe(true))
   expect(sheet().scrollLeft).toBe(0)
   expect(sheet().scrollTop).toBe(0)
 })
