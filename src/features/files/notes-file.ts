@@ -47,7 +47,8 @@ const NoteSchema = z.object({
   by: z.string(),
   when: z.string(),
   words: z.string(),
-  answers: z.array(Answer),
+  // A note with no answers has no answer tables in the file, so none is the same as an empty list.
+  answers: z.array(Answer).default([]),
   done: z.boolean(),
 })
 const Schema = z.object({ format: z.literal(1), notes: z.array(NoteSchema) })
