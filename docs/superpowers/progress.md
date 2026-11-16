@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 20:23 UTC (from `date`).
+Last updated: 2026-11-16 21:08 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -11,6 +11,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
+- Plan pull request 13 (lane B), putting changes in: built on a branch, in review. One press of the main button shows what
+  would go; the sheet's own button puts it in as one commit of every file that changed, or sends it to be checked; failures
+  (offline, busy, blocked, look-only, broken game) keep the changes and say what to do; a visitor keeps a copy; problems are
+  counted in the top bar and shown on the level or the map. `/api/save` and the save sheet are gone. Changed from the plan:
+  the put sheet is local to the World screen, not a route, so after signing in again the person is back on the level with
+  their changes and presses the main button once more. Left for later: "See what changed" on the done sheet and notes (PR 16);
+  the per-clash sheet (PR 15, so after a clash the game's version is kept and one Undo brings the person's back); "Show me on
+  the level" on the waiting sheet. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.
