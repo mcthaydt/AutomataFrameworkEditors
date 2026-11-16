@@ -19,6 +19,8 @@ export interface OpenGame {
   readonly content: GameContent
   /** Every file that came back, by its path. */
   readonly files: ReadonlyMap<string, WireFile>
+  /** The path of the world file the project lists; undefined when the game has none (yet). */
+  readonly worldPath: string | undefined
 }
 
 export type Opened =
@@ -51,6 +53,7 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       waiting: value.waiting,
       content: loaded.value,
       files,
+      worldPath: loaded.value.project.content.find((ref) => ref.type === 'world')?.path,
     },
   }
 }
