@@ -298,7 +298,11 @@ test("grandpa turns kid's change down: closed, the branch kept, a comment says w
   expect(res.answer).toEqual({ ok: true, value: true })
   expect(repo().pulls[0]?.state).toBe('closed')
   expect(repo().branches.has('automata/kid')).toBe(true)
-  expect(repo().comments.get(1)?.map((c) => c.text)).toEqual(['Not put in by grandpa'])
+  expect(
+    repo()
+      .comments.get(1)
+      ?.map((c) => c.text),
+  ).toEqual(['Not put in by grandpa'])
   expect(repo().branches.get('main')?.get(LEVEL_PATH)).toBe(fixtureFiles[LEVEL_PATH])
 })
 

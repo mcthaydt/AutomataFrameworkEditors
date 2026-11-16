@@ -683,7 +683,8 @@ test("a review that asks for changes or approves is 422 on a pull the App opened
   const fork = main().addForkPull('automata/other', 'someone/crate-game')
   const review = (number: number, event: string) =>
     gh(`${REPO}/pulls/${number}/reviews`, { method: 'POST', as: token, body: { event, body: 'x' } })
-  for (const event of ['REQUEST_CHANGES', 'APPROVE']) expect((await review(own.number, event)).status).toBe(422)
+  for (const event of ['REQUEST_CHANGES', 'APPROVE'])
+    expect((await review(own.number, event)).status).toBe(422)
   expect((await review(own.number, 'COMMENT')).status).toBe(200)
   expect((await review(fork.number, 'REQUEST_CHANGES')).status).toBe(200)
 })

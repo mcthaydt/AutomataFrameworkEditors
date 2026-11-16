@@ -130,7 +130,11 @@ test("grandpa turns kid's change down: it closes, the branch stays, and kid is t
   expect(res.answer).toEqual({ ok: true, value: true })
   expect(repo().pulls[0]?.state).toBe('closed')
   expect(repo().branches.has('automata/kid')).toBe(true)
-  expect(repo().comments.get(1)?.map((c) => c.text)).toEqual([`${NOT_PUT_IN}grandpa`])
+  expect(
+    repo()
+      .comments.get(1)
+      ?.map((c) => c.text),
+  ).toEqual([`${NOT_PUT_IN}grandpa`])
   const game = await opened('kid')
   expect(game.mine).toBeUndefined()
   expect(game.turnedDown).toEqual({ by: 'grandpa', at: T0 })
