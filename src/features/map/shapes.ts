@@ -87,3 +87,40 @@ export function curve(from: Point, to: Point): string {
   const lift = Math.min(60, Math.hypot(to.x - from.x, to.y - from.y) / 3)
   return `M${from.x} ${from.y} Q${(from.x + to.x) / 2} ${Math.min(from.y, to.y) - lift} ${to.x} ${to.y}`
 }
+
+type Stretch = Parameters<typeof stretchOf>[0]
+
+/** Each shared stretch as a line of pixels, named by its pair; one with no level to sit on is left out. */
+export function linesOf(
+  stretches: readonly Stretch[],
+  all: readonly Box[],
+  camera: Camera,
+  size: Screen,
+): { readonly a: string; readonly b: string; readonly from: Point; readonly to: Point }[] {
+  return stretches.flatMap((one) => {
+    const found = stretchOf(one, all, camera, size)
+    return found === undefined ? [] : [{ a: one.a, b: one.b, ...found }]
+  })
+}
+
+/** Each door as an arrow named by where it is and where it goes; one with no level to sit on is left out. */
+export function arrowsOf(
+  doors: readonly Door[],
+  all: readonly Box[],
+  levels: Readonly<Record<string, Level>>,
+  camera: Camera,
+  size: Screen,
+): {
+  readonly level: string
+  readonly thing: string
+  readonly goes: string
+  readonly from: Point
+  readonly to: Point
+}[] {
+  return doors.flatMap((door) => {
+    const found = arrowOf(door, all, levels, camera, size)
+    return found === undefined
+      ? []
+      : [{ level: door.from.level, thing: door.from.thing, goes: door.to.level, ...found }]
+  })
+}

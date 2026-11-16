@@ -104,6 +104,11 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     expect(await count(page, 'join')).toBe(joins)
     await page.waitForTimeout(300)
     await picture(page, `map-apart-${size}`)
+    await drag(page, 'room-3', { x: -1.8, y: 0 }, false)
+    await page.mouse.up()
+    expect(await count(page, 'join')).toBe(joins + 1)
+    await page.keyboard.press('Control+z')
+    expect(await count(page, 'join')).toBe(joins)
     await page.keyboard.press('Control+z')
     expect(await count(page, 'join')).toBe(joins + 1)
 

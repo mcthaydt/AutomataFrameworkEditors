@@ -5,6 +5,7 @@ import { type GameContent, loadGame } from '@automataframework/framework/headles
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { startEdits } from '#src/features/game/game.ts'
+import { emptyKind, kindsOf, paint } from '#src/features/levels/levels.ts'
 import { readFrom } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
 import { linksMap } from '../../fixtures/links-game/read.ts'
@@ -40,8 +41,8 @@ afterEach(() => {
   box.remove()
 })
 
-async function show(): Promise<void> {
-  mounted = mount(MapHolder, { target: box, props: { content, start } })
+async function show(from = start): Promise<void> {
+  mounted = mount(MapHolder, { target: box, props: { content, start: from } })
   holder = mounted as typeof holder
   await tick()
   await vi.waitFor(() => expect(box.querySelector('[data-level]')).not.toBeNull())
@@ -165,9 +166,13 @@ test('room-3 pulled apart from room-2 no longer joins; pushed back it joins; roo
   expect(marks('join')).toBe(1)
   await press('Move apart')
   expect(marks('join')).toBe(0)
+  expect(said()).toContain('Room 2 and Room 3 no longer touch')
+  expect(said()).toContain("Players can't walk across now")
   const apart = at('room-3')
   await drag('room-3', { x: -((apart?.x ?? 0) - (at('room-2')?.x ?? 0) - 16 - 0.2), y: 0 })
   expect(marks('join')).toBe(1)
+  expect(said()).toContain('Room 2 and Room 3 now touch')
+  expect(said()).toContain('Players walk straight from one into the other')
   holder.undo()
   await tick()
   expect(marks('join')).toBe(0)
@@ -207,10 +212,18 @@ test('the pad moves the picked level a tile a tap, and says when one more tap wo
   await tick()
   await press('Move apart')
   await press('Move')
-  expect(box.textContent).toContain('arrow keys')
+  // Two tiles apart: one tap leaves a tile between them, so the pad only speaks of the keys.
+  expect(box.textContent).toContain('On a keyboard')
+  expect(box.textContent).not.toContain('One more tap')
   const x = at('room-3')?.x ?? 0
   await press('Move left')
   expect(at('room-3')?.x).toBe(x - 1)
+  // One tap from touching: it says so, by name.
+  expect(box.textContent).toContain('One more tap and Room 3 touches Room 2')
+  await press('Move left')
+  // Touching: they join, and the line is gone.
+  expect(marks('join')).toBe(1)
+  expect(box.textContent).not.toContain('One more tap')
 })
 
 test('a new level is made beside the others, with its card; renaming it says what it changes first; deleting it can be undone', async () => {
@@ -246,4 +259,180 @@ test('the level the game starts in can not be deleted, and a refusal says why', 
   await press('Delete')
   expect(levels()).toHaveLength(3)
   expect(said()).toContain('The game starts in this level')
+})
+
+// ---- Press and hold, a slow swipe, a pinch, a double tap, copies and the wall card's other ways out ----
+
+const wait = (ms: number): Promise<void> => new Promise((done) => setTimeout(done, ms))
+const sheet = (): HTMLElement => box.querySelector('[role="region"]') as HTMLElement
+function finger(el: Element, type: string, id: number, x: number, y: number): void {
+  el.dispatchEvent(
+    new PointerEvent(type, {
+      pointerId: id,
+      pointerType: 'touch',
+      isPrimary: id === 1,
+      clientX: x,
+      clientY: y,
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
+      bubbles: true,
+    }),
+  )
+}
+/** A spot on empty ground, clear of every level. */
+const ground = (): { x: number; y: number } => {
+  const at = sheet().getBoundingClientRect()
+  return { x: at.left + 24, y: at.top + 120 }
+}
+
+test('a slow swipe on empty ground makes no level', async () => {
+  await show()
+  const from = ground()
+  finger(sheet(), 'pointerdown', 1, from.x, from.y)
+  for (let step = 1; step <= 6; step += 1) {
+    finger(sheet(), 'pointermove', 1, from.x + step * 30, from.y)
+    await wait(120)
+  }
+  finger(sheet(), 'pointerup', 1, from.x + 180, from.y)
+  await tick()
+  expect(levels()).toHaveLength(3)
+})
+
+test('a two-finger pinch on empty ground makes no level', async () => {
+  await show()
+  const from = ground()
+  finger(sheet(), 'pointerdown', 1, from.x, from.y)
+  finger(sheet(), 'pointerdown', 2, from.x + 60, from.y)
+  for (let step = 1; step <= 4; step += 1) {
+    finger(sheet(), 'pointermove', 2, from.x + 60 + step * 20, from.y)
+    await wait(180)
+  }
+  finger(sheet(), 'pointerup', 2, from.x + 140, from.y)
+  finger(sheet(), 'pointerup', 1, from.x, from.y)
+  await tick()
+  expect(levels()).toHaveLength(3)
+})
+
+test('a still hold on empty ground makes one level, with its card; a tap there only clears the pick', async () => {
+  await show()
+  level('room-1').click()
+  await tick()
+  expect(holder.pickedNow()).toBe('room-1')
+  const from = ground()
+  finger(sheet(), 'pointerdown', 1, from.x, from.y)
+  finger(sheet(), 'pointerup', 1, from.x, from.y)
+  await tick()
+  expect(holder.pickedNow()).toBeUndefined()
+  expect(levels()).toHaveLength(3)
+  finger(sheet(), 'pointerdown', 1, from.x, from.y)
+  await wait(700)
+  finger(sheet(), 'pointerup', 1, from.x, from.y)
+  await tick()
+  expect(levels()).toHaveLength(4)
+  expect(box.textContent).toContain('A new level, ready to play')
+})
+
+test('press and hold on a level opens its menu and picks it; a short press does not', async () => {
+  await show()
+  level('room-2').click()
+  await tick()
+  expect(button('Rename')).toBeUndefined()
+  const rect = level('room-3').getBoundingClientRect()
+  const x = rect.left + rect.width / 2
+  const y = rect.top + rect.height / 2
+  finger(level('room-3'), 'pointerdown', 1, x, y)
+  await wait(700)
+  finger(level('room-3'), 'pointerup', 1, x, y)
+  await tick()
+  expect(holder.pickedNow()).toBe('room-3')
+  expect(button('Rename')).not.toBeUndefined()
+  expect(button('Make a copy')).not.toBeUndefined()
+})
+
+test('a second tap soon after the first goes in; two taps far apart only pick', async () => {
+  const went: string[] = []
+  mounted = mount(MapHolder, { target: box, props: { content, start, went: (id: string) => went.push(id) } })
+  holder = mounted as typeof holder
+  await tick()
+  await vi.waitFor(() => expect(box.querySelector('[data-level]')).not.toBeNull())
+  level('room-2').click()
+  await wait(700)
+  level('room-2').click()
+  expect(went).toEqual([])
+  level('room-2').click()
+  expect(went).toEqual(['room-2'])
+})
+
+test('Make a copy adds a level beside the others, with a note that undoes it', async () => {
+  await show()
+  level('room-2').click()
+  await tick()
+  await press('More')
+  await press('Make a copy')
+  expect(levels()).toHaveLength(4)
+  expect(said()).toContain('Made a copy')
+  await press('Undo')
+  expect(levels()).toHaveLength(3)
+})
+
+/** The links game with a gap in Room 2's left edge, three rows above where Room 1 is open: a slide can meet it. */
+const holed = (): typeof start => {
+  const room2 = start.now.levels['room-2']
+  if (room2 === undefined) throw new Error('no room-2')
+  const gap = paint(
+    room2,
+    content.characters,
+    [{ col: 0, row: 2 }],
+    emptyKind(kindsOf(room2, content.tilesets)),
+  )
+  if (!gap.ok) throw new Error('the gap did not open')
+  const now = { ...start.now, levels: { ...start.now.levels, 'room-2': gap.value } }
+  return { ...start, base: now, now }
+}
+
+test('the wall card slides the level so the openings meet, when there is a way', async () => {
+  await show(holed())
+  await drag('room-1', { x: 3.4, y: 0.2 })
+  await vi.waitFor(() => expect(box.querySelector('[data-way="move"]')).not.toBeNull())
+  expect(box.querySelector('[data-way="move"]')?.textContent).toContain('Room 1')
+  const joins = marks('join')
+  box.querySelector<HTMLElement>('[data-way="move"]')?.click()
+  await tick()
+  // Where the openings meet they join; the rest of the shared side is still a wall.
+  expect(marks('join')).toBe(joins + 1)
+  holder.undo()
+  await tick()
+  expect(marks('join')).toBe(joins)
+})
+
+test('the wall card has no slide when the other level has no opening to meet', async () => {
+  await show()
+  await drag('room-1', { x: 3.4, y: 0.2 })
+  await vi.waitFor(() => expect(box.querySelector('[data-way="clear"]')).not.toBeNull())
+  expect(box.querySelector('[data-way="move"]')).toBeNull()
+})
+
+test('the wall card can move them apart, and the wall is gone', async () => {
+  await show()
+  await drag('room-1', { x: 3.4, y: 0.2 })
+  await vi.waitFor(() => expect(box.querySelector('[data-way="apart"]')).not.toBeNull())
+  box.querySelector<HTMLElement>('[data-way="apart"]')?.click()
+  await tick()
+  expect(marks('wall')).toBe(0)
+  expect(box.querySelector('[data-way]')).toBeNull()
+  holder.undo()
+  await tick()
+  expect(marks('wall')).toBe(1)
+})
+
+test('what Move apart does is said on the screen, not in a hover tip, and only for a level that touches another', async () => {
+  await show()
+  level('room-3').click()
+  await tick()
+  await press('More')
+  expect(box.textContent).toContain("Move it away from Room 2, so players can't walk across")
+  expect(box.querySelector('[title]')).toBeNull()
+  level('room-1').click()
+  await tick()
+  expect(box.textContent).not.toContain('so players can')
 })

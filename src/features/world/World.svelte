@@ -11,7 +11,7 @@
     type Edits,
     inLevel,
     isChanged,
-        keepDrafts,
+    keepDrafts,
     levelCopy,
     type OpenGame,
     redo,
@@ -115,6 +115,8 @@
   let pickedLevel = $state<string | undefined>(
     untrack(() => (route.screen === 'map' && route.level !== undefined && given.content.levels[route.level] ? route.level : undefined)),
   )
+  // A level that is gone (undone away) is no longer picked.
+  const pickedOnMap = $derived(pickedLevel !== undefined && edits.now.levels[pickedLevel] !== undefined ? pickedLevel : undefined)
   let tool = $state<Tool>('pick')
   /** The character the Place tool is holding (or the tray's start). */
   let placing = $state<string | undefined>(undefined)
@@ -423,7 +425,7 @@
             pictures={held.pictures}
             working={edits.now}
             {lang}
-            picked={pickedLevel}
+            picked={pickedOnMap}
             onpick={(next) => (pickedLevel = next)}
             ongo={(next) => go({ screen: 'level', ...here, level: next })}
             onchange={(next) => keep(change(edits, next))}

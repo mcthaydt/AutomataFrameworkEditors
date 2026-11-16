@@ -1,6 +1,7 @@
 <script lang="ts">
   // What can be done with the picked level, in one row of big buttons beside it: Go in, Move, Move apart (only when it
-  // touches another level) and the three dots, which open Rename, Make a copy and Delete. The caller places it.
+  // touches another level) and the three dots. The three dots (and press and hold) open the same with a small line under
+  // each saying what it does, so a finger reads it too, and Rename, Make a copy and Delete. The caller places it.
   import { Icon } from '../ui/ui.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
 
@@ -24,16 +25,21 @@
   let { lang, level, moving, touching, more, ongo, onmove, onapart, onmore, onrename, oncopy, onremove }: Props = $props()
 
   const words = $derived(wordsIn(lang).arrange)
+  /** A choice in the menu closes it first. */
+  const choose = (what: () => void) => () => {
+    onmore()
+    what()
+  }
   const text = (row: Row, ...parts: string[]): string => (typeof row === 'function' ? row(...parts) : row)
 </script>
 
 <div class="bar" role="toolbar" aria-label={text(words.levelBar, nameOf(level))}>
   <button type="button" class="act" onclick={ongo}><Icon name="arrow-right" /><span>{text(words.goIn)}</span></button>
-  <button type="button" class="act" aria-pressed={moving} title={text(words.moveAbout)} onclick={onmove}>
+  <button type="button" class="act" aria-pressed={moving} onclick={onmove}>
     <Icon name="arrows-out-cardinal" /><span>{text(words.move)}</span>
   </button>
   {#if touching !== undefined}
-    <button type="button" class="act" title={text(words.pullAbout, nameOf(touching))} onclick={onapart}>
+    <button type="button" class="act" onclick={onapart}>
       <Icon name="arrows-out-line-horizontal" /><span>{text(words.pullApart)}</span>
     </button>
   {/if}
@@ -42,14 +48,25 @@
   </button>
   {#if more}
     <div class="menu" role="menu">
+      <button type="button" role="menuitem" class="item" onclick={choose(ongo)}>
+        <Icon name="arrow-right" /><span class="label">{text(words.goIn)}</span>
+      </button>
+      <button type="button" role="menuitem" class="item" onclick={choose(onmove)}>
+        <Icon name="arrows-out-cardinal" /><span class="label">{text(words.move)}<small>{text(words.moveAbout)}</small></span>
+      </button>
+      {#if touching !== undefined}
+        <button type="button" role="menuitem" class="item" onclick={choose(onapart)}>
+          <Icon name="arrows-out-line-horizontal" /><span class="label">{text(words.pullApart)}<small>{text(words.pullAbout, nameOf(touching))}</small></span>
+        </button>
+      {/if}
       <button type="button" role="menuitem" class="item" onclick={onrename}>
-        <Icon name="pencil-simple" /><span>{text(words.rename)}</span>
+        <Icon name="pencil-simple" /><span class="label">{text(words.rename)}</span>
       </button>
       <button type="button" role="menuitem" class="item" onclick={oncopy}>
-        <Icon name="copy" /><span>{text(words.copy)}</span>
+        <Icon name="copy" /><span class="label">{text(words.copy)}</span>
       </button>
       <button type="button" role="menuitem" class="item" onclick={onremove}>
-        <Icon name="trash" /><span>{text(words.remove)}</span><small>{text(words.removeAbout)}</small>
+        <Icon name="trash" /><span class="label">{text(words.remove)}<small>{text(words.removeAbout)}</small></span>
       </button>
     </div>
   {/if}
@@ -98,7 +115,8 @@
     right: 0;
     display: flex;
     flex-direction: column;
-    min-width: 200px;
+    width: 280px;
+    max-width: calc(100vw - 24px);
     padding: 4px;
     border-radius: 14px;
     border: 1px solid var(--glass-edge);
@@ -107,10 +125,15 @@
   }
   .item {
     justify-content: flex-start;
+    text-align: left;
+  }
+  .label {
+    display: flex;
+    flex-direction: column;
   }
   small {
-    margin-left: auto;
     color: var(--quiet);
     font-size: 12px;
+    white-space: normal;
   }
 </style>

@@ -24,7 +24,7 @@
   import { Note } from '../ui/ui.ts'
   import type { OpenPicture } from '../wire/wire.ts'
   import { idOf, type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
-  import { boxes, landing, marksOf, moveLevel, neighbours, nudgeLevel, pullApart } from './arrange.ts'
+  import { boxes, landing, marksOf, moveLevel, neighbours, nextJoin, nudgeLevel, pullApart, touchChange } from './arrange.ts'
   import LevelBar from './LevelBar.svelte'
   import { mapCanvas } from './map-canvas.ts'
   import MapKey from './MapKey.svelte'
@@ -32,7 +32,7 @@
   import NewLevelCard from './NewLevelCard.svelte'
   import PadCard from './PadCard.svelte'
   import { fits, freeSpot, landingWords, placeCard, type Rect } from './placing.ts'
-  import { arrowOf, KEY_ROOM, mapCamera, rectOf, stretchOf } from './shapes.ts'
+  import { arrowsOf, KEY_ROOM, linesOf, mapCamera, rectOf } from './shapes.ts'
   import { clearWalls, meetOpenings, tilesToClear } from './walls.ts'
   import WallCard from './WallCard.svelte'
 
@@ -79,10 +79,6 @@
     drag === undefined ? all : all.map((box) => (box.level === drag?.level ? { ...box, ...dragAt(drag) } : box)),
   )
   const placed = $derived(shown.map((box) => ({ id: box.level, rect: rectOf(box, camera, size) })))
-  const line = (stretch: (typeof marks.joins)[number], at = all) => {
-    const found = stretchOf(stretch, at, camera, size)
-    return found === undefined ? [] : [{ a: stretch.a, b: stretch.b, ...found }]
-  }
   // What the dragged level touches is shown where it would land, not where it was.
   const apart = (one: { a: string; b: string }): boolean => drag === undefined || (one.a !== drag.level && one.b !== drag.level)
   const there = $derived(
@@ -90,20 +86,14 @@
       ? all.map((box) => (box.level === drag?.level ? { ...box, ...dropping.at } : box))
       : all,
   )
-  const joins = $derived(marks.joins.filter(apart).flatMap((one) => line(one)))
-  const soon = $derived(dropping?.kind === 'touch' ? dropping.joins.flatMap((one) => line(one, there)) : [])
+  const lines = (stretches: Parameters<typeof linesOf>[0], at = all) => linesOf(stretches, at, camera, size)
+  const joins = $derived(lines(marks.joins.filter(apart)))
+  const soon = $derived(dropping?.kind === 'touch' ? lines(dropping.joins, there) : [])
   const walls = $derived([
-    ...marks.walls.filter(apart).flatMap((one) => line(one)),
-    ...(dropping?.kind === 'touch' ? dropping.walls.flatMap((one) => line(one, there)) : []),
+    ...lines(marks.walls.filter(apart)),
+    ...(dropping?.kind === 'touch' ? lines(dropping.walls, there) : []),
   ])
-  const doors = $derived(
-    marks.doors.flatMap((door) => {
-      const found = arrowOf(door, shown, working.levels, camera, size)
-      return found === undefined
-        ? []
-        : [{ level: door.from.level, thing: door.from.thing, goes: door.to.level, ...found }]
-    }),
-  )
+  const doors = $derived(arrowsOf(marks.doors, shown, working.levels, camera, size))
   const start = $derived.by(() => {
     const at = placed.find((one) => one.id === marks.start)
     return at === undefined ? undefined : { level: at.id, rect: at.rect }
@@ -193,32 +183,31 @@
   /** A level moved: one step, and a card for the wall when it now meets one and joins nothing. */
   function moved(id: string, done: Done<Working>): void {
     if (!done.ok) return done.why === 'occupied' ? say(text(ways.overlapped)) : refuse(done)
+    const before = working
     onchange(done.value)
     const now = marksOf(done.value, content)
     const wall = now.walls.find((one) => one.a === id || one.b === id)
     if (wall !== undefined && !now.joins.some((one) => one.a === id || one.b === id)) {
       card = { kind: 'wall', a: wall.a, b: wall.b }
-    }
+    } else announce(id, before, done.value)
+  }
+  /** Said after a level joins or leaves another, with Undo. */
+  function announce(id: string, before: Working, next: Working): void {
+    const change = touchChange(before, next, content, id)
+    if (change === undefined) return
+    const [title, body] = change.kind === 'touch' ? [ways.touchTitle, ways.touchBody] : [ways.apartTitle, ways.apartBody]
+    undoable(`${text(title, nameOf(change.a), nameOf(change.b))} ${text(body)}`)
   }
   const nudge = (way: Way): void => {
     if (picked !== undefined) moved(picked, nudgeLevel(working, content.tilesets, picked, way))
   }
 
   // One more tap and the pad's level joins another: said under the arrows.
-  const nextJoin = $derived.by(() => {
-    const box = picked === undefined ? undefined : origin(picked)
-    if (picked === undefined || box === undefined || open?.kind !== 'pad') return undefined
-    if (marks.joins.some((one) => one.a === picked || one.b === picked)) return undefined
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
-      const next = landing(working, content.tilesets, picked, { x: box.x + dx, y: box.y + dy })
-      if (next.kind === 'touch' && next.joins[0] !== undefined) return next.joins[0]
-    }
-    return undefined
-  })
+  const soonJoin = $derived(picked === undefined || open?.kind !== 'pad' ? undefined : nextJoin(working, content, picked))
   const padNote = $derived(
-    nextJoin === undefined || picked === undefined
+    soonJoin === undefined || picked === undefined
       ? text(ways.padKeys)
-      : text(ways.padNext, nameOf(picked), nameOf(nextJoin.a === picked ? nextJoin.b : nextJoin.a)),
+      : text(ways.padNext, nameOf(picked), nameOf(soonJoin.a === picked ? soonJoin.b : soonJoin.a)),
   )
 
   // The wall card's four ways out. The level that slides or moves apart is the picked one when it is in the pair.
@@ -301,13 +290,31 @@
   // A hand down on a level drags it once it has moved a little, or opens the three dots when it stays still; on empty
   // ground, staying still makes a level there.
   const LITTLE = 8
-  let press: { level: string | undefined; x: number; y: number; at: LevelPoint; held: boolean; timer?: ReturnType<typeof setTimeout> } | undefined
+  // A hold is one finger staying put: a second finger, or a slide past LITTLE, is something else and makes nothing.
+  let press:
+    | { level: string | undefined; x: number; y: number; at: LevelPoint; held: boolean; moved: boolean; timer?: ReturnType<typeof setTimeout> }
+    | undefined
+  const fingers = new Set<number>()
+  function still(): void {
+    if (press === undefined) return
+    clearTimeout(press.timer)
+    press.moved = true
+  }
+  function touched(e: PointerEvent): void {
+    fingers.add(e.pointerId)
+    if (fingers.size > 1) still()
+  }
+  function sweep(e: PointerEvent): void {
+    if (press === undefined || press.level !== undefined || press.moved) return
+    if (Math.hypot(e.clientX - press.x, e.clientY - press.y) >= LITTLE) still()
+  }
   function down(e: PointerEvent, level: string | undefined): void {
-    if (e.button !== 0 || holder === undefined) return
+    if (e.button !== 0 || holder === undefined || fingers.size > 1) return
     skip = false
+    clearTimeout(press?.timer)
     const box = holder.getBoundingClientRect()
     const at = toTiles(camera, size, { x: e.clientX - box.left, y: e.clientY - box.top })
-    const now = { level, x: e.clientX, y: e.clientY, at, held: false }
+    const now = { level, x: e.clientX, y: e.clientY, at, held: false, moved: false }
     press = { ...now, timer: setTimeout(() => hold(now), HOLD_MS) }
     try {
       if (level !== undefined) (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -316,7 +323,7 @@
     }
   }
   function hold(now: { level: string | undefined; at: LevelPoint }): void {
-    if (press === undefined || drag !== undefined) return
+    if (press === undefined || press.moved || drag !== undefined) return
     press.held = true
     skip = true
     if (now.level === undefined) make({ x: Math.round(now.at.x - 8), y: Math.round(now.at.y - 4.5) })
@@ -332,6 +339,7 @@
     const dy = e.clientY - hand.y
     if (drag === undefined && Math.hypot(dx, dy) < LITTLE) return
     clearTimeout(hand.timer)
+    hand.moved = true
     if (picked !== hand.level) onpick(hand.level)
     drag = { level: hand.level, dx, dy }
     const box = origin(hand.level)
@@ -340,14 +348,15 @@
       sheet?.lift(hand.level, { x: from.x + dx, y: from.y + dy })
     }
   }
-  function up(): void {
+  function up(e: PointerEvent): void {
+    fingers.delete(e.pointerId)
     const hand = press
     press = undefined
     clearTimeout(hand?.timer)
     const d = drag
     drag = undefined
     if (d === undefined) {
-      if (hand?.level === undefined && hand?.held === false) onpick(undefined)
+      if (hand?.level === undefined && hand?.held === false && !hand.moved) onpick(undefined)
       return
     }
     skip = true
@@ -360,7 +369,6 @@
   }
 </script>
 
-
 <div
   class="sheet stage"
   role="region"
@@ -371,6 +379,8 @@
   onpointerdown={(e) => {
     if (e.target === holder || e.target instanceof HTMLCanvasElement) down(e, undefined)
   }}
+  onpointerdowncapture={touched}
+  onpointermove={sweep}
   onpointerup={up}
   onpointercancel={up}
 >
@@ -441,7 +451,7 @@
       />
     </div>
   {/if}
-  {#if open !== undefined && cardAt !== undefined}
+  {#if open !== undefined && cardAt !== undefined && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
     <div class="float" data-ui bind:clientWidth={cardSize.w} bind:clientHeight={cardSize.h} style:left="{cardAt.x}px" style:top="{cardAt.y}px">
       {#if open.kind === 'pad'}
         <PadCard {lang} level={open.level} hint={padNote} onnudge={nudge} ondone={() => (card = undefined)} />
@@ -453,7 +463,12 @@
           tiles={tilesToClear(pairWalls)}
           slide={slide === undefined || mover === undefined ? undefined : { level: mover, way: slide.way, tiles: slide.tiles }}
           onclear={clear}
-          onslide={() => slide !== undefined && onchange(slide.working)}
+          onslide={() => {
+            const next = slide?.working
+            if (next === undefined || mover === undefined) return
+            announce(mover, working, next)
+            onchange(next)
+          }}
           onapart={wallApart}
           onleave={() => (card = undefined)}
         />
