@@ -103,6 +103,7 @@ body {
   --glass-soft: rgb(37 37 37 / 0.92);
   --glass-soft-filter: blur(12px) brightness(0.5) saturate(1.2);
   --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  --dim: rgb(0 0 0 / 0.25);
   --row: 44px;
   --bar: 56px;
   --fs: 15px;
@@ -199,4 +200,10 @@ body {
     --s-bg: var(--panel);
     --s-filter: none;
   }
+}
+
+/* A person's initial on a colour made from their login: `--hue` is a number from 0 to 359 the caller sets. */
+.face-colour {
+  background: hsl(var(--hue, 0) 45% 62%);
+  color: var(--on-accent);
 }

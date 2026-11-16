@@ -8,12 +8,14 @@
     /** What a screen reader calls it ("Top bar"). */
     label: string
     side?: 'top' | 'bottom' | 'left' | 'right'
+    /** No padding: the controls inside fill its height, which is then exactly what the caller sets. */
+    tight?: boolean
     children: Snippet
   }
-  let { label, side = 'top', children }: Props = $props()
+  let { label, side = 'top', tight = false, children }: Props = $props()
 </script>
 
-<div class="dock {side}" role="group" aria-label={label}>
+<div class="dock {side}" class:tight role="group" aria-label={label}>
   {@render children()}
 </div>
 
@@ -33,6 +35,13 @@
     box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
+  }
+  .tight {
+    padding: 0;
+    border: 0;
+    outline: 1px solid var(--g-edge);
+    outline-offset: -1px;
+    gap: 0;
   }
   .top {
     top: max(8px, env(safe-area-inset-top));

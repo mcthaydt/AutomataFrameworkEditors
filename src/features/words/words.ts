@@ -3,10 +3,12 @@
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
+import { bar } from './bar.ts'
 import { first } from './first.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { shell } from './shell.ts'
 
+export { bar } from './bar.ts'
 export { first } from './first.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
 export { shell } from './shell.ts'
@@ -168,6 +170,7 @@ export const WORDS = Object.freeze({
 
 /** The rows of every area, said in one language. */
 export interface Words {
+  readonly bar: Readonly<Record<keyof (typeof bar)['en'], Row>>
   readonly shell: Readonly<Record<keyof (typeof shell)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
 }
@@ -179,6 +182,7 @@ export interface Words {
 export function wordsIn(lang: Lang): Words {
   if (!LANGUAGES.includes(lang)) return wordsIn('en')
   return {
+    bar: { ...bar.en, ...bar[lang] },
     shell: { ...shell.en, ...shell[lang] },
     first: { ...first.en, ...first[lang] },
   }
