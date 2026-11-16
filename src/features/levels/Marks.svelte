@@ -49,6 +49,8 @@
       class="mark"
       data-thing={mark.id}
       data-kind={mark.kind}
+      data-x={mark.at.x}
+      data-y={mark.at.y}
       data-marked={marked.includes(mark.id) ? '' : undefined}
       aria-label={mark.name}
       aria-pressed={readOnly ? undefined : picked.includes(mark.id)}

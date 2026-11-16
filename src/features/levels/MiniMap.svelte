@@ -153,7 +153,7 @@
     box-sizing: border-box;
     border: 2px solid var(--accent);
     border-radius: 3px;
-    background: rgb(255 255 255 / 0.12);
+    background: color-mix(in srgb, var(--bright) 12%, transparent);
     pointer-events: none;
   }
   .box:focus-visible {

@@ -1,7 +1,7 @@
 // What a stream of pointer events means, as plain data, so a finger, a Pencil and a mouse are told apart in one place
 // and a test can play a whole gesture with a list. It knows nothing of a screen: points are the stage's own pixels, and
 // `on` is the name of the mark under the pointer when it went down (the caller finds it).
-import type { PointerKind, Pointers } from '../device/pointer.ts'
+import type { PointerKind, Pointers } from '../device/device.ts'
 import type { Tool } from '../shell/shell.ts'
 import type { Point } from './place.ts'
 
@@ -48,6 +48,25 @@ interface Down {
   /** `undecided`: still a possible tap or hold. `tool` and `view`: a drag has begun. `done`: it means nothing more. */
   state: 'undecided' | 'tool' | 'view' | 'done'
   held: boolean
+}
+
+/** A browser pointer event as the gesture reader wants it: the stage's own pixels, and the mark it went down on. */
+export function pointerLike(
+  type: PointerLike['type'],
+  e: PointerEvent,
+  box: { readonly left: number; readonly top: number },
+  on: string | undefined,
+): PointerLike {
+  return {
+    type,
+    id: e.pointerId,
+    kind: e.pointerType === 'pen' || e.pointerType === 'mouse' ? e.pointerType : 'touch',
+    x: e.clientX - box.left,
+    y: e.clientY - box.top,
+    t: performance.now(),
+    buttons: e.buttons,
+    on,
+  }
 }
 
 export interface Gestures {

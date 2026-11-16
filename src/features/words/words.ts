@@ -47,7 +47,6 @@ export const WORDS = Object.freeze({
   back: 'Back',
   pickTitle: 'Pick a game',
   loading: 'Getting your game…',
-  thingLabel: (name: string): string => `${name}. Drag to move it.`,
   moveLeft: 'Move left',
   moveRight: 'Move right',
   moveUp: 'Move up',

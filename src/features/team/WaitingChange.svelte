@@ -154,10 +154,9 @@
     {#if shown !== undefined}
       <div class="picture">
         <Stage
-          readOnly
           level={shown.level}
-          characters={opened.game.content.characters}
-          hero={opened.game.content.project.hero}
+          content={opened.game.content}
+          pictures={opened.game.pictures}
           marked={shown.moved.map((m) => m.id)}
         />
       </div>

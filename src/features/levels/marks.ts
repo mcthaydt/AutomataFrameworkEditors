@@ -25,6 +25,8 @@ export interface Mark {
   readonly hit: Rect
   /** What a screen reader says. */
   readonly name: string
+  /** Where it is in the level, in tiles. */
+  readonly at: Point
 }
 
 const area = (r: Rect): number => r.w * r.h
@@ -95,16 +97,37 @@ export function marksFor(
     if (view.hidden.has(thing.id)) continue
     const size = characters[thing.character]?.size ?? { w: 1, h: 1 }
     const box = boxOf(thing, size)
-    marks.push({ id: thing.id, kind: 'thing', box, hit: grow(box), name: names(thing.id) })
+    marks.push({
+      id: thing.id,
+      kind: 'thing',
+      box,
+      hit: grow(box),
+      name: names(thing.id),
+      at: { x: thing.x, y: thing.y },
+    })
   }
   for (const start of level.starts) {
     const id = `start-${start.player}`
     const box = boxOf(start, { w: 1, h: 1 })
-    marks.push({ id, kind: 'start', box, hit: grow(box), name: names(id) })
+    marks.push({ id, kind: 'start', box, hit: grow(box), name: names(id), at: { x: start.x, y: start.y } })
   }
   const hits = new Map(marks.map((m) => [m.id, m.hit] as const))
   for (let i = 0; i < marks.length; i++) {
     for (let j = i + 1; j < marks.length; j++) settle(marks[i] as Mark, marks[j] as Mark, hits)
   }
   return marks.map((m) => ({ ...m, hit: hits.get(m.id) as Rect }))
+}
+
+/** The one box that holds the marks named by `ids`, or none when none of them is on screen. */
+export function unionBox(marks: readonly Mark[], ids: readonly string[]): Rect | undefined {
+  const boxes = marks.filter((m) => ids.includes(m.id)).map((m) => m.box)
+  if (boxes.length === 0) return undefined
+  const x = Math.min(...boxes.map((b) => b.x))
+  const y = Math.min(...boxes.map((b) => b.y))
+  return {
+    x,
+    y,
+    w: Math.max(...boxes.map((b) => b.x + b.w)) - x,
+    h: Math.max(...boxes.map((b) => b.y + b.h)) - y,
+  }
 }

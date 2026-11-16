@@ -145,4 +145,17 @@
     height: 1px;
     margin: 4px 0;
   }
+  /* A phone on its side has little height: the column is packed to 44 pixel buttons so it fits between the bars. */
+  @media (max-height: 480px) {
+    .column {
+      gap: 0;
+    }
+    .column .tool {
+      min-height: 44px;
+      padding: 2px 8px;
+    }
+    .column .rule {
+      margin: 2px 0;
+    }
+  }
 </style>
