@@ -1,14 +1,17 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  menuWords,
   openGame,
+  openLevel,
   openPage,
-  pressSave,
+  pressPut,
+  putButton,
   type SIZES,
   setupJourneys,
   signIn,
@@ -60,17 +63,15 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
     await says(j, 'Step 2 of 4')
     await j.page.getByRole('link', { name: 'crate-game' }).click()
-    await j.page.getByRole('link', { name: 'level-1' }).click()
     await says(j, WORDS.guideMove)
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await says(j, WORDS.guideSave)
-    await pressSave(j.page).click()
+    await pressPut(j.page)
     await says(j, WORDS.guideDoneDirect)
     expect(repoOf(j).commits).toHaveLength(1)
     await j.page.getByRole('button', { name: WORDS.guideHide }).click()
-    await j.page.getByRole('button', { name: WORDS.back, exact: true }).click()
-    await text(j, WORDS.tipShare)
     await j.page.reload()
+    await text(j, WORDS.tipShare)
     expect(await strip(j).count()).toBe(0)
   })
 })
@@ -79,11 +80,10 @@ test('a visitor, from nothing to a change and a copy, following only what the sc
   const j = await window_('ipadUpright', 'grandma')
   await says(j, WORDS.guideStart)
   await j.page.getByRole('button', { name: WORDS.tryIt }).click()
-  await says(j, 'Step 1 of 3')
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await says(j, WORDS.guideMove)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await says(j, WORDS.guideSaveVisitor)
+  await putButton(j.page).click()
   const download = j.page.waitForEvent('download')
   await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
   await readFile(await (await download).path(), 'utf8')
@@ -91,16 +91,14 @@ test('a visitor, from nothing to a change and a copy, following only what the sc
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
 })
 
-test("a visitor who presses Save instead: asked to sign in, comes back, saves, and the strip ends like anyone's", async () => {
+test("a visitor who signs in from the game's menu: the change comes back, saves, and the strip ends like anyone's", async () => {
   const j = await window_('ipadUpright', 'grandma')
   await j.page.goto(`${j.site}/${GAME}/level/level-1`)
   await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(j.page).click()
-  await text(j, WORDS.signInToSave)
-  await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+  await signIn(j.page)
   await text(j, WORDS.draftBack)
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await says(j, WORDS.guideDoneDirect)
 })
 
@@ -109,18 +107,14 @@ describe('someone sent a link, not signed in', () => {
     const j = await window_('ipadUpright', person)
     share(j, over)
     await j.page.goto(`${j.site}/${GAME}`)
-    await says(j, 'Step 1 of 3')
-    await j.page.getByRole('link', { name: 'level-1' }).click()
     await thingNamed(j.page, 'crate-1').waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-    await pressSave(j.page).click()
-    await text(j, WORDS.signInToSave)
-    await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+    await signIn(j.page)
     await text(j, WORDS.draftBack)
-    await pressSave(j.page).click()
+    await pressPut(j.page)
     return j
   }
-  test('(suggest) lands in the game, three steps, signs in at Save, ends "waiting for someone to approve it"', async () => {
+  test('(suggest) lands in the game, signs in from its menu, ends "waiting for someone to approve it"', async () => {
     const j = await viaLink('kid', { format: 1, everyone: 'suggest', people: [] })
     await says(j, WORDS.guideDoneSuggestion)
   })
@@ -139,9 +133,12 @@ test('someone sent a link (look): told they can look around and who to ask; no s
   share(j, { format: 1, everyone: 'look', people: [] })
   await j.page.goto(`${j.site}/${GAME}`)
   await signIn(j.page)
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await says(j, WORDS.guideLook)
-  expect(await pressSave(j.page).isDisabled()).toBe(true)
+  await text(j, WORDS.lookOnly)
+  // Nothing to put in: the one button waits for a change, and then offers a copy, never a save.
+  expect(await putButton(j.page).count()).toBe(0)
+  await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await putButton(j.page).filter({ hasText: String(wordsIn('en').bar.keepCopy) }).waitFor()
 })
 
 test('someone sent a link they may not open: told to ask the owner, with a way back to "Pick a game"', async () => {
@@ -192,7 +189,7 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
   await kid.page.goto(`${kid.site}/${GAME}/level/level-1`)
   await thingNamed(kid.page, 'crate-1').waitFor()
   await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(kid.page).click()
+  await pressPut(kid.page)
   await text(kid, WORDS.savedSuggestion)
   const g = await window_('ipadUpright', 'grandpa', true)
   await signIn(g.page)
@@ -200,7 +197,7 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
   await text(g, WORDS.tipApprove)
   await g.page.getByRole('button', { name: WORDS.tipGotIt }).click()
   await g.page.reload()
-  await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await g.page.locator('[data-bar]').waitFor()
   expect(await g.page.getByText(WORDS.tipApprove).count()).toBe(0)
 })
 
@@ -208,7 +205,7 @@ test('at every step of the first run: one primary where the next thing is a butt
   const j = await window_('phone', 'grandma')
   noEditorYet(j)
   const check = async (primaries: 'one' | 'at most one'): Promise<void> => {
-    const found = j.page.locator('button.primary')
+    const found = j.page.locator('button.primary, button.main, button.put:not(.quiet)')
     const count = await found.count()
     expect(count).toBeLessThanOrEqual(1)
     if (primaries === 'one') expect(count).toBe(1)
@@ -232,43 +229,32 @@ test('at every step of the first run: one primary where the next thing is a butt
   // The list and the game's page: the next thing is a row to touch, so no button is the one to press.
   await check('at most one')
   await j.page.getByRole('link', { name: 'crate-game' }).click()
-  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
-  await check('at most one')
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await says(j, WORDS.guideMove)
   await check('at most one')
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   // The change is made: the one thing to press is Save.
   await says(j, WORDS.guideSave)
   await check('one')
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await says(j, WORDS.guideDoneDirect)
   await check('at most one')
 })
 
 test('no screen a visitor can reach is a dead end: each has a way on and a way back', async () => {
   const j = await window_('ipadUpright', 'grandma')
-  const wayOn = async (): Promise<number> =>
-    j.page.locator('button:not([disabled]), a[href]').filter({ hasNotText: WORDS.back }).count()
   const back = j.page.getByRole('button', { name: WORDS.back, exact: true })
 
   // Welcome: Try it now, Sign in. Nothing to go back to.
   expect(await j.page.getByRole('button', { name: WORDS.tryIt }).isEnabled()).toBe(true)
   expect(await j.page.getByRole('button', { name: WORDS.signIn }).isEnabled()).toBe(true)
 
-  // The example game's page: levels to open, and a way back.
+  // The example game: a level to move, and in the game's menu a way on (sign in) and a way to the list of games.
   await j.page.getByRole('button', { name: WORDS.tryIt }).click()
-  await j.page.getByRole('link', { name: 'level-1' }).waitFor()
-  expect(await wayOn()).toBeGreaterThan(0)
-  expect(await back.count()).toBe(1)
-
-  // A level: things to move, a Save to press, a way back.
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
-  expect(await wayOn()).toBeGreaterThan(0)
-  expect(await back.count()).toBe(1)
-  await back.click()
-  await j.page.getByRole('link', { name: 'level-1' }).waitFor()
+  await j.page.locator('button.game').click()
+  await j.page.getByRole('menuitem', { name: menuWords.signIn }).waitFor()
+  await j.page.getByRole('menuitem', { name: menuWords.yourGames }).waitFor()
+  await j.page.keyboard.press('Escape')
 
   // A game they may not open: a way on (Sign in), a way back, and the way back works.
   repoOf(j).isPublic = false
@@ -289,11 +275,9 @@ test('no screen a visitor can reach is a dead end: each has a way on and a way b
 test('a reload after the first save still says "You did it", not "Step 2 of 4", until the tips are hidden', async () => {
   const j = await window_('ipadUpright', 'grandma')
   await signIn(j.page)
-  await openGame(j.page)
-  await j.page.getByRole('link', { name: 'level-1' }).click()
-  await thingNamed(j.page, 'crate-1').waitFor()
+  await openLevel(j.page)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await says(j, WORDS.guideDoneDirect)
   await j.page.reload()
   await thingNamed(j.page, 'crate-1').waitFor()
@@ -307,7 +291,7 @@ test('with only one game, coming back from GitHub opens it without asking', asyn
   for (const name of [...j.fake.repos.keys()]) if (name !== 'grandma/crate-game') j.fake.repos.delete(name)
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
   await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
-  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await j.page.locator('[data-bar]').waitFor()
 })
 
 test('"Hide these tips" on Welcome hides them for good; the screens still work', async () => {

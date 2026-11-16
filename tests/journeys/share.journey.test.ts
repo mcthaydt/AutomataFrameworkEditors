@@ -1,14 +1,17 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  chooseFromMenu,
   dragByTouch,
+  gameMenuRows,
   type JourneyPage,
+  menuWords,
   openGame,
   openPage,
-  pressSave,
+  pressPut,
   type SIZES,
   setupJourneys,
   signIn,
@@ -52,7 +55,7 @@ async function shareScreen(size: Size = 'ipadUpright', keep = false): Promise<Jo
   const g = await window_(size, 'grandma', keep)
   await signIn(g.page)
   await openGame(g.page)
-  await g.page.getByRole('link', { name: WORDS.share }).click()
+  await chooseFromMenu(g.page, menuWords.whoCanChange)
   await g.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
   // The heading shows before the page has finished asking; a reload in the middle of that makes WebKit report the
   // cancelled request as an error of the new page.
@@ -79,24 +82,21 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     const kid = await window_(size, 'kid', true)
     await kid.page.goto(link)
     await signIn(kid.page)
-    await kid.page.getByRole('link', { name: 'level-1' }).click()
     await thingNamed(kid.page, 'crate-1').waitFor()
     await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-    await pressSave(kid.page).click()
+    await pressPut(kid.page)
     await text(kid, WORDS.savedSuggestion)
 
     const grandpa = await window_(size, 'grandpa', true)
     await grandpa.page.goto(link)
     await signIn(grandpa.page)
-    await text(grandpa, WORDS.waitingRow(1))
-    await grandpa.page.getByRole('link', { name: /waiting/ }).click()
+    await chooseFromMenu(grandpa.page, menuWords.waitingRow(1))
     await grandpa.page.locator('a.row').first().click()
     await grandpa.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
     await text(grandpa, WORDS.approved)
 
     await grandma.page.goto(`${grandma.site}/#/game/grandma/crate-game`)
     await grandma.page.reload()
-    await grandma.page.getByRole('link', { name: 'level-1' }).click()
     await thingNamed(grandma.page, 'crate-1').waitFor()
     expect(await thingNamed(grandma.page, 'crate-1').getAttribute('data-x')).toBe('8.5')
 
@@ -121,12 +121,11 @@ test("only an Owner sees Share; anyone else who opens the Share address lands on
   repoOf(g).put('main', ACCESS, file({ people: [{ github: 'grandpa', level: 'approve' }] }))
   await signIn(g.page)
   await openGame(g.page)
-  await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
-  expect(await g.page.getByRole('link', { name: WORDS.share }).count()).toBe(0)
+  expect((await gameMenuRows(g.page)).filter((row) => row.includes(menuWords.whoCanChange))).toEqual([])
   await g.page.goto(`${g.site}/#/game/grandma/crate-game/share`)
-  // Only the address changes, so the game's heading is already on the page; wait for the move itself.
+  // Only the address changes, so the bar is already on the page; wait for the move itself.
   await g.page.waitForURL(/#\/game\/grandma\/crate-game$/)
-  await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await g.page.locator('[data-bar]').waitFor()
 })
 
 test('changing grandpa from Approve to Look, and saving: his next visit says he can look', async () => {
@@ -143,7 +142,7 @@ test('changing grandpa from Approve to Look, and saving: his next visit says he 
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
   await openGame(grandpa.page)
-  await text(grandpa, WORDS.youAre('look'))
+  await text(grandpa, WORDS.lookOnly)
 })
 
 test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
@@ -160,7 +159,12 @@ test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
   await openGame(grandpa.page)
-  await text(grandpa, WORDS.youAre('suggest'))
+  await thingNamed(grandpa.page, 'crate-1').waitFor()
+  await dragByTouch(grandpa.page, 'crate-1', { dx: 1, dy: 0 })
+  await grandpa.page
+    .locator('button.put:not(.quiet)')
+    .filter({ hasText: String(wordsIn('en').bar.sendToCheck) })
+    .waitFor()
 })
 
 test('setting "anyone" to "Can\'t get in": a stranger with the link is told to ask the owner', async () => {
@@ -213,7 +217,7 @@ test('a damaged sharing file: the screen says so, and saving mends it', async ()
   repoOf(g).put('main', ACCESS, 'format = [')
   await signIn(g.page)
   await openGame(g.page)
-  await g.page.getByRole('link', { name: WORDS.share }).click()
+  await chooseFromMenu(g.page, menuWords.whoCanChange)
   await text(g, WORDS.sharingBroken)
   await saveSharing(g).click()
   await text(g, WORDS.sharingSaved)
@@ -230,7 +234,7 @@ test('leaving with unsaved sharing asks first', async () => {
   await g.page.getByText('kid', { exact: true }).waitFor()
   await g.page.getByRole('button', { name: WORDS.back, exact: true }).click()
   await g.page.getByRole('button', { name: WORDS.leaveYes }).click()
-  await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await g.page.locator('[data-bar]').waitFor()
   expect(accessOf(g)).toBeUndefined()
 })
 

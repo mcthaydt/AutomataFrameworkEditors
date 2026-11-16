@@ -1,8 +1,9 @@
-// Every screen a person can reach, at iPad upright, iPad sideways and phone size: measured against the touch and
+// Every screen a person can reach, at the five sizes of window (an iPad both ways, a phone both ways, a computer): measured against the touch and
 // layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
 // no sideways scroll; every button, link, field and picker at least 44 px each way, the primary Button at least
-// 48 tall; none overlapping; one heading; at most one Back; one primary Button; no text off the side or cut with an ellipsis; and on
-// the level screens a stage that is at least half the shorter side of the window wide.
+// 48 tall; none overlapping; one heading (the World screen has none: its bar names where it is); at most one Back; one
+// primary Button; no text off the side or cut with an ellipsis; and on the World screen a stage that is at least half
+// the shorter side of the window wide.
 // The pictures land in `tests/journeys/__screenshots__/` and, from CI, on the `ci-screens` branch.
 
 import { type Level, writeContent } from '@automataframework/framework/headless'
@@ -12,13 +13,16 @@ import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
 import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  chooseFromMenu,
   dragByTouch,
   type JourneyPage,
+  menuWords,
   openGame,
   openLevel,
   openPage,
   picture,
-  pressSave,
+  pressPut,
+  putButton,
   SIZES,
   setupJourneys,
   signIn,
@@ -80,34 +84,29 @@ async function listAs(size: Size, person: Person, ready?: (j: JourneyPage) => vo
   await signIn(j.page)
   return j
 }
-/** Signed in, on the crate game's own page. */
+/** Signed in, on the crate game: its start level is open. */
 async function gameAs(size: Size, person: Person, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
-  const j = await listAs(size, person, ready)
-  await openGame(j.page)
-  return j
-}
-/** Signed in, on level-1. */
-async function levelAs(size: Size, person: Person, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
   const j = await listAs(size, person, ready)
   await openLevel(j.page)
   return j
 }
-/** A visitor on the demo game's page, after pressing "Try it now". */
+/** A visitor on the demo game, after pressing "Try it now". */
 async function visitorGame(size: Size): Promise<JourneyPage> {
   const j = await window_(size, 'grandma')
   await j.page.getByRole('button', { name: WORDS.tryIt }).click()
   await text(j, WORDS.visitorCan)
-  return j
-}
-async function visitorLevel(size: Size): Promise<JourneyPage> {
-  const j = await visitorGame(size)
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
   return j
 }
 const move = (j: JourneyPage) => dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+/** Opens the game's menu (on a narrow phone, the part menu that holds its rows too) and leaves it open. */
+async function openGameMenu(j: JourneyPage): Promise<void> {
+  const game = j.page.locator('button.game')
+  await ((await game.count()) > 0 ? game : j.page.locator('button.part')).click()
+  await j.page.getByRole('menuitem').first().waitFor()
+}
 
-/** Kid saves a suggestion that grandpa (Approve) may approve; leaves kid's window open on the game's page. */
+/** Kid saves a suggestion that grandpa (Approve) may approve; leaves `as`'s window open on the game. */
 async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
   const kid = await window_(size, 'kid')
   repoOf(kid).checks = 'passing'
@@ -126,7 +125,7 @@ async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
   await signIn(kid.page)
   await openLevel(kid.page)
   await move(kid)
-  await pressSave(kid.page).click()
+  await pressPut(kid.page)
   await text(kid, WORDS.savedSuggestion)
   await kid.close()
   windows.splice(windows.indexOf(kid), 1)
@@ -135,15 +134,18 @@ async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
   await openGame(j.page)
   return j
 }
-async function openFirstChange(j: JourneyPage): Promise<void> {
-  await j.page.getByRole('link', { name: /waiting/ }).click()
+async function openWaiting(j: JourneyPage): Promise<void> {
+  await chooseFromMenu(j.page, menuWords.waitingRow(1))
   await heading(j, WORDS.waitingTitle)
+}
+async function openFirstChange(j: JourneyPage): Promise<void> {
+  await openWaiting(j)
   await j.page.locator('a.row').first().click()
   await thingNamed(j.page, 'crate-1').waitFor()
 }
 async function shareScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
   const j = await gameAs(size, 'grandma', ready)
-  await j.page.getByRole('link', { name: WORDS.share }).click()
+  await chooseFromMenu(j.page, menuWords.whoCanChange)
   await heading(j, WORDS.shareTitle('Crate Game'))
   return j
 }
@@ -204,24 +206,24 @@ const SCENES: readonly Scene[] = [
       return j
     },
   },
-  { name: 'visitor-game', reach: visitorGame },
-  { name: 'visitor-level', reach: visitorLevel, stage: true },
+  { name: 'visitor-world', reach: visitorGame, stage: true },
   {
-    name: 'visitor-level-moved',
+    name: 'visitor-world-moved',
     reach: async (size) => {
-      const j = await visitorLevel(size)
+      const j = await visitorGame(size)
       await move(j)
+      await putButton(j.page).waitFor()
       return j
     },
     stage: true,
   },
   {
-    name: 'visitor-sign-in-to-save',
+    name: 'visitor-copy-asked',
     reach: async (size) => {
-      const j = await visitorLevel(size)
+      const j = await visitorGame(size)
       await move(j)
-      await pressSave(j.page).click()
-      await text(j, WORDS.signInToSave)
+      await pressPut(j.page)
+      await j.page.getByRole('button', { name: WORDS.copyKeep }).waitFor()
       return j
     },
     stage: true,
@@ -229,12 +231,22 @@ const SCENES: readonly Scene[] = [
   {
     name: 'visitor-copy-kept',
     reach: async (size) => {
-      const j = await visitorLevel(size)
+      const j = await visitorGame(size)
       await move(j)
+      await pressPut(j.page)
       const download = j.page.waitForEvent('download')
       await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
       await download
       await text(j, WORDS.copyKept)
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'visitor-game-menu',
+    reach: async (size) => {
+      const j = await visitorGame(size)
+      await openGameMenu(j)
       return j
     },
     stage: true,
@@ -279,18 +291,36 @@ const SCENES: readonly Scene[] = [
       return j
     },
   },
-  { name: 'game-owner', reach: (size) => gameAs(size, 'grandma') },
-  { name: 'game-edit', reach: (size) => gameAs(size, 'kid', kidIs('edit')) },
-  { name: 'game-approve', reach: (size) => gameAs(size, 'kid', kidIs('approve')) },
-  { name: 'game-suggest', reach: (size) => gameAs(size, 'kid', kidIs('suggest')) },
-  { name: 'game-look', reach: (size) => gameAs(size, 'kid', (j) => share(j, 'look')) },
+  { name: 'world-owner', reach: (size) => gameAs(size, 'grandma'), stage: true },
+  { name: 'world-edit', reach: (size) => gameAs(size, 'kid', kidIs('edit')), stage: true },
+  { name: 'world-approve', reach: (size) => gameAs(size, 'kid', kidIs('approve')), stage: true },
+  { name: 'world-suggest', reach: (size) => gameAs(size, 'kid', kidIs('suggest')), stage: true },
   {
-    name: 'game-with-changes-waiting',
+    name: 'world-look-only',
     reach: async (size) => {
-      const j = await suggestionWaiting(size, 'grandpa')
-      await text(j, WORDS.waitingRow(1))
+      const j = await gameAs(size, 'kid', (g) => share(g, 'look'))
+      await text(j, WORDS.lookOnly)
       return j
     },
+    stage: true,
+  },
+  {
+    name: 'world-with-changes-waiting',
+    reach: async (size) => {
+      const j = await suggestionWaiting(size, 'grandpa')
+      await thingNamed(j.page, 'crate-1').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'world-game-menu',
+    reach: async (size) => {
+      const j = await suggestionWaiting(size, 'grandma')
+      await openGameMenu(j)
+      return j
+    },
+    stage: true,
   },
   {
     name: 'game-cant-be-reached',
@@ -326,13 +356,12 @@ const SCENES: readonly Scene[] = [
     },
   },
   // The level.
-  { name: 'level-open', reach: (size) => levelAs(size, 'grandma'), stage: true },
   {
-    name: 'level-crate-selected',
+    name: 'level-thing-picked',
     reach: async (size) => {
-      const j = await levelAs(size, 'grandma')
+      const j = await gameAs(size, 'grandma')
       await thingNamed(j.page, 'crate-1').click()
-      await text(j, WORDS.hintSelected('crate-1'))
+      await j.page.locator('[data-thing="crate-1"][aria-pressed="true"]').waitFor()
       return j
     },
     stage: true,
@@ -340,9 +369,9 @@ const SCENES: readonly Scene[] = [
   {
     name: 'level-unsaved',
     reach: async (size) => {
-      const j = await levelAs(size, 'grandma')
+      const j = await gameAs(size, 'grandma')
       await move(j)
-      await text(j, WORDS.statusDirty)
+      await putButton(j.page).waitFor()
       return j
     },
     stage: true,
@@ -350,9 +379,9 @@ const SCENES: readonly Scene[] = [
   {
     name: 'level-saved-straight-in',
     reach: async (size) => {
-      const j = await levelAs(size, 'grandma')
+      const j = await gameAs(size, 'grandma')
       await move(j)
-      await pressSave(j.page).click()
+      await pressPut(j.page)
       await text(j, WORDS.savedDirect)
       return j
     },
@@ -361,9 +390,9 @@ const SCENES: readonly Scene[] = [
   {
     name: 'level-saved-as-suggestion',
     reach: async (size) => {
-      const j = await levelAs(size, 'kid', kidIs('suggest'))
+      const j = await gameAs(size, 'kid', kidIs('suggest'))
       await move(j)
-      await pressSave(j.page).click()
+      await pressPut(j.page)
       await text(j, WORDS.savedSuggestion)
       return j
     },
@@ -372,10 +401,10 @@ const SCENES: readonly Scene[] = [
   {
     name: 'level-changed-by-someone-else',
     reach: async (size) => {
-      const j = await levelAs(size, 'grandma')
+      const j = await gameAs(size, 'grandma')
       await move(j)
       repoOf(j).put('main', LEVEL_PATH, theirs)
-      await pressSave(j.page).click()
+      await pressPut(j.page)
       await text(j, WORDS.changedElsewhere)
       return j
     },
@@ -384,19 +413,10 @@ const SCENES: readonly Scene[] = [
   {
     name: 'level-leave-anyway',
     reach: async (size) => {
-      const j = await levelAs(size, 'grandma')
+      const j = await gameAs(size, 'grandma')
       await move(j)
-      await j.page.getByRole('button', { name: WORDS.back, exact: true }).click()
+      await chooseFromMenu(j.page, menuWords.yourGames)
       await text(j, WORDS.leaveAsk)
-      return j
-    },
-    stage: true,
-  },
-  {
-    name: 'level-look-only',
-    reach: async (size) => {
-      const j = await levelAs(size, 'kid', (g) => share(g, 'look'))
-      await text(j, WORDS.lookOnly)
       return j
     },
     stage: true,
@@ -406,8 +426,7 @@ const SCENES: readonly Scene[] = [
     name: 'waiting-list',
     reach: async (size) => {
       const j = await suggestionWaiting(size, 'grandpa')
-      await j.page.getByRole('link', { name: /waiting/ }).click()
-      await heading(j, WORDS.waitingTitle)
+      await openWaiting(j)
       await j.page.locator('a.row').first().waitFor()
       return j
     },
@@ -548,7 +567,9 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
       )
       if (backs.length > 1) found.push(`${backs.length} buttons named ${backWord}`)
       const headings = [...document.querySelectorAll('h1')].filter(seen)
-      if (headings.length !== 1) found.push(`${headings.length} headings (h1), not one`)
+      // The World screen has no heading of its own: its bar says where the person is.
+      const wanted = document.querySelector('[data-bar]') === null ? 1 : 0
+      if (headings.length !== wanted) found.push(`${headings.length} headings (h1), not ${wanted}`)
 
       // Text: every visible piece lies inside the window's width, and none is cut with an ellipsis.
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)

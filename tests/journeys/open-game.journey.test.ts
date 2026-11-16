@@ -1,7 +1,16 @@
 import { afterEach, expect, test } from 'vitest'
 import { WORDS } from '#src/features/words/words.ts'
 import { LEVEL_PATH } from '../fixtures/game/read.ts'
-import { type JourneyPage, openPage, picture, setupJourneys, signIn } from '../fixtures/journey.ts'
+import {
+  chooseFromMenu,
+  gameMenuRows,
+  type JourneyPage,
+  menuWords,
+  openPage,
+  picture,
+  setupJourneys,
+  signIn,
+} from '../fixtures/journey.ts'
 
 setupJourneys()
 
@@ -18,6 +27,13 @@ const open = async (...args: Parameters<typeof openPage>): Promise<JourneyPage> 
 }
 const title = (j: JourneyPage, text: string) =>
   j.page.getByRole('heading', { level: 1, name: text }).waitFor()
+/** The game is open: its bar is there, and where the bar has room it says the game's name. */
+const inGame = async (j: JourneyPage): Promise<void> => {
+  await j.page.locator('[data-bar]').waitFor()
+  if ((await j.page.locator('button.game').count()) > 0) {
+    expect(await j.page.locator('button.game').textContent()).toContain('Crate Game')
+  }
+}
 const text = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 const crate = (j: JourneyPage) => j.fake.repos.get('grandma/crate-game')!
 const GAME = '#/game/grandma/crate-game'
@@ -40,10 +56,8 @@ for (const size of ['ipadUpright', 'phone'] as const) {
     await j.page.getByLabel(WORDS.pickFind).fill('')
 
     await j.page.getByRole('link', { name: 'crate-game' }).click()
-    await title(j, 'Crate Game')
-    await text(j, WORDS.youAre('owner'))
-    await j.page.getByRole('link', { name: 'level-1' }).waitFor()
-    await picture(j.page, `game-home-${size}`)
+    await inGame(j)
+    await picture(j.page, `world-${size}`)
   })
 }
 
@@ -115,16 +129,16 @@ test('when GitHub is down the game says it cannot be reached, and Try again work
   await text(j, WORDS.cantReach)
   j.fake.down = false
   await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
-  await title(j, 'Crate Game')
+  await inGame(j)
 })
 
 test('kid opens a link to the game, finds it on the list afterwards, and still does after a reload', async () => {
   const j = await open('ipadUpright', 'kid')
   await j.page.goto(`${j.site}/${GAME}`)
   await signIn(j.page)
-  await title(j, 'Crate Game')
-  await text(j, WORDS.youAre('look'))
-  await j.page.getByRole('button', { name: WORDS.back }).click()
+  await inGame(j)
+  await text(j, WORDS.lookOnly)
+  await chooseFromMenu(j.page, menuWords.yourGames)
   await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
   await j.page.reload()
   await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
@@ -143,10 +157,9 @@ test('a stranger cannot open a private game, and it is not remembered', async ()
 test('someone not signed in opens the demo game by its link, and nothing asks them to sign in', async () => {
   const j = await open('ipadUpright')
   await j.page.goto(`${j.site}/${GAME}`)
-  await title(j, 'Crate Game')
+  await inGame(j)
   await text(j, WORDS.visitorCan)
-  await j.page.getByRole('link', { name: 'level-1' }).waitFor()
-  await j.page.getByRole('button', { name: WORDS.signIn }).waitFor()
+  expect(await gameMenuRows(j.page)).toContainEqual(expect.stringContaining(menuWords.signIn))
   expect(j.requests.filter((r) => /\/api\/(games|token)/.test(r))).toEqual([])
 })
 
@@ -159,8 +172,7 @@ test('not signed in, a private game says it cannot be found, and signing in as i
   expect(await j.page.getByRole('button', { name: WORDS.signIn }).count()).toBe(1)
   expect(await j.page.locator('.guide').count()).toBe(0)
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
-  await title(j, 'Crate Game')
-  await text(j, WORDS.youAre('owner'))
+  await inGame(j)
 })
 
 test('a person with no game the editor was added to is shown what to do', async () => {
@@ -188,11 +200,11 @@ test('a list of games that cannot be fetched says so and offers Try again, not "
   await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
 })
 
-test('a game that is open shows its own name everywhere, and the way into Share does too', async () => {
+test('a game that is open shows its own name in the bar, and the way into Share is in its menu', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
   await j.page.getByRole('link', { name: 'crate-game' }).click()
-  await title(j, 'Crate Game')
-  await j.page.getByRole('link', { name: WORDS.share }).click()
+  await inGame(j)
+  await chooseFromMenu(j.page, menuWords.whoCanChange)
   await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
 })

@@ -125,7 +125,8 @@
   const known = $derived(opened !== undefined && opened.game === gameKey ? opened : undefined)
   /** A game that did not open has nothing to say a first-run step about, and neither do the screens beside it. */
   const guided = $derived(
-    route.screen === 'games' || known === undefined || known.name !== undefined,
+    route.screen === 'games' ||
+      (!(route.screen === 'level' && route.sheet !== undefined) && (known === undefined || known.name !== undefined)),
   )
   const inGame = $derived(route.screen !== 'games')
   const step = $derived(

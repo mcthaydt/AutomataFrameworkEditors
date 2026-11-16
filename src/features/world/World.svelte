@@ -320,6 +320,10 @@
     events = say(events, { id: 'leave', kind: 'info', text: WORDS.leaveAsk, ask: 'leave' })
   }
   const closeSheet = (): void => go(withoutSheet(route))
+  // Who can change the game is for its Owner only: anyone else who opens that address lands on the level.
+  $effect(() => {
+    if (sheet?.kind === 'share' && !can(access, 'share')) closeSheet()
+  })
 
   async function put(): Promise<void> {
     const now = edits.now.levels[levelId]

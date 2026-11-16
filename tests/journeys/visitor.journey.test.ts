@@ -5,13 +5,14 @@ import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
+  gameMenuRows,
   type JourneyPage,
+  menuWords,
   openPage,
-  pressSave,
+  pressPut,
   type SIZES,
   setupJourneys,
   signIn,
-  statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
 import { type Site, startSite } from '../fixtures/serve.ts'
@@ -50,9 +51,9 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     const j = await open(size)
     await j.page.getByRole('button', { name: WORDS.tryIt }).click()
     await text(j, WORDS.visitorCan)
-    await j.page.getByRole('link', { name: 'level-1' }).click()
     await thingNamed(j.page, 'crate-1').waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+    await pressPut(j.page)
     const download = j.page.waitForEvent('download')
     await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
     const file = await download
@@ -73,6 +74,7 @@ test('Copy this level puts the level text where it can be pasted (the clipboard 
   const chromium = (process.env.ENGINE ?? 'chromium') === 'chromium'
   if (chromium)
     await j.page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: j.site })
+  await pressPut(j.page)
   await j.page.getByRole('button', { name: WORDS.copyLevel }).click()
   if (chromium) {
     await text(j, WORDS.copyCopied)
@@ -89,7 +91,7 @@ test('Copy this level puts the level text where it can be pasted (the clipboard 
 test('a "Change this game" link opens the game with no Welcome and no sign-in screen', async () => {
   const j = await open()
   await j.page.goto(`${j.site}/${GAME}`)
-  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await j.page.locator('[data-bar]').waitFor()
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
 })
 
@@ -103,29 +105,32 @@ test('the visitor reloads: the crate is still where they put it, and the screen 
   await crateX(j).toBe('8.5')
 })
 
-test('the visitor presses Save, signs in, and saves: the game holds exactly the copy they kept', async () => {
+test('the visitor keeps a copy, signs in, and saves: the game holds exactly the copy they kept', async () => {
   const j = await open()
   await j.page.goto(`${j.site}/${GAME}/level/level-1`)
   await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await pressPut(j.page)
   const download = j.page.waitForEvent('download')
   await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
   const kept = await readFile(await (await download).path(), 'utf8')
-  await pressSave(j.page).click()
-  await text(j, WORDS.signInToSave)
-  await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+  await signIn(j.page)
   await text(j, WORDS.draftBack)
-  await pressSave(j.page).click()
-  await expect.poll(async () => (await statusLine(j.page).textContent())?.trim()).toBe(WORDS.savedDirect)
+  await pressPut(j.page)
+  await text(j, WORDS.savedDirect)
   expect(j.fake.repos.get('grandma/crate-game')?.commits[0]?.text).toBe(kept)
 })
 
 test("a visitor never sees the waiting changes, the Share button, or anyone's name", async () => {
   const j = await open('ipadUpright', 'grandma')
   await j.page.goto(`${j.site}/${GAME}`)
-  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await j.page.locator('[data-bar]').waitFor()
+  // The game's menu has no row for the sharing or the waiting changes either.
+  const rows = (await gameMenuRows(j.page)).join('\n')
+  expect(rows).not.toContain(menuWords.whoCanChange)
+  expect(rows).not.toMatch(/waiting/i)
   const page = await j.page.locator('body').innerText()
-  expect(page).not.toContain(WORDS.share)
+  expect(page).not.toContain(menuWords.whoCanChange)
   expect(page).not.toContain(WORDS.waitingTitle)
   expect(page).not.toMatch(/grandma|grandpa|kid|stranger/i)
   expect(j.requests.filter((r) => /\/api\/(waiting|sharing|games)/.test(r))).toEqual([])
@@ -168,7 +173,6 @@ describe('on a site with no sample game', () => {
 test("the whole visit made no request to any address but the page's own", async () => {
   const j = await open()
   await j.page.getByRole('button', { name: WORDS.tryIt }).click()
-  await j.page.getByRole('link', { name: 'level-1' }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   for (const request of j.requests.filter((r) => !r.includes(' data:'))) expect(request).toContain(j.site)
