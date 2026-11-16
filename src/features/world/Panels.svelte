@@ -52,7 +52,9 @@
     levelId: string
     ways: Working['levels']
     hand: { grab: () => void; edit: (next: Level) => void; drop: (gaveUp: boolean) => void }
-    ongo: (level: string) => void
+    ongo: (level: string, door?: string) => void
+    /** The game's words for a message, in its own language. */
+    says: (message: string) => string | undefined
   }
   let {
     lang,
@@ -87,6 +89,7 @@
     ways,
     hand,
     ongo,
+    says,
   }: Props = $props()
 
   const things = $derived(level?.things ?? [])
@@ -164,6 +167,7 @@
           levels={ways}
           {hand}
           {ongo}
+          {says}
         />
         {#if placed !== undefined}<Nudge onnudge={(way) => onnudge(placed.id, way)} />{/if}
       </SettingsPanel>

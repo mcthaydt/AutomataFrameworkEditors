@@ -31,7 +31,8 @@
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
-  import { insetsOf } from './insets.ts'
+  import { insetsOf, SHEET_ROOM } from './insets.ts'
+  import { sayFor } from './said.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
   import { listen, measure, onControl, typing } from './listen.ts'
   import { savedAs } from './saved.ts'
@@ -266,8 +267,7 @@
     events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid')
   }
 
-  // A hand holding things: every move is worked out from the level as it was when the hand took hold, so the whole grab is
-  // one step back.
+  // A hand holding things: moves are worked out from the level as it was when the hand took hold: one grab, one step back.
   let dragFrom: Edits | undefined
   const grab = (): void => void (dragFrom = edits)
   function edit(next: Level): void {
@@ -279,7 +279,6 @@
     dragFrom = undefined
     if (gaveUp && from !== undefined) keep(from)
   }
-  const hand = { grab, edit, drop }
   /** The settings' own four arrows: one tile a tap. */
   function nudge(id: string, way: 'left' | 'right' | 'up' | 'down'): void {
     const start = edits.now.levels[levelId]
@@ -372,7 +371,11 @@
   }
 
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
-  const goLevel = (next: string): void => go({ screen: 'level', ...here, level: next })
+  /** Opens `next` with the door you come out of picked, when it has one there. */
+  const goLevel = (next: string, door?: string): void => {
+    go({ screen: 'level', ...here, level: next })
+    picked = edits.now.levels[next]?.things.some((t) => t.id === door) ? [door as string] : []
+  }
   const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
 
   function onmenu(id: string): void {
@@ -426,7 +429,7 @@
         class:hidden={playing}
         style:left="{insets.left}px"
         style:right="{insets.right}px"
-        style:bottom="{insets.bottom}px"
+        style:bottom={insets.sheet ? SHEET_ROOM : `${insets.bottom}px`}
       >
         {#if onMap}
           <MapPart
@@ -550,8 +553,9 @@
       onpicklevel={(id) => (pickedLevel = id)}
       {levelId}
       ways={edits.now.levels}
-      {hand}
+      hand={{ grab, edit, drop }}
       ongo={goLevel}
+      says={(message) => sayFor(held.content, message)}
     />
 
     <Events {events} low={playing} onanswer={answered} />

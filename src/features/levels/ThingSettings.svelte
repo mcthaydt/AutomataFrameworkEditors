@@ -39,9 +39,11 @@
     levels: Working['levels']
     /** The person's hand on the level: where a slider drag starts and ends, and where an edit goes. */
     hand: { grab: () => void; edit: (next: Level) => void; drop: (gaveUp: boolean) => void }
-    ongo: (level: string) => void
+    ongo: (level: string, door?: string) => void
+    /** The game's words for a message, in its own language. */
+    says: (message: string) => string | undefined
   }
-  let { lang, level, levelId, characters, ids, levels, hand, ongo }: Props = $props()
+  let { lang, level, levelId, characters, ids, levels, hand, ongo, says }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -136,6 +138,7 @@
             ? [...new Set([...mayOpen(level, characters, one.id, line.row.id), ...linkedOf(line.row.id)])]
             : []}
           linked={linkedOf(line.row.id)}
+          {says}
           most={line.row.declaration?.type === 'thing' ? (line.row.declaration.most ?? 1) : 1}
           onset={(to) => set(line.row.id, to)}
           onopen={(to, on) => open(line.row.id, to, on)}

@@ -16,7 +16,7 @@
     /** Every level but this one, and the doors in each. */
     ways: readonly { readonly level: string; readonly things: readonly string[] }[]
     onset: (to: Place | undefined) => void
-    ongo: (level: string) => void
+    ongo: (level: string, door?: string) => void
   }
   let { lang, label, value, ways, onset, ongo }: Props = $props()
 
@@ -75,7 +75,7 @@
         </select>
       </label>
     {/if}
-    <button type="button" class="go" onclick={() => ongo(place.level)}>
+    <button type="button" class="go" onclick={() => ongo(place.level, place.thing)}>
       {text(words.thing.goTo, nameOf(place.level))}
     </button>
   {/if}

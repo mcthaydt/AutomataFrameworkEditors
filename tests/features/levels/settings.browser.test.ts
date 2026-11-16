@@ -143,7 +143,10 @@ test('a door says where it leads, where you come out, and goes to look', async (
   await userEvent.click(named('By a door'))
   expect(thing('exit')?.values).toEqual({ to: { level: 'room-3', thing: 'back' } })
   await userEvent.click(named('Go to Room 3'))
-  expect(gone).toHaveBeenCalledWith('room-3')
+  expect(gone).toHaveBeenCalledWith('room-3', 'back')
+  await userEvent.click(named('At its start'))
+  await userEvent.click(named('Go to Room 3'))
+  expect(gone).toHaveBeenLastCalledWith('room-3', undefined)
 })
 
 test('several things show "Not the same" where they differ, and one change is for each of them', async () => {
@@ -172,4 +175,43 @@ test('the first thing a person sees of a thing is its settings, and each control
     return width > 0 && (width < 44 || height < 44)
   })
   expect(small.map((one) => one.outerHTML.slice(0, 60))).toEqual([])
+})
+
+test('some words are shown as the game says them, with which message they are, and have no text box', async () => {
+  const sign = {
+    ...(linksContent.characters.door as object),
+    id: 'sign',
+    values: [{ id: 'says', name: 'Says', type: 'words' }],
+  }
+  const content = {
+    ...linksContent,
+    characters: { ...linksContent.characters, sign },
+  } as unknown as GameContent
+  const level: Level = {
+    ...room1,
+    things: [
+      ...room1.things,
+      { id: 'sign-1', character: 'sign', x: 3.5, y: 6, values: { says: 'sign.welcome' } },
+    ],
+  }
+  await show(content, level, ['sign-1'])
+  const says = value('says')
+  expect(says.textContent).toContain('Welcome to the links game.')
+  expect(says.textContent).toContain('Message: sign.welcome')
+  expect(says.querySelector('input, textarea, select')).toBeNull()
+})
+
+test('"Where it is" stays inside the settings with the "Opens" list open, clear of every control above it', async () => {
+  box.style.width = '834px'
+  await show(linksContent, room1, ['plate-1'])
+  const sheet = box.getBoundingClientRect()
+  const heading = box.querySelector('[data-group="where"] h3') as HTMLElement
+  heading.scrollIntoView()
+  const at = heading.getBoundingClientRect()
+  expect(at.left).toBeGreaterThanOrEqual(sheet.left)
+  expect(at.right).toBeLessThanOrEqual(sheet.right)
+  expect(at.top).toBeGreaterThanOrEqual(sheet.top)
+  expect(at.bottom).toBeLessThanOrEqual(sheet.bottom)
+  const list = (value('opens').querySelector('.opens') as HTMLElement).getBoundingClientRect()
+  expect(at.top).toBeGreaterThanOrEqual(list.bottom)
 })

@@ -10,7 +10,7 @@
     start: Level
     ids: readonly string[]
     levelId?: string
-    ongo?: (level: string) => void
+    ongo?: (level: string, door?: string) => void
   }
   let { content, start, ids, levelId = start.id, ongo = () => {} }: Props = $props()
 
@@ -36,6 +36,7 @@
   {ids}
   levels={content.levels}
   {ongo}
+  says={(message) => content.messages?.en?.messages[message]}
   hand={{
     grab: () => {
       grabbing = true

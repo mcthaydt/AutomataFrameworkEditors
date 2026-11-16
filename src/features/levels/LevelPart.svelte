@@ -499,6 +499,7 @@
     {marks}
     {picked}
     joining={tool === 'join'}
+    noted={note !== undefined}
     {readOnly}
     {size}
     {onpick}

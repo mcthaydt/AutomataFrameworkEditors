@@ -55,14 +55,14 @@ const named = (name: string): HTMLElement => {
   if (found === undefined) throw new Error(`no button called ${name}`)
   return found
 }
-/** A mouse drag from one thing to a point: down on the thing, moves on the way, then up there. */
+/** A finger's drag from one thing to a point: down on the thing, moves on the way, then up there. */
 async function draw(from: HTMLElement, to: { x: number; y: number }, letGo = true): Promise<void> {
   const start = middle(from)
   const send = (el: HTMLElement, type: string, at: { x: number; y: number }, buttons: number): void => {
     el.dispatchEvent(
       new PointerEvent(type, {
         pointerId: 1,
-        pointerType: 'mouse',
+        pointerType: 'touch',
         clientX: at.x,
         clientY: at.y,
         buttons,
@@ -91,13 +91,13 @@ test('a line is drawn from the plate to the gate with a pointer, lights the gate
     { tool: 'join' },
   )
   expect(opens('plate-1')).toBeUndefined()
-  expect(box.textContent).toContain('Draw from the button to what it opens')
+  expect(box.textContent).toContain('Draw from Plate 1 to what it opens')
   await draw(mark('plate-1'), middle(mark('gate-1')), false)
   expect(box.querySelector('[data-near="gate-1"]')).not.toBeNull()
   mark('plate-1').dispatchEvent(
     new PointerEvent('pointerup', {
       pointerId: 1,
-      pointerType: 'mouse',
+      pointerType: 'touch',
       ...{ clientX: 0, clientY: 0 },
       bubbles: true,
     }),
@@ -158,4 +158,48 @@ test('an edge that touches the next level has a bar, and a card that says so and
   await userEvent.click(mark('crate-1'))
   await vi.waitFor(() => expect(box.querySelector('[data-edge-card]')).toBeNull())
   expect(box.querySelector('[data-edge="right"]')).not.toBeNull()
+})
+
+test('the hint covers neither the plate nor the gate it points at, on a phone', async () => {
+  box.style.width = '390px'
+  await show(room1, { tool: 'join' })
+  const hint = box.querySelector('.hint') as HTMLElement
+  const over = (a: DOMRect, b: DOMRect): boolean =>
+    a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+  for (const id of ['plate-1', 'gate-1']) {
+    expect(over(hint.getBoundingClientRect(), mark(id).getBoundingClientRect()), id).toBe(false)
+  }
+})
+
+test("a switch that opens only one thing says so when a second line takes the first one's place", async () => {
+  const one = { ...(content.characters.plate as object) }
+  const plate = { ...one, values: [{ id: 'opens', name: 'Opens', type: 'thing', kinds: ['gate'], most: 1 }] }
+  const custom = { ...content, characters: { ...content.characters, plate } } as unknown as GameContent
+  const level: Level = {
+    ...room1,
+    things: [
+      ...room1.things.map((t) => (t.id === 'plate-1' ? { ...t, values: { opens: 'gate-1' } } : t)),
+      { id: 'gate-2', character: 'gate', x: 6.5, y: 3 },
+    ],
+  }
+  const made = mount(Holder, {
+    target: box,
+    props: { content: custom, pictures: [], start: level, tool: 'join' },
+  })
+  mounted = made
+  held = made as unknown as typeof held
+  await vi.waitFor(() => expect(box.querySelector('[data-thing="gate-2"]')).not.toBeNull())
+  await draw(mark('plate-1'), middle(mark('gate-2')), false)
+  mark('plate-1').dispatchEvent(
+    new PointerEvent('pointerup', {
+      pointerId: 1,
+      pointerType: 'touch',
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+    }),
+  )
+  await tick()
+  expect(opens('plate-1')).toBe('gate-2')
+  await vi.waitFor(() => expect(box.textContent).toContain('Plate 1 now opens Gate 2, not Gate 1'))
 })

@@ -145,6 +145,27 @@
     height: 1px;
     margin: 4px 0;
   }
+  /* An upright phone is about 390 points wide: four tools, the list, Undo and Redo share it, so each gives up some width. */
+  @media (max-width: 440px) {
+    .tools:not(.column) {
+      gap: 2px;
+      padding: 4px 2px;
+    }
+    .tools:not(.column) .tool {
+      flex: 1 1 0;
+      min-width: 44px;
+      padding: 4px 2px;
+    }
+    .tools:not(.column) .tool span {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tools:not(.column) .rule {
+      margin: 4px 1px;
+    }
+  }
   /* A phone on its side has little height: the column is packed to 44 pixel buttons so it fits between the bars. */
   @media (max-height: 480px) {
     .column {

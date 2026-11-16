@@ -22,6 +22,8 @@
     picked: readonly string[]
     /** The Join tool is in hand. */
     joining: boolean
+    /** A note is on screen at the top, and the hint waits for it rather than sit over its Undo. */
+    noted: boolean
     readOnly: boolean
     size: { w: number; h: number }
     onpick: (ids: readonly string[]) => void
@@ -29,7 +31,7 @@
     apply: (done: Done) => boolean
     sayUndoable: (said: string) => void
   }
-  let { lang, level, characters, marks, picked, joining: tool, readOnly, size, onpick, apply, sayUndoable }: Props =
+  let { lang, level, characters, marks, picked, joining: tool, noted, readOnly, size, onpick, apply, sayUndoable }: Props =
     $props()
 
   const words = $derived(wordsIn(lang))
@@ -83,10 +85,23 @@
     }
     const done = drawing
     drawing = undefined
-    if (done.near !== undefined && apply(opens(level, characters, done.from, done.value, done.near))) {
-      sayUndoable(text(words.thing.noteJoined, nameOf(done.from), nameOf(done.near)))
-    }
+    if (done.near === undefined) return
+    const before = idsOpened(level, done.from, done.value)
+    const result = opens(level, characters, done.from, done.value, done.near)
+    if (!apply(result) || !result.ok) return
+    // A switch that may open only one thing drops the old line for the new one, and says so.
+    const after = idsOpened(result.value, done.from, done.value)
+    const dropped = before.find((id) => !after.includes(id))
+    sayUndoable(
+      dropped === undefined
+        ? text(words.thing.noteJoined, nameOf(done.from), nameOf(done.near))
+        : text(words.thing.noteReplaced, nameOf(done.from), nameOf(done.near), nameOf(dropped)),
+    )
   }
+
+  /** What `from` opens by `value` in `at`, as a list of ids (a switch of one keeps a bare id). */
+  const idsOpened = (at: Level, from: string, value: string): readonly string[] =>
+    [at.things.find((t) => t.id === from)?.values?.[value]].flat().filter((id): id is string => typeof id === 'string')
 
   function takeAway(): void {
     const fact = lit?.fact
@@ -103,6 +118,8 @@
     const from = drawing === undefined ? undefined : centre(drawing.from)
     return drawing === undefined || from === undefined ? undefined : curve(from, drawing.tip).d
   })
+  /** The first thing in the level that can open something: the hint names it, as a person sees it. */
+  const switchHere = $derived(level.things.find((t) => joinValueOf(characters, t.character) !== undefined)?.id)
   let hint = $state({ w: 260, h: 44 })
   const hintSpot = $derived(
     hintAt(hint, marks.map((m) => m.box), size),
@@ -149,9 +166,9 @@
     <small>{text(words.thing.joinTakeAbout)}</small>
   </div>
 {/if}
-{#if tool && !readOnly && drawing === undefined && line === undefined}
+{#if tool && !noted && !readOnly && drawing === undefined && line === undefined}
   <p class="hint" data-ui bind:clientWidth={hint.w} bind:clientHeight={hint.h} style:left="{hintSpot.x}px" style:top="{hintSpot.y}px">
-    {text(words.thing.joinHint)}
+    {switchHere === undefined ? text(words.thing.joinNone) : text(words.thing.joinHint, nameOf(switchHere))}
   </p>
 {/if}
 

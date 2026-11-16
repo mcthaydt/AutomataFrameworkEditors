@@ -1,6 +1,6 @@
 <script lang="ts">
   // One value of a thing and the control its kind has: a number is a slider with a pad on a tap, a switch a knob, a choice
-  // a row of choices (or a list past four), some words a text box, and what a switch opens a list with "Nothing" first. A
+  // a row of choices (or a list past four), some words the game's own words for a message and which message it is, and what a switch opens a list with "Nothing" first. A
   // value the character does not declare, and a path, are shown and never edited. Every number goes up held to its
   // declaration (`values.ts` holds it again), so the editor cannot make a file the game refuses.
   import type { ThingValue } from '@automataframework/framework/headless'
@@ -18,11 +18,13 @@
     linked?: readonly string[]
     /** How many it may open at most. */
     most?: number
+    /** The game's words for a message, in its own language, when it has them. */
+    says: (message: string) => string | undefined
     onset: (to: ThingValue | undefined) => void
     /** Open this thing (or none): the list of what a switch opens. */
     onopen: (id: string | undefined, on: boolean) => void
   }
-  let { lang, row, mixed = false, candidates = [], linked = [], most = 1, onset, onopen }: Props = $props()
+  let { lang, row, mixed = false, candidates = [], linked = [], most = 1, says, onset, onopen }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const text = (one: Row, ...parts: (string | number)[]): string =>
@@ -85,16 +87,15 @@
       </select>
     {/if}
   {:else if declaration.type === 'words'}
-    <label class="field">
-      <span class="name">{declaration.name}</span>
-      <input
-        type="text"
-        maxlength="96"
-        value={mixed ? '' : String(row.value ?? '')}
-        placeholder={mixed ? text(words.thing.notTheSame) : ''}
-        onchange={(e) => onset(e.currentTarget.value)}
-      />
-    </label>
+    <span class="name">{declaration.name}</span>
+    {#if mixed}
+      <span class="said">{text(words.thing.notTheSame)}</span>
+    {:else if row.value === undefined || row.value === ''}
+      <span class="said">{text(words.thing.opensNothing)}</span>
+    {:else}
+      <q class="said">{says(String(row.value)) ?? String(row.value)}</q>
+      <small class="which">{text(words.thing.messageNamed, String(row.value))}</small>
+    {/if}
   {:else}
     <span class="name">{declaration.name}</span>
     <div class="opens" role="group" aria-label={declaration.name}>
@@ -138,16 +139,18 @@
     margin: 0;
     font-size: 0.9em;
   }
+  .said {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .which {
+    color: var(--quiet);
+    overflow-wrap: anywhere;
+  }
   .read {
     font-family: var(--measure);
     overflow-wrap: anywhere;
   }
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  input,
   select {
     min-height: 44px;
     padding: 0 10px;
