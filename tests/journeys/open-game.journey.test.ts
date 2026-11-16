@@ -81,15 +81,13 @@ test('a sign-in renewal that a reload cuts off is not a fault, in any browser', 
   await signIn(j.page)
   await title(j, WORDS.pickTitle)
   j.fake.signedOutEverywhere()
-  // The first renewal is held, so the reload below is certain to cut it off; the next one goes through.
-  let held = 0
-  await j.page.route('**/api/token', (route) => {
-    if (held++ > 0) void route.continue()
-  })
+  // The renewal's answer is held, so the reload below is certain to cut the call off; then it is let through.
+  const release = j.hold('/api/token')
   const asked = j.page.waitForRequest('**/api/token')
   await j.page.goto(`${j.site}/${GAME}`)
   await asked
   await j.page.reload()
+  release()
   await title(j, WORDS.appName)
   await text(j, WORDS.signedOutAgain)
 })

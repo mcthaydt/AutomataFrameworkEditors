@@ -50,6 +50,8 @@ export interface JourneyPage {
   readonly fake: FakeGitHub
   /** The page's own address. */
   readonly site: string
+  /** Keeps every answer to `path` waiting until the returned function is called. */
+  hold(path: string): () => void
   /** Every address the page asked for, as `METHOD url`, oldest first. */
   readonly requests: readonly string[]
   /** What the browser's security rules refused, and what the page logged as an error. */
@@ -100,6 +102,7 @@ export async function openPage(
     page,
     fake,
     site: site.url,
+    hold: (path) => site.hold(path),
     requests,
     async problems() {
       const refused = await page

@@ -40,6 +40,8 @@ export function pageHeaders(): Record<string, string> {
 
 export interface Site {
   readonly url: string
+  /** Keeps every answer to `path` waiting until the returned function is called: a call the page can be seen to cut off. */
+  hold(path: string): () => void
   close(): Promise<void>
 }
 
@@ -57,8 +59,11 @@ export async function startSite(
   const headers = pageHeaders()
   const origin = `http://127.0.0.1:${port}`
 
+  const held = new Map<string, Promise<void>>()
+
   async function api(request: IncomingMessage, response: ServerResponse): Promise<void> {
     const method = request.method ?? 'GET'
+    await held.get(new URL(request.url ?? '/', origin).pathname)
     const body = method === 'GET' || method === 'HEAD' ? undefined : await readBody(request)
     const answer = await handleApi(
       new Request(`${origin}${request.url ?? '/'}`, {
@@ -104,6 +109,19 @@ export async function startSite(
   await new Promise<void>((done) => server.listen(port, '127.0.0.1', done))
   return {
     url: origin,
+    hold(path) {
+      let release = () => {}
+      held.set(
+        path,
+        new Promise<void>((done) => {
+          release = () => {
+            held.delete(path)
+            done()
+          }
+        }),
+      )
+      return release
+    },
     close: () =>
       new Promise<void>((done) => {
         server.closeAllConnections()
