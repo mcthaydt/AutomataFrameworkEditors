@@ -22,8 +22,24 @@
     onpick: (tool: Tool) => void
     onundo: () => void
     onredo: () => void
+    /** The list is shut and not drawn as a rail (a small screen): this button opens it. Left out: not drawn. */
+    onlist?: (() => void) | undefined
   }
-  let { workspace, lang, tool, side, keys, undoHere, canUndo, canRedo, mirror = false, onpick, onundo, onredo }: Props = $props()
+  let {
+    workspace,
+    lang,
+    tool,
+    side,
+    keys,
+    undoHere,
+    canUndo,
+    canRedo,
+    mirror = false,
+    onpick,
+    onundo,
+    onredo,
+    onlist,
+  }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const ICON: Readonly<Record<Tool, IconName>> = {
@@ -54,6 +70,12 @@
         {#if keys}<kbd>{keyOf(one)}</kbd>{/if}
       </button>
     {/each}
+    {#if onlist}
+      <i class="rule"></i>
+      <button type="button" class="tool" onclick={onlist}>
+        <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
+      </button>
+    {/if}
     {#if undoHere}
       <i class="rule"></i>
       <button type="button" class="tool" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>

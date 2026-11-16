@@ -42,7 +42,7 @@
     <ul class="rows">
       {#each rows as row (row.number)}
         <li>
-          <a class="row" href={routeHash({ screen: 'change', owner: game.owner, name: game.name, number: row.number })}>
+          <a class="row" href={routeHash({ screen: 'level', owner: game.owner, name: game.name, sheet: { kind: 'change', number: row.number } })}>
             <span class="title">{row.title}</span>
             <span class="by">{row.mine ? WORDS.waitingMine : WORDS.waitingBy(row.by)}</span>
           </a>

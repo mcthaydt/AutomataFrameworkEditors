@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef } from '../wire/wire.ts'
-  import { routeHash } from './route.ts'
+  import { routeHash } from '../team/team.ts'
   import { WORDS } from '../words/words.ts'
 
   // The first screen for someone who needs to sign in: what this is, one big button, and why GitHub is in it at all.
@@ -37,7 +37,7 @@
       <Button
         label={WORDS.tryIt}
         kind={tryFirst ? 'primary' : 'plain'}
-        onpress={() => (location.hash = routeHash({ screen: 'game', ...demo }))}
+        onpress={() => (location.hash = routeHash({ screen: 'level', ...demo }))}
       />
     </div>
     <p class="why">{WORDS.tryItLine}</p>

@@ -45,7 +45,7 @@
   let nameProblem = $state<string | undefined>(undefined)
   let link: HTMLInputElement | undefined = $state()
 
-  const here = (r: GameRef): string => new URL(routeHash({ screen: 'game', ...r }), location.href).href
+  const here = (r: GameRef): string => new URL(routeHash({ screen: 'level', ...r }), location.href).href
   const linkText = $derived(here(ref))
   const same = (a: string, b: string): boolean => a.toLowerCase() === b.toLowerCase()
 

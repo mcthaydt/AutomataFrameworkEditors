@@ -11,5 +11,5 @@ export {
   startEdit,
   undo,
 } from './edit.ts'
-export { default as Levels } from './Levels.svelte'
+export { default as Stage } from './Stage.svelte'
 export { keepInside, onSolid, type Point, type Size, snap, toScreen, toWorld } from './place.ts'

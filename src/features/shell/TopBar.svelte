@@ -44,10 +44,10 @@
     onpart: (id: string) => void
     onpeople: () => void
     /** Left out: the control is not drawn. */
-    onfind?: () => void
-    onplay?: () => void
-    onproblems?: () => void
-    ontocheck?: () => void
+    onfind?: (() => void) | undefined
+    onplay?: (() => void) | undefined
+    onproblems?: (() => void) | undefined
+    ontocheck?: (() => void) | undefined
     playing?: boolean
   }
   let {

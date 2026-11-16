@@ -1,20 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import type { Api } from '../api/api.ts'
-  import type { GameRef } from '../wire/wire.ts'
-  import type { GameOpened } from './opened.ts'
+  import { readMe } from '../device/device.ts'
   import type { Session } from '../session/session.ts'
-  import { Button, Notice } from '../ui/ui.ts'
+  import { Games, needsPerson, parseRoute, type Route, routeHash } from '../team/team.ts'
+  import { Notice } from '../ui/ui.ts'
+  import type { GameRef } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
-  import { needsPerson, parseRoute, routeHash } from './route.ts'
-  import GameHome from './GameHome.svelte'
+  import { Opening } from '../world/world.ts'
   import Guide from './Guide.svelte'
   import { finishGuide, guideStep, guideSteps, guideWanted } from './guide.ts'
-  import LevelScreen from './LevelScreen.svelte'
-  import PickGame from './PickGame.svelte'
-  import Share from './Share.svelte'
-  import Waiting from './Waiting.svelte'
-  import WaitingChange from './WaitingChange.svelte'
+  import type { GameOpened } from './opened.ts'
   import Welcome from './Welcome.svelte'
 
   // The whole page: which screen the address asks for, and the bar at the top with the one sign-in button. A person
@@ -42,6 +38,9 @@
   let { api, session, ready, start, addUrl, remembered, demo, drafts, signupUrl, justAdded }: Props = $props()
 
   let route = $state(parseRoute(location.hash))
+  // The person's own choices (See-through panels, left hand, and the rest): read once, when the page opens.
+  // svelte-ignore state_referenced_locally
+  const me = readMe(remembered)
   // Both start from what the page was given; after that the person's own presses change them.
   // svelte-ignore state_referenced_locally
   let signedIn = $state(session.token() !== undefined)
@@ -94,7 +93,7 @@
   onMount(() => {
     const follow = (): void => {
       route = parseRoute(location.hash)
-      if (route.screen !== 'level') level = { dirty: false, look: false }
+      if (route.screen === 'games') level = { dirty: false, look: false }
     }
     window.addEventListener('hashchange', follow)
     return () => window.removeEventListener('hashchange', follow)
@@ -106,8 +105,8 @@
     signedIn = false
     notice = 'signed-out'
   }
-  const goBack = (): void => {
-    location.hash = '#/'
+  const go = (next: Route): void => {
+    location.hash = routeHash(next)
   }
 
   const begin = (): void => session.begin(location.hash === '' ? '#/' : location.hash)
@@ -124,11 +123,9 @@
   )
   /** What the open said about the game on screen now; undefined until it has said, or on a screen with no game. */
   const known = $derived(opened !== undefined && opened.game === gameKey ? opened : undefined)
-  const gameName = $derived(known?.name)
   /** A game that did not open has nothing to say a first-run step about, and neither do the screens beside it. */
   const guided = $derived(
-    route.screen === 'games' ||
-      ((route.screen === 'game' || route.screen === 'level') && (known === undefined || known.name !== undefined)),
+    route.screen === 'games' || known === undefined || known.name !== undefined,
   )
   const inGame = $derived(route.screen !== 'games')
   const step = $derived(
@@ -136,7 +133,7 @@
       signedIn,
       games,
       inGame,
-      inLevel: route.screen === 'level',
+      inLevel: route.screen !== 'games',
       dirty: level.dirty,
       savedOnce: savedHow !== undefined,
       keptCopy,
@@ -177,94 +174,46 @@
 {#if !signedIn && (asksForPerson || notice === 'signed-out')}
   <Welcome {notice} {ready} {demo} {signupUrl} landing={route.screen === 'games' && notice !== 'signed-out'} onsignin={begin} />
 {:else}
-  <div class="bar">
-    {#if signedIn}
-      <Button label={WORDS.signOut} onpress={signOut} />
-    {:else if !(known !== undefined && known.askSignIn)}
-      <!-- Not on a screen whose own primary button already says Sign in: two of them a hand apart is one too many. -->
-      <Button label={WORDS.signIn} onpress={begin} />
-    {/if}
-  </div>
   {#if !signedIn && (notice === 'cancelled' || notice === 'failed')}
-    <!-- A sign-in that did not happen, on a screen that does not need one: say so, and the way to try again is the bar. -->
+    <!-- A sign-in that did not happen, on a screen that does not need one: say so, and the way to try again is the game's menu. -->
     <div class="said"><Notice kind="problem" text={notice === 'failed' ? WORDS.signInFailed : WORDS.signInCancelled} /></div>
   {/if}
   {#if route.screen === 'games'}
-    <PickGame
+    <Games
       {api}
       {remembered}
       {justAdded}
       onadd={() => location.assign(addUrl)}
+      onsignout={signOut}
       ongames={(n) => {
         games = n
         sawList = true
       }}
       onsignedout={signedOut}
     />
-  {:else if route.screen === 'game'}
+  {:else}
     {@const here = { owner: route.owner, name: route.name }}
     {#key `${route.owner}/${route.name}`}
-      <GameHome
+      <Opening
         {api}
         game={here}
-        {remembered}
-        visitor={!signedIn}
-        savedBefore={savedHow !== undefined}
-        onopened={(said) => told(here, said)}
-        onsignin={begin}
-        onsignedout={signedOut}
-        onback={goBack}
-      />
-    {/key}
-  {:else if route.screen === 'level'}
-    {@const here = { owner: route.owner, name: route.name }}
-    {#key `${route.owner}/${route.name}/${route.level}`}
-      <LevelScreen
-        {api}
-        game={{ owner: route.owner, name: route.name }}
-        levelId={route.level}
+        {route}
+        {me}
+        {signedIn}
+        {go}
         {remembered}
         {drafts}
-        {signedIn}
-        {gameName}
+        savedBefore={savedHow !== undefined}
         onopened={(said) => told(here, said)}
         onfacts={(f) => (level = { dirty: f.dirty, look: f.look })}
         onsaved={saved}
         onkept={() => (keptCopy = true)}
         onsignin={begin}
+        onsignout={signOut}
         onsignedout={signedOut}
-        onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
       />
     {/key}
-  {:else if route.screen === 'waiting'}
-    {@const here = { owner: route.owner, name: route.name }}
-    <Waiting
-      {api}
-      game={here}
-      onsignedout={signedOut}
-      onback={() => (location.hash = routeHash({ screen: 'game', ...here }))}
-    />
-  {:else if route.screen === 'change'}
-    {@const here = { owner: route.owner, name: route.name }}
-    {#key route.number}
-      <WaitingChange
-        {api}
-        game={here}
-        number={route.number}
-        onsignedout={signedOut}
-        onback={() => (location.hash = routeHash({ screen: 'waiting', ...here }))}
-        onhome={() => (location.hash = routeHash({ screen: 'game', ...here }))}
-      />
-    {/key}
-  {:else}
-    {@const here = { owner: route.owner, name: route.name }}
-    <Share
-      {api}
-      game={here}
-      onsignedout={signedOut}
-      onhome={() => (location.hash = routeHash({ screen: 'game', ...here }))}
-    />
-{/if}
+  {/if}
 {/if}
 </div>
 </div>
@@ -285,11 +234,6 @@
     overflow: auto;
   }
   .said {
-    padding: var(--space-2) var(--space-3) 0;
-  }
-  .bar {
-    display: flex;
-    justify-content: flex-end;
     padding: var(--space-2) var(--space-3) 0;
   }
 </style>

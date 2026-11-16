@@ -1,11 +1,11 @@
-// The levels editor in each real browser, driven with real touch pointer events on the real layout.
+// The level's stage in each real browser, driven with real touch pointer events on the real layout.
 import { fitWorld } from '@automataframework/framework'
 import type { Character, Level } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { isDirty, type LevelEdit, Levels } from '#src/features/levels/levels.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { isDirty, type LevelEdit } from '#src/features/levels/levels.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+import Harness from './Harness.svelte'
 
 const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}') as Level
 const characters: Record<string, Character> = {
@@ -16,7 +16,7 @@ const characters: Record<string, Character> = {
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
 let edits: LevelEdit[]
-let onchange: (edit: LevelEdit) => void
+let onedit: (edit: LevelEdit) => void
 
 beforeEach(() => {
   box = document.createElement('div')
@@ -24,7 +24,7 @@ beforeEach(() => {
     'position:fixed;left:0;top:0;width:820px;height:1180px;display:flex;flex-direction:column'
   document.body.append(box)
   edits = []
-  onchange = (edit) => edits.push(edit)
+  onedit = (edit) => edits.push(edit)
 })
 afterEach(() => {
   if (mounted) void unmount(mounted)
@@ -32,23 +32,8 @@ afterEach(() => {
   box.remove()
 })
 
-type Status = 'clean' | 'dirty' | 'saving' | 'saved'
-async function show(over: { canSave?: boolean; status?: Status; onsave?: () => void } = {}): Promise<void> {
-  mounted = mount(Levels, {
-    target: box,
-    props: {
-      level,
-      characters,
-      hero: 'hero',
-      canSave: over.canSave ?? true,
-      status: over.status ?? 'dirty',
-      statusText: 'Nothing has changed yet.',
-      title: 'level-1',
-      back: { label: WORDS.back, onpress: () => {} },
-      onchange,
-      onsave: over.onsave ?? (() => {}),
-    },
-  })
+async function show(): Promise<void> {
+  mounted = mount(Harness, { target: box, props: { level, characters, hero: 'hero', onedit } })
   await tick()
   await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
 }
@@ -136,7 +121,7 @@ function dragTo(to: { x: number; y: number }, finish = true): void {
 const place = (): [string | undefined, string | undefined] => [crate().dataset.x, crate().dataset.y]
 const last = (): LevelEdit => {
   const edit = edits.at(-1)
-  if (!edit) throw new Error('onchange was not called')
+  if (!edit) throw new Error('nothing was edited')
   return edit
 }
 
@@ -157,8 +142,7 @@ test('a tap selects and shows the arrows; nothing moved', async () => {
   touch(crate(), 'pointerup', at)
   await tick()
   expect(crate().getAttribute('aria-pressed')).toBe('true')
-  expect(box.textContent).toContain(WORDS.hintSelected('crate-1'))
-  expect(named(WORDS.moveLeft)).toBeTruthy()
+  expect(named('Move left')).toBeTruthy()
   expect(edits).toEqual([])
 })
 
@@ -171,7 +155,6 @@ test('tapping the stage where no thing is unselects', async () => {
   touch(stage(), 'pointerdown', { x: s.left + 5, y: s.top + 5 })
   await tick()
   expect(crate().getAttribute('aria-pressed')).toBe('false')
-  expect(box.textContent).toContain(WORDS.hintIdle)
 })
 
 test('dragging two tiles right moves it two tiles', async () => {
@@ -188,7 +171,7 @@ test('a whole drag is one undo step', async () => {
   const from = centre(crate())
   dragTo({ x: from.x + 2 * scale(), y: from.y })
   await tick()
-  named(WORDS.undo).click()
+  named('Undo').click()
   await tick()
   expect(place()).toEqual(['6.5', '7.5'])
   expect(isDirty(last())).toBe(false)
@@ -229,7 +212,7 @@ test('dragging down into the floor leaves it on the floor and says why', async (
   dragTo({ x: from.x, y: from.y + 2 * scale() })
   await tick()
   expect(place()).toEqual(['6.5', '7.5'])
-  expect(box.textContent).toContain(WORDS.solid)
+  expect(box.textContent).toContain('solid')
 })
 
 test('each arrow button moves half a tile; so does each arrow key', async () => {
@@ -237,17 +220,17 @@ test('each arrow button moves half a tile; so does each arrow key', async () => 
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  named(WORDS.moveRight).click()
+  named('Move right').click()
   await tick()
   expect(place()).toEqual(['7', '7.5'])
-  named(WORDS.moveUp).click()
+  named('Move up').click()
   await tick()
   expect(place()).toEqual(['7', '7'])
-  named(WORDS.moveLeft).click()
-  named(WORDS.moveLeft).click()
+  named('Move left').click()
+  named('Move left').click()
   await tick()
   expect(place()).toEqual(['6', '7'])
-  named(WORDS.moveDown).click()
+  named('Move down').click()
   await tick()
   expect(place()).toEqual(['6', '7.5'])
   const key = (name: string): void => {
@@ -262,37 +245,6 @@ test('each arrow button moves half a tile; so does each arrow key', async () => 
   key('Escape')
   await tick()
   expect(crate().getAttribute('aria-pressed')).toBe('false')
-})
-
-test('Save is off until something changed, and off while saving', async () => {
-  await show({ status: 'clean' })
-  expect(named(WORDS.save).disabled).toBe(true)
-  void unmount(mounted as object)
-  box.replaceChildren()
-  await show({ status: 'dirty' })
-  expect(named(WORDS.save).disabled).toBe(false)
-  void unmount(mounted as object)
-  box.replaceChildren()
-  await show({ status: 'saving' })
-  expect(named(WORDS.save).disabled).toBe(true)
-})
-
-test('with canSave false, Save stays off after a move', async () => {
-  await show({ canSave: false })
-  expect(named(WORDS.save).disabled).toBe(true)
-  touch(crate(), 'pointerdown', centre(crate()))
-  touch(crate(), 'pointerup', centre(crate()))
-  await tick()
-  named(WORDS.moveRight).click()
-  await tick()
-  expect(named(WORDS.save).disabled).toBe(true)
-})
-
-test('pressing Save calls onsave once', async () => {
-  const onsave = vi.fn()
-  await show({ onsave })
-  named(WORDS.save).click()
-  expect(onsave).toHaveBeenCalledTimes(1)
 })
 
 async function turn(width: number, height: number): Promise<void> {
@@ -328,11 +280,11 @@ test('the picture follows an arrow button and Undo', async () => {
   touch(crate(), 'pointerdown', centre(crate()))
   touch(crate(), 'pointerup', centre(crate()))
   await tick()
-  for (let step = 0; step < 4; step += 1) named(WORDS.moveRight).click()
+  for (let step = 0; step < 4; step += 1) named('Move right').click()
   await tick()
   expect(pictureAt(expectedCentre(8.5, 7.5))).toBe(CRATE)
   expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(SKY)
-  for (let step = 0; step < 4; step += 1) named(WORDS.undo).click()
+  for (let step = 0; step < 4; step += 1) named('Undo').click()
   await tick()
   expect(pictureAt(expectedCentre(6.5, 7.5))).toBe(CRATE)
   expect(pictureAt(expectedCentre(8.5, 7.5))).toBe(SKY)
@@ -400,23 +352,10 @@ test('at 390 by 844 every button is at least 44 px and nothing runs off the side
   expect(box.scrollWidth).toBeLessThanOrEqual(box.clientWidth)
 })
 
-test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a marked thing says so', async () => {
-  mounted = mount(Levels, {
+test('read only: a drag moves nothing, there is no arrow or Undo, and a marked thing says so', async () => {
+  mounted = mount(Harness, {
     target: box,
-    props: {
-      readOnly: true,
-      marked: ['crate-1'],
-      level,
-      characters,
-      hero: 'hero',
-      canSave: false,
-      status: 'clean' as const,
-      statusText: '',
-      title: 'level-1',
-      back: { label: WORDS.back, onpress: () => {} },
-      onchange,
-      onsave: () => {},
-    },
+    props: { readOnly: true, marked: ['crate-1'], level, characters, hero: 'hero', onedit },
   })
   await tick()
   await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
@@ -428,42 +367,6 @@ test('read only: a drag moves nothing, there is no arrow, Undo or Save, and a ma
   expect(place()).toEqual(['6.5', '7.5'])
   expect(edits).toEqual([])
   const labels = [...box.querySelectorAll('button')].map((b) => b.textContent?.trim())
-  for (const word of [WORDS.save, WORDS.undo, WORDS.moveLeft, WORDS.moveRight]) {
-    expect(labels).not.toContain(word)
-  }
+  for (const word of ['Undo', 'Move left', 'Move right']) expect(labels).not.toContain(word)
   expect(crate().hasAttribute('data-marked')).toBe(true)
-})
-
-test('the two copy buttons are at least 44 px, on with canSave false and status clean, and each calls its handler once', async () => {
-  const text = vi.fn()
-  const file = vi.fn()
-  mounted = mount(Levels, {
-    target: box,
-    props: {
-      level,
-      characters,
-      hero: 'hero',
-      canSave: false,
-      status: 'clean' as const,
-      statusText: '',
-      title: 'level-1',
-      back: { label: WORDS.back, onpress: () => {} },
-      onchange,
-      onsave: () => {},
-      oncopytext: text,
-      oncopyfile: file,
-    },
-  })
-  await tick()
-  await vi.waitFor(() => expect(Number(stage().dataset.scale)).toBeGreaterThan(0))
-  for (const [label, handler] of [
-    [WORDS.copyLevel, text],
-    [WORDS.copyKeep, file],
-  ] as const) {
-    const button = named(label)
-    expect(button.disabled).toBe(false)
-    expect(button.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
-    button.click()
-    expect(handler).toHaveBeenCalledTimes(1)
-  }
 })

@@ -4,7 +4,7 @@
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
   import { type Opened, openGame } from '../game/game.ts'
-  import { compareLevels, Levels } from '../levels/levels.ts'
+  import { compareLevels, Stage } from '../levels/levels.ts'
   import { Button, Notice, Screen } from '../ui/ui.ts'
   import type { GameRef, ProblemKind, WaitingChange } from '../wire/wire.ts'
   import { WORDS } from '../words/words.ts'
@@ -153,18 +153,12 @@
     <p class="by">{change.mine ? WORDS.waitingMine : WORDS.waitingBy(change.by)}</p>
     {#if shown !== undefined}
       <div class="picture">
-        <Levels
+        <Stage
           readOnly
           level={shown.level}
           characters={opened.game.content.characters}
           hero={opened.game.content.project.hero}
           marked={shown.moved.map((m) => m.id)}
-          canSave={false}
-          status="clean"
-          statusText=""
-          title={shown.level.id}
-          onchange={() => {}}
-          onsave={() => {}}
         />
       </div>
       <ul class="lines">
