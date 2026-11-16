@@ -117,6 +117,26 @@ test('Undo and Redo say they cannot act when there is nothing to undo, and act w
   expect(redo).toBeDefined()
 })
 
+test('while the level plays, Undo and Redo cannot act: the level under a running game would change unseen', async () => {
+  const seen: string[] = []
+  stage('wide')
+  await put({
+    playing: true,
+    onplay: () => {},
+    canUndo: true,
+    canRedo: true,
+    onundo: () => seen.push('undo'),
+    onredo: () => seen.push('redo'),
+  })
+  const undo = box.querySelector('[aria-label=Undo]') as HTMLElement
+  const redo = box.querySelector('[aria-label=Redo]') as HTMLElement
+  expect(undo.getAttribute('aria-disabled')).toBe('true')
+  expect(redo.getAttribute('aria-disabled')).toBe('true')
+  await press(undo)
+  await press(redo)
+  expect(seen).toEqual([])
+})
+
 test("the main button says what it does, and what the changes are, in the device's word", async () => {
   stage('wide')
   await put({ facts: { ...facts, changes: 3 } })

@@ -5,9 +5,11 @@
   // What the screen has to say, stacked under the top bar: each is soft glass with its words and the buttons it needs.
   interface Props {
     events: readonly Saying[]
+    /** Lower down, under the play bar. */
+    low?: boolean
     onanswer: (event: Saying, answer: Answer) => void
   }
-  let { events, onanswer }: Props = $props()
+  let { events, low = false, onanswer }: Props = $props()
 
   let box: HTMLTextAreaElement | undefined = $state()
   $effect(() => {
@@ -17,7 +19,7 @@
 </script>
 
 {#if events.length > 0}
-  <div class="events">
+  <div class="events" class:low>
     {#each events as event (event.id)}
       <div class="event {event.kind}" role={event.kind === 'problem' ? 'alert' : 'status'}>
         <p>{event.text}</p>
@@ -52,6 +54,10 @@
 {/if}
 
 <style>
+  /* The play bar sits at the top of the game: what the screen says waits under it, never over it. */
+  .events.low {
+    top: calc(var(--bar) + 20px + 64px);
+  }
   .events {
     position: absolute;
     top: calc(var(--bar) + 20px);
