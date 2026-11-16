@@ -294,6 +294,10 @@ export async function openLevel(page: Page, game = 'crate-game', level = 'level-
 /** The one button that puts what was changed in the game, sends it to be checked, or keeps a copy: when there is any. */
 export const putButton = (page: Page) => page.locator('button.put:not(.quiet)')
 
+/** The main button, when it says `words`: a change is there and this is what it offers. */
+export const putButtonSaying = (page: Page, words: string) =>
+  page.locator('button.put:not(.quiet)', { hasText: words })
+
 /** The same place when nothing has changed here (or the person's change is waiting): the button is quiet. */
 export const quietButton = (page: Page) => page.locator('button.put.quiet')
 

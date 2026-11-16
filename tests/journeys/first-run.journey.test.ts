@@ -12,6 +12,7 @@ import {
   openPage,
   pressPut,
   putButton,
+  putButtonSaying,
   type SIZES,
   setupJourneys,
   signIn,
@@ -138,7 +139,7 @@ test('someone sent a link (look): told they can look around and who to ask; no s
   // Nothing to put in: the one button waits for a change, and then offers a copy, never a save.
   expect(await putButton(j.page).count()).toBe(0)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await putButton(j.page).filter({ hasText: String(wordsIn('en').bar.keepCopy) }).waitFor()
+  await putButtonSaying(j.page, String(wordsIn('en').bar.keepCopy)).waitFor()
 })
 
 test('someone sent a link they may not open: told to ask the owner, with a way back to "Pick a game"', async () => {

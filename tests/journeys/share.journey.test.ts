@@ -12,6 +12,7 @@ import {
   openGame,
   openPage,
   pressPut,
+  putButtonSaying,
   type SIZES,
   setupJourneys,
   signIn,
@@ -161,10 +162,7 @@ test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
   await openGame(grandpa.page)
   await thingNamed(grandpa.page, 'crate-1').waitFor()
   await dragByTouch(grandpa.page, 'crate-1', { dx: 1, dy: 0 })
-  await grandpa.page
-    .locator('button.put:not(.quiet)')
-    .filter({ hasText: String(wordsIn('en').bar.sendToCheck) })
-    .waitFor()
+  await putButtonSaying(grandpa.page, String(wordsIn('en').bar.sendToCheck)).waitFor()
 })
 
 test('setting "anyone" to "Can\'t get in": a stranger with the link is told to ask the owner', async () => {

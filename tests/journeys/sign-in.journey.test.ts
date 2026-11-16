@@ -68,7 +68,7 @@ test('a sign-in that is turned down lands on Welcome saying so', async () => {
   expect(new URL(j.page.url()).search).toBe('')
 })
 
-test('a game opens signed out with no word about signing in, and the game's menu signs in and comes back to that game', async () => {
+test('a game opens signed out with no word about signing in, and signing in from the menu of the game comes back to that game', async () => {
   const j = await open('ipadUpright')
   await j.page.goto(`${j.site}/#/game/grandma/crate-game`)
   await inGame(j)

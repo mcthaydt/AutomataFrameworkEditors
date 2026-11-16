@@ -12,6 +12,7 @@ import {
   openPage,
   pressPut,
   putButton,
+  putButtonSaying,
   quietButton,
   setupJourneys,
   signIn,
@@ -40,7 +41,7 @@ const crateAt = (x: number): Level => ({
 const theirs = writeContent('level', crateAt(10.5) as never)
 const says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 /** The main button offers a copy and not a save: what a person who may not save is shown once something changed. */
-const offersCopy = (j: JourneyPage) => putButton(j.page).filter({ hasText: KEEP }).waitFor()
+const offersCopy = (j: JourneyPage) => putButtonSaying(j.page, KEEP).waitFor()
 const KEEP = String(wordsIn('en').bar.keepCopy)
 const text = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 const crateX = (j: JourneyPage) => expect.poll(() => thingNamed(j.page, 'crate-1').getAttribute('data-x'))
