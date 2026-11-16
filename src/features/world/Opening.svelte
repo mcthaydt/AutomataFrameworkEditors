@@ -49,6 +49,8 @@
   let opened = $state.raw<Opened | undefined>(undefined)
   /** A new one remounts the editor: the game was opened again. */
   let generation = $state(0)
+  /** The address asked for a level this game has, when the game was opened. A level made here later is not a reason to go. */
+  let found = $state(false)
 
   async function load(): Promise<void> {
     opened = undefined
@@ -57,6 +59,8 @@
     const refused = !result.ok && (result.problem === 'not-found' || result.problem === 'not-allowed')
     if (result.ok) rememberGame(remembered, ref)
     else if (refused) forgetGame(remembered, ref)
+    const asked = route.screen === 'games' ? undefined : route.level
+    found = result.ok && (asked === undefined || result.game.content.levels[asked] !== undefined)
     opened = result
     generation += 1
   }
@@ -65,19 +69,11 @@
   const toGames = (): void => go({ screen: 'games' })
   const back = { label: WORDS.back, onpress: toGames }
   const title = $derived(`${ref.owner}/${ref.name}`)
-  /** The level the address asks for, or the game's start; it must be one the game has. */
-  const wanted = $derived(
-    opened?.ok && route.screen === 'level' && route.level !== undefined
-      ? route.level
-      : opened?.ok
-        ? opened.game.content.project.start
-        : undefined,
-  )
 </script>
 
 {#if opened === undefined}
   <Screen {title} {back}><p>{WORDS.loading}</p></Screen>
-{:else if opened.ok && wanted !== undefined && opened.game.content.levels[wanted] !== undefined}
+{:else if opened.ok && found}
   {#key generation}
     <World
       game={opened.game}

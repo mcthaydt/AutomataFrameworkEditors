@@ -39,8 +39,18 @@ export interface LevelCanvas {
   show(content: GameContent, pictures: readonly OpenPicture[], level: Level, camera: Camera, look: Look): void
   /** In CSS pixels. A size not above zero is ignored; the last picture is redrawn. */
   resize(w: number, h: number): void
-  /** The same drawing as a container in the same Application, in tiles, for the map: `map-canvas.ts` places it and keeps it. */
-  picture(content: GameContent, pictures: readonly OpenPicture[], level: Level): unknown
+  /**
+   * The same drawing as a container in the same Application, in tiles, for the map: `map-canvas.ts` places it and keeps
+   * it. `scale` is the pixels a tile will take, so the lines round a box stay one pixel wide.
+   */
+  picture(content: GameContent, pictures: readonly OpenPicture[], level: Level, scale?: number): unknown
+  /**
+   * The map's sheet: whatever `draw` gives, in pixels, on the page's ground colour. It is
+   * asked again whenever a level's art arrives, so a picture never stays the plain colours.
+   */
+  sheet(draw: () => readonly unknown[]): void
+  /** Draws what is there again, with nothing built anew: a picture that was only moved. */
+  repaint(): void
 }
 
 export interface Stage {
@@ -222,6 +232,8 @@ export async function createStage(): Promise<Stage> {
   let last:
     | { content: GameContent; pictures: readonly OpenPicture[]; level: Level; camera: Camera; look: Look }
     | undefined
+  /** What the map asked to be drawn, while it is what is on show. */
+  let sheet: (() => readonly unknown[]) | undefined
 
   // The art each level was last loaded with. A load that is on its way is not started twice, and the art that was there
   // before stays on screen until the new one arrives, so a change of tiles never flashes the colours.
@@ -256,7 +268,19 @@ export async function createStage(): Promise<Stage> {
   }
 
   function redraw(): void {
-    if (gone || last === undefined || box.w <= 0 || box.h <= 0) return
+    if (gone || box.w <= 0 || box.h <= 0) return
+    if (sheet !== undefined) {
+      // The page's own ground shows round the levels.
+      app.renderer.background.color =
+        getComputedStyle(app.canvas).getPropertyValue('--ground').trim() || '#1e1e1e'
+      world.scale.set(1)
+      world.position.set(0, 0)
+      for (const child of world.removeChildren()) child.destroy({ children: true })
+      for (const picture of sheet()) world.addChild(picture as Container)
+      app.render()
+      return
+    }
+    if (last === undefined) return
     const { content, pictures, level, camera, look } = last
     app.renderer.background.color = skyOf(level)
     const at = toScreen(camera, box, { x: 0, y: 0 })
@@ -269,6 +293,7 @@ export async function createStage(): Promise<Stage> {
 
   const levels: LevelCanvas = {
     show(content, pictures, level, camera, look) {
+      sheet = undefined
       last = { content, pictures, level, camera, look }
       redraw()
     },
@@ -278,10 +303,20 @@ export async function createStage(): Promise<Stage> {
       app.renderer.resize(w, h)
       redraw()
     },
-    picture(content, pictures, level) {
+    picture(content, pictures, level, scale = 1) {
       const container = new Container()
-      drawLevel(container, content, artFor(content, pictures, level), level, PLAIN, 1)
+      const size = levelSize(level)
+      // The level's own sky, since on the map there is no one background to show it.
+      container.addChild(new Graphics().rect(0, 0, size.w, size.h).fill(skyOf(level)))
+      drawLevel(container, content, artFor(content, pictures, level), level, PLAIN, scale)
       return container
+    },
+    sheet(draw) {
+      sheet = draw
+      redraw()
+    },
+    repaint() {
+      if (!gone) app.render()
     },
   }
 

@@ -48,6 +48,14 @@ export function wholeLevel(level: Level, screen: Screen, insets: Insets): Camera
   }
 }
 
+/** Does a pinch of `zoom` leave the level well smaller than the whole of it? Then the person is asking for the map. */
+export function pastWhole(camera: Camera, zoom: number, level: Level, screen: Screen): boolean {
+  return (
+    zoom < 1 &&
+    camera.scale * zoom < wholeLevel(level, screen, { top: 0, right: 0, bottom: 0, left: 0 }).scale * 0.85
+  )
+}
+
 /** The view that has `around` at the screen's middle, close enough to place a thing by eye. */
 export function closeUp(level: Level, around: Point, _screen: Screen): Camera {
   const size = levelSize(level)

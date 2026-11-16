@@ -103,6 +103,30 @@ test('the part menu holds the parts and every level; only an upright phone adds 
   expect(ids).not.toContain('h-levels')
 })
 
+test('a map row is in the part menu only when the workspace has a map, and ticks instead of Levels while it is open', () => {
+  const asks = {
+    workspace: WORLD,
+    part: 'levels',
+    compact: false,
+    levels: ['level-1', 'level-2'],
+    level: 'level-2',
+  }
+  const map = { words: 'Map', about: 'Every level on one sheet', here: false }
+  expect(partItems(asks, owner, bar).map((row) => row.id)).not.toContain('map')
+  const on = partItems({ ...asks, level: undefined, map: { ...map, here: true } }, owner, bar)
+  expect(on.map((row) => row.words)).toEqual([
+    'In World',
+    'Levels',
+    'Map',
+    'All levels',
+    'Level 1',
+    'Level 2',
+  ])
+  expect(on.filter((row) => row.here).map((row) => row.id)).toEqual(['map'])
+  const off = partItems({ ...asks, map }, owner, bar)
+  expect(off.filter((row) => row.here).map((row) => row.id)).toEqual(['part:levels', 'level:level-2'])
+})
+
 test('every workspace shares the same five tools, in the order the toolbar draws them', () => {
   expect(TOOLS).toEqual(['pick', 'place', 'paint', 'erase', 'join'])
   for (const tool of WORLD.tools) expect(TOOLS).toContain(tool)

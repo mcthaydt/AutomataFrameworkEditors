@@ -1,4 +1,5 @@
 // The world map: where levels sit, and how to move them. The screens come after.
+
 export {
   type Box,
   boxes,
@@ -12,3 +13,4 @@ export {
   type Wall,
   wholeWorld,
 } from './arrange.ts'
+export { default as MapPart } from './MapPart.svelte'

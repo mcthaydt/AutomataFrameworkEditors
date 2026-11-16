@@ -49,6 +49,10 @@
     onproblems?: (() => void) | undefined
     ontocheck?: (() => void) | undefined
     playing?: boolean
+    /** The map is the thing on screen. */
+    mapOn?: boolean
+    /** Left out: there is no map, so no button and no row. */
+    onmap?: (() => void) | undefined
   }
   let {
     workspace,
@@ -78,6 +82,8 @@
     onproblems,
     ontocheck,
     playing = false,
+    mapOn = false,
+    onmap,
   }: Props = $props()
 
   const words = $derived(wordsIn(lang))
@@ -135,12 +141,32 @@
   const gameRows = $derived(gameItems(gameFacts, m))
   const editorRows = $derived(editorItems(m, workspace.id))
   const partRows = $derived(
-    partItems({ workspace, part, compact, levels, level: place }, gameFacts, m),
+    partItems(
+      {
+        workspace,
+        part,
+        compact,
+        levels,
+        level: mapOn ? undefined : place,
+        map:
+          onmap === undefined
+            ? undefined
+            : { words: text(words.map.mapWord), about: text(words.map.mapAbout), here: mapOn },
+      },
+      gameFacts,
+      m,
+    ),
   )
 
   const current = $derived(workspace.parts.find((one) => one.id === part))
   const partWords = $derived(text(current === undefined ? m.partLevels : m[current.words]))
-  const partName = $derived(place === undefined ? partWords : `${partWords} · ${nameOf(place)}`)
+  const partName = $derived(
+    mapOn
+      ? `${partWords} · ${text(words.map.mapWord)}`
+      : place === undefined
+        ? partWords
+        : `${partWords} · ${nameOf(place)}`,
+  )
 
   const statuses = $derived(statusOf(facts))
   const main = $derived(mainButton(level, signedIn, facts.changes))
@@ -162,6 +188,10 @@
     if (said !== undefined) note = said
   }
   function pickPart(id: string): void {
+    if (id === 'map') {
+      close()
+      return onmap?.()
+    }
     if (id.startsWith('editor:')) return pickEditor(id.slice('editor:'.length))
     if (id.startsWith('game:')) return pickGame(id.slice('game:'.length))
     close()
@@ -186,6 +216,11 @@
       <span class="name">{partName}</span>
       <Icon name="caret-down" />
     </button>
+    {#if onmap && !compact}
+      <button type="button" class="chip" aria-pressed={mapOn} onclick={onmap}>
+        <Icon name="map-trifold" /><span>{text(words.map.mapWord)}</span>
+      </button>
+    {/if}
     <span class="fill"></span>
     {#if !compact}
       <button type="button" class="icon" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => {
@@ -350,6 +385,9 @@
     padding: 0 10px;
     border-radius: 10px;
     white-space: nowrap;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--picked);
   }
   .bad {
     color: var(--problem);

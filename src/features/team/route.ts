@@ -19,7 +19,8 @@ export type Route =
       readonly level?: string
       readonly sheet?: Sheet
     }
-  | { readonly screen: 'map'; readonly owner: string; readonly name: string }
+  /** The map, on a level: the one that was open, and is picked when the map opens. */
+  | { readonly screen: 'map'; readonly owner: string; readonly name: string; readonly level?: string }
 
 const PART = /^[A-Za-z0-9._-]+$/
 const GAMES: Route = { screen: 'games' }
@@ -43,7 +44,12 @@ export function parseRoute(hash: string): Route {
   const [, owner, name, third, ...rest] = parts
   if (owner === undefined || name === undefined || !PART.test(owner) || !PART.test(name)) return GAMES
   if (third === undefined) return { screen: 'level', owner, name }
-  if (third === 'map' && rest.length === 0) return { screen: 'map', owner, name }
+  if (third === 'map') {
+    const [level, ...after] = rest
+    if (after.length > 0) return GAMES
+    if (level === undefined) return { screen: 'map', owner, name }
+    return PART.test(level) ? { screen: 'map', owner, name, level } : GAMES
+  }
   if (third === 'level') {
     const [level, ...after] = rest
     if (level === undefined || !PART.test(level)) return GAMES
@@ -67,7 +73,7 @@ export function routeHash(route: Route): string {
     case 'games':
       return '#/'
     case 'map':
-      return `#/game/${route.owner}/${route.name}/map`
+      return `#/game/${route.owner}/${route.name}/map${route.level === undefined ? '' : `/${route.level}`}`
     case 'level': {
       const base = `#/game/${route.owner}/${route.name}`
       const level = route.level === undefined ? '' : `/level/${route.level}`

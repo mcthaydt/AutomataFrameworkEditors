@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Level } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
@@ -9,8 +10,7 @@
     type Edits,
     inLevel,
     isChanged,
-    keepCopy,
-    keepDrafts,
+        keepDrafts,
     levelCopy,
     type OpenGame,
     redo,
@@ -18,13 +18,12 @@
     titleOf,
     undo,
   } from '../game/game.ts'
-  import { withId } from './with-id.ts'
-  import { type Clip, countsOf, LevelPart, nudgeThings, Tray } from '../levels/levels.ts'
+  import { MapPart } from '../map/map.ts'
+  import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
   import {
     commandFor,
     type Docks,
     layout,
-    ListPanel,
     SettingsPanel,
     type StatusFacts,
     Toolbar,
@@ -38,12 +37,18 @@
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
+  import { insetsOf } from './insets.ts'
+  import { copyFile, copyText, type Update } from './keeping.ts'
   import { listen, typing } from './listen.ts'
   import Nudge from './Nudge.svelte'
-  import ThingRow from './ThingRow.svelte'
+  import Sheets from './Sheets.svelte'
   import { tipKept } from './tips.ts'
+  import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
-  import type { Level } from '@automataframework/framework/headless'
+  import WorldList from './WorldList.svelte'
+
+  /** The map has no tools of its own: only what the shell adds (Undo and Redo on a phone, the list's button). */
+  const NO_TOOLS = { ...WORLD, tools: [] }
 
   // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
   // settings), and everything a person does to it. What is changed is held as `Edits`, with one history, and kept on
@@ -105,6 +110,8 @@
   let online = $state(navigator.onLine)
   /** What is picked: thing ids, and `start-1` for a start. */
   let picked = $state.raw<readonly string[]>([])
+  /** The level that is picked on the map. */
+  let pickedLevel = $state<string | undefined>(undefined)
   let tool = $state<Tool>('pick')
   /** The character the Place tool is holding (or the tray's start). */
   let placing = $state<string | undefined>(undefined)
@@ -144,7 +151,12 @@
   const rowHeight = $derived(rows === 'small' ? 30 : 44)
 
   const signedIn = $derived(held.login !== undefined)
-  const levelId = $derived(route.screen === 'level' && route.level !== undefined ? route.level : held.content.project.start)
+  const onMap = $derived(route.screen === 'map')
+  // The level the address asks for; one that is no longer there (made, renamed or taken away since) is the start.
+  const asked = $derived(route.screen === 'games' ? undefined : route.level)
+  const levelId = $derived(
+    asked !== undefined && edits.now.levels[asked] !== undefined ? asked : held.content.project.start,
+  )
   const level = $derived(edits.now.levels[levelId])
   const things = $derived(level?.things ?? [])
   const dirty = $derived(isChanged(edits))
@@ -158,6 +170,8 @@
     toCheck,
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
+  const levelIds = $derived(Object.keys(edits.now.levels))
+  const startId = $derived(held.content.project.start)
   const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
   $effect(() => showGlass(me))
@@ -184,6 +198,7 @@
           step(command)
         } else if (command === 'escape') {
           picked = []
+          pickedLevel = undefined
           placing = undefined
         } else if (command === 'help') {
           e.preventDefault()
@@ -304,25 +319,7 @@
   function askKeep(): void {
     events = say(events, { id: 'keep', kind: 'info', text: text(words.menus.keepCopyAbout), ask: 'keep' })
   }
-  async function copyText(): Promise<void> {
-    const copy = copyOfNow()
-    if (copy === undefined) return
-    events = unsay(events, 'keep')
-    try {
-      await navigator.clipboard.writeText(copy.text)
-      events = say(events, { id: 'copied', kind: 'good', text: WORDS.copyCopied, dismiss: true })
-    } catch {
-      // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
-      events = say(events, { id: 'copied', kind: 'info', text: WORDS.copySelect, box: copy.text, dismiss: true })
-    }
-  }
-  function copyFile(): void {
-    const copy = copyOfNow()
-    if (copy === undefined) return
-    keepCopy(document, copy)
-    events = unsay(events, 'keep')
-    events = say(events, { id: 'copied', kind: 'good', text: WORDS.copyKept, dismiss: true })
-  }
+  const update: Update = (next) => void (events = next(events))
 
   function answered(event: Saying, answer: Answer): void {
     switch (answer) {
@@ -346,10 +343,14 @@
         then?.()
         return
       }
-      case 'copy-file':
-        return copyFile()
-      case 'copy-text':
-        return void copyText()
+      case 'copy-file': {
+        const copy = copyOfNow()
+        return copy === undefined ? undefined : copyFile(copy, update)
+      }
+      case 'copy-text': {
+        const copy = copyOfNow()
+        return copy === undefined ? undefined : void copyText(copy, update)
+      }
       case 'dismiss':
         if (event.id === 'tip-share') tipKept(remembered, 'share')
         if (event.id === 'tip-approve') tipKept(remembered, 'approve')
@@ -376,44 +377,28 @@
     else void put()
   }
   function onpart(id: string): void {
+    if (id === 'part:levels') {
+      if (onMap) go({ screen: 'level', ...here, level: pickedLevel ?? levelId })
+      return
+    }
+    if (id === 'map') return onmap()
     if (!id.startsWith('level:')) return
     const next = id.slice('level:'.length)
-    if (next !== levelId) leave(() => go({ screen: 'level', ...here, level: next }))
+    if (next !== levelId || onMap) leave(() => go({ screen: 'level', ...here, level: next }))
+  }
+  /** The Map button: the map when a level is open, the level that was open when the map is. */
+  function onmap(): void {
+    if (onMap) return go({ screen: 'level', ...here, level: pickedLevel ?? levelId })
+    pickedLevel = levelId
+    go({ screen: 'map', ...here, level: levelId })
   }
 
-  // Where the level may be drawn: clear of the top bar, the toolbar and whatever panels are open.
-  const insets = $derived.by(() => {
-    const toolbar = lay.toolbar === 'left' ? 76 : 0
-    const list = lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0
-    // Held whether or not a thing is picked, so picking one never moves the level under a finger that is dragging it.
-    const wide = layout(device, size, docks, true, me.leftHand).settings
-    const settings = wide === 'side' ? 296 : wide === 'tab' ? 44 : 0
-    const bottom = (lay.toolbar === 'bottom' ? 76 : 0) + (lay.settings === 'bar' ? 56 : 0)
-    return lay.mirror
-      ? { left: settings, right: toolbar + list, bottom }
-      : { left: toolbar + list, right: settings, bottom }
-  })
+  // Held whether or not a thing is picked, so picking one never moves the level under a finger that is dragging it.
+  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, onMap))
 </script>
 
 {#if sheet !== undefined}
-  <div class="sheet">
-    {#if sheet.kind === 'share'}
-      <Share {api} game={held.ref} {onsignedout} onhome={closeSheet} />
-    {:else if sheet.kind === 'waiting'}
-      <Waiting {api} game={held.ref} {onsignedout} onback={closeSheet} />
-    {:else}
-      {#key sheet.number}
-        <WaitingChange
-          {api}
-          game={held.ref}
-          number={sheet.number}
-          {onsignedout}
-          onback={() => asSheet({ kind: 'waiting' })}
-          onhome={closeSheet}
-        />
-      {/key}
-    {/if}
-  </div>
+  <Sheets {sheet} {api} game={held.ref} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
 {:else}
   <div
     class="look world"
@@ -422,13 +407,24 @@
     data-rows={rows}
     style:--tools-room={lay.toolbar === 'bottom' ? '72px' : '0px'}
   >
-    {#if level !== undefined}
+    {#if onMap || level !== undefined}
       <div
         class="level"
         style:left="{insets.left}px"
         style:right="{insets.right}px"
         style:bottom="{insets.bottom}px"
       >
+        {#if onMap}
+          <MapPart
+            content={held.content}
+            pictures={held.pictures}
+            working={edits.now}
+            {lang}
+            picked={pickedLevel}
+            onpick={(next) => (pickedLevel = next)}
+            ongo={(next) => go({ screen: 'level', ...here, level: next })}
+          />
+        {:else if level !== undefined}
         <LevelPart
           bind:this={part}
           content={held.content}
@@ -454,7 +450,12 @@
           onhide={(id, on) => (hidden = withId(hidden, id, on))}
           onclip={(next) => (clip = next)}
           onundo={() => step('undo')}
+          onmap={() => {
+            pickedLevel = levelId
+            go({ screen: 'map', ...here, level: levelId })
+          }}
         />
+        {/if}
       </div>
     {/if}
 
@@ -480,14 +481,17 @@
       {onmain}
       {onmenu}
       {onpart}
+      mapOn={onMap}
+      {onmap}
       onpeople={() => {
         if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
       }}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
     />
 
+    {#if !onMap || size === 'phone' || lay.list === 'hidden'}
     <Toolbar
-      workspace={WORLD}
+      workspace={onMap ? NO_TOOLS : WORLD}
       {lang}
       {tool}
       side={lay.toolbar}
@@ -501,47 +505,37 @@
       onredo={() => step('redo')}
       onlist={lay.list === 'hidden' ? () => openList('list') : undefined}
     />
+    {/if}
 
     {#if lay.list !== 'hidden'}
-      <ListPanel
+      <WorldList
         {lang}
         mode={lay.list}
         tab={docks.list === 'add' ? 'add' : 'list'}
-        name={text(words.panels.listIn)}
-        count={things.length}
         {rowHeight}
         inset={lay.toolbar === 'left'}
         mirror={lay.mirror}
         onopen={openList}
         onhide={() => (docks = { ...docks, list: 'closed' })}
-      >
-        {#snippet row(at)}
-          {@const thing = things[at]}
-          {#if thing !== undefined}
-            <ThingRow
-              {thing}
-              picked={picked.includes(thing.id)}
-              note={locked.has(thing.id) ? text(words.levels.lockedNote) : undefined}
-              onpick={() => pick([thing.id])}
-            />
-          {/if}
-        {/snippet}
-        {#snippet add()}
-          <Tray
-            {lang}
-            characters={held.content.characters}
-            counts={level === undefined ? {} : countsOf(level)}
-            chosen={placing}
-            onchoose={(id) => {
-              placing = id
-              if (id !== undefined) tool = 'place'
-            }}
-          />
-        {/snippet}
-      </ListPanel>
+        levels={onMap ? levelIds : undefined}
+        start={startId}
+        {pickedLevel}
+        onpicklevel={(id) => (pickedLevel = id)}
+        {level}
+        {things}
+        {picked}
+        {locked}
+        onpick={pick}
+        characters={held.content.characters}
+        {placing}
+        onchoose={(id) => {
+          placing = id
+          if (id !== undefined) tool = 'place'
+        }}
+      />
     {/if}
 
-    {#if lay.settings !== 'none' && placed !== undefined}
+    {#if !onMap && lay.settings !== 'none' && placed !== undefined}
       <SettingsPanel
         {lang}
         mode={lay.settings}
@@ -580,13 +574,6 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-  }
-  .sheet {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-    overflow: auto;
   }
   /* The level sits under the glass: clear of the top bar, and of whatever sits at its sides and foot. */
   .level {
