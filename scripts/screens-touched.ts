@@ -28,8 +28,12 @@ export const SCREEN_FILES: Readonly<Record<string, string>> = {
 }
 
 /** A file whose change is seen on a screen: the plan's own test for "something seen changed". */
-const seen = (file: string): boolean =>
-  /(\.svelte|\.css)$|^(src\/features\/(ui|words)\/|index\.html|public\/|docs\/mockups\/|tests\/journeys\/screens)/.test(file)
+const SEEN = [
+  String.raw`\.(svelte|css)$`,
+  String.raw`^src/features/(ui|words)/`,
+  String.raw`^(index\.html|public/|docs/mockups/|tests/journeys/screens)`,
+]
+const seen = (file: string): boolean => SEEN.some((pattern) => new RegExp(pattern).test(file))
 
 /** The pattern of the scenes the changed files reach: every scene as soon as one seen file is on no screen's list. */
 export function scenesFor(changed: readonly string[]): string {

@@ -18,7 +18,8 @@ test('every scene is drawn by at least one screen file, so no picture can be lef
 
 test('every pattern names a scene that exists, and every screen file exists', () => {
   for (const [file, pattern] of Object.entries(SCREEN_FILES)) {
-    expect(SCENES.some((scene) => new RegExp(pattern).test(scene)), file).toBe(true)
+    const drawn = SCENES.some((scene) => new RegExp(pattern).test(scene))
+    expect(drawn, file).toBe(true)
     expect(() => readFileSync(new URL(`../../${file}`, import.meta.url)), file).not.toThrow()
   }
 })

@@ -109,17 +109,19 @@ test('a draft takes only the pictures of the screens it changes; anything else t
 
 test('every browser is six shards, shard for shard what the `engines` gate counts', () => {
   const browsers = job('browsers')
-  expect(browsers).toContain('name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/6)')
+  expect(browsers).toContain(`name: browsers (\${{ matrix.engine }} \${{ matrix.shard }}/6)`)
   expect(browsers).toContain('shard: [1, 2, 3, 4, 5, 6]')
-  expect(browsers).toContain('engine: ${{ fromJSON(needs.plan.outputs.engines) }}')
-  expect(job('engines')).toContain('engine: ${{ fromJSON(needs.plan.outputs.engines) }}')
+  expect(browsers).toContain(`engine: \${{ fromJSON(needs.plan.outputs.engines) }}`)
+  expect(job('engines')).toContain(`engine: \${{ fromJSON(needs.plan.outputs.engines) }}`)
   const gate = readFileSync(new URL('../../scripts/engines-gate.ts', import.meta.url), 'utf8')
   expect(gate).toContain('export const SHARDS = 6')
 })
 
 test('the journeys are split over the six shards: three sizes of the screens journey, and the rest in three parts', () => {
   const browsers = job('browsers')
-  for (const size of ['ipadUpright', 'ipadSideways', 'phone']) expect(browsers).toContain(`screens: ${size} }`)
+  for (const size of ['ipadUpright', 'ipadSideways', 'phone']) {
+    expect(browsers).toContain(`screens: ${size} }`)
+  }
   for (const part of [1, 2, 3]) expect(browsers).toContain(`others: ${part} }`)
-  expect(browsers).toContain('--shard=${{ matrix.others }}/3')
+  expect(browsers).toContain(`--shard=\${{ matrix.others }}/3`)
 })
