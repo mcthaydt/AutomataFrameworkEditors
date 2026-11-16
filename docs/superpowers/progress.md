@@ -1,19 +1,18 @@
 # Progress
 
-Last updated: 2026-11-16 18:16 UTC (from `date`).
+Last updated: 2026-11-16 18:31 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
-About two thirds built. The World editor plan has 19 pull requests; 1 to 10 are merged. The plan, its spec and its plan
+About two thirds built. The World editor plan has 19 pull requests; 1 to 10 and 14 are merged. The plan, its spec and its plan
 audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/plans/2026-11-16-world-editor.md`, `docs/superpowers/specs/2026-11-16-world-editor-design.md` and
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
 
-- Plan pull request 14, play in place: Editors #95, in review (lane 2). The first review's five findings are fixed on
-  the branch; a second review and the full CI run come next. This record was written by the implementer, because the
-  coordinator cannot write to the repo.
+- Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
+  commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan pull request 11, the map on screen, is built in parallel; whichever is ready later merges `main` in first
   (`World.svelte` is 596 lines of its 600).
 
@@ -31,6 +30,7 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 | 8 | The team's files (the API) | #85 |
 | 9 | Levels on screen: Pick, Place, Erase | #91 (`8109888`) |
 | 10 | First run, Settings, Help, the keys | #90 |
+| 14 | Play in place: the level plays where it is drawn | #95 |
 
 The framework pin here is `7ff5795`.
 
@@ -39,16 +39,15 @@ The framework pin here is `7ff5795`.
 | # | Pull request | Tasks | Needs |
 |---|---|---|---|
 | 11 | The map on screen | 29, 30 | 6, 7, 9: ready |
-| 14 | Play in place | 35 | 9: ready |
 | 12 | A thing's settings and Join; Paint, Show and the Pencil | 31, 32 | 9, 10, 11 |
 | 13 | Putting changes in, problems in plain words, offline | 33, 34 | 4, 5, 7, 8, 9, 11 |
-| 15 | Checking someone's changes; whose to keep | 36, 37 | 13, 14 |
+| 15 | Checking someone's changes; whose to keep | 36, 37 | 13 |
 | 16 | The team, notes, the helper's ghost and Find | 38 to 40 | 8, 12, 13 |
-| 17 | Pin 2 (its own PR), then one step, slow, back 30 seconds, play from here, doors, a game with a problem | 41, 42 | 13, 14; framework F1, F2, F4, F5 |
+| 17 | Pin 2 (its own PR), then one step, slow, back 30 seconds, play from here, doors, a game with a problem | 41, 42 | 13; framework F1, F2, F4, F5 |
 | 18 | Drawn behind, with the hero, in front | 42a | 12, 17 |
 | 19 | Every journey at every size, the four layout fixes proved, the documents and the close | 43, 44 | all |
 
-Order: 11 and 14, then 12 and 13, then 15 and 16, then 17, then 18, then 19. 11 and 14 both add a line to
+Order: 11 (14 is done), then 12 and 13, then 15 and 16, then 17, then 18, then 19. 11 and 14 both add a line to
 `World.svelte`, as do 12 and 13: the later one merges `main` in before it goes ready.
 
 Not built inside plan PR 9, for later pull requests: drag-in from the tray; the Add-a-note menu rows; the Pick-several
@@ -81,6 +80,11 @@ None.
 - Decided in the plan's fix round without an Owner answer: locked and hidden last only for the visit ("Locked until you
   close the game"); a turn-down closes at once, keeps the branch, and Undo reopens it; "Try a change" is left out;
   unbuilt editors never say "Comes later" or "Soon"; the editor reads, never writes, tileset PNGs.
+- Agent-selected, 2026-11-16, in #95's fix rounds: the play journey reads the game's picture through one helper that
+  drops WebKit's own inline style element from the refusals a journey fails on (Playwright adds it for a screenshot; the
+  full run failed on it at `ccbab6a`), and the first World play tests wait up to 15 seconds for the first game and level
+  to be there, because WebKit's full run failed `world-play.browser.test.ts` once at the default second (`52145af`). Both
+  are test-only; no assertion was loosened.
 - Agent-selected, 2026-11-16: the design drift check's record goes in
   `docs/superpowers/audits/<date>-slice-3-design-review.md`, with a `Scope:` line and `Recheck: passed`, and the
   approval under "Approved screens" in `history.md`.
