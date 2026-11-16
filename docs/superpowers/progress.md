@@ -4,14 +4,20 @@ The tracker every stage reads first and updates last. It keeps **only open work*
 (the Owner, 2026-11-16); finished and parked work moves to [`history.md`](history.md), which threads read only
 when asked. One section per cycle; newest first.
 
-## The World editor build (roadmap slice 3, items 5 and 6): planned (2026-11-16)
+## The World editor build (roadmap slice 3, items 5 and 6): plan audited and fixed (2026-11-16)
 
 Stage 2 done: [`plans/2026-11-16-world-editor.md`](plans/2026-11-16-world-editor.md), from
-[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). 44 tasks in 18 pull requests,
-three lanes, plus three framework tasks (F1 to F3) built in AutomataFramework. Build progress: **0%**.
+[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). Stage 3 done: the
+[plan audit](audits/2026-11-16-world-editor-plan-audit.md) found 26; all 26 are fixed in the plan, in one round, with the
+Owner's two answers (a real "How heavy" for the crate, and draw order kept in levels and used in play). The plan is now
+44 tasks plus 2a, 2b and 42a in 19 pull requests and two lanes, plus five framework tasks (F1 to F5) in
+AutomataFramework and one test-game task (E4) in AutomataFrameworkExamples. Build progress: **0%**.
 
-- Next: the plan audit (stage 3, Opus medium), then execution (Sonnet high) starting with pull requests 1 and 2.
-- Waits on the framework: only pull request 17 (Plan W's pull request 5, and F1 to F3).
+- Next: execution (stage 4, Sonnet high) starting with pull requests 1 and 2. F3 may start beside Plan W; F1, F2, F4 and
+  F5 start after Plan W's pull request 4.
+- Waits on the framework: only pull request 17 (Plan W's pull request 5, and F1 to F5). E4 waits for F4 and F5.
+- For the Owner: `replays/level-1.json` moves twice over (Plan W's reason and E4's), shown once, before and after; nothing
+  merges until the Owner says yes.
 
 ## The shell and World mockups (roadmap slice 3): the plain-words round, all 29 findings fixed (2026-11-15)
 
