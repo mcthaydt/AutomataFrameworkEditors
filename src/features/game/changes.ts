@@ -20,6 +20,11 @@ export interface Working {
   readonly world: WorldFile | undefined
   /** automata.toml's text. */
   readonly project: string
+  /**
+   * Levels renamed since the game was opened or last put in, by the id they had then. The project file's `start` and
+   * `levels` lines follow a rename, which a level taken away and another made would not do.
+   */
+  readonly renames?: Readonly<Record<string, string>> | undefined
 }
 
 /**
@@ -131,10 +136,22 @@ function plan(
     }
   }
 
+  // A rename counts only while the level is still there under its new id and the old id is gone.
+  const rename = Object.fromEntries(
+    Object.entries(now.renames ?? {}).filter(
+      ([was, id]) =>
+        base.levels[was] !== undefined && now.levels[was] === undefined && now.levels[id] !== undefined,
+    ),
+  )
+  const renamed = Object.keys(rename).length > 0
   const project: ProjectChange | undefined =
-    add.length === 0 && remove.length === 0
+    add.length === 0 && remove.length === 0 && !renamed
       ? undefined
-      : { ...(add.length === 0 ? {} : { add }), ...(remove.length === 0 ? {} : { remove }) }
+      : {
+          ...(add.length === 0 ? {} : { add }),
+          ...(remove.length === 0 ? {} : { remove }),
+          ...(renamed ? { rename } : {}),
+        }
   return { files, project }
 }
 
@@ -184,7 +201,8 @@ export function afterPut(
   const { now } = edits
   const worldPath =
     now.world === undefined ? undefined : (game.worldPath ?? put.find((file) => file.kind === 'world')?.path)
-  const kept: Working = { ...now, project: answer.project?.text ?? projectAfter(edits, listed) }
+  const { renames: _settled, ...settled } = now
+  const kept: Working = { ...settled, project: answer.project?.text ?? projectAfter(edits, listed) }
   return {
     game: {
       ...game,
