@@ -2,6 +2,12 @@
 
 The tracker every stage reads first and updates last. One section per cycle; newest first.
 
+## The World editor (roadmap slice 3, items 5 and 6)
+
+Spec written 2026-11-16 after the Owner approved the mockups (board v17):
+[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). Stage 1 of 7, **4%**. Two Owner
+questions open (which World parts this slice builds; where notes live). Next: the plan (Fable 5.2, medium).
+
 ## Task 6 and Task 7 part 1 reverted (2026-11-15)
 
 The Owner said (2026-11-15) that the editors were built before their mockups were shown, and chose to revert what had
