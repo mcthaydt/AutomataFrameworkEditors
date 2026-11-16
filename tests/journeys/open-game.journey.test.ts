@@ -76,6 +76,24 @@ test('when the sign-in is gone for good the person is on Welcome, told so', asyn
   await text(j, WORDS.signedOutAgain)
 })
 
+test('a sign-in renewal that a reload cuts off is not a fault, in any browser', async () => {
+  const j = await open('ipadUpright')
+  await signIn(j.page)
+  await title(j, WORDS.pickTitle)
+  j.fake.signedOutEverywhere()
+  // The first renewal is held, so the reload below is certain to cut it off; the next one goes through.
+  let held = 0
+  await j.page.route('**/api/token', (route) => {
+    if (held++ > 0) void route.continue()
+  })
+  const asked = j.page.waitForRequest('**/api/token')
+  await j.page.goto(`${j.site}/${GAME}`)
+  await asked
+  await j.page.reload()
+  await title(j, WORDS.appName)
+  await text(j, WORDS.signedOutAgain)
+})
+
 test('a game that is not there says so', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
