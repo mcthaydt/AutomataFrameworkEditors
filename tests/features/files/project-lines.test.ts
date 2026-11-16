@@ -60,7 +60,7 @@ test('adding level-4 lists it at the end of levels and as a block of three lines
 test('a text with no levels line never gets one', () => {
   const added = changeProject(CRATE, { add: [level('level-2')] })
   expect(reads(added)).toBe(true)
-  expect(added).not.toContain('levels')
+  expect(added).not.toMatch(/^levels\s*=/m)
   expect(added).toBe(`${CRATE}\n[[content]]\ntype = "level"\npath = "content/levels/level-2.json"\n`)
 })
 
@@ -90,7 +90,7 @@ test('taking away the only id left takes the levels line out', () => {
   const one = HAND.replace('levels = ["a", "b"] # the play order', 'levels = ["b"]')
   const removed = changeProject(one, { remove: ['content/levels/b.json'] })
   expect(reads(removed)).toBe(true)
-  expect(removed).not.toContain('levels')
+  expect(removed).not.toMatch(/^levels\s*=/m)
   expect(removed).toContain('start = "a"')
 })
 

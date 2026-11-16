@@ -66,7 +66,7 @@ test('three files, one changed, one new, one taken away, land in one commit', as
     crate()
       .commits[0]?.files.map((f) => f.path)
       .sort(),
-  ).toEqual([GONE_PATH, LEVEL_PATH, NEW_PATH])
+  ).toEqual([LEVEL_PATH, NEW_PATH, GONE_PATH])
   expect(crate().heads.get('main')).toBe(done.commit)
   expect(done.versions).toEqual({
     [LEVEL_PATH]: blobSha('{"changed":true}\n'),
@@ -182,7 +182,7 @@ test('commitPaths gives the paths one commit touched, in one request', async () 
     }),
   )
   const before = fake.log.length
-  expect([...value(await repo.commitPaths(done.commit))].sort()).toEqual([GONE_PATH, NEW_PATH])
+  expect([...value(await repo.commitPaths(done.commit))].sort()).toEqual([NEW_PATH, GONE_PATH])
   expect(fake.log.length - before).toBe(1)
 })
 

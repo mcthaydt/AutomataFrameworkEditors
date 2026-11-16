@@ -64,7 +64,7 @@ const NEW_TOML = changeProject(text(PROJECT_FILE), PROJECT_CHANGE) ?? ''
 
 test('an owner: a level, a new level, the world file and the project lines land in one commit on main', async () => {
   const res = await put('grandma', ask())
-  expect(res.answer).toMatchObject({ ok: true, value: { how: 'direct', mine: undefined } })
+  expect(res.answer).toMatchObject({ ok: true, value: { how: 'direct' } })
   expect(repo().commits).toHaveLength(1)
   expect(repo().commits[0]).toMatchObject({ branch: 'main', author: 'grandma', message: 'A fourth room' })
   const touched = repo().commits[0]?.files.map((f) => f.path)

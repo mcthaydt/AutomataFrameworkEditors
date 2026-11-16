@@ -563,7 +563,7 @@ test('git data: blobs, a tree on the head, a commit and a ref update land every 
   const { commit } = await gitCommit(token, {
     [LEVEL_PATH]: 'one\n',
     'new.json': 'two\n',
-    'automata.access.toml': null,
+    'automata.toml': null,
   })
   expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe(level())
   const moved = await gh(`${REPO}/git/refs/heads/main`, {
@@ -574,7 +574,7 @@ test('git data: blobs, a tree on the head, a commit and a ref update land every 
   expect(moved.status).toBe(200)
   expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe('one\n')
   expect(main().branches.get('main')?.get('new.json')).toBe('two\n')
-  expect(main().branches.get('main')?.has('automata.access.toml')).toBe(false)
+  expect(main().branches.get('main')?.has('automata.toml')).toBe(false)
   expect(main().commits).toEqual([
     expect.objectContaining({ branch: 'main', message: 'Many', author: 'kid', sha: commit }),
   ])
@@ -582,7 +582,7 @@ test('git data: blobs, a tree on the head, a commit and a ref update land every 
     main()
       .commits[0]?.files.map((f) => f.path)
       .sort(),
-  ).toEqual(['automata.access.toml', LEVEL_PATH, 'new.json'].sort())
+  ).toEqual(['automata.toml', LEVEL_PATH, 'new.json'].sort())
 })
 
 test('git data: a ref update that is not a fast forward is 422 and moves nothing', async () => {
