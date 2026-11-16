@@ -303,4 +303,3 @@ export const quietButton = (page: Page) => page.locator('button.put.quiet')
 
 /** Presses the main button. */
 export const pressPut = (page: Page) => putButton(page).click()
-
