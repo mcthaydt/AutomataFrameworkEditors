@@ -98,11 +98,14 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
       .getByRole('button', { name: said(first('en').tourNext) })
       .click()
 
-    // Step 2 asks for a move of what is picked, and a plain pick does not count.
+    // Step 2 asks for a change to a number of what is picked ("How heavy"), and a plain pick does not count.
     await coach(j)
-      .getByText(said(first('en').tourArrowsDo, 'Crate 1'))
+      .getByText(said(first('en').tourValueDo, 'How heavy'))
       .waitFor()
-    await thingNamed(j.page, 'crate-1').focus()
+    // On a small screen the settings are folded to a line until it is pressed.
+    const folded = j.page.locator('button[data-tour="settings"]')
+    if ((await folded.count()) > 0) await folded.click()
+    await j.page.locator('input[type="range"][aria-label="How heavy"]').focus()
     await j.page.keyboard.press('ArrowRight')
     await coach(j)
       .getByText(said(first('en').tourDid))

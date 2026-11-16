@@ -43,3 +43,6 @@ None yet.
 
 - Before 2026-11-16: the earlier workflow's specs, plans, audits, tracker and history were removed in #93. They are at
   `8109888`: `git show 8109888:docs/superpowers/<path>`.
+- 2026-11-16: plan PR 12 was split in two so each stays reviewable: 12a (Task 31, a thing's settings, Join, tags and Go to)
+  and 12b (Task 32, Paint, Show, Pencil). An agent-selected choice by the implementer, told to the coordinator; the plan's
+  tasks and acceptance are unchanged.

@@ -20,19 +20,21 @@
     undo,
   } from '../game/game.ts'
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
-  import { MapPart } from '../map/map.ts'
+  import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
   import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
   import { type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
+  import { didWhat } from './did.ts'
   import { type Answer, cantPlay, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
   import { insetsOf } from './insets.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
-  import { listen, onControl, typing } from './listen.ts'
+  import { listen, measure, onControl, typing } from './listen.ts'
+  import { savedAs } from './saved.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
   import { playTip, tipKept } from './tips.ts'
@@ -81,10 +83,6 @@
     onme,
   }: Props = $props()
 
-  const measure = (): { w: number; h: number } => ({
-    w: document.documentElement.clientWidth,
-    h: document.documentElement.clientHeight,
-  })
   const first = measure()
 
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
@@ -161,7 +159,6 @@
     toCheck,
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
   $effect(() => showGlass(me))
 
@@ -274,12 +271,7 @@
   let dragFrom: Edits | undefined
   const grab = (): void => void (dragFrom = edits)
   function edit(next: Level): void {
-    const was = edits.now.levels[levelId]
-    const moved = (t: { id: string; x: number; y: number }): boolean => {
-      const o = was?.things.find((w) => w.id === t.id)
-      return o !== undefined && (o.x !== t.x || o.y !== t.y)
-    }
-    if (next.things.some(moved)) guide?.happen({ kind: 'moved' })
+    for (const kind of didWhat(edits.now.levels[levelId], next)) guide?.happen({ kind })
     keep(inLevel(dragFrom ?? edits, levelId, () => next))
   }
   function drop(gaveUp: boolean): void {
@@ -287,6 +279,7 @@
     dragFrom = undefined
     if (gaveUp && from !== undefined) keep(from)
   }
+  const hand = { grab, edit, drop }
   /** The settings' own four arrows: one tile a tap. */
   function nudge(id: string, way: 'left' | 'right' | 'up' | 'down'): void {
     const start = edits.now.levels[levelId]
@@ -320,15 +313,11 @@
     const result = await saveLevel(api, held, now, titleOf(lines))
     saving = false
     if (result.ok) {
-      held = result.game
-      edits = { ...edits, base: { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } } }
+      const next = savedAs(result, edits, levelId, now)
+      held = next.game
+      edits = next.edits
       keepDrafts(drafts, held, edits)
-      events = say(events, {
-        id: 'saved',
-        kind: 'good',
-        text: result.how === 'suggestion' ? WORDS.savedSuggestion : WORDS.savedDirect,
-        dismiss: true,
-      })
+      events = say(events, next.saying)
       onsaved(result.how)
       return
     }
@@ -383,6 +372,7 @@
   }
 
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
+  const goLevel = (next: string): void => go({ screen: 'level', ...here, level: next })
   const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
 
   function onmenu(id: string): void {
@@ -446,7 +436,7 @@
             {lang}
             picked={pickedOnMap}
             onpick={(next) => (pickedLevel = next)}
-            ongo={(next) => go({ screen: 'level', ...here, level: next })}
+            ongo={goLevel}
             onchange={(next) => keep(change(edits, next))}
             onundo={() => step('undo')}
           />
@@ -477,6 +467,8 @@
           onclip={(next) => (clip = next)}
           onundo={() => step('undo')}
           {onmap}
+          edges={edgesOf(edits.now, held.content, levelId)}
+          ongo={goLevel}
         />
         {/if}
         {#if playing}
@@ -556,6 +548,10 @@
       start={held.content.project.start}
       {pickedLevel}
       onpicklevel={(id) => (pickedLevel = id)}
+      {levelId}
+      ways={edits.now.levels}
+      {hand}
+      ongo={goLevel}
     />
 
     <Events {events} low={playing} onanswer={answered} />
@@ -569,7 +565,7 @@
       owner={signedIn && can(access, 'share')}
       {remembered}
       {things}
-      picked={placed?.id}
+      {picked}
       {onme}
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}

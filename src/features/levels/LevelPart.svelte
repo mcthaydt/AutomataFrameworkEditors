@@ -7,25 +7,27 @@
   import { onMount, untrack } from 'svelte'
   import type { Pointers } from '../device/device.ts'
   import type { Tool } from '../shell/shell.ts'
-  import { Note } from '../ui/ui.ts'
   import type { OpenPicture } from '../wire/wire.ts'
   import { type Lang, nameOf, type Row, idOf, wordsIn } from '../words/words.ts'
-  import ActBar from './ActBar.svelte'
   import { copyNear, isStart, movePicked, nudgePicked, playerOf, refusalWord } from './acts.ts'
   import { type Clip, copyToClip, pasteClip } from './clipboard.ts'
   import type { Done } from './done.ts'
-  import { barPlace, ghostBox, outlines, padPlace } from './float.ts'
+  import { ghostBox, outlines } from './float.ts'
+  import Edges from './Edges.svelte'
+  import type { Edge } from './edges.ts'
+  import Floats from './Floats.svelte'
   import { type Act, createGestures, HOLD_MS, type PointerLike, pointerLike } from './gestures.ts'
   import { type Cell, emptyKind, kindsOf, lineCells, paint } from './ground.ts'
   import { createStage, type Stage } from './level-canvas.ts'
+  import Join from './Join.svelte'
   import Marks from './Marks.svelte'
   import { marksFor, type Rect, unionBox } from './marks.ts'
   import MiniMap from './MiniMap.svelte'
-  import MovePad from './MovePad.svelte'
   import Popups from './Popups.svelte'
+  import { tagFacts } from './tags.ts'
+  import Tags from './Tags.svelte'
   import type { Way } from './nudge.ts'
   import { deleteThings, moveStart, onlyOne, placeThing, renameThing } from './things.ts'
-  import Tray from './Tray.svelte'
   import { countsOf, START } from './tray.ts'
   import { type Camera, pastWhole, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
   import type { Point } from './place.ts'
@@ -65,11 +67,14 @@
     onundo: () => void
     /** Two fingers pinched out past the whole level: the map opens on this one. */
     onmap?: (() => void) | undefined
+    /** The edges that touch another level and are open there, and the way to go and look at it. */
+    edges?: readonly Edge[]
+    ongo?: ((level: string) => void) | undefined
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
     fingerDraws = false, readOnly = false, paused = false,
-    onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap,
+    onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap, edges = [], ongo,
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -103,6 +108,8 @@
       nameFor,
     ),
   )
+  const tags = $derived(tagFacts(level, characters))
+  let join: Join | undefined = $state()
   const thingsPicked = $derived(picked.filter((id) => !isStart(id)))
   const pickedBox = $derived(unionBox(marks, picked))
 
@@ -245,7 +252,8 @@
   function tap(at: Point, on: string | undefined): void {
     menu = undefined
     pad = false
-    if (tool === 'pick') {
+    join?.clear()
+    if (tool === 'pick' || tool === 'join') {
       if (on === undefined) onpick([])
       else if (shiftDown) onpick(picked.includes(on) ? picked.filter((id) => id !== on) : [...picked, on])
       else onpick([on])
@@ -291,6 +299,7 @@
       if (act.phase === 'end') put(tilesAt(act.to))
       else hover(act.to)
     } else if (tool === 'erase') dragErase(act)
+    else if (tool === 'join') join?.drag(act)
   }
   function dragPick(act: Extract<Act, { kind: 'drag' }>): void {
     if (act.phase === 'start') {
@@ -444,9 +453,6 @@
     else if (which === 'paste') paste({ x: camera.x, y: camera.y })
   }
 
-  let barWidth = $state(0)
-  const barAt = $derived(pickedBox === undefined ? undefined : barPlace(pickedBox, size, barWidth))
-  const padAt = $derived(padPlace(pickedBox, size))
   const was = $derived(
     grabbed === undefined ? [] : outlines(camera, size, characters, grabbed.base.things.filter((t) => grabbed?.ids.includes(t.id))),
   )
@@ -484,30 +490,50 @@
       onplacing(undefined)
     }}
   />
+  <Tags {lang} facts={tags} {marks} {picked} />
+  <Join
+    bind:this={join}
+    {lang}
+    {level}
+    {characters}
+    {marks}
+    {picked}
+    joining={tool === 'join'}
+    {readOnly}
+    {size}
+    {onpick}
+    {apply}
+    {sayUndoable}
+  />
+  {#if ongo !== undefined}
+    <Edges {lang} {level} {levelId} {edges} {camera} {marks} {size} cards={!readOnly && !paused && picked.length === 0 && tool === 'pick'} {ongo} />
+  {/if}
   <MiniMap {level} {camera} screen={size} {lang} onmove={(next) => (custom = next)} />
 
-  {#if !readOnly && !paused && pickedBox !== undefined && barAt !== undefined && tool === 'pick'}
-    <div class="float" data-ui bind:clientWidth={barWidth} style:left="{barAt.x}px" style:top="{barAt.y}px">
-      <ActBar
-        {lang}
-        moving={pad}
-        onmove={() => (pad = !pad)}
-        oncopy={copySelected}
-        ondelete={() => remove(picked)}
-        onmore={openMore}
-      />
-    </div>
-  {/if}
-  {#if pad && !readOnly && !paused && picked.length > 0}
-    <div class="float" data-ui style:left="{padAt.x}px" style:top="{padAt.y}px">
-      <MovePad {lang} onnudge={nudge} ondone={() => (pad = false)} />
-    </div>
-  {/if}
-  {#if tool === 'place' && !readOnly}
-    <div class="strip" data-ui>
-      <Tray {lang} {characters} {counts} chosen={placing} onchoose={onplacing} />
-    </div>
-  {/if}
+  <Floats
+    {lang}
+    {characters}
+    {counts}
+    size={size}
+    {tool}
+    {readOnly}
+    {paused}
+    {pickedBox}
+    {picked}
+    {placing}
+    {pad}
+    {note}
+    onpad={() => (pad = !pad)}
+    oncopy={copySelected}
+    ondelete={() => remove(picked)}
+    onmore={openMore}
+    onnudge={nudge}
+    onchoose={onplacing}
+    onnote={() => {
+      note?.press?.()
+      note = undefined
+    }}
+  />
   <Popups
     {lang}
     size={size}
@@ -536,11 +562,6 @@
     }}
     onno={() => (asking = undefined)}
   />
-  {#if note !== undefined && !paused}
-    <div class="notes" data-ui>
-      <Note words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={() => { note?.press?.(); note = undefined }} />
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -556,30 +577,6 @@
   .stage :global(canvas) {
     position: absolute;
     inset: 0;
-  }
-  .float {
-    position: absolute;
-    z-index: 30;
-    width: max-content; /* not dependent on where it sits */
-  }
-  .strip {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    z-index: 25;
-    border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
-  }
-  .notes {
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    z-index: 35;
-    transform: translateX(-50%);
-    max-width: calc(100% - 16px);
   }
   .was,
   .ghost {
