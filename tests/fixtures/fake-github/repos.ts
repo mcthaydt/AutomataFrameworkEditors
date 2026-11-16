@@ -9,9 +9,12 @@ export interface FakeCommit {
   readonly sha: string
   readonly branch: string
   readonly message: string
+  /** The first file the commit touched ('' for a merge); `files` holds all of them. */
   readonly path: string
   readonly text: string
   readonly author: string
+  /** Every file the commit changed, with its new text; `undefined` is a file taken away. */
+  readonly files: readonly { readonly path: string; readonly text: string | undefined }[]
 }
 export interface FakePull {
   readonly number: number
@@ -53,6 +56,22 @@ export interface FakeRepo {
    */
   readonly bytes: Map<string, Uint8Array>
   readonly commits: FakeCommit[]
+  /** The files of every commit a head has been at (and of those made through the git calls), by commit sha. */
+  readonly snapshots: Map<string, Map<string, string>>
+  /** What a git blob call stored, by blob sha. */
+  readonly blobs: Map<string, string>
+  /** What a git tree call made, by tree sha: the whole set of files. */
+  readonly trees: Map<string, Map<string, string>>
+  /** Commits made through the git calls and not yet on a branch, by sha. */
+  readonly gitCommits: Map<
+    string,
+    {
+      readonly parent: string
+      readonly message: string
+      readonly author: string
+      readonly files: readonly { readonly path: string; readonly text: string | undefined }[]
+    }
+  >
   readonly pulls: FakePull[]
   /** The time, for new pulls. The server sets it to its own clock. */
   clock: () => number
@@ -73,6 +92,13 @@ export interface FakeRepo {
   addForkPull(head: string, fork: string): FakePull
   /** Moves a file on a branch to a new path, so a pull shows it as renamed. */
   rename(branch: string, from: string, to: string): void
+}
+
+/** A tree's sha: the same files always give the same one, a different set another. */
+export function treeSha(files: ReadonlyMap<string, string>): string {
+  const hash = createHash('sha1')
+  for (const path of [...files.keys()].sort()) hash.update(`${path}\0${blobSha(files.get(path) ?? '')}\n`)
+  return hash.digest('hex')
 }
 
 /** Git's blob sha: the SHA-1 of `blob <bytes>\0<content>`. A string is its UTF-8 bytes. */
@@ -103,6 +129,8 @@ function makeRepo(
   const move = heads.set.bind(heads)
   heads.set = (branch, sha) => {
     commitDates.set(sha, repo.clock())
+    // The files a head has are what a later commit is made from, even after the branch has moved on.
+    repo.snapshots.set(sha, new Map(repo.branches.get(branch)))
     return move(branch, sha)
   }
   const openPull = (head: string, title: string, fork: string | undefined): FakePull => {
@@ -128,6 +156,10 @@ function makeRepo(
     branches: new Map([[defaultBranch, files]]),
     bytes: new Map(Object.entries(bytes)),
     commits: [],
+    snapshots: new Map(),
+    blobs: new Map(),
+    trees: new Map(),
+    gitCommits: new Map(),
     pulls: [],
     clock: () => Date.now(),
     heads,
@@ -162,6 +194,7 @@ function makeRepo(
       heads.set(branch, nextSha(`rename:${branch}:${to}`))
     },
   }
+  repo.snapshots.set(first, new Map(files))
   return repo
 }
 

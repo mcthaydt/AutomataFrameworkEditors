@@ -525,6 +525,141 @@ test('a commit has the date its repo stamped when the head moved, and an unknown
   expect((await gh(`${REPO}/commits/${'0'.repeat(40)}`, { as: token })).status).toBe(404)
 })
 
+// ---- git data: blobs, trees, commits, a ref update, the list of commits ----------------------------------------
+
+async function gitCommit(token: string, files: Record<string, string | null>, parent?: string) {
+  const head = parent ?? (await gh(`${REPO}/git/ref/heads/main`, { as: token })).body.object.sha
+  const base = (await gh(`${REPO}/git/commits/${head}`, { as: token })).body.tree.sha
+  const tree: unknown[] = []
+  for (const [path, text] of Object.entries(files)) {
+    const sha =
+      text === null
+        ? null
+        : (
+            await gh(`${REPO}/git/blobs`, {
+              method: 'POST',
+              as: token,
+              body: { content: text, encoding: 'utf-8' },
+            })
+          ).body.sha
+    tree.push({ path, mode: '100644', type: 'blob', sha })
+  }
+  const made = await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: base, tree } })
+  const commit = await gh(`${REPO}/git/commits`, {
+    method: 'POST',
+    as: token,
+    body: {
+      message: 'Many',
+      tree: made.body.sha,
+      parents: [head],
+      author: { name: 'kid', email: 'k@x.test' },
+    },
+  })
+  return { head, commit: commit.body.sha as string }
+}
+
+test('git data: blobs, a tree on the head, a commit and a ref update land every file at once', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, {
+    [LEVEL_PATH]: 'one\n',
+    'new.json': 'two\n',
+    'automata.access.toml': null,
+  })
+  expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe(level())
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(200)
+  expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe('one\n')
+  expect(main().branches.get('main')?.get('new.json')).toBe('two\n')
+  expect(main().branches.get('main')?.has('automata.access.toml')).toBe(false)
+  expect(main().commits).toEqual([
+    expect.objectContaining({ branch: 'main', message: 'Many', author: 'kid', sha: commit }),
+  ])
+  expect(
+    main()
+      .commits[0]?.files.map((f) => f.path)
+      .sort(),
+  ).toEqual(['automata.access.toml', LEVEL_PATH, 'new.json'].sort())
+})
+
+test('git data: a ref update that is not a fast forward is 422 and moves nothing', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, { 'new.json': 'two\n' })
+  main().put('main', 'other.json', 'someone else\n')
+  const before = main().heads.get('main')
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(422)
+  expect(main().heads.get('main')).toBe(before)
+  expect(main().branches.get('main')?.has('new.json')).toBe(false)
+})
+
+test('git data: a rule that blocks the App refuses the ref update with 422', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, { 'new.json': 'two\n' })
+  main().rule = 'blocks-app'
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(422)
+})
+
+test('git data: a tree from a base or a blob that is not there is 422', async () => {
+  const token = await installation()
+  expect(
+    (await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: 'nope', tree: [] } }))
+      .status,
+  ).toBe(422)
+  const head = (await gh(`${REPO}/git/ref/heads/main`, { as: token })).body.object.sha
+  const base = (await gh(`${REPO}/git/commits/${head}`, { as: token })).body.tree.sha
+  const entry = { path: 'a.json', mode: '100644', type: 'blob', sha: 'f'.repeat(40) }
+  expect(
+    (await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: base, tree: [entry] } }))
+      .status,
+  ).toBe(422)
+  expect((await gh(`${REPO}/git/commits/${'0'.repeat(40)}`, { as: token })).status).toBe(404)
+})
+
+test('list of commits: newest first on the branch, a folder matches what is inside it, per_page cuts it', async () => {
+  const token = await installation()
+  for (const [path, text] of [
+    ['content/levels/a.json', '1'],
+    ['content/tunings/t.json', '2'],
+    ['content/levels/b.json', '3'],
+  ] as const) {
+    const { commit } = await gitCommit(token, { [path]: `${text}\n` })
+    await gh(`${REPO}/git/refs/heads/main`, {
+      method: 'PATCH',
+      as: token,
+      body: { sha: commit, force: false },
+    })
+  }
+  const all = await gh(`${REPO}/commits`, { as: token, query: '?sha=main&per_page=50' })
+  expect(all.body).toHaveLength(3)
+  const levels = await gh(`${REPO}/commits`, {
+    as: token,
+    query: '?sha=main&path=content/levels&per_page=50',
+  })
+  expect(levels.body.map((c: { sha: string }) => c.sha)).toEqual(
+    [...main().commits]
+      .reverse()
+      .filter((c) => c.files.some((f) => f.path.startsWith('content/levels/')))
+      .map((c) => c.sha),
+  )
+  expect(levels.body[0].commit.author.name).toBe('kid')
+  expect((await gh(`${REPO}/commits`, { as: token, query: '?sha=main&per_page=1' })).body).toHaveLength(1)
+  const one = await gh(`${REPO}/commits/${main().commits[0]?.sha}`, { as: token })
+  expect(one.body.files).toEqual([{ filename: 'content/levels/a.json' }])
+})
+
 // ---- the server's own behaviour ------------------------------------------------------------------------------
 
 test('a token of the wrong kind, or none, or one that no longer works, is 401', async () => {
