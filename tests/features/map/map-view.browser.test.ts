@@ -48,7 +48,6 @@ const level = (id: string): HTMLElement =>
   box.querySelector<HTMLElement>(`[data-level="${id}"]`) as HTMLElement
 const levels = (): number => box.querySelectorAll('[data-level]').length
 const at = (id: string): DOMRect => level(id).getBoundingClientRect()
-const wait = (ms: number): Promise<void> => new Promise((done) => setTimeout(done, ms))
 const whole = (): HTMLButtonElement | undefined =>
   [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Whole world')
 
@@ -126,7 +125,7 @@ test('two fingers sliding together slide a zoomed map; a single finger on empty 
   finger(1, 'pointerdown', from.x, from.y)
   for (let step = 1; step <= 6; step += 1) {
     finger(1, 'pointermove', from.x + step * 20, from.y)
-    await wait(110)
+    await tick()
   }
   finger(1, 'pointerup', from.x + 120, from.y)
   await tick()
@@ -174,6 +173,37 @@ test('the wheel zooms about the pointer, and "Whole world" brings every level ba
   expect(whole()?.getAttribute('aria-pressed')).toBe('true')
 })
 
+test('the wheel on its own slides a zoomed map, and does nothing to the fitted one', async () => {
+  await show()
+  const spin = (deltaY: number, ctrlKey = false): void => {
+    const where = middle()
+    sheet().dispatchEvent(
+      new WheelEvent('wheel', {
+        deltaY,
+        ctrlKey,
+        clientX: where.x,
+        clientY: where.y,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  }
+  const fitted = scale()
+  const first = at('room-2').top
+  spin(120)
+  await tick()
+  expect(scale()).toBe(fitted)
+  expect(at('room-2').top).toBe(first)
+  spin(-400, true)
+  await tick()
+  const zoomed = at('room-2').top
+  const size = scale()
+  spin(120)
+  await tick()
+  expect(scale()).toBe(size)
+  expect(at('room-2').top).toBeLessThan(zoomed - 60)
+})
+
 test('the plus and minus keys zoom and 0 is "Whole world", with a level in focus', async () => {
   await show()
   const fitted = scale()
@@ -216,6 +246,20 @@ test('a level picked from the list that is out of sight is brought to the middle
   }
 })
 
+test('tabbing to a level that is out of sight brings it into sight, without the sheet scrolling away', async () => {
+  await show()
+  await pinch(middle(), [100, 500])
+  const sight = sheet().getBoundingClientRect()
+  const centred = (r: DOMRect): boolean =>
+    r.left + r.width / 2 > sight.left && r.left + r.width / 2 < sight.right
+  const out = ['room-1', 'room-2', 'room-3'].find((id) => !centred(at(id)))
+  expect(out).toBeDefined()
+  level(out as string).focus()
+  await vi.waitFor(() => expect(centred(at(out as string))).toBe(true))
+  expect(sheet().scrollLeft).toBe(0)
+  expect(sheet().scrollTop).toBe(0)
+})
+
 test('the bar of the picked level never covers the "Whole world" button, however the map is zoomed', async () => {
   box.style.cssText =
     'position:fixed;left:0;top:0;width:1030px;height:700px;display:flex;flex-direction:column'
@@ -228,6 +272,7 @@ test('the bar of the picked level never covers the "Whole world" button, however
     sheet().dispatchEvent(
       new WheelEvent('wheel', {
         deltaY: -200,
+        ctrlKey: true,
         clientX: point.left + point.width / 2,
         clientY: point.top + point.height / 2,
         bubbles: true,
@@ -235,10 +280,12 @@ test('the bar of the picked level never covers the "Whole world" button, however
       }),
     )
     await tick()
-    await wait(30)
-    const button = whole() as HTMLButtonElement
-    const r = button.getBoundingClientRect()
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
-    expect(hit === button || button.contains(hit)).toBe(true)
+    // The bar finds its place once the level has moved; the button is clear of it when it has.
+    await vi.waitFor(() => {
+      const button = whole() as HTMLButtonElement
+      const r = button.getBoundingClientRect()
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)
+      expect(hit === button || button.contains(hit)).toBe(true)
+    })
   }
 })

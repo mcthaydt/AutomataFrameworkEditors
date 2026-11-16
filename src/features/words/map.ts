@@ -42,7 +42,7 @@ export const map = {
     mapWord: 'Mapa',
     mapAbout: 'Todos los niveles en una hoja',
     listLevels: 'Niveles',
-    wholeWorld: 'Todo el mundo',
+    wholeWorld: 'El mundo entero',
     markJoin: (a, b) => `Los jugadores caminan directo de ${a} a ${b}`,
     markWall: (a, b) => `${a} y ${b} se tocan en un muro`,
     markDoor: (from, to) => `Una puerta de ${from} lleva a ${to}`,

@@ -251,15 +251,28 @@
     }
   }
 
-  // The wheel (and a trackpad's pinch) zooms about the pointer.
+  // A trackpad's pinch (and Ctrl with the wheel) zooms about the pointer; the wheel or two fingers on a trackpad slide, as
+  // they do on a page. With every level in sight there is nothing to slide to.
   function wheel(e: WheelEvent): void {
     if (holder === undefined || (e.target as HTMLElement).closest('[data-ui]') !== null) return
     e.preventDefault()
     const box = holder.getBoundingClientRect()
-    custom = zoomMap(camera, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.002)), { x: e.clientX - box.left, y: e.clientY - box.top }, all, size)
+    const unit = e.deltaMode === 1 ? 16 : 1
+    if (e.ctrlKey) {
+      const about = { x: e.clientX - box.left, y: e.clientY - box.top }
+      custom = zoomMap(camera, Math.exp(-e.deltaY * 0.006), about, all, size)
+    } else if (custom !== undefined) {
+      custom = slideMap(camera, { x: -e.deltaX * unit, y: -e.deltaY * unit }, all)
+    }
   }
   const zoom = (factor: number): void => {
     custom = zoomMap(camera, factor, { x: size.w / 2, y: (size.h - KEY_ROOM) / 2 }, all, size)
+  }
+  // A level tabbed to while it is out of sight is brought into sight, as one picked from the list is. A press (which
+  // focuses it too) is left alone: the hand is already on it.
+  function focused(e: FocusEvent, level: string): void {
+    const at = custom === undefined || !(e.currentTarget as HTMLElement).matches(':focus-visible') ? undefined : rectFor(level)
+    if (at !== undefined) custom = reveal(camera, at, all, size)
   }
   // A level picked while it is out of sight (from the list) is brought into sight.
   $effect(() => {
@@ -305,6 +318,7 @@
       style:width="{one.rect.w}px"
       style:height="{one.rect.h}px"
       onclick={() => tap(one.id)}
+      onfocus={(e) => focused(e, one.id)}
       onkeydown={(e) => key(e, one.id)}
     >
       {#if one.rect.w >= 84 && one.rect.h >= 40}<span class="name">{nameOf(one.id)}</span>{/if}
@@ -355,6 +369,8 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
+    /* Clipped, not scrolled: a level focused out of sight must not slide the whole sheet. */
+    overflow: clip;
     border-radius: var(--radius);
     touch-action: none;
   }

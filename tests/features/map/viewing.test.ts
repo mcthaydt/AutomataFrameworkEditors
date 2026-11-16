@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import type { Box } from '#src/features/map/arrange.ts'
-import { mapCamera } from '#src/features/map/shapes.ts'
+import { mapCamera, TOP_ROOM } from '#src/features/map/shapes.ts'
 import { MAP_MAX_SCALE, reveal, slideMap, zoomMap } from '#src/features/map/viewing.ts'
 
 const all: Box[] = [
@@ -51,4 +51,13 @@ test('a level in sight leaves the view alone; one out of sight is brought to the
   const brought = reveal(closer, off, all, size)
   expect(brought.scale).toBe(closer.scale)
   expect(brought.x).toBeGreaterThan(closer.x)
+})
+
+test('a level under the buttons along the top is not in sight: it is brought down into the free ground', () => {
+  const closer = zoomMap(whole, 4, { x: 400, y: 300 }, all, size) as NonNullable<ReturnType<typeof zoomMap>>
+  const covered = { x: 100, y: 10, w: 200, h: 100 }
+  expect(covered.y).toBeLessThan(TOP_ROOM)
+  const brought = reveal(closer, covered, all, size)
+  expect(brought).not.toBe(closer)
+  expect(brought.y).toBeLessThan(closer.y)
 })

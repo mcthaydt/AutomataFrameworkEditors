@@ -3,7 +3,7 @@
 // ("Whole world"): fitted follows the levels as they move, a view a person made stays where it was put.
 import { type Camera, type Screen, toTiles } from '../levels/levels.ts'
 import type { Box } from './arrange.ts'
-import { KEY_ROOM, mapCamera, type Rect } from './shapes.ts'
+import { KEY_ROOM, mapCamera, type Rect, TOP_ROOM } from './shapes.ts'
 
 /** The most pixels a tile may take on the map: a level is then wider than a phone, and nothing more is gained. */
 export const MAP_MAX_SCALE = 96
@@ -61,12 +61,16 @@ export function zoomMap(
   return isWhole(next, all, size) ? undefined : next
 }
 
-/** The view brought to a level that is picked from the list, or tabbed to: unchanged when it is already well in sight. */
+/**
+ * The view brought to a level that is picked from the list, or tabbed to: unchanged when it is already well in sight,
+ * that is between the buttons along the top and the key along the foot.
+ */
 export function reveal(now: Camera, level: Rect, all: readonly Box[], size: Screen): Camera {
-  const free = { w: size.w, h: Math.max(1, size.h - KEY_ROOM) }
-  const inSight = level.x >= 0 && level.y >= 0 && level.x + level.w <= free.w && level.y + level.h <= free.h
+  const free = { w: size.w, top: TOP_ROOM, bottom: Math.max(TOP_ROOM + 1, size.h - KEY_ROOM) }
+  const inSight =
+    level.x >= 0 && level.y >= free.top && level.x + level.w <= free.w && level.y + level.h <= free.bottom
   if (inSight) return now
   const dx = level.x + level.w / 2 - free.w / 2
-  const dy = level.y + level.h / 2 - free.h / 2
+  const dy = level.y + level.h / 2 - (free.top + free.bottom) / 2
   return overTheWorld({ x: now.x + dx / now.scale, y: now.y + dy / now.scale, scale: now.scale }, all)
 }
