@@ -33,6 +33,14 @@ export const SCREEN_FILES: Readonly<Record<string, string>> = {
   'src/features/team/Waiting.svelte': 'waiting-list',
   'src/features/team/WaitingChange.svelte': 'waiting-change-',
   'src/features/team/Share.svelte': 'share-',
+  'src/features/team/PutSheet.svelte': 'put-|send-sheet|level-saved|level-changed',
+  'src/features/team/Lines.svelte': 'put-|send-sheet|waiting-sheet|level-saved|level-changed|visitor-copy',
+  'src/features/team/WaitingSheet.svelte': 'waiting-sheet',
+  'src/features/team/KeepCopy.svelte': 'visitor-copy',
+  'src/features/team/Problems.svelte': 'problems-list',
+  'src/features/team/ProblemStrip.svelte': 'problem-strip',
+  'src/features/world/Changes.svelte':
+    'put-|send-sheet|waiting-sheet|problem|level-saved|level-changed|visitor-copy',
 }
 
 /** A file whose change is seen on a screen: the plan's own test for "something seen changed". */

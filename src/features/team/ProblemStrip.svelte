@@ -1,6 +1,6 @@
 <script lang="ts">
   // The problem being looked at, over the level or the map: which one of how many, what it says, and the way on and the
-  // way back. It does not cover the thing it points at: it sits under the top bar.
+  // way back. It sits at the bottom, above the tools, so it covers neither the top bar nor the card the map draws by a wall.
   import { Action } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
 
@@ -38,9 +38,9 @@
 <style>
   .strip {
     position: absolute;
-    top: calc(var(--bar) + 20px);
+    bottom: 96px;
     left: 50%;
-    z-index: 8;
+    z-index: 40;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -58,6 +58,19 @@
   p {
     margin: 0;
     overflow-wrap: anywhere;
+  }
+  /* A phone on its side has little height, and its tools stand at the side: the strip lies low and flat. */
+  @media (max-height: 500px) {
+    .strip {
+      bottom: 12px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      width: min(640px, calc(100% - 180px));
+    }
+    .strip p {
+      flex: 1 1 240px;
+    }
   }
   .buttons {
     display: flex;

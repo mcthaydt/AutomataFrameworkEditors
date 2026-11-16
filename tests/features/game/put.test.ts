@@ -2,6 +2,7 @@ import { type Level, PROJECT_FILE, writeContent } from '@automataframework/frame
 import { expect, test } from 'vitest'
 import type { Api } from '#src/features/api/api.ts'
 import { change, isChanged, startEdits, toPut } from '#src/features/game/changes.ts'
+import { cameIn } from '#src/features/game/merge.ts'
 import { laidOver, type PutResult, put, takeBack } from '#src/features/game/put.ts'
 import type { Answer, OpenAnswer, PutAnswer, PutAsk, Waiting } from '#src/features/wire/wire.ts'
 import { levelOf, slide } from '../../fixtures/edits.ts'
@@ -135,6 +136,20 @@ test('a file that changed in the game meanwhile: the game is opened again and th
   expect(laid.base.levels['room-2']).toEqual(moved)
   expect(laid.past.at(-1)).toBe(mine.now)
   expect(isChanged(laid)).toBe(true)
+})
+
+test('when the only change clashes, nothing came in, one clash is said, and nothing is left to put in', async () => {
+  const game = await links()
+  const mine = slide(startEdits(game), 6.5)
+  // The same crate moved somewhere else by someone else.
+  const theirs = slide(startEdits(game), 3.5)
+  const files = { ...linksFiles(), [ROOM_1]: writeContent('level', levelOf(theirs, 'room-1') as never) }
+  const { api } = pretend({ ok: false, problem: 'changed-elsewhere', details: [ROOM_1] }, files)
+  const result = await put(api, game, mine)
+  if (result.ok || result.problem !== 'changed-elsewhere') throw new Error('expected changed-elsewhere')
+  expect(result.merged.clashes).toHaveLength(1)
+  expect(cameIn(result.merged)).toEqual([])
+  expect(isChanged(laidOver(mine, result.game, result.merged))).toBe(false)
 })
 
 test('each other problem passes through, with its details, and nothing is changed', async () => {

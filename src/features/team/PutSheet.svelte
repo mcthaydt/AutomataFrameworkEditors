@@ -9,6 +9,7 @@
 
   interface Props {
     lang: Lang
+    device: 'ipad' | 'phone' | 'computer'
     /** Put them in the game, or send them to be checked. */
     kind: 'put' | 'send'
     phase: Phase
@@ -32,6 +33,7 @@
   }
   let {
     lang,
+    device,
     kind,
     phase,
     lines,
@@ -56,9 +58,15 @@
   const n = $derived(lines.length)
   const first = $derived(problems[0])
   const blocked = $derived(stops && problems.length > 0)
+  /** Everything the person changed clashed with the game: the game's version is kept and there is nothing to put in. */
+  const onlyClash = $derived(phase === 'ask' && n === 0 && clashes > 0)
+  /** The game no longer lets them change it: trying again cannot work. */
+  const lookOnly = $derived(failure?.problem === 'not-allowed')
 
   const title = $derived(
-    phase === 'done'
+    onlyClash
+      ? text(c.clashTitle)
+      : phase === 'done'
       ? text(c.doneTitle)
       : phase === 'sent'
         ? text(c.sentTitle, by)
@@ -116,9 +124,11 @@
         </ul>
       {/if}
       <Lines {words} {lines} />
+    {:else if onlyClash}
+      <p role="status">{text(c.clashed, clashes)}</p>
     {:else}
       <p>
-        {#if kind === 'put'}{text(c.putAbout, text(c.thisDevice))}{:else if waiting}{text(c.waitMoreAbout, n)}{:else}{text(c.sendAbout, by, text(c.thisDevice))}{/if}
+        {#if kind === 'put'}{text(c.putAbout, text(c.onDevice, device))}{:else if waiting}{text(c.waitMoreAbout, n)}{:else}{text(c.sendAbout, by, text(c.onDevice, device))}{/if}
       </p>
       {#if came > 0}<p class="note" role="status">{text(c.cameIn, came)}</p>{/if}
       {#if clashes > 0}<p class="note" role="status">{text(c.clashed, clashes)}</p>{/if}
@@ -133,9 +143,13 @@
       {#if kind === 'send' && !waiting}<p class="after">{text(c.afterSend, by)}</p>{/if}
     {/if}
     {#snippet foot()}
-      {#if phase === 'ask'}
+      {#if onlyClash}
+        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+      {:else if phase === 'ask'}
         <Action label={mainWords} kind="main" disabled={blocked} onpress={onput} />
         <Action label={text(c.notYet)} onpress={onclose} />
+      {:else if phase === 'failed' && lookOnly}
+        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {:else if phase === 'failed'}
         <Action label={text(c.again)} kind="main" onpress={onput} />
         <Action label={text(c.notNow)} onpress={onclose} />

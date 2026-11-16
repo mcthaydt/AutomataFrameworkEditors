@@ -422,15 +422,63 @@ export const putSheet = (page: Page) => page.getByRole('dialog')
  * Puts everything in the game, or sends it to be checked: presses the main button, then the sheet's own button, and waits
  * for the sheet to say it went. Two presses, because the first only shows what would go.
  */
-export async function putThemIn(page: Page, how: 'direct' | 'suggestion' = 'direct'): Promise<void> {
+export async function putThemIn(
+  page: Page,
+  how: 'direct' | 'suggestion' = 'direct',
+  closeAfter = true,
+): Promise<void> {
   await pressPut(page)
   const sheet = putSheet(page)
   await sheet.getByRole('button', { name: how === 'direct' ? /^Put them in/ : /^Send/ }).click()
   await sheet
     .getByRole('heading', { name: how === 'direct' ? putWords.doneTitle : /^Sent/, exact: how === 'direct' })
     .waitFor()
+  if (!closeAfter) return
   await sheet.getByRole('button', { name: 'Close' }).first().click()
   await sheet.waitFor({ state: 'detached' })
+}
+
+/** Opens the links game's map from the top bar (on an upright phone the bar has no room: the part menu has the row). */
+export async function openMapOf(page: Page): Promise<void> {
+  await openGame(page, 'links-game')
+  await page.locator('[data-thing="exit"]').waitFor()
+  await openMapFromBar(page)
+}
+
+/** Opens the map of the game that is open now. */
+export async function openMapFromBar(page: Page): Promise<void> {
+  const button = page.getByRole('button', { name: 'Map', exact: true })
+  if ((await button.count()) > 0) await button.click()
+  else {
+    await page.locator('button.part').click()
+    await page.getByRole('menuitem', { name: /^Map/ }).click()
+  }
+  await page.locator('[data-level]').first().waitFor()
+}
+
+/** Takes a level by its middle with the mouse and moves it this many tiles. */
+export async function dragLevel(
+  page: Page,
+  id: string,
+  tiles: { x: number; y: number },
+  letGo = true,
+): Promise<void> {
+  const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+  const box = await page.locator(`[data-level="${id}"]`).boundingBox()
+  if (box === null) throw new Error(`no level ${id} on the map`)
+  const x = box.x + box.width / 2
+  const y = box.y + box.height / 2
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x + (tiles.x * scale) / 2, y + (tiles.y * scale) / 2, { steps: 4 })
+  await page.mouse.move(x + tiles.x * scale, y + tiles.y * scale, { steps: 4 })
+  if (letGo) await page.mouse.up()
+}
+
+/** Pushes Room 1 against Room 2 on the map so they meet at a wall: a problem in the game. */
+export async function makeWall(page: Page): Promise<void> {
+  await dragLevel(page, 'room-1', { x: 3.4, y: 0.2 })
+  await page.locator('[data-way="clear"]').waitFor()
 }
 
 /** The text the newest commit put in a level's file (a put can change the project file too, so `text` is not enough). */

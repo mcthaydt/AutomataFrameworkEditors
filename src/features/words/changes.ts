@@ -23,7 +23,8 @@ type Key =
   | 'cameIn'
   | 'clashed'
   | 'working'
-  | 'thisDevice'
+  | 'onDevice'
+  | 'clashTitle'
   | 'sendIt'
   | 'doneTitle'
   | 'doneAbout'
@@ -79,7 +80,9 @@ export const changes = {
     clashed: (n) =>
       `${n} of your changes ${many(n) ? 'clash' : 'clashes'} with someone else’s. The game’s version is kept for now. Undo brings yours back.`,
     working: 'One moment…',
-    thisDevice: 'on this device',
+    onDevice: (device) =>
+      device === 'ipad' ? 'on this iPad' : device === 'phone' ? 'on this phone' : 'on this computer',
+    clashTitle: 'The game’s version is kept',
     sendIt: (n) => (Number(n) === 1 ? 'Send it too' : 'Send them too'),
     doneTitle: 'In the game',
     doneAbout: (game, n) => `Everyone on ${game} has your ${n} ${many(n) ? 'changes' : 'change'} now.`,
@@ -136,7 +139,9 @@ export const changes = {
     clashed: (n) =>
       `${n} ${many(n) ? 'de tus cambios chocan' : 'de tus cambios choca'} con los de otra persona. Por ahora se queda la versión del juego. Deshacer trae la tuya.`,
     working: 'Un momento…',
-    thisDevice: 'en este dispositivo',
+    onDevice: (device) =>
+      device === 'ipad' ? 'en este iPad' : device === 'phone' ? 'en este teléfono' : 'en este ordenador',
+    clashTitle: 'Se queda la versión del juego',
     sendIt: (n) => (Number(n) === 1 ? 'Enviarlo también' : 'Enviarlos también'),
     doneTitle: 'En el juego',
     doneAbout: (game, n) => `Todos en ${game} ya tienen ${many(n) ? `tus ${n} cambios` : 'tu cambio'}.`,
@@ -191,7 +196,9 @@ export const changes = {
     clashed: (n) =>
       `내 변경 ${n}개가 다른 사람의 변경과 겹쳐요. 지금은 게임의 것을 그대로 둬요. 되돌리기를 누르면 내 것이 돌아와요.`,
     working: '잠시만요…',
-    thisDevice: '이 기기에서',
+    onDevice: (device) =>
+      device === 'ipad' ? '이 iPad에서' : device === 'phone' ? '이 휴대폰에서' : '이 컴퓨터에서',
+    clashTitle: '게임의 것을 그대로 뒀어요',
     sendIt: '같이 보내기',
     doneTitle: '게임에 들어갔어요',
     doneAbout: (game, n) => `${game}의 모두가 이제 내 변경 ${n}개를 가지고 있어요.`,
@@ -242,7 +249,9 @@ export const changes = {
     clashed: (n) =>
       `あなたの変更${n}件が、ほかの人の変更とぶつかっています。今はゲームの内容を残しています。元に戻すと、あなたの内容が戻ります。`,
     working: '少し待ってね…',
-    thisDevice: 'この端末の中で',
+    onDevice: (device) =>
+      device === 'ipad' ? 'このiPadの中で' : device === 'phone' ? 'このスマホの中で' : 'このパソコンの中で',
+    clashTitle: 'ゲームの内容を残しました',
     sendIt: 'こちらも送る',
     doneTitle: 'ゲームに入りました',
     doneAbout: (game, n) => `${game}のみんなに、あなたの${n}件の変更が届きました。`,
@@ -292,7 +301,9 @@ export const changes = {
     cameIn: (n) => `你工作时，游戏里进来了 ${n} 处改动，现在已经在你的关卡里了。再按一次，就能放进你的改动。`,
     clashed: (n) => `你有 ${n} 处改动和别人的改动冲突了。暂时保留游戏里的版本。点“撤销”就能找回你的。`,
     working: '请稍等…',
-    thisDevice: '在这台设备上',
+    onDevice: (device) =>
+      device === 'ipad' ? '在这台 iPad 上' : device === 'phone' ? '在这部手机上' : '在这台电脑上',
+    clashTitle: '已保留游戏里的版本',
     sendIt: '也一起发出去',
     doneTitle: '已在游戏里',
     doneAbout: (game, n) => `${game}里的所有人现在都有你的 ${n} 处改动了。`,
@@ -344,7 +355,9 @@ export const changes = {
     clashed: (n) =>
       `${many(n) ? `${n} das suas mudanças batem` : '1 das suas mudanças bate'} com as de outra pessoa. Por enquanto fica a versão do jogo. Desfazer traz a sua de volta.`,
     working: 'Um momento…',
-    thisDevice: 'neste dispositivo',
+    onDevice: (device) =>
+      device === 'ipad' ? 'neste iPad' : device === 'phone' ? 'neste celular' : 'neste computador',
+    clashTitle: 'Ficou a versão do jogo',
     sendIt: (n) => (Number(n) === 1 ? 'Enviar também' : 'Enviar todas também'),
     doneTitle: 'No jogo',
     doneAbout: (game, n) => `Todos em ${game} já têm ${many(n) ? `suas ${n} mudanças` : 'sua mudança'}.`,
@@ -403,7 +416,9 @@ export const changes = {
     clashed: (n) =>
       `${many(n) ? `${n} de tes changements se heurtent` : '1 de tes changements se heurte'} à ceux de quelqu’un d’autre. La version du jeu est gardée pour l’instant. Annuler rapporte la tienne.`,
     working: 'Un instant…',
-    thisDevice: 'sur cet appareil',
+    onDevice: (device) =>
+      device === 'ipad' ? 'sur cet iPad' : device === 'phone' ? 'sur ce téléphone' : 'sur cet ordinateur',
+    clashTitle: 'La version du jeu est gardée',
     sendIt: (n) => (Number(n) === 1 ? 'L’envoyer aussi' : 'Les envoyer aussi'),
     doneTitle: 'Dans le jeu',
     doneAbout: (game, n) =>
@@ -464,7 +479,9 @@ export const changes = {
     clashed: (n) =>
       `${n} ${plural(n, 'твоё изменение пересекается', 'твоих изменения пересекаются', 'твоих изменений пересекаются')} с чужими. Пока остаётся версия игры. «Отменить» вернёт твою.`,
     working: 'Минуточку…',
-    thisDevice: 'на этом устройстве',
+    onDevice: (device) =>
+      device === 'ipad' ? 'на этом iPad' : device === 'phone' ? 'на этом телефоне' : 'на этом компьютере',
+    clashTitle: 'Осталась версия игры',
     sendIt: 'Отправить и их',
     doneTitle: 'В игре',
     doneAbout: (game, n) => `Все в ${game} теперь видят твои изменения: ${n}.`,
@@ -522,7 +539,9 @@ export const changes = {
     clashed: (n) =>
       `${many(n) ? `${n} deiner Änderungen kollidieren` : '1 deiner Änderungen kollidiert'} mit denen von jemand anderem. Vorerst bleibt die Version des Spiels. „Rückgängig“ holt deine zurück.`,
     working: 'Einen Moment…',
-    thisDevice: 'auf diesem Gerät',
+    onDevice: (device) =>
+      device === 'ipad' ? 'auf diesem iPad' : device === 'phone' ? 'auf diesem Handy' : 'auf diesem Computer',
+    clashTitle: 'Die Version des Spiels bleibt',
     sendIt: 'Auch senden',
     doneTitle: 'Im Spiel',
     doneAbout: (game, n) =>

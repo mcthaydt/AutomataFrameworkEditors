@@ -29,7 +29,7 @@
 
 <svelte:window onkeydown={keys} />
 <button type="button" class="dim" tabindex="-1" aria-label={text(words.shell.close)} onclick={onclose}></button>
-<div class="pop" role="dialog" aria-label={text(words.kept.problemsTitle)} tabindex="-1" bind:this={pop}>
+<div class="pop" role="dialog" aria-modal="true" aria-label={text(words.kept.problemsTitle)} tabindex="-1" bind:this={pop}>
   <h2>{problems.length === 0 ? text(words.kept.problemsNone) : text(words.bar.problems, problems.length)}</h2>
   <ul>
     {#each problems as problem, at (`${problem.file}:${problem.words}`)}
@@ -45,7 +45,7 @@
   .dim {
     position: absolute;
     inset: 0;
-    z-index: 30;
+    z-index: 39;
     border: 0;
     background: transparent;
     cursor: default;
@@ -54,7 +54,7 @@
     position: absolute;
     top: calc(var(--bar) + 20px);
     right: 12px;
-    z-index: 31;
+    z-index: 40;
     width: min(420px, calc(100% - 24px));
     max-height: calc(100% - var(--bar) - 40px);
     overflow-y: auto;

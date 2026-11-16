@@ -78,6 +78,12 @@ describe('when someone else changed the level first', () => {
     const j = await clash()
     expect(repoOf(j).commits).toEqual([])
     expect(repoOf(j).branches.get('main')?.get(LEVEL_PATH)).toBe(theirs)
+    // Nothing is left to put in: no \"Put 0 changes\", no button that fails; the one way on is Close.
+    const sheet = putSheet(j.page)
+    await sheet.getByRole('heading', { name: /version is kept/ }).waitFor()
+    expect(await sheet.getByText(/Put 0 change/).count()).toBe(0)
+    expect(await sheet.getByRole('button', { name: /^Put them in/ }).count()).toBe(0)
+    expect(await sheet.getByText(/came in from the game/).count()).toBe(0)
   })
 
   test("the game's version is kept for now, and one Undo brings my crate back", async () => {

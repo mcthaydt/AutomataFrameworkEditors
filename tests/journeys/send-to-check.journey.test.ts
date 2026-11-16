@@ -42,12 +42,15 @@ test('send, wait, change more, send the one more, take them back: the game itsel
   const sheet = putSheet(j.page)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await pressPut(j.page)
-  await sheet.getByRole('heading', { name: /^Send 1 change/ }).waitFor()
+  await sheet.getByRole('heading', { name: /^Send 1 change to grandma/ }).waitFor()
+  await sheet.getByText('After you send, the top bar says “Waiting for grandma”').waitFor()
   await sheet.getByRole('button', { name: /^Send/ }).click()
-  await sheet.getByRole('heading', { name: /^Sent/ }).waitFor()
+  await sheet.getByRole('heading', { name: /^Sent to grandma/ }).waitFor()
   await sheet.getByRole('button', { name: 'Close' }).first().click()
   const repo = j.fake.repos.get('grandma/crate-game')!
   expect(repo.commits.map((c) => c.branch)).toEqual(['automata/kid'])
+  // What the sheet promised is what the top bar now says.
+  await quietButton(j.page).filter({ hasText: 'Waiting for grandma' }).waitFor()
 
   // The main button now says they are waiting; more changes are theirs alone until sent.
   await dragByTouch(j.page, 'crate-1', { dx: 1, dy: 0 })

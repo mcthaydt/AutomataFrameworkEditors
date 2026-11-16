@@ -5,6 +5,7 @@
   import type { Api } from '../api/api.ts'
   import { deviceWord, type Me, nextPointers, type Pointers, rowSize, sizeClass } from '../device/device.ts'
   import {
+    approverOf,
     change,
     describe,
     dropDrafts,
@@ -25,12 +26,12 @@
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { type Answer, cantPlay, type Saying, say, unsay } from './events.ts'
-import Changes from './Changes.svelte'
+  import Changes from './Changes.svelte'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
   import { insetsOf } from './insets.ts'
-    import { listen, onControl, typing } from './listen.ts'
+  import { listen, onControl, typing } from './listen.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
   import { playTip, tipKept } from './tips.ts'
@@ -160,6 +161,7 @@ import Changes from './Changes.svelte'
     changes: lines.length,
     mine: held.mine,
     toCheck,
+    approver: approverOf(held),
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
   const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
@@ -525,6 +527,7 @@ import Changes from './Changes.svelte'
       bind:this={changes}
       bind:problems
       {lang}
+      {device}
       {api}
       game={held}
       {edits}

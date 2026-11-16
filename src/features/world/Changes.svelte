@@ -7,6 +7,7 @@
   import type { Api } from '../api/api.ts'
   import {
     approverOf,
+    cameIn,
     type ChangeLine,
     describe,
     type Edits,
@@ -23,6 +24,7 @@
 
   interface Props {
     lang: Lang
+    device: 'ipad' | 'phone' | 'computer'
     api: Api
     /** The game as the page holds it, and what the person changed in it. */
     game: OpenGame
@@ -46,6 +48,7 @@
   }
   let {
     lang,
+    device,
     api,
     game,
     edits,
@@ -85,6 +88,7 @@
     came = 0
     clashes = 0
     backing = 'idle'
+    strip = undefined
     shown = which
   }
   const close = (): void => {
@@ -133,7 +137,7 @@
       // Nothing was written. The game as it is now, with the person's changes laid over it, is on screen: press again.
       ononline(true)
       onchanged(result.game, laidOver(edits, result.game, result.merged))
-      came = result.merged.theirs.length
+      came = cameIn(result.merged).length
       clashes = result.merged.clashes.length
       phase = 'ask'
       return
@@ -185,6 +189,7 @@
 {#if shown === 'put' || shown === 'send'}
   <PutSheet
     {lang}
+    {device}
     kind={shown}
     {phase}
     lines={shownLines}
