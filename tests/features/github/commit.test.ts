@@ -182,7 +182,7 @@ test('commitPaths gives the paths one commit touched, in one request', async () 
     }),
   )
   const before = fake.log.length
-  expect(value(await repo.commitPaths(done.commit)).sort()).toEqual([GONE_PATH, NEW_PATH])
+  expect([...value(await repo.commitPaths(done.commit))].sort()).toEqual([GONE_PATH, NEW_PATH])
   expect(fake.log.length - before).toBe(1)
 })
 
