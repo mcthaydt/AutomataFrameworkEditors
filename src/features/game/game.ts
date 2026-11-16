@@ -11,8 +11,9 @@ export {
   type Working,
 } from './changes.ts'
 export { keepCopy, type LevelCopy, levelCopy } from './copy.ts'
-export { describe, titleOf } from './describe.ts'
+export { type ChangeLine, describe } from './describe.ts'
 export { dropDrafts, keepDrafts, takeDrafts } from './drafts.ts'
 export { levelPath, type Opened, type OpenGame, openGame } from './open.ts'
+export { type Problem, problemsOf } from './problems.ts'
+export { approverOf, laidOver, type PutResult, put, type TakeBack, takeBack } from './put.ts'
 export { forgetGame, recentGames, rememberGame } from './recent.ts'
-export { type SaveResult, saveLevel } from './save.ts'

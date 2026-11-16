@@ -11,8 +11,8 @@ import {
   menuWords,
   openGame,
   openPage,
-  pressPut,
   putButtonSaying,
+  putThemIn,
   type SIZES,
   setupJourneys,
   signIn,
@@ -85,8 +85,7 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await signIn(kid.page)
     await thingNamed(kid.page, 'crate-1').waitFor()
     await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-    await pressPut(kid.page)
-    await text(kid, WORDS.savedSuggestion)
+    await putThemIn(kid.page, 'suggestion')
 
     const grandpa = await window_(size, 'grandpa', true)
     await grandpa.page.goto(link)

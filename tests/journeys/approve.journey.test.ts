@@ -12,7 +12,7 @@ import {
   openGame,
   openLevel,
   openPage,
-  pressPut,
+  putThemIn,
   quietButton,
   type SIZES,
   setupJourneys,
@@ -69,8 +69,7 @@ async function kidHasSaved(size: Size): Promise<JourneyPage> {
   await signIn(kid.page)
   await openLevel(kid.page)
   await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressPut(kid.page)
-  await text(kid, WORDS.savedSuggestion)
+  await putThemIn(kid.page, 'suggestion')
   await kid.close()
   return kid
 }
@@ -135,8 +134,7 @@ test("grandpa turns it down instead: Turned down; the game is as it was; kid's n
   await thingNamed(kid.page, 'crate-1').waitFor()
   expect(await thingNamed(kid.page, 'crate-1').getAttribute('data-x')).toBe('6.5')
   await dragByTouch(kid.page, 'crate-1', { dx: 1, dy: 0 })
-  await pressPut(kid.page)
-  await text(kid, WORDS.savedSuggestion)
+  await putThemIn(kid.page, 'suggestion')
   expect(repo.pulls.filter((p) => p.state === 'open')).toHaveLength(1)
 })
 
@@ -184,8 +182,7 @@ test('grandpa cannot approve his own: the words say someone else must', async ()
   await signIn(me.page)
   await openLevel(me.page)
   await dragByTouch(me.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressPut(me.page)
-  await text(me, WORDS.savedSuggestion)
+  await putThemIn(me.page, 'suggestion')
   // The only change waiting is his own: the page does not tell him someone made a change for him to look at.
   await me.page.reload()
   expect(await gameMenuRows(me.page)).toContainEqual(expect.stringContaining(menuWords.waitingRow(1)))

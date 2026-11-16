@@ -12,8 +12,6 @@ import type {
   OpenAnswer,
   PutAnswer,
   PutAsk,
-  SaveAnswer,
-  SaveAsk,
   SettingsAsk,
   SharingAnswer,
   SharingAsk,
@@ -39,7 +37,6 @@ export interface Auth {
 export interface Api {
   games(): Promise<Answer<readonly GameRef[]>>
   open(game: GameRef): Promise<Answer<OpenAnswer>>
-  save(ask: SaveAsk): Promise<Answer<SaveAnswer>>
   /** Every changed file in one change: straight into the game, or as a waiting change. */
   put(ask: PutAsk): Promise<Answer<PutAnswer>>
   waiting(game: GameRef): Promise<Answer<readonly Waiting[]>>
@@ -130,7 +127,6 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
   return {
     games: () => call('GET', '/api/games'),
     open: (game) => call('GET', `/api/game?${query(game)}`, undefined, true),
-    save: (ask) => call('POST', '/api/save', ask),
     put: (ask) => call('POST', '/api/put', ask),
     waiting: (game) => call('GET', `/api/waiting?${query(game)}`),
     change: ({ game, number }) => call('GET', `/api/change?${query(game, { number: String(number) })}`),

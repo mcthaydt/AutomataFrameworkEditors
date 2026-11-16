@@ -23,6 +23,8 @@ import {
   picture,
   pressPut,
   putButton,
+  putSheet,
+  putThemIn,
   SIZES,
   setupJourneys,
   signIn,
@@ -146,8 +148,7 @@ async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
   await signIn(kid.page)
   await openLevel(kid.page)
   await move(kid)
-  await pressPut(kid.page)
-  await text(kid, WORDS.savedSuggestion)
+  await putThemIn(kid.page, 'suggestion')
   await kid.close()
   windows.splice(windows.indexOf(kid), 1)
   const j = await window_(size, as, true)
@@ -255,7 +256,7 @@ const SCENES: readonly Scene[] = [
       const j = await visitorGame(size)
       await move(j)
       await pressPut(j.page)
-      await j.page.getByRole('button', { name: WORDS.copyKeep }).waitFor()
+      await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).waitFor()
       return j
     },
     stage: true,
@@ -267,9 +268,9 @@ const SCENES: readonly Scene[] = [
       await move(j)
       await pressPut(j.page)
       const download = j.page.waitForEvent('download')
-      await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
+      await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).click()
       await download
-      await text(j, WORDS.copyKept)
+      await text(j, 'level-1.json')
       return j
     },
     stage: true,
@@ -413,8 +414,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await gameAs(size, 'grandma')
       await move(j)
-      await pressPut(j.page)
-      await text(j, WORDS.savedDirect)
+      await putThemIn(j.page)
       return j
     },
     stage: true,
@@ -424,8 +424,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await gameAs(size, 'kid', kidIs('suggest'))
       await move(j)
-      await pressPut(j.page)
-      await text(j, WORDS.savedSuggestion)
+      await putThemIn(j.page, 'suggestion')
       return j
     },
     stage: true,
@@ -437,7 +436,10 @@ const SCENES: readonly Scene[] = [
       await move(j)
       repoOf(j).put('main', LEVEL_PATH, theirs)
       await pressPut(j.page)
-      await text(j, WORDS.changedElsewhere)
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Put them in/ })
+        .click()
+      await putSheet(j.page).getByText('clash', { exact: false }).waitFor()
       return j
     },
     stage: true,

@@ -121,26 +121,6 @@ export interface OpenPicture {
   readonly base64: string
 }
 
-/** What the page sends to save a level. */
-export interface SaveAsk {
-  readonly game: GameRef
-  /** Which content file. */
-  readonly path: string
-  /** The level, as data; the API writes the bytes. */
-  readonly value: unknown
-  /** The version of the file the person opened. */
-  readonly version: string
-  /** What changed, in a few words. */
-  readonly message: string
-}
-export interface SaveAnswer {
-  readonly how: 'direct' | 'suggestion'
-  /** The file's new version. */
-  readonly version: string
-  /** The waiting change the save is part of; undefined when it went straight in. */
-  readonly mine: Waiting | undefined
-}
-
 /** One file in a Put: the content as data, and the version of the file the person started from. */
 export interface PutFile {
   readonly path: string

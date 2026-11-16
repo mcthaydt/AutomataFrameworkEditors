@@ -7,9 +7,12 @@ import {
   dragByTouch,
   gameMenuRows,
   type JourneyPage,
+  levelPut,
   menuWords,
   openPage,
   pressPut,
+  putThemIn,
+  putWords,
   type SIZES,
   setupJourneys,
   signIn,
@@ -55,12 +58,12 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await pressPut(j.page)
     const download = j.page.waitForEvent('download')
-    await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
+    await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).click()
     const file = await download
     expect(file.suggestedFilename()).toBe('level-1.json')
     const path = await file.path()
     expect(await readFile(path, 'utf8')).toBe(moved)
-    await text(j, WORDS.copyKept)
+    await text(j, 'level-1.json')
     expect(wrote(j)).toEqual([])
     expect(j.fake.repos.get('grandma/crate-game')?.commits).toEqual([])
   })
@@ -75,19 +78,18 @@ test('Copy this level puts the level text where it can be pasted (the clipboard 
   if (chromium)
     await j.page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: j.site })
   await pressPut(j.page)
-  await j.page.getByRole('button', { name: WORDS.copyLevel }).click()
+  await j.page.getByRole('button', { name: putWords.keepText }).click()
   if (chromium) {
-    await text(j, WORDS.copyCopied)
+    await text(j, 'Copied. Paste it')
     expect(await j.page.evaluate(() => navigator.clipboard.readText())).toBe(moved)
   } else {
     // The other engines either let the page write to the clipboard (Firefox does, with no way to read it back here) and
     // it says "copied", or refuse, and the page shows the text instead, ready to copy. Either is a person able to paste.
     const box = j.page.locator('textarea.box')
-    await box.or(j.page.getByText(WORDS.copyCopied, { exact: false }).first()).waitFor()
+    await box.or(j.page.getByText('Copied. Paste it', { exact: false }).first()).waitFor()
     if ((await box.count()) > 0) expect(await box.inputValue()).toBe(moved)
   }
 })
-
 test('a "Change this game" link opens the game with no Welcome and no sign-in screen', async () => {
   const j = await open()
   await j.page.goto(`${j.site}/${GAME}`)
@@ -112,15 +114,21 @@ test('the visitor keeps a copy, signs in, and saves: the game holds exactly the 
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await pressPut(j.page)
   const download = j.page.waitForEvent('download')
-  await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
+  await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).click()
   const kept = await readFile(await (await download).path(), 'utf8')
-  await signIn(j.page)
+  // The sheet that gave the copy offers the way in; the changes are still on the device when the person comes back.
+  await j.page.getByRole('dialog').getByRole('button', { name: menuWords.signIn }).click()
+  await j.page.waitForFunction(
+    () => location.search === '' && localStorage.getItem('af.tokens') !== null,
+    undefined,
+    {
+      timeout: 30_000,
+    },
+  )
   await text(j, WORDS.draftBack)
-  await pressPut(j.page)
-  await text(j, WORDS.savedDirect)
-  expect(j.fake.repos.get('grandma/crate-game')?.commits[0]?.text).toBe(kept)
+  await putThemIn(j.page)
+  expect(levelPut(j.fake.repos.get('grandma/crate-game'), LEVEL_PATH)).toBe(kept)
 })
-
 test("a visitor never sees the waiting changes, the Share button, or anyone's name", async () => {
   const j = await open('ipadUpright', 'grandma')
   await j.page.goto(`${j.site}/${GAME}`)

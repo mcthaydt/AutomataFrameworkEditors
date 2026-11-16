@@ -120,6 +120,29 @@ test('a second put by the same person goes on their waiting change, whose new le
   expect(repo().branches.get('automata/kid')?.get(ROOM_4)).toBe(writeContent('level', again as never))
 })
 
+test('someone who approves puts the same ask as a waiting change, like someone who suggests', async () => {
+  const res = await put('grandpa', ask())
+  expect(res.answer).toMatchObject({ ok: true, value: { how: 'suggestion', mine: { by: 'grandpa' } } })
+  expect(main().get(ROOM_3)).toBe(text(ROOM_3))
+})
+
+test('an editor with a change already waiting adds to it instead of writing to the game', async () => {
+  repo().addPull('automata/stranger')
+  const res = await put('stranger', ask())
+  expect(res.answer).toMatchObject({ ok: true, value: { how: 'suggestion', mine: { by: 'stranger' } } })
+  expect(repo().commits.map((c) => c.branch)).toEqual(['automata/stranger'])
+  expect(main().get(ROOM_3)).toBe(text(ROOM_3))
+  expect(repo().pulls).toHaveLength(1)
+})
+
+test('a branch left from an approved change is started again from the game as it is', async () => {
+  repo().addPull('automata/kid').state = 'merged'
+  const res = await put('kid', ask())
+  expect(res.answer).toMatchObject({ ok: true, value: { how: 'suggestion', mine: { number: 2 } } })
+  expect(repo().branches.get('automata/kid')?.get(ROOM_3)).toBe(writeContent('level', room3 as never))
+  expect(repo().pulls.filter((p) => p.state === 'open')).toHaveLength(1)
+})
+
 test.each([
   ['automata.access.toml'],
   ['src/main.ts'],

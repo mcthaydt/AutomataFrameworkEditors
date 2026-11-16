@@ -11,11 +11,6 @@
   }
   let { events, low = false, onanswer }: Props = $props()
 
-  let box: HTMLTextAreaElement | undefined = $state()
-  $effect(() => {
-    box?.focus()
-    box?.select()
-  })
 </script>
 
 {#if events.length > 0}
@@ -23,28 +18,17 @@
     {#each events as event (event.id)}
       <div class="event {event.kind}" role={event.kind === 'problem' ? 'alert' : 'status'}>
         <p>{event.text}</p>
-        {#if event.box !== undefined}
-          <textarea class="box" readonly rows="6" bind:this={box} value={event.box}></textarea>
-        {/if}
         {#if event.details !== undefined && event.details.length > 0}
           <ul>
             {#each event.details as line (line)}<li>{line}</li>{/each}
           </ul>
         {/if}
         <div class="buttons">
-          {#if event.ask === 'sign-in'}
-            <button type="button" class="main" onclick={() => onanswer(event, 'sign-in')}>{WORDS.signIn}</button>
-          {:else if event.ask === 'changed-elsewhere'}
-            <button type="button" onclick={() => onanswer(event, 'take-theirs')}>{WORDS.takeTheirs}</button>
-            <button type="button" onclick={() => onanswer(event, 'keep-mine')}>{WORDS.keepMine}</button>
-          {:else if event.ask === 'leave'}
+          {#if event.ask === 'leave'}
             <button type="button" class="main" onclick={() => onanswer(event, 'stay')}>{WORDS.leaveNo}</button>
             <button type="button" onclick={() => onanswer(event, 'leave')}>{WORDS.leaveYes}</button>
-          {:else if event.ask === 'keep'}
-            <button type="button" onclick={() => onanswer(event, 'copy-file')}>{WORDS.copyKeep}</button>
-            <button type="button" onclick={() => onanswer(event, 'copy-text')}>{WORDS.copyLevel}</button>
           {/if}
-          {#if event.dismiss === true || event.ask === 'keep'}
+          {#if event.dismiss === true}
             <button type="button" onclick={() => onanswer(event, 'dismiss')}>{WORDS.tipGotIt}</button>
           {/if}
         </div>
@@ -94,15 +78,6 @@
     margin: 0;
     padding-left: 18px;
     overflow-wrap: anywhere;
-  }
-  .box {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--raised);
-    color: var(--words);
-    font: 12px / 1.4 var(--measure);
   }
   .buttons {
     display: flex;

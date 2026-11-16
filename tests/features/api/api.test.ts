@@ -41,8 +41,6 @@ test('each method is one call with its verb, path, query or body, and the Bearer
   await api.waiting(GAME)
   await api.change({ game: GAME, number: 3 })
   await api.sharing(GAME)
-  const ask = { game: GAME, path: 'p', value: {}, version: 'v', message: 'm' }
-  await api.save(ask)
   const putAsk = {
     game: GAME,
     files: [{ path: 'content/levels/level-1.json', value: { id: 'level-1' }, version: 'v' }],
@@ -75,7 +73,6 @@ test('each method is one call with its verb, path, query or body, and the Bearer
     'GET /api/waiting?owner=grandma&name=crate-game',
     'GET /api/change?owner=grandma&name=crate-game&number=3',
     'GET /api/sharing?owner=grandma&name=crate-game',
-    'POST /api/save',
     'POST /api/put',
     'POST /api/approve',
     'POST /api/turn-down',
@@ -86,12 +83,11 @@ test('each method is one call with its verb, path, query or body, and the Bearer
     'POST /api/settings',
   ])
   for (const call of calls) expect(call.headers.get('authorization')).toBe('Bearer t1')
-  expect(calls[5]?.body).toEqual(ask)
-  expect(calls[6]?.body).toEqual(putAsk)
-  expect(calls[7]?.body).toEqual({ game: GAME, number: 2 })
-  expect(calls[9]?.body).toEqual(JSON.parse(JSON.stringify(sharing)))
-  expect(calls[12]?.body).toEqual(noteAsk)
-  expect(calls[13]?.body).toEqual(JSON.parse(JSON.stringify(settingsAsk)))
+  expect(calls[5]?.body).toEqual(putAsk)
+  expect(calls[6]?.body).toEqual({ game: GAME, number: 2 })
+  expect(calls[8]?.body).toEqual(JSON.parse(JSON.stringify(sharing)))
+  expect(calls[11]?.body).toEqual(noteAsk)
+  expect(calls[12]?.body).toEqual(JSON.parse(JSON.stringify(settingsAsk)))
 })
 
 test('with no token, open is sent with no Authorization header and every other method is signed-out, nothing sent', async () => {
@@ -102,7 +98,6 @@ test('with no token, open is sent with no Authorization header and every other m
   expect(calls[0]?.headers.has('authorization')).toBe(false)
   const others = [
     await api.games(),
-    await api.save({ game: GAME, path: 'p', value: {}, version: 'v', message: 'm' }),
     await api.put({ game: GAME, files: [], message: 'm' }),
     await api.waiting(GAME),
     await api.change({ game: GAME, number: 1 }),
@@ -184,15 +179,7 @@ test('HTML where JSON was expected, or JSON that is not an Answer, is unknown', 
 test('a problem the API names is passed on as it is, with its details', async () => {
   const problem: ProblemKind = 'broken'
   const { fetcher } = recorder(() => json({ ok: false, problem, details: ['a', 'b'] }, 422))
-  expect(
-    await createApi(auth(['t']), fetcher).save({
-      game: GAME,
-      path: 'p',
-      value: {},
-      version: 'v',
-      message: 'm',
-    }),
-  ).toEqual({
+  expect(await createApi(auth(['t']), fetcher).put({ game: GAME, files: [], message: 'm' })).toEqual({
     ok: false,
     problem,
     details: ['a', 'b'],

@@ -5,8 +5,10 @@
 
 import { arrange } from './arrange.ts'
 import { bar } from './bar.ts'
+import { changes } from './changes.ts'
 import { first } from './first.ts'
 import { help } from './help.ts'
+import { kept } from './kept.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { levels } from './levels.ts'
 import { map } from './map.ts'
@@ -18,8 +20,10 @@ import { shell } from './shell.ts'
 
 export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
+export { changes } from './changes.ts'
 export { first } from './first.ts'
 export { help } from './help.ts'
+export { kept } from './kept.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
 export { levels } from './levels.ts'
 export { map } from './map.ts'
@@ -61,12 +65,7 @@ export const WORDS = Object.freeze({
   moveRight: 'Move right',
   moveUp: 'Move up',
   moveDown: 'Move down',
-  savedDirect: 'Saved. Your game has the change.',
-  savedSuggestion: 'Saved. Your change is waiting for approval.',
   lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
-  changedElsewhere: "Someone changed this level while you were working, so your change wasn't saved.",
-  takeTheirs: 'Show their version (drop my change)',
-  keepMine: 'Keep my change for now',
   offline: "Can't reach the game right now. Your change is still here. Check the internet and try again.",
   busy: 'Things are busy. Your change is still here. Wait a minute and try again.',
   saveFailed: "Something went wrong and your change wasn't saved. Try again.",
@@ -131,11 +130,6 @@ export const WORDS = Object.freeze({
   sharingDirty: "You have sharing changes that aren't saved.",
   tryIt: 'Try it now',
   tryItLine: 'No account needed. Open the example game and change it.',
-  copyLevel: 'Copy this level',
-  copyCopied: "Copied. Paste it to your agent, or into your game's files.",
-  copySelect: "Copy the text below, then paste it to your agent or into your game's files.",
-  copyKeep: 'Save it as a file',
-  copyKept: 'A copy of this level is on your device.',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
   tipApprove: 'Someone made a change for you to look at. Open it to approve it or turn it down.',
   tipGotIt: 'Got it',
@@ -158,6 +152,8 @@ export interface Words {
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
   readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
+  readonly changes: Readonly<Record<keyof (typeof changes)['en'], Row>>
+  readonly kept: Readonly<Record<keyof (typeof kept)['en'], Row>>
 }
 
 /**
@@ -178,6 +174,8 @@ export function wordsIn(lang: Lang): Words {
     map: { ...map.en, ...map[lang] },
     arrange: { ...arrange.en, ...arrange[lang] },
     play: { ...play.en, ...play[lang] },
+    changes: { ...changes.en, ...changes[lang] },
+    kept: { ...kept.en, ...kept[lang] },
   }
 }
 

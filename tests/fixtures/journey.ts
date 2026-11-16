@@ -394,3 +394,55 @@ export const quietButton = (page: Page) => page.locator('button.put.quiet')
 
 /** Presses the main button. */
 export const pressPut = (page: Page) => putButton(page).click()
+
+const CHANGES = wordsIn('en').changes
+const KEPT = wordsIn('en').kept
+const said = (row: Row, ...parts: (string | number)[]): string =>
+  typeof row === 'function' ? row(...parts) : row
+
+/** What the sheets for putting changes in say, in English. */
+export const putWords = {
+  doneTitle: said(CHANGES.doneTitle),
+  putThem: said(CHANGES.putThem),
+  notYet: said(CHANGES.notYet),
+  again: said(CHANGES.again),
+  notNow: said(CHANGES.notNow),
+  takeBack: said(CHANGES.takeBack),
+  failPut: said(CHANGES.failPut),
+  keepTitle: said(KEPT.keepTitle),
+  keepText: said(KEPT.keepText),
+  showMe: said(CHANGES.showMe),
+  nextProblem: said(KEPT.nextProblem),
+} as const
+
+/** The sheet that opens over the level when the main button is pressed. */
+export const putSheet = (page: Page) => page.getByRole('dialog')
+
+/**
+ * Puts everything in the game, or sends it to be checked: presses the main button, then the sheet's own button, and waits
+ * for the sheet to say it went. Two presses, because the first only shows what would go.
+ */
+export async function putThemIn(page: Page, how: 'direct' | 'suggestion' = 'direct'): Promise<void> {
+  await pressPut(page)
+  const sheet = putSheet(page)
+  await sheet.getByRole('button', { name: how === 'direct' ? /^Put them in/ : /^Send/ }).click()
+  await sheet
+    .getByRole('heading', { name: how === 'direct' ? putWords.doneTitle : /^Sent/, exact: how === 'direct' })
+    .waitFor()
+  await sheet.getByRole('button', { name: 'Close' }).first().click()
+  await sheet.waitFor({ state: 'detached' })
+}
+
+/** The text the newest commit put in a level's file (a put can change the project file too, so `text` is not enough). */
+export function levelPut(
+  repo:
+    | {
+        readonly commits: readonly {
+          readonly files: readonly { readonly path: string; readonly text: string | undefined }[]
+        }[]
+      }
+    | undefined,
+  path: string,
+): string | undefined {
+  return repo?.commits[0]?.files.find((f) => f.path === path)?.text
+}
