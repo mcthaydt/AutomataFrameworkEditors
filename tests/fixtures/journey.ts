@@ -90,7 +90,7 @@ export async function openPage(
   const page = await context.newPage()
   const requests: string[] = []
   const errors: string[] = []
-  // A call the page moved on from is not a fault, though WebKit reports it as an error (see cut-off.ts).
+  // A call or font the page moved on from is not a fault, though WebKit and Firefox report it as an error (see cut-off.ts).
   const cutOff = cutOffTracker()
   page.on('request', (request) => {
     requests.push(`${request.method()} ${request.url()}`)
