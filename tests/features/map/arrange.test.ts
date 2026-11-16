@@ -10,7 +10,7 @@ import {
   nudgeLevel,
   pullApart,
   wholeWorld,
-} from '#src/features/map/arrange.ts'
+} from '#src/features/map/map.ts'
 import { fixtureFiles } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
 import { openedGame } from '../../fixtures/open-game.ts'
