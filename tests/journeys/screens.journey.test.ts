@@ -625,6 +625,8 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
           const menuA = shown[a]!.closest('[role=menu], [aria-modal=true]') !== null
           const menuB = shown[b]!.closest('[role=menu], [aria-modal=true]') !== null
           if (menuA !== menuB) continue
+          // A menu's backdrop (the button that closes it when the page behind is pressed) lies over everything by design.
+          if (shown[a]!.classList.contains('dim') || shown[b]!.classList.contains('dim')) continue
           if (across > 1 && down > 1 && !shown[a]!.contains(shown[b]!) && !shown[b]!.contains(shown[a]!))
             found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
         }
