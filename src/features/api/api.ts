@@ -7,6 +7,8 @@ import type {
   ChangeAsk,
   GameRef,
   OpenAnswer,
+  PutAnswer,
+  PutAsk,
   SaveAnswer,
   SaveAsk,
   SharingAnswer,
@@ -34,10 +36,18 @@ export interface Api {
   games(): Promise<Answer<readonly GameRef[]>>
   open(game: GameRef): Promise<Answer<OpenAnswer>>
   save(ask: SaveAsk): Promise<Answer<SaveAnswer>>
+  /** Every changed file in one change: straight into the game, or as a waiting change. */
+  put(ask: PutAsk): Promise<Answer<PutAnswer>>
   waiting(game: GameRef): Promise<Answer<readonly Waiting[]>>
   change(ask: ChangeAsk): Promise<Answer<WaitingChange>>
   approve(ask: ChangeAsk): Promise<Answer<true>>
   turnDown(ask: ChangeAsk): Promise<Answer<true>>
+  /** Asks the author of a waiting change to change it, in a few words. */
+  askChange(ask: ChangeAsk & { readonly words: string }): Promise<Answer<true>>
+  /** The Undo of a turn-down: the change waits again. */
+  reopen(ask: ChangeAsk): Promise<Answer<true>>
+  /** "Got it": forgets that your change was turned down. */
+  clearTurnedDown(game: GameRef): Promise<Answer<true>>
   sharing(game: GameRef): Promise<Answer<SharingAnswer>>
   share(ask: SharingAsk): Promise<Answer<SharingAnswer>>
 }
@@ -109,10 +119,14 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
     games: () => call('GET', '/api/games'),
     open: (game) => call('GET', `/api/game?${query(game)}`, undefined, true),
     save: (ask) => call('POST', '/api/save', ask),
+    put: (ask) => call('POST', '/api/put', ask),
     waiting: (game) => call('GET', `/api/waiting?${query(game)}`),
     change: ({ game, number }) => call('GET', `/api/change?${query(game, { number: String(number) })}`),
     approve: (ask) => call('POST', '/api/approve', ask),
     turnDown: (ask) => call('POST', '/api/turn-down', ask),
+    askChange: (ask) => call('POST', '/api/ask', ask),
+    reopen: (ask) => call('POST', '/api/reopen', ask),
+    clearTurnedDown: (game) => call('POST', '/api/clear-turned-down', { game }),
     sharing: (game) => call('GET', `/api/sharing?${query(game)}`),
     share: (ask) => call('POST', '/api/sharing', ask),
   }

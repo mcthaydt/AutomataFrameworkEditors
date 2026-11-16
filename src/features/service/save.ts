@@ -7,16 +7,9 @@ import type { Pull } from '../github/github.ts'
 import type { Answer, SaveAnswer, SaveAsk, Waiting } from '../wire/wire.ts'
 import { type Json, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter, suggestionBranch } from './enter.ts'
+import { oneLine } from './message.ts'
 import { ownPull, toWaiting } from './pulls.ts'
 import { wholeGameLoads } from './whole.ts'
-
-const MESSAGE_LENGTH = 72
-
-/** The message cut to one line of at most 72 characters; nothing left of it becomes `Change <path>`. */
-export function oneLine(message: string, path: string): string {
-  const line = message.replace(/\s+/g, ' ').trim().slice(0, MESSAGE_LENGTH).trim()
-  return line === '' ? `Change ${path}` : line
-}
 
 function readAsk(body: Json): SaveAsk | undefined {
   const game = readGame(body.game)

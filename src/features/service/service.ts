@@ -3,11 +3,12 @@
 import { answer, handleTokenRequest } from '../exchange/exchange.ts'
 import type { Deps } from '../github/github.ts'
 import type { Answer, GameRef } from '../wire/wire.ts'
-import { approveChange, turnDownChange } from './approve.ts'
+import { approveChange, askChange, clearTurnedDown, reopenChange, turnDownChange } from './approve.ts'
 import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
 import { readSharing, writeSharing } from './people.ts'
+import { putFiles } from './put.ts'
 import { saveLevel } from './save.ts'
 import { listWaiting, showChange } from './waiting.ts'
 
@@ -25,8 +26,12 @@ const gameOf = (url: URL): GameRef => ({
 const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/games': (deps, request) => listGames(deps, request),
   'POST /api/save': (deps, request) => saveLevel(deps, request),
+  'POST /api/put': (deps, request) => putFiles(deps, request),
   'POST /api/approve': (deps, request) => approveChange(deps, request),
   'POST /api/turn-down': (deps, request) => turnDownChange(deps, request),
+  'POST /api/ask': (deps, request) => askChange(deps, request),
+  'POST /api/reopen': (deps, request) => reopenChange(deps, request),
+  'POST /api/clear-turned-down': (deps, request) => clearTurnedDown(deps, request),
   'GET /api/waiting': (deps, request, url) => listWaiting(deps, request, gameOf(url)),
   'GET /api/change': (deps, request, url) =>
     showChange(deps, request, gameOf(url), Number(url.searchParams.get('number'))),

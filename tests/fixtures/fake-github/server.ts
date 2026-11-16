@@ -17,6 +17,7 @@ import {
   nextSha,
   notAGameRepo,
   type PullFacts,
+  treeSha,
 } from './repos.ts'
 
 export const PEOPLE = ['grandma', 'grandpa', 'kid', 'stranger'] as const
@@ -217,6 +218,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       title: pull.title,
       state: pull.state === 'open' ? 'open' : 'closed',
       merged: pull.state === 'merged',
+      merged_at: pull.state === 'merged' ? new Date(facts.createdAt).toISOString() : null,
       created_at: new Date(facts.createdAt).toISOString(),
       head: { ref: pull.head, sha: repo.heads.get(pull.head) ?? '', repo: { full_name: facts.fork ?? own } },
       base: { ref: pull.base, repo: { full_name: own } },
@@ -406,6 +408,83 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       return send(204)
     }
 
+    // Git data: blobs, trees, commits and a ref update, the four calls that put several files in one commit.
+    if (method === 'POST' && rest === '/git/blobs') {
+      const text = body.encoding === 'base64' ? fromBase64(str(body.content)) : str(body.content)
+      const sha = blobSha(text)
+      repo.blobs.set(sha, text)
+      return send(201, { sha })
+    }
+    if (method === 'GET' && (m = /^\/git\/commits\/([0-9a-f]+)$/.exec(rest))) {
+      const files = repo.snapshots.get(m[1] ?? '')
+      if (files === undefined) return NOT_FOUND
+      const tree = treeSha(files)
+      repo.trees.set(tree, new Map(files))
+      return send(200, { sha: m[1], tree: { sha: tree } })
+    }
+    if (method === 'POST' && rest === '/git/trees') {
+      const base = repo.trees.get(str(body.base_tree))
+      if (base === undefined) return send(422, { message: 'Invalid base_tree' })
+      const files = new Map(base)
+      for (const entry of Array.isArray(body.tree) ? body.tree.map(obj) : []) {
+        const path = str(entry.path)
+        if (entry.sha === null) files.delete(path)
+        else {
+          const text = repo.blobs.get(str(entry.sha))
+          if (path === '' || text === undefined) return send(422, { message: 'Tree entry is invalid' })
+          files.set(path, text)
+        }
+      }
+      const sha = treeSha(files)
+      repo.trees.set(sha, files)
+      return send(201, { sha })
+    }
+    if (method === 'POST' && rest === '/git/commits') {
+      const files = repo.trees.get(str(body.tree))
+      const parents = Array.isArray(body.parents) ? body.parents.map(str) : []
+      const parent = parents[0] ?? ''
+      const before = repo.snapshots.get(parent)
+      if (files === undefined || before === undefined)
+        return send(422, { message: 'Tree or parent is invalid' })
+      const touched: { path: string; text: string | undefined }[] = []
+      for (const [path, text] of files) if (before.get(path) !== text) touched.push({ path, text })
+      for (const path of before.keys()) if (!files.has(path)) touched.push({ path, text: undefined })
+      const sha = nextSha(`git:${parent}:${str(body.message)}`)
+      repo.snapshots.set(sha, new Map(files))
+      repo.commitDates.set(sha, repo.clock())
+      repo.gitCommits.set(sha, {
+        parent,
+        message: str(body.message),
+        author: str(obj(body.author).name),
+        files: touched,
+      })
+      return send(201, { sha, tree: { sha: str(body.tree) } })
+    }
+    if (method === 'PATCH' && (m = /^\/git\/refs\/heads\/(.+)$/.exec(rest))) {
+      const branch = decodeURIComponent(m[1] ?? '')
+      const files = repo.branches.get(branch)
+      const made = repo.gitCommits.get(str(body.sha))
+      if (files === undefined || made === undefined) return send(422, { message: 'Reference does not exist' })
+      if (made.parent !== repo.heads.get(branch) && body.force !== true)
+        return send(422, { message: 'Update is not a fast forward' })
+      if (branch === main && repo.rule === 'blocks-app')
+        return send(422, { message: 'Repository rule violations found' })
+      const sha = str(body.sha)
+      files.clear()
+      for (const [path, text] of repo.snapshots.get(sha) ?? []) files.set(path, text)
+      repo.heads.set(branch, sha)
+      repo.commits.push({
+        sha,
+        branch,
+        message: made.message,
+        path: made.files[0]?.path ?? '',
+        text: made.files[0]?.text ?? '',
+        author: made.author,
+        files: made.files,
+      })
+      return send(200, { ref: `refs/heads/${branch}`, object: { sha } })
+    }
+
     if ((m = /^\/contents\/(.+)$/.exec(rest))) {
       const path = decodeURIComponent(m[1] ?? '')
       if (method === 'GET') {
@@ -468,6 +547,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
           path,
           text,
           author: str(obj(body.author).name),
+          files: [{ path, text }],
         })
         return send(current === undefined ? 201 : 200, {
           content: { path, sha: blobSha(text) },
@@ -479,7 +559,17 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     if (rest === '/pulls' && method === 'GET') {
       const wanted = url.searchParams.get('state') ?? 'open'
       const base = url.searchParams.get('base') ?? main
-      const list = repo.pulls.filter((p) => (wanted === 'all' || p.state === wanted) && p.base === base)
+      // `head` is `owner:branch`; `closed` includes the merged, as on GitHub; `direction=desc` is the newest first.
+      const head = url.searchParams.get('head')?.split(':').slice(1).join(':')
+      const newest = url.searchParams.get('direction') === 'desc'
+      const list = repo.pulls
+        .filter(
+          (p) =>
+            (wanted === 'all' || p.state === wanted || (wanted === 'closed' && p.state === 'merged')) &&
+            p.base === base &&
+            (head === undefined || p.head === head),
+        )
+        .sort((a, b) => (newest ? b.number - a.number : a.number - b.number))
       return send(
         200,
         list.map((p) => pullJson(repo, p, false)),
@@ -508,6 +598,13 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       if (m[2] === undefined && method === 'GET') return send(200, pullJson(repo, pull, true))
       if (m[2] === undefined && method === 'PATCH') {
         if (body.state === 'closed' && pull.state === 'open') pull.state = 'closed'
+        if (body.state === 'open' && pull.state !== 'open') {
+          // GitHub will not open a pull that was merged, or whose branch is gone, or when another is open from it.
+          const another = repo.pulls.some((p) => p.head === pull.head && p.state === 'open')
+          if (pull.state === 'merged' || !repo.branches.has(pull.head) || another)
+            return send(422, { message: 'Validation Failed' })
+          pull.state = 'open'
+        }
         return send(200, pullJson(repo, pull, true))
       }
       if (m[2] === '/files' && method === 'GET') {
@@ -523,10 +620,71 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       if (m[2] === '/merge' && method === 'PUT') return merge(repo, pull, body)
     }
 
+    // Comments on a pull (GitHub keeps them with its issues), and reviews. A pull's author may not approve it or ask for
+    // changes on it: the App opened every waiting change, so the App's own review is refused, as GitHub refuses it.
+    if ((m = /^\/issues\/(\d+)\/comments$/.exec(rest))) {
+      const number = Number(m[1])
+      if (!repo.pulls.some((p) => p.number === number)) return NOT_FOUND
+      const list = repo.comments.get(number) ?? []
+      if (method === 'GET') {
+        return send(
+          200,
+          list.map((c) => ({ body: c.text, created_at: new Date(c.at).toISOString() })),
+        )
+      }
+      if (method === 'POST') {
+        repo.comments.set(number, [...list, { at: repo.clock(), text: str(body.body) }])
+        return send(201, { body: str(body.body), created_at: new Date(repo.clock()).toISOString() })
+      }
+    }
+    if (method === 'POST' && (m = /^\/pulls\/(\d+)\/reviews$/.exec(rest))) {
+      const pull = repo.pulls.find((p) => p.number === Number(m?.[1]))
+      if (pull === undefined) return NOT_FOUND
+      const event = str(body.event)
+      const byFork = repo.pullFacts.get(pull.number)?.fork !== undefined
+      if (!byFork && event === 'REQUEST_CHANGES') {
+        return send(422, { message: 'Can not request changes on your own pull request' })
+      }
+      if (!byFork && event === 'APPROVE') {
+        return send(422, { message: 'Can not approve your own pull request' })
+      }
+      return send(200, { state: event })
+    }
+
+    if (method === 'GET' && rest === '/commits') {
+      // Newest first; only the commits made on that branch, and, when a path is asked for, only those that touched it
+      // (a folder matches every file inside it). The pretend GitHub does not walk a branch's older ancestors.
+      const branch = url.searchParams.get('sha') ?? main
+      const path = url.searchParams.get('path')
+      const per = Math.min(Number(url.searchParams.get('per_page') ?? 30) || 30, 100)
+      const rows = repo.commits
+        .filter(
+          (c) =>
+            c.branch === branch &&
+            (path === null || c.files.some((f) => f.path === path || f.path.startsWith(`${path}/`))),
+        )
+        .reverse()
+        .slice(0, per)
+      return send(
+        200,
+        rows.map((c) => ({
+          sha: c.sha,
+          commit: {
+            author: { name: c.author, date: new Date(repo.commitDates.get(c.sha) ?? 0).toISOString() },
+            message: c.message,
+          },
+        })),
+      )
+    }
     if (method === 'GET' && (m = /^\/commits\/([^/]+)$/.exec(rest))) {
       const made = repo.commitDates.get(m[1] ?? '')
       if (made === undefined) return NOT_FOUND
-      return send(200, { sha: m[1], commit: { committer: { date: new Date(made).toISOString() } } })
+      const known = repo.commits.find((c) => c.sha === m?.[1])
+      return send(200, {
+        sha: m[1],
+        commit: { committer: { date: new Date(made).toISOString() } },
+        ...(known === undefined ? {} : { files: known.files.map((f) => ({ filename: f.path })) }),
+      })
     }
 
     if (method === 'GET' && (m = /^\/commits\/([^/]+)\/check-runs$/.exec(rest))) {
@@ -551,10 +709,19 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
     const main = repo.branches.get(repo.defaultBranch)
     const files = repo.branches.get(pull.head)
     if (main === undefined || files === undefined) return NOT_FOUND
+    const touched: { path: string; text: string | undefined }[] = []
     for (const change of changesOf(repo, pull.head)) {
-      if (change.previous !== undefined) main.delete(change.previous)
-      if (change.status === 'removed') main.delete(change.filename)
-      else main.set(change.filename, files.get(change.filename) ?? '')
+      if (change.previous !== undefined) {
+        main.delete(change.previous)
+        touched.push({ path: change.previous, text: undefined })
+      }
+      if (change.status === 'removed') {
+        main.delete(change.filename)
+        touched.push({ path: change.filename, text: undefined })
+      } else {
+        main.set(change.filename, files.get(change.filename) ?? '')
+        touched.push({ path: change.filename, text: files.get(change.filename) ?? '' })
+      }
     }
     const commit = nextSha(`merge:${pull.number}`)
     repo.heads.set(repo.defaultBranch, commit)
@@ -565,6 +732,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       path: '',
       text: '',
       author: 'automata-editors[bot]',
+      files: touched,
     })
     pull.state = 'merged'
     return send(200, { merged: true, sha: commit })

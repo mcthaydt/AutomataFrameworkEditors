@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
 import { parseAccess } from '#src/features/access/access.ts'
+import { EDITORS_FILE, parseEditors } from '#src/features/files/files.ts'
 
 const ROOT = join(import.meta.dirname, '../..')
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8')
@@ -48,6 +49,14 @@ test("docs/teams.md names the sharing file and its example passes the editor's o
   const example = /```toml\n([\s\S]*?)```/.exec(teams)?.[1]
   expect(example).toBeDefined()
   expect(parseAccess(example ?? '')).toMatchObject({ ok: true })
+})
+
+test("docs/teams.md names the editors file and both choices, and its example passes the editor's own reading of it", () => {
+  expect(teams).toContain(EDITORS_FILE)
+  expect(teams).toContain('"warn"')
+  expect(teams).toContain('"stop"')
+  const examples = [...teams.matchAll(/```toml\n([\s\S]*?)```/g)].map((m) => m[1] ?? '')
+  expect(examples.some((text) => parseEditors(text).ok && text.includes('problems'))).toBe(true)
 })
 
 test('docs/teams.md has the branch rule as a setup step, with the editor on its bypass list and merge commits on', () => {

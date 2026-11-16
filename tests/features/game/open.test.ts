@@ -15,6 +15,7 @@ const answer = (over: Partial<OpenAnswer> = {}): OpenAnswer => ({
   branch: 'main',
   mine: undefined,
   waiting: 0,
+  turnedDown: undefined,
   files: files(),
   ...over,
 })

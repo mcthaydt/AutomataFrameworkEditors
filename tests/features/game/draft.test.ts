@@ -23,6 +23,7 @@ const open = async (over: Record<string, string> = {}): Promise<OpenGame> => {
         branch: 'main',
         mine: undefined,
         waiting: 0,
+        turnedDown: undefined,
         files,
       },
     }),

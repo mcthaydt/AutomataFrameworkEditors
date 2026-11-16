@@ -4,7 +4,10 @@
 import { fromBase64, toBase64 } from '../../lib/base64.ts'
 import type { Answer, Checks, GameRef } from '../wire/wire.ts'
 import { appJwt } from './app-token.ts'
+import { type Author, type CommitCalls, commitCalls } from './commit.ts'
 import { type As, type Deps, type RateWatch, type Reply, send } from './request.ts'
+
+export type { Author }
 
 export interface RepoFacts {
   /** The default branch. */
@@ -31,12 +34,8 @@ export interface Pull {
   /** Milliseconds. */
   readonly createdAt: number
 }
-export interface Author {
-  readonly name: string
-  readonly email: string
-}
 
-export interface Repo {
+export interface Repo extends CommitCalls {
   readonly facts: RepoFacts
   /** The share of GitHub's allowance still left, from its last answer; undefined until it has said. */
   allowance(): number | undefined
@@ -53,6 +52,16 @@ export interface Repo {
     message: string
     author: Author
   }): Promise<Answer<{ version: string; commit: string }>>
+  /** A comment the App writes on a waiting change (an ordinary pull request). */
+  comment(number: number, text: string): Promise<Answer<true>>
+  /** The comments on a change, newest first (the newest hundred of them). */
+  comments(number: number): Promise<Answer<readonly { at: number; text: string }[]>>
+  /** Opens a pull that was closed again; 'not-found' when GitHub will not (its branch is gone, or it was merged). */
+  reopenPull(number: number): Promise<Answer<true>>
+  /** The newest closed, unmerged pull whose head is `branch`; undefined when there is none. */
+  closedPull(branch: string): Promise<Answer<Pull | undefined>>
+  /** One pull whatever its state: open, closed, or merged. */
+  anyPull(number: number): Promise<Answer<Pull & { readonly state: 'open' | 'closed' | 'merged' }>>
   openPulls(): Promise<Answer<readonly Pull[]>>
   pull(number: number): Promise<Answer<Pull>>
   pullPaths(number: number): Promise<Answer<readonly string[]>>
@@ -247,6 +256,63 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
       const body = obj(got.value.body)
       return { ok: true, value: { version: str(obj(body.content).sha), commit: str(obj(body.commit).sha) } }
     },
+
+    ...commitCalls({ call, root, branchHead: (branch) => repo.branchHead(branch), versionOn }),
+
+    comment: (number, text) =>
+      ask(
+        call({ method: 'POST', path: `${root}/issues/${number}/comments`, body: { body: text } }),
+        () => true as const,
+      ),
+
+    comments: (number) =>
+      ask(
+        call({ method: 'GET', path: `${root}/issues/${number}/comments`, query: { per_page: '100' } }),
+        // GitHub lists the oldest first.
+        (r) =>
+          (Array.isArray(r.body) ? r.body.map(obj) : [])
+            .map((c) => ({ at: Date.parse(str(c.created_at)), text: str(c.body) }))
+            .reverse(),
+      ),
+
+    reopenPull: async (number) => {
+      const got = await call({
+        method: 'PATCH',
+        path: `${root}/pulls/${number}`,
+        body: { state: 'open' },
+        pass: [422],
+      })
+      if (!got.ok) return got
+      return got.value.status === 422 ? { ok: false, problem: 'not-found' } : { ok: true, value: true }
+    },
+
+    closedPull: (branch) =>
+      ask(
+        call({
+          method: 'GET',
+          path: `${root}/pulls`,
+          query: {
+            state: 'closed',
+            head: `${repoFacts.ownerLogin}:${branch}`,
+            sort: 'updated',
+            direction: 'desc',
+            per_page: '30',
+          },
+        }),
+        (r) =>
+          (Array.isArray(r.body) ? r.body.map(obj) : [])
+            .filter((p) => p.merged_at === null || p.merged_at === undefined)
+            .map(toPull)
+            .find((p) => p.head === branch && p.headIsHere),
+      ),
+
+    anyPull: (number) =>
+      ask(call({ method: 'GET', path: `${root}/pulls/${number}` }), (r) => {
+        const pull = obj(r.body)
+        const state: 'open' | 'closed' | 'merged' =
+          pull.state === 'open' ? 'open' : pull.merged === true ? 'merged' : 'closed'
+        return { ...toPull(r.body), state }
+      }),
 
     openPulls,
     pull,

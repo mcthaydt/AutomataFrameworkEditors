@@ -525,6 +525,196 @@ test('a commit has the date its repo stamped when the head moved, and an unknown
   expect((await gh(`${REPO}/commits/${'0'.repeat(40)}`, { as: token })).status).toBe(404)
 })
 
+// ---- git data: blobs, trees, commits, a ref update, the list of commits ----------------------------------------
+
+async function gitCommit(token: string, files: Record<string, string | null>, parent?: string) {
+  const head = parent ?? (await gh(`${REPO}/git/ref/heads/main`, { as: token })).body.object.sha
+  const base = (await gh(`${REPO}/git/commits/${head}`, { as: token })).body.tree.sha
+  const tree: unknown[] = []
+  for (const [path, text] of Object.entries(files)) {
+    const sha =
+      text === null
+        ? null
+        : (
+            await gh(`${REPO}/git/blobs`, {
+              method: 'POST',
+              as: token,
+              body: { content: text, encoding: 'utf-8' },
+            })
+          ).body.sha
+    tree.push({ path, mode: '100644', type: 'blob', sha })
+  }
+  const made = await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: base, tree } })
+  const commit = await gh(`${REPO}/git/commits`, {
+    method: 'POST',
+    as: token,
+    body: {
+      message: 'Many',
+      tree: made.body.sha,
+      parents: [head],
+      author: { name: 'kid', email: 'k@x.test' },
+    },
+  })
+  return { head, commit: commit.body.sha as string }
+}
+
+test('git data: blobs, a tree on the head, a commit and a ref update land every file at once', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, {
+    [LEVEL_PATH]: 'one\n',
+    'new.json': 'two\n',
+    'automata.toml': null,
+  })
+  expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe(level())
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(200)
+  expect(main().branches.get('main')?.get(LEVEL_PATH)).toBe('one\n')
+  expect(main().branches.get('main')?.get('new.json')).toBe('two\n')
+  expect(main().branches.get('main')?.has('automata.toml')).toBe(false)
+  expect(main().commits).toEqual([
+    expect.objectContaining({ branch: 'main', message: 'Many', author: 'kid', sha: commit }),
+  ])
+  expect(
+    main()
+      .commits[0]?.files.map((f) => f.path)
+      .sort(),
+  ).toEqual(['automata.toml', LEVEL_PATH, 'new.json'].sort())
+})
+
+test('git data: a ref update that is not a fast forward is 422 and moves nothing', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, { 'new.json': 'two\n' })
+  main().put('main', 'other.json', 'someone else\n')
+  const before = main().heads.get('main')
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(422)
+  expect(main().heads.get('main')).toBe(before)
+  expect(main().branches.get('main')?.has('new.json')).toBe(false)
+})
+
+test('git data: a rule that blocks the App refuses the ref update with 422', async () => {
+  const token = await installation()
+  const { commit } = await gitCommit(token, { 'new.json': 'two\n' })
+  main().rule = 'blocks-app'
+  const moved = await gh(`${REPO}/git/refs/heads/main`, {
+    method: 'PATCH',
+    as: token,
+    body: { sha: commit, force: false },
+  })
+  expect(moved.status).toBe(422)
+})
+
+test('git data: a tree from a base or a blob that is not there is 422', async () => {
+  const token = await installation()
+  expect(
+    (await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: 'nope', tree: [] } }))
+      .status,
+  ).toBe(422)
+  const head = (await gh(`${REPO}/git/ref/heads/main`, { as: token })).body.object.sha
+  const base = (await gh(`${REPO}/git/commits/${head}`, { as: token })).body.tree.sha
+  const entry = { path: 'a.json', mode: '100644', type: 'blob', sha: 'f'.repeat(40) }
+  expect(
+    (await gh(`${REPO}/git/trees`, { method: 'POST', as: token, body: { base_tree: base, tree: [entry] } }))
+      .status,
+  ).toBe(422)
+  expect((await gh(`${REPO}/git/commits/${'0'.repeat(40)}`, { as: token })).status).toBe(404)
+})
+
+test('list of commits: newest first on the branch, a folder matches what is inside it, per_page cuts it', async () => {
+  const token = await installation()
+  for (const [path, text] of [
+    ['content/levels/a.json', '1'],
+    ['content/tunings/t.json', '2'],
+    ['content/levels/b.json', '3'],
+  ] as const) {
+    const { commit } = await gitCommit(token, { [path]: `${text}\n` })
+    await gh(`${REPO}/git/refs/heads/main`, {
+      method: 'PATCH',
+      as: token,
+      body: { sha: commit, force: false },
+    })
+  }
+  const all = await gh(`${REPO}/commits`, { as: token, query: '?sha=main&per_page=50' })
+  expect(all.body).toHaveLength(3)
+  const levels = await gh(`${REPO}/commits`, {
+    as: token,
+    query: '?sha=main&path=content/levels&per_page=50',
+  })
+  expect(levels.body.map((c: { sha: string }) => c.sha)).toEqual(
+    [...main().commits]
+      .reverse()
+      .filter((c) => c.files.some((f) => f.path.startsWith('content/levels/')))
+      .map((c) => c.sha),
+  )
+  expect(levels.body[0].commit.author.name).toBe('kid')
+  expect((await gh(`${REPO}/commits`, { as: token, query: '?sha=main&per_page=1' })).body).toHaveLength(1)
+  const one = await gh(`${REPO}/commits/${main().commits[0]?.sha}`, { as: token })
+  expect(one.body.files).toEqual([{ filename: 'content/levels/a.json' }])
+})
+
+// ---- comments, reviews, closed and reopened pulls -------------------------------------------------------------
+
+test('comments on a pull: written, then listed oldest first with the repo clock; an unknown pull is 404', async () => {
+  const token = await installation()
+  const pull = main().addPull('automata/kid')
+  fake.clock = 1_000_000
+  await gh(`${REPO}/issues/${pull.number}/comments`, { method: 'POST', as: token, body: { body: 'one' } })
+  fake.clock = 2_000_000
+  const talk = `${REPO}/issues/${pull.number}/comments`
+  const made = await gh(talk, { method: 'POST', as: token, body: { body: 'two' } })
+  expect(made.status).toBe(201)
+  const listed = await gh(`${REPO}/issues/${pull.number}/comments`, { as: token })
+  expect(listed.body.map((c: { body: string }) => c.body)).toEqual(['one', 'two'])
+  expect(listed.body[0].created_at).toBe(new Date(1_000_000).toISOString())
+  expect((await gh(`${REPO}/issues/99/comments`, { as: token })).status).toBe(404)
+})
+
+test("a review that asks for changes or approves is 422 on a pull the App opened, and fine on a fork's", async () => {
+  const token = await installation()
+  const own = main().addPull('automata/kid')
+  const fork = main().addForkPull('automata/other', 'someone/crate-game')
+  const review = (number: number, event: string) =>
+    gh(`${REPO}/pulls/${number}/reviews`, { method: 'POST', as: token, body: { event, body: 'x' } })
+  for (const event of ['REQUEST_CHANGES', 'APPROVE'])
+    expect((await review(own.number, event)).status).toBe(422)
+  expect((await review(own.number, 'COMMENT')).status).toBe(200)
+  expect((await review(fork.number, 'REQUEST_CHANGES')).status).toBe(200)
+})
+
+test('closed pulls: listed with the merged ones, by head, newest first; reopening needs its branch and no other open pull', async () => {
+  const token = await installation()
+  const first = main().addPull('automata/kid')
+  first.state = 'closed'
+  const second = main().addPull('automata/kid-two')
+  second.state = 'merged'
+  const third = main().addPull('automata/kid')
+  third.state = 'closed'
+  const ask = '?state=closed&sort=updated&direction=desc'
+  const all = await gh(`${REPO}/pulls`, { as: token, query: ask })
+  expect(all.body.map((p: { number: number }) => p.number)).toEqual([3, 2, 1])
+  expect(all.body[1].merged_at).not.toBeNull()
+  expect(all.body[0].merged_at).toBeNull()
+  const kids = await gh(`${REPO}/pulls`, { as: token, query: `${ask}&head=grandma:automata/kid` })
+  expect(kids.body.map((p: { number: number }) => p.number)).toEqual([3, 1])
+  const reopen = (number: number) =>
+    gh(`${REPO}/pulls/${number}`, { method: 'PATCH', as: token, body: { state: 'open' } })
+  expect((await reopen(2)).status).toBe(422)
+  expect((await reopen(3)).status).toBe(200)
+  expect(third.state).toBe('open')
+  expect((await reopen(1)).status).toBe(422)
+  third.state = 'closed'
+  main().branches.delete('automata/kid')
+  expect((await reopen(3)).status).toBe(422)
+})
+
 // ---- the server's own behaviour ------------------------------------------------------------------------------
 
 test('a token of the wrong kind, or none, or one that no longer works, is 401', async () => {

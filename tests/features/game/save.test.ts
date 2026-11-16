@@ -19,6 +19,7 @@ const opened = async (): Promise<OpenGame> => {
         branch: 'main',
         mine: undefined,
         waiting: 0,
+        turnedDown: undefined,
         files,
       },
     }),
