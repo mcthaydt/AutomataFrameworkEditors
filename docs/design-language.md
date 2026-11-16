@@ -1,9 +1,8 @@
 # The editors' design language
 
 The rules every editor screen follows. They come from the mockups the Owner approved on 2026-11-16 (board v17,
-[`docs/mockups/`](mockups/), `shell.css` and `frame.js`) and the review reports that shaped them (`docs/superpowers/audits/`).
-Where this page and the mockups differ, the mockups win; fix this page. The shared project rules are in
-[AutomataFramework `docs/rules.md`](https://github.com/mcthaydt/AutomataFramework/blob/main/docs/rules.md).
+[`docs/mockups/`](mockups/), `shell.css` and `frame.js`).
+Where this page and the mockups differ, the mockups win; fix this page.
 
 ## 1. The idea
 

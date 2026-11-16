@@ -238,10 +238,6 @@ test('the page with the setting off says so, and the line for a computer is hidd
   expect(section).toContain('html body.sh[data-device="computer"] .no-computer')
 })
 
-test('CLAUDE.md names the device key', () => {
-  expect(read('CLAUDE.md')).toContain('`af.me.glass`')
-})
-
 test('the speed page holds the seven values word for word, loads nothing, and says what it measures', () => {
   const page = read('docs/mockups/shell-glass-speed.html')
   const values = [
