@@ -218,7 +218,10 @@ test('the same for automata.toml, for a workflow file, and for a file renamed ou
   expect(repo().pulls[0]?.state).toBe('open')
 })
 
-test('a change whose level is broken on its branch is broken, with the sentence', async () => {
+const STOP = 'format = 1\nproblems = "stop"\n'
+
+test('a change whose level is broken on its branch is broken, with the sentence, when the game says stop', async () => {
+  repo().put('main', 'automata.editors.toml', STOP)
   repo().put('automata/kid', LEVEL_PATH, '{"format":1,"id":"level-1"}\n')
   const res = await api.call('grandpa', 'POST', '/api/approve', { game: GAME, number: 1 })
   expect([res.status, problem(res)]).toEqual([422, 'broken'])
@@ -226,7 +229,8 @@ test('a change whose level is broken on its branch is broken, with the sentence'
   expect(repo().pulls[0]?.state).toBe('open')
 })
 
-test('a change whose thing has a character the game lacks is broken', async () => {
+test('a change whose thing has a character the game lacks is broken, when the game says stop', async () => {
+  repo().put('main', 'automata.editors.toml', STOP)
   repo().put(
     'automata/kid',
     LEVEL_PATH,
@@ -281,11 +285,20 @@ test('a pull from a fork named automata/kid is not-found', async () => {
   expect([problem(show), problem(approve)]).toEqual(['not-found', 'not-found'])
 })
 
-test("grandpa turns kid's change down: closed, branch gone, main untouched", async () => {
+test('by default a change whose game has a problem is still approved: a problem is shown, not in the way', async () => {
+  const dragon = { ...moved, things: [{ ...moved.things[0], character: 'dragon' }] }
+  repo().put('automata/kid', LEVEL_PATH, writeContent('level', dragon))
+  const res = await api.call('grandpa', 'POST', '/api/approve', { game: GAME, number: 1 })
+  expect(res.answer).toEqual({ ok: true, value: true })
+  expect(repo().pulls[0]?.state).toBe('merged')
+})
+
+test("grandpa turns kid's change down: closed, the branch kept, a comment says who, main untouched", async () => {
   const res = await api.call('grandpa', 'POST', '/api/turn-down', { game: GAME, number: 1 })
   expect(res.answer).toEqual({ ok: true, value: true })
   expect(repo().pulls[0]?.state).toBe('closed')
-  expect(repo().branches.has('automata/kid')).toBe(false)
+  expect(repo().branches.has('automata/kid')).toBe(true)
+  expect(repo().comments.get(1)?.map((c) => c.text)).toEqual(['Not put in by grandpa'])
   expect(repo().branches.get('main')?.get(LEVEL_PATH)).toBe(fixtureFiles[LEVEL_PATH])
 })
 
@@ -301,6 +314,8 @@ test('kid takes their own change back; a look-level person cannot turn anything 
   const own = await api.call('kid', 'POST', '/api/turn-down', { game: GAME, number: 1 })
   expect(own.answer).toEqual({ ok: true, value: true })
   expect(repo().pulls[0]?.state).toBe('closed')
+  expect(repo().branches.has('automata/kid')).toBe(false)
+  expect(repo().comments.get(1)).toBeUndefined()
 })
 
 test('a branch rule that blocks the App: approve is blocked', async () => {

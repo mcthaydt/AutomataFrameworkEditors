@@ -2,10 +2,25 @@ import { PROJECT_FILE, writeContent } from '@automataframework/framework/headles
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
 import { changeProject } from '#src/features/files/files.ts'
-import type { Answer, PutAnswer, PutAsk } from '#src/features/wire/wire.ts'
+import type { Answer, PutAnswer } from '#src/features/wire/wire.ts'
 import { LINKS, startTestApi, type TestApi } from '../../fixtures/api.ts'
 import { blobSha } from '../../fixtures/fake-github/repos.ts'
-import { linksFiles } from '../../fixtures/links-game/links.ts'
+import {
+  ask,
+  data,
+  GAME,
+  only,
+  PROJECT_CHANGE,
+  ROOM_3,
+  ROOM_4,
+  room3,
+  room3As,
+  room4,
+  text,
+  version,
+  WORLD,
+  world,
+} from '../../fixtures/links-put.ts'
 
 let api: TestApi
 beforeAll(async () => {
@@ -32,36 +47,6 @@ beforeEach(() => {
 
 const repo = () => api.fake.repos.get(LINKS)!
 const main = () => repo().branches.get('main')!
-const GAME = { owner: 'grandma', name: 'links-game' }
-const FILES = linksFiles()
-const text = (path: string): string => FILES[path] ?? ''
-const data = (path: string): Record<string, any> => JSON.parse(text(path))
-const ROOM_3 = 'content/levels/room-3.json'
-const ROOM_4 = 'content/levels/room-4.json'
-const WORLD = 'content/worlds/world.json'
-const version = (path: string): string => blobSha(text(path))
-
-const room3 = { ...data(ROOM_3), things: [{ ...data(ROOM_3).things[0], x: 12.5 }, data(ROOM_3).things[1]] }
-const room4 = { ...data(ROOM_3), id: 'room-4' }
-const world = { ...data(WORLD), levels: [...data(WORLD).levels, { level: 'room-4', at: { x: 100, y: 0 } }] }
-const PROJECT_CHANGE = { add: [{ type: 'level' as const, path: ROOM_4 }] }
-
-/** A level, a new level, the world file and the project file's line for the new level, in one ask. */
-const ask = (over: Partial<PutAsk> = {}): PutAsk => ({
-  game: GAME,
-  files: [
-    { path: ROOM_3, value: room3, version: version(ROOM_3) },
-    { path: ROOM_4, value: room4, version: undefined },
-    { path: WORLD, value: world, version: version(WORLD) },
-  ],
-  project: PROJECT_CHANGE,
-  projectVersion: version(PROJECT_FILE),
-  message: 'A fourth room',
-  ...over,
-})
-/** Only these files, and no change to the project file. */
-const only = (files: PutAsk['files']): PutAsk => ask({ files, project: undefined })
-const room3As = (value: unknown) => ({ path: ROOM_3, value, version: version(ROOM_3) })
 const put = (person: Parameters<TestApi['call']>[0], body: unknown) =>
   api.call<PutAnswer>(person, 'POST', '/api/put', body)
 const problem = (r: { answer: Answer<unknown> }): string | undefined =>

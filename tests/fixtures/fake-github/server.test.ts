@@ -660,6 +660,60 @@ test('list of commits: newest first on the branch, a folder matches what is insi
   expect(one.body.files).toEqual([{ filename: 'content/levels/a.json' }])
 })
 
+// ---- comments, reviews, closed and reopened pulls -------------------------------------------------------------
+
+test('comments on a pull: written, then listed oldest first with the repo clock; an unknown pull is 404', async () => {
+  const token = await installation()
+  const pull = main().addPull('automata/kid')
+  fake.clock = 1_000_000
+  await gh(`${REPO}/issues/${pull.number}/comments`, { method: 'POST', as: token, body: { body: 'one' } })
+  fake.clock = 2_000_000
+  const talk = `${REPO}/issues/${pull.number}/comments`
+  const made = await gh(talk, { method: 'POST', as: token, body: { body: 'two' } })
+  expect(made.status).toBe(201)
+  const listed = await gh(`${REPO}/issues/${pull.number}/comments`, { as: token })
+  expect(listed.body.map((c: { body: string }) => c.body)).toEqual(['one', 'two'])
+  expect(listed.body[0].created_at).toBe(new Date(1_000_000).toISOString())
+  expect((await gh(`${REPO}/issues/99/comments`, { as: token })).status).toBe(404)
+})
+
+test("a review that asks for changes or approves is 422 on a pull the App opened, and fine on a fork's", async () => {
+  const token = await installation()
+  const own = main().addPull('automata/kid')
+  const fork = main().addForkPull('automata/other', 'someone/crate-game')
+  const review = (number: number, event: string) =>
+    gh(`${REPO}/pulls/${number}/reviews`, { method: 'POST', as: token, body: { event, body: 'x' } })
+  for (const event of ['REQUEST_CHANGES', 'APPROVE']) expect((await review(own.number, event)).status).toBe(422)
+  expect((await review(own.number, 'COMMENT')).status).toBe(200)
+  expect((await review(fork.number, 'REQUEST_CHANGES')).status).toBe(200)
+})
+
+test('closed pulls: listed with the merged ones, by head, newest first; reopening needs its branch and no other open pull', async () => {
+  const token = await installation()
+  const first = main().addPull('automata/kid')
+  first.state = 'closed'
+  const second = main().addPull('automata/kid-two')
+  second.state = 'merged'
+  const third = main().addPull('automata/kid')
+  third.state = 'closed'
+  const ask = '?state=closed&sort=updated&direction=desc'
+  const all = await gh(`${REPO}/pulls`, { as: token, query: ask })
+  expect(all.body.map((p: { number: number }) => p.number)).toEqual([3, 2, 1])
+  expect(all.body[1].merged_at).not.toBeNull()
+  expect(all.body[0].merged_at).toBeNull()
+  const kids = await gh(`${REPO}/pulls`, { as: token, query: `${ask}&head=grandma:automata/kid` })
+  expect(kids.body.map((p: { number: number }) => p.number)).toEqual([3, 1])
+  const reopen = (number: number) =>
+    gh(`${REPO}/pulls/${number}`, { method: 'PATCH', as: token, body: { state: 'open' } })
+  expect((await reopen(2)).status).toBe(422)
+  expect((await reopen(3)).status).toBe(200)
+  expect(third.state).toBe('open')
+  expect((await reopen(1)).status).toBe(422)
+  third.state = 'closed'
+  main().branches.delete('automata/kid')
+  expect((await reopen(3)).status).toBe(422)
+})
+
 // ---- the server's own behaviour ------------------------------------------------------------------------------
 
 test('a token of the wrong kind, or none, or one that no longer works, is 401', async () => {
