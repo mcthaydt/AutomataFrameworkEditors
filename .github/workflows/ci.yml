@@ -201,20 +201,23 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         engine: [chromium, webkit, firefox]
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.21.0
+      # The script asks again after a GitHub 5xx and reads each shard from the newest attempt that ran it, so a re-run
+      # of one job can pass (see `scripts/engines-gate.ts`).
       - name: Both shards of ${{ matrix.engine }} passed
-        run: |
-          set -euo pipefail
-          results="$(gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --attempt "$GITHUB_RUN_ATTEMPT" --json jobs \
-            --jq '.jobs[] | select(.name | startswith("browsers (${{ matrix.engine }} ")) | "\(.name): \(.conclusion)"')"
-          echo "$results"
-          [ "$(grep -c ': success$' <<<"$results")" -eq 2 ]
+        run: node scripts/engines-gate.ts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ENGINE: ${{ matrix.engine }}
 
   # The editors' mockups (docs/mockups/): static pages of every editor, drawn before the editors are built, so the
   # Owner can review them. One browser takes their pictures at the five sizes; nothing compares them. It runs when the
