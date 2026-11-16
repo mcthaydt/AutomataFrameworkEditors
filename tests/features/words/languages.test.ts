@@ -5,6 +5,7 @@ import {
   LANGUAGE_NAMES,
   LANGUAGES,
   nameOf,
+  READ_BY_A_SPEAKER,
   type Row,
   shell,
   wordsIn,
@@ -64,4 +65,9 @@ test('a level or a thing is named from its id, and an id is made back from a nam
   expect(idOf('  Crate   2 ')).toBe('crate-2')
   expect(idOf('!!')).toBeUndefined()
   expect(idOf('')).toBeUndefined()
+})
+
+test('every language says which of its rows a native speaker has read, and none has yet', () => {
+  expect(Object.keys(READ_BY_A_SPEAKER).sort()).toEqual([...LANGUAGES].sort())
+  for (const lang of LANGUAGES) expect(READ_BY_A_SPEAKER[lang]).toEqual([])
 })
