@@ -1,7 +1,7 @@
 // The App's hands in one repo: read a file, make a commit, open and close a pull, merge one, look at its checks.
 // Every call goes through `send`, so a status becomes a problem in one place. The page never reaches this; only
 // the service feature does.
-import { fromBase64, toBase64 } from '../../lib/base64.ts'
+import { bytesFromBase64, fromBase64, toBase64 } from '../../lib/base64.ts'
 import type { Answer, Checks, GameRef } from '../wire/wire.ts'
 import { appJwt } from './app-token.ts'
 import { type Author, type CommitCalls, commitCalls } from './commit.ts'
@@ -43,6 +43,11 @@ export interface Repo extends CommitCalls {
   createBranch(branch: string, fromCommit: string): Promise<Answer<true>>
   deleteBranch(branch: string): Promise<Answer<true>>
   readFile(branch: string, path: string): Promise<Answer<FileRead>>
+  /**
+   * A file's bytes (a picture), and the version that changes exactly when they do. 'not-found' for a file GitHub will
+   * not hand over in its contents answer (over 1 MB), since nothing here wants a picture that big.
+   */
+  readBytes(branch: string, path: string): Promise<Answer<{ bytes: Uint8Array; version: string }>>
   /** `version` undefined makes a new file. A version that is no longer the file's is 'changed-elsewhere'. */
   saveFile(save: {
     branch: string
@@ -181,6 +186,20 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
     return { ok: true, value: { path, text: fromBase64(file.content), version: str(file.sha) } }
   }
 
+  const readBytes: Repo['readBytes'] = async (branch, path) => {
+    const got = await call({
+      method: 'GET',
+      path: `${root}/contents/${encPath(path)}`,
+      query: { ref: branch },
+    })
+    if (!got.ok) return got
+    const file = obj(got.value.body)
+    if (file.type !== 'file' || typeof file.content !== 'string' || file.encoding === 'none') {
+      return { ok: false, problem: 'not-found' }
+    }
+    return { ok: true, value: { bytes: bytesFromBase64(file.content), version: str(file.sha) } }
+  }
+
   const pull: Repo['pull'] = async (number) => {
     const got = await call({ method: 'GET', path: `${root}/pulls/${number}` })
     if (!got.ok) return got
@@ -230,6 +249,7 @@ export async function openRepo(deps: Deps, ref: GameRef): Promise<Answer<Repo>> 
       ),
 
     readFile,
+    readBytes,
 
     saveFile: async ({ branch, path, text, version, message, author }) => {
       const got = await call({

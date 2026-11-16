@@ -87,3 +87,41 @@ test('every job that tests is left out of a docs-only run, so no skipped job wea
   }
   expect(job('plan')).toContain("'skipped '")
 })
+
+// The quick run's engines and screens (the Owner, 2026-11-16): a draft runs Chromium only and takes only the pictures of
+// the screens its change reaches; the run that gates merge runs three browsers in six shards each, every picture taken.
+test('a draft runs Chromium only, and a ready pull request or a `full-tests` draft runs all three browsers', () => {
+  expect(plan(['src/features/game/save.ts'])).toMatchObject({ engines: '["chromium"]' })
+  expect(plan(['src/features/game/save.ts'], { draft: false })).toMatchObject({
+    engines: '["chromium","webkit","firefox"]',
+  })
+  expect(plan(['src/features/game/save.ts'], { labels: 'full-tests' })).toMatchObject({
+    engines: '["chromium","webkit","firefox"]',
+  })
+})
+
+test('a draft takes only the pictures of the screens it changes; anything else takes them all', () => {
+  expect(plan(['src/features/suite/Share.svelte'])).toMatchObject({ pictures: 'true', scenes: 'share-' })
+  expect(plan(['src/features/ui/Button.svelte'])).toMatchObject({ pictures: 'true', scenes: '.*' })
+  expect(plan(['src/features/game/save.ts'])).toMatchObject({ pictures: 'false' })
+  expect(plan(['src/features/suite/Share.svelte'], { draft: false })).toMatchObject({ scenes: '.*' })
+})
+
+test('every browser is six shards, shard for shard what the `engines` gate counts', () => {
+  const browsers = job('browsers')
+  expect(browsers).toContain(`name: browsers (\${{ matrix.engine }} \${{ matrix.shard }}/6)`)
+  expect(browsers).toContain('shard: [1, 2, 3, 4, 5, 6]')
+  expect(browsers).toContain(`engine: \${{ fromJSON(needs.plan.outputs.engines) }}`)
+  expect(job('engines')).toContain(`engine: \${{ fromJSON(needs.plan.outputs.engines) }}`)
+  const gate = readFileSync(new URL('../../scripts/engines-gate.ts', import.meta.url), 'utf8')
+  expect(gate).toContain('export const SHARDS = 6')
+})
+
+test('the journeys are split over the six shards: three sizes of the screens journey, and the rest in three parts', () => {
+  const browsers = job('browsers')
+  for (const size of ['ipadUpright', 'ipadSideways', 'phone']) {
+    expect(browsers).toContain(`screens: ${size} }`)
+  }
+  for (const part of [1, 2, 3]) expect(browsers).toContain(`others: ${part} }`)
+  expect(browsers).toContain(`--shard=\${{ matrix.others }}/3`)
+})

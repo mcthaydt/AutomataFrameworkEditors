@@ -1,7 +1,7 @@
 // What the page and the API say to each other. The two sides meet only here (and in `access`), so a change to what
 // one says is a change to this file, which both can read. Later tasks add the rest of the messages.
 import type { AccessFile, AccessLevel } from '../access/access.ts'
-import type { ProjectChange } from '../files/files.ts'
+import type { EditorsFile, Note, ProjectChange } from '../files/files.ts'
 
 export type ProblemKind =
   | 'signed-out'
@@ -100,6 +100,23 @@ export interface OpenAnswer {
   readonly turnedDown: { readonly by: string; readonly at: number } | undefined
   /** `automata.toml` and every file it lists (one that is missing is left out). */
   readonly files: readonly WireFile[]
+  /** The editors' settings for everyone on this game: the default when the game has no file, or one that cannot be read. */
+  readonly editors: EditorsFile
+  /** Who is in the game, from its sharing file, so even a person who only looks sees the faces. */
+  readonly people: readonly Person[]
+  /** The pictures the game's tilesets name, as bytes in base64; one that is too big, or not where it should be, is left out. */
+  readonly pictures: readonly OpenPicture[]
+}
+
+/** One person in the game's sharing file, and what they may do. */
+export interface Person {
+  readonly login: string
+  readonly level: AccessLevel
+}
+/** One picture file of a game: its path, and its bytes in base64. */
+export interface OpenPicture {
+  readonly path: string
+  readonly base64: string
 }
 
 /** What the page sends to save a level. */
@@ -182,5 +199,39 @@ export interface SharingAnswer {
 export interface SharingAsk {
   readonly game: GameRef
   readonly access: AccessFile
+  readonly version: string | undefined
+}
+
+/** One saved change to the game's content, as the history shows it. */
+export interface HistoryLine {
+  readonly commit: string
+  /** Who made it. */
+  readonly by: string
+  /** Milliseconds. */
+  readonly at: number
+  /** The first line of what they said it was. */
+  readonly words: string
+  /** The ids of the levels it touched. */
+  readonly levels: readonly string[]
+  /** The world file was touched. */
+  readonly map: boolean
+}
+/** Ten changes, newest first, and whether older ones are there to ask for. */
+export interface HistoryPage {
+  readonly lines: readonly HistoryLine[]
+  readonly more: boolean
+}
+
+/** What the page sends about a note: a new one (the API says who and when), an answer to one, or one done or not. */
+export type NoteAsk = { readonly game: GameRef } & (
+  | { readonly add: Omit<Note, 'id' | 'answers' | 'done' | 'by' | 'when'> }
+  | { readonly answer: { readonly id: string; readonly words: string } }
+  | { readonly done: { readonly id: string; readonly done: boolean } }
+)
+
+/** What the page sends to change the editors' settings; `version` is the settings file's version, undefined when there is none. */
+export interface SettingsAsk {
+  readonly game: GameRef
+  readonly editors: EditorsFile
   readonly version: string | undefined
 }

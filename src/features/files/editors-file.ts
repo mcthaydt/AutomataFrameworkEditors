@@ -48,6 +48,12 @@ export function parseEditors(text: string | undefined): Parsed {
   }
 }
 
+/** What a page sent, as settings, when it is exactly what the file can hold; undefined otherwise. */
+export function checkEditors(value: unknown): EditorsFile | undefined {
+  const result = Schema.safeParse(value)
+  return result.success ? result.data : undefined
+}
+
 /** The one way to write the file. */
 export function writeEditors(file: EditorsFile): string {
   return `format = 1\nproblems = ${JSON.stringify(file.problems)}\n`

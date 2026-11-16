@@ -16,6 +16,9 @@ const answer = (over: Partial<OpenAnswer> = {}): OpenAnswer => ({
   mine: undefined,
   waiting: 0,
   turnedDown: undefined,
+  editors: { format: 1, problems: 'warn' },
+  people: [],
+  pictures: [],
   files: files(),
   ...over,
 })
@@ -48,6 +51,15 @@ test('a visitor opens with no login', async () => {
     REF,
   )
   expect(opened.ok && opened.game.login).toBeUndefined()
+})
+
+test('the editors settings, the people and the pictures come with the game', async () => {
+  const editors = { format: 1 as const, problems: 'stop' as const }
+  const people = [{ login: 'grandpa', level: 'approve' as const }]
+  const pictures = [{ path: 'art/ground.png', base64: 'AAAA' }]
+  const opened = await openGame(apiGiving({ ok: true, value: answer({ editors, people, pictures }) }), REF)
+  if (!opened.ok) throw new Error(opened.problem)
+  expect(opened.game).toMatchObject({ editors, people, pictures })
 })
 
 test("a level that is not JSON is broken, with the framework's sentence for that file", async () => {
