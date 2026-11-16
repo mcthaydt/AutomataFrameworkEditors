@@ -51,7 +51,7 @@ test("docs/teams.md names the sharing file and its example passes the editor's o
   expect(parseAccess(example ?? '')).toMatchObject({ ok: true })
 })
 
-test('docs/teams.md names the editors file and both choices, and its example passes the editor\'s own reading of it', () => {
+test("docs/teams.md names the editors file and both choices, and its example passes the editor's own reading of it", () => {
   expect(teams).toContain(EDITORS_FILE)
   expect(teams).toContain('"warn"')
   expect(teams).toContain('"stop"')

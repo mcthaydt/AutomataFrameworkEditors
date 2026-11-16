@@ -1,8 +1,8 @@
 // Opening a game: its files, who the API says you are, what you may do, and your own waiting change if you have one.
 import { PROJECT_FILE, parseProject } from '@automataframework/framework/headless'
 import type { Answer, GameRef, OpenAnswer, Waiting, WireFile } from '../wire/wire.ts'
-import { type ApiDeps, enter } from './enter.ts'
 import { turnedDownOf, withAsked } from './ask.ts'
+import { type ApiDeps, enter } from './enter.ts'
 import { isWaiting, ownPull, toWaiting } from './pulls.ts'
 
 export async function openGame(deps: ApiDeps, request: Request, game: GameRef): Promise<Answer<OpenAnswer>> {
