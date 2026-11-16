@@ -70,7 +70,12 @@ describe('getJson: asks again when GitHub is the one that failed', () => {
   })
 
   test('a dropped connection, a 500 and a 429 are asked again too', async () => {
-    const replies: (Awaited<ReturnType<Ask>> | Error)[] = [new Error('socket hang up'), answer(500), answer(429), answer(200, 1)]
+    const replies: (Awaited<ReturnType<Ask>> | Error)[] = [
+      new Error('socket hang up'),
+      answer(500),
+      answer(429),
+      answer(200, 1),
+    ]
     const ask: Ask = async () => {
       const next = replies.shift()
       if (next instanceof Error) throw next

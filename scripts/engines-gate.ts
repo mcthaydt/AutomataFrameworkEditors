@@ -31,7 +31,9 @@ export function judge(attempts: readonly (readonly Job[])[], engine: string): Ve
       if (job.name.startsWith(prefix)) latest.set(job.name, job.conclusion)
     }
   }
-  const lines = [...latest].sort(([a], [b]) => a.localeCompare(b)).map(([name, result]) => `${name}: ${result}`)
+  const lines = [...latest]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, result]) => `${name}: ${result}`)
   const passed = [...latest.values()].filter((result) => result === 'success').length
   return { ok: latest.size === SHARDS && passed === SHARDS, lines }
 }
