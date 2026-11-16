@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest'
-import { ME_DEFAULT } from '#src/features/device/me.ts'
-import { nextPointers, type Pointers, rowSize } from '#src/features/device/pointer.ts'
+import { ME_DEFAULT, nextPointers, type Pointers, rowSize } from '#src/features/device/device.ts'
 
 const start: Pointers = { last: 'touch', penSeen: false, hovering: false }
 const event = (pointerType: string, type: string, buttons = 0) => ({ pointerType, type, buttons })

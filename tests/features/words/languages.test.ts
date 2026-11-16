@@ -1,8 +1,14 @@
 import { expect, test } from 'vitest'
-import { first } from '#src/features/words/first.ts'
-import { LANGUAGE_NAMES, LANGUAGES, type Row } from '#src/features/words/languages.ts'
-import { shell } from '#src/features/words/shell.ts'
-import { idOf, nameOf, wordsIn } from '#src/features/words/words.ts'
+import {
+  first,
+  idOf,
+  LANGUAGE_NAMES,
+  LANGUAGES,
+  nameOf,
+  type Row,
+  shell,
+  wordsIn,
+} from '#src/features/words/words.ts'
 import { bannedInLanguage } from '../../fixtures/banned.ts'
 
 const AREAS = { shell, first } as const

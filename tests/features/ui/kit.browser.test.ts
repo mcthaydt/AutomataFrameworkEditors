@@ -2,18 +2,21 @@
 import { createRawSnippet, mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
-import Button from '#src/features/ui/Button.svelte'
-import Dock from '#src/features/ui/Dock.svelte'
-import Knob from '#src/features/ui/Knob.svelte'
-import Menu from '#src/features/ui/Menu.svelte'
-import Note from '#src/features/ui/Note.svelte'
-import NumberPad from '#src/features/ui/NumberPad.svelte'
-import Rows from '#src/features/ui/Rows.svelte'
-import Segment from '#src/features/ui/Segment.svelte'
-import Sheet from '#src/features/ui/Sheet.svelte'
-import Slider from '#src/features/ui/Slider.svelte'
-import Tip from '#src/features/ui/Tip.svelte'
-import { snap } from '#src/features/ui/slider.ts'
+import {
+  Button,
+  Dock,
+  Knob,
+  loadLanguageFont,
+  Menu,
+  Note,
+  NumberPad,
+  Rows,
+  Segment,
+  Sheet,
+  Slider,
+  snap,
+  Tip,
+} from '#src/features/ui/ui.ts'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
@@ -76,7 +79,14 @@ test('snap keeps a value between least and most, on a step', () => {
 
 test('Slider never gives a value outside its limits or off its step (keys, Home, End)', async () => {
   const seen: number[] = []
-  await mountIt(Slider, { value: 1, least: 0, most: 4, step: 0.5, label: 'How heavy', onchange: (n: number) => seen.push(n) })
+  await mountIt(Slider, {
+    value: 1,
+    least: 0,
+    most: 4,
+    step: 0.5,
+    label: 'How heavy',
+    onchange: (n: number) => seen.push(n),
+  })
   const input = box.querySelector('input') as HTMLInputElement
   input.focus()
   await userEvent.keyboard('{ArrowRight}')
@@ -96,7 +106,14 @@ test('Slider never gives a value outside its limits or off its step (keys, Home,
 
 test('Slider dragged past both ends stays inside', async () => {
   const seen: number[] = []
-  await mountIt(Slider, { value: 2, least: 0, most: 4, step: 0.5, label: 'How heavy', onchange: (n: number) => seen.push(n) })
+  await mountIt(Slider, {
+    value: 2,
+    least: 0,
+    most: 4,
+    step: 0.5,
+    label: 'How heavy',
+    onchange: (n: number) => seen.push(n),
+  })
   const input = box.querySelector('input') as HTMLInputElement
   const r = input.getBoundingClientRect()
   await userEvent.pointer([
@@ -113,7 +130,14 @@ test('Slider dragged past both ends stays inside', async () => {
 
 test('NumberPad: plus and minus stop at the limits, and its field is a decimal input', async () => {
   const seen: number[] = []
-  await mountIt(NumberPad, { value: 3.5, least: 0.5, most: 4, step: 0.5, onchange: (n: number) => seen.push(n), onclose: () => {} })
+  await mountIt(NumberPad, {
+    value: 3.5,
+    least: 0.5,
+    most: 4,
+    step: 0.5,
+    onchange: (n: number) => seen.push(n),
+    onclose: () => {},
+  })
   const field = box.querySelector('input') as HTMLInputElement
   expect(field.getAttribute('inputmode')).toBe('decimal')
   const plus = box.querySelector<HTMLButtonElement>('button[data-step="up"]')
@@ -213,4 +237,13 @@ test('Note says what happened with one button, and Tip stands on its own with on
   expect(box.textContent).toContain('Tap the crate')
   box.querySelector('button')?.click()
   expect(got).toHaveBeenCalledTimes(1)
+})
+
+test('a language with its own partner font loads that font only for that language', async () => {
+  const noto = () => [...document.fonts].filter((face) => face.family.includes('Noto Sans KR')).length
+  const before = noto()
+  await loadLanguageFont('en')
+  expect(noto()).toBe(before)
+  await loadLanguageFont('ko')
+  expect(noto()).toBeGreaterThan(before)
 })

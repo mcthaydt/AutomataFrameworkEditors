@@ -1,7 +1,6 @@
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, expect, test } from 'vitest'
-import { ICONS, type IconName } from '#src/features/ui/icons.ts'
-import Icon from '#src/features/ui/Icon.svelte'
+import { ICONS, Icon, type IconName } from '#src/features/ui/ui.ts'
 
 let box: HTMLDivElement | undefined
 let mounted: ReturnType<typeof mount> | undefined
@@ -24,7 +23,8 @@ test('an icon is a drawing that a screen reader skips', async () => {
 
 test('every icon has drawing in it, and the five tools are there', () => {
   for (const [name, drawing] of Object.entries(ICONS)) expect(drawing, name).toContain('<')
-  for (const tool of ['cursor', 'plus-circle', 'paint-brush', 'eraser', 'link'] as const) expect(ICONS[tool]).toBeDefined()
+  for (const tool of ['cursor', 'plus-circle', 'paint-brush', 'eraser', 'link'] as const)
+    expect(ICONS[tool]).toBeDefined()
 })
 
 test('a name that is not an icon is a type error', () => {

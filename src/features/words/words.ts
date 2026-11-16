@@ -3,6 +3,14 @@
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
+import { first } from './first.ts'
+import { type Lang, LANGUAGES, type Row } from './languages.ts'
+import { shell } from './shell.ts'
+
+export { first } from './first.ts'
+export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
+export { shell } from './shell.ts'
+
 const YOU_ARE: Readonly<Record<string, string>> = {
   look: 'You can look at this game.',
   suggest: 'You can change this game. Someone will approve your changes.',
@@ -157,3 +165,36 @@ export const WORDS = Object.freeze({
   noticeGood: 'Done',
   noticeProblem: 'Problem',
 })
+
+/** The rows of every area, said in one language. */
+export interface Words {
+  readonly shell: Readonly<Record<keyof (typeof shell)['en'], Row>>
+  readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
+}
+
+/**
+ * Every area in `lang`. English is the source, so a row a language lacks is English, never a blank: a language added
+ * a row at a time is always whole. The older `WORDS` above stays English until the old screens are replaced.
+ */
+export function wordsIn(lang: Lang): Words {
+  if (!LANGUAGES.includes(lang)) return wordsIn('en')
+  return {
+    shell: { ...shell.en, ...shell[lang] },
+    first: { ...first.en, ...first[lang] },
+  }
+}
+
+/** An id said nicely: "level-1" is "Level 1", "crate-2" is "Crate 2", "big-box" is "Big box". */
+export function nameOf(id: string): string {
+  const said = id.replace(/-+/g, ' ').trim()
+  return said === '' ? '' : said.charAt(0).toUpperCase() + said.slice(1)
+}
+
+/** A name back to an id: "Big box" is "big-box"; undefined when no id can be made of it. */
+export function idOf(name: string): string | undefined {
+  const id = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return id === '' ? undefined : id
+}

@@ -9,13 +9,21 @@ const css = readFileSync(join(SRC, 'features/ui/ui.css'), 'utf8')
 
 /** The declarations inside the first rule whose selector is exactly `selector`. */
 function rule(selector: string): Map<string, string> {
-  const at = css.indexOf(`${selector} {`)
+  const wanted = selector.replaceAll("'", '"')
+  const at = css.indexOf(`${wanted} {`)
   if (at < 0) throw new Error(`no rule for ${selector}`)
   const body = css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at))
   const found = new Map<string, string>()
   for (const line of body.split(';')) {
     const colon = line.indexOf(':')
-    if (colon > 0) found.set(line.slice(0, colon).trim(), line.slice(colon + 1).trim().replace(/\s+/g, ' '))
+    if (colon > 0)
+      found.set(
+        line.slice(0, colon).trim(),
+        line
+          .slice(colon + 1)
+          .trim()
+          .replace(/\s+/g, ' '),
+      )
   }
   return found
 }

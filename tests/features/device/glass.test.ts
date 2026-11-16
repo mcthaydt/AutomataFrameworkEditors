@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest'
-import { glassOn } from '#src/features/device/glass.ts'
-import { ME_DEFAULT } from '#src/features/device/me.ts'
+import { glassOn, ME_DEFAULT } from '#src/features/device/device.ts'
 
 const fine = { blur: true, lessSeeThrough: false, moreContrast: false }
 

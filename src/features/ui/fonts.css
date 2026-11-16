@@ -1,0 +1,7 @@
+/* The editors' three type families, self-hosted from their packages (the page's rules allow nothing from another
+   address). Fraunces is for the few big titles only, Onest for everything else, JetBrains Mono for numbers. The
+   Korean, Japanese and Chinese partners load only for their language (`fonts.ts`). */
+@import "@fontsource-variable/fraunces/wght.css";
+@import "@fontsource-variable/onest/wght.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
