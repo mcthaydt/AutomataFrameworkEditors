@@ -369,7 +369,8 @@
     if (id === 'map') return onmap()
     if (!id.startsWith('level:')) return
     const next = id.slice('level:'.length)
-    if (next !== levelId || onMap) leave(() => go({ screen: 'level', ...here, level: next }))
+    // Another level is another file of the same game: nothing is left behind, so nothing is asked.
+    if (next !== levelId || onMap) go({ screen: 'level', ...here, level: next })
   }
   /** The Map button: the map when a level is open, the level that was open when the map is. */
   function onmap(): void {

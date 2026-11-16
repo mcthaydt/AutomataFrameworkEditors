@@ -57,9 +57,12 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
 
     await page.locator('button.part').click()
     await page.getByRole('menuitem', { name: 'Room 2', exact: true }).click()
-    // Another level is another file, not a way out of the game: the changes stay on the device.
-    await page.getByRole('button', { name: WORDS.leaveYes }).click()
+    // Another level is another file of the same game, not a way out of it: nothing is asked and Room 1's copy stays.
     await page.locator('[data-bar]').getByText('Room 2').first().waitFor()
+    expect(await page.getByText(WORDS.leaveAsk).count()).toBe(0)
+    expect(
+      await page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.endsWith('room-1.json'))),
+    ).toEqual(['af.draft:grandma/links-game:content/levels/room-1.json'])
     await nudgeCrate(page)
 
     await openMapFromBar(page)
