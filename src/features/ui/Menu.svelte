@@ -1,25 +1,18 @@
 <script lang="ts">
   // A short list of things to do. The arrow keys move through every row, a row that cannot act is still reachable and
   // says why under its word (so a person is never left guessing), and Escape closes it. Enter or a tap picks.
-  import { onMount } from 'svelte'
+  import { onMount, type Snippet } from 'svelte'
   import Icon from './Icon.svelte'
-  import type { IconName } from './icons.ts'
+  import type { MenuItem } from './menu.ts'
 
-  interface Item {
-    id: string
-    words: string
-    icon?: IconName
-    /** Its key, shown at the end of the row ("V"). */
-    key?: string
-    /** Why this row cannot act ("A level has one Start"). A row with no reason can. */
-    off?: string
-  }
   interface Props {
-    items: readonly Item[]
+    items: readonly MenuItem[]
+    /** Something above the rows: who the menu is about. */
+    head?: Snippet
     onpick: (id: string) => void
     onclose: () => void
   }
-  let { items, onpick, onclose }: Props = $props()
+  let { items, head, onpick, onclose }: Props = $props()
 
   let list: HTMLElement | undefined
   const rows = (): HTMLElement[] => [...(list?.querySelectorAll<HTMLElement>('[role=menuitem]') ?? [])]
@@ -44,27 +37,35 @@
     all[next]?.focus()
   }
 
-  function pick(item: Item): void {
+  function pick(item: MenuItem): void {
     if (item.off === undefined) onpick(item.id)
   }
 </script>
 
 <div class="menu" role="menu" tabindex="-1" bind:this={list} onkeydown={keys}>
+  {#if head}<div class="head">{@render head()}</div>{/if}
   {#each items as item (item.id)}
-    <button
-      type="button"
-      role="menuitem"
-      class="item"
-      aria-disabled={item.off === undefined ? undefined : 'true'}
-      onclick={() => pick(item)}
-    >
-      {#if item.icon}<Icon name={item.icon} />{/if}
-      <span class="what">
-        <span class="words">{item.words}</span>
-        {#if item.off}<span class="why">{item.off}</span>{/if}
-      </span>
-      {#if item.key}<kbd>{item.key}</kbd>{/if}
-    </button>
+    {#if item.kind === 'heading'}
+      <div class="heading" role="presentation">{item.words}</div>
+    {:else if item.kind === 'rule'}
+      <hr />
+    {:else}
+      <button
+        type="button"
+        role="menuitem"
+        class="item"
+        aria-disabled={item.off === undefined ? undefined : 'true'}
+        aria-current={item.here ? 'true' : undefined}
+        onclick={() => pick(item)}
+      >
+        {#if item.icon}<Icon name={item.icon} />{/if}
+        <span class="what">
+          <span class="words">{item.words}</span>
+          {#if item.off}<span class="why">{item.off}</span>{:else if item.about}<span class="why">{item.about}</span>{/if}
+        </span>
+        {#if item.here}<Icon name="check" />{:else if item.key}<kbd>{item.key}</kbd>{/if}
+      </button>
+    {/if}
   {/each}
 </div>
 
@@ -95,6 +96,20 @@
     font: inherit;
     text-align: left;
     cursor: pointer;
+  }
+  .head {
+    padding: 8px 12px;
+  }
+  .heading {
+    padding: 8px 12px 4px;
+    font-size: 12px;
+    color: var(--quiet);
+  }
+  hr {
+    width: 100%;
+    margin: 4px 0;
+    border: 0;
+    border-top: 1px solid var(--g-edge);
   }
   .item:hover,
   .item:focus-visible {

@@ -1,17 +1,21 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  chooseFromMenu,
   dragByTouch,
   type JourneyPage,
+  menuWords,
   openLevel,
   openPage,
-  pressSave,
+  pressPut,
+  putButton,
+  putButtonSaying,
+  quietButton,
   setupJourneys,
   signIn,
-  statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
 
@@ -35,8 +39,10 @@ const crateAt = (x: number): Level => ({
   things: level1.things.map((t) => (t.id === 'crate-1' ? { ...t, x } : t)),
 })
 const theirs = writeContent('level', crateAt(10.5) as never)
-const says = (j: JourneyPage, words: string) =>
-  expect.poll(async () => (await statusLine(j.page).textContent())?.trim()).toBe(words)
+const says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
+/** The main button offers a copy and not a save: what a person who may not save is shown once something changed. */
+const offersCopy = (j: JourneyPage) => putButtonSaying(j.page, KEEP).waitFor()
+const KEEP = String(wordsIn('en').bar.keepCopy)
 const text = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 const crateX = (j: JourneyPage) => expect.poll(() => thingNamed(j.page, 'crate-1').getAttribute('data-x'))
 const LEVEL = '#/game/grandma/crate-game/level/level-1'
@@ -50,7 +56,7 @@ const asGrandma = async (): Promise<JourneyPage> => {
 }
 const moveAndSave = async (j: JourneyPage): Promise<void> => {
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(j.page).click()
+  await pressPut(j.page)
 }
 
 describe('when someone else changed the level first', () => {
@@ -72,14 +78,14 @@ describe('when someone else changed the level first', () => {
     const j = await clash()
     await j.page.getByRole('button', { name: WORDS.takeTheirs }).click()
     await crateX(j).toBe('10.5')
-    await says(j, WORDS.statusClean)
+    await quietButton(j.page).waitFor()
   })
 
   test('"Keep my change for now" keeps my crate where I put it, and Save says the same again', async () => {
     const j = await clash()
     await j.page.getByRole('button', { name: WORDS.keepMine }).click()
     await crateX(j).toBe('8.5')
-    await pressSave(j.page).click()
+    await pressPut(j.page)
     await text(j, WORDS.changedElsewhere)
     expect(repoOf(j).commits).toEqual([])
   })
@@ -89,11 +95,11 @@ test('offline: the offline words; back online, Save works and makes one commit',
   const j = await asGrandma()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await j.page.context().setOffline(true)
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await text(j, WORDS.offline)
   await crateX(j).toBe('8.5')
   await j.page.context().setOffline(false)
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await says(j, WORDS.savedDirect)
   expect(repoOf(j).commits).toHaveLength(1)
 })
@@ -116,7 +122,7 @@ test('signed out everywhere: sign in again and my unsaved crate is where I left 
   await thingNamed(j.page, 'crate-1').waitFor()
   await text(j, WORDS.draftBack)
   await crateX(j).toBe('8.5')
-  await pressSave(j.page).click()
+  await pressPut(j.page)
   await says(j, WORDS.savedDirect)
 })
 
@@ -126,7 +132,7 @@ test('a reload with an unsaved change brings it back, and says so', async () => 
   await j.page.reload()
   await text(j, WORDS.draftBack)
   await crateX(j).toBe('8.5')
-  await says(j, WORDS.statusDirty)
+  await putButton(j.page).waitFor()
 })
 
 test('a reload after someone else changed the level drops my change, and says so', async () => {
@@ -138,23 +144,24 @@ test('a reload after someone else changed the level drops my change, and says so
   await crateX(j).toBe('10.5')
 })
 
-test('Back with an unsaved change asks first; Stay stays; Leave without saving leaves', async () => {
+test('Leaving with an unsaved change asks first; Stay stays; Leave without saving leaves', async () => {
   const j = await asGrandma()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await j.page.getByRole('button', { name: WORDS.back }).click()
+  await chooseFromMenu(j.page, menuWords.yourGames)
   await text(j, WORDS.leaveAsk)
   await j.page.getByRole('button', { name: WORDS.leaveNo }).click()
   await thingNamed(j.page, 'crate-1').waitFor()
-  await j.page.getByRole('button', { name: WORDS.back }).click()
+  await chooseFromMenu(j.page, menuWords.yourGames)
   await j.page.getByRole('button', { name: WORDS.leaveYes }).click()
-  await j.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await j.page.getByRole('heading', { level: 1, name: WORDS.pickTitle }).waitFor()
   expect(repoOf(j).commits).toEqual([])
   // The change that was left is gone for good.
-  await j.page.getByRole('link', { name: 'level-1' }).click()
+  await j.page.getByRole('link', { name: 'crate-game' }).click()
+  await thingNamed(j.page, 'crate-1').waitFor()
   await crateX(j).toBe('6.5')
 })
 
-test('someone who may only look can try a move, never sees Save light up, and nothing is written', async () => {
+test('someone who may only look can try a move, is offered a copy and not a save, and nothing is written', async () => {
   const j = await open('ipadUpright', 'kid')
   share(j, 'look')
   await signIn(j.page)
@@ -162,7 +169,7 @@ test('someone who may only look can try a move, never sees Save light up, and no
   await text(j, WORDS.lookOnly)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await crateX(j).toBe('8.5')
-  expect(await pressSave(j.page).isDisabled()).toBe(true)
+  await offersCopy(j)
   expect(repoOf(j).commits).toEqual([])
 })
 
@@ -172,23 +179,24 @@ describe('someone who has not signed in', () => {
     await j.page.goto(`${j.site}/${LEVEL}`)
     await thingNamed(j.page, 'crate-1').waitFor()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-    await pressSave(j.page).click()
-    await text(j, WORDS.signInToSave)
+    await offersCopy(j)
     return j
   }
 
-  test('moves the crate and presses Save: asked to sign in, and the API was never asked to save', async () => {
+  test('moves the crate: offered a copy to keep, and the API was never asked to save', async () => {
     const j = await visit()
+    await pressPut(j.page)
+    await j.page.getByRole('button', { name: WORDS.copyKeep }).waitFor()
     expect(j.requests.filter((r) => r.includes('/api/save'))).toEqual([])
     await crateX(j).toBe('8.5')
   })
 
-  test('signs in as grandma: back on the level, the crate is where they put it, and Save puts it in the game', async () => {
+  test('signs in as grandma: back on the level, the crate is where they put it, and the main button puts it in the game', async () => {
     const j = await visit()
-    await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+    await signIn(j.page)
     await text(j, WORDS.draftBack)
     await crateX(j).toBe('8.5')
-    await pressSave(j.page).click()
+    await pressPut(j.page)
     await says(j, WORDS.savedDirect)
     expect(repoOf(j).commits.map((c) => [c.branch, c.author])).toEqual([['main', 'grandma']])
   })
@@ -197,27 +205,27 @@ describe('someone who has not signed in', () => {
     const j = await visit()
     share(j, 'suggest')
     j.fake.person = 'kid'
-    await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+    await signIn(j.page)
     await text(j, WORDS.draftBack)
-    await pressSave(j.page).click()
+    await pressPut(j.page)
     await says(j, WORDS.savedSuggestion)
     expect(repoOf(j).commits.map((c) => c.branch)).toEqual(['automata/kid'])
   })
 
-  test('signs in as stranger (everyone = "look"): the crate is still where they put it, and Save says lookOnly', async () => {
+  test('signs in as stranger (everyone = "look"): the crate is still where they put it, and only a copy is offered', async () => {
     const j = await visit()
     share(j, 'look')
     j.fake.person = 'stranger'
-    await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+    await signIn(j.page)
     await text(j, WORDS.lookOnly)
     await crateX(j).toBe('8.5')
-    expect(await pressSave(j.page).isDisabled()).toBe(true)
+    await offersCopy(j)
   })
 
   test('cancels on GitHub: back on the level, the crate still where they put it, signInCancelled', async () => {
     const j = await visit()
     j.fake.signIn = 'deny'
-    await j.page.getByRole('button', { name: WORDS.signIn }).first().click()
+    await chooseFromMenu(j.page, menuWords.signIn)
     await text(j, WORDS.signInCancelled)
     await crateX(j).toBe('8.5')
   })

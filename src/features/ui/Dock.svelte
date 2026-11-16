@@ -8,12 +8,16 @@
     /** What a screen reader calls it ("Top bar"). */
     label: string
     side?: 'top' | 'bottom' | 'left' | 'right'
+    /** No padding: the controls inside fill its height, which is then exactly what the caller sets. */
+    tight?: boolean
+    /** As big as what is in it, in the middle of its edge, instead of the whole edge. */
+    fit?: boolean
     children: Snippet
   }
-  let { label, side = 'top', children }: Props = $props()
+  let { label, side = 'top', tight = false, fit = false, children }: Props = $props()
 </script>
 
-<div class="dock {side}" role="group" aria-label={label}>
+<div class="dock {side}" class:tight class:fit role="group" aria-label={label}>
   {@render children()}
 </div>
 
@@ -33,6 +37,13 @@
     box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
+  }
+  .tight {
+    padding: 0;
+    border: 0;
+    outline: 1px solid var(--g-edge);
+    outline-offset: -1px;
+    gap: 0;
   }
   .top {
     top: max(8px, env(safe-area-inset-top));
@@ -58,5 +69,17 @@
     bottom: max(8px, env(safe-area-inset-bottom));
     flex-direction: column;
     align-items: stretch;
+  }
+  .bottom.fit {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 16px);
+  }
+  .left.fit,
+  .right.fit {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 </style>

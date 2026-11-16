@@ -16,6 +16,7 @@ const open = async (...args: Parameters<typeof openPage>): Promise<JourneyPage> 
   journey = await openPage(...args)
   return journey
 }
+const inGame = (j: JourneyPage) => j.page.locator('[data-bar]').waitFor()
 const title = (j: JourneyPage, text: string) =>
   j.page.getByRole('heading', { level: 1, name: text }).waitFor()
 
@@ -67,14 +68,14 @@ test('a sign-in that is turned down lands on Welcome saying so', async () => {
   expect(new URL(j.page.url()).search).toBe('')
 })
 
-test('a game opens signed out with no word about signing in, and the top bar signIn comes back to that game', async () => {
+test('a game opens signed out with no word about signing in, and signing in from the menu of the game comes back to that game', async () => {
   const j = await open('ipadUpright')
   await j.page.goto(`${j.site}/#/game/grandma/crate-game`)
-  await title(j, 'Crate Game')
+  await inGame(j)
   expect(await j.page.getByText(WORDS.welcomeLine).count()).toBe(0)
   expect(j.requests.filter((r) => /\/api\/(games|token)/.test(r))).toEqual([])
   await signIn(j.page)
-  await title(j, 'Crate Game')
+  await inGame(j)
   expect(new URL(j.page.url()).hash).toBe('#/game/grandma/crate-game')
 })
 
@@ -83,7 +84,7 @@ test('a screen about a person shows Welcome, and signing in lands on that screen
   await j.page.goto(`${j.site}/#/game/grandma/crate-game/share`)
   await title(j, WORDS.appName)
   await signIn(j.page)
-  await title(j, 'Crate Game')
+  await title(j, WORDS.shareTitle('Crate Game'))
   expect(new URL(j.page.url()).hash).toBe('#/game/grandma/crate-game/share')
 })
 

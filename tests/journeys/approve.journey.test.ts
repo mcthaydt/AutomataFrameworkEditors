@@ -4,16 +4,19 @@ import { writeAccess } from '#src/features/access/access.ts'
 import { WORDS } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  chooseFromMenu,
   dragByTouch,
+  gameMenuRows,
   type JourneyPage,
+  menuWords,
   openGame,
   openLevel,
   openPage,
-  pressSave,
+  pressPut,
+  quietButton,
   type SIZES,
   setupJourneys,
   signIn,
-  statusLine,
   thingNamed,
 } from '../fixtures/journey.ts'
 
@@ -66,7 +69,7 @@ async function kidHasSaved(size: Size): Promise<JourneyPage> {
   await signIn(kid.page)
   await openLevel(kid.page)
   await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(kid.page).click()
+  await pressPut(kid.page)
   await text(kid, WORDS.savedSuggestion)
   await kid.close()
   return kid
@@ -80,7 +83,7 @@ async function gameAs(size: Size, person: Person): Promise<JourneyPage> {
   return j
 }
 async function openFirstChange(j: JourneyPage): Promise<void> {
-  await j.page.getByRole('link', { name: /waiting/ }).click()
+  await chooseFromMenu(j.page, menuWords.waitingRow(1))
   await j.page.getByRole('heading', { level: 1, name: WORDS.waitingTitle }).waitFor()
   await j.page.locator('a.row').first().click()
   await thingNamed(j.page, 'crate-1').waitFor()
@@ -91,7 +94,7 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
   test('grandpa opens the game, sees "1 change is waiting", opens it, and sees the crate ringed where kid put it', async () => {
     await kidHasSaved(size)
     const g = await gameAs(size, 'grandpa')
-    await text(g, WORDS.waitingRow(1))
+    expect(await gameMenuRows(g.page)).toContainEqual(expect.stringContaining(menuWords.waitingRow(1)))
     await openFirstChange(g)
     expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe('8.5')
     expect(await thingNamed(g.page, 'crate-1').getAttribute('data-marked')).toBe('')
@@ -111,11 +114,10 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
 
     // Then kid opens the game and sees the crate there, with nothing waiting.
     const kid = await gameAs(size, 'kid')
-    expect(await kid.page.getByText(WORDS.waitingRow(1)).count()).toBe(0)
-    await kid.page.getByRole('link', { name: 'level-1' }).click()
+    expect((await gameMenuRows(kid.page)).filter((row) => row.includes(menuWords.waitingRow(1)))).toEqual([])
     await thingNamed(kid.page, 'crate-1').waitFor()
     expect(await thingNamed(kid.page, 'crate-1').getAttribute('data-x')).toBe('8.5')
-    expect(await statusLine(kid.page).textContent()).toBe(WORDS.statusClean)
+    await quietButton(kid.page).waitFor()
   })
 })
 
@@ -130,11 +132,10 @@ test("grandpa turns it down instead: Turned down; the game is as it was; kid's n
   expect(repo.pulls[0]?.state).toBe('closed')
 
   const kid = await gameAs('ipadUpright', 'kid')
-  await kid.page.getByRole('link', { name: 'level-1' }).click()
   await thingNamed(kid.page, 'crate-1').waitFor()
   expect(await thingNamed(kid.page, 'crate-1').getAttribute('data-x')).toBe('6.5')
   await dragByTouch(kid.page, 'crate-1', { dx: 1, dy: 0 })
-  await pressSave(kid.page).click()
+  await pressPut(kid.page)
   await text(kid, WORDS.savedSuggestion)
   expect(repo.pulls.filter((p) => p.state === 'open')).toHaveLength(1)
 })
@@ -183,11 +184,11 @@ test('grandpa cannot approve his own: the words say someone else must', async ()
   await signIn(me.page)
   await openLevel(me.page)
   await dragByTouch(me.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressSave(me.page).click()
+  await pressPut(me.page)
   await text(me, WORDS.savedSuggestion)
-  await me.page.getByRole('button', { name: WORDS.back }).click()
   // The only change waiting is his own: the page does not tell him someone made a change for him to look at.
-  await text(me, WORDS.waitingRow(1))
+  await me.page.reload()
+  expect(await gameMenuRows(me.page)).toContainEqual(expect.stringContaining(menuWords.waitingRow(1)))
   expect(await me.page.getByText(WORDS.tipApprove).count()).toBe(0)
   await openFirstChange(me)
   await text(me, WORDS.ownChange)
@@ -259,7 +260,7 @@ test('someone else was quicker: Approve says the change is not waiting any more,
   expect(await slow.page.getByText(WORDS.cantFindGame).count()).toBe(0)
   expect(await button(slow, WORDS.tryAgain).count()).toBe(0)
   await button(slow, WORDS.back).click()
-  await slow.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
+  await slow.page.locator('[data-bar]').waitFor()
 })
 
 test('an old link to a change that is gone says so, and not that the game is missing', async () => {
@@ -276,7 +277,7 @@ test('a change that moves nothing in a level says it does more than move things'
   repoOf(g).put('automata/kid', LEVEL_PATH, fixtureFiles[LEVEL_PATH] ?? '')
   const crate = fixtureFiles['content/characters/crate.json'] ?? ''
   repoOf(g).put('automata/kid', 'content/characters/crate.json', crate.replace('#c9a227', '#c9a228'))
-  await g.page.getByRole('link', { name: /waiting/ }).click()
+  await chooseFromMenu(g.page, menuWords.waitingRow(1))
   await g.page.locator('a.row').first().click()
   await text(g, WORDS.changeOther)
   expect(await g.page.locator('[data-thing]').count()).toBe(0)

@@ -1,0 +1,15 @@
+import { expect, test } from 'vitest'
+import { type Saying, say, unsay } from '#src/features/world/events.ts'
+
+const one: Saying = { id: 'a', kind: 'info', text: 'one' }
+const two: Saying = { id: 'b', kind: 'good', text: 'two' }
+
+test('a new saying goes last, and one with the same id takes the old one’s place', () => {
+  expect(say([one], two)).toEqual([one, two])
+  expect(say([one, two], { ...one, text: 'again' })).toEqual([{ ...one, text: 'again' }, two])
+})
+
+test('a saying can be taken away by its id, and one that is not there changes nothing', () => {
+  expect(unsay([one, two], 'a')).toEqual([two])
+  expect(unsay([one], 'zzz')).toEqual([one])
+})

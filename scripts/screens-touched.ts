@@ -17,14 +17,16 @@ export const EVERY_SCENE = '.*'
  */
 export const SCREEN_FILES: Readonly<Record<string, string>> = {
   'src/features/suite/Welcome.svelte': 'welcome-|visitor-',
-  'src/features/suite/AddEditor.svelte': 'add-the-editor',
-  'src/features/suite/PickGame.svelte': 'pick-a-game|add-the-editor',
-  'src/features/suite/GameHome.svelte': 'game-|not-a-game|visitor-',
-  'src/features/suite/LevelScreen.svelte': 'level-|visitor-|waiting-change-',
-  'src/features/levels/Levels.svelte': 'level-|visitor-|waiting-change-',
-  'src/features/suite/Waiting.svelte': 'waiting-list',
-  'src/features/suite/WaitingChange.svelte': 'waiting-change-',
-  'src/features/suite/Share.svelte': 'share-',
+  'src/features/team/Games.svelte': 'pick-a-game|add-the-editor|game-cant-be-reached',
+  'src/features/world/Opening.svelte': 'game-|not-a-game|world-|level-|visitor-',
+  'src/features/world/World.svelte': 'world-|level-|visitor-',
+  'src/features/world/Events.svelte': 'world-|level-|visitor-',
+  'src/features/world/Nudge.svelte': 'level-thing-picked',
+  'src/features/world/ThingRow.svelte': 'level-thing-picked',
+  'src/features/levels/Stage.svelte': 'world-|level-|visitor-',
+  'src/features/team/Waiting.svelte': 'waiting-list',
+  'src/features/team/WaitingChange.svelte': 'waiting-change-',
+  'src/features/team/Share.svelte': 'share-',
 }
 
 /** A file whose change is seen on a screen: the plan's own test for "something seen changed". */

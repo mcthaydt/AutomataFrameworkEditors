@@ -5,16 +5,19 @@ import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { type Browser, type BrowserContext, chromium, firefox, type Page, webkit } from 'playwright'
 import { afterAll, beforeAll } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
+import { nameOf, type Row, WORDS, wordsIn } from '#src/features/words/words.ts'
 import { DEMO } from './api.ts'
 import { cutOffTracker } from './cut-off.ts'
 import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/server.ts'
 import { type Site, startSite } from './serve.ts'
 
+/** The five windows the editor is drawn for: an iPad both ways, a phone both ways, and a computer. */
 export const SIZES = {
-  ipadUpright: { width: 820, height: 1180 },
-  ipadSideways: { width: 1180, height: 820 },
+  ipadUpright: { width: 834, height: 1210 },
+  ipadSideways: { width: 1210, height: 834 },
   phone: { width: 390, height: 844 },
+  phoneSideways: { width: 844, height: 390 },
+  computer: { width: 1280, height: 800 },
 } as const
 
 const SITE_PORT = 4800
@@ -126,9 +129,54 @@ export async function openPage(
   }
 }
 
-/** Presses the sign-in Button wherever it is, and waits until the page has finished signing in and cleaned its address. */
+const MENUS = wordsIn('en').menus
+const sayRow = (row: Row, ...parts: (string | number)[]): string =>
+  typeof row === 'function' ? row(...parts) : row
+
+/** What the game's menu says for `key`, in English. */
+export const menuWords = {
+  whoCanChange: sayRow(MENUS.whoCanChange),
+  waitingRow: (n: number) => sayRow(MENUS.waitingRow, n),
+  keepCopy: (level: string) => sayRow(MENUS.keepCopyOf, nameOf(level)),
+  yourGames: sayRow(MENUS.yourGames),
+  signIn: sayRow(MENUS.signIn),
+  signOut: sayRow(MENUS.signOut),
+} as const
+
+/**
+ * Opens the game's menu and presses a row of it. On a narrow phone the bar has no room for the game's button, so the
+ * same rows are at the end of the part menu.
+ */
+export async function chooseFromMenu(page: Page, row: string | RegExp): Promise<void> {
+  const game = page.locator('button.game')
+  await page.locator('[data-bar]').waitFor()
+  await ((await game.count()) > 0 ? game : page.locator('button.part')).click()
+  await page.getByRole('menuitem', { name: row }).click()
+}
+
+/** The words of every row of the game's menu, as a person reads them; the menu is shut again afterwards. */
+export async function gameMenuRows(page: Page): Promise<string[]> {
+  const game = page.locator('button.game')
+  await page.locator('[data-bar]').waitFor()
+  await ((await game.count()) > 0 ? game : page.locator('button.part')).click()
+  await page.getByRole('menuitem').first().waitFor()
+  const rows = await page.getByRole('menuitem').allTextContents()
+  await page.keyboard.press('Escape')
+  return rows
+}
+
+/** The sign-in Button on the first screen, or the game's menu once a game is open. */
+async function pressSignIn(page: Page): Promise<void> {
+  const bar = page.locator('[data-bar]')
+  const first = page.getByRole('button', { name: WORDS.signIn }).first()
+  await bar.or(first).first().waitFor()
+  if ((await bar.count()) > 0) await chooseFromMenu(page, menuWords.signIn)
+  else await first.click()
+}
+
+/** Presses sign-in wherever it is, and waits until the page has finished signing in and cleaned its address. */
 export async function signIn(page: Page): Promise<void> {
-  await page.getByRole('button', { name: WORDS.signIn }).first().click()
+  await pressSignIn(page)
   await page.waitForFunction(
     () => location.search === '' && localStorage.getItem('af.tokens') !== null,
     undefined,
@@ -157,9 +205,6 @@ export async function picture(page: Page, name: string): Promise<void> {
     if (w.__refused !== undefined) w.__refused.length = keep
   }, refusedBefore)
 }
-
-/** The line under the editor's title that says whether there is something to save. */
-export const statusLine = (page: Page) => page.locator('.status')
 
 /** A thing in the level, by its id: a button laid over the picture, with its place in tiles. */
 export const thingNamed = (page: Page, id: string) => page.locator(`[data-thing="${id}"]`)
@@ -225,23 +270,36 @@ export async function pictureColourBeside(page: Page, id: string, tiles: number)
 }
 
 /**
- * Opens a game's own page by its address, the way a link someone was sent does. Someone who does not own the game
- * (grandpa, kid) has no list to pick it from until they have opened it once, so a journey that is not about the list
- * goes straight to the game.
+ * Opens a game by its address, the way a link someone was sent does: it opens on its start level. Someone who does not
+ * own the game (grandpa, kid) has no list to pick it from until they have opened it once, so a journey that is not about
+ * the list goes straight to the game.
  */
 export async function openGame(page: Page, game = 'crate-game'): Promise<void> {
   await page.evaluate((hash) => {
     location.hash = hash
   }, `#/game/grandma/${game}`)
-  await page.getByRole('link', { name: 'level-1' }).waitFor()
+  await page.locator('[data-bar]').waitFor()
 }
 
-/** Opens `game`, then its level. */
+/** Opens `game` on `level`: the start level opens by itself, any other is picked from the part menu. */
 export async function openLevel(page: Page, game = 'crate-game', level = 'level-1'): Promise<void> {
   await openGame(page, game)
-  await page.getByRole('link', { name: level }).click()
+  if (level !== 'level-1') {
+    await page.locator('button.part').click()
+    await page.getByRole('menuitem', { name: nameOf(level), exact: true }).click()
+  }
   await thingNamed(page, 'crate-1').waitFor()
 }
 
-/** Presses Save. */
-export const pressSave = (page: Page) => page.getByRole('button', { name: WORDS.save, exact: true })
+/** The one button that puts what was changed in the game, sends it to be checked, or keeps a copy: when there is any. */
+export const putButton = (page: Page) => page.locator('button.put:not(.quiet)')
+
+/** The main button, when it says `words`: a change is there and this is what it offers. */
+export const putButtonSaying = (page: Page, words: string) =>
+  page.locator('button.put:not(.quiet)', { hasText: words })
+
+/** The same place when nothing has changed here (or the person's change is waiting): the button is quiet. */
+export const quietButton = (page: Page) => page.locator('button.put.quiet')
+
+/** Presses the main button. */
+export const pressPut = (page: Page) => putButton(page).click()

@@ -3,21 +3,19 @@
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
+import { bar } from './bar.ts'
 import { first } from './first.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
+import { menus } from './menus.ts'
+import { panels } from './panels.ts'
 import { shell } from './shell.ts'
 
+export { bar } from './bar.ts'
 export { first } from './first.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
+export { menus } from './menus.ts'
+export { panels } from './panels.ts'
 export { shell } from './shell.ts'
-
-const YOU_ARE: Readonly<Record<string, string>> = {
-  look: 'You can look at this game.',
-  suggest: 'You can change this game. Someone will approve your changes.',
-  approve: "You can change this game, and approve other people's changes.",
-  edit: 'You can change this game. Your changes go straight in.',
-  owner: 'This is your game. You can change it, and choose who helps.',
-}
 
 export const WORDS = Object.freeze({
   appName: 'Automata Editors',
@@ -27,8 +25,8 @@ export const WORDS = Object.freeze({
     "Signing in is how your changes get saved and shared. It's only so people know who you are. You won't need GitHub after that.",
   noAccount: "No GitHub account? Make one, it's free.",
   signInNotReady: "Sign-in isn't ready on this site yet.",
-  signInCancelled: "You didn't sign in. Press the button to try again.",
-  signInFailed: "Sign-in didn't work. Press the button to try again.",
+  signInCancelled: "You didn't sign in. You can try again whenever you like.",
+  signInFailed: "Sign-in didn't work. You can try again.",
   signedOutAgain: "You've been signed out. Sign in again to keep going.",
   signOut: 'Sign out',
   pickFind: 'Find a game by name',
@@ -43,37 +41,24 @@ export const WORDS = Object.freeze({
   visitorCan: 'Try anything you like. To save your changes into the game, sign in.',
   cantReach: "Can't reach the game right now. Check the internet and try again.",
   tryAgain: 'Try again',
-  gameLevels: 'Levels',
-  gameMoreSoon: 'More editors are coming. For now you can change levels.',
   mineWaiting: 'Your changes are waiting for approval. This is your version of the game.',
   back: 'Back',
-  /** What a person may do in a game, said to them. Anything unknown is said as "look", the safest. */
-  youAre: (level: string): string => YOU_ARE[level] ?? YOU_ARE.look ?? '',
   pickTitle: 'Pick a game',
   loading: 'Getting your game…',
-  hintIdle: 'Touch a box and drag it to move it.',
-  hintSelected: (name: string): string => `Drag ${name}, or press the arrows.`,
   thingLabel: (name: string): string => `${name}. Drag to move it.`,
   moveLeft: 'Move left',
   moveRight: 'Move right',
   moveUp: 'Move up',
   moveDown: 'Move down',
-  undo: 'Undo',
-  save: 'Save',
-  statusClean: 'Nothing to save.',
-  statusDirty: "You have changes that aren't saved.",
-  statusSaving: 'Saving…',
   savedDirect: 'Saved. Your game has the change.',
   savedSuggestion: 'Saved. Your change is waiting for approval.',
   lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
-  signInToSave: 'Sign in to save this into the game. Your change will still be here when you come back.',
   changedElsewhere: "Someone changed this level while you were working, so your change wasn't saved.",
   takeTheirs: 'Show their version (drop my change)',
   keepMine: 'Keep my change for now',
-  offline:
-    "Can't reach the game right now. Your change is still here. Check the internet and press Save again.",
-  busy: 'Things are busy. Your change is still here. Wait a minute and press Save again.',
-  saveFailed: "Something went wrong and your change wasn't saved. Press Save again.",
+  offline: "Can't reach the game right now. Your change is still here. Check the internet and try again.",
+  busy: 'Things are busy. Your change is still here. Wait a minute and try again.',
+  saveFailed: "Something went wrong and your change wasn't saved. Try again.",
   blockedOwner:
     "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
   leaveAsk: "You have changes that aren't saved. Leave anyway?",
@@ -82,7 +67,6 @@ export const WORDS = Object.freeze({
   draftBack: "We brought back the change you hadn't saved.",
   draftDropped: 'This level changed while you were away, so your unsaved change was dropped.',
   solid: 'That spot is solid ground. Try another spot.',
-  waitingRow: (n: number): string => (n === 1 ? '1 change is waiting' : `${n} changes are waiting`),
   waitingTitle: 'Waiting changes',
   waitingNone: 'Nothing is waiting.',
   waitingBy: (name: string): string => `From ${name}`,
@@ -102,7 +86,6 @@ export const WORDS = Object.freeze({
     "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
   notHere: "This change touches more than the game's levels, so it can't be approved here.",
   cantApprove: "You can look at this change, but you can't approve it.",
-  share: 'Share',
   shareTitle: (game: string): string => `Share ${game}`,
   shareLinkLabel: 'Send this link to the people you want to help:',
   copyLink: 'Copy the link',
@@ -145,19 +128,19 @@ export const WORDS = Object.freeze({
   guideCount: (n: number, of: number): string => `Step ${n} of ${of}`,
   guideStart: 'Try the example game, or sign in to open your own.',
   guideStartPlain: 'First, sign in.',
-  guideSaveVisitor: 'Nice. To put it in the game, press Save and sign in. Or keep a copy.',
+  guideSaveVisitor: "Nice. To put it in the game, sign in from the game's menu. Or keep a copy.",
   guideDoneCopy: 'You did it. You have a copy. Sign in whenever you want to save into a game.',
   guideAdd:
     "Next, let the editor open your game. Press the button, choose your game on GitHub, and you'll come back here. You only do this once.",
   guidePick: 'Now pick your game.',
   guidePickLevel: 'Pick a level to change.',
   guideMove: 'Touch a box and drag it somewhere new.',
-  guideSave: 'Nice. Now press Save.',
+  guideSave: 'Nice. Now press the button at the top right.',
   guideDoneDirect: 'You did it. The change is in your game.',
   guideDoneSuggestion: 'You did it. Your change is waiting for someone to approve it.',
   guideLook: 'You can look around this game. To change things, ask its owner.',
   guideHide: 'Hide these tips',
-  tipShare: 'Want help with your game? Press Share to let someone in.',
+  tipShare: "Want help with your game? Open the game's menu to let someone in.",
   tipApprove: 'Someone made a change for you to look at. Open it to approve it or turn it down.',
   tipGotIt: 'Got it',
   // The one word beside a notice's icon, so its kind never rests on colour alone.
@@ -168,7 +151,10 @@ export const WORDS = Object.freeze({
 
 /** The rows of every area, said in one language. */
 export interface Words {
+  readonly bar: Readonly<Record<keyof (typeof bar)['en'], Row>>
   readonly shell: Readonly<Record<keyof (typeof shell)['en'], Row>>
+  readonly menus: Readonly<Record<keyof (typeof menus)['en'], Row>>
+  readonly panels: Readonly<Record<keyof (typeof panels)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
 }
 
@@ -179,8 +165,11 @@ export interface Words {
 export function wordsIn(lang: Lang): Words {
   if (!LANGUAGES.includes(lang)) return wordsIn('en')
   return {
+    bar: { ...bar.en, ...bar[lang] },
     shell: { ...shell.en, ...shell[lang] },
     first: { ...first.en, ...first[lang] },
+    menus: { ...menus.en, ...menus[lang] },
+    panels: { ...panels.en, ...panels[lang] },
   }
 }
 
