@@ -7,6 +7,7 @@ import { type Browser, type BrowserContext, chromium, firefox, type Page, webkit
 import { afterAll, beforeAll } from 'vitest'
 import { WORDS } from '#src/features/words/words.ts'
 import { DEMO } from './api.ts'
+import { cutOffTracker } from './cut-off.ts'
 import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/server.ts'
 import { type Site, startSite } from './serve.ts'
 
@@ -84,7 +85,15 @@ export async function openPage(
   const page = await context.newPage()
   const requests: string[] = []
   const errors: string[] = []
-  page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`))
+  // A call the page moved on from is not a fault, though WebKit reports it as an error (see cut-off.ts).
+  const cutOff = cutOffTracker()
+  page.on('request', (request) => {
+    requests.push(`${request.method()} ${request.url()}`)
+    cutOff.started(request.url())
+  })
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) cutOff.navigated()
+  })
   page.on('pageerror', (error) => errors.push(`page error: ${error.message}`))
   page.on('console', (message) => {
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
@@ -108,7 +117,7 @@ export async function openPage(
       const refused = await page
         .evaluate(() => (window as unknown as { __refused?: string[] }).__refused ?? [])
         .catch(() => [] as string[])
-      return [...refused.map((r) => `refused: ${r}`), ...errors]
+      return [...refused.map((r) => `refused: ${r}`), ...errors.filter((error) => !cutOff.explains(error))]
     },
     close: () => context.close(),
   }
