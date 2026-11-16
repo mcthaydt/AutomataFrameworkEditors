@@ -66,6 +66,8 @@ export async function openPage(
   person: (typeof PEOPLE)[number] = 'grandma',
   /** True: another person at another window of the same pretend GitHub, with everything it holds kept. */
   keep = false,
+  /** `owner/name`: the demo (the Crate Game) or `LINKS` (three rooms whose doors and edges join). */
+  game: string = DEMO,
 ): Promise<JourneyPage> {
   if (running === undefined) throw new Error('Call setupJourneys() at the top of the journey file.')
   const { fake, site, browser } = running
@@ -106,7 +108,8 @@ export async function openPage(
       errors.push(`console: ${message.text()}`)
     }
   })
-  await page.goto(site.url)
+  // The demo is what a visitor sees first; any other game is opened by its address, as a link someone was sent does.
+  await page.goto(game === DEMO ? site.url : `${site.url}/#/game/${game}`)
   return {
     page,
     fake,

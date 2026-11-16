@@ -81,7 +81,12 @@ tests/workflows/, tests/docs/ checks that read a workflow, package.json, the bun
 docs/superpowers/             plans/, audits/, progress.md (open work), history.md
 ```
 
-Features, lowest first: `words`, `access`, `wire` (used by both sides); `exchange`, `github`, `service` (the API
-side, which uses nothing a page has); `ui`, `api`, `session`, `game`, `levels`, `suite` (the page side, which never
-imports the API side). Features import only from features below them. No top-level `components/`, `services/` or
-`utils/`.
+Features, lowest first: `words`, `access`, `files`, `wire` (used by both sides); `exchange`, `github`, `service` (the API
+side, which uses nothing a page has); `device`, `ui`, `api`, `session`, `game`, `shell`, `levels`, `map`, `play`, `team`,
+`world`, `suite` (the page side, which never imports the API side). Features import only from features below them. No
+top-level `components/`, `services/` or `utils/`. `smol-toml` is for `access` and `files` only (TOML is read there); Pixi
+is for `levels/level-canvas.ts` and `map/map-canvas.ts` only, the page's one Application and the map's pictures.
+
+`biome.json` turns the formatter off for `tests/fixtures/game/content/**` and says why here, since JSON has no comments:
+those files are byte for byte what the framework's `writeContent` writes (a test checks it), and Biome would fold a
+short list onto one line where `writeContent` puts one item to a line.

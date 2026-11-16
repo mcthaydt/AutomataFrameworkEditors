@@ -166,6 +166,7 @@ test('user/installations: the installed repos the person can reach, theirs and o
   const repos = await gh(`/user/installations/${owner}/repositories`, { as: mine, query: '?per_page=100' })
   expect(repos.body.repositories.map((r: any) => `${r.owner.login}/${r.name}`).sort()).toEqual([
     'grandma/crate-game',
+    'grandma/links-game',
     'grandma/not-a-game',
     'grandma/other-game',
   ])
@@ -564,7 +565,7 @@ test('the log keeps every request, oldest first, and reset() empties it', async 
   expect(fake.log).toEqual([])
 })
 
-test('reset() puts the crate back, and the game, the not-a-game and the other game are there', async () => {
+test('reset() puts the crate back, and both games, the not-a-game and the other game are there', async () => {
   const token = await installation()
   await put(token, 'main', moved(), blobSha(level()))
   fake.reset()
@@ -572,6 +573,7 @@ test('reset() puts the crate back, and the game, the not-a-game and the other ga
   expect(main().commits).toEqual([])
   expect([...fake.repos.keys()].sort()).toEqual([
     'grandma/crate-game',
+    'grandma/links-game',
     'grandma/not-a-game',
     'grandma/other-game',
   ])
@@ -670,4 +672,52 @@ test("a person's own token sees a repo's owner type and whether they are an admi
   expect(await opened.value.isAdmin(fake.tokenFor('kid'))).toEqual({ ok: true, value: false })
   // grandma owns it as a person's account would; as an organisation's, she is no admin unless listed.
   expect(await opened.value.isAdmin(fake.tokenFor('grandma'))).toEqual({ ok: true, value: false })
+})
+
+// ---- two games, and a file that is bytes (Task 2b) ------------------------------------------------------------------
+
+const LINKS = '/repos/grandma/links-game'
+
+test('the links game is served beside the crate game, from its own files', async () => {
+  const crate = await installation()
+  const links = await installation('links-game')
+  const room = await gh(`${LINKS}/contents/content/levels/room-1.json`, { as: links })
+  expect(room.status).toBe(200)
+  expect(JSON.parse(fromBase64(room.body.content)).id).toBe('room-1')
+  // The crate game has no room-1, and the links game has no level-1.
+  expect((await gh(`${REPO}/contents/content/levels/room-1.json`, { as: crate })).status).toBe(404)
+  expect((await gh(`${LINKS}/contents/${LEVEL_PATH}`, { as: links })).status).toBe(404)
+})
+
+test("a change to one game's file leaves the other game as it was", async () => {
+  const token = await installation('links-game')
+  const links = fake.repos.get('grandma/links-game')
+  const before = links?.branches.get('main')?.get('automata.toml')
+  main().put('main', 'automata.toml', 'format = 1\n')
+  expect(links?.branches.get('main')?.get('automata.toml')).toBe(before)
+  expect((await gh(`${LINKS}/contents/automata.toml`, { as: token })).body.sha).toBe(blobSha(before ?? ''))
+})
+
+test("a game's picture: base64 with the sha of its bytes, and the raw bytes for the raw media type", async () => {
+  const token = await installation()
+  const bytes = main().bytes.get('art/ground.png')
+  if (bytes === undefined) throw new Error('the crate game has no picture')
+  const json = await gh(`${REPO}/contents/art/ground.png`, { as: token })
+  expect(json.status).toBe(200)
+  expect(json.body.sha).toBe(
+    createHash('sha1').update(`blob ${bytes.byteLength}\0`).update(bytes).digest('hex'),
+  )
+  expect([...Buffer.from(json.body.content.replace(/\n/g, ''), 'base64')]).toEqual([...bytes])
+  const res = await fetch(`${fake.url}${REPO}/contents/art/ground.png`, {
+    headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github.raw+json' },
+  })
+  expect(res.status).toBe(200)
+  expect([...new Uint8Array(await res.arrayBuffer())]).toEqual([...bytes])
+})
+
+test('addGame adds a game that reset() takes away again', async () => {
+  fake.addGame('grandma', 'third-game', new Map([['automata.toml', 'format = 1\n']]))
+  expect(fake.repos.has('grandma/third-game')).toBe(true)
+  fake.reset()
+  expect(fake.repos.has('grandma/third-game')).toBe(false)
 })

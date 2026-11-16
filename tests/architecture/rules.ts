@@ -7,22 +7,42 @@
 export const LAYERS = [
   'words',
   'access',
+  'files',
   'wire',
   'exchange',
   'github',
   'service',
+  'device',
   'ui',
   'api',
   'session',
   'game',
+  'shell',
   'levels',
+  'map',
+  'play',
+  'team',
+  'world',
   'suite',
 ] as const
 
-/** The features that run on Cloudflare as the API: nothing of a page. `access` and `wire` are shared with the page. */
+/** The features that run on Cloudflare as the API: nothing of a page. `access`, `files` and `wire` are shared with the page. */
 export const API_SIDE = ['exchange', 'github', 'service'] as const
 /** The features that run in the browser. They never import the API side; the two sides meet in `wire` and `access`. */
-export const PAGE_SIDE = ['ui', 'api', 'session', 'game', 'levels', 'suite'] as const
+export const PAGE_SIDE = [
+  'device',
+  'ui',
+  'api',
+  'session',
+  'game',
+  'shell',
+  'levels',
+  'map',
+  'play',
+  'team',
+  'world',
+  'suite',
+] as const
 
 /** Path from the repo root (with `/`) to the file's text. */
 export type SourceFiles = Readonly<Record<string, string>>
@@ -36,11 +56,14 @@ export interface Violation {
 const MAX_LINES = 600
 const API_SET: ReadonlySet<string> = new Set(API_SIDE)
 const PAGE_SET: ReadonlySet<string> = new Set(PAGE_SIDE)
-/** Code the API runs must not need a page: these features and the two shared ones. */
-const NO_PAGE: ReadonlySet<string> = new Set([...API_SIDE, 'access', 'wire'])
+/** Code the API runs must not need a page: these features and the three shared ones. */
+const NO_PAGE: ReadonlySet<string> = new Set([...API_SIDE, 'access', 'files', 'wire'])
 const NO_PAGE_PATTERN = /\b(?:window|document|localStorage|sessionStorage|navigator)\b/
-/** The only file that may draw with Pixi. */
-const PIXI_FILE = 'src/features/levels/level-canvas.ts'
+/** The only files that may draw with Pixi: the page's one Application and the map's pictures. */
+export const PIXI_FILES = ['src/features/levels/level-canvas.ts', 'src/features/map/map-canvas.ts'] as const
+const PIXI_SET: ReadonlySet<string> = new Set(PIXI_FILES)
+/** The features that read a TOML file: the sharing file, and the files that are not game content. */
+const TOML_FEATURES: ReadonlySet<string> = new Set(['access', 'files'])
 /** The only file a Cloudflare Function may import. */
 const SERVICE_ENTRY = 'src/features/service/service.ts'
 
@@ -224,18 +247,18 @@ export function checkArchitecture(files: SourceFiles): Violation[] {
       if (spec === 'effect' || spec.startsWith('effect/') || spec.startsWith('@effect/')) {
         add(file, 'package-confined', 'Effect is not used here: the API is plain TypeScript.')
       }
-      if (/^pixi\.js(\/|$)/.test(spec) && file !== PIXI_FILE) {
+      if (/^pixi\.js(\/|$)/.test(spec) && !PIXI_SET.has(file)) {
         add(
           file,
           'package-confined',
-          `${spec} is only for ${PIXI_FILE}: PixiJS draws the level and nothing else.`,
+          `${spec} is only for ${PIXI_FILES.join(' and ')}: PixiJS draws the level and the map, nothing else.`,
         )
       }
-      if (spec === 'smol-toml' && feature !== 'access') {
+      if (spec === 'smol-toml' && !(feature !== undefined && TOML_FEATURES.has(feature))) {
         add(
           file,
           'package-confined',
-          'smol-toml is only for src/features/access/: TOML is read by the sharing file.',
+          'smol-toml is only for src/features/access/ and src/features/files/: TOML is read there.',
         )
       }
       if (spec === 'svelte' || spec.startsWith('svelte/')) {

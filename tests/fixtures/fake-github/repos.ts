@@ -2,7 +2,8 @@
 // text, the commits made through the API, and the pulls. There are no trees or blobs on the outside; a file's
 // `sha` is git's blob sha, so it changes exactly when the bytes do.
 import { createHash } from 'node:crypto'
-import { fixtureMap } from '../game/read.ts'
+import { fixtureBytes, fixtureMap } from '../game/read.ts'
+import { linksMap } from '../links-game/read.ts'
 
 export interface FakeCommit {
   readonly sha: string
@@ -46,6 +47,11 @@ export interface FakeRepo {
   /** People other than the owner who can reach the repo on GitHub (collaborators). */
   readonly collaborators: Set<string>
   readonly branches: Map<string, Map<string, string>>
+  /**
+   * Files that are bytes, not text (a tileset's picture), by path. They are the same on every branch: no test changes
+   * one. Contents answers give them as base64, or as the raw bytes when the raw media type is asked for.
+   */
+  readonly bytes: Map<string, Uint8Array>
   readonly commits: FakeCommit[]
   readonly pulls: FakePull[]
   /** The time, for new pulls. The server sets it to its own clock. */
@@ -57,6 +63,8 @@ export interface FakeRepo {
   readonly pullFacts: Map<number, PullFacts>
   /** `branch` -> new path -> old path, for files a pull renamed. */
   readonly renames: Map<string, Map<string, string>>
+  /** Adds a file that is bytes. */
+  putBytes(path: string, bytes: Uint8Array): void
   /** As when someone else changes the game: writes a file on a branch without going through the API. */
   put(branch: string, path: string, text: string): void
   /** As when a suggestion was saved: a branch from `main`, with a pull open for it. */
@@ -67,12 +75,10 @@ export interface FakeRepo {
   rename(branch: string, from: string, to: string): void
 }
 
-/** Git's blob sha: the SHA-1 of `blob <bytes>\0<content>`. */
-export function blobSha(text: string): string {
-  return createHash('sha1')
-    .update(`blob ${Buffer.byteLength(text)}\0`)
-    .update(text)
-    .digest('hex')
+/** Git's blob sha: the SHA-1 of `blob <bytes>\0<content>`. A string is its UTF-8 bytes. */
+export function blobSha(content: string | Uint8Array): string {
+  const length = typeof content === 'string' ? Buffer.byteLength(content) : content.byteLength
+  return createHash('sha1').update(`blob ${length}\0`).update(content).digest('hex')
 }
 
 let counter = 0
@@ -82,7 +88,12 @@ export function nextSha(seed: string): string {
   return createHash('sha1').update(`${counter}:${seed}`).digest('hex')
 }
 
-function makeRepo(owner: string, name: string, files: Map<string, string>): FakeRepo {
+function makeRepo(
+  owner: string,
+  name: string,
+  files: Map<string, string>,
+  bytes: Record<string, Uint8Array> = {},
+): FakeRepo {
   const defaultBranch = 'main'
   const commitDates = new Map<string, number>()
   const first = nextSha(`${owner}/${name}`)
@@ -115,6 +126,7 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
     checks: 'passing',
     collaborators: new Set(),
     branches: new Map([[defaultBranch, files]]),
+    bytes: new Map(Object.entries(bytes)),
     commits: [],
     pulls: [],
     clock: () => Date.now(),
@@ -123,6 +135,9 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
     bases: new Map(),
     pullFacts: new Map(),
     renames: new Map(),
+    putBytes(path, content) {
+      repo.bytes.set(path, content)
+    },
     put(branch, path, text) {
       const files = repo.branches.get(branch)
       if (files === undefined) throw new Error(`no branch ${branch}`)
@@ -150,9 +165,24 @@ function makeRepo(owner: string, name: string, files: Map<string, string>): Fake
   return repo
 }
 
-/** The fixture game on `main`, owned by `grandma`, public, with the editor added. */
+/** A game on `main`, owned by `owner`, public, with the editor added. Its files are text; a picture is bytes. */
+export function addGame(
+  owner: string,
+  name: string,
+  files: Map<string, string>,
+  bytes: Record<string, Uint8Array> = {},
+): FakeRepo {
+  return makeRepo(owner, name, files, bytes)
+}
+
+/** The Crate Game (the fixture game, with its tileset's picture) on `main`, owned by `grandma`. */
 export function gameRepo(name: string): FakeRepo {
-  return makeRepo('grandma', name, fixtureMap())
+  return addGame('grandma', name, fixtureMap(), { ...fixtureBytes() })
+}
+
+/** The links game: three rooms whose doors and edges join, owned by `grandma`. */
+export function linksRepo(name: string): FakeRepo {
+  return addGame('grandma', name, linksMap())
 }
 
 /** A repo with a README.md and nothing else. */

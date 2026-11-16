@@ -97,6 +97,79 @@ test('a feature folder has its entry file', () =>
 test('a feature that is not in the list is named', () =>
   expect(one({ 'src/features/zzz/zzz.ts': '' })).toEqual(['unknown-feature']))
 
+// The World editor's features (Task 2a): each folder is a known one, in the order the plan gives.
+test.each(['device', 'shell', 'map', 'play', 'team', 'world'])('%s is a known feature', (feature) =>
+  expect(one({ [`src/features/${feature}/${feature}.ts`]: '' })).toEqual([]),
+)
+
+test('TOML is read by the files feature too', () =>
+  expect(
+    one({
+      'src/features/files/files.ts': "import { parse } from 'smol-toml'",
+    }),
+  ).toEqual([]))
+
+test('TOML stays out of the service', () =>
+  expect(one({ 'src/features/service/service.ts': "import { parse } from 'smol-toml'" })).toEqual([
+    'package-confined',
+  ]))
+
+test('the files feature, which the API runs, has no page in it', () =>
+  expect(one({ 'src/features/files/files.ts': 'window.name' })).toEqual(['api-side-has-no-page']))
+
+test('files may not import wire, which is above it', () =>
+  expect(
+    one({
+      'src/features/files/files.ts': "import '../wire/wire.ts'",
+      'src/features/wire/wire.ts': '',
+    }),
+  ).toEqual(['imports-go-down']))
+
+test('wire may import files, which is below it', () =>
+  expect(
+    one({
+      'src/features/wire/wire.ts': "import '../files/files.ts'",
+      'src/features/files/files.ts': '',
+    }),
+  ).toEqual([]))
+
+test('levels may not import map, which is above it', () =>
+  expect(
+    one({
+      'src/features/levels/levels.ts': "import '../map/map.ts'",
+      'src/features/map/map.ts': '',
+    }),
+  ).toEqual(['imports-go-down']))
+
+test('the map runs in the page and may not import the service', () =>
+  expect(
+    one({
+      'src/features/map/map.ts': "import '../service/service.ts'",
+      'src/features/service/service.ts': '',
+    }).sort(),
+  ).toEqual(['page-never-imports-api-side']))
+
+test('Pixi is welcome in the map canvas', () =>
+  expect(
+    one({
+      'src/features/map/map.ts': '',
+      'src/features/map/map-canvas.ts': "import { Container } from 'pixi.js'",
+    }),
+  ).toEqual([]))
+
+test('Pixi stays out of the rest of the map', () =>
+  expect(one({ 'src/features/map/map.ts': "import { Container } from 'pixi.js'" })).toEqual([
+    'package-confined',
+  ]))
+
+test('the shell may not import levels, which is above it', () =>
+  expect(
+    one({
+      'src/features/shell/shell.ts': "import '../levels/levels.ts'",
+      'src/features/levels/levels.ts': '',
+    }),
+  ).toEqual(['imports-go-down']))
+
 // The rules also have to stay quiet on honest code.
 test('a clean map has no violations', () =>
   expect(
