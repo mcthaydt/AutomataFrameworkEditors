@@ -373,9 +373,9 @@ A problem never stops a change going in, unless an Owner chose otherwise in Sett
   when; "Show me" opens that level with the change marked. Read from the game's history of its content files.
 - **Notes** pinned on a thing or a spot: add from the three dots or press and hold; tap one to open it (what was said,
   by whom, answers, a box to answer, "Done: hide this note"). The team sees a note at once, before changes are put in;
-  anyone who may look can read and answer. Where notes are kept is the Owner's question Q2 below; my recommendation is a
-  notes file, `automata.notes.toml`, on its own branch in the game's repo, written by the App at once for anyone at
-  Look or above, never touching the game or its checks.
+  anyone who may look can read and answer. Notes are kept in a notes file, `automata.notes.toml`, on its own branch,
+  `automata/notes`, in the game's repo (the Owner, 2026-11-16, Q2 = A), written by the App at once for anyone at Look
+  or above. It never touches the game or runs its checks, and an agent reads it like any file.
 - **Your helper** (an AI the person chats with, outside the editors): Help says what a helper is and what to tell it,
   and gives a copy of the level to hand it. When the helper changes a file the person has open (in the game, or as a
   file the person pastes back), the change comes back as a ghost on the level with Keep or Undo. Keep takes it into the
@@ -392,7 +392,7 @@ A problem never stops a change going in, unless an Owner chose otherwise in Sett
 | `automata.toml` | a new, renamed or deleted level (its line only) | by the person's level |
 | `automata.access.toml` | Who can change it | Owner |
 | the editors' settings file, `automata.editors.toml` (my call: TOML, as everything that is not game content) | Settings, "For everyone" | Owner |
-| the notes file (Q2) | a note, an answer, done | anyone at Look or above |
+| `automata.notes.toml`, on the branch `automata/notes` | a note, an answer, done | anyone at Look or above |
 
 Every content file is written by the framework's `writeContent`, so an agent editing the same file makes the same
 bytes. `automata.toml` is changed only in the level's own line, with the framework's project writer if it has one, or
@@ -500,6 +500,6 @@ and changes to match the answers.
    Scenes are World's next parts, each after its framework piece. B: also Tiles now, which needs a framework format
    that keeps a tileset's pictures as JSON, painted by `automata art`. C: all three, which also brings Scenes back
    from the archive tag first.
-2. **Where do notes live?** A (recommended): `automata.notes.toml` on its own branch, `automata/notes`, written at once
-   for anyone at Look or above, never touching the game. B: the same file on the main branch, so every note runs the
-   game's checks. C: notes wait for a later slice.
+2. **Where do notes live?** **Answered (2026-11-16): A**, `automata.notes.toml` on its own branch, `automata/notes`,
+   written at once for anyone at Look or above, never touching the game. (Considered: the same file on the main branch,
+   so every note runs the game's checks; notes waiting for a later slice.)

@@ -5,8 +5,8 @@ The tracker every stage reads first and updates last. One section per cycle; new
 ## The World editor (roadmap slice 3, items 5 and 6)
 
 Spec written 2026-11-16 after the Owner approved the mockups (board v17):
-[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). Stage 1 of 7, **4%**. Two Owner
-questions open (which World parts this slice builds; where notes live). Next: the plan (Fable 5.2, medium).
+[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). Stage 1 of 7, **4%**. One Owner
+question open (which World parts this slice builds); notes live on `automata/notes` (the Owner, Q2 = A). Next: the plan (Fable 5.2, medium).
 
 ## Task 6 and Task 7 part 1 reverted (2026-11-15)
 
