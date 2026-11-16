@@ -263,3 +263,32 @@ test('Find, Play and problems are drawn only when something answers them', async
   expect(box.textContent).toContain('2 problems')
   expect(box.textContent).toContain('No internet')
 })
+
+test('the Map button is drawn only when there is a map, says so when it is open, and the part says "Levels · Map"', async () => {
+  stage('wide')
+  await put()
+  expect(named('Map')).toBeUndefined()
+  unmount(mounted as never)
+  let opened = 0
+  await put({ onmap: () => (opened += 1) })
+  const button = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent?.trim() === 'Map')
+  expect(button?.getAttribute('aria-pressed')).toBe('false')
+  expect(box.querySelector('button.part')?.textContent).toContain('Levels · Level 1')
+  await press(button)
+  expect(opened).toBe(1)
+  unmount(mounted as never)
+  await put({ onmap: () => {}, mapOn: true })
+  const now = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent?.trim() === 'Map')
+  expect(now?.getAttribute('aria-pressed')).toBe('true')
+  expect(box.querySelector('button.part')?.textContent).toContain('Levels · Map')
+})
+
+test('on an upright phone the Map is a row of the part menu, not a button in the bar', async () => {
+  stage('phone')
+  let opened = 0
+  await put({ size: 'phone', device: 'phone', onmap: () => (opened += 1) })
+  expect([...box.querySelectorAll('button')].some((b) => b.textContent?.trim() === 'Map')).toBe(false)
+  await press(box.querySelector('button.part'))
+  await press(named('Every level on one sheet'))
+  expect(opened).toBe(1)
+})

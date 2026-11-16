@@ -13,8 +13,9 @@
     pictures: readonly OpenPicture[]
     start: Level
     tool?: Tool
+    onmap?: (() => void) | undefined
   }
-  let { content, pictures, start, tool = 'pick' }: Props = $props()
+  let { content, pictures, start, tool = 'pick', onmap }: Props = $props()
 
   let level = $state.raw<Level>(untrack(() => start))
   let past = $state.raw<readonly Level[]>([])
@@ -77,4 +78,5 @@
   }}
   onclip={(next) => (clip = next)}
   onundo={undo}
+  {onmap}
 />

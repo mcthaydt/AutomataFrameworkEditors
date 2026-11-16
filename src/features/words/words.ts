@@ -3,22 +3,26 @@
 // merge or conflict: `tests/features/words/words.test.ts` fails on any of them. Each later task that adds a screen
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
+import { arrange } from './arrange.ts'
 import { bar } from './bar.ts'
 import { first } from './first.ts'
 import { help } from './help.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { levels } from './levels.ts'
+import { map } from './map.ts'
 import { menus } from './menus.ts'
 import { panels } from './panels.ts'
 import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
 
+export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
 export { first } from './first.ts'
 export { help } from './help.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
 export { levels } from './levels.ts'
+export { map } from './map.ts'
 export { menus } from './menus.ts'
 export { panels } from './panels.ts'
 export { play } from './play.ts'
@@ -149,6 +153,8 @@ export interface Words {
   readonly panels: Readonly<Record<keyof (typeof panels)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
   readonly levels: Readonly<Record<keyof (typeof levels)['en'], Row>>
+  readonly map: Readonly<Record<keyof (typeof map)['en'], Row>>
+  readonly arrange: Readonly<Record<keyof (typeof arrange)['en'], Row>>
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
   readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
@@ -169,6 +175,8 @@ export function wordsIn(lang: Lang): Words {
     menus: { ...menus.en, ...menus[lang] },
     panels: { ...panels.en, ...panels[lang] },
     levels: { ...levels.en, ...levels[lang] },
+    map: { ...map.en, ...map[lang] },
+    arrange: { ...arrange.en, ...arrange[lang] },
     play: { ...play.en, ...play[lang] },
   }
 }

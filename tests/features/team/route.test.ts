@@ -23,6 +23,7 @@ const ROUTES: readonly [Route, string][] = [
   [level(), `#/game/${G}`],
   [level('level-1'), `#/game/${G}/level/level-1`],
   [{ screen: 'map', ...HERE }, `#/game/${G}/map`],
+  [{ screen: 'map', ...HERE, level: 'level-2' }, `#/game/${G}/map/level-2`],
 ]
 
 test.each(ROUTES)('%j is %s, both ways', (route, hash) => {
@@ -72,7 +73,8 @@ test.each([
   '#/game/a/b/waiting/abc',
   '#/game/a/b/waiting/1/2',
   '#/game/a/b/share/x',
-  '#/game/a/b/map/x',
+  '#/game/a/b/map/x/y',
+  '#/game/a/b/map/a b',
   '#/game/a/b/what',
   '#/game/a%2Fb/c',
 ])('the hash %j is the list of games', (hash) => {
@@ -81,5 +83,5 @@ test.each([
 
 test('only the screens about a person ask a visitor to sign in', () => {
   const asked = [...ROUTES.map(([route]) => route), level(undefined, { kind: 'share' })]
-  expect(asked.map((route) => needsPerson(route))).toEqual([true, false, false, false, true])
+  expect(asked.map((route) => needsPerson(route))).toEqual([true, false, false, false, false, true])
 })

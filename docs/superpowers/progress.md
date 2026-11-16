@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 18:31 UTC (from `date`).
+Last updated: 2026-11-16 18:57 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -13,8 +13,9 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
-- Plan pull request 11, the map on screen, is built in parallel; whichever is ready later merges `main` in first
-  (`World.svelte` is 596 lines of its 600).
+- Plan PR 11 (the map on screen, #96): built, audited twice, `main` (with #95) merged in; the second audit's fix and a
+  re-review come next.
+- Next after #96 merges: map pan, zoom and a "Whole world" button, as its own pull request from `main` (the Owner's choice).
 
 ### Completed outcomes
 
@@ -88,3 +89,25 @@ None.
 - Agent-selected, 2026-11-16: the design drift check's record goes in
   `docs/superpowers/audits/<date>-slice-3-design-review.md`, with a `Scope:` line and `Recheck: passed`, and the
   approval under "Approved screens" in `history.md`.
+- Agent-selected, 2026-11-16: "Move apart" is the word on screen, in nine languages, where the mockups say "Pull apart".
+  The words test bans "pull" (`tests/fixtures/banned.ts`, since 2026-11-14), so the mockups' word never passed it. Easy
+  to change: one row in `words/arrange.ts`.
+- The Owner's, 2026-11-16: map pan, zoom and a "Whole world" button are a follow-up pull request after #96 merges, built
+  from `main` as the design draws them. Until then the map is always fitted, so with many levels each one is small.
+
+### Open items
+
+- A journey failed once and passed on its own straight after (a defect under the rules, so it is recorded here, not
+  fixed in #96 unless it recurs in CI): `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on
+  Welcome, told so". Text: `locator.waitFor: Timeout 10000ms exceeded. waiting for getByRole('heading', { name:
+  'Automata Editors', level: 1 }) to be visible`, at `title` (line 29) from line 91. It was one full local run of all 347
+  journeys in Chromium on `abe0ee7`, at 18:34 UTC, under the load of the whole run; alone it passed (15 of 15).
+- WebKit failed once in CI on `83c7274` (run 43928020067, shard `browsers (webkit 6/6)`): `approve.journey.test.ts`, "grandpa
+  opens the game…" at iPad upright. Text: `TimeoutError: locator.click: Timeout 10000ms exceeded. waiting for
+  locator('button.put:not(.quiet)')`, at `pressPut` from `kidHasSaved` (line 72): the kid's setup drag of the crate did not
+  register as a change. The same test passed on the run before (43925736127) and in all 353 journeys in Chromium here.
+  WebKit is not installed in this container, so it could not be run here. The likely place: `dragByTouch` reads the
+  crate's box the moment `[data-thing]` exists and presses there, with no wait for the level to settle, so a late size
+  change in WebKit moves the crate out from under the press. That is a guess, not a finding. The next full run's result
+  for the pull request's head shows whether it recurs; the fix, if so, is to wait for the crate's box to hold still in
+  `tests/fixtures/journey.ts` (lane 2), not here.

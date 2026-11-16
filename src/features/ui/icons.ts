@@ -10,8 +10,10 @@ import arrowRight from '@phosphor-icons/core/regular/arrow-right.svg?raw'
 import arrowSquareOut from '@phosphor-icons/core/regular/arrow-square-out.svg?raw'
 import arrowUp from '@phosphor-icons/core/regular/arrow-up.svg?raw'
 import arrowsIn from '@phosphor-icons/core/regular/arrows-in.svg?raw'
+import arrowsLeftRight from '@phosphor-icons/core/regular/arrows-left-right.svg?raw'
 import arrowsOut from '@phosphor-icons/core/regular/arrows-out.svg?raw'
 import arrowsOutCardinal from '@phosphor-icons/core/regular/arrows-out-cardinal.svg?raw'
+import arrowsOutLineHorizontal from '@phosphor-icons/core/regular/arrows-out-line-horizontal.svg?raw'
 import bookOpen from '@phosphor-icons/core/regular/book-open.svg?raw'
 import caretDown from '@phosphor-icons/core/regular/caret-down.svg?raw'
 import caretLeft from '@phosphor-icons/core/regular/caret-left.svg?raw'
@@ -27,6 +29,7 @@ import downloadSimple from '@phosphor-icons/core/regular/download-simple.svg?raw
 import eraser from '@phosphor-icons/core/regular/eraser.svg?raw'
 import eye from '@phosphor-icons/core/regular/eye.svg?raw'
 import eyeSlash from '@phosphor-icons/core/regular/eye-slash.svg?raw'
+import flagPennant from '@phosphor-icons/core/regular/flag-pennant.svg?raw'
 import gear from '@phosphor-icons/core/regular/gear.svg?raw'
 import globe from '@phosphor-icons/core/regular/globe.svg?raw'
 import keyboard from '@phosphor-icons/core/regular/keyboard.svg?raw'
@@ -43,10 +46,12 @@ import musicNotes from '@phosphor-icons/core/regular/music-notes.svg?raw'
 import paintBrush from '@phosphor-icons/core/regular/paint-brush.svg?raw'
 import paperPlaneTilt from '@phosphor-icons/core/regular/paper-plane-tilt.svg?raw'
 import pause from '@phosphor-icons/core/regular/pause.svg?raw'
+import pencilSimple from '@phosphor-icons/core/regular/pencil-simple.svg?raw'
 import person from '@phosphor-icons/core/regular/person.svg?raw'
 import play from '@phosphor-icons/core/regular/play.svg?raw'
 import plus from '@phosphor-icons/core/regular/plus.svg?raw'
 import plusCircle from '@phosphor-icons/core/regular/plus-circle.svg?raw'
+import plusSquare from '@phosphor-icons/core/regular/plus-square.svg?raw'
 import question from '@phosphor-icons/core/regular/question.svg?raw'
 import slidersHorizontal from '@phosphor-icons/core/regular/sliders-horizontal.svg?raw'
 import squaresFour from '@phosphor-icons/core/regular/squares-four.svg?raw'
@@ -79,7 +84,12 @@ export type IconName =
   | 'arrow-counter-clockwise'
   | 'arrow-clockwise'
   | 'dots-three'
+  | 'arrows-left-right'
   | 'arrows-out-cardinal'
+  | 'arrows-out-line-horizontal'
+  | 'flag-pennant'
+  | 'pencil-simple'
+  | 'plus-square'
   | 'arrows-in'
   | 'arrows-out'
   | 'magnifying-glass'
@@ -141,7 +151,12 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'arrow-counter-clockwise': inner(arrowCounterClockwise),
   'arrow-clockwise': inner(arrowClockwise),
   'dots-three': inner(dotsThree),
+  'arrows-left-right': inner(arrowsLeftRight),
   'arrows-out-cardinal': inner(arrowsOutCardinal),
+  'arrows-out-line-horizontal': inner(arrowsOutLineHorizontal),
+  'flag-pennant': inner(flagPennant),
+  'pencil-simple': inner(pencilSimple),
+  'plus-square': inner(plusSquare),
   'arrows-in': inner(arrowsIn),
   'arrows-out': inner(arrowsOut),
   'magnifying-glass': inner(magnifyingGlass),

@@ -7,6 +7,7 @@ import {
   landing,
   marksOf,
   moveLevel,
+  neighbours,
   nudgeLevel,
   pullApart,
   wholeWorld,
@@ -186,4 +187,11 @@ test('the crate game has no world file, one level, and nothing to touch', async 
     at: { x: 3, y: 3 },
   })
   expect(marksOf(only, crate.content)).toEqual({ joins: [], walls: [], doors: [], start: 'level-1' })
+})
+
+test('a level touches the levels beside it along a side, and none when it is apart', () => {
+  expect(neighbours(working, 'room-2')).toEqual(['room-3'])
+  expect(neighbours(working, 'room-3')).toEqual(['room-2'])
+  expect(neighbours(working, 'room-1')).toEqual([])
+  expect(neighbours(working, 'nowhere')).toEqual([])
 })

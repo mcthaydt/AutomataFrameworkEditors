@@ -17,7 +17,7 @@
     rowHeight: number
     row: Snippet<[number]>
     /** The things to add; the tab is not drawn when there are none. */
-    add?: Snippet
+    add?: Snippet | undefined
     /** Start further in: the toolbar is down the left edge. */
     inset?: boolean
     mirror?: boolean

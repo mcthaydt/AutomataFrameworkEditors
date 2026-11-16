@@ -192,6 +192,14 @@ export function nudgeLevel(
   return moveLevel(working, level, { x: mine.x + WAYS[way].x, y: mine.y + WAYS[way].y })
 }
 
+/** The levels that touch this one along a side. */
+export function neighbours(working: Working, level: string): readonly string[] {
+  const all = allBoxes(working)
+  const mine = all.find((box) => box.level === level)
+  if (mine === undefined) return []
+  return all.filter((box) => box.level !== level && touching(mine, box) !== undefined).map((box) => box.level)
+}
+
 /** How far apart `pullApart` puts levels. */
 const PULL = 2
 
@@ -274,4 +282,33 @@ export function wholeWorld(
   const bottom = Math.max(...all.map((box) => box.y + box.h)) + MARGIN
   const scale = Math.min(screen.w / (right - left), screen.h / (bottom - top))
   return { x: (left + right) / 2, y: (top + bottom) / 2, scale }
+}
+
+/** The pair a move newly joined or newly parted, for the note after it; none when its joins are as they were. */
+export function touchChange(
+  before: Working,
+  after: Working,
+  content: GameContent,
+  level: string,
+): { readonly kind: 'touch' | 'apart'; readonly a: string; readonly b: string } | undefined {
+  const mine = (all: readonly Join[]) => all.filter((one) => one.a === level || one.b === level)
+  const was = mine(marksOf(before, content).joins)
+  const now = mine(marksOf(after, content).joins)
+  const key = (one: Join) => `${one.a}/${one.b}`
+  const gained = now.find((one) => !was.some((old) => key(old) === key(one)))
+  if (gained !== undefined) return { kind: 'touch', a: gained.a, b: gained.b }
+  const lost = was.find((old) => !now.some((one) => key(old) === key(one)))
+  return lost === undefined ? undefined : { kind: 'apart', a: lost.a, b: lost.b }
+}
+
+/** The tap that would make this level join another, if one more tap would: the join it makes. */
+export function nextJoin(working: Working, content: GameContent, level: string): Join | undefined {
+  const mine = (one: Join) => one.a === level || one.b === level
+  if (marksOf(working, content).joins.some(mine)) return undefined
+  for (const way of Object.keys(WAYS) as (keyof typeof WAYS)[]) {
+    const next = nudgeLevel(working, content.tilesets, level, way)
+    const found = next.ok ? marksOf(next.value, content).joins.find(mine) : undefined
+    if (found !== undefined) return found
+  }
+  return undefined
 }

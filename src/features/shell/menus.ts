@@ -79,6 +79,8 @@ export interface PartFacts {
   /** Every level of the game, with the one open ticked. */
   readonly levels: readonly string[]
   readonly level: string | undefined
+  /** The map is a place of this part too: its row, and whether it is the one on screen. */
+  readonly map?: { readonly words: string; readonly about: string; readonly here: boolean } | undefined
 }
 
 /** Where to go: the parts, every level, and on an upright phone the editors and the game's menu as well. */
@@ -90,7 +92,16 @@ export function partItems(facts: PartFacts, game: GameFacts, bar: Bar): readonly
       words: say(bar[part.words]),
       about: say(bar[part.about]),
       icon: 'squares-four',
-      here: part.id === facts.part,
+      here: part.id === facts.part && facts.map?.here !== true,
+    })
+  }
+  if (facts.map !== undefined) {
+    items.push({
+      id: 'map',
+      words: facts.map.words,
+      about: facts.map.about,
+      icon: 'map-trifold',
+      here: facts.map.here,
     })
   }
   if (facts.levels.length > 1) {

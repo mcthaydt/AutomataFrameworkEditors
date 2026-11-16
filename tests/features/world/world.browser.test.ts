@@ -2,10 +2,13 @@
 import type { Level } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { page } from 'vitest/browser'
 import type { Api } from '#src/features/api/api.ts'
 import { ME_DEFAULT } from '#src/features/device/device.ts'
+import type { Route } from '#src/features/team/route.ts'
 import World from '#src/features/world/World.svelte'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+import { linksFiles } from '../../fixtures/links-game/links.ts'
 import { openedGameWith } from '../../fixtures/open-game-with.ts'
 import { memoryStore } from '../../fixtures/store.ts'
 
@@ -71,4 +74,41 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
   await tick()
   await vi.waitFor(() => expect(box.querySelectorAll('[data-row]').length).toBeGreaterThan(0))
   expect(box.querySelectorAll('[data-row]').length).toBeLessThan(100)
+})
+
+test('the map route shows every level on one sheet, with the Map button pressed and the levels in the list', async () => {
+  const game = await openedGameWith((text) => `v${text.length}`, linksFiles())
+  const remembered = memoryStore()
+  remembered.setItem('af.guide.done', '1')
+  const went: Route[] = []
+  // A wide window, where the Map button sits in the top bar.
+  await page.viewport(1100, 800)
+  mounted = mount(World, {
+    target: box,
+    props: {
+      game,
+      api: {} as unknown as Api,
+      route: { screen: 'map', owner: game.ref.owner, name: game.ref.name, level: 'room-2' },
+      me: ME_DEFAULT,
+      go: (route: Route) => went.push(route),
+      drafts: memoryStore(),
+      remembered,
+      savedBefore: false,
+      onsignin: () => {},
+      onsignout: () => {},
+      onsignedout: () => {},
+      onreload: () => {},
+      onsaved: () => {},
+      onme: () => {},
+    },
+  })
+  await tick()
+  await vi.waitFor(() => expect(box.querySelectorAll('[data-level]')).toHaveLength(3))
+  // The level the address names is the one picked when the map opens.
+  expect(box.querySelector('[data-level="room-2"]')?.getAttribute('aria-pressed')).toBe('true')
+  const map = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Map')
+  expect(map?.getAttribute('aria-pressed')).toBe('true')
+  map?.click()
+  await tick()
+  expect(went.at(-1)).toMatchObject({ screen: 'level', level: 'room-2' })
 })

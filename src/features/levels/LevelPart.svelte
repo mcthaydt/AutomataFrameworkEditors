@@ -27,7 +27,7 @@
   import { deleteThings, moveStart, onlyOne, placeThing, renameThing } from './things.ts'
   import Tray from './Tray.svelte'
   import { countsOf, START } from './tray.ts'
-  import { type Camera, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
+  import { type Camera, pastWhole, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
   import type { Point } from './place.ts'
 
   interface Props {
@@ -63,11 +63,13 @@
     onhide: (id: string, on: boolean) => void
     onclip: (clip: Clip) => void
     onundo: () => void
+    /** Two fingers pinched out past the whole level: the map opens on this one. */
+    onmap?: (() => void) | undefined
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
     fingerDraws = false, readOnly = false, paused = false,
-    onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo,
+    onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap,
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -216,6 +218,10 @@
 
   function handle(acts: readonly Act[]): void {
     for (const act of acts) {
+      if (act.kind === 'view' && onmap !== undefined && pastWhole(camera, act.zoom, level, size)) {
+        custom = undefined
+        return onmap()
+      }
       if (act.kind === 'view') custom = zoomBy(slideBy(camera, act.slide), act.zoom, act.about, size)
       else if (act.kind === 'hover') hover(act.at)
       else if (readOnly) continue
@@ -338,8 +344,7 @@
   let tray = $state.raw<Point | undefined>()
 
   function nudge(way: Way): void {
-    if (picked.length === 0) return
-    if (isLocked(picked)) return
+    if (picked.length === 0 || isLocked(picked)) return
     apply(nudgePicked(level, characters, hero, picked, way))
   }
   function copySelected(): void {
@@ -443,14 +448,7 @@
   const barAt = $derived(pickedBox === undefined ? undefined : barPlace(pickedBox, size, barWidth))
   const padAt = $derived(padPlace(pickedBox, size))
   const was = $derived(
-    grabbed === undefined
-      ? []
-      : outlines(
-          camera,
-          size,
-          characters,
-          grabbed.base.things.filter((t) => grabbed?.ids.includes(t.id)),
-        ),
+    grabbed === undefined ? [] : outlines(camera, size, characters, grabbed.base.things.filter((t) => grabbed?.ids.includes(t.id))),
   )
   const counts = $derived(countsOf(level))
 </script>

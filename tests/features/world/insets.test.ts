@@ -30,3 +30,7 @@ test('a left hand has the panels the other way round', () => {
 test('with the panels put away the game has all the room', () => {
   expect(insetsOf(lay({}), 'side', true)).toEqual({ left: 0, right: 0, bottom: 0 })
 })
+
+test('on the map the settings side is free, the toolbar and the list still take theirs', () => {
+  expect(insetsOf(lay({}), 'side', false, true)).toEqual({ left: 76 + 68, right: 0, bottom: 0 })
+})
