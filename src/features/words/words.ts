@@ -7,6 +7,7 @@ import { bar } from './bar.ts'
 import { first } from './first.ts'
 import { help } from './help.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
+import { levels } from './levels.ts'
 import { menus } from './menus.ts'
 import { panels } from './panels.ts'
 import { settings } from './settings.ts'
@@ -16,6 +17,7 @@ export { bar } from './bar.ts'
 export { first } from './first.ts'
 export { help } from './help.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
+export { levels } from './levels.ts'
 export { menus } from './menus.ts'
 export { panels } from './panels.ts'
 export { settings } from './settings.ts'
@@ -49,7 +51,6 @@ export const WORDS = Object.freeze({
   back: 'Back',
   pickTitle: 'Pick a game',
   loading: 'Getting your game…',
-  thingLabel: (name: string): string => `${name}. Drag to move it.`,
   moveLeft: 'Move left',
   moveRight: 'Move right',
   moveUp: 'Move up',
@@ -145,6 +146,7 @@ export interface Words {
   readonly menus: Readonly<Record<keyof (typeof menus)['en'], Row>>
   readonly panels: Readonly<Record<keyof (typeof panels)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
+  readonly levels: Readonly<Record<keyof (typeof levels)['en'], Row>>
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
 }
@@ -163,6 +165,7 @@ export function wordsIn(lang: Lang): Words {
     help: { ...help.en, ...help[lang] },
     menus: { ...menus.en, ...menus[lang] },
     panels: { ...panels.en, ...panels[lang] },
+    levels: { ...levels.en, ...levels[lang] },
   }
 }
 

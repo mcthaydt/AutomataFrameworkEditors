@@ -9,6 +9,7 @@ import arrowLeft from '@phosphor-icons/core/regular/arrow-left.svg?raw'
 import arrowRight from '@phosphor-icons/core/regular/arrow-right.svg?raw'
 import arrowSquareOut from '@phosphor-icons/core/regular/arrow-square-out.svg?raw'
 import arrowUp from '@phosphor-icons/core/regular/arrow-up.svg?raw'
+import arrowsOutCardinal from '@phosphor-icons/core/regular/arrows-out-cardinal.svg?raw'
 import bookOpen from '@phosphor-icons/core/regular/book-open.svg?raw'
 import caretDown from '@phosphor-icons/core/regular/caret-down.svg?raw'
 import caretLeft from '@phosphor-icons/core/regular/caret-left.svg?raw'
@@ -76,6 +77,7 @@ export type IconName =
   | 'arrow-counter-clockwise'
   | 'arrow-clockwise'
   | 'dots-three'
+  | 'arrows-out-cardinal'
   | 'magnifying-glass'
   | 'warning'
   | 'globe'
@@ -135,6 +137,7 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'arrow-counter-clockwise': inner(arrowCounterClockwise),
   'arrow-clockwise': inner(arrowClockwise),
   'dots-three': inner(dotsThree),
+  'arrows-out-cardinal': inner(arrowsOutCardinal),
   'magnifying-glass': inner(magnifyingGlass),
   warning: inner(warning),
   globe: inner(globe),

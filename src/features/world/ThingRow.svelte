@@ -5,14 +5,16 @@
   interface Props {
     thing: { readonly id: string; readonly character: string }
     picked: boolean
+    /** Said under the name instead of the character, when there is something to say ("Locked until you close the game"). */
+    note?: string | undefined
     onpick: () => void
   }
-  let { thing, picked, onpick }: Props = $props()
+  let { thing, picked, note, onpick }: Props = $props()
 </script>
 
 <button type="button" class="thing-row" data-row={thing.id} aria-pressed={picked} onclick={onpick}>
   <span class="what">{nameOf(thing.id)}</span>
-  <small>{nameOf(thing.character)}</small>
+  <small>{note ?? nameOf(thing.character)}</small>
 </button>
 
 <style>

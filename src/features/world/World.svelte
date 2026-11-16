@@ -18,7 +18,8 @@
     titleOf,
     undo,
   } from '../game/game.ts'
-  import { moveThing, nudgeThing, type Point, Stage, startEdit } from '../levels/levels.ts'
+  import { withId } from './with-id.ts'
+  import { type Clip, countsOf, LevelPart, nudgeThings, Tray } from '../levels/levels.ts'
   import {
     commandFor,
     type Docks,
@@ -27,12 +28,13 @@
     SettingsPanel,
     type StatusFacts,
     Toolbar,
+    type Tool,
     TopBar,
   } from '../shell/shell.ts'
   import { type Route, Share, Waiting, WaitingChange, withoutSheet } from '../team/team.ts'
   import { nameOf, type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
-  import { type Answer, type Saying, say, unsay } from './events.ts'
+  import { type Answer, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
@@ -41,6 +43,7 @@
   import ThingRow from './ThingRow.svelte'
   import { tipKept } from './tips.ts'
   import { WORLD } from './world-workspace.ts'
+  import type { Level } from '@automataframework/framework/headless'
 
   // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
   // settings), and everything a person does to it. What is changed is held as `Edits`, with one history, and kept on
@@ -100,18 +103,28 @@
   let events = $state.raw<readonly Saying[]>(started.said)
   let saving = $state(false)
   let online = $state(navigator.onLine)
-  let picked = $state<string | undefined>(undefined)
+  /** What is picked: thing ids, and `start-1` for a start. */
+  let picked = $state.raw<readonly string[]>([])
+  let tool = $state<Tool>('pick')
+  /** The character the Place tool is holding (or the tray's start). */
+  let placing = $state<string | undefined>(undefined)
+  /** Copied to paste, for this visit only. */
+  let clip = $state.raw<Clip | undefined>(undefined)
+  /** Locked and hidden are for this visit only: kept nowhere on the device and in no file. */
+  let locked = $state.raw<ReadonlySet<string>>(new Set())
+  let hidden = $state.raw<ReadonlySet<string>>(new Set())
+  let part: LevelPart | undefined = $state()
   let viewport = $state(first)
   let docks = $state<Docks>({
     list: 'closed',
     settings: sizeClass(first.w, first.h) === 'wide' ? 'shown' : 'hidden',
     hold: false,
   })
-  let pointers: Pointers = {
+  let pointers = $state.raw<Pointers>({
     last: matchMedia('(hover: hover) and (pointer: fine)').matches ? 'mouse' : 'touch',
     penSeen: false,
     hovering: false,
-  }
+  })
   // Read when a panel opens, never while a hand is moving: rows never change size under a finger.
   let rows = $state<'touch' | 'small'>(untrack(() => rowSize(pointers, me.rows)))
   /** What to do once "Leave without saving" is pressed. */
@@ -127,7 +140,7 @@
 
   const size = $derived(sizeClass(viewport.w, viewport.h))
   const device = $derived(deviceWord(navigator.userAgent, size, navigator.maxTouchPoints > 0))
-  const lay = $derived(layout(device, size, docks, picked !== undefined, me.leftHand))
+  const lay = $derived(layout(device, size, docks, picked.length > 0, me.leftHand))
   const rowHeight = $derived(rows === 'small' ? 30 : 44)
 
   const signedIn = $derived(held.login !== undefined)
@@ -145,7 +158,7 @@
     toCheck,
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  const placed = $derived(picked === undefined ? undefined : things.find((thing) => thing.id === picked))
+  const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
   $effect(() => showGlass(me))
 
@@ -170,15 +183,20 @@
           e.preventDefault()
           step(command)
         } else if (command === 'escape') {
-          picked = undefined
+          picked = []
+          placing = undefined
         } else if (command === 'help') {
           e.preventDefault()
           guide?.open('help')
-        } else if (command?.startsWith('nudge:') && picked !== undefined && !e.defaultPrevented && guide?.sheetOpen() !== true) {
+        } else if (command?.startsWith('nudge:') && picked.length === 1 && !e.defaultPrevented && guide?.sheetOpen() !== true) {
           // A thing that has focus moves itself; this is for a picked thing when the focus is elsewhere.
           e.preventDefault()
           const way = command.slice('nudge:'.length)
-          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked, way)
+          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked[0] as string, way)
+        } else if (command?.startsWith('tool:') && WORLD.tools.includes(command.slice(5) as Tool)) {
+          tool = command.slice(5) as Tool
+        } else if (command === 'delete' || command === 'duplicate' || command === 'copy' || command === 'paste') {
+          part?.command(command)
         }
       },
       online: (on) => {
@@ -193,9 +211,9 @@
     }),
   )
 
-  function pick(id: string | undefined): void {
-    picked = id
-    if (id !== undefined) guide?.happen({ kind: 'picked' })
+  function pick(ids: readonly string[]): void {
+    picked = ids
+    if (ids.length > 0) guide?.happen({ kind: 'picked' })
   }
 
   /** A new `Edits`: shown, kept on the device, and the last "saved" is no longer true. */
@@ -210,53 +228,35 @@
     keep(which === 'undo' ? undo(edits) : redo(edits))
   }
   const solid = (on: boolean): void => {
-    events = on
-      ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid })
-      : unsay(events, 'solid')
+    events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid')
   }
 
-  // A finger dragging a thing: every move is worked out from the level as it was when the finger went down, so the whole
-  // drag is one step back.
+  // A hand holding things: every move is worked out from the level as it was when the hand took hold, so the whole grab is
+  // one step back.
   let dragFrom: Edits | undefined
-  const grab = (): void => {
-    dragFrom = edits
-  }
-  function drag(id: string, to: Point): void {
-    const from = dragFrom ?? edits
-    const start = from.now.levels[levelId]
-    if (start === undefined) return
-    const result = moveThing(startEdit(start), held.content.characters, id, to)
-    if (result.moved) {
-      solid(false)
-      keep(inLevel(from, levelId, () => result.edit.now))
-      guide?.happen({ kind: 'moved' })
-    } else if (result.why === 'solid') {
-      // The thing stays at the last free spot, and the person is told why.
-      solid(true)
-    } else if (result.why === 'same' && edits !== from) {
-      solid(false)
-      keep(from)
+  const grab = (): void => void (dragFrom = edits)
+  function edit(next: Level): void {
+    const was = edits.now.levels[levelId]
+    const moved = (t: { id: string; x: number; y: number }): boolean => {
+      const o = was?.things.find((w) => w.id === t.id)
+      return o !== undefined && (o.x !== t.x || o.y !== t.y)
     }
+    if (next.things.some(moved)) guide?.happen({ kind: 'moved' })
+    keep(inLevel(dragFrom ?? edits, levelId, () => next))
   }
   function drop(gaveUp: boolean): void {
     const from = dragFrom
     dragFrom = undefined
-    if (gaveUp && from !== undefined) {
-      solid(false)
-      keep(from)
-    }
+    if (gaveUp && from !== undefined) keep(from)
   }
+  /** The settings' own four arrows: one tile a tap. */
   function nudge(id: string, way: 'left' | 'right' | 'up' | 'down'): void {
     const start = edits.now.levels[levelId]
     if (start === undefined) return
-    const result = nudgeThing(startEdit(start), held.content.characters, id, way)
-    solid(!result.moved && result.why === 'solid')
-    if (result.moved) {
-      keep(inLevel(edits, levelId, () => result.edit.now))
-      guide?.happen({ kind: 'moved' })
-    }
+    const result = nudgeThings(start, held.content.characters, [id], way)
+    solid(!result.ok && result.why === 'solid')
+    if (result.ok) edit(result.value)
   }
-
   function openList(tab: 'list' | 'add'): void {
     rows = rowSize(pointers, me.rows)
     docks = { ...docks, list: tab === 'add' ? 'add' : 'list' }
@@ -269,7 +269,7 @@
     events = say(events, { id: 'leave', kind: 'info', text: WORDS.leaveAsk, ask: 'leave' })
   }
   const closeSheet = (): void => go(withoutSheet(route))
-  // Who can change the game is for its Owner only: anyone else who opens that address lands on the level.
+  // Only the Owner may change who can change the game: anyone else lands on the level.
   $effect(() => {
     if (sheet?.kind === 'share' && !can(access, 'share')) closeSheet()
   })
@@ -283,8 +283,7 @@
     saving = false
     if (result.ok) {
       held = result.game
-      const base = { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } }
-      edits = { ...edits, base }
+      edits = { ...edits, base: { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } } }
       keepDrafts(drafts, held, edits)
       events = say(events, {
         id: 'saved',
@@ -295,40 +294,9 @@
       onsaved(result.how)
       return
     }
-    const problem = (id: string, said: string, details?: readonly string[]): void => {
-      events = say(events, {
-        id,
-        kind: 'problem',
-        text: said,
-        ...(details === undefined ? {} : { details }),
-      })
-    }
-    switch (result.problem) {
-      case 'signed-out':
-        return onsignedout()
-      case 'changed-elsewhere':
-        events = say(events, {
-          id: 'elsewhere',
-          kind: 'problem',
-          text: WORDS.changedElsewhere,
-          ask: 'changed-elsewhere',
-        })
-        return
-      case 'not-allowed':
-        access = 'look'
-        events = say(events, { id: 'standing', kind: 'info', text: WORDS.lookOnly, dismiss: true })
-        return
-      case 'broken':
-        return problem('failed', WORDS.saveFailed, result.details ?? [])
-      case 'blocked':
-        return problem('failed', WORDS.blockedOwner)
-      case 'offline':
-        return problem('failed', WORDS.offline)
-      case 'busy':
-        return problem('failed', WORDS.busy)
-      default:
-        return problem('failed', WORDS.saveFailed)
-    }
+    if (result.problem === 'signed-out') return onsignedout()
+    if (result.problem === 'not-allowed') access = 'look'
+    events = say(events, saveProblem(result.problem, result.details))
   }
 
   /** The level as it is on the screen now, saved or not. */
@@ -461,17 +429,31 @@
         style:right="{insets.right}px"
         style:bottom="{insets.bottom}px"
       >
-        <Stage
+        <LevelPart
+          bind:this={part}
+          content={held.content}
+          pictures={held.pictures}
           {level}
-          characters={held.content.characters}
-          hero={held.content.project.hero}
-          label={nameOf(levelId)}
+          {levelId}
+          {lang}
+          {tool}
           {picked}
+          paused={events.some((one) => one.ask !== undefined)}
+          {locked}
+          {hidden}
+          {placing}
+          {clip}
+          {pointers}
+          fingerDraws={me.fingerDraws}
           onpick={pick}
+          onplacing={(id) => (placing = id)}
           ongrab={grab}
-          ondrag={drag}
+          onedit={edit}
           ondrop={drop}
-          onnudge={nudge}
+          onlock={(id, on) => (locked = withId(locked, id, on))}
+          onhide={(id, on) => (hidden = withId(hidden, id, on))}
+          onclip={(next) => (clip = next)}
+          onundo={() => step('undo')}
         />
       </div>
     {/if}
@@ -507,14 +489,14 @@
     <Toolbar
       workspace={WORLD}
       {lang}
-      tool="pick"
+      {tool}
       side={lay.toolbar}
       keys={device === 'computer'}
       undoHere={size === 'phone'}
       canUndo={edits.past.length > 0}
       canRedo={edits.future.length > 0}
       mirror={lay.mirror}
-      onpick={() => {}}
+      onpick={(next) => (tool = next)}
       onundo={() => step('undo')}
       onredo={() => step('redo')}
       onlist={lay.list === 'hidden' ? () => openList('list') : undefined}
@@ -524,7 +506,7 @@
       <ListPanel
         {lang}
         mode={lay.list}
-        tab="list"
+        tab={docks.list === 'add' ? 'add' : 'list'}
         name={text(words.panels.listIn)}
         count={things.length}
         {rowHeight}
@@ -536,8 +518,25 @@
         {#snippet row(at)}
           {@const thing = things[at]}
           {#if thing !== undefined}
-            <ThingRow {thing} picked={picked === thing.id} onpick={() => pick(thing.id)} />
+            <ThingRow
+              {thing}
+              picked={picked.includes(thing.id)}
+              note={locked.has(thing.id) ? text(words.levels.lockedNote) : undefined}
+              onpick={() => pick([thing.id])}
+            />
           {/if}
+        {/snippet}
+        {#snippet add()}
+          <Tray
+            {lang}
+            characters={held.content.characters}
+            counts={level === undefined ? {} : countsOf(level)}
+            chosen={placing}
+            onchoose={(id) => {
+              placing = id
+              if (id !== undefined) tool = 'place'
+            }}
+          />
         {/snippet}
       </ListPanel>
     {/if}
@@ -566,7 +565,7 @@
       owner={signedIn && can(access, 'share')}
       {remembered}
       {things}
-      {picked}
+      picked={placed?.id}
       {onme}
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}

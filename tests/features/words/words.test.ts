@@ -31,7 +31,6 @@ const PINNED: Readonly<Record<string, string>> = {
   back: 'Back',
   pickTitle: 'Pick a game',
   loading: 'Getting your game…',
-  thingLabel: 'crate-1. Drag to move it.',
   moveLeft: 'Move left',
   moveRight: 'Move right',
   moveUp: 'Move up',

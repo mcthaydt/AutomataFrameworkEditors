@@ -125,7 +125,7 @@ test('the same, moving with the arrow buttons instead of a finger', async () => 
   await thingNamed(j.page, 'crate-1').tap()
   // On a phone the settings of what is picked wait in a bar until it is pulled up.
   await j.page.locator('button.peek').tap()
-  for (let step = 0; step < 4; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
+  for (let step = 0; step < 2; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
   await hasChanges(j)
   await putButton(j.page).tap()
   await says(j, WORDS.savedDirect)
@@ -140,7 +140,7 @@ test('the same, with the keyboard only, from the welcome screen to the game', as
   await j.page.getByRole('link', { name: 'crate-game' }).focus()
   await j.page.keyboard.press('Enter')
   await thingNamed(j.page, 'crate-1').focus()
-  for (let step = 0; step < 4; step += 1) await j.page.keyboard.press('ArrowRight')
+  for (let step = 0; step < 2; step += 1) await j.page.keyboard.press('ArrowRight')
   await hasChanges(j)
   await putButton(j.page).focus()
   await j.page.keyboard.press('Enter')
