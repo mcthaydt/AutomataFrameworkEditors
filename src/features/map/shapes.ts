@@ -13,6 +13,9 @@ export interface Rect {
   readonly h: number
 }
 
+/** Room the two buttons take along the top of the map ("Whole world" and "New level"), kept clear of what floats. */
+export const TOP_ROOM = 60
+
 /** Room the key takes along the bottom of the map, so no level is drawn under it. */
 export const KEY_ROOM = 56
 

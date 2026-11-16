@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 18:57 UTC (from `date`).
+Last updated: 2026-11-16 19:53 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -111,3 +111,7 @@ None.
   change in WebKit moves the crate out from under the press. That is a guess, not a finding. The next full run's result
   for the pull request's head shows whether it recurs; the fix, if so, is to wait for the crate's box to hold still in
   `tests/fixtures/journey.ts` (lane 2), not here.
+- Follow-up, from the cycle 2 review of #98: six `waitForTimeout` calls (400, 300, 300, 300, 200 and 200 ms before
+  the pictures, in `tests/journeys/map.journey.test.ts`, the arranging journey from #96) predate #98 and break the rule
+  "browser tests wait on readiness, never on a sleep". A follow-up replaces them with readiness waits. #98's own new
+  tests have none. Also for the shell's keys sheet when it is built: "Ctrl + wheel: zoom" and "+ / -: zoom" on the map.
