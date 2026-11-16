@@ -127,7 +127,7 @@ test('notes are numbered one after the other, and answers and done are kept on t
   const undone = await note('kid', { done: { id: 'note-2', done: false } })
   expect(undone.answer.ok && undone.answer.value.notes[1]?.done).toBe(false)
   expect(repo().pulls).toEqual([])
-  expect([...repo().branches.keys()].sort()).toEqual(['main', NOTES_BRANCH])
+  expect([...repo().branches.keys()].sort()).toEqual([NOTES_BRANCH, 'main'])
 })
 
 test('answering or finishing a note that is not there is not-found, and writes nothing', async () => {
