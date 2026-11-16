@@ -9,3 +9,4 @@ __screenshots__/
 .wrangler/
 journeys-result.json
 mockup-screens/
+.vitest/
