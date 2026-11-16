@@ -42,12 +42,15 @@ This page holds only what is particular to this repo; a shared rule is changed t
 
 ## Fast CI here
 
-- A draft runs the Node tests the change reaches; the browser tests whole (Vitest's `--changed` fails in browser mode
-  here); the journeys in Chromium only, when the built suite's files changed (`src/`, `functions/`, the page,
-  `public/`, the journeys), stopping at the first failure; the screens journey and its pictures only when something
-  seen changed (a `.svelte` or `.css` file, the words, the page, the mockups) or with the `screenshots` label.
-- `.pnpmfile.cjs` counts as build setup. The full run's six shards are `browsers (<engine> <n>/2)` (the screens journey
-  and short browser tests in the first), with `engines (<engine>)` checks; `screens` puts the pictures on `ci-screens`.
+- A draft runs Chromium only; WebKit and Firefox run in the full run that gates merge (the Owner, 2026-11-16). A draft
+  runs the Node tests the change reaches; the browser tests whole (Vitest's `--changed` fails in browser mode here); the
+  journeys when the built suite's files changed (`src/`, `functions/`, the page, `public/`, the journeys), stopping at
+  the first failure; the screens journey only when something seen changed (a `.svelte` or `.css` file, the words, the
+  page, the mockups) or with the `screenshots` label, and then only the scenes of the screens the change reaches
+  (`scripts/screens-touched.ts`; a change to the kit, the words, a style sheet or the page takes every scene).
+- `.pnpmfile.cjs` counts as build setup. The full run's 18 shards are `browsers (<engine> <n>/6)`: the screens journey's
+  three sizes are shards 1 to 3 (the short browser tests ride in the first), the other journeys are shards 4 to 6;
+  with `engines (<engine>)` checks (`scripts/engines-gate.ts` counts six); `screens` puts the pictures on `ci-screens`.
 - The docs-only path never covers the README, `docs/deploy.md`, `docs/teams.md` or `docs/mockups/`, which tests read.
 
 ## Structure

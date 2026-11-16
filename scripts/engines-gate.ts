@@ -1,4 +1,4 @@
-// The `engines (<browser>)` check: green only when both of that browser's shards passed.
+// The `engines (<browser>)` check: green only when every one of that browser's shards passed.
 //
 // Why a script: the check has to read the shards' results from GitHub, and two things went wrong with one line of `gh`.
 //   - GitHub sometimes answers 502 for a moment. A check that fails because the question was not answered says nothing
@@ -15,8 +15,8 @@ export type Job = { readonly name: string; readonly conclusion: string | null }
 /** What the check says, and the lines that make it readable in the log. */
 export type Verdict = { readonly ok: boolean; readonly lines: readonly string[] }
 
-/** How many shards each browser is split into (`browsers (<engine> 1/2)` and `2/2`). */
-export const SHARDS = 2
+/** How many shards each browser is split into (`browsers (<engine> 1/6)` to `6/6`). */
+export const SHARDS = 6
 
 /**
  * Says whether every shard of one browser passed. `attempts` are the jobs of each attempt of the run, oldest first; a
@@ -98,7 +98,7 @@ export async function listJobs(
   }
 }
 
-/** Reads the run named by the environment, prints each shard of the browser, and fails the job unless both passed. */
+/** Reads the run named by the environment, prints each shard of the browser, and fails the job unless all passed. */
 async function main(): Promise<void> {
   const env = process.env
   const { GITHUB_REPOSITORY: repo, GITHUB_RUN_ID: run, GITHUB_RUN_ATTEMPT: current } = env
@@ -113,7 +113,7 @@ async function main(): Promise<void> {
   const verdict = judge(attempts, engine)
   for (const line of verdict.lines) console.log(line)
   if (!verdict.ok) {
-    console.error(`Both shards of ${engine} must have passed, and they have not.`)
+    console.error(`Every shard of ${engine} must have passed, and they have not.`)
     process.exitCode = 1
   }
 }

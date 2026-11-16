@@ -3,7 +3,8 @@
 import { type Diagnostic, type GameContent, loadGame } from '@automataframework/framework/headless'
 import type { AccessLevel } from '../access/access.ts'
 import type { Api } from '../api/api.ts'
-import type { GameRef, ProblemKind, Waiting, WireFile } from '../wire/wire.ts'
+import type { EditorsFile } from '../files/files.ts'
+import type { GameRef, OpenPicture, Person, ProblemKind, Waiting, WireFile } from '../wire/wire.ts'
 
 export interface OpenGame {
   readonly ref: GameRef
@@ -19,6 +20,12 @@ export interface OpenGame {
   readonly content: GameContent
   /** Every file that came back, by its path. */
   readonly files: ReadonlyMap<string, WireFile>
+  /** The editors' settings for everyone on this game. */
+  readonly editors: EditorsFile
+  /** Who is in the game. */
+  readonly people: readonly Person[]
+  /** The pictures its tilesets name, by their path, as the API sent them. */
+  readonly pictures: readonly OpenPicture[]
   /** The path of the world file the project lists; undefined when the game has none (yet). */
   readonly worldPath: string | undefined
 }
@@ -53,6 +60,9 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       waiting: value.waiting,
       content: loaded.value,
       files,
+      editors: value.editors,
+      people: value.people,
+      pictures: value.pictures,
       worldPath: loaded.value.project.content.find((ref) => ref.type === 'world')?.path,
     },
   }
