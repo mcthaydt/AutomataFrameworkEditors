@@ -26,6 +26,8 @@ export interface OpenGame {
   readonly people: readonly Person[]
   /** The pictures its tilesets name, by their path, as the API sent them. */
   readonly pictures: readonly OpenPicture[]
+  /** The path of the world file the project lists; undefined when the game has none (yet). */
+  readonly worldPath: string | undefined
 }
 
 export type Opened =
@@ -61,6 +63,7 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       editors: value.editors,
       people: value.people,
       pictures: value.pictures,
+      worldPath: loaded.value.project.content.find((ref) => ref.type === 'world')?.path,
     },
   }
 }
