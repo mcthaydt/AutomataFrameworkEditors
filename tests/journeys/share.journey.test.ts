@@ -124,8 +124,9 @@ test("only an Owner sees Share; anyone else who opens the Share address lands on
   await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
   expect(await g.page.getByRole('link', { name: WORDS.share }).count()).toBe(0)
   await g.page.goto(`${g.site}/#/game/grandma/crate-game/share`)
+  // Only the address changes, so the game's heading is already on the page; wait for the move itself.
+  await g.page.waitForURL(/#\/game\/grandma\/crate-game$/)
   await g.page.getByRole('heading', { level: 1, name: 'Crate Game' }).waitFor()
-  expect(g.page.url()).toMatch(/#\/game\/grandma\/crate-game$/)
 })
 
 test('changing grandpa from Approve to Look, and saving: his next visit says he can look', async () => {
