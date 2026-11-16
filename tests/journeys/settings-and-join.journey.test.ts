@@ -294,12 +294,16 @@ describe('at phone', () => {
           const box = button.getBoundingClientRect()
           const name = button.querySelector<HTMLElement>('span')
           const shown = name !== null && name.getBoundingClientRect().width > 2
+          // The text itself, not the box it grew to: a word that runs out of its button is cut, or lands on the next one.
+          const text = document.createRange()
+          if (name !== null) text.selectNodeContents(name)
+          const words = text.getBoundingClientRect()
           return {
             name: button.getAttribute('aria-label') ?? button.textContent?.trim() ?? '',
             left: box.left,
             right: box.right,
             width: box.width,
-            cut: shown && name.scrollWidth > name.clientWidth + 1,
+            cut: shown && (words.left < box.left - 0.5 || words.right > box.right + 0.5),
           }
         }),
       )

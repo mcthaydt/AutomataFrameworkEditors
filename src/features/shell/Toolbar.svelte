@@ -153,9 +153,9 @@
       padding: 4px 2px;
     }
     .tools:not(.column) .tool {
-      flex: 1 1 0;
+      flex: 1 1 auto;
       min-width: 44px;
-      padding: 4px 2px;
+      padding: 4px 0;
       font-size: 11px;
     }
     .tools:not(.column) .plain {
