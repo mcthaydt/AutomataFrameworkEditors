@@ -13,7 +13,7 @@ Owner's two answers (a real "How heavy" for the crate, and draw order kept in le
 44 tasks plus 2a, 2b and 42a in 19 pull requests and two lanes, plus five framework tasks (F1 to F5) in
 AutomataFramework and one test-game task (E4) in AutomataFrameworkExamples. Build progress: **0%**.
 
-- Build: pull requests 1 and 2 are merged (Editors PR 78 and 79). Pull request 4 (the API, tasks 7 to 11) is Editors PR 81, green on its draft run and ready for the merge session; it adds `commitFiles`, `changeProject`, `automata.editors.toml`, Put, Ask for a change, turn down and bring back. Next for lane 2: pull request 5 (what a person holds, pure), after 4 merges.
+- Build: pull requests 1, 2 and 4 are merged (Editors PR 78, 79, 81). Pull request 5 (what a person holds, tasks 12 to 14) is Editors PR 84: `game/changes.ts`, `drafts.ts`, `describe.ts`, `merge.ts`; waiting on CI. Lane 1 has pull request 8 (task 23). Next for lane 2 after 5 merges: pull request 7 (the shell's frame), with 3 and 5.
 - Next: execution (stage 4, Sonnet high) starting with pull requests 1 and 2. F3 may start beside Plan W; F1, F2, F4 and
   F5 start after Plan W's pull request 4.
 - Waits on the framework: only pull request 17 (Plan W's pull request 5, and F1 to F5). E4 waits for F4 and F5.
