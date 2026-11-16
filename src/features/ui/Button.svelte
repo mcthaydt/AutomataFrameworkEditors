@@ -1,16 +1,23 @@
 <script lang="ts">
   // A real <button>: Enter and Space press it, a screen reader names it, and it is never smaller than a finger.
   // `primary` is the one thing a screen most wants pressed (at least 48 px tall); the others are at least 44.
+  import Icon from './Icon.svelte'
+  import type { IconName } from './icons.ts'
+
   interface Props {
     label: string
+    /** An icon before the label. The label stays: an icon is never the only way to tell what a button does. */
+    icon?: IconName
     kind?: 'primary' | 'plain' | 'danger'
     disabled?: boolean
     onpress: () => void
   }
-  let { label, kind = 'plain', disabled = false, onpress }: Props = $props()
+  let { label, icon, kind = 'plain', disabled = false, onpress }: Props = $props()
 </script>
 
-<button type="button" class="button {kind}" {disabled} onclick={() => onpress()}>{label}</button>
+<button type="button" class="button {kind}" {disabled} onclick={() => onpress()}>
+  {#if icon}<Icon name={icon} />{/if}{label}
+</button>
 
 <style>
   .button {
@@ -29,6 +36,10 @@
     white-space: normal;
     overflow-wrap: anywhere;
     touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
   }
   .primary {
     min-height: 48px;

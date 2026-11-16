@@ -74,3 +74,129 @@ body {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+
+/* ---------- The editors' look (docs/design-language.md): dark only, neutral greys, one accent ----------
+   These tokens live on `.look`, the root of the editor's own screens, so the older suite screens (which use their own
+   `--line` and `--problem`) keep working until pull request 7 replaces them and this block moves to `:root`. Words are
+   never fainter than 4.6 to 1; `--faint` is for icons and edges only. */
+.look {
+  color-scheme: dark;
+  --ground: #1e1e1e;
+  --panel: #252525;
+  --raised: #2a2a2a;
+  --hover: #333333;
+  --line: #383838;
+  --words: #ededed;
+  --quiet: #9c9c9c;
+  --faint: #8c8c8c;
+  --accent: #eeb480;
+  --on-accent: #1e1e1e;
+  --picked: #4a4a4a;
+  --bright: #ffffff;
+  --agent: #b5b1d8;
+  --problem: #e5484d;
+  --glass: rgb(30 30 30 / 0.72);
+  --glass-filter: blur(24px) brightness(0.45) saturate(1.4);
+  --glass-edge: rgb(255 255 255 / 0.1);
+  --glass-shine: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --glass-quiet: #a8a8a8;
+  --glass-soft: rgb(37 37 37 / 0.92);
+  --glass-soft-filter: blur(12px) brightness(0.5) saturate(1.2);
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  --row: 44px;
+  --bar: 56px;
+  --fs: 15px;
+  --title: "Fraunces Variable", "Onest Variable", system-ui, serif;
+  --label: "Onest Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --measure: "JetBrains Mono", ui-monospace, monospace;
+  --g-bg: var(--glass);
+  --g-filter: var(--glass-filter);
+  --g-edge: var(--glass-edge);
+  --g-shine: var(--glass-shine);
+  --g-quiet: var(--glass-quiet);
+  --s-bg: var(--glass-soft);
+  --s-filter: var(--glass-soft-filter);
+  background: var(--ground);
+  color: var(--words);
+  font: var(--fs) / 1.35 var(--label);
+}
+
+/* A mouse (or a hovering Pencil) gets small rows and a 48-point bar; a phone on its side a 44-point bar. */
+.look[data-rows="small"] {
+  --row: 30px;
+  --bar: 48px;
+  --fs: 13px;
+}
+
+.look[data-size="phone-sideways"] {
+  --bar: 44px;
+}
+
+/* Russian has no Fraunces letters, so its titles are Onest; the partners carry Korean, Japanese and Chinese. */
+.look:lang(ru) {
+  --title: "Onest Variable", system-ui, sans-serif;
+}
+
+.look:lang(ko) {
+  --label: "Onest Variable", "Noto Sans KR", system-ui, sans-serif;
+  --title: "Noto Sans KR", "Onest Variable", system-ui, sans-serif;
+}
+
+.look:lang(ja) {
+  --label: "Onest Variable", "Noto Sans JP", system-ui, sans-serif;
+  --title: "Noto Sans JP", "Onest Variable", system-ui, sans-serif;
+}
+
+.look:lang(zh) {
+  --label: "Onest Variable", "Noto Sans SC", system-ui, sans-serif;
+  --title: "Noto Sans SC", "Onest Variable", system-ui, sans-serif;
+}
+
+/* When there is no glass: today's solid panel, nothing else moving. Four cases: the page says so (`data-glass="off"`,
+   which the shell sets from the person's choice and the device), the browser draws no blur, the device asks for less
+   see-through (unless the person set the panels to On), or for more contrast. */
+:root[data-glass="off"] .look {
+  --g-bg: var(--panel);
+  --g-filter: none;
+  --g-edge: var(--line);
+  --g-shine: 0 0 #0000;
+  --g-quiet: var(--quiet);
+  --s-bg: var(--panel);
+  --s-filter: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .look {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--line);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root:not([data-glass="on"]) .look {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--line);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .look {
+    --g-bg: var(--panel);
+    --g-filter: none;
+    --g-edge: var(--quiet);
+    --g-shine: 0 0 #0000;
+    --g-quiet: var(--quiet);
+    --s-bg: var(--panel);
+    --s-filter: none;
+  }
+}

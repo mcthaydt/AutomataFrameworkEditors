@@ -5,7 +5,8 @@ import { defineConfig, type UserConfig } from 'vite'
 
 const config: UserConfig = defineConfig({
   plugins: [svelte()],
-  build: { target: 'es2023', sourcemap: true },
+  // No file is turned into a `data:` address: the page's rules allow fonts and images only from its own address.
+  build: { target: 'es2023', sourcemap: true, assetsInlineLimit: 0 },
 })
 
 export default config

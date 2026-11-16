@@ -34,3 +34,28 @@ test('every other dependency version is exact', () => {
   )
   for (const [name, version] of rest) expect(version, name).toMatch(/^\d+\.\d+\.\d+$/)
 })
+
+const LOOK_PACKAGES = [
+  '@fontsource-variable/fraunces',
+  '@fontsource-variable/onest',
+  '@fontsource/jetbrains-mono',
+  '@fontsource/noto-sans-jp',
+  '@fontsource/noto-sans-kr',
+  '@fontsource/noto-sans-sc',
+  '@phosphor-icons/core',
+] as const
+
+test('the look needs seven packages, all development-only', () => {
+  for (const name of LOOK_PACKAGES) {
+    expect(manifest.devDependencies[name], name).toBeDefined()
+    expect(manifest.dependencies[name], name).toBeUndefined()
+  }
+})
+
+test('the licences of those seven are in public/licences.txt, at the version installed', () => {
+  const notices = readFileSync(join(import.meta.dirname, '../../public/licences.txt'), 'utf8')
+  for (const name of LOOK_PACKAGES) {
+    expect(notices, name).toContain(name)
+    expect(notices, name).toContain(manifest.devDependencies[name] ?? '')
+  }
+})
