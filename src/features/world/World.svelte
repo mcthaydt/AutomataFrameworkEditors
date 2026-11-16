@@ -2,15 +2,7 @@
   import { onMount, untrack } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
-  import {
-    deviceWord,
-    glassOn,
-    type Me,
-    nextPointers,
-    type Pointers,
-    rowSize,
-    sizeClass,
-  } from '../device/device.ts'
+  import { deviceWord, type Me, nextPointers, type Pointers, rowSize, sizeClass } from '../device/device.ts'
   import {
     describe,
     dropDrafts,
@@ -23,8 +15,6 @@
     type OpenGame,
     redo,
     saveLevel,
-    startEdits,
-    takeDrafts,
     titleOf,
     undo,
   } from '../game/game.ts'
@@ -41,9 +31,14 @@
   } from '../shell/shell.ts'
   import { type Route, Share, Waiting, WaitingChange, withoutSheet } from '../team/team.ts'
   import { nameOf, type Row, WORDS, wordsIn } from '../words/words.ts'
+  import { begin } from './begin.ts'
   import { type Answer, type Saying, say, unsay } from './events.ts'
   import Events from './Events.svelte'
-  import { tipDone, tipKept } from './tips.ts'
+  import { showGlass } from './glass.ts'
+  import { listen, typing } from './listen.ts'
+  import Nudge from './Nudge.svelte'
+  import ThingRow from './ThingRow.svelte'
+  import { tipKept } from './tips.ts'
   import { WORLD } from './world-workspace.ts'
 
   // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
@@ -98,34 +93,7 @@
   const first = measure()
 
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
-  function begin(): { edits: Edits; said: readonly Saying[] } {
-    const taken = takeDrafts(drafts, given)
-    let said: readonly Saying[] = []
-    let edits = startEdits(given)
-    if (taken !== undefined && taken.moved.length > 0) {
-      dropDrafts(drafts, given)
-      said = say(said, { id: 'draft', kind: 'info', text: WORDS.draftDropped, dismiss: true })
-    } else if (taken !== undefined) {
-      edits = taken.edits
-      said = say(said, { id: 'draft', kind: 'good', text: WORDS.draftBack, dismiss: true })
-    }
-    if (given.login === undefined) {
-      said = say(said, { id: 'standing', kind: 'info', text: WORDS.visitorCan, dismiss: true })
-    } else if (!can(given.level, 'save')) {
-      said = say(said, { id: 'standing', kind: 'info', text: WORDS.lookOnly, dismiss: true })
-    } else if (given.mine !== undefined) {
-      said = say(said, { id: 'standing', kind: 'info', text: WORDS.mineWaiting, dismiss: true })
-    }
-    const toCheck = given.waiting - (given.mine === undefined ? 0 : 1)
-    if (given.level === 'owner' && given.login !== undefined && savedBefore && !tipDone(remembered, 'share')) {
-      said = say(said, { id: 'tip-share', kind: 'info', text: WORDS.tipShare, dismiss: true })
-    }
-    if (can(given.level, 'approve') && toCheck > 0 && !tipDone(remembered, 'approve')) {
-      said = say(said, { id: 'tip-approve', kind: 'info', text: WORDS.tipApprove, dismiss: true })
-    }
-    return { edits, said }
-  }
-  const started = begin()
+  const started = untrack(() => begin(given, drafts, remembered, savedBefore))
 
   let held = $state.raw<OpenGame>(untrack(() => given))
   /** What I may do. It can be lowered by a save the API refuses. */
@@ -180,78 +148,43 @@
 
   $effect(() => onfacts({ dirty, look: signedIn && !can(access, 'save') }))
 
-  // What the page is made of is told to the stylesheet once, on the page itself: the glass (when it is see-through),
-  // and below, on the screen's own root, the size and the row size.
-  $effect(() => {
-    const support = {
-      blur: CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)'),
-      lessSeeThrough: matchMedia('(prefers-reduced-transparency: reduce)').matches,
-      moreContrast: matchMedia('(prefers-contrast: more)').matches,
-    }
-    document.documentElement.dataset.glass = glassOn(me, support) ? 'on' : 'off'
-    return () => {
-      delete document.documentElement.dataset.glass
-    }
-  })
+  $effect(() => showGlass(me))
 
-  onMount(() => {
-    const measured = (): void => {
-      viewport = measure()
-    }
-    const warn = (e: BeforeUnloadEvent): void => {
+  onMount(() =>
+    listen({
+      resized: () => {
+        viewport = measure()
+      },
       // The browser's own question when the tab is closed with something unsaved.
-      if (dirty) e.preventDefault()
-    }
-    const heard = (e: PointerEvent): void => {
-      const next = nextPointers(pointers, e)
-      if (next.last !== pointers.last || next.penSeen !== pointers.penSeen || next.hovering !== pointers.hovering) {
-        pointers = next
-      }
-    }
-    const typing = (e: KeyboardEvent): boolean => {
-      const target = e.target
-      return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
-    }
-    const key = (e: KeyboardEvent): void => {
-      const command = commandFor({
-        key: e.key,
-        meta: e.metaKey,
-        ctrl: e.ctrlKey,
-        shift: e.shiftKey,
-        inField: typing(e),
-      })
-      if (command === 'undo' || command === 'redo') {
-        e.preventDefault()
-        step(command)
-      } else if (command === 'escape') {
-        picked = undefined
-      }
-    }
-    const up = (): void => {
-      online = true
-    }
-    const down = (): void => {
-      online = false
-    }
-    window.addEventListener('resize', measured)
-    window.addEventListener('beforeunload', warn)
-    window.addEventListener('keydown', key)
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    for (const type of ['pointerdown', 'pointermove', 'pointerover', 'pointerout', 'pointercancel']) {
-      window.addEventListener(type, heard as EventListener, { capture: true, passive: true })
-    }
-    return () => {
-      window.removeEventListener('resize', measured)
-      window.removeEventListener('beforeunload', warn)
-      window.removeEventListener('keydown', key)
-      window.removeEventListener('online', up)
-      window.removeEventListener('offline', down)
-      for (const type of ['pointerdown', 'pointermove', 'pointerover', 'pointerout', 'pointercancel']) {
-        window.removeEventListener(type, heard as EventListener, { capture: true })
-      }
-    }
-  })
+      leaving: (e) => {
+        if (dirty) e.preventDefault()
+      },
+      key: (e) => {
+        const command = commandFor({
+          key: e.key,
+          meta: e.metaKey,
+          ctrl: e.ctrlKey,
+          shift: e.shiftKey,
+          inField: typing(e),
+        })
+        if (command === 'undo' || command === 'redo') {
+          e.preventDefault()
+          step(command)
+        } else if (command === 'escape') {
+          picked = undefined
+        }
+      },
+      online: (on) => {
+        online = on
+      },
+      pointer: (e) => {
+        const next = nextPointers(pointers, e)
+        if (next.last !== pointers.last || next.penSeen !== pointers.penSeen || next.hovering !== pointers.hovering) {
+          pointers = next
+        }
+      },
+    }),
+  )
 
   /** A new `Edits`: shown, kept on the device, and the last "saved" is no longer true. */
   function keep(next: Edits): void {
@@ -586,16 +519,7 @@
         {#snippet row(at)}
           {@const thing = things[at]}
           {#if thing !== undefined}
-            <button
-              type="button"
-              class="thing-row"
-              data-row={thing.id}
-              aria-pressed={picked === thing.id}
-              onclick={() => (picked = thing.id)}
-            >
-              <span class="what">{nameOf(thing.id)}</span>
-              <small>{nameOf(thing.character)}</small>
-            </button>
+            <ThingRow {thing} picked={picked === thing.id} onpick={() => (picked = thing.id)} />
           {/if}
         {/snippet}
       </ListPanel>
@@ -610,12 +534,7 @@
         onhide={() => (docks = { ...docks, settings: 'hidden' })}
         onshow={() => (docks = { ...docks, settings: 'shown' })}
       >
-        <div class="pad">
-          <button type="button" class="up" onclick={() => nudge(placed.id, 'up')}>{WORDS.moveUp}</button>
-          <button type="button" class="left" onclick={() => nudge(placed.id, 'left')}>{WORDS.moveLeft}</button>
-          <button type="button" class="right" onclick={() => nudge(placed.id, 'right')}>{WORDS.moveRight}</button>
-          <button type="button" class="down" onclick={() => nudge(placed.id, 'down')}>{WORDS.moveDown}</button>
-        </div>
+        <Nudge onnudge={(way) => nudge(placed.id, way)} />
       </SettingsPanel>
     {/if}
 
@@ -644,67 +563,5 @@
     display: flex;
     flex-direction: column;
     padding: 0 8px 8px;
-  }
-  .thing-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    width: 100%;
-    height: 100%;
-    padding: 0 12px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--words);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .thing-row:hover {
-    background: var(--hover);
-  }
-  .thing-row[aria-pressed='true'] {
-    background: var(--picked);
-    color: var(--bright);
-  }
-  .thing-row small {
-    color: var(--quiet);
-  }
-  .pad {
-    display: grid;
-    grid-template-areas:
-      '. up .'
-      'left . right'
-      '. down .';
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 8px;
-  }
-  .pad button {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 6px;
-    border: 0;
-    border-radius: 8px;
-    background: var(--raised);
-    color: var(--words);
-    font: inherit;
-    cursor: pointer;
-  }
-  .pad button:hover {
-    background: var(--hover);
-  }
-  .up {
-    grid-area: up;
-  }
-  .left {
-    grid-area: left;
-  }
-  .right {
-    grid-area: right;
-  }
-  .down {
-    grid-area: down;
   }
 </style>
