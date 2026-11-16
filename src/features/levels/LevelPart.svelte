@@ -104,7 +104,6 @@
   const thingsPicked = $derived(picked.filter((id) => !isStart(id)))
   const pickedBox = $derived(unionBox(marks, picked))
 
-  // ——— notes ———
   let note = $state.raw<{ words: string; button?: string; press?: () => void } | undefined>()
   let noteTimer: ReturnType<typeof setTimeout> | undefined
   function say(said: string, button?: string, press?: () => void): void {
@@ -114,9 +113,8 @@
   }
   const sayUndoable = (said: string): void => say(said, text(wordsIn(lang).shell.undo), onundo)
   const names = (ids: readonly string[]): string =>
-    ids.length > 3
-      ? `${ids.slice(0, 3).map(nameOf).join(', ')}…`
-      : ids.map((id) => (isStart(id) ? text(words.markStart, playerOf(id)) : nameOf(id))).join(', ')
+    ids.slice(0, 3).map((id) => (isStart(id) ? text(words.markStart, playerOf(id)) : nameOf(id))).join(', ') +
+    (ids.length > 3 ? '…' : '')
   /** True (and says so, with the way to unlock) when any of these is locked. */
   function isLocked(ids: readonly string[]): boolean {
     if (!ids.some((id) => locked.has(id))) return false
@@ -137,8 +135,13 @@
 
   onMount(() => {
     let alive = true
+    // Taken a frame later, outside the observer's turn: changing what is watched inside it is an error in WebKit.
+    let frame = 0
     const watcher = new ResizeObserver(() => {
-      if (holder !== undefined) size = { w: holder.clientWidth, h: holder.clientHeight }
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        if (holder !== undefined) size = { w: holder.clientWidth, h: holder.clientHeight }
+      })
     })
     if (holder !== undefined) {
       watcher.observe(holder)
@@ -152,6 +155,7 @@
     return () => {
       alive = false
       watcher.disconnect()
+      cancelAnimationFrame(frame)
       clearTimeout(noteTimer)
       clearTimeout(holdTimer)
       engine?.destroy()
@@ -287,12 +291,11 @@
       grabIgnored = true
       if (act.on === undefined) return
       const ids = picked.includes(act.on) ? picked : [act.on]
-      if (!picked.includes(act.on)) onpick(ids)
+      if (ids !== picked) onpick(ids)
       if (isLocked(ids)) return
       grabIgnored = false
       grabbed = { base: level, ids }
-      ongrab()
-      return
+      return ongrab()
     }
     if (grabIgnored || grabbed === undefined) return
     if (act.phase === 'move') {
@@ -436,7 +439,6 @@
     else if (which === 'paste') paste({ x: camera.x, y: camera.y })
   }
 
-  // ——— where the floating parts sit: next to what is picked, never over it ———
   let barWidth = $state(0)
   const barAt = $derived(pickedBox === undefined ? undefined : barPlace(pickedBox, size, barWidth))
   const padAt = $derived(padPlace(pickedBox, size))
@@ -560,6 +562,7 @@
   .float {
     position: absolute;
     z-index: 30;
+    width: max-content; /* not dependent on where it sits */
   }
   .strip {
     position: absolute;
