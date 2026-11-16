@@ -84,8 +84,8 @@ does not change them.
 
 ## Non-goals
 
-- **The Tiles and Scenes parts of World** (my recommendation, the Owner's question Q1 below): they are World's next
-  parts, each after its framework piece. Until then the part menu shows Levels only. Painting what the ground *is*
+- **The Tiles and Scenes parts of World** (the Owner, 2026-11-16, Q1 = A): they are World's next parts, each after
+  its framework piece. Until then the part menu shows Levels only. Painting what the ground *is*
   (solid, ledge, empty, the tileset's kinds) is part of Levels and is built here; drawing a tile's picture and building
   a scene are not.
 - The other five editors. Their mockups exist; their build is their slices'.
@@ -493,13 +493,12 @@ All in GitHub-hosted CI, never locally.
 
 ## The Owner's questions
 
-Asked through the coordinator, 2026-11-16, each with my recommendation; this page is written on the recommendations
-and changes to match the answers.
+Asked through the coordinator, 2026-11-16, each with my recommendation; the Owner chose the recommendation for both.
 
-1. **Which parts of World does this slice build?** A (recommended): the shell, Levels and the world map now; Tiles and
-   Scenes are World's next parts, each after its framework piece. B: also Tiles now, which needs a framework format
-   that keeps a tileset's pictures as JSON, painted by `automata art`. C: all three, which also brings Scenes back
-   from the archive tag first.
+1. **Which parts of World does this slice build?** **Answered (2026-11-16): A**, the shell, Levels and the world map
+   now; Tiles and Scenes are World's next parts, each after its framework piece. (Considered: also Tiles now, which
+   needs a framework format that keeps a tileset's pictures as JSON, painted by `automata art`; all three, which also
+   brings Scenes back from the archive tag first.)
 2. **Where do notes live?** **Answered (2026-11-16): A**, `automata.notes.toml` on its own branch, `automata/notes`,
    written at once for anyone at Look or above, never touching the game. (Considered: the same file on the main branch,
    so every note runs the game's checks; notes waiting for a later slice.)
