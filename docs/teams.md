@@ -50,6 +50,20 @@ level = "approve"
 `"owner"`. If the file cannot be read, only the game's owner gets in, and the Share screen says the list was damaged and
 that saving it again mends it.
 
+## How strict the editors are
+
+Besides who may do what, a game can say what the editors do when a change leaves a problem in it (a door that leads to a
+level that is not there, say). That is one more file, `automata.editors.toml`, edited by hand or by an agent:
+
+```toml
+format = 1
+problems = "warn"
+```
+
+`problems` is `"warn"` or `"stop"`. With `"warn"`, the editors save the change and show the problem, so a half-made game
+can still be saved. With `"stop"`, they refuse a change that leaves a problem, and say what it is. With no file, it is
+`"warn"`.
+
 ## Set up your game's main branch
 
 This is part of setting a game up, not an extra. It makes sure the only way a change reaches the game is through the

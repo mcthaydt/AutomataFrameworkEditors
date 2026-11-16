@@ -2,3 +2,4 @@
 // editors' own settings. Used by both the page and the API, so nothing here touches a page or GitHub.
 
 export { changeProject, type ProjectChange } from './project-lines.ts'
+export { EDITORS_DEFAULT, EDITORS_FILE, type EditorsFile, parseEditors, writeEditors } from './editors-file.ts'
