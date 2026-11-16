@@ -497,7 +497,13 @@
     {/if}
   </div>
 {:else}
-  <div class="look world" {lang} data-size={size} data-rows={rows}>
+  <div
+    class="look world"
+    {lang}
+    data-size={size}
+    data-rows={rows}
+    style:--tools-room={lay.toolbar === 'bottom' ? '72px' : '0px'}
+  >
     {#if level !== undefined}
       <div
         class="level"

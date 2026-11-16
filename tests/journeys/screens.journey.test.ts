@@ -557,6 +557,10 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
           const second = shown[b]!.getBoundingClientRect()
           const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
           const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
+          // A menu opens over the screen: what it covers is under it, not beside it.
+          const menuA = shown[a]!.closest('[role=menu]') !== null
+          const menuB = shown[b]!.closest('[role=menu]') !== null
+          if (menuA !== menuB) continue
           if (across > 1 && down > 1 && !shown[a]!.contains(shown[b]!) && !shown[b]!.contains(shown[a]!))
             found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
         }
@@ -585,7 +589,12 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
             found.push(`text runs off the side: "${words.slice(0, 30)}"`)
         }
         const style = getComputedStyle(parent)
-        if (style.textOverflow === 'ellipsis' && parent.scrollWidth > parent.clientWidth)
+        // The bar's names may be shortened: the whole name is in the menu they open.
+        if (
+          style.textOverflow === 'ellipsis' &&
+          parent.scrollWidth > parent.clientWidth &&
+          parent.closest('[data-bar]') === null
+        )
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
       }
 

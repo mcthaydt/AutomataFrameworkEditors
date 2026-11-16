@@ -143,7 +143,8 @@
   .peek {
     left: max(8px, env(safe-area-inset-left));
     right: max(8px, env(safe-area-inset-right));
-    bottom: max(8px, env(safe-area-inset-bottom));
+    /* Above the toolbar when that is along the bottom too. */
+    bottom: calc(var(--tools-room, 0px) + max(8px, env(safe-area-inset-bottom)));
     display: flex;
     align-items: center;
     justify-content: space-between;
