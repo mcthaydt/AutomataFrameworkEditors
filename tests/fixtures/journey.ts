@@ -304,5 +304,3 @@ export const quietButton = (page: Page) => page.locator('button.put.quiet')
 /** Presses the main button. */
 export const pressPut = (page: Page) => putButton(page).click()
 
-/** What the notes under the bar say, one per line. */
-export const notes = (page: Page) => page.locator('.events')
