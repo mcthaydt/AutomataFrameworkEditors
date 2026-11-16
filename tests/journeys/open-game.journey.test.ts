@@ -76,6 +76,30 @@ test('when the sign-in is gone for good the person is on Welcome, told so', asyn
   await text(j, WORDS.signedOutAgain)
 })
 
+test('a sign-in renewal whose answer comes as the page reloads is not a fault, in any browser', async () => {
+  // WebKit reports a call whose answer arrives while the page is being replaced as a page error. Whether the answer or
+  // the reload wins is a race (and which page then shows the sign-out is the race's outcome), so the journey runs it
+  // several times, each time from a sign-in that is gone, and asks only that the page shows its first heading and
+  // that nothing was a fault.
+  for (let round = 0; round < 4; round += 1) {
+    const j = await open('ipadUpright')
+    await signIn(j.page)
+    await title(j, WORDS.pickTitle)
+    j.fake.signedOutEverywhere()
+    const release = j.hold('/api/token')
+    const asked = j.page.waitForRequest('**/api/token')
+    await j.page.goto(`${j.site}/${GAME}`)
+    await asked
+    release()
+    await j.page.reload()
+    await j.page.getByRole('heading', { level: 1 }).first().waitFor()
+    const found = await j.problems()
+    await j.close()
+    journey = undefined
+    expect(found, `round ${round}`).toEqual([])
+  }
+})
+
 test('a game that is not there says so', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)

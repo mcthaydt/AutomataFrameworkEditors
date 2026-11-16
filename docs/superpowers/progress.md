@@ -439,17 +439,6 @@ to the plan again"). Work picks up from that roadmap, not from here. Where thing
   numbers are in the mono font, which reverses the plain-words audit; Pencil double tap's on-screen twin is the
   toolbar's own Erase, not an extra button; squeeze and the felt tick are only on the Keys page.
 
-## Must-fix for the first build after the mockups are approved
-
-Editor code is on hold until the Owner approves the mockups (`docs/mockups/`, PR 34). These wait for the first
-build after that approval and go before any other editor work:
-
-- **WebKit sign-in journey fails now and then.** `tests/journeys/open-game.journey.test.ts > when the sign-in is
-  gone for good the person is on Welcome, told so` failed in `engines (webkit)` at 3bda1c3, with the page error
-  "/api/token due to access control checks", and passed when the job was run again. That commit changed only
-  `docs/mockups/`, so the fault is in the editors' code or the journey server. Find it and fix it; do not retry
-  past it.
-
 ## The World editor (roadmap slice 3, items 5 and 6)
 
 Spec written 2026-11-16 after the Owner approved the mockups (board v17):
