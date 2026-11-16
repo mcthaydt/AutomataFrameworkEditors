@@ -69,6 +69,7 @@
           {#if oncopy !== undefined}<Action label={text(h.helperCopy)} icon="copy" onpress={oncopy} />{/if}
         </div>
       {/if}
+      <p class="play">{text(words.play.tipCode)}</p>
     </section>
   </Sheet>
 </div>
@@ -155,5 +156,11 @@
   }
   .helper p {
     margin: 0;
+  }
+  .play {
+    margin: 0;
+    padding: 4px 10px 8px;
+    color: var(--g-quiet);
+    font-size: 13px;
   }
 </style>

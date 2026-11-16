@@ -194,6 +194,9 @@
         } else if (command === 'escape') {
           picked = []
           placing = undefined
+        } else if (command === 'play' && level !== undefined) {
+          e.preventDefault()
+          startPlay()
         } else if (command === 'help') {
           e.preventDefault()
           guide?.open('help')

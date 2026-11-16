@@ -109,6 +109,13 @@ test('the panels stay and go quiet; Bigger puts them away and Smaller brings the
   expect(dock()).not.toBeNull()
 })
 
+test('Space starts the game', async () => {
+  await open()
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+  await started()
+  expect(has('Stop')).toBe(true)
+})
+
 test('Escape stops the game, and a key while it plays is not a key of the editor', async () => {
   await open()
   await press('Play')
