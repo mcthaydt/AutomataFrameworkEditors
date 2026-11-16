@@ -35,6 +35,7 @@
   import { type Answer, type Saying, say, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
+  import Guidance from './Guidance.svelte'
   import { listen, typing } from './listen.ts'
   import Nudge from './Nudge.svelte'
   import ThingRow from './ThingRow.svelte'
@@ -61,12 +62,10 @@
     onsignedout: () => void
     /** Open the game again: their version, with nothing of mine. */
     onreload: () => void
-    /** Where the person is in the first run: told whenever it changes. */
-    onfacts: (facts: { dirty: boolean; look: boolean }) => void
     /** Told once a save has gone in, and how. */
     onsaved: (how: 'direct' | 'suggestion') => void
-    /** Told when a copy was made. */
-    onkept: () => void
+    /** Told when something "For me" in Settings is changed: the page keeps it on this device. */
+    onme: (next: Me) => void
   }
   let {
     game: given,
@@ -81,9 +80,8 @@
     onsignout,
     onsignedout,
     onreload,
-    onfacts,
     onsaved,
-    onkept,
+    onme,
   }: Props = $props()
 
   const measure = (): { w: number; h: number } => ({
@@ -93,7 +91,7 @@
   const first = measure()
 
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
-  const started = untrack(() => begin(given, drafts, remembered, savedBefore))
+  const started = untrack(() => begin(given, drafts, remembered, savedBefore, me.tips))
 
   let held = $state.raw<OpenGame>(untrack(() => given))
   /** What I may do. It can be lowered by a save the API refuses. */
@@ -118,6 +116,9 @@
   let rows = $state<'touch' | 'small'>(untrack(() => rowSize(pointers, me.rows)))
   /** What to do once "Leave without saving" is pressed. */
   let pending: (() => void) | undefined
+
+  /** The first run and the sheets of help: told what the person does, asked to open a sheet. */
+  let guide = $state.raw<ReturnType<typeof Guidance>>()
 
   const lang = $derived(me.language ?? 'en')
   const words = $derived(wordsIn(lang))
@@ -146,8 +147,6 @@
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
   const placed = $derived(picked === undefined ? undefined : things.find((thing) => thing.id === picked))
 
-  $effect(() => onfacts({ dirty, look: signedIn && !can(access, 'save') }))
-
   $effect(() => showGlass(me))
 
   onMount(() =>
@@ -172,6 +171,14 @@
           step(command)
         } else if (command === 'escape') {
           picked = undefined
+        } else if (command === 'help') {
+          e.preventDefault()
+          guide?.open('help')
+        } else if (command?.startsWith('nudge:') && picked !== undefined && !e.defaultPrevented && guide?.sheetOpen() !== true) {
+          // A thing that has focus moves itself; this is for a picked thing when the focus is elsewhere.
+          e.preventDefault()
+          const way = command.slice('nudge:'.length)
+          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked, way)
         }
       },
       online: (on) => {
@@ -185,6 +192,11 @@
       },
     }),
   )
+
+  function pick(id: string | undefined): void {
+    picked = id
+    if (id !== undefined) guide?.happen({ kind: 'picked' })
+  }
 
   /** A new `Edits`: shown, kept on the device, and the last "saved" is no longer true. */
   function keep(next: Edits): void {
@@ -217,6 +229,7 @@
     if (result.moved) {
       solid(false)
       keep(inLevel(from, levelId, () => result.edit.now))
+      guide?.happen({ kind: 'moved' })
     } else if (result.why === 'solid') {
       // The thing stays at the last free spot, and the person is told why.
       solid(true)
@@ -238,7 +251,10 @@
     if (start === undefined) return
     const result = nudgeThing(startEdit(start), held.content.characters, id, way)
     solid(!result.moved && result.why === 'solid')
-    if (result.moved) keep(inLevel(edits, levelId, () => result.edit.now))
+    if (result.moved) {
+      keep(inLevel(edits, levelId, () => result.edit.now))
+      guide?.happen({ kind: 'moved' })
+    }
   }
 
   function openList(tab: 'list' | 'add'): void {
@@ -331,7 +347,6 @@
       // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
       events = say(events, { id: 'copied', kind: 'info', text: WORDS.copySelect, box: copy.text, dismiss: true })
     }
-    onkept()
   }
   function copyFile(): void {
     const copy = copyOfNow()
@@ -339,7 +354,6 @@
     keepCopy(document, copy)
     events = unsay(events, 'keep')
     events = say(events, { id: 'copied', kind: 'good', text: WORDS.copyKept, dismiss: true })
-    onkept()
   }
 
   function answered(event: Saying, answer: Answer): void {
@@ -384,6 +398,7 @@
     else if (id === 'waiting') asSheet({ kind: 'waiting' })
     else if (id === 'keep') askKeep()
     else if (id === 'games') leave(() => go({ screen: 'games' }))
+    else if (id === 'help' || id === 'settings') guide?.open(id)
     else if (id === 'sign-in') onsignin()
     else if (id === 'sign-out') onsignout()
   }
@@ -452,7 +467,7 @@
           hero={held.content.project.hero}
           label={nameOf(levelId)}
           {picked}
-          onpick={(id) => (picked = id)}
+          onpick={pick}
           ongrab={grab}
           ondrag={drag}
           ondrop={drop}
@@ -521,7 +536,7 @@
         {#snippet row(at)}
           {@const thing = things[at]}
           {#if thing !== undefined}
-            <ThingRow {thing} picked={picked === thing.id} onpick={() => (picked = thing.id)} />
+            <ThingRow {thing} picked={picked === thing.id} onpick={() => pick(thing.id)} />
           {/if}
         {/snippet}
       </ListPanel>
@@ -541,6 +556,22 @@
     {/if}
 
     <Events {events} onanswer={answered} />
+
+    <Guidance
+      bind:this={guide}
+      {lang}
+      {me}
+      game={held}
+      {api}
+      owner={signedIn && can(access, 'share')}
+      {remembered}
+      {things}
+      {picked}
+      {onme}
+      onsettings={(settings) => (held = { ...held, ...settings })}
+      {onsignedout}
+      onkeep={level === undefined ? undefined : askKeep}
+    />
   </div>
 {/if}
 

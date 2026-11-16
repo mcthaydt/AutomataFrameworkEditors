@@ -170,7 +170,6 @@ test('not signed in, a private game says it cannot be found, and signing in as i
   await text(j, WORDS.cantFindVisitor)
   // One Sign in, the screen's own: the bar does not offer a second one a hand away.
   expect(await j.page.getByRole('button', { name: WORDS.signIn }).count()).toBe(1)
-  expect(await j.page.locator('.guide').count()).toBe(0)
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
   await inGame(j)
 })

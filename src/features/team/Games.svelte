@@ -14,13 +14,11 @@
     remembered: Storage
     onadd: () => void
     onsignout: () => void
-    /** Told how many games the list holds, once it is known. */
-    ongames: (count: number) => void
     /** True when GitHub has just sent the person back from adding the editor. */
     justAdded: boolean
     onsignedout: () => void
   }
-  let { api, remembered, onadd, onsignout, ongames, justAdded, onsignedout }: Props = $props()
+  let { api, remembered, onadd, onsignout, justAdded, onsignedout }: Props = $props()
 
   let games = $state<readonly GameRef[] | undefined>(undefined)
   let trouble = $state(false)
@@ -40,8 +38,6 @@
     const all = [...(answer.ok ? answer.value : [])]
     for (const game of recentGames(remembered)) if (!all.some((one) => same(one, game))) all.push(game)
     games = all
-    // A list that could not be fetched and has nothing on this device says nothing about whether there are games.
-    if (!(trouble && all.length === 0)) ongames(all.length)
     // Back from adding the editor to exactly one game: open it, nothing more to choose.
     const only = all[0]
     if (justAdded && all.length === 1 && only !== undefined) {

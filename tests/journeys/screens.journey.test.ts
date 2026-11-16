@@ -10,7 +10,7 @@ import { type Level, writeContent } from '@automataframework/framework/headless'
 import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
@@ -51,13 +51,34 @@ afterEach(async () => {
 })
 
 /** One more window of the same pretend GitHub (everything the first one set up is kept). */
-const window_ = async (size: Size, person: Person, keep = windows.length > 0): Promise<JourneyPage> => {
-  const j = await openPage(size, person, keep)
+const window_ = async (
+  size: Size,
+  person: Person,
+  keep = windows.length > 0,
+  options: Parameters<typeof openPage>[4] = {},
+): Promise<JourneyPage> => {
+  const j = await openPage(size, person, keep, undefined, options)
   windows.push(j)
   return j
 }
 const repoOf = (j: JourneyPage) => j.fake.repos.get('grandma/crate-game')!
 const text = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
+const said = (row: WordRow, ...parts: (string | number)[]): string =>
+  typeof row === 'function' ? row(...parts) : row
+const w = (lang: Lang = 'en') => wordsIn(lang)
+/** A new person at the demo: the language card, then (after "Go on" and "Try it now") the welcome over the level. */
+async function newPerson(size: Size): Promise<JourneyPage> {
+  const j = await window_(size, 'grandma', false, { firstRun: true, locale: 'en-US' })
+  await heading(j, said(w().first.languageTitle))
+  return j
+}
+async function welcomed(size: Size): Promise<JourneyPage> {
+  const j = await newPerson(size)
+  await j.page.getByRole('button', { name: said(w().first.languageGo) }).click()
+  await j.page.getByRole('button', { name: WORDS.tryIt }).click()
+  await j.page.getByRole('dialog', { name: said(w().first.welcomeTitle) }).waitFor()
+  return j
+}
 const heading = (j: JourneyPage, name: string) => j.page.getByRole('heading', { level: 1, name }).waitFor()
 const level1 = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '') as Level
 /** The level with the crate somewhere else: what a teammate saved while someone had it open. */
@@ -197,14 +218,25 @@ const SCENES: readonly Scene[] = [
       return j
     },
   },
+  // The first run.
   {
-    name: 'welcome-guide-hidden',
+    name: 'first-run-language',
+    reach: newPerson,
+  },
+  {
+    name: 'first-run-welcome',
+    reach: welcomed,
+    stage: true,
+  },
+  {
+    name: 'first-run-tour',
     reach: async (size) => {
-      const j = await window_(size, 'grandma')
-      await j.page.getByRole('button', { name: WORDS.guideHide }).click()
-      await heading(j, WORDS.appName)
+      const j = await welcomed(size)
+      await j.page.getByRole('button', { name: said(w().first.welcomeShow) }).click()
+      await j.page.locator('.coach').waitFor()
       return j
     },
+    stage: true,
   },
   { name: 'visitor-world', reach: visitorGame, stage: true },
   {
@@ -421,6 +453,38 @@ const SCENES: readonly Scene[] = [
     },
     stage: true,
   },
+  // Settings, Help and the keys.
+  {
+    name: 'world-settings',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await chooseFromMenu(j.page, menuWords.settings)
+      await j.page.getByRole('dialog', { name: said(w().settings.settingsTitle) }).waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'world-help',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await chooseFromMenu(j.page, menuWords.help)
+      await j.page.getByRole('dialog', { name: said(w().help.helpTitle) }).waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'world-keys',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await chooseFromMenu(j.page, menuWords.help)
+      await j.page.getByRole('button', { name: new RegExp(said(w().help.helpKeysRow)) }).click()
+      await j.page.getByRole('dialog', { name: said(w().help.keysTitle) }).waitFor()
+      return j
+    },
+    stage: true,
+  },
   // Waiting changes.
   {
     name: 'waiting-list',
@@ -557,9 +621,9 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
           const second = shown[b]!.getBoundingClientRect()
           const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
           const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
-          // A menu opens over the screen: what it covers is under it, not beside it.
-          const menuA = shown[a]!.closest('[role=menu]') !== null
-          const menuB = shown[b]!.closest('[role=menu]') !== null
+          // A menu or a sheet opens over the screen: what it covers is under it, not beside it.
+          const menuA = shown[a]!.closest('[role=menu], [aria-modal=true]') !== null
+          const menuB = shown[b]!.closest('[role=menu], [aria-modal=true]') !== null
           if (menuA !== menuB) continue
           if (across > 1 && down > 1 && !shown[a]!.contains(shown[b]!) && !shown[b]!.contains(shown[a]!))
             found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)

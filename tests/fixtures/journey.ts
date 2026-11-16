@@ -71,12 +71,38 @@ export async function openPage(
   keep = false,
   /** `owner/name`: the demo (the Crate Game) or `LINKS` (three rooms whose doors and edges join). */
   game: string = DEMO,
+  /**
+   * `firstRun`: a person who has never been here (the language card, then the welcome and the tour); by default the
+   * first run is done and English chosen, so a journey about something else is not in the way of it.
+   * `locale`: the language the browser says it speaks.
+   */
+  options: { readonly firstRun?: boolean; readonly locale?: string } = {},
 ): Promise<JourneyPage> {
   if (running === undefined) throw new Error('Call setupJourneys() at the top of the journey file.')
   const { fake, site, browser } = running
   if (!keep) fake.reset()
   fake.person = person
-  const context: BrowserContext = await browser.newContext({ viewport: SIZES[size], hasTouch: true })
+  const context: BrowserContext = await browser.newContext({
+    viewport: SIZES[size],
+    hasTouch: true,
+    ...(options.locale === undefined ? {} : { locale: options.locale }),
+  })
+  if (options.firstRun !== true) {
+    // A person who has been here: the first run is finished and English chosen, but only until they choose otherwise.
+    await context.addInitScript(() => {
+      try {
+        if (
+          localStorage.getItem('af.me.language') === null &&
+          localStorage.getItem('af.guide.done') === null
+        ) {
+          localStorage.setItem('af.me.language', 'en')
+          localStorage.setItem('af.guide.done', '1')
+        }
+      } catch {
+        // A browser that will not keep it shows the first run, which a journey of that kind expects.
+      }
+    })
+  }
   // The browser reports every rule it refused to obey; a journey fails on any.
   await context.addInitScript(() => {
     const w = window as unknown as { __refused: string[] }
@@ -141,6 +167,8 @@ export const menuWords = {
   yourGames: sayRow(MENUS.yourGames),
   signIn: sayRow(MENUS.signIn),
   signOut: sayRow(MENUS.signOut),
+  help: sayRow(MENUS.helpRow),
+  settings: sayRow(MENUS.settingsRow),
 } as const
 
 /**

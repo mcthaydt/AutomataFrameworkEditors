@@ -4,6 +4,7 @@
 import './ui.css'
 import './fonts.css'
 
+export { default as Action } from './Action.svelte'
 export { default as Button } from './Button.svelte'
 export { default as Choice } from './Choice.svelte'
 export { default as Dock } from './Dock.svelte'

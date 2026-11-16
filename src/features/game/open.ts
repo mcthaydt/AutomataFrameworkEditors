@@ -22,6 +22,8 @@ export interface OpenGame {
   readonly files: ReadonlyMap<string, WireFile>
   /** The editors' settings for everyone on this game. */
   readonly editors: EditorsFile
+  /** The version of the settings file, to change it from; undefined when the game has none. */
+  readonly editorsVersion: string | undefined
   /** Who is in the game. */
   readonly people: readonly Person[]
   /** The pictures its tilesets name, by their path, as the API sent them. */
@@ -61,6 +63,7 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       content: loaded.value,
       files,
       editors: value.editors,
+      editorsVersion: value.editorsVersion,
       people: value.people,
       pictures: value.pictures,
       worldPath: loaded.value.project.content.find((ref) => ref.type === 'world')?.path,

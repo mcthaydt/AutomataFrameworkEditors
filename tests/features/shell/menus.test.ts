@@ -27,6 +27,14 @@ test('waiting changes are a row only when some wait, and keeping a copy names th
   expect(gameItems(owner, bar).find((row) => row.id === 'keep')?.words).toBe('Keep a copy of Level 1')
 })
 
+test('Help and Settings are in the menu for everyone, a visitor too, with the key for Help beside it', () => {
+  for (const facts of [owner, { ...owner, signedIn: false, level: 'look' as const }]) {
+    const rows = gameItems(facts, bar)
+    expect(rows.find((row) => row.id === 'help')).toMatchObject({ words: 'Help', key: '?' })
+    expect(rows.find((row) => row.id === 'settings')?.words).toBe('Settings')
+  }
+})
+
 test('no row of the game menu is a rule twice in a row or at an end', () => {
   for (const facts of [owner, { ...owner, signedIn: false, level: 'look' as const, levelName: undefined }]) {
     const rows = gameItems(facts, bar)

@@ -36,6 +36,9 @@ export function gameItems(facts: GameFacts, bar: Bar): readonly MenuItem[] {
     })
   }
   if (items.length > 0) items.push({ id: 'rule-1', words: '', kind: 'rule' })
+  items.push({ id: 'help', words: say(bar.helpRow), about: say(bar.helpAbout), icon: 'question', key: '?' })
+  items.push({ id: 'settings', words: say(bar.settingsRow), icon: 'gear' })
+  items.push({ id: 'rule-3', words: '', kind: 'rule' })
   items.push({
     id: 'games',
     words: say(bar.yourGames),

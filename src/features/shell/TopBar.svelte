@@ -235,6 +235,7 @@
       <button
         type="button"
         class="put"
+        data-tour="main"
         class:waiting={mine?.kind === 'more'}
         onclick={() => onmain(main)}
       >
@@ -254,12 +255,12 @@
         </span>
       </button>
     {:else if mine?.kind === 'waiting'}
-      <button type="button" class="put quiet" onclick={() => onmain('waiting')}>
+      <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
         <Icon name="paper-plane-tilt" />
         <span class="what"><b>{text(w.waitingFor, mine.by)}</b></span>
       </button>
     {:else}
-      <button type="button" class="put quiet" aria-disabled="true">
+      <button type="button" class="put quiet" data-tour="main" aria-disabled="true">
         <Icon name="check" />
         <span class="what"><b>{text(w.upToDate)}</b></span>
       </button>

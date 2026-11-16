@@ -112,6 +112,12 @@ test('opening a game gives everyone its settings: the default with no file, the 
   expect((await open('visitor')).editors).toEqual(STOP)
 })
 
+test('opening a game says which version of the settings file to change from: none with no file', async () => {
+  expect((await open('grandma')).editorsVersion).toBeUndefined()
+  repo().put('main', EDITORS_FILE, writeEditors(STOP))
+  expect((await open('grandma')).editorsVersion).toBe(blobSha(writeEditors(STOP)))
+})
+
 test('a settings file that cannot be read opens as the default, and the game still opens', async () => {
   repo().put('main', EDITORS_FILE, 'problems = "stop"\n')
   expect((await open('kid')).editors).toEqual({ format: 1, problems: 'warn' })
