@@ -66,10 +66,7 @@ function relist(
 }
 
 /** The world with each entry whose level the game does not have taken out. */
-function tidy(
-  world: WorldFile | undefined,
-  levels: Readonly<Record<string, Level>>,
-): WorldFile | undefined {
+function tidy(world: WorldFile | undefined, levels: Readonly<Record<string, Level>>): WorldFile | undefined {
   if (world === undefined) return undefined
   const entries = world.levels.filter((entry) => levels[entry.level] !== undefined)
   return entries.length === world.levels.length ? world : { ...world, levels: entries }

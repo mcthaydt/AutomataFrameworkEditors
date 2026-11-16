@@ -129,7 +129,11 @@ test('two new things that are the same are one thing, and a new thing of mine go
   const same = merge(base, add(base, 'crate-2', 3.5), add(base, 'crate-2', 3.5))
   expect(room(same.now, 'room-1').things.filter((t) => t.id === 'crate-2')).toHaveLength(1)
   const mixed = merge(base, add(base, 'crate-5', 3.5), add(base, 'crate-6', 4.5))
-  expect(room(mixed.now, 'room-1').things.slice(-2).map((t) => t.id)).toEqual(['crate-6', 'crate-5'])
+  expect(
+    room(mixed.now, 'room-1')
+      .things.slice(-2)
+      .map((t) => t.id),
+  ).toEqual(['crate-6', 'crate-5'])
 })
 
 test('the ground laid together tile by tile when we painted different tiles', () => {

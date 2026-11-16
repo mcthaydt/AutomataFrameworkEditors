@@ -25,7 +25,7 @@ function keysOf(store: Storage, game: OpenGame): string[] {
   try {
     for (let i = 0; i < store.length; i += 1) {
       const key = store.key(i)
-      if (key !== null && key.startsWith(prefix)) keys.push(key)
+      if (key?.startsWith(prefix)) keys.push(key)
     }
   } catch {
     // A store that throws has no drafts to find.
