@@ -4,6 +4,15 @@ The tracker every stage reads first and updates last. It keeps **only open work*
 (the Owner, 2026-11-16); finished and parked work moves to [`history.md`](history.md), which threads read only
 when asked. One section per cycle; newest first.
 
+## The World editor build (roadmap slice 3, items 5 and 6): planned (2026-11-16)
+
+Stage 2 done: [`plans/2026-11-16-world-editor.md`](plans/2026-11-16-world-editor.md), from
+[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). 44 tasks in 18 pull requests,
+three lanes, plus three framework tasks (F1 to F3) built in AutomataFramework. Build progress: **0%**.
+
+- Next: the plan audit (stage 3, Opus medium), then execution (Sonnet high) starting with pull requests 1 and 2.
+- Waits on the framework: only pull request 17 (Plan W's pull request 5, and F1 to F3).
+
 ## The shell and World mockups (roadmap slice 3): the plain-words round, all 29 findings fixed (2026-11-15)
 
 Visual review step 1's fixes (the [plain-words check of board v15](audits/2026-11-15-mockups-v15-plain-words.md)),
