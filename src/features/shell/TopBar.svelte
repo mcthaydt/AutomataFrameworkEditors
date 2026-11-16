@@ -82,6 +82,7 @@
 
   const words = $derived(wordsIn(lang))
   const w = $derived(words.bar)
+  const m = $derived(words.menus)
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
   const compact = $derived(size === 'phone')
@@ -131,14 +132,14 @@
                   : w.canLook,
         )}`,
   )
-  const gameRows = $derived(gameItems(gameFacts, w))
-  const editorRows = $derived(editorItems(w, workspace.id))
+  const gameRows = $derived(gameItems(gameFacts, m))
+  const editorRows = $derived(editorItems(m, workspace.id))
   const partRows = $derived(
-    partItems({ workspace, part, compact, levels, level: place }, gameFacts, w),
+    partItems({ workspace, part, compact, levels, level: place }, gameFacts, m),
   )
 
   const current = $derived(workspace.parts.find((one) => one.id === part))
-  const partWords = $derived(text(current === undefined ? w.partLevels : w[current.words]))
+  const partWords = $derived(text(current === undefined ? m.partLevels : m[current.words]))
   const partName = $derived(place === undefined ? partWords : `${partWords} · ${nameOf(place)}`)
 
   const statuses = $derived(statusOf(facts))
@@ -156,7 +157,7 @@
     onmenu(id)
   }
   function pickEditor(id: string): void {
-    const said = noteFor(w, id)
+    const said = noteFor(m, id)
     close()
     if (said !== undefined) note = said
   }
@@ -177,7 +178,7 @@
         <Icon name="caret-down" />
       </button>
       <button type="button" class="editors" bind:this={anchors.editors} aria-haspopup="menu" aria-expanded={open === 'editors'} onclick={() => show('editors')}>
-        <b>{text(w.editorWorld)}</b>
+        <b>{text(m.editorWorld)}</b>
         <Icon name="caret-down" />
       </button>
     {/if}
@@ -187,12 +188,12 @@
     </button>
     <span class="fill"></span>
     {#if !compact}
-      <button type="button" class="icon" aria-label={words.shell.undo} aria-disabled={canUndo ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => {
           if (canUndo) onundo()
         }}>
         <Icon name="arrow-counter-clockwise" />
       </button>
-      <button type="button" class="icon" aria-label={words.shell.redo} aria-disabled={canRedo ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => {
           if (canRedo) onredo()
         }}>
         <Icon name="arrow-clockwise" />
@@ -224,7 +225,7 @@
         <Icon name="magnifying-glass" /><span class="long">{text(w.find)}</span>
       </button>
     {/if}
-    <Faces {people} label={text(w.whoCanChange)} onopen={onpeople} />
+    <Faces {people} label={text(m.whoCanChange)} onopen={onpeople} />
     {#if onplay}
       <button type="button" class="chip play" aria-pressed={playing} onclick={onplay}>
         <Icon name={playing ? 'stop' : 'play'} /><span>{text(playing ? w.stop : w.play)}</span>
@@ -267,7 +268,7 @@
 </Dock>
 
 {#if open !== undefined}
-  <button type="button" class="dim" tabindex="-1" aria-label={words.shell.close} onclick={close}></button>
+  <button type="button" class="dim" tabindex="-1" aria-label={text(words.shell.close)} onclick={close}></button>
   <div class="pop" style:left="{left}px" style:top="{top}px">
     {#if open === 'game'}
       <GameMenu name={gameName} {who} items={gameRows} onpick={pickGame} onclose={close} />
@@ -281,7 +282,7 @@
 
 {#if note !== undefined}
   <div class="notes">
-    <Note words={note} button={words.shell.gotIt} onpress={() => (note = undefined)} />
+    <Note words={note} button={text(words.shell.gotIt)} onpress={() => (note = undefined)} />
   </div>
 {/if}
 

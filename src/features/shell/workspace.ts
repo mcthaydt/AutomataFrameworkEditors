@@ -2,18 +2,18 @@
 // of settings. A workspace says only which parts it has, which of the five tools have a job on its page, and the six
 // editors are listed once here so the editor menu and the part menu draw the same rows.
 import type { IconName } from '../ui/ui.ts'
-import type { bar } from '../words/words.ts'
+import type { menus } from '../words/words.ts'
 
 /** The five tools every workspace shares, in the order the toolbar draws them. */
 export const TOOLS = ['pick', 'place', 'paint', 'erase', 'join'] as const
 export type Tool = (typeof TOOLS)[number]
 
-/** A row of the words in `words/bar.ts`. */
-export type BarKey = keyof (typeof bar)['en']
+/** A row of the words in `words/menus.ts`. */
+export type MenuKey = keyof (typeof menus)['en']
 
 export interface Workspace {
   readonly id: 'world'
-  readonly parts: readonly { readonly id: string; readonly words: BarKey; readonly about: BarKey }[]
+  readonly parts: readonly { readonly id: string; readonly words: MenuKey; readonly about: MenuKey }[]
   /** The tools that have a job on this page; one left out is not drawn. */
   readonly tools: readonly Tool[]
 }
@@ -23,10 +23,10 @@ export interface Editor {
   readonly icon: IconName
   /** False: drawn as it will be, and a tap says in plain words that it is not in this version yet. */
   readonly built: boolean
-  readonly name: BarKey
-  readonly about: BarKey
+  readonly name: MenuKey
+  readonly about: MenuKey
   /** What a tap on a row that is not built says. */
-  readonly note: BarKey | undefined
+  readonly note: MenuKey | undefined
 }
 
 /** The six editors, in the order the editor menu draws them. */

@@ -4,7 +4,7 @@ import { EDITORS, TOOLS } from '#src/features/shell/shell.ts'
 import { LANGUAGES, type Row, wordsIn } from '#src/features/words/words.ts'
 import { WORLD } from '../../fixtures/shell.ts'
 
-const bar = wordsIn('en').bar
+const bar = wordsIn('en').menus
 const owner = { signedIn: true, level: 'owner', waiting: 0, levelName: 'level-1' } as const
 
 test('a visitor is never shown who can change the game, and is offered sign-in, not sign-out', () => {
@@ -68,7 +68,8 @@ test('no row of the editors says what a person should not read, in any language'
     'i',
   )
   for (const lang of LANGUAGES) {
-    for (const [name, row] of Object.entries(wordsIn(lang).bar)) {
+    const { bar: top, menus, panels } = wordsIn(lang)
+    for (const [name, row] of Object.entries({ ...top, ...menus, ...panels })) {
       expect(said(row as Row), `${name} in ${lang}`).not.toMatch(later)
     }
   }

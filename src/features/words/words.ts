@@ -6,11 +6,15 @@
 import { bar } from './bar.ts'
 import { first } from './first.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
+import { menus } from './menus.ts'
+import { panels } from './panels.ts'
 import { shell } from './shell.ts'
 
 export { bar } from './bar.ts'
 export { first } from './first.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
+export { menus } from './menus.ts'
+export { panels } from './panels.ts'
 export { shell } from './shell.ts'
 
 const YOU_ARE: Readonly<Record<string, string>> = {
@@ -172,6 +176,8 @@ export const WORDS = Object.freeze({
 export interface Words {
   readonly bar: Readonly<Record<keyof (typeof bar)['en'], Row>>
   readonly shell: Readonly<Record<keyof (typeof shell)['en'], Row>>
+  readonly menus: Readonly<Record<keyof (typeof menus)['en'], Row>>
+  readonly panels: Readonly<Record<keyof (typeof panels)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
 }
 
@@ -185,6 +191,8 @@ export function wordsIn(lang: Lang): Words {
     bar: { ...bar.en, ...bar[lang] },
     shell: { ...shell.en, ...shell[lang] },
     first: { ...first.en, ...first[lang] },
+    menus: { ...menus.en, ...menus[lang] },
+    panels: { ...panels.en, ...panels[lang] },
   }
 }
 

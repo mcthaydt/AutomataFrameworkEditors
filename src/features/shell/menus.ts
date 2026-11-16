@@ -2,11 +2,11 @@
 // who only suggests, an owner) can be checked without a page.
 import { type AccessLevel, can } from '../access/access.ts'
 import type { MenuItem } from '../ui/ui.ts'
-import { nameOf, type Words } from '../words/words.ts'
+import { nameOf, type Row, type Words } from '../words/words.ts'
 import { EDITORS, type Workspace } from './workspace.ts'
 
-type Bar = Words['bar']
-const say = (row: Bar[keyof Bar], ...parts: (string | number)[]): string =>
+type Bar = Words['menus']
+const say = (row: Row, ...parts: (string | number)[]): string =>
   typeof row === 'string' ? row : row(...parts)
 
 export interface GameFacts {
