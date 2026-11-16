@@ -96,6 +96,8 @@
 
   function pause(): void {
     if (playing === undefined) return
+    // The person has taken it over: what the screen was waiting for no longer decides.
+    held = false
     if (playing.paused()) playing.resume()
     else playing.pause()
     paused = playing.paused()

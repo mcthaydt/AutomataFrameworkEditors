@@ -161,6 +161,21 @@ test('the game waits while the tip shows and goes on at Got it', async () => {
   await vi.waitFor(() => expect(has('Pause')).toBe(true))
 })
 
+test('a person who goes on and pauses while the tip shows keeps it paused after Got it', async () => {
+  remembered.removeItem('af.tip.play-code')
+  await open()
+  await press('Play')
+  await started()
+  await vi.waitFor(() => expect(has('Go on')).toBe(true))
+  await press('Go on')
+  await press('Pause')
+  expect(has('Go on')).toBe(true)
+  await press('Got it')
+  await vi.waitFor(() => expect(box.textContent).not.toContain('Rules the game'))
+  await tick()
+  expect(has('Go on')).toBe(true)
+})
+
 test('a Play that fails does not use the tip up and shows only the problem', async () => {
   remembered.removeItem('af.tip.play-code')
   const hurt = inLevel(startEdits(game), 'level-1', (level) => ({
