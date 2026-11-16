@@ -7,5 +7,11 @@
     "h": 1
   },
   "color": "#e4572e",
-  "upright": true
+  "upright": true,
+  "moves": {
+    "tuning": "hero-moves",
+    "double-jump": false,
+    "wall-jump": false,
+    "dash": false
+  }
 }

@@ -7,6 +7,8 @@ import { type FakeGitHub, type PEOPLE, startFakeGitHub } from './fake-github/ser
 export const SITE = 'https://editors.test'
 /** The one game a visitor may open. */
 export const DEMO = 'grandma/crate-game'
+/** The other game the pretend GitHub serves: three rooms whose doors and edges join. A signed-in person may open it. */
+export const LINKS = 'grandma/links-game'
 
 export interface TestApi {
   readonly fake: FakeGitHub

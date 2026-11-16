@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "id": "ground",
+  "image": "art/ground.png",
+  "tileSize": 16,
+  "columns": 2,
+  "tiles": [
+    {
+      "id": "ground",
+      "letter": "#",
+      "solid": true,
+      "pictures": [
+        {
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "water",
+      "letter": "~",
+      "solid": false,
+      "pictures": [
+        {
+          "frame": 1
+        }
+      ]
+    }
+  ]
+}

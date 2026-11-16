@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
 import type { Answer, OpenAnswer } from '#src/features/wire/wire.ts'
-import { DEMO, startTestApi, type TestApi } from '../../fixtures/api.ts'
+import { DEMO, LINKS, startTestApi, type TestApi } from '../../fixtures/api.ts'
 import { blobSha } from '../../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
 
@@ -35,6 +35,22 @@ test('a visitor opens the demo game: look, no login, from main, the same files g
   expect(visitor.login).toBeUndefined()
   expect(visitor.mine).toBeUndefined()
   expect(visitor.files).toEqual(grandma.files)
+})
+
+test("grandma opens the links game, which the pretend GitHub serves beside the crate game", async () => {
+  const [owner, name] = LINKS.split('/')
+  const game = await opened('grandma', `/api/game?owner=${owner}&name=${name}`)
+  expect(game.game).toEqual({ owner: 'grandma', name: 'links-game' })
+  const paths = game.files.map((f) => f.path)
+  expect(paths).toEqual(
+    expect.arrayContaining([
+      'content/levels/room-1.json',
+      'content/levels/room-2.json',
+      'content/levels/room-3.json',
+      'content/worlds/world.json',
+    ]),
+  )
+  expect(paths).not.toContain(LEVEL_PATH)
 })
 
 test('a visitor gets look even where everyone = "suggest"', async () => {

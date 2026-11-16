@@ -11,7 +11,9 @@ import {
   blobSha,
   type FakePull,
   type FakeRepo,
+  addGame,
   gameRepo,
+  linksRepo,
   nextSha,
   notAGameRepo,
   type PullFacts,
@@ -45,7 +47,9 @@ export interface FakeGitHub {
   clock: number
   /** What it says is left of GitHub's allowance, on every answer. */
   rate: { remaining: number; limit: number }
-  /** Back to: grandma, allow, up, and the repos crate-game, not-a-game and other-game. */
+  /** Adds a game for the rest of this run (until `reset()`): its text files, and the files that are bytes (pictures). */
+  addGame(owner: string, name: string, files: Map<string, string>, bytes?: Record<string, Uint8Array>): void
+  /** Back to: grandma, allow, up, and the repos crate-game, links-game, not-a-game and other-game. */
   reset(): void
   close(): Promise<void>
 }
@@ -67,6 +71,8 @@ type Principal =
 interface Reply {
   readonly status: number
   readonly body?: unknown
+  /** Bytes sent as they are, for the raw media type. A reply has a body or raw bytes, not both. */
+  readonly raw?: Uint8Array
   readonly headers?: Record<string, string>
 }
 const send = (status: number, body?: unknown, headers?: Record<string, string>): Reply => ({
@@ -108,6 +114,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
   const reset = (): void => {
     repos.clear()
     add(gameRepo('crate-game'))
+    add(linksRepo('links-game'))
     add(notAGameRepo('not-a-game'))
     add(gameRepo('other-game'))
     log.length = 0
@@ -346,12 +353,19 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       const repo = repos.get(`${m[1]}/${m[2]}`)
       if (repo === undefined || !repo.installed || !who.repos.has(`${repo.owner}/${repo.name}`))
         return NOT_FOUND
-      return handleRepo(repo, method, m[3] ?? '', url, body)
+      return handleRepo(repo, method, m[3] ?? '', url, body, /\braw\b/.test(request.headers.accept ?? ''))
     }
     return NOT_FOUND
   }
 
-  const handleRepo = (repo: FakeRepo, method: string, rest: string, url: URL, body: Json): Reply => {
+  const handleRepo = (
+    repo: FakeRepo,
+    method: string,
+    rest: string,
+    url: URL,
+    body: Json,
+    raw: boolean,
+  ): Reply => {
     const main = repo.defaultBranch
     let m: RegExpExecArray | null
     if (method === 'GET' && rest === '') {
@@ -407,7 +421,19 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
             content: toBase64(text).replace(/(.{60})/g, '$1\n'),
           })
         }
-        const inside = [...files.keys()].filter((p) => p.startsWith(`${path}/`))
+        const picture = repo.bytes.get(path)
+        if (picture !== undefined) {
+          return raw
+            ? { status: 200, raw: picture, headers: { 'content-type': 'application/octet-stream' } }
+            : send(200, {
+                type: 'file',
+                path,
+                sha: blobSha(picture),
+                encoding: 'base64',
+                content: Buffer.from(picture).toString('base64').replace(/(.{60})/g, '$1\n'),
+              })
+        }
+        const inside = [...files.keys(), ...repo.bytes.keys()].filter((p) => p.startsWith(`${path}/`))
         return inside.length === 0
           ? NOT_FOUND
           : send(
@@ -576,7 +602,7 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
         'x-ratelimit-limit': String(state.rate.limit),
         ...reply.headers,
       })
-      response.end(reply.body === undefined ? undefined : JSON.stringify(reply.body))
+      response.end(reply.raw ?? (reply.body === undefined ? undefined : JSON.stringify(reply.body)))
     })()
   })
   await new Promise<void>((done) => server.listen(port, '127.0.0.1', done))
@@ -645,6 +671,9 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
       live.clear()
       refreshes.clear()
       codes.clear()
+    },
+    addGame(owner, name, files, bytes) {
+      add(addGame(owner, name, files, bytes))
     },
     reset,
     close: () =>

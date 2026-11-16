@@ -1,10 +1,14 @@
-// The fixture game: a level 16 tiles wide and 9 tall (a floor on the bottom row, a wall at each side), a hero and a
-// crate. The files are imported as text with Vite's `?raw`, so the same fixture loads in Node and in a browser. Each
-// is byte for byte what the framework's `writeContent` writes; `tests/fixtures/game.test.ts` checks it.
+// The fixture game, the Crate Game: a level 16 tiles wide and 9 tall (a floor on the bottom row, a wall at each side),
+// a hero that moves (its tuning file), a crate that says how heavy it is, and a tileset with its picture. The files are
+// imported as text with Vite's `?raw`, so the same fixture loads in Node and in a browser. Each is byte for byte what the
+// framework's `writeContent` writes; `tests/fixtures/game.test.ts` checks it.
 import automata from './automata.toml?raw'
 import crate from './content/characters/crate.json?raw'
 import hero from './content/characters/hero.json?raw'
 import level1 from './content/levels/level-1.json?raw'
+import ground from './content/tilesets/ground.json?raw'
+import heroMoves from './content/tunings/hero-moves.json?raw'
+import { groundPicture } from './ground-picture.ts'
 
 /** Every file of the fixture game, by its path from the game's root. */
 export const fixtureFiles: Readonly<Record<string, string>> = {
@@ -12,6 +16,13 @@ export const fixtureFiles: Readonly<Record<string, string>> = {
   'content/levels/level-1.json': level1,
   'content/characters/hero.json': hero,
   'content/characters/crate.json': crate,
+  'content/tunings/hero-moves.json': heroMoves,
+  'content/tilesets/ground.json': ground,
+}
+
+/** The files of the game that are not text, by path: the tileset's picture. Made on first use, the same bytes each time. */
+export function fixtureBytes(): Readonly<Record<string, Uint8Array>> {
+  return { 'art/ground.png': groundPicture() }
 }
 
 /** The same files as a map, the shape the pretend GitHub keeps a branch in. */

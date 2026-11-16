@@ -14,3 +14,11 @@ path = "content/characters/hero.json"
 [[content]]
 type = "character"
 path = "content/characters/crate.json"
+
+[[content]]
+type = "tuning"
+path = "content/tunings/hero-moves.json"
+
+[[content]]
+type = "tileset"
+path = "content/tilesets/ground.json"
