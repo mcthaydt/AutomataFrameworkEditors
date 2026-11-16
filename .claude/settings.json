@@ -15,7 +15,10 @@
       {
         "matcher": "Bash|Edit|MultiEdit|Write|NotebookEdit|Agent|Task|Workflow|mcp__github__.*|mcp__hearthbot__set_effort_level",
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/../automataframework/.claude/hooks/guard.mjs\"" }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/../automataframework/.claude/hooks/guard.mjs\""
+          }
         ]
       }
     ]
