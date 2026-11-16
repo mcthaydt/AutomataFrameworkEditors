@@ -213,3 +213,25 @@ test('a collaborator on GitHub finds the game in their list and opens it at the 
   expect(list.answer.ok && list.answer.value.map((g) => g.name)).toContain('crate-game')
   expect((await opened('grandpa')).level).toBe('approve')
 })
+
+test('people lists the logins in the sharing file, with their level', async () => {
+  crate().put(
+    'main',
+    'automata.access.toml',
+    writeAccess({
+      format: 1,
+      everyone: 'look',
+      people: [
+        { github: 'kid', level: 'suggest' },
+        { github: 'grandpa', level: 'approve' },
+      ],
+    }),
+  )
+  const game = await opened('grandma')
+  expect(game.people).toEqual(
+    expect.arrayContaining([
+      { login: 'kid', level: 'suggest' },
+      { login: 'grandpa', level: 'approve' },
+    ]),
+  )
+})

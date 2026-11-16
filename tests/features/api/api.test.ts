@@ -59,6 +59,16 @@ test('each method is one call with its verb, path, query or body, and the Bearer
     version: undefined,
   }
   await api.share(sharing)
+  await api.history(GAME, 2)
+  await api.notes(GAME)
+  const noteAsk = { game: GAME, add: { level: 'level-1', words: 'Hi' } }
+  await api.note(noteAsk)
+  const settingsAsk = {
+    game: GAME,
+    editors: { format: 1 as const, problems: 'stop' as const },
+    version: undefined,
+  }
+  await api.settings(settingsAsk)
   expect(calls.map((c) => `${c.method} ${path(c.url)}`)).toEqual([
     'GET /api/games',
     'GET /api/game?owner=grandma&name=crate-game',
@@ -70,12 +80,18 @@ test('each method is one call with its verb, path, query or body, and the Bearer
     'POST /api/approve',
     'POST /api/turn-down',
     'POST /api/sharing',
+    'GET /api/history?owner=grandma&name=crate-game&page=2',
+    'GET /api/notes?owner=grandma&name=crate-game',
+    'POST /api/notes',
+    'POST /api/settings',
   ])
   for (const call of calls) expect(call.headers.get('authorization')).toBe('Bearer t1')
   expect(calls[5]?.body).toEqual(ask)
   expect(calls[6]?.body).toEqual(putAsk)
   expect(calls[7]?.body).toEqual({ game: GAME, number: 2 })
   expect(calls[9]?.body).toEqual(JSON.parse(JSON.stringify(sharing)))
+  expect(calls[12]?.body).toEqual(noteAsk)
+  expect(calls[13]?.body).toEqual(JSON.parse(JSON.stringify(settingsAsk)))
 })
 
 test('with no token, open is sent with no Authorization header and every other method is signed-out, nothing sent', async () => {
@@ -94,6 +110,9 @@ test('with no token, open is sent with no Authorization header and every other m
     await api.turnDown({ game: GAME, number: 1 }),
     await api.sharing(GAME),
     await api.share({ game: GAME, access: { format: 1, everyone: 'look', people: [] }, version: undefined }),
+    await api.history(GAME, 0),
+    await api.note({ game: GAME, done: { id: 'note-1', done: true } }),
+    await api.settings({ game: GAME, editors: { format: 1, problems: 'warn' }, version: undefined }),
   ]
   for (const answer of others) expect(answer).toEqual({ ok: false, problem: 'signed-out' })
   expect(calls).toHaveLength(1)
