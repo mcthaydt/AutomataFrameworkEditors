@@ -43,7 +43,10 @@ export function mapCanvas(stage: LevelStage): MapCanvas {
       })
     },
     lift(level, at) {
-      placed.get(level)?.position.set(at.x, at.y)
+      const picture = placed.get(level)
+      picture?.position.set(at.x, at.y)
+      // Above the others while it is held, so it is seen going over them.
+      picture?.parent?.addChild(picture)
       stage.levels.repaint()
     },
   }

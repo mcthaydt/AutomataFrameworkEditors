@@ -46,7 +46,6 @@ type Key =
   | 'cantDeleteStart'
   | 'cantDeleteLast'
   | 'overlapped'
-  | 'renameCareful'
 
 export const arrange = {
   en: {
@@ -94,8 +93,6 @@ export const arrange = {
     cantDeleteStart: 'The game starts in this level, so it can not be deleted.',
     cantDeleteLast: 'A game needs at least one level.',
     overlapped: 'Another level was already there, so it went back.',
-    renameCareful:
-      "This changes the level's name in the game's files and in every door that leads to it. A saved game remembers the level by this name. You can undo this.",
   },
   es: {
     levelBar: (name) => `Qué hacer con ${name}`,
@@ -142,8 +139,6 @@ export const arrange = {
     cantDeleteStart: 'El juego empieza en este nivel, así que no se puede borrar.',
     cantDeleteLast: 'Un juego necesita al menos un nivel.',
     overlapped: 'Ya había otro nivel ahí, así que volvió a su sitio.',
-    renameCareful:
-      'Esto cambia el nombre del nivel en los archivos del juego y en cada puerta que lleva a él. Una partida guardada recuerda el nivel por este nombre. Puedes deshacerlo.',
   },
   ko: {
     levelBar: (name) => `${name}에 할 수 있는 일`,
@@ -189,8 +184,6 @@ export const arrange = {
     cantDeleteStart: '게임이 이 레벨에서 시작해서 지울 수 없어요.',
     cantDeleteLast: '게임에는 레벨이 하나 이상 있어야 해요.',
     overlapped: '그 자리에는 이미 다른 레벨이 있어서 제자리로 돌아갔어요.',
-    renameCareful:
-      '게임 파일에서 이 레벨의 이름과, 이 레벨로 이어진 모든 문이 바뀌어요. 저장된 플레이는 이 이름으로 레벨을 기억해요. 되돌릴 수 있어요.',
   },
   ja: {
     levelBar: (name) => `${name}でできること`,
@@ -236,8 +229,6 @@ export const arrange = {
     cantDeleteStart: 'ゲームがこのレベルから始まるので、消せません。',
     cantDeleteLast: 'ゲームにはレベルが1つ以上必要です。',
     overlapped: 'そこにはすでに別のレベルがあるので、元の場所に戻りました。',
-    renameCareful:
-      'ゲームのファイルの中のこのレベルの名前と、ここにつながる全部のドアが変わります。セーブデータはこの名前でレベルを覚えています。元に戻せます。',
   },
   zh: {
     levelBar: (name) => `对${name}可以做什么`,
@@ -281,8 +272,6 @@ export const arrange = {
     cantDeleteStart: '游戏从这个关卡开始，所以不能删除。',
     cantDeleteLast: '游戏至少要有一个关卡。',
     overlapped: '那里已经有别的关卡了，所以它回到了原处。',
-    renameCareful:
-      '这会改掉游戏文件里这个关卡的名字，以及通向它的每一扇门。已存的游戏进度是用这个名字记住关卡的。可以撤销。',
   },
   pt: {
     levelBar: (name) => `O que fazer com ${name}`,
@@ -328,8 +317,6 @@ export const arrange = {
     cantDeleteStart: 'O jogo começa neste nível, então ele não pode ser apagado.',
     cantDeleteLast: 'Um jogo precisa de pelo menos um nível.',
     overlapped: 'Já havia outro nível ali, então ele voltou para o lugar de antes.',
-    renameCareful:
-      'Isso muda o nome do nível nos arquivos do jogo e em cada porta que leva até ele. Um jogo salvo lembra do nível por este nome. Dá para desfazer.',
   },
   fr: {
     levelBar: (name) => `Que faire avec ${name}`,
@@ -376,8 +363,6 @@ export const arrange = {
     cantDeleteStart: 'Le jeu commence dans ce niveau, on ne peut donc pas le supprimer.',
     cantDeleteLast: 'Un jeu a besoin d’au moins un niveau.',
     overlapped: 'Il y avait déjà un autre niveau là, il est donc retourné où il était.',
-    renameCareful:
-      'Cela change le nom du niveau dans les fichiers du jeu et dans chaque porte qui y mène. Une partie sauvegardée se souvient du niveau par ce nom. Vous pouvez annuler.',
   },
   ru: {
     levelBar: (name) => `Что можно сделать с уровнем ${name}`,
@@ -423,8 +408,6 @@ export const arrange = {
     cantDeleteStart: 'Игра начинается на этом уровне, поэтому его нельзя удалить.',
     cantDeleteLast: 'В игре должен быть хотя бы один уровень.',
     overlapped: 'Там уже был другой уровень, поэтому он вернулся на место.',
-    renameCareful:
-      'Это меняет название уровня в файлах игры и в каждой двери, которая в него ведёт. Сохранённая игра помнит уровень по этому названию. Это можно отменить.',
   },
   de: {
     levelBar: (name) => `Was du mit ${name} tun kannst`,
@@ -473,7 +456,5 @@ export const arrange = {
     cantDeleteStart: 'Das Spiel beginnt in diesem Level, deshalb kann es nicht gelöscht werden.',
     cantDeleteLast: 'Ein Spiel braucht mindestens ein Level.',
     overlapped: 'Dort war schon ein anderes Level, deshalb ist es zurückgesprungen.',
-    renameCareful:
-      'Das ändert den Namen des Levels in den Dateien des Spiels und in jeder Tür, die dorthin führt. Ein gespeicherter Spielstand merkt sich das Level unter diesem Namen. Du kannst das rückgängig machen.',
   },
 } as const satisfies Area<Key>

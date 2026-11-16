@@ -192,6 +192,14 @@ export function nudgeLevel(
   return moveLevel(working, level, { x: mine.x + WAYS[way].x, y: mine.y + WAYS[way].y })
 }
 
+/** The levels that touch this one along a side. */
+export function neighbours(working: Working, level: string): readonly string[] {
+  const all = allBoxes(working)
+  const mine = all.find((box) => box.level === level)
+  if (mine === undefined) return []
+  return all.filter((box) => box.level !== level && touching(mine, box) !== undefined).map((box) => box.level)
+}
+
 /** How far apart `pullApart` puts levels. */
 const PULL = 2
 

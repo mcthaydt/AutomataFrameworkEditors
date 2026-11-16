@@ -7,6 +7,7 @@
   import {
     describe,
     dropDrafts,
+    change,
     type Edits,
     inLevel,
     isChanged,
@@ -423,6 +424,8 @@
             picked={pickedLevel}
             onpick={(next) => (pickedLevel = next)}
             ongo={(next) => go({ screen: 'level', ...here, level: next })}
+            onchange={(next) => keep(change(edits, next))}
+            onundo={() => step('undo')}
           />
         {:else if level !== undefined}
         <LevelPart

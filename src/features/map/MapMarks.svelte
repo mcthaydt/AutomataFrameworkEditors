@@ -32,8 +32,10 @@
     start: { readonly level: string; readonly rect: Rect } | undefined
     /** The stretch where a level that is being dragged would join, shown before it is let go. */
     soon?: readonly Line[]
+    /** A wall's mark was pressed: its card, with the ways out, opens. */
+    onwall?: (line: Line) => void
   }
-  let { lang, size, joins, walls, doors, start, soon = [] }: Props = $props()
+  let { lang, size, joins, walls, doors, start, soon = [], onwall }: Props = $props()
 
   const words = $derived(wordsIn(lang).map)
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -81,9 +83,17 @@
   </span>
 {/each}
 {#each walls as line (`${line.a}/${line.b}/${line.from.x}/${line.from.y}`)}
-  <span class="chip bad" style:left="{middle(line).x}px" style:top="{middle(line).y}px" aria-hidden="true">
+  <button
+    type="button"
+    class="chip bad"
+    data-wall={`${line.a}/${line.b}`}
+    aria-label={text(words.markWall, nameOf(line.a), nameOf(line.b))}
+    style:left="{middle(line).x}px"
+    style:top="{middle(line).y}px"
+    onclick={() => onwall?.(line)}
+  >
     <Icon name="warning" size={14} />
-  </span>
+  </button>
 {/each}
 {#if start !== undefined}
   <span
@@ -151,8 +161,15 @@
     pointer-events: none;
   }
   .chip.bad {
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 0;
+    padding: 0;
     background: var(--problem);
     color: var(--bright);
+    pointer-events: auto;
+    cursor: pointer;
   }
   .start {
     position: absolute;

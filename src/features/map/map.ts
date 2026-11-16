@@ -8,6 +8,7 @@ export {
   landing,
   marksOf,
   moveLevel,
+  neighbours,
   nudgeLevel,
   pullApart,
   type Wall,

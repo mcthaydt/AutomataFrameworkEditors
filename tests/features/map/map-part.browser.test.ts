@@ -21,6 +21,7 @@ let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
 let went: string[]
 let picks: (string | undefined)[]
+let changes: Working[]
 
 function size(w: number, h: number): void {
   box.style.cssText = `position:fixed;left:0;top:0;width:${w}px;height:${h}px;display:flex;flex-direction:column`
@@ -31,6 +32,7 @@ beforeEach(() => {
   document.body.append(box)
   went = []
   picks = []
+  changes = []
 })
 afterEach(() => {
   if (mounted) void unmount(mounted)
@@ -49,6 +51,8 @@ async function show(now: Working = working): Promise<void> {
       picked: undefined,
       onpick: (level: string | undefined) => picks.push(level),
       ongo: (level: string) => went.push(level),
+      onchange: (next: Working) => changes.push(next),
+      onundo: () => {},
     },
   })
   await tick()
