@@ -64,6 +64,35 @@ problems = "warn"
 can still be saved. With `"stop"`, they refuse a change that leaves a problem, and say what it is. With no file, it is
 `"warn"`.
 
+## Notes on a game
+
+Anyone who may look at a game can leave a note on it: a few words about a level, a thing in it, or a spot on it. Anyone
+can answer a note, and anyone can mark it done. The notes are one more file, `automata.notes.toml`, kept on their own
+branch, `automata/notes`, so a note never changes the game and never waits for approval. An agent can read the file and
+answer a note the same way a person does, by adding an answer under it:
+
+```toml
+format = 1
+
+[[notes]]
+id = "note-1"
+level = "level-1"
+thing = "crate-1"
+at = { x = 3.5, y = 4 }
+by = "kid"
+when = "2026-11-16T10:00:00.000Z"
+words = "The crate is too heavy."
+done = false
+
+[[notes.answers]]
+by = "grandpa"
+when = "2026-11-16T11:00:00.000Z"
+words = "Made it lighter."
+```
+
+`thing` and `at` are optional. `automata/notes` is only for this file: do not open a pull request from it. A person
+whose GitHub name is `notes` saves their changes to `automata/notes-` instead, so the two never meet.
+
 ## Set up your game's main branch
 
 This is part of setting a game up, not an extra. It makes sure the only way a change reaches the game is through the

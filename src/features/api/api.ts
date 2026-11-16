@@ -2,16 +2,20 @@
 // or to anyone else. A call carries the person's sign-in as a Bearer header. When the API says the sign-in ran out,
 // it is renewed once, without the person noticing, and the call is made again.
 
+import type { EditorsFile, NotesFile } from '../files/files.ts'
 import type {
   Answer,
   ChangeAsk,
   GameRef,
+  HistoryPage,
+  NoteAsk,
   OpenAnswer,
   PutAnswer,
   PutAsk,
   SaveAnswer,
   SaveAsk,
   SharingAnswer,
+  SettingsAsk,
   SharingAsk,
   Tokens,
   Waiting,
@@ -50,6 +54,14 @@ export interface Api {
   clearTurnedDown(game: GameRef): Promise<Answer<true>>
   sharing(game: GameRef): Promise<Answer<SharingAnswer>>
   share(ask: SharingAsk): Promise<Answer<SharingAnswer>>
+  /** What changed in the game's content, ten a page, newest first: page 0 to 4. */
+  history(game: GameRef, page: number): Promise<Answer<HistoryPage>>
+  /** The notes people left on the game; anyone who may look reads them. */
+  notes(game: GameRef): Promise<Answer<NotesFile>>
+  /** A new note, an answer to one, or one done or not: the API says who and when. Anyone who may look may. */
+  note(ask: NoteAsk): Promise<Answer<NotesFile>>
+  /** Changes the editors' settings for everyone on the game: an Owner only, straight onto the game. */
+  settings(ask: SettingsAsk): Promise<Answer<EditorsFile>>
 }
 
 type Fetcher = typeof fetch
@@ -129,6 +141,10 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
     clearTurnedDown: (game) => call('POST', '/api/clear-turned-down', { game }),
     sharing: (game) => call('GET', `/api/sharing?${query(game)}`),
     share: (ask) => call('POST', '/api/sharing', ask),
+    history: (game, page) => call('GET', `/api/history?${query(game, { page: String(page) })}`),
+    notes: (game) => call('GET', `/api/notes?${query(game)}`, undefined, true),
+    note: (ask) => call('POST', '/api/notes', ask),
+    settings: (ask) => call('POST', '/api/settings', ask),
   }
 }
 

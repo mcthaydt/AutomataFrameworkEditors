@@ -1,14 +1,17 @@
 // Opening a game: its files, who the API says you are, what you may do, and your own waiting change if you have one.
 import { PROJECT_FILE, parseProject } from '@automataframework/framework/headless'
-import type { Answer, GameRef, OpenAnswer, Waiting, WireFile } from '../wire/wire.ts'
+import { EDITORS_DEFAULT, EDITORS_FILE, type EditorsFile, parseEditors } from '../files/files.ts'
+import type { Answer, GameRef, OpenAnswer, OpenPicture, Waiting, WireFile } from '../wire/wire.ts'
 import { turnedDownOf, withAsked } from './ask.ts'
+import type { Repo } from '../github/github.ts'
 import { type ApiDeps, enter } from './enter.ts'
+import { readPictures } from './pictures.ts'
 import { isWaiting, ownPull, toWaiting } from './pulls.ts'
 
 export async function openGame(deps: ApiDeps, request: Request, game: GameRef): Promise<Answer<OpenAnswer>> {
   const entered = await enter(deps, request, game, 'look', { visitors: true })
   if (!entered.ok) return entered
-  const { who, repo, level } = entered.value
+  const { who, repo, level, access } = entered.value
 
   let branch = repo.facts.branch
   let mine: Waiting | undefined
@@ -31,6 +34,9 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
 
   const project = await repo.readFile(branch, PROJECT_FILE)
   if (!project.ok) return project.problem === 'not-found' ? { ok: false, problem: 'not-a-game' } : project
+  // The settings are the game's, whoever asks: always the default branch's, never a person's own change.
+  const editors = await readEditors(repo, repo.facts.branch)
+  if (!editors.ok) return editors
   const files: WireFile[] = [project.value]
   const parsed = parseProject(project.value.text)
   if (parsed.ok) {
@@ -41,8 +47,35 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
       else if (read.problem !== 'not-found') return read
     }
   }
+  let pictures: readonly OpenPicture[] = []
+  if (parsed.ok) {
+    const read = await readPictures(repo, branch, parsed.value.content, files)
+    if (!read.ok) return read
+    pictures = read.value
+  }
+  const people = access.people.map((person) => ({ login: person.github, level: person.level }))
   return {
     ok: true,
-    value: { game, login: who?.login, level, branch, mine, waiting, turnedDown, files },
+    value: {
+      game,
+      login: who?.login,
+      level,
+      branch,
+      mine,
+      waiting,
+      turnedDown,
+      files,
+      editors: editors.value,
+      people,
+      pictures,
+    },
   }
+}
+
+/** The editors' settings on `branch`: the default with no file, and with one that cannot be read. */
+async function readEditors(repo: Repo, branch: string): Promise<Answer<EditorsFile>> {
+  const read = await repo.readFile(branch, EDITORS_FILE)
+  if (!read.ok) return read.problem === 'not-found' ? { ok: true, value: EDITORS_DEFAULT } : read
+  const parsed = parseEditors(read.value.text)
+  return { ok: true, value: parsed.ok ? parsed.value : EDITORS_DEFAULT }
 }

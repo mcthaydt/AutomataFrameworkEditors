@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
 import { parseAccess } from '#src/features/access/access.ts'
-import { EDITORS_FILE, parseEditors } from '#src/features/files/files.ts'
+import { EDITORS_FILE, NOTES_BRANCH, NOTES_FILE, parseEditors, parseNotes } from '#src/features/files/files.ts'
 
 const ROOT = join(import.meta.dirname, '../..')
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8')
@@ -57,6 +57,16 @@ test("docs/teams.md names the editors file and both choices, and its example pas
   expect(teams).toContain('"stop"')
   const examples = [...teams.matchAll(/```toml\n([\s\S]*?)```/g)].map((m) => m[1] ?? '')
   expect(examples.some((text) => parseEditors(text).ok && text.includes('problems'))).toBe(true)
+})
+
+test("docs/teams.md names the notes file and its branch, and its example passes the editor's own reading of it", () => {
+  expect(teams).toContain(NOTES_FILE)
+  expect(teams).toContain(NOTES_BRANCH)
+  const examples = [...teams.matchAll(/```toml\n([\s\S]*?)```/g)].map((m) => m[1] ?? '')
+  const notes = parseNotes(examples.find((text) => text.includes('[[notes]]')))
+  expect(notes.notes).toHaveLength(1)
+  expect(notes.notes[0]?.answers).toHaveLength(1)
+  expect(notes.notes[0]?.at).toEqual({ x: 3.5, y: 4 })
 })
 
 test('docs/teams.md has the branch rule as a setup step, with the editor on its bypass list and merge commits on', () => {
