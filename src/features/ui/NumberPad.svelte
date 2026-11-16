@@ -20,7 +20,10 @@
   const say = (row: string | ((...parts: readonly (string | number)[]) => string)): string =>
     typeof row === 'string' ? row : row()
 
+  // The pad is opened on one number and keeps its own copy while it is open, so the first values are what is wanted.
+  // svelte-ignore state_referenced_locally
   let current = $state(snap(value, least, most, step))
+  // svelte-ignore state_referenced_locally
   let text = $state(String(snap(value, least, most, step)))
 
   function set(next: number): void {

@@ -34,8 +34,8 @@ afterEach(() => {
   delete document.documentElement.dataset.glass
 })
 
-const mountIt = async (component: Parameters<typeof mount>[0], props: Record<string, unknown>) => {
-  mounted = mount(component, { target: box, props } as never)
+const mountIt = async (component: unknown, props: Record<string, unknown>) => {
+  mounted = mount(component as never, { target: box, props } as never)
   await tick()
 }
 const words = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }))
