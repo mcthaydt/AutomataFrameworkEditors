@@ -8,6 +8,7 @@ import {
   type JourneyPage,
   openLevel,
   openPage,
+  pictureOf,
   type SIZES,
   setupJourneys,
   signIn,
@@ -38,7 +39,7 @@ async function whereIs(
 ): Promise<{ x: number; y: number; wide: number } | undefined> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
-  const shot = (await page.screenshot({ clip: box })).toString('base64')
+  const shot = (await pictureOf(page, box)).toString('base64')
   const reader = await page.context().newPage()
   try {
     const found = await reader.evaluate(

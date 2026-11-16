@@ -254,6 +254,34 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
 }
 
 /**
+ * A picture of `clip` on the page, as the browser draws it. WebKit's screenshot adds an inline style element to the page
+ * and the page's rules refuse it: that is the tool's doing, not the page's, so those refusals are taken off the list a
+ * journey fails on. Nothing else is.
+ */
+export async function pictureOf(
+  page: Page,
+  clip: { x: number; y: number; width: number; height: number },
+): Promise<Buffer> {
+  const before = await page.evaluate(() => (window as unknown as { __refused: string[] }).__refused.length)
+  const shot = await page.screenshot({ clip })
+  await page.evaluate(
+    (kept) =>
+      new Promise<void>((done) => {
+        // The browser reports a refusal a moment after it happens.
+        setTimeout(() => {
+          const refused = (window as unknown as { __refused: string[] }).__refused
+          for (let at = refused.length - 1; at >= kept; at -= 1) {
+            if (refused[at] === 'style-src-elem: inline') refused.splice(at, 1)
+          }
+          done()
+        }, 150)
+      }),
+    before,
+  )
+  return shot
+}
+
+/**
  * Holds one finger on a half of the game's touch controls (`walk` or `jump`) and slides it `dx` pixels, the way a thumb
  * does, for `ms` milliseconds, then lifts it. Finger events are sent as the page's own, because a script cannot drive
  * a second kind of finger in every engine.
