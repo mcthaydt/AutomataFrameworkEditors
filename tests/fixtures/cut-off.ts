@@ -3,6 +3,11 @@
 // control checks", although the page's own code caught the rejection. That is the engine saying the page was replaced
 // under a call, not a fault, so a journey must not fail on it. The same words about a call made after the page last
 // moved are a fault and are kept.
+//
+// Firefox does the same for a font: a font file still downloading when the page moves on is dropped with status
+// 2152398850 (NS_BINDING_ABORTED), and Firefox logs "downloadable font: download failed ... status=2152398850 source:
+// <address>" as a console error. Only that status, for a font first asked for before the page last moved, is excused;
+// any other font failure (a missing file, a refused one, or an abort with no move to explain it) is a fault.
 
 export interface CutOffTracker {
   /** A call started, to the address `url`. */
@@ -12,6 +17,9 @@ export interface CutOffTracker {
   /** Whether `error` is the engine's report of a call the page moved on from. */
   explains(error: string): boolean
 }
+
+/** Firefox's status for a download the page dropped (NS_BINDING_ABORTED). */
+const ABORTED = 'status=2152398850'
 
 export function cutOffTracker(): CutOffTracker {
   let moves = 0
@@ -26,6 +34,12 @@ export function cutOffTracker(): CutOffTracker {
       moves += 1
     },
     explains(error) {
+      if (error.includes('downloadable font: download failed')) {
+        const source = /source: ([^\s"\]]+)/.exec(error)?.[1]
+        if (!error.includes(ABORTED) || source === undefined || !URL.canParse(source)) return false
+        const at = firstCall.get(new URL(source).pathname)
+        return at !== undefined && at < moves
+      }
       for (const [path, at] of firstCall) {
         if (at < moves && error.includes(`${path} due to access control checks`)) return true
       }
