@@ -6,10 +6,13 @@ import type { Answer, GameRef } from '../wire/wire.ts'
 import { approveChange, askChange, clearTurnedDown, reopenChange, turnDownChange } from './approve.ts'
 import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
+import { showHistory } from './history.ts'
+import { readNotes, writeNote } from './notes.ts'
 import { openGame } from './open.ts'
 import { readSharing, writeSharing } from './people.ts'
 import { putFiles } from './put.ts'
 import { saveLevel } from './save.ts'
+import { writeSettings } from './settings.ts'
 import { listWaiting, showChange } from './waiting.ts'
 
 export type { ApiEnv } from './enter.ts'
@@ -38,6 +41,11 @@ const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/sharing': (deps, request, url) => readSharing(deps, request, gameOf(url)),
   'POST /api/sharing': (deps, request) => writeSharing(deps, request),
   'GET /api/game': (deps, request, url) => openGame(deps, request, gameOf(url)),
+  'GET /api/history': (deps, request, url) =>
+    showHistory(deps, request, gameOf(url), url.searchParams.get('page')),
+  'GET /api/notes': (deps, request, url) => readNotes(deps, request, gameOf(url)),
+  'POST /api/notes': (deps, request) => writeNote(deps, request),
+  'POST /api/settings': (deps, request) => writeSettings(deps, request),
 }
 const PATHS = new Set(['/api/token', ...Object.keys(ROUTES).map((key) => key.split(' ')[1] ?? '')])
 

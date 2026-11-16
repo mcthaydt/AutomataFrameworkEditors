@@ -13,6 +13,7 @@ import {
   parseAccess,
 } from '../access/access.ts'
 import { sameOrigin, type Who, whoIs } from '../exchange/exchange.ts'
+import { NOTES_BRANCH } from '../files/files.ts'
 import { type AppEnv, type Deps, openRepo, type Repo } from '../github/github.ts'
 import type { Answer, GameRef } from '../wire/wire.ts'
 
@@ -39,7 +40,10 @@ export interface Entered {
 /** Where a person's waiting change lives: `automata/` and their login in lower case. */
 export const SUGGESTION_PREFIX = 'automata/'
 export function suggestionBranch(login: string): string {
-  return `${SUGGESTION_PREFIX}${login.toLowerCase()}`
+  const branch = `${SUGGESTION_PREFIX}${login.toLowerCase()}`
+  // `automata/notes` holds the game's notes, so a person called notes saves to the same name with a hyphen on the end,
+  // which GitHub never lets a login end with: no one else can have that name.
+  return branch === NOTES_BRANCH ? `${branch}-` : branch
 }
 
 const NAME = /^[A-Za-z0-9._-]{1,100}$/

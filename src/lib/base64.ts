@@ -2,15 +2,25 @@
 // which Node, Cloudflare and every browser have, so one copy serves the API and the page.
 
 export function toBase64(text: string): string {
+  return bytesToBase64(new TextEncoder().encode(text))
+}
+
+/** Any bytes (a picture, say) as base64. */
+export function bytesToBase64(bytes: Uint8Array): string {
   let binary = ''
-  for (const byte of new TextEncoder().encode(text)) binary += String.fromCharCode(byte)
+  for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary)
 }
 
 /** `fromBase64` ignores the line breaks GitHub puts in every 60 characters. */
 export function fromBase64(base64: string): string {
+  return new TextDecoder().decode(bytesFromBase64(base64))
+}
+
+/** The bytes a base64 text holds (a picture, say), ignoring line breaks. */
+export function bytesFromBase64(base64: string): Uint8Array {
   const binary = atob(base64.replace(/\s+/g, ''))
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-  return new TextDecoder().decode(bytes)
+  return bytes
 }
