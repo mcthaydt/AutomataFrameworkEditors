@@ -14,13 +14,19 @@ framework's own art, the editor's marks are an SVG layer above it, and play is t
 box. Putting changes in is one API call that writes every changed file in one change.
 
 **Tech stack:** Svelte 5, TypeScript 6 (strict), Pixi 8, `@automataframework/framework` (pinned to a commit), Zod,
-smol-toml, Cloudflare Pages Functions, Vitest 5 (Node, three browser engines, journeys with Playwright).
+smol-toml (already a dependency), Cloudflare Pages Functions, Vitest 5 (Node, three browser engines, journeys with Playwright).
 
 **Spec:** [`docs/superpowers/specs/2026-11-16-world-editor-design.md`](../specs/2026-11-16-world-editor-design.md).
 The look is [`docs/design-language.md`](../../design-language.md). The pictures are `docs/mockups/shell-*.html` and
 `docs/mockups/world-levels*.html`, `world-map*.html` (board v17). The shared rules are AutomataFramework's
 `docs/rules.md`. This is stage 2 of the World editor cycle, written 2026-11-16 (Fable 5.2, medium). It plans this slice
 only: no Tiles part, no Scenes part, no other editor.
+
+**Revised 2026-11-16 after the plan audit** ([`audits/2026-11-16-world-editor-plan-audit.md`](../audits/2026-11-16-world-editor-plan-audit.md),
+pull request 76) and the Owner's two answers (below). All 26 of the audit's findings are
+fixed in this page; the last section, "The audit's findings, and where each is fixed", says where. Tasks keep their
+numbers; a task added by the revision has a letter (Tasks 2a, 2b and 42a, and the framework's F4 and F5 and the test
+game's E4).
 
 ## What is on main (read on 2026-11-16)
 
@@ -31,13 +37,16 @@ Editors `main` at `7efb826`; the framework pinned at `9109fa3`; the framework's 
 | The framework's `main` already has Plan W pull request 1: a thing's `values`, `ValueDeclaration`, `withDefaults`, `shownOf`, `one-per-level`, `WorldFile`, `layoutWorld`, `openTile`. The pin is older. | **Pin 1** (Task 2) moves the pin now, so values, Join and the map's rules do not wait for the rest of Plan W. |
 | Plan W pull requests 2 to 5 are being built (the sim chain, #173; the commands, #172): switches and gates, a place, doors (`doorTaken`, `GameOptions.arrive`), `paintLevel`. | Only play needs them: gates that open, a place played whole, doors followed, "play from here". They come with **Pin 2** (Task 41). |
 | `Game` has `pause`, `resume` and `replay`; it has no one step, no slower speed and no going back. The sim has `snapshot()` and `restore()`. | **Framework tasks F1 and F2**, built in AutomataFramework after Plan W's pull request 4 (they change `game.ts`, which its Task 10 changes). |
-| `loadGame` gives a game or its problems, never both. A game with one problem on `main` cannot be opened at all, but the spec says a problem warns and never stops anyone. | **Framework task F3** (`readGame`): the game and its problems together. Until Pin 2 a game with a problem opens as it does today (the "this game has a problem" screen). |
+| `loadGame` gives a game or its problems, never both. A game with one problem on `main` cannot be opened at all, but the spec says a problem warns and never stops anyone. | **Framework task F3** (`readGame`): the game and its problems together, and what `places` is when the world file has a problem. Until Pin 2 a game with a problem opens as it does today (the "this game has a problem" screen). |
 | The framework's check is in its `cli` feature (Effect, Node only). | The editor's problems list is `loadGame`'s own sentences on the edited files, run in the page. No framework work. |
 | There is no writer for `automata.toml`. | A line-exact edit in the editors (`files/project-lines.ts`, Task 8), used by the page and the API alike. No game or command in the framework would use one today, so it is not built there. |
 | A level and a thing have no name of their own, only an id (`level-1`, `crate-1`). | The name on screen is the id said nicely ("Level 1", "Crate 1"); Rename changes the id, and for a level the file's name, and mends everything that points at it (Tasks 17 and 19). |
-| A thing has no "drawn behind or in front" field and no "locked" or "hidden" field. | See "My calls" 4 and 5. |
-| `figures`, `tilesets` and `backdrops` paint in the page (`artFiles` gives the PNG bytes; `loadArt` reads them with `createImageBitmap`). | The canvas draws with the game's real art without fetching a picture and without a `blob:` address, so `public/_headers` stays as it is. |
-| `approve.ts` and `waiting.ts` refuse a waiting change that touches `automata.toml` or a file the game does not list yet. | Task 11 widens both to the same file set the new save writes. |
+| A thing has no "drawn behind or in front" field (the Owner chose to add one, 2026-11-16) and no "locked" or "hidden" field. | Draw order is framework task **F5**, then the editor's Look row, menu rows and canvas order (Task 42a, after Pin 2). Locked and hidden stay for the visit only ("My calls" 5). |
+| A character has no weight: every body's Rapier mass is its box's area (at density 1). The framework already runs its physics on Rapier, `@dimforge/rapier2d-deterministic` 0.21.0, the deterministic build. | **F4:** a character may name a number value as its weight, and the thing's Rapier mass is that number; **E4** gives the test game's crate a real "How heavy". Nothing new is installed, and a game that names no weight hashes as before. |
+| `figures` and `backdrops` paint in the page (`artFiles` gives their PNG bytes; `loadArt` reads them with `createImageBitmap`). A **tileset** is different: it names a PNG that is a file of the game, and the API sends files as text. | Figures and backdrops are painted in the page, with no request and no `blob:` address, so `public/_headers` stays as it is. A tileset's picture comes from the API as bytes (`OpenAnswer.pictures`, Task 23) and is read from memory (Task 24). |
+| `tests/architecture/rules.ts` fails a folder not in `LAYERS` (`unknown-feature`), confines `smol-toml` to `access` and Pixi to one file, and has no place for `files`, `device`, `shell`, `map`, `play`, `team` or `world`. | Task 2a changes the rules first, in pull request 2, so no other pull request can trip on them. `smol-toml` 1.9.0 is already a dependency (the sharing file), so nothing is installed. |
+| The editors' fixture game has no hero `moves` (so `startGame` throws "This game has no controls"), no tileset and no `levels` line, and is the only game the pretend GitHub serves. The framework's links game is built in memory, in the framework's own tests. | Task 2b: the fixture hero moves, the fixture has a tileset with a picture and a crate that declares "How heavy", and the links game is built from data in the editors' tests and served beside it. |
+| `approve.ts` and `waiting.ts` refuse a waiting change that touches `automata.toml` or a file the game does not list yet, and `approve.ts` refuses on any problem in the game. | Task 11 widens both to the same file set the new save writes, loads the game with the change's own `automata.toml`, and refuses on a problem only when the game says `problems = "stop"`. |
 | The WebKit sign-in journey fails now and then (the tracker's must-fix). | Task 1, before anything else. |
 | `suite`'s screens are the old look. | Replaced in pull request 7; the logic under them (`access`, `exchange`, `github`, `service`, `session`, `api`, `game/open.ts`, `levels/place.ts`) stays. |
 
@@ -53,12 +62,14 @@ Editors `main` at `7efb826`; the framework pinned at `9109fa3`; the framework's 
    one finished sheet with its own numbered badges; the map needs each level as its own picture to drag, and the same
    art as the level view. `layoutWorld` still decides every join and every problem, so the map and `automata world`
    never disagree.
-4. **"Look" holds "Looks like" only** (the thing's character, as a list). "Drawn behind, with the hero or in front"
-   has no place in a level file today, so it is left out, never dimmed; "Bring to the front" and "Send to the back" in
-   the three dots change the order of `things`, which is what the files have.
+4. **"Look" holds "Looks like" and "Drawn" (behind, with the hero, in front).** The Owner chose (2026-11-16) to keep
+   draw order in the level file and use it in play, so framework task **F5** adds a `draw` field to a thing and the
+   renderer uses it. Until the pin that has it (Pin 2), "Drawn" is not drawn at all, never dimmed. Task 42a adds the row,
+   the canvas order and the menu rows "Bring to the front" and "Send to the back"; they set `draw` and never reorder
+   `things`, so the spawn order and every recording stay as they are.
 5. **Locked and hidden are for this visit only.** They are kept in memory, nowhere on the device and in no file, and are
-   gone on reload. The alternative, keeping them in `automata.editors.toml` for the whole team, is an Owner's choice
-   for a later round.
+   gone on reload; a locked row says "Locked until you close the game". A lock does not reach a teammate. The
+   alternative, keeping them in `automata.editors.toml` for the whole team, is an Owner's choice for a later round.
 6. **A change is counted by what a person would say:** "Moved Crate 1", "Painted the ground in Level 1", "Level 4 moved
    on the map", "New level: Level 9". "3 changes, only on this iPad" is the number of those lines.
 7. **Painting never buries a thing or a start:** a tile under a thing's box or a start is skipped, as `moveThing`
@@ -71,19 +82,63 @@ Editors `main` at `7efb826`; the framework pinned at `9109fa3`; the framework's 
    before it is taken. Keep takes it; Undo leaves the person's own.
 10. **The first pictures are five sizes,** the design language's own: iPad Pro 11 sideways (1210 by 834) and upright
     (834 by 1210), phone (390 by 844), phone sideways (844 by 390), computer (1280 by 800). The journeys' `SIZES`
-    change to these.
+    change to these. An iPad sideways and a computer are both `'wide'`; they differ by pointer and user agent
+    (`deviceWord`), which `layout` takes (Task 21), because the design language gives them different defaults.
 11. **The Pencil on a web page:** a page hears `pointerType === 'pen'` and a hovering tip (`pointermove` with no
     button), and handwriting goes into any real text box by itself (Scribble). A page does not hear double tap or
     squeeze. So the number box is a real `<input inputmode="decimal">` and nothing uses double tap, squeeze, pressure or
     barrel roll. CI can only pretend a pen; a real Pencil is the Owner's review.
+12. **No "Try a change" card, and no "Back to Level 1".** The spec's card, and the phone's "Try a change" button, change
+    a tuning number (the hero's jump height) and keep it or put it back. A tuning file is the Feel editor's file,
+    `Working` holds only levels, the world file and the project file, and the spec's table of files World writes does
+    not list it. So the card is left out here, never dimmed, and the Feel slice builds it; "Back to Level 1" is for
+    later slices, where a person comes from another editor. Task 35 names the difference from the mockups
+    (`world-levels-play`, `world-levels-bigger`, `world-levels-play-from`).
+13. **What plays is the game's content, not its code.** The editor reads only content files, so a game's own code (the
+    test game's `gamePlugins`, its page's rules) never runs in Play. Play shows the level, its things, the hero's moves,
+    switches, doors, weights and draw order as the game's files make them. The first Play says so in a tip (Task 35)
+    and Help repeats it. A game plays in the person's language when it has that language's words, else in its source
+    language (a game has six languages, the editor nine).
+14. **Turning a change down closes it at once and keeps its branch; Undo reopens it.** This is the spec's own words
+    ("Undo brings them back under 1 to check"). The first draft held the "no" for 8 seconds; that is dropped: its reason
+    was weaker than stated (the App opened the pull request, so it can reopen it) and the "no" was lost if the page
+    closed in those 8 seconds.
+15. **One Pixi Application for the page.** `levels/level-canvas.ts` makes it (`createStage`); the map's pictures are
+    containers in it, and the games list draws each game's start level into a small 2D canvas from it. Two
+    Applications would be two GPU contexts on an iPad.
+16. **"Ask for a change" and "Don't put them in" are comments the App writes, never a review.** GitHub refuses a review
+    that requests changes on the reviewer's own pull request, and the App is the author of every waiting change. Each
+    comment starts with one fixed line that names who it is from (Task 11), so an agent reading the pull request sees
+    the same words the person did.
+17. **The editor reads, never writes, the pictures a game's tilesets name.** `CLAUDE.md` says an editor opens only the
+    content files. A level drawn in the game's own art needs the tileset's PNG, and that picture is a file of the game, not
+    a content file. So `open` also sends those PNGs (read only, each at most 1 MB, 4 MB in all, only under the game's own
+    folder, only `.png`), the editor never writes one, and Task 44 adds the clause to `CLAUDE.md`. A picture that is
+    missing or too big is left out, and its tiles are drawn as the level's ground colour.
+
+## The Owner's answers (2026-11-16, after the audit)
+
+1. **Tour step 3: the crate gets a real "How heavy" (answered b).** The framework gets a weight a character can name,
+   which is the thing's Rapier mass (F4); the test game's crate declares "How heavy" and names it (E4); the tour's
+   step 3 drags it. A game whose picked thing has no number value gets "Move the crate with the arrows" in that slot
+   instead (Task 27), so the tour never asks for what is not there. Until the slider exists (pull request 12) the step
+   is the arrows for every game.
+2. **Drawn behind, with the hero, in front (answered b).** The level file keeps it (F5) and play uses it (F5's
+   renderer); the editor's Look row and menu rows set it (Task 42a).
+
+The Owner also said Rapier was always meant to be the physics. It already is: `@dimforge/rapier2d-deterministic`
+0.21.0, the deterministic build, runs all of the framework's 2D physics, its state hash and its rewind, so nothing
+changes for 2D. The 3D layer will need `@dimforge/rapier3d-deterministic`, a new dependency that asks for its own
+yes then.
 
 ## Global Constraints
 
 - **Dependencies:** only these may be added, exact versions, all development-only and already approved for the
   editors' look (the Blueprint redesign spec): `@fontsource-variable/fraunces` 5.3.0, `@fontsource-variable/onest`
-  5.3.1, `@fontsource/jetbrains-mono` 5.3.0, `@phosphor-icons/core` 2.1.1, `@fontsource/noto-sans-kr`,
-  `@fontsource/noto-sans-jp`, `@fontsource/noto-sans-sc` (newest 5.x the day Task 3 runs). Anything else: stop, tell the
-  coordinator, wait.
+  5.3.1, `@fontsource/jetbrains-mono` 5.3.0, `@phosphor-icons/core` 2.1.1, `@fontsource/noto-sans-kr` 5.3.1,
+  `@fontsource/noto-sans-jp` 5.3.1, `@fontsource/noto-sans-sc` 5.3.1 (the newest 5.x on 2026-11-16, each published
+  2026-10-11). `smol-toml` 1.9.0 is already a dependency (the sharing file reads it): it is not new, and only the
+  architecture rule that confines it widens (Task 2a). Anything else: stop, tell the coordinator, wait.
 - **Every word a person reads is in `src/features/words/`,** in nine languages (en, es, ko, ja, zh, pt, fr, ru, de),
   English the source. The mockups' words are the build's words. Never "repo", "commit", "branch", "pull request",
   "merge", "token" on a screen (`tests/features/words/words.test.ts`).
@@ -125,7 +180,8 @@ that owns the code.
 
 ## Features and where things go
 
-`tests/architecture/rules.ts`'s `LAYERS`, lowest first, becomes:
+`tests/architecture/rules.ts`'s `LAYERS`, lowest first, becomes the list below. **Task 2a, in pull request 2, makes the
+change before any of these folders exists** (a folder not in `LAYERS` fails `unknown-feature`):
 
 ```
 words  access  files  wire  |  exchange  github  service  |  device  ui  api  session  game  shell  levels  map  play  team  world  suite
@@ -135,64 +191,83 @@ words  access  files  wire  |  exchange  github  service  |  device  ui  api  se
 | Feature | New or grown | What it holds |
 |---|---|---|
 | `words` | grown | one file per area, nine languages each: `shell.ts`, `levels.ts`, `map.ts`, `play.ts`, `changes.ts`, `team.ts`, `first.ts` (language, welcome, tour, help); `words.ts` joins them; `languages.ts` |
-| `files` | new, shared | the files that are not game content, read and written one way: `project-lines.ts`, `editors-file.ts`, `notes-file.ts` |
-| `wire` | grown | `PutAsk`, `PutAnswer`, `HistoryLine`, `NotesAnswer`, `AskChange` |
-| `github`, `service` | grown | `commitFiles`; `/api/put`, `/api/take-back`, `/api/ask`, `/api/history`, `/api/notes`, `/api/settings` |
+| `files` | new, shared (no page; `smol-toml` is allowed here and in `access`) | the files that are not game content, read and written one way: `project-lines.ts`, `editors-file.ts`, `notes-file.ts` |
+| `wire` | grown | `PutFile`, `PutAsk`, `PutAnswer`, `HistoryLine`, `HistoryPage`, `OpenPicture`, `NoteAsk`, and what `Waiting` and `OpenAnswer` gain |
+| `github`, `service` | grown | `commitFiles`, `readBytes`, `comment`, `reopenPull`; `/api/put`, `/api/ask`, `/api/reopen`, `/api/clear-turned-down`, `/api/history`, `/api/notes`, `/api/settings` (the author's own take-back stays `/api/turn-down`) |
 | `device` | new | what kind of pointer and screen this is, and the "For me" settings: `pointer.ts`, `size.ts`, `me.ts`, `glass.ts` |
 | `ui` | grown | tokens, fonts, icons and the kit: `Dock`, `Sheet`, `Menu`, `Segment`, `Slider`, `NumberPad`, `Knob`, `Note`, `Tip`, `Rows`, `Icon` |
 | `game` | grown | `changes.ts` (`Working`, `Edits`), `drafts.ts`, `describe.ts`, `merge.ts`, `put.ts`, `problems.ts` |
-| `shell` | new | the frame every editor shares: `TopBar`, `Toolbar`, `ListPanel`, `SettingsPanel`, the three menus, `Find`, `Settings`, `Help`, `Keys`, `Language`, `Welcome`, `Tour`, and `workspace.ts` (what a workspace tells the shell) |
-| `levels` | grown | pure edits (`things.ts`, `ground.ts`, `values.ts`, `level-files.ts`), `view.ts` (what is picked, the tool, the camera), `level-canvas.ts` (Pixi), `Marks.svelte`, the level's own parts (`ActBar`, `MovePad`, `Tray`, `ThingSettings`, value controls, `Show`) |
+| `shell` | new | the frame every editor shares: `TopBar`, `Faces`, `Toolbar`, `ListPanel`, `SettingsPanel`, the three menus, `Find`, `Settings`, `Help`, `Keys`, `Language`, `Welcome`, `Tour`, and `workspace.ts` (what a workspace tells the shell) |
+| `levels` | grown | pure edits (`things.ts`, `ground.ts`, `values.ts`, `level-files.ts`), `view.ts` (what is picked, the tool, the camera), `level-canvas.ts` (Pixi, and the page's one Application), `Marks.svelte`, the level's own parts (`ActBar`, `MovePad`, `Tray`, `ThingSettings`, value controls, `Show`) |
 | `map` | new | `arrange.ts` (pure), `map-canvas.ts` (Pixi), `MapMarks.svelte`, `LevelBar`, `WallCard` |
 | `play` | new | `play.ts` (the framework's game in the level's box), `PlayBar.svelte` |
 | `team` | new | `Check` (checking someone's changes), `Clash`, `People`, `History`, `Notes`, `Ghost`, `Games` |
 | `world` | new | `World.svelte` puts the shell, a level or the map, play and the sheets together; `world-workspace.ts` |
 | `suite` | shrunk | `App.svelte`, `route.ts`, `suite.ts`, `opened.ts` |
 
-Only `levels/level-canvas.ts` and `map/map-canvas.ts` may import Pixi (the rule's `PIXI_FILE` becomes a list).
-`.svelte` files are allowed in `ui`, `shell`, `levels`, `map`, `play`, `team`, `world` and `suite`.
+Only `levels/level-canvas.ts` and `map/map-canvas.ts` may import Pixi (the rule's `PIXI_FILE` becomes a list of two);
+there is one Pixi Application for the page ("My calls" 15). Svelte is confined to the page side by the rule that
+already holds (`PAGE_SIDE`), so there is no separate list of folders for `.svelte` files.
 
 ## Pull requests, order and lanes
 
-Stage 4 is Sonnet at high effort. At most three threads build in this repo at once; a lane is one thread at a time.
-Each pull request merges before the next in its lane starts. `words` is one file per area and `World.svelte` takes one
-line per feature, so lanes rarely meet; where they do, the later one merges `main` in.
+Stage 4 is Sonnet at high effort. **A lane is a thread; no pull request belongs to a fixed lane.** A free thread takes
+the lowest-numbered pull request whose "Needs" have all merged and that nobody has taken. Each pull request merges
+before anything that needs it starts. `words` is one file per area and `World.svelte` takes one line per feature, so
+pull requests that run side by side rarely meet; where they do, the later one merges `main` in before going ready.
 
-| # | Pull request | Tasks | Needs | Lane | % |
-|---|---|---|---|---|---|
-| 1 | The WebKit sign-in journey | 1 | nothing | A | 1 |
-| 2 | Pin 1 (its own pull request) | 2 | the framework's `main` | B | 1 |
-| 3 | The look and the kit | 3 to 6 | 1 | A | 8 |
-| 4 | Several files in one change (the API) | 7 to 11 | 2 | B | 7 |
-| 5 | What a person holds (pure) | 12 to 14 | 2 | C | 6 |
-| 6 | Level and map edits (pure) | 15 to 19 | 5 | C | 8 |
-| 7 | The shell's frame | 20 to 22 | 3 | A | 9 |
-| 8 | The team's files (the API) | 23 | 4 | B | 4 |
-| 9 | Levels on screen: Pick, Place, Erase | 24 to 26 | 6, 7 | A | 9 |
-| 10 | First run, Settings, Help, the keys | 27, 28 | 7 | B | 6 |
-| 11 | The map on screen | 29, 30 | 6, 7 | C | 7 |
-| 12 | A thing's settings, Join, Paint, Show, the Pencil | 31, 32 | 9 | A | 9 |
-| 13 | Putting changes in, problems, offline | 33, 34 | 4, 5, 7 | B | 7 |
-| 14 | Play in place | 35 | 9 | C | 4 |
-| 15 | Checking, and two people on one thing | 36, 37 | 13 | B | 5 |
-| 16 | The team: people, history, notes, the helper, Find, your games | 38 to 40 | 8, 12, 13 | C | 6 |
-| 17 | Pin 2 (its own pull request), then play's rest and a game with a problem | 41, 42 | F1 to F3 and Plan W's pull request 5 merged | A | 3 |
-| 18 | Every journey at every size, the four layout fixes proved, the close | 43, 44 | all | A | 0 (the last 0 to 100 check) |
+| # | Pull request | Tasks | Needs | % |
+|---|---|---|---|---|
+| 1 | The WebKit sign-in journey | 1 | nothing | 1 |
+| 2 | Pin 1, the rules for the new features, two test games | 2, 2a, 2b | the framework's `main` | 4 |
+| 3 | The look and the kit | 3 to 6 | 2 | 8 |
+| 4 | Several files in one change (the API) | 7 to 11 | 2 | 7 |
+| 5 | What a person holds (pure) | 12 to 14 | 4 (its wire types and `ProjectChange`) | 6 |
+| 6 | Level and map edits (pure) | 15 to 19 | 5 | 8 |
+| 7 | The shell's frame | 20 to 22 | 3, 5 | 8 |
+| 8 | The team's files (the API) | 23 | 4 | 4 |
+| 9 | Levels on screen: Pick, Place, Erase | 24 to 26 | 6, 7 | 8 |
+| 10 | First run, Settings, Help, the keys | 27, 28 | 7, 8 | 5 |
+| 11 | The map on screen | 29, 30 | 6, 7, 9 | 6 |
+| 12 | A thing's settings, Join, Paint, Show, the Pencil | 31, 32 | 9, 10, 11 | 8 |
+| 13 | Putting changes in, problems, offline | 33, 34 | 4, 5, 7, 8, 9, 11 | 6 |
+| 14 | Play in place | 35 | 9 | 3 |
+| 15 | Checking, and two people on one thing | 36, 37 | 13, 14 | 4 |
+| 16 | The team: people, history, notes, the helper, Find, your games | 38 to 40 | 8, 12, 13 | 5 |
+| 17 | Pin 2 (its own pull request), then play's rest and a game with a problem | 41, 42 | 13, 14, and F1 to F5 and Plan W's pull request 5 merged | 2 |
+| 18 | Drawn behind, with the hero, in front | 42a | 12, 17 | 1 |
+| 19 | Every journey at every size, the four layout fixes proved, the close | 43, 44 | all | 1 |
 
-The framework's three tasks (F1 to F3, below) are 5% and are built in AutomataFramework, not here.
+The framework's five tasks (F1 to F5, below) and the test game's one (E4) are the other 5%: built in AutomataFramework
+and AutomataFrameworkExamples, not here. The column and that 5 add to 100.
 
-**What runs side by side:** first 1 and 2; then 3, 4 and 5 (three lanes); then 7, 8 and 6; then 9, 10 and 11; then 12,
-13 and 14; then 15 and 16; then 17; then 18. Pull requests 9, 11 and 14 all add a line to `World.svelte` and so do 12
-and 13: they merge `main` in before going ready. Nothing here waits for Plan W except pull request 17.
+**Waves.** Everything in a wave can start once the wave before it has merged: 1 and 2; then 3 and 4; then 5 and 8; then
+6 and 7; then 9 and 10; then 11 and 14; then 12 and 13; then 15 and 16; then 17; then 18; then 19. No wave holds more
+than two pull requests, so **two lanes are enough and three are never needed**. Pull requests 9, 11 and 14 all add a
+line to `World.svelte`, and so do 12 and 13: they merge `main` in before going ready. Pull request 6 adds functions
+beside the old `levels/edit.ts` and removes nothing, which is why 7 does not wait for it (Task 15).
+
+**Threads and branches (the shared rules).** The project allows four working threads at once, all in the current
+slice, and three building in one repo. While Plan W's two threads are building (the sim chain, pull request 173, and
+the commands, pull request 172), the Editors take two of the four and no more: two lanes, never three. The framework
+thread (F1 to F5) takes the next slot Plan W frees: F3 is small and may be done by a lane thread in a gap; F1, F2, F4
+and F5 start after Plan W's pull request 4 merges (they change the same files) and are merged before pull request 17,
+the only one that waits for them. The coordinator says when a slot is free; this plan never starts a thread on its own.
+Branches: Editors has `main` and `ci-screens`, and the rules allow five, so at most two lane branches and one docs or
+audit branch are open at once. A docs pull request (an audit, a rules page) merges before a second lane starts, or
+waits.
 
 ---
 
 ## The framework's part (AutomataFramework, built there, before Pin 2)
 
-One pull request per row's group, drafts, in AutomataFramework's own tracker. F3 touches only `content/load.ts` and
-`content.ts`, so it may start now beside Plan W (it merges `main` in after Plan W's pull request 5, which adds exports to
-the same list). F1 and F2 start after Plan W's pull request 4 merges, as one pull request. Each changes the API report:
-take the new one from the `package` job, as Plan W does.
+One pull request per task (F1 and F2 may share one), drafts, in AutomataFramework's own tracker. **F3** touches only
+`content/load.ts` and `content.ts`, so it may start now beside Plan W (it merges `main` in after Plan W's pull request
+5, which adds exports to the same list). **F1, F2, F4 and F5** start after Plan W's pull request 4 merges: they change
+`game.ts`, `level/`, `physics/` and the renderer, which Plan W's chain changes. F4 and F5 are the Owner's answers of
+2026-11-16 (a weight, a draw order). Each changes the API report: take the new one from the `package` job, as Plan W
+does. **A game that uses none of the new parts must hash as it did:** F4 and F5 each say how, and each has a test that
+says so.
 
 ### Task F1: One step, and a slower speed
 
@@ -269,11 +344,127 @@ export function readGame(read: (path: string) => Promise<string>): Promise<GameR
 
 `loadGame` is `readGame` that answers `ok: false` when there is any diagnostic; its results do not change.
 
+**What `content.places` is when there are problems.** `load()` works it out only when there are none. `readGame` works
+it out whenever the world file and every level it names read (`layoutFor` does not give `undefined`), whatever problems
+the layout itself has (an overlap, a wall); otherwise `places` is left out. So content with a dangling reference (a
+door into a missing level, a thing whose character is gone, a world file naming a level that is not there) comes back
+with no `places` and the diagnostic that says why. A caller that sees a diagnostic whose `file` is the world file
+treats `places` as unreliable: the editor's map then draws every level in a row (Task 18's `boxes`), and Play of a
+level that needs a place refuses (Task 42).
+
 - [ ] **Step 1: Write the failing tests** on the links game: a clean game gives `content` and no diagnostics, equal to
   `loadGame`'s value; a door whose `to` names a missing level gives `content` and that one sentence; a level file that
-  is not JSON gives `content: undefined`; every existing `loadGame` test still passes.
+  is not JSON gives `content: undefined`; a world file that names a level that is not there gives `content` with no
+  `places` and that one sentence; two levels that overlap on the map give `content` with `places` and the overlap
+  sentence; every existing `loadGame` test still passes.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(content): readGame gives a game and its problems together`
+
+### Task F4: A character's weight, which is the thing's Rapier mass
+
+The Owner's answer (2026-11-16): the crate gets a real "How heavy" with a rule the game uses, so the tour can drag it.
+The framework already runs on Rapier (`@dimforge/rapier2d-deterministic` 0.21.0, the deterministic build), so the weight
+is Rapier's own mass; nothing is installed.
+
+**Files:** Modify `src/features/content/character.ts` (the `weight` field and its check), `src/features/physics/components.ts`
+(a `Mass` component), `physics/spawn.ts` (a `mass(kilos)` spawn part), `physics/rapier.ts` (`colliderDesc` calls
+`setMass` when the entity has `Mass`), `src/features/level/hero.ts` (`characterParts` adds `Mass` from the thing's
+value), `level/uses.ts` (`usesWeights`), `src/headless.ts`, `src/index.ts`. Test `tests/features/content/character.test.ts`,
+`tests/features/level/weight.test.ts`, `tests/features/level/weight.parity.test.ts`.
+
+**Interfaces (produces):**
+
+```ts
+// Character gains
+/** The `number` value that is this character's weight, in kilograms: the thing's mass in Rapier. Needs `body: 'dynamic'`.
+ *  Left out, a body weighs what its box does (its area, at Rapier's density of 1). */
+readonly weight?: string | undefined
+// physics/spawn.ts
+export function mass(kilos: number): SpawnPart
+```
+
+The check: `weight` names a declared value of this character that is a `number` whose `least` is above 0, and the
+character's `body` is `dynamic` ("A fixed body does not move, so it has no weight."). The thing's mass is read at spawn
+from its own value, or the character's default (`withDefaults`), so two crates in one level may weigh differently. It
+does not change while the sim runs.
+
+**It must not move any hash a game that names no weight has.** `Mass` is a component of its own, added only to a thing
+whose character has a `weight` and registered in a sim only when some character does (as `Joint` is registered only
+when a game asks for joints); no existing component gains a field. A snapshot taken mid-push and restored gives the
+same hash as an uninterrupted run, since Rapier's world snapshot carries the mass.
+
+- [ ] **Step 1: Write the failing tests:** on a small level (a floor, a hero with `moves`, a crate 1 by 1) with the
+  crate's weight at its default of 1 and at 4, the same right-hand control held for 120 ticks: the 4 kilo crate has
+  moved less than half as far; two crates in one level with different values weigh differently; a game with no
+  `weight` ends every existing golden on the hash it had (all unmoved); the check refuses a weight that names a missing
+  value, a `switch` value, a `least` of 0 or a fixed body, each with a plain sentence; `snapshot()` then `restore()`
+  mid-push is hash-equal to an uninterrupted run; the hashes are equal in Node, Chromium, WebKit and Firefox.
+- [ ] **Step 2 to 4: push red, implement, push green.**
+- [ ] **Step 5: Commit** `feat(physics): a character's weight is its thing's Rapier mass`
+
+### Task F5: Drawn behind, with the hero, or in front
+
+The Owner's answer (2026-11-16): draw order is kept in the level and used in play.
+
+**Files:** Modify `src/features/content/level.ts` (the thing's `draw`, in the type and the schema, with its sentence),
+`src/features/level/spawn-level.ts` and `sprite.ts` or `src/features/render/stage.ts` (whichever hands the renderer what
+a thing is), `src/features/render/stage.ts` (the order). Test `tests/features/content/level.test.ts`,
+`tests/features/render/draw-order.browser.test.ts`, `tests/features/level/draw.test.ts`.
+
+**Interfaces (produces):**
+
+```ts
+// LevelThing gains
+/** How it is drawn: `behind` the ground and every other thing (over the backdrop), `with-hero` as things and heroes are
+ *  drawn today, or `in-front` of everything the level draws, the hero included. Left out is `with-hero`. Drawing only:
+ *  nothing in the sim reads it. */
+readonly draw?: 'behind' | 'with-hero' | 'in-front' | undefined
+```
+
+`writeContent` writes `draw` only when it is `behind` or `in-front` (`with-hero` is the same as no key, so a written
+file never holds the default). The renderer puts each thing in one of three layers; today's layers are the middle one.
+Presentation observes and never decides: no sim state reads `draw`. The level's content is hashed whole into every
+snapshot, so a level that sets `draw` hashes differently from one that does not and a level that does not hashes as it
+did; a test says every entity's place after 300 ticks is the same with and without `draw` on a thing.
+
+- [ ] **Step 1: Write the failing tests:** `draw: 'in-front'` on a crate that overlaps the hero's start paints the
+  crate's colour on the overlap, `behind` paints the tile's, and no key paints the hero's (in the three browsers); a
+  level with no `draw` anywhere is hash-equal to its recording in every golden (all unmoved); `draw: 'with-hero'` is
+  refused by `writeContent`'s round trip as no key (the file does not hold the default); a bad value gets one plain
+  sentence naming the three.
+- [ ] **Step 2 to 4: push red, implement, push green.**
+- [ ] **Step 5: Commit** `feat(level): a thing is drawn behind, with the hero or in front`
+
+---
+
+## The test game's part (AutomataFrameworkExamples, built there, after F4 and F5)
+
+### Task E4: The crate has "How heavy"
+
+Plan W's Examples tasks E1 to E3 are on Plan W's page; this one is added by this plan (the Owner's answer,
+2026-11-16). **E1 waits for F4 and F5 to merge**, so the Examples pin moves once, to a commit that has Plan W's pull
+request 5 and both. (If E1 has already merged, E4 is its own pull request with its own pin move and its own before and
+after for the Owner.)
+
+**Files:** `content/characters/crate.json` (`values`: `heavy`, named "How heavy", `number`, `least` 0.5, `step` 0.5,
+`default` 1, `about` "How hard the crate is to push."; `most` below; `weight: "heavy"`), `tests/game/game-files.test.ts`,
+`tests/journeys/` (one journey), `replays/level-1.json`. The crate is 1 by 1, so Rapier's default mass for it is 1: the
+default keeps today's feel and the recorded moves stand. Written by `pnpm content:write`.
+
+- **`most`** is the heaviest weight at which the journey's hero still pushes the crate onto the plate within ten
+  seconds: the journey tries 4, then lower by 0.5 until it does, and the file keeps that number.
+- **The recording moves.** The crate now carries a `Mass` component, so **`replays/level-1.json` is a golden that
+  moves**, even at the default weight. It rides the same before-and-after the Owner already sees for Plan W's move of
+  the same file (E3's step 2): one pull request, the old and new final hashes of both reasons, a `ci-screens` picture at
+  390 by 844, and no merge until the Owner says yes. The template's crate (in the framework) gets no weight, so the
+  template's `replays/level-1.json` does not move for this reason.
+- **The Site** reads the crate's recording for its home page: its next cycle is told its numbers change.
+
+- [ ] **Step 1: Tests:** the game loads with `weight` named; `automata check` is clean; the journey (three browsers, the
+  real level): at the default the crate goes onto the plate; at `most` it still does and takes longer.
+- [ ] **Step 2 to 4: push red, implement, push green** (CI says "the content changed" for `replays/level-1.json`:
+  expected).
+- [ ] **Step 5: Commit** `feat: the crate has How heavy`, naming the moved golden in the message.
 
 ---
 
@@ -295,7 +486,10 @@ navigation. Use superpowers:systematic-debugging; do not add a retry or a sleep.
 - [ ] **Step 3 to 4: push red, fix the cause, push green,** with the `full-tests` label so WebKit runs.
 - [ ] **Step 5: Commit** `fix(session): <what it was>`, and take the must-fix section out of `progress.md`.
 
-## Pull request 2: Pin 1
+## Pull request 2: Pin 1, the rules for the new features, two test games
+
+One pull request, three tasks, and everything runs (the lockfile and the rules change). It is small, and it comes first
+so no later pull request trips on a rule, a missing feature folder or a game that cannot play.
 
 ### Task 2: Move the framework pin to its `main`
 
@@ -306,6 +500,89 @@ navigation. Use superpowers:systematic-debugging; do not add a retry or a sleep.
 - [ ] **Step 2: Push.** Everything runs (the lockfile changed). Fix only what the new pin breaks; a change of
   behaviour is reported to the coordinator, not worked around.
 - [ ] **Step 3: Commit** `chore: pin the framework at <commit> (values, the world file, layoutWorld)`
+
+### Task 2a: The architecture rules for the features to come
+
+**Files:** Modify `tests/architecture/rules.ts`, `CLAUDE.md` (its list of features, lowest first, and the sentence on
+what `smol-toml` and Pixi are for). Test `tests/architecture/rules.test.ts`.
+
+A folder not in `LAYERS` fails `unknown-feature`, `smol-toml` is confined to `access` and Pixi to one file, and the
+API side's "no page" set has no `files`. Pull requests 4 and 6 make the `files` and `map` folders, so the rules change
+here, before either.
+
+**Interfaces (produces):**
+
+```ts
+export const LAYERS = ['words', 'access', 'files', 'wire', 'exchange', 'github', 'service',
+  'device', 'ui', 'api', 'session', 'game', 'shell', 'levels', 'map', 'play', 'team', 'world', 'suite'] as const
+export const API_SIDE = ['exchange', 'github', 'service'] as const                       // unchanged
+export const PAGE_SIDE = ['device', 'ui', 'api', 'session', 'game', 'shell', 'levels', 'map', 'play', 'team', 'world', 'suite'] as const
+// NO_PAGE (what the API may run) gains 'files'. PIXI_FILE becomes PIXI_FILES: levels/level-canvas.ts and map/map-canvas.ts.
+// smol-toml is allowed in `access` and `files`.
+```
+
+- [ ] **Step 1: Write the failing tests** on made-up file maps: a file in `src/features/files/` that imports
+  `smol-toml` is clean and one in `service/` is `package-confined`; `files` using `window` is `api-side-has-no-page`;
+  `files` importing `wire` is `imports-go-down` and `wire` importing `files` is clean; each of `device`, `shell`, `map`,
+  `play`, `team` and `world` is accepted (no `unknown-feature`); `levels` importing `map` is `imports-go-down`; `map`
+  importing `service` is `page-never-imports-api-side`; `map/map-canvas.ts` importing `pixi.js` is clean and
+  `map/map.ts` doing so is `package-confined`; `shell` importing `levels` is `imports-go-down`.
+- [ ] **Step 2 to 4: push red, implement, push green.** `tests/architecture.test.ts` still passes over the real tree
+  (no new folder exists yet).
+- [ ] **Step 5: Commit** `test(architecture): the rules for the World editor's features`
+
+### Task 2b: Two games for the tests
+
+The journeys need a game that can play, a game whose levels can join, and a game with a tileset and its picture. None
+of the editors' fixtures is any of these today (audit H4 and M1). Later tasks name these games, so they are made once,
+here.
+
+**Files:** Modify `tests/fixtures/game/automata.toml`, `content/characters/hero.json`, `content/characters/crate.json`,
+`content/levels/level-1.json`, `tests/fixtures/game/read.ts`, `tests/fixtures/fake-github/repos.ts`, `server.ts`,
+`tests/fixtures/api.ts`, `tests/fixtures/journey.ts`. Create `tests/fixtures/game/content/tunings/hero-moves.json`,
+`content/tilesets/ground.json`, `tests/fixtures/game/ground-picture.ts`, `tests/fixtures/links-game/links.ts`,
+`links-game/read.ts`. Test `tests/fixtures/game.test.ts`, `tests/fixtures/links-game.test.ts`,
+`tests/fixtures/fake-github/server.test.ts`.
+
+**The Crate Game (`grandma/crate-game`, the demo, `DEMO`)** keeps its one level and gains:
+
+- **A hero that moves.** `hero.json` gets `moves: { tuning: 'hero-moves', 'double-jump': false, 'wall-jump': false,
+  dash: false }`, and `content/tunings/hero-moves.json` is listed in `automata.toml`, made as the framework's own links
+  game makes it from `MOVE_NUMBERS` and `DEFAULT_HERO_CONTROLS` (both exported from the framework's `/headless` entry).
+  Without it `startGame` throws "This game has no controls" and no play journey can pass.
+- **A tileset and its picture.** `content/tilesets/ground.json` has two kinds, Ground (`#`, solid) and Water (`~`, not
+  solid), 16 pixels a tile and two frames; `level-1.json` names `tileset: "ground"`. Its picture is 32 by 16 pixels and
+  is made in `ground-picture.ts` with the framework's `encodePng` (no binary is committed); `read.ts` gains
+  `fixtureBytes()` for it, as `fixtureFiles` is for the text.
+- **A crate that says how heavy it is.** `crate.json` declares one value, `heavy`, named "How heavy": `number`, least
+  0.5, most 4, step 0.5, default 1. It has no `weight` yet (the pinned framework's schema is strict and has no such
+  field); Task 41 adds `weight: "heavy"` at Pin 2. The declaration is enough for the tour (Task 27) and the slider
+  (Task 31).
+
+**The links game (`grandma/links-game`, `LINKS`, exported from `api.ts`)** is built in the editors' tests from data,
+never written out by a script: `tests/fixtures/links-game/links.ts` holds the data of the framework's own links game
+(the framework's `tests/fixtures/links-game/read.ts` at the pinned commit: three levels 16 by 9, a plate and a gate, a
+button, doors that lead back, a goal, a critter, the world file) and builds each file with `writeContent` and
+`loadGame` from `@automataframework/framework/headless` instead of the framework's `#src`. `links-game.test.ts` loads it
+with `loadGame` and checks every file equals `writeContent`'s bytes, as `game.test.ts` does for the Crate Game. Its
+levels are called Room 1 to Room 3 (`nameOf`). **One change from the framework's copy,** noted at the top of `links.ts`:
+rows 5 to 7 of room-1 are open on the right, as room-2's are, so room-1's right edge is open where room-2's left edge is
+solid. Pushing room-1 against room-2 then makes a wall (the card of Task 30 mends it), while room-2 and room-3 still
+join on rows 5 to 7. The world file still puts room-1 at (0, 0), clear of the others, so the game loads with no problem.
+
+**Served by the pretend GitHub.** `repos.ts` learns to hold several games (`addGame(owner, name, files, bytes?)`), and
+`reset()` puts back both, each owned by `grandma` with the same people and levels of access. A file's bytes are kept
+beside its text (`putBytes`): the contents answer gives base64, the raw media type answers the bytes, and the blob sha
+is of the bytes. `journey.ts`'s `openPage(size, person, keep, game = DEMO)` opens either. The pictures of Task 43 use
+these games' own names: Room 1 to Room 3 on the map, Level 1 in the Crate Game.
+
+- [ ] **Step 1: Write the failing tests:** both games load with `loadGame` and their files are `writeContent`'s bytes;
+  in a browser test, `startGame` on the Crate Game builds and steps 60 ticks without throwing; the Crate Game's
+  tileset reads, and in a browser test its picture is a PNG the framework's `loadArt` accepts; the pretend GitHub serves both games,
+  answers a picture's bytes through the raw media type, and a test that changes one file of one game leaves the other
+  as it was.
+- [ ] **Step 2 to 4: push red, implement, push green.** Everything runs, as the fixtures changed.
+- [ ] **Step 5: Commit** `test(fixtures): a hero that moves, a tileset, and the links game`
 
 ## Pull request 3: the look and the kit
 
@@ -337,16 +614,19 @@ export const ICONS: Readonly<Record<IconName, string>>   // the path data
 
 ### Task 4: What kind of device this is, and the "For me" settings
 
-**Files:** Create `src/features/device/pointer.ts`, `size.ts`, `me.ts`, `glass.ts`, `device.ts`. Modify
-`tests/architecture/rules.ts` (the new `LAYERS`, the Pixi list, the `.svelte` list), `CLAUDE.md` (the `af.me.*` keys and
-the structure). Test `tests/features/device/*.test.ts`, `tests/architecture/rules.test.ts`.
+**Files:** Create `src/features/device/pointer.ts`, `size.ts`, `me.ts`, `glass.ts`, `device.ts`. Modify `CLAUDE.md`
+(the `af.me.*` keys; the rules themselves changed in Task 2a). Test `tests/features/device/*.test.ts`.
 
 **Interfaces (produces):**
 
 ```ts
 // device/size.ts
 export type SizeClass = 'phone' | 'phone-sideways' | 'tablet-upright' | 'wide'
-/** Phone is up to 500 wide; above 1000 wide and 600 tall is 'wide'; a short wide window is 'phone-sideways'. */
+/** Total, in this order: 500 wide or less is 'phone'; under 500 tall is 'phone-sideways' (a short wide window); taller
+ *  than wide is 'tablet-upright' (an upright iPad, or any tall window over 500 wide); every other window is 'wide': an
+ *  iPad sideways, a computer, and the in-betweens such as 700 by 650. Read from the layout viewport, which the
+ *  on-screen keyboard does not shrink (iPadOS, and Chrome's default for the keyboard), so opening the keyboard never
+ *  changes the class. */
 export function sizeClass(w: number, h: number): SizeClass
 // device/pointer.ts
 export type PointerKind = 'touch' | 'mouse' | 'pen'
@@ -354,7 +634,8 @@ export interface Pointers { readonly last: PointerKind; readonly penSeen: boolea
 export function nextPointers(now: Pointers, event: { pointerType: string; buttons: number; type: string }): Pointers
 /** 'small' for a mouse or a hovering Pencil, 'touch' otherwise. The caller reads it only when a panel opens. */
 export function rowSize(pointers: Pointers, choice: Me['rows']): 'touch' | 'small'
-/** The name the top bar uses: "iPad", "phone" or "computer". */
+/** The name the top bar uses: "iPad", "phone" or "computer". An iPad sideways and a computer are both 'wide'; this is
+ *  what tells them apart, and `layout` (Task 21) takes it. */
 export function deviceWord(userAgent: string, size: SizeClass, touch: boolean): 'ipad' | 'phone' | 'computer'
 // device/me.ts
 export interface Me {
@@ -369,7 +650,9 @@ export function glassOn(me: Me, device: { blur: boolean; lessSeeThrough: boolean
 ```
 
 - [ ] **Step 1: Write the failing tests:** `sizeClass(1210, 834)` is `'wide'`, `(834, 1210)` `'tablet-upright'`,
-  `(390, 844)` `'phone'`, `(844, 390)` `'phone-sideways'`, `(1280, 800)` `'wide'`; a pen `pointerdown` sets `penSeen`
+  `(390, 844)` `'phone'`, `(844, 390)` `'phone-sideways'`, `(1280, 800)` `'wide'`, `(700, 650)` `'wide'`, `(600, 700)`
+  `'tablet-upright'`, `(390, 400)` `'phone'` (a phone upright with its keyboard up); `deviceWord` tells an iPad sideways
+  (an iPad user agent, or a Mac one with touch) from a computer at 1210 by 834 and 1280 by 800; a pen `pointerdown` sets `penSeen`
   for good; a pen `pointermove` with `buttons: 0` is hovering; `rowSize` is `'small'` for a mouse and a hovering pen;
   `readMe` of garbage is `ME_DEFAULT`; `glassOn` is false with no blur, with `lessSeeThrough`, and with `'off'`.
 - [ ] **Step 2 to 4: push red, implement, push green.**
@@ -458,16 +741,22 @@ commitFiles(change: {
   message: string
   author: Author
 }): Promise<Answer<{ commit: string; versions: Readonly<Record<string, string>> }>>
-/** The commits that touched any of `paths` on `branch`, newest first, at most `limit`. */
-history(branch: string, paths: readonly string[], limit: number): Promise<Answer<readonly { commit: string; by: string; at: number; message: string; paths: readonly string[] }[]>>
+/** The newest commits on `branch` that touched anything under `folder` (GitHub's list of commits filters by one path, and
+ *  a folder matches every file inside it): ONE call, newest first, at most `limit` (at most 50). A row has who, when and
+ *  the message, not its files. */
+history(branch: string, folder: string, limit: number): Promise<Answer<readonly { commit: string; by: string; at: number; message: string }[]>>
+/** The paths one commit touched: one call. Task 23 asks only for the rows it shows. */
+commitPaths(commit: string): Promise<Answer<readonly string[]>>
 ```
 
 Made with GitHub's blobs, trees, commits and a ref update that is never forced (the App's contents permission covers
-all four). A ref that moved under it is `'changed-elsewhere'`.
+all four). A ref that moved under it is `'changed-elsewhere'`. The pretend GitHub's `FakeCommit` holds one path today; it
+becomes a list of files, and its old one-file answers keep working for the save that still exists.
 
 - [ ] **Step 1: Write the failing tests** against the pretend GitHub: three files (one changed, one new, one taken
   away) land in one commit; a stale `version` on one writes nothing and names that path; a ref moved between reading
-  and writing writes nothing; `history` lists newest first and only commits touching the paths.
+  and writing writes nothing; `history` lists newest first and only commits touching the folder, in one request (the
+  pretend GitHub counts them); `commitPaths` gives a commit's paths.
 - [ ] **Step 2 to 4: push red, implement (the pretend GitHub learns the four calls), push green.**
 - [ ] **Step 5: Commit** `feat(github): several files in one commit, and a file's history`
 
@@ -492,12 +781,18 @@ export function changeProject(text: string, change: ProjectChange): string | und
 
 An added file is a `[[content]]` block of three lines at the end, in the form the framework's template writes; a
 removed one loses exactly its block and one blank line; `start = "…"` and the ids inside `levels = [ … ]` are changed
-in place; a removed level's id also leaves `levels`. Every other byte, comments included, stays.
+in place. When the text has a `levels = [ … ]` line, an added `level`'s id (its file's name without `.json`) is added
+at the end of it, and a removed level's id leaves it; if that would leave `levels` empty the line is taken out (the
+framework needs at least one, and a game with no `levels` line plays its `start` level alone). A text with no `levels`
+line never gets one. Every other byte, comments included, stays.
 
-- [ ] **Step 1: Write the failing tests** on the fixture's file with a comment line and Windows line ends in a second
-  copy: add then remove gives the first text back byte for byte; a comment between blocks survives both; renaming
-  `level-1` changes `start` and `levels` and nothing else; removing the `start` level gives `undefined`; the result of
-  each reads with the framework's `parseProject`.
+- [ ] **Step 1: Write the failing tests** on the links game's project text (it has `levels`, `source`, `players` and
+  `done`; the Crate Game's has no `levels` line) and on a hand-written text with a comment line, and with Windows line
+  ends in a second copy: add then remove gives the first text back byte for byte; a comment between blocks survives
+  both; adding `level-4` gives `levels = ["room-1", "room-2", "room-3", "level-4"]`, and adding to a text with no
+  `levels` line adds none; removing `room-2` takes it out of `levels` as well as out of the `[[content]]` list;
+  removing the only id left takes the `levels` line out; renaming `room-1` changes `start` and `levels` and nothing
+  else; removing the `start` level gives `undefined`; the result of each reads with the framework's `parseProject`.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(files): change only a level's lines in automata.toml`
 
@@ -524,9 +819,11 @@ export function writeEditors(file: EditorsFile): string   // 'format = 1\nproble
 
 ### Task 10: Put: every changed file in one change
 
-**Files:** Create `src/features/service/put.ts`, `service/allowed.ts`. Modify `service/service.ts` (the route
-`POST /api/put`), `wire/wire.ts`, `api/api.ts`. `service/save.ts` and `/api/save` stay until Task 33 removes their last
-caller. Test `tests/features/service/put.test.ts`, `allowed.test.ts`, `tests/features/api/api.test.ts`.
+**Files:** Create `src/features/service/put.ts`, `service/allowed.ts`, `service/message.ts`. Modify `service/service.ts`
+(the route `POST /api/put`), `service/save.ts`, `wire/wire.ts`, `api/api.ts`. `service/save.ts` and `/api/save` stay
+until Task 33 removes their last caller. **First, move `oneLine` out of `save.ts`** (which Task 33 deletes) into
+`service/message.ts`, and have `save.ts` import it from there; `put.ts` needs it. Test
+`tests/features/service/put.test.ts`, `allowed.test.ts`, `tests/features/api/api.test.ts`.
 
 **Interfaces (produces):**
 
@@ -535,6 +832,7 @@ caller. Test `tests/features/service/put.test.ts`, `allowed.test.ts`, `tests/fea
 export interface PutFile { readonly path: string; /** The content as data; the API writes the bytes. Undefined takes the file away. */ readonly value: unknown | undefined; readonly version: string | undefined }
 export interface PutAsk { readonly game: GameRef; readonly files: readonly PutFile[]; readonly project?: ProjectChange; /** The project file's version the person started from; needed with `project`. */ readonly projectVersion?: string; readonly message: string }
 export interface PutAnswer { readonly how: 'direct' | 'suggestion'; readonly versions: Readonly<Record<string, string>>; /** The project file's new text when it changed. */ readonly project?: WireFile; readonly mine: Waiting | undefined }
+// These wire types are made here and used by pull request 5's `Edits` (Task 12): that pull request needs this one.
 // api: Api gains  put(ask: PutAsk): Promise<Answer<PutAnswer>>
 // service/allowed.ts
 /** Which paths a person's change may touch: the level and world files the game lists, plus the ones `project.add` names (a level at content/levels/<id>.json, one world at content/worlds/<id>.json), never anything else. */
@@ -557,39 +855,74 @@ there is none (Suggest, Approve). The commit message is `oneLine(message, …)` 
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(service): put every changed file into the game in one change`
 
-### Task 11: A waiting change of several files: look, approve, take back, ask for a change
+### Task 11: A waiting change of several files: look, approve, ask for a change, turn down, bring back
 
-**Files:** Modify `src/features/service/approve.ts`, `waiting.ts`, `service.ts`, `github/repo.ts` (two calls),
-`wire/wire.ts`, `api/api.ts`, the pretend GitHub. Create `service/ask.ts`. Test `tests/features/service/waiting.test.ts`,
-`approve.test.ts` (new), `ask.test.ts`.
+**Files:** Modify `src/features/service/approve.ts`, `waiting.ts`, `service.ts`, `service/open.ts` (`OpenAnswer.turnedDown`),
+`github/repo.ts` (four calls), `wire/wire.ts`, `api/api.ts`, the pretend GitHub. Create `service/ask.ts`. Test
+`tests/features/service/waiting.test.ts`, `approve.test.ts` (new), `ask.test.ts`, `tests/fixtures/fake-github/server.test.ts`.
 
 **Interfaces (produces):**
 
 ```ts
 // Repo gains
-askForChange(number: number, words: string, author: Author): Promise<Answer<true>>   // a review that asks for changes
-asked(number: number): Promise<Answer<{ by: string; words: string; at: number } | undefined>>   // the newest such review still standing
-// wire: Waiting gains  readonly asked?: { readonly by: string; readonly words: string }
+comment(number: number, text: string): Promise<Answer<true>>                              // a comment the App writes on the change
+comments(number: number): Promise<Answer<readonly { at: number; text: string }[]>>         // newest first
+reopenPull(number: number): Promise<Answer<true>>
+/** The newest closed, unmerged pull whose head is `branch`; undefined when there is none. */
+closedPull(branch: string): Promise<Answer<Pull | undefined>>
+// service/ask.ts: the two fixed first lines the App writes, and the one place that reads them back
+export const ASKED = 'Change asked for by '        // + the login, then a blank line, then the words
+export const NOT_PUT_IN = 'Not put in by '           // + the login
+// wire
+// Waiting gains   readonly asked?: { readonly by: string; readonly words: string; readonly at: number }
+// OpenAnswer gains   readonly turnedDown: { readonly by: string; readonly at: number } | undefined
 // Api gains
-takeBack(ask: ChangeAsk): Promise<Answer<true>>      // POST /api/take-back: the person's own waiting change is closed, its branch deleted
 askChange(ask: ChangeAsk & { readonly words: string }): Promise<Answer<true>>   // POST /api/ask
+reopen(ask: ChangeAsk): Promise<Answer<true>>                                    // POST /api/reopen: the Undo of a turn-down
+clearTurnedDown(game: GameRef): Promise<Answer<true>>                            // POST /api/clear-turned-down: "Got it"
 ```
 
-`approveChange` and `showChange` use `allowedPaths` (with the change's own added and removed level files) instead of
-"every path is listed", so a new level and its lines in `automata.toml` can be looked at and approved. `takeBack` is
-only for the change's own author; `askChange` only for someone who may approve, never the author; `words` is 1 to 500
-characters.
+**Why comments (audit H2, "My calls" 16).** Every waiting change is a pull request the App opened, so the App is its
+author, and GitHub answers 422 ("Can not request changes on your own pull request") to a review that requests changes
+on it. So "Ask for a change" is a comment the App writes: its first line is `ASKED` and the person's login (taken from
+the session, never from the page), then a blank line, then the words (1 to 500 characters). `Waiting.asked` is the
+newest such comment that is newer than the change's last commit: when its author sends again, it is answered and gone.
+The pretend GitHub learns the same rule (it answers 422 to a changes-requested review by the pull request's author), so
+no later task can bring a review back unseen. An agent reading the pull request sees the same words.
+
+**Turning down.** `turnDownChange` keeps its route and its rules (someone who may approve may turn any down; anyone may
+take their own back). For an approver turning down someone else's change it now closes the pull, **keeps the branch**,
+and writes a comment whose first line is `NOT_PUT_IN` and the login. For an author taking their own back it closes the
+pull and deletes the branch, as today; there is no second "take back" route (audit L5). `reopen` is the Undo: for
+someone who may approve, when the newest closed unmerged pull from an `automata/` branch in this repo still has its
+branch and no other pull is open from it; else `'not-found'`. `OpenAnswer.turnedDown` is the author's own: their branch
+exists, nothing is open from it, and its newest closed pull has a `NOT_PUT_IN` comment. A Suggest person's next Put
+starts the branch afresh (as `save.ts` already does for a leftover branch), which clears it; `clearTurnedDown` deletes
+the leftover branch (their own only; nothing to delete is fine).
+
+**Approving (audit M2).** `approveChange` and `showChange` use `allowedPaths` (Task 10) with the change's own added and
+removed level files, so a new level and its lines in `automata.toml` can be looked at and approved. The game is loaded
+for the check **with the change's own `automata.toml` and files in place** (so a level the change lists is there), and
+**a problem no longer refuses**: it refuses with `'broken'` only when the default branch's `automata.editors.toml` says
+`problems = "stop"`, as Put does. The editor's sheet shows the problems first (Task 36).
 
 - [ ] **Step 1: Write the failing tests:** a waiting change with a new level, `automata.toml` and the world file has
-  `here: true` and approves; one that touches `src/main.ts` still has `here: false`; take back by its author closes it
-  and deletes its branch, by anyone else is `'not-allowed'`; ask for a change shows in `Waiting.asked` for the author's
-  next open; asking on your own change is `'own-change'`.
-- [ ] **Step 2 to 4: push red, implement, push green.**
-- [ ] **Step 5: Commit** `feat(service): waiting changes of several files, taken back or sent back with words`
+  `here: true` and approves; one that touches `src/main.ts` still has `here: false`; an approval of a change whose game
+  has a problem goes through by default and is `'broken'` with `problems = "stop"`; a change that lists a new level
+  approves (the game is loaded with the change's own `automata.toml`); ask for a change shows in `Waiting.asked` for the
+  author's next open and is gone after the author's next commit; asking on your own change is `'own-change'`; the pretend
+  GitHub refuses a changes-requested review by a pull request's author (a test of the fake itself); an approver's turn
+  down closes the pull, keeps the branch and writes the `NOT_PUT_IN` comment, `reopen` makes it wait again, and a second
+  `reopen`, or one after the author sent again, is `'not-found'`; the author's `turnedDown` is set after a turn-down and
+  cleared by a new Put and by `clearTurnedDown`; an author's own take-back deletes the branch and sets nothing.
+- [ ] **Step 2 to 4: push red, implement (the pretend GitHub learns the four calls and the 422), push green.**
+- [ ] **Step 5: Commit** `feat(service): waiting changes of several files, asked, turned down, brought back`
 
 ## Pull request 5: what a person holds (pure)
 
 ### Task 12: Everything changed, with one history
+
+Needs pull request 4 (it merged): `PutFile` and `PutAnswer` are Task 10's wire types and `ProjectChange` is Task 8's.
 
 **Files:** Create `src/features/game/changes.ts`. Modify `game/game.ts`, `game/open.ts` (`OpenGame` gains
 `worldPath: string | undefined`). Test `tests/features/game/changes.test.ts`.
@@ -701,9 +1034,11 @@ piece. A level one side deleted and the other changed is a `level` clash. The pr
 
 ## Pull request 6: level and map edits (pure)
 
-Every function here is `(level, …) => Done`, used through `inLevel`; `levels/edit.ts`'s `moveThing` and `nudgeThing`
-are rewritten to this shape in Task 15 and `LevelEdit`, `undo`, `isDirty` and `describeChange` go when pull request 7
-removes their last users.
+Every function here is `(level, …) => Done`, used through `inLevel`. They are new, in `levels/things.ts`, `ground.ts`,
+`values.ts`, `level-files.ts` and `map/arrange.ts`; **this pull request removes nothing.** `levels/edit.ts` keeps today's
+`moveThing`, `nudgeThing`, `LevelEdit`, `undo`, `isDirty` and `describeChange` for the old drawing: the last four go when
+pull request 7 removes their last users, and `moveThing` and `nudgeThing` go when pull request 9 (Task 26) moves the
+drag onto `moveThings`. That is why pull request 7 does not wait for this one.
 
 ```ts
 // levels/done.ts
@@ -711,10 +1046,10 @@ export type Why = 'solid' | 'same' | 'no-such-thing' | 'outside' | 'occupied' | 
 export type Done<T = Level> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly why: Why }
 ```
 
-### Task 15: Things: move, place, copy, delete, order, rename
+### Task 15: Things: move, place, copy, delete, rename
 
-**Files:** Create `src/features/levels/done.ts`, `things.ts`. Modify `levels/edit.ts`, `levels.ts`. Test
-`tests/features/levels/things.test.ts`.
+**Files:** Create `src/features/levels/done.ts`, `things.ts`. Modify `levels/levels.ts` (the exports). Test
+`tests/features/levels/things.test.ts`. `levels/edit.ts` is left alone (see above).
 
 **Interfaces (produces):**
 
@@ -728,19 +1063,25 @@ export function placeThing(level: Level, characters: Characters, character: stri
 export function onlyOne(level: Level, characters: Characters, character: string): string | undefined
 export function copyThings(level: Level, characters: Characters, ids: readonly string[], by: Point): Done<{ level: Level; ids: readonly string[] }>
 export function deleteThings(level: Level, ids: readonly string[]): Done      // also takes their ids out of every `thing` value and every joint that held them
-export function reorder(level: Level, id: string, to: 'front' | 'back'): Done
 export function renameThing(level: Level, id: string, name: string): Done     // `idOf(name)`; 'taken' when in use; mends `thing` values and joints in this level
 export function moveStart(level: Level, characters: Characters, hero: string, player: number, at: Point): Done
 ```
 
 A new thing has no `values`. A copy keeps its values but not links to itself. A placed `one-per-level` thing keeps the
-old one's id and values and reports `replaced`.
+old one's id and values and reports `replaced`. Drawing order (`draw`) is Task 42a's; this task never reorders `things`,
+because the spawn order is the order of the file (Owner's answer 2).
+
+**Rename changes the id the files use** (audit L10). The card that asks for the name says so first, in plain words
+(`levels.renameCareful`: "This changes the name the game's files use. If the game's own code, a saved game or a
+recording uses the old name, it will not find it. You can undo this."), because the editor never reads a game's code:
+the test game's code reads `crate-1`, and the Site reads its first thing and its recording. The tour never renames, and
+the demo game's `crate-1` is never renamed by a task in this plan. A rename is one undoable step.
 
 - [ ] **Step 1: Write the failing tests** on the fixture level: each function's plain case and its refusals (`solid`,
   `outside`, `same`, `taken`); `nextId` with `crate-1` and `crate-3` gives `crate-2`; deleting a gate empties it from a
   plate's `opens`; renaming a gate mends the plate; a thing whose character the game lacks moves as a 1 by 1 box and
   is written back unchanged otherwise (Review Focus 1); two things moved together where one would hit solid: neither
-  moves.
+  moves; `things` is in the same order after every function here; the rename card shows `levels.renameCareful`.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(levels): place, copy, delete, order and rename things`
 
@@ -797,8 +1138,8 @@ export function shared(rows: readonly (readonly ValueRow[])[]): readonly (ValueR
 export function waysOut(levels: Working['levels'], characters: Characters, from: string): readonly { readonly level: string; readonly things: readonly string[] }[]
 ```
 
-- [ ] **Step 1: Write the failing tests** with the framework's links game copied to `tests/fixtures/links-game/`
-  (its files as on the pinned commit): `hold` at `least: 1, most: 8, step: 0.5` gives 8 for 9, 1 for 0, 3.5 for 3.4;
+- [ ] **Step 1: Write the failing tests** with the links game of Task 2b (built from data in
+  `tests/fixtures/links-game/`, never written out): `hold` at `least: 1, most: 8, step: 0.5` gives 8 for 9, 1 for 0, 3.5 for 3.4;
   `setValue` of the default leaves no key, and no `values` object when it was the last; a `path` value is `'not-allowed'`;
   an undeclared value is listed with `declaration: undefined` and `setValue` on it is `'not-allowed'` (Review Focus 1);
   `mayOpen` for `plate-1` is exactly the gates; a fifth link is `'limit'`; every result passes `loadGame` on the links
@@ -843,7 +1184,8 @@ where exactly one level is open, worked out with the same `openTile`.
   room-2; over room-2 it is `overlap`; `moveLevel` there is `'occupied'`; `pullApart('room-3')` leaves no join and its
   undo by `moveLevel` back restores it; a game with no world file gets one with every level on the first `moveLevel`,
   and `boxes` before that is a row in the project's order; closing rows 5 to 7 on room-3's side with `paint` turns the
-  join into one `Wall` with `open: 'a'`; `wholeWorld` of 64 boxes holds every box inside the screen.
+  join into one `Wall` with `open: 'a'`; room-1, which Task 2b opens on rows 5 to 7 of its right edge, landed at (4, 0)
+  against room-2's solid left edge is `touch` with no join and one `Wall` with `open: 'a'`; `wholeWorld` of 64 boxes holds every box inside the screen.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(map): push levels together and pull them apart`
 
@@ -856,9 +1198,9 @@ where exactly one level is open, worked out with the same `openTile`.
 ```ts
 /** "level-9": the lowest free number from 1 after the highest level number in use. */
 export function nextLevelId(working: Working): string
-/** Never empty: 16 by 9, the bottom row solid, the hero's start at (2.5, 7.5), the game's `one-per-level` goal (when a character has one) at (13.5, 7.5). Listed in the project, placed on the map at `at`. */
+/** Never empty: 16 by 9, the bottom row solid, the hero's start at (2.5, 7.5), the game's `one-per-level` goal (when a character has one) at (13.5, 7.5). Listed in the project (and added to `levels` when the game has that line), placed on the map at `at`. */
 export function newLevel(working: Working, content: GameContent, at: LevelPoint): { readonly working: Working; readonly id: string }
-/** The file's name, the project's lines, the world file, and every door that led to it. 'taken' when in use. */
+/** The file's name, the project's lines (`start` and `levels` too), the world file, and every door that led to it. 'taken' when in use. It warns as Task 15's rename does, and for a level adds that a player's saved game remembers the level by this id. */
 export function renameLevel(working: Working, level: string, name: string): Done<Working>
 /** Its file, its lines, its place on the map; every `leads-to` that named it is taken out of its door. 'not-allowed' for the `start` level and for the last level. */
 export function deleteLevel(working: Working, level: string): Done<Working>
@@ -869,8 +1211,9 @@ A new level copies `tileset`, `sky`, `ground` and `backdrop` from the level it w
 the start). The fall band of the spec's call 6 is added only when the pinned framework's `Project` has a `lost` rule;
 it has none on `596348d`, so the task checks at Pin 1 and leaves the band out if it is still not there.
 
-- [ ] **Step 1: Write the failing tests:** a new level in the links game is `level-1` (none numbered) and in the fixture
-  game is `level-2`; the edited game loads with `loadGame` through `readerOf`; rename `room-2` to "Cellar" gives
+- [ ] **Step 1: Write the failing tests:** a new level in the links game is `level-1` (none numbered) and in the Crate
+  Game is `level-2`; in the links game its id is added to `levels`, and the Crate Game (no `levels` line) gets none; the
+  edited game loads with `loadGame` through `readerOf`; rename `room-2` to "Cellar" gives
   `cellar` in the project text, the world file and `room-1`'s `exit` door, and the old path is gone from `toPut`;
   deleting `room-2` leaves `exit` with no `to`, and one `undo` brings back the level, its place and the door's `to`;
   deleting the start level is `'not-allowed'`.
@@ -884,9 +1227,9 @@ page's own words, from `shell.css`'s final rules (later sections win). A journey
 
 ### Task 20: What a workspace tells the shell, and the top bar
 
-**Files:** Create `src/features/shell/workspace.ts`, `TopBar.svelte`, `GameMenu.svelte`, `EditorMenu.svelte`,
-`PartMenu.svelte`, `status.ts`, `shell.ts`. Test `tests/features/shell/status.test.ts`, `topbar.browser.test.ts`.
-Mockups: `world-levels`, `shell-menu`, `shell-menu-out`, `shell-editors`, `world-levels-parts`.
+**Files:** Create `src/features/shell/workspace.ts`, `TopBar.svelte`, `Faces.svelte`, `GameMenu.svelte`,
+`EditorMenu.svelte`, `PartMenu.svelte`, `status.ts`, `shell.ts`. Test `tests/features/shell/status.test.ts`,
+`topbar.browser.test.ts`. Mockups: `world-levels`, `shell-menu`, `shell-menu-out`, `shell-editors`, `world-levels-parts`.
 
 **Interfaces (produces):**
 
@@ -900,7 +1243,7 @@ export interface Workspace {
   /** The tools that have a job on this page; one left out is not drawn. */
   readonly tools: readonly Tool[]
 }
-export const EDITORS: readonly { readonly id: string; readonly icon: IconName; readonly built: boolean }[]   // world built; characters, feel, sound, story, screens not
+export const EDITORS: readonly { readonly id: string; readonly icon: IconName; readonly built: boolean; readonly about: string /* a words key */ }[]   // world built; characters, feel, sound, story, screens not
 // status.ts
 export type Status =
   | { readonly kind: 'up-to-date' } | { readonly kind: 'changes'; readonly count: number } | { readonly kind: 'waiting'; readonly by: string }
@@ -910,16 +1253,27 @@ export type Status =
 export function statusOf(facts: { online: boolean; problems: number; changes: number; mine: Waiting | undefined; toCheck: number }): readonly Status[]
 export type MainButton = 'put' | 'send' | 'keep' | undefined
 export function mainButton(level: AccessLevel, signedIn: boolean, changes: number): MainButton
+// Faces.svelte props: who is in the game (`OpenAnswer.people`, Task 23). Initials on a colour made from the login, at
+// most four and "+2"; one 44 by 44 button that opens "Who can change it". Drawn only when `people` is not empty.
+{ people: readonly { readonly login: string }[]; onopen(): void }
 ```
 
-A row for an editor that is not built says what it is for and "Comes later", and is not a button.
+**The editors that are not built** are drawn exactly as the approved `shell-editors` page draws them: the name, its icon
+and one line of what it is for, so no row is a dead end (spec call 1). A tap opens a `Note` in plain words ("Characters
+is not in this version yet. It will be where you decide who is in the game and how they move.") with "Got it", and goes
+nowhere. **Two differences from the words around it, named in the pull request:** the spec's call 1 says "Comes later" on
+those rows, and design language section 8 says "no 'Soon'", so neither word is on a screen; and the page's World row
+reads "Levels, tiles and scenes" while only levels and the map are built, so the built row reads "Levels and the world
+map". Every sentence goes through the drunk-grandma test.
 
 - [ ] **Step 1: Write the failing tests:** `mainButton` is `'put'` for Edit and Owner, `'send'` for Suggest and
   Approve, `'keep'` signed out, and `undefined` with no change; `statusOf` orders as above and says "Send 1 more" only
   when there is a waiting change and new changes; in the browser at each size the bar is 56, 48 or 44 high as the design
   language says, every control is 44 by 44, Undo is `aria-disabled` with nothing to undo, the game's menu signed out has
   no "Who can change it", and on a phone the part's name opens one menu holding the parts, the editors and the game's
-  menu.
+  menu; every unbuilt editor's row is a 44-high button whose tap opens its `Note` with "Got it" and changes nothing, and
+  no row in any language says "Comes later" or "Soon" (a test over the words); `Faces` with five people draws four and
+  "+1", and with none draws nothing.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(shell): the top bar and its three menus`
 
@@ -935,8 +1289,8 @@ A row for an editor that is not built says what it is for and "Comes later", and
 ```ts
 // docks.ts
 export interface Docks { readonly list: 'closed' | 'list' | 'add'; readonly settings: 'shown' | 'hidden'; readonly hold: boolean }
-/** Where each dock sits at a size: the toolbar down the left edge when wide, along the bottom otherwise; the settings a side panel, or a one-line bar that pulls up into a sheet. */
-export function layout(size: SizeClass, docks: Docks, picked: boolean, leftHand: boolean): { readonly toolbar: 'left' | 'bottom'; readonly list: 'rail' | 'beside' | 'over'; readonly settings: 'side' | 'tab' | 'bar' | 'sheet' | 'none' }
+/** Where each dock sits at a size: the toolbar down the left edge when wide, along the bottom otherwise; the settings a side panel, or a one-line bar that pulls up into a sheet. `device` (Task 4's `deviceWord`) is what tells an iPad sideways from a computer, which are both `'wide'` but have different defaults: the list a rail on the iPad and open on a computer, the bar 56 and 48 high. */
+export function layout(device: 'ipad' | 'phone' | 'computer', size: SizeClass, docks: Docks, picked: boolean, leftHand: boolean): { readonly toolbar: 'left' | 'bottom'; readonly list: 'rail' | 'beside' | 'over'; readonly settings: 'side' | 'tab' | 'bar' | 'sheet' | 'none' }
 /** At most two things float over the level: opening a third closes the oldest. */
 export function floating(open: readonly string[], next: string): readonly string[]
 // keys.ts
@@ -948,8 +1302,8 @@ export function commandFor(event: { key: string; meta: boolean; ctrl: boolean; s
 The row size is read when a panel opens, never under a finger. The free thumb's buttons are drawn only on touch; a
 computer uses Shift and Alt. "I draw with my left hand" mirrors the hold buttons and the panels.
 
-- [ ] **Step 1: Write the failing tests:** `layout` for each size and each `Docks` equals the mockups (a table of 20
-  rows in the test); `floating(['bar', 'pad'], 'menu')` is `['pad', 'menu']`; `commandFor` gives nothing while typing in
+- [ ] **Step 1: Write the failing tests:** `layout` for each of the five sizes and each `Docks` equals the mockups (a table
+  of 24 rows in the test, an iPad sideways and a computer on rows of their own); `floating(['bar', 'pad'], 'menu')` is `['pad', 'menu']`; `commandFor` gives nothing while typing in
   a field, and `'undo'` for ⌘Z and Ctrl+Z; in the browser a picked thing shows the settings, Hide leaves the tab with
   the thing's name and a tap brings them back; with a mouse the rows are 30 high the next time the panel opens and never
   change while it is open; with `leftHand` the hold buttons are on the other side.
@@ -979,8 +1333,11 @@ export type Route =
 
 Old addresses (`#/o/n`, `#/o/n/share`, `#/o/n/waiting`, `#/o/n/waiting/3`) open the level with that sheet asked for,
 so a kept link still works. In this pull request the level is still the old drawing (`level-canvas.ts` as it is), a
-drag still moves a thing through `moveThings`, and the main button still calls today's one-file save; Share, Waiting and
-the waiting change stay as they are, opened from the game's menu, until pull requests 13, 15 and 16 replace them. The
+drag still moves a thing through today's `moveThing` (`levels/edit.ts`) wrapped in `inLevel`, so the history is already
+`Edits` and `moveThings` arrives with Task 26, and the main button still calls today's one-file save (only the open level
+can have changed here, since the map and level switching with changes come later); Share, Waiting and the waiting change
+stay as they are, opened from the game's menu, until pull requests 13, 15 and 16 replace them. This pull request needs
+pull requests 3 (the kit, the look) and 5 (`Edits`, `inLevel`) and nothing from 6. The
 list panel shows the level's things with `Rows` (Review Focus 4).
 
 - [ ] **Step 1: Write the failing tests:** `parseRoute` and `routeHash` round-trip the three routes and map the four
@@ -991,12 +1348,14 @@ list panel shows the level's things with `Rows` (Review Focus 4).
 
 ## Pull request 8: the team's files (the API)
 
-### Task 23: History, notes and the settings for everyone
+### Task 23: History, notes, pictures and the settings for everyone
 
-**Files:** Create `src/features/files/notes-file.ts`, `src/features/service/history.ts`, `notes.ts`, `settings.ts`.
-Modify `service.ts`, `wire/wire.ts`, `api/api.ts`, `service/open.ts` (`OpenAnswer` gains `editors: EditorsFile`),
-`docs/teams.md`. Test `tests/features/files/notes-file.test.ts`, `tests/features/service/history.test.ts`,
-`notes.test.ts`, `settings.test.ts`.
+**Files:** Create `src/features/files/notes-file.ts`, `src/features/service/history.ts`, `notes.ts`, `settings.ts`,
+`pictures.ts`. Modify `github/repo.ts` (`readBytes`), `service/service.ts`, `service/open.ts` (`OpenAnswer` gains
+`editors`, `people` and `pictures`), `service/enter.ts` (`suggestionBranch`), `wire/wire.ts`, `api/api.ts`, `game/open.ts`
+(`OpenGame` carries the same three), the pretend GitHub (`readBytes`: the raw bytes), `docs/teams.md`. Test
+`tests/features/files/notes-file.test.ts`, `tests/features/service/history.test.ts`, `notes.test.ts`, `settings.test.ts`,
+`pictures.test.ts`, `tests/fixtures/fake-github/server.test.ts`.
 
 **Interfaces (produces):**
 
@@ -1012,14 +1371,41 @@ export function addNote(file: NotesFile, note: Omit<Note, 'id' | 'answers' | 'do
 export function answer(file: NotesFile, id: string, a: { by: string; when: string; words: string }): NotesFile
 export function setDone(file: NotesFile, id: string, done: boolean): NotesFile
 // wire
-export interface HistoryLine { readonly commit: string; readonly by: string; readonly at: number; readonly words: string; readonly levels: readonly string[] }
+export interface HistoryLine { readonly commit: string; readonly by: string; readonly at: number; readonly words: string; readonly levels: readonly string[]; /** The world file was touched. */ readonly map: boolean }
+export interface HistoryPage { readonly lines: readonly HistoryLine[]; readonly more: boolean }
+export interface OpenPicture { readonly path: string; readonly base64: string }
+export interface Person { readonly login: string; readonly level: AccessLevel }
 export type NoteAsk = { readonly game: GameRef } & ({ readonly add: Omit<Note, 'id' | 'answers' | 'done' | 'by' | 'when'> } | { readonly answer: { readonly id: string; readonly words: string } } | { readonly done: { readonly id: string; readonly done: boolean } })
+// OpenAnswer gains   editors: EditorsFile; people: readonly Person[]; pictures: readonly OpenPicture[]
+// Repo gains
+readBytes(path: string, branch: string): Promise<Answer<{ bytes: Uint8Array; version: string }>>
 // Api gains
-history(game: GameRef): Promise<Answer<readonly HistoryLine[]>>          // GET /api/history: the newest 50 commits touching listed level and world files
+history(game: GameRef, page: number): Promise<Answer<HistoryPage>>       // GET /api/history?page=0 to 4: ten commits a page
 notes(game: GameRef): Promise<Answer<NotesFile>>                         // GET /api/notes
 note(ask: NoteAsk): Promise<Answer<NotesFile>>                           // POST /api/notes: Look or above; `by` and `when` are the API's
 settings(ask: { game: GameRef; editors: EditorsFile; version: string | undefined }): Promise<Answer<EditorsFile>>   // POST /api/settings: Owner only, on the default branch
 ```
+
+**What changed, in few calls (audit M7).** A page is ten commits and there are at most five pages. For a page the API makes
+one `history(branch, 'content', 50)` call (Task 7), takes that page's ten rows and makes one `commitPaths` call for each:
+eleven calls a page, never fifty. A commit's `levels` are the listed level files it touched, named from their paths, and
+`map` is whether it touched the world file; a commit that touched only other content has neither, and shows its own
+words. `more` is true when the fifty held more rows than the page. The sheet asks for the next page only on "Show more".
+
+**Pictures (audit M1, "My calls" 17).** `pictures.ts` reads each listed tileset file's `image`. A picture must be a `.png`
+under the game's own folder (no `..`), at most 1 MB, and at most 4 MB in all; `open` sends the ones that pass, as base64,
+and leaves out the rest without failing. The pretend GitHub answers a path's raw bytes (the contents answer gives them as
+base64, and the raw media type gives the bytes), and a file's `version` is the blob's sha of those bytes.
+
+**People.** `people` are the logins and levels in the game's `automata.access.toml`, read from the default branch on every
+open (the API already reads it to work out the person's own level), so a Look person sees the faces too.
+
+**The notes branch (audit L9).** Notes live on `automata/notes`, a branch no pull request is ever opened from, so it is
+never listed as a waiting change. A person whose login is `notes` would save to the same name, so for that one login
+`suggestionBranch` gives `automata/notes-` (GitHub never ends a login with a hyphen, so no one else can have that
+name). The test game's `CLAUDE.md` says the editors' save branches do not count toward its five; it needs the words "and
+`automata/notes`". That is a one-line docs pull request in AutomataFrameworkExamples, asked of the coordinator, never made
+from here.
 
 The notes branch is made from the default branch's head the first time a note is written and only ever holds a change
 to the one file; a write that finds the file changed reads it again and applies the same act once more. `words` are 1
@@ -1027,19 +1413,22 @@ to 500 characters. A visitor may read the demo game's notes and write none.
 
 - [ ] **Step 1: Write the failing tests:** each notes function; write then parse is the same; the first note makes the
   branch and the default branch's head does not move; two people adding at once both land; a Look person may add, a
-  visitor is `'signed-out'`; settings by an Approve person is `'not-allowed'` and by an Owner is one commit of
-  `automata.editors.toml`; history names levels from the paths and is newest first; `docs/teams.md` names the notes
-  file and its branch.
+  visitor is `'signed-out'`; a login called `notes` saves to `automata/notes-` and is not mistaken for the notes branch;
+  settings by an Approve person is `'not-allowed'` and by an Owner is one commit of `automata.editors.toml`; `history`
+  for page 0 makes one list call and ten `commitPaths` calls (the pretend GitHub counts), names levels from the paths,
+  is newest first, and page 4's `more` is false; `open` sends the Crate Game's tileset picture as the same bytes as
+  `fixtureBytes()`, leaves out a 2 MB picture and a path with `..`, and still opens; `people` lists the access file's
+  logins; `docs/teams.md` names the notes file and its branch.
 - [ ] **Step 2 to 4: push red, implement, push green.**
-- [ ] **Step 5: Commit** `feat(service): what changed, notes on their own branch, and the settings for everyone`
+- [ ] **Step 5: Commit** `feat(service): what changed, notes on their own branch, the game's pictures, and the settings for everyone`
 
 ## Pull request 9: levels on screen
 
 ### Task 24: The level in the game's own art, and the view
 
 **Files:** Modify `src/features/levels/level-canvas.ts`. Create `src/features/levels/view.ts`, `art.ts`,
-`MiniMap.svelte`. Test `tests/features/levels/view.test.ts`, `level-canvas.browser.test.ts`. Mockups: `world-levels`,
-`world-levels-big`, `world-levels-edge`.
+`MiniMap.svelte`. Test `tests/features/levels/view.test.ts`, `level-canvas.browser.test.ts`, `mini-map.browser.test.ts`.
+Mockups: `world-levels`, `world-levels-big`, `world-levels-edge`.
 
 **Interfaces (produces):**
 
@@ -1052,30 +1441,48 @@ export function zoomBy(camera: Camera, factor: number, about: Point /* screen */
 export function slideBy(camera: Camera, px: Point): Camera
 export function toScreen(camera: Camera, screen: { w: number; h: number }, at: Point): Point
 export function toTiles(camera: Camera, screen: { w: number; h: number }, px: Point): Point
+/** The small map's box: the part of the level on screen, in the small map's own pixels, and how many of them a tile is. */
+export function miniMap(level: Level, camera: Camera, screen: { w: number; h: number }, mini: { w: number; h: number }): { readonly box: { x: number; y: number; w: number; h: number }; readonly scale: number }
+/** A tap or a drag on the small map (a point in its pixels) as the camera that puts that spot at the screen's middle, scale kept. */
+export function fromMini(level: Level, point: Point, camera: Camera, screen: { w: number; h: number }, mini: { w: number; h: number }): Camera
 export interface LevelView { readonly tool: Tool; readonly picked: readonly string[]; readonly locked: ReadonlySet<string>; readonly hidden: ReadonlySet<string>; readonly camera: Camera; readonly ground: boolean /* the ground is picked */ }
 // art.ts
-/** The game's pictures, painted in the page from its figure, tileset and backdrop files: what `loadArt` reads. */
-export function readPictureOf(content: GameContent): ReadPicture
-// level-canvas.ts: LevelCanvas becomes
-export interface LevelCanvas {
+/** What the framework's `loadArt` reads pictures with: a figure's and a backdrop's PNG painted in the page (`artFiles`), a tileset's PNG from `pictures` by its path (Task 23). Each goes through `createImageBitmap` on a `Blob`, never a `blob:` address, so `public/_headers` stays as it is. No request is made. */
+export function readPictureOf(content: GameContent, pictures: readonly OpenPicture[]): ReadPicture
+// level-canvas.ts: the page's one Pixi Application ("My calls" 15)
+export interface Stage {
+  /** The one canvas; the level view and the map draw into it, one at a time. */
   readonly canvas: HTMLCanvasElement
-  show(content: GameContent, level: Level, camera: Camera, look: { readonly faint: ReadonlySet<string>; readonly hidden: ReadonlySet<string>; readonly whatItIs: boolean; readonly grid: 'off' | 'tiles' | 'finer' }): void
-  resize(w: number, h: number): void
-  /** The same drawing, small, for the map: a container the map canvas places. */
-  picture(content: GameContent, level: Level): unknown
+  readonly levels: LevelCanvas
+  /** One level, small, as a copy on a 2D canvas: what the games list shows (Task 38). Calls wait their turn. */
+  snapshot(content: GameContent, pictures: readonly OpenPicture[], level: Level, size: { w: number; h: number }): Promise<HTMLCanvasElement>
   destroy(): void
+}
+export function createStage(): Promise<Stage>
+export interface LevelCanvas {
+  show(content: GameContent, pictures: readonly OpenPicture[], level: Level, camera: Camera, look: { readonly faint: ReadonlySet<string>; readonly hidden: ReadonlySet<string>; readonly whatItIs: boolean; readonly grid: 'off' | 'tiles' | 'finer' }): void
+  resize(w: number, h: number): void
+  /** The same drawing as a container in the same Application, for the map: `map-canvas.ts` places it and keeps it. */
+  picture(content: GameContent, pictures: readonly OpenPicture[], level: Level): unknown
 }
 ```
 
 Each thing is its figure's first pose (the framework's `Art.figure`), or its character's coloured box when it has no
 figure or the character is missing; tiles are the tileset's pictures or the level's ground colour; the backdrop is
-drawn behind. `whatItIs` tints each tile by its kind.
+drawn behind. `whatItIs` tints each tile by its kind. `MiniMap.svelte` is shown only when part of the level is off the
+screen: the level as a small picture at the top left with the part on screen boxed; dragging the box or tapping the map
+goes there, and the box is a `role="slider"` that the arrow keys move one tile, so the drag has its buttons-and-keys way.
 
 - [ ] **Step 1: Write the failing tests:** `toTiles(toScreen(p))` is `p`; `wholeLevel` keeps the whole level clear of
   the four insets; `zoomBy` keeps the tile under `about` under it and stops at both limits; in the three browsers, the
   pixel in the middle of the crate is the crate's colour at two zooms, a thing with a missing character is a box and
-  nothing throws (Review Focus 1), and `readPictureOf` of a game with a figure gives a PNG `loadArt` accepts with no
-  request made.
+  nothing throws (Review Focus 1), a tile of the Crate Game's `ground` tileset is the picture's pixel (not the ground
+  colour), a tileset with no picture draws the colour, and `readPictureOf` of a game with a figure and a tileset gives
+  PNGs `loadArt` accepts with no request made and no `blob:` address; `miniMap` of a camera that shows the whole level
+  is the whole small map, and `fromMini` of the box's own centre is the same camera; in the browser the small map is
+  absent while the whole level is on screen, a drag of the box and a tap each move the camera, and the arrow keys move
+  the box one tile; `Stage.snapshot` of the Crate Game's level is a 2D canvas of the size asked, and two calls at once
+  both finish.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(levels): the level in the game's own art, with a view that zooms and slides`
 
@@ -1115,8 +1522,10 @@ landing mid-drag cancels the drag.
 ### Task 26: Pick, Place and Erase
 
 **Files:** Create `src/features/levels/ActBar.svelte`, `MovePad.svelte`, `Tray.svelte`, `ThingMenu.svelte`,
-`LevelPart.svelte`, `clipboard.ts`. Modify `world/World.svelte`, `words/levels.ts`. Test
-`tests/features/levels/level-part.browser.test.ts`, `tests/journeys/pick-place-erase.journey.test.ts`. Mockups:
+`LevelPart.svelte`, `clipboard.ts`. Modify `world/World.svelte`, `words/levels.ts`, `levels/edit.ts` (delete `moveThing`,
+`nudgeThing` and what only they used: the drag and the pad now call `moveThings` and `nudgeThings` through `inLevel`) and
+`tests/features/levels/edit.test.ts` (their tests go with them). Test `tests/features/levels/level-part.browser.test.ts`,
+`tests/journeys/pick-place-erase.journey.test.ts`. Mockups:
 `world-levels-settings`, `world-levels-exact`, `world-levels-more`, `world-levels-place`, `world-levels-add`,
 `world-levels-one-start`, `world-levels-hold`.
 
@@ -1125,8 +1534,10 @@ It turns `Act`s into the pure edits of Tasks 15 to 17 through `inLevel`, and eve
 
 - Pick: tap picks and opens the settings; drag moves (a faint outline where it came from); the bar over a picked thing
   is Move, Make a copy, Delete and the three dots, never on top of the thing; Move opens the pad of four arrows, a tile a
-  tap; the three dots and press and hold open the same menu (Rename, Lock, Hide, Copy to paste, Bring to the front,
-  Send to the back, Add a note); a locked thing says it is locked, with "Unlock it"; a loop with the Pencil, the free
+  tap; the three dots and press and hold open the same menu (Rename, Lock, Hide, Copy to paste, Add a note; "Bring to
+  the front" and "Send to the back" are added by Task 42a, since they set `draw`, which needs the framework's F5); Rename
+  first shows `levels.renameCareful` (Task 15); a locked thing says it is locked, with "Unlock it", and its row in the
+  list says "Locked until you close the game" ("My calls" 5); a loop with the Pencil, the free
   thumb's "Pick several" or Shift picks several; press and hold on empty ground offers Put a thing here, Add a note
   here, Paste.
 - Place: the tray and "Add things" hold the game's characters with how many this level uses; tap one then the level,
@@ -1154,11 +1565,13 @@ It turns `Act`s into the pure edits of Tasks 15 to 17 through `inLevel`, and eve
 **Interfaces (produces):**
 
 ```ts
-export const STEPS = ['tap-the-crate', 'tap-place', 'drag-how-heavy', 'play-then-put'] as const
+export const STEPS = ['tap-the-crate', 'tap-place', 'drag-a-value', 'play-then-put'] as const
 export type Step = (typeof STEPS)[number]
 export interface TourState { readonly step: Step | 'done' | 'skipped'; readonly did: boolean }
 /** Moves on only when the person did the step's own thing. */
-export function tourNext(state: TourState, happened: { readonly kind: 'picked' | 'tool' | 'value' | 'played' | 'put' | 'skip'; readonly what?: string }): TourState
+export function tourNext(state: TourState, happened: { readonly kind: 'picked' | 'tool' | 'value' | 'moved' | 'played' | 'put' | 'skip'; readonly what?: string }): TourState
+/** What step 3 asks for, from the thing that is picked: its first number value ("Drag How heavy"), or, when it has none, the arrows ("Move the crate with the arrows"). */
+export function stepThree(picked: LevelThing | undefined, character: Character | undefined): { readonly asks: 'value'; readonly value: string } | { readonly asks: 'arrows' }
 /** What the device keeps: `af.guide.done` and one `af.tip.<step>` per tick. */
 export function readTicks(store: Storage): ReadonlySet<Step>
 export function keepTick(store: Storage, step: Step): void
@@ -1166,13 +1579,21 @@ export function keepTick(store: Storage, step: Step): void
 
 The language card comes first with the device's language chosen (`navigator.languages` against `LANGUAGES`, else
 English), then the welcome ("Show me around" or "I'll look around myself"), then the tour: each card dims everything
-but its part, waits for the person to do the thing, says when they have, and always has Skip. Step 3 needs Task 31's
-slider: until pull request 12 merges, step 3 is "move the crate" with the pad; pull request 12 switches it.
+but its part, waits for the person to do the thing, says when they have, and always has Skip.
 
-- [ ] **Step 1: Write the failing tests:** `tourNext` ignores the wrong thing and moves on the right one; Skip at any
-  step ends it and keeps the ticks so far; the journey: a first visit at phone and iPad sideways shows the language
-  card with the browser's language chosen, picks Spanish and reads the welcome in Spanish, walks the four steps, and a
-  second visit shows none of it.
+**Step 3 (`drag-a-value`, the Owner's answer 1).** With the crate picked and its settings open, the card asks the person
+to drag the first number value the thing has: "Drag How heavy". The test game's crate has one (E4), so the demo game's
+tour ends with a crate that really is heavier or lighter. For a game whose picked thing has no number value, the card
+says "Move the crate with the arrows" (the pad of Task 26) instead, so the tour never asks for what is not there; the id
+and the tick are the same either way. The slider is Task 31's, so until pull request 12 merges the step is the arrows for
+every game, and Task 31 switches it. Until then the card differs from `shell-tour-change`, which draws the slider; the
+pull request names it. The tour never renames anything.
+
+- [ ] **Step 1: Write the failing tests:** `tourNext` ignores the wrong thing and moves on the right one (at step 3 it
+  ignores `picked` and moves on `value` or `moved`); `stepThree` for the Crate Game's crate is `value: 'heavy'` and for
+  a thing with no number value is `arrows`; Skip at any step ends it and keeps the ticks so far; the journey: a first
+  visit at phone and iPad sideways shows the language card with the browser's language chosen, picks Spanish and reads
+  the welcome in Spanish, walks the four steps (step 3 by the arrows, until Task 31), and a second visit shows none of it.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(shell): the language, the welcome and a tour that waits for you`
 
@@ -1186,12 +1607,15 @@ Settings is one sheet with its sections down the left (one long page on a phone)
 language, see-through panels, row size, tips. "For everyone on <the game>" is the one choice of Task 9, through
 `api.settings`; anyone but an Owner reads it as words with who to ask. Help lists the basics, each ticked once done
 (`readTicks`), each with "Show me" that plays that tour step, the tour again, the keys, and "Ask your helper" (what a
-helper is, what to tell it, and "Keep a copy of this level" to hand it). The keys sheet lists `KEYS` and the finger
-moves; with no keyboard seen it shows only the finger moves.
+helper is, what to tell it, and "Keep a copy of this level" to hand it) and "What Play shows" ("My calls" 13): the level,
+its things, the hero's moves, switches, doors, weights and what is drawn in front, as the game's files make them, and not
+the game's own code or rules; it plays in the person's language when the game has it, else in the game's own. The keys
+sheet lists `KEYS` and the finger moves; with no keyboard seen it shows only the finger moves.
 
 - [ ] **Step 1: Write the failing tests:** changing the language changes the open sheet's words at once and is kept;
   "See-through panels: Off" makes every dock solid; a non-owner cannot change "For everyone" and is told who can; an
-  Owner's change calls `api.settings` once; the keys sheet on a touch-only window has no key column.
+  Owner's change calls `api.settings` once; the keys sheet on a touch-only window has no key column; Help has "What Play shows" and it says the game's own code
+  does not run.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(shell): settings for me and for everyone, help that shows you, and the keys`
 
@@ -1203,7 +1627,8 @@ moves; with no keyboard seen it shows only the finger moves.
 `world/World.svelte`, `shell/TopBar.svelte` (the Map button), `words/map.ts`. Test
 `tests/features/map/map-part.browser.test.ts`. Mockups: `world-map`.
 
-`MapPart` shows `boxes` with each level's `LevelCanvas.picture`, and over them (SVG): a dashed arrow for each door
+`MapPart` shows `boxes` with each level's picture from the page's one Pixi Application (`Stage.levels.picture(content,
+pictures, level)`, Task 24, so the map and the level view never make two), and over them (SVG): a dashed arrow for each door
 from the door to where you come out, a bar across each join, a red dashed bar across each wall, the start's mark, each
 level's name, and the key at the bottom. It opens at `wholeWorld` (known layout issue 3). The list shows the levels.
 Pinching out past the whole level in `LevelPart` opens the map on that level; "Go in", Enter or a double tap on a
@@ -1243,9 +1668,13 @@ leaves a note with Undo.
 
 - [ ] **Step 1: Write the failing tests:** `placeCard` with a level to the right of the anchor never covers either;
   `landingWords` for free, touch with a join, touch with a wall and overlap; in the browser each bullet with its
-  opposite; the Move card never overlaps the picked level or its neighbour at iPad sideways (issue 1, with its
-  picture); the journey at the three sizes: push room-1 to room-2, see them joined, pull apart, undo; drag onto another
-  level and watch it go back; make a new level, rename it, delete it, undo; fix a wall with the first way out and undo.
+  opposite; the Move card never overlaps the picked level or its neighbour at iPad sideways (issue 1, with its picture:
+  Room 3 picked and Room 2 beside it, as `world-map-move` draws Level 4 and Level 3); the journey at the three sizes on
+  the links game (`openPage(size, person, keep, LINKS)`, Task 2b): push room-1 to room-2, where room-1's open right edge
+  meets room-2's solid left edge, so the wall card appears (they touch and do not join); take its first way out
+  (clear the ground), see them joined, undo (the wall is back), do it again; pull room-3 apart from room-2 (no join),
+  push it back (joined), undo; drag onto another level and watch it go back (the overlap); make a new level, rename it
+  (the care sentence is shown first), delete it, undo.
 - [ ] **Step 2 to 4: push red, implement, push green,** with the `screenshots` label on the last push.
 - [ ] **Step 5: Commit** `feat(map): push together, pull apart, new and deleted levels, the wall's ways out`
 
@@ -1254,13 +1683,18 @@ leaves a note with Undo.
 ### Task 31: A thing's settings and Join
 
 **Files:** Create `src/features/levels/ThingSettings.svelte`, `ValueControl.svelte`, `LeadsTo.svelte`,
-`JoinLine.svelte`, `Tags.svelte`. Modify `LevelPart.svelte`, `Marks.svelte`, `shell/Tour.svelte` (step 3 becomes the
-slider), `words/levels.ts`. Test `tests/features/levels/settings.browser.test.ts`,
+`JoinLine.svelte`, `Tags.svelte`. Modify `LevelPart.svelte`, `Marks.svelte`, `shell/Tour.svelte` (step 3,
+`drag-a-value`, becomes the slider for a thing that has a number value; Task 27's `stepThree` already says which, and the
+arrows stay for a thing that has none), `words/levels.ts`. Test `tests/features/levels/settings.browser.test.ts`,
 `tests/journeys/settings-and-join.journey.test.ts`. Mockups: `world-levels-settings`, `world-levels-exact`,
 `world-levels-links`, `world-levels-unjoin`, `world-levels-door`, `world-levels-edge`, `world-levels-mid`.
 
-The groups, in order: the character's own values (`rowsOf`), "Look" ("Looks like"), "Where it is" (from the left, from
-the top, in tiles); past the few that matter, "N more settings"; under that the thing as the file's text, for an agent.
+The groups, in order: the character's own values (`rowsOf`), then one line under them, "Every crate starts like this: a
+change here is for this one only" (`levels.defaultsNote`, named from the character and shown only when the character
+holds values), "Look" ("Looks like"), "Where it is" (from the left, from the top, in tiles); past the few that matter,
+"N more settings"; under that the thing as the file's text, for an agent. **Until Task 42a,** "Look" holds "Looks like"
+only: `world-levels-settings` also draws "Drawn", which needs the framework's `draw` (F5), so the row is left out, never
+dimmed ("My calls" 4), and the pull request names it as a difference from the mockup.
 The control per type is the spec's table: `number` a `Slider` with its number, the `NumberPad` on a tap; `switch` a
 `Knob`; `choice` a `Segment`, or a list past four; `words` the source language's words and which message; `thing` the
 "Opens" list with "Nothing" first; `leads-to` `LeadsTo` (the level, then where you come out, and "Go to Level 2");
@@ -1278,7 +1712,10 @@ says "To Level 2"; an edge that touches another level is drawn as on the map, wi
   (Review Focus 1); on iPad upright with the "Opens" list open, the "Where it is" heading's box is inside the sheet
   (issue 4, with its picture); on a phone the hint overlaps neither the gate nor the plate (issue 2, with its
   picture); the journey: link the plate to the gate with a touch drag, see "Opens: Gate 1", take the line away, undo;
-  set a door's "Leads to" and follow "Go to Level 2".
+  set a door's "Leads to" and follow "Go to Room 2" (the links game's
+  levels are Room 1 to Room 3); on the Crate Game the slider of "How heavy" holds 0.5 to 4 in
+  halves, and the tour's step 3 is done by dragging it, while on a thing with no number value it is still done by the
+  arrows; "Every crate starts like this" is under a crate's values and absent for a character with none.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(levels): a thing's settings held to their limits, and what a switch opens`
 
@@ -1336,7 +1773,7 @@ that nothing is lost, and "Try again"; `'signed-out'` keeps the changes, offers 
 sheet (Review Focus 5). With `editors.problems === 'stop'` and a problem, the button is there, switched off, with why.
 Offline: the top bar says "No internet" from the browser's `offline` event or a failed call, until a call succeeds.
 Signed out on the demo game: "Keep a copy" keeps the level as its file (`game/copy.ts`), then offers sign-in; "Not now"
-closes it. "Take them back" calls `api.takeBack` and the changes are the person's own on the device again.
+closes it. "Take them back" calls `api.turnDown` (the author's own take-back and an approver's turn-down are the one route, Task 11) and the changes are the person's own on the device again.
 
 - [ ] **Step 1: Write the failing tests:** `put` with a pretend API for each result; a stale file gives `merged` and
   writes nothing (Review Focus 2); the journeys, at the five sizes for the first and iPad sideways and phone for the
@@ -1362,7 +1799,8 @@ export async function problemsOf(game: OpenGame, edits: Edits): Promise<readonly
 ```
 
 `problemsOf` is `loadGame(readerOf(game, edits))`'s diagnostics; `where` comes from the diagnostic's `file` and
-`path` (`things.2…` is that level's third thing; the world file is the map). "Show me" opens the level or the map
+`path`, which the framework writes as `things[2].x` (its `diagnostics.ts`), so `things[2]` is that level's third thing;
+the world file is the map. The tests read a real diagnostic made by the framework, never a made-up path. "Show me" opens the level or the map
 there, with a strip saying which problem it is, "Next problem" and "Back". The count is in the top bar.
 
 - [ ] **Step 1: Write the failing tests:** a door into a deleted level is one problem at that door; a wall is one
@@ -1395,13 +1833,25 @@ export async function play(options: { mount: HTMLElement; game: OpenGame; edits:
 
 The canvas and the marks hide while it plays and the game fills the same box; the panels stay and go quiet. The play
 bar has pause, start again and "Bigger" (which hides the panels; "Smaller" brings them back), each with its word; one
-step, slow, "Play from here" and the 30-second strip are left out, never dimmed, until Task 42 adds them. Stop is in the top bar and Escape. Playing changes no file. A level that cannot be
-built says so with "Show me the problem".
+step, slow, "Play from here" and the 30-second strip are left out, never dimmed, until Task 42 adds them. Stop is in the
+top bar and Escape. Playing changes no file. A level that cannot be built (`loadGame` of the edited game gives a
+problem, such as a door into a level that was deleted) is not started: `play` rejects with the framework's first
+sentence, and the bar says it with "Show me the problem" (Task 34's strip).
+
+**What plays is the game's content ("My calls" 13).** `play` is given the edited content only, so the game's own code
+never runs (the test game's `gamePlugins` are not loaded) and a rule written in code is not seen in Play. The first Play
+on a device says so once in a `Tip` (`af.tip.play-code`, kept on the device with the other first-run tips), and Help
+repeats it (Task 28). `lang` is the person's language when the game has that language's words, else the game's source
+language, so a game with six languages never fails for the editor's other three. **Left out ("My calls" 12):** the
+spec's "Try a change" card and the phone's "Try a change" button, which change a tuning number (a file of the Feel
+slice). The pull request names the difference from `world-levels-play`, `world-levels-bigger` and `world-levels-play-from`.
 
 - [ ] **Step 1: Write the failing tests:** in the three browsers, play starts a canvas in the level's box, pause holds
   `sim.tick`, again goes back to tick 0, stop removes the canvas and the marks are back, and `isChanged` is as before;
   on touch the game's own buttons are in the page; the journey: change the crate's place, play, see the crate there,
-  press the game's right button and the hero moves, stop; Bigger then Smaller.
+  press the game's right button and the hero moves, stop; Bigger then Smaller; a game with Spanish
+  words opened with the editor in Portuguese plays in its source language and throws nothing; the first Play shows the
+  tip once and a second Play does not; delete a level a door leads to, press Play, and read "Show me the problem".
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(play): the level plays where it is drawn`
 
@@ -1422,17 +1872,20 @@ Mockups: `world-levels-check`, `world-levels-ask`, `world-levels-asked`, `world-
 export function changeAsWorking(game: OpenGame, change: WaitingChange): { readonly working: Working; readonly lines: readonly ChangeLine[] } | undefined
 ```
 
-"1 to check" opens the sheet over the level with the changes marked. "Not now" leaves it. Play them (Task 35 on the
-change's `Working`); then "Put them in" (`api.approve`), "Ask for a change" (a box for words, "Send to Sam" or Back;
-`api.askChange`) or "Don't put them in" (a note with Undo shows for 8 seconds, and `api.turnDown` is sent only when they pass or the
-note is closed: the App cannot bring a turned-down change back in its author's name, so the way back is before it is
-sent). The author, on their next open, sees what was asked
-(`Waiting.asked`) or that it was turned down, with their changes still on the device and "Send to check" again.
+"1 to check" opens the sheet over the level with the changes marked, and the game's problems first (a problem never
+stops putting them in unless the game says `stop`, Task 11). "Not now" leaves it. Play them (Task 35 on the change's
+`Working`); then "Put them in" (`api.approve`), "Ask for a change" (a box for words, "Send to Sam" or Back;
+`api.askChange`, a comment the App writes, "My calls" 16) or "Don't put them in": `api.turnDown` is sent **at once**, the
+change closes and its branch is kept ("My calls" 14), and a note says so with Undo, which is `api.reopen` and makes it
+wait again. The author, on their next open, sees what was asked (`Waiting.asked`) or that it was turned down
+(`OpenAnswer.turnedDown`, who and when), with their changes still on the device and "Send to check" again; their "Got it"
+calls `api.clearTurnedDown`.
 
 - [ ] **Step 1: Write the failing tests:** `changeAsWorking` for a moved crate and for a new level; the journey with
   two windows (Sam suggests, Mia may approve): Mia opens "1 to check", plays it, asks for a change with words; Sam sees
-  the words, changes and sends again; Mia puts them in and the game has them; a second round turned down, undone within
-  the 8 seconds, then turned down for good, and Sam is told with his changes still there.
+  the words, changes and sends again; Mia puts them in and the game has them; a second round turned down at once, undone (it waits again, by `reopen`),
+  turned down again, and Sam is told who turned it down with his changes still there, and his "Got it" clears it for
+  good; a change with a problem can be played, asked about and put in.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(team): check someone's changes: play, put in, ask in words, or say no`
 
@@ -1456,17 +1909,23 @@ every clash has an answer.
 ### Task 38: Who can change it, what changed, your games
 
 **Files:** Create `src/features/team/People.svelte`, `History.svelte`. Modify `team/Games.svelte`,
-`world/World.svelte`, `words/team.ts`. Delete `suite/Share.svelte`. Test `tests/journeys/share.journey.test.ts`,
+`world/World.svelte` (passes `game.people` to the top bar's `Faces`, Task 20), `words/team.ts`. Delete `suite/Share.svelte`. Test `tests/journeys/share.journey.test.ts`,
 `history.journey.test.ts`. Mockups: `shell-people`, `shell-people-look`, `shell-changes`, `shell-games`.
 
 `People` is today's Share logic (`api.sharing`, `api.share`) in the new sheet, the levels in plain words; a non-owner
 sees the list as words with one button that asks an owner (it opens a note to the owner, Task 39, or, before that
-merges, shows who to ask). `History` is `api.history`: newest first, who, what, which level, when, and "Show me", which
-opens that level. `Games` shows each game with its picture (its start level through `LevelCanvas.picture`), its name
-and what this person may do; a game missing from the list says to ask its owner; Sign out is here.
+merges, shows who to ask). `History` is `api.history(game, page)`: ten a page, newest first, who, what, which level (or the map), when, and "Show
+me", which opens it; "Show more" asks for the next page, to five. `Games` shows each game with its picture, its name
+and what this person may do; a game missing from the list says to ask its owner; Sign out is here. **A game's picture**
+is its start level drawn by the page's one Application (`Stage.snapshot`, Task 24), taken **lazily**: a row's game is
+opened (`api.open`) only when its row comes into view, at most two at once, only its start level is drawn, and only the
+small copy is kept for the visit, never the game; until then the row shows a plain tile, and a game that cannot be
+opened keeps the tile.
 
-- [ ] **Step 1: Write the failing journeys:** the share journey's cases on the new sheet; an Owner puts a change in and
-  "See what changed" lists it first, and Show me opens its level.
+- [ ] **Step 1: Write the failing journeys:** the share journey's cases on the new sheet; the faces in the top bar are
+  the game's people and a tap opens "Who can change it"; an Owner puts a change in and "See what changed" lists it
+  first, and Show me opens its level; "Show more" brings the next ten; with twenty games in the list the pretend GitHub
+  sees an open only for the rows on screen, never more than two at once.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(team): who can change it, what changed, and your games`
 
@@ -1524,8 +1983,10 @@ your helper gave you". Find opens with the magnifier or ⌘K; it also filters th
 
 ### Task 41: Move the framework pin (its own pull request)
 
-Waits for: Plan W's pull request 5 merged (its gated task G5), and F1, F2 and F3 merged. As Task 2. Commit
-`chore: pin the framework at <commit> (places, doors, play's tools, readGame)`.
+Waits for: Plan W's pull request 5 merged (its gated task G5), and F1 to F5 merged. As Task 2. The same pull request gives
+the fixture crate (`tests/fixtures/game/content/characters/crate.json`) `weight: "heavy"`, the field F4 adds, which Task
+2b left out because the pinned schema is strict, so the pin and the fixture move together and `game.test.ts` stays
+green. Commit `chore: pin the framework at <commit> (places, doors, play's tools, readGame, weight, draw)`.
 
 ### Task 42: One step, slow, back 30 seconds, play from here, doors, and opening a game with a problem
 
@@ -1544,15 +2005,65 @@ Waits for: Plan W's pull request 5 merged (its gated task G5), and F1, F2 and F3
 - `openGame` uses `readGame`: a game whose files all read opens with its problems listed (Task 34's list) instead of
   the "this game has a problem" screen, which stays only for a file that does not read at all. `problemsOf` uses
   `readGame` too.
+- **A problem in what plays (audit M3).** Content that has a problem plays only when the framework can still build the
+  level: a thing whose character is gone is left out of the play and stays in the problems list; a door into a missing
+  level, or any problem the build itself refuses, stops the play with the framework's sentence and "Show me the problem",
+  as Task 35 does. When `content.places` is left out (the world file has a problem, F3), Play runs the level alone, with
+  its doors shut, and the play bar says "No doors in this play: the map has a problem".
+- **Weight in play (F4).** The play is the framework's, so a crate with `weight` is pushed as the physics makes it: the
+  test asserts it (below), and nothing in the editor does it.
 
 - [ ] **Step 1: Write the failing tests:** paused, step moves the tick by one; slow halves the ticks in a second;
   after 5 seconds of play, dragging the strip to its start shows the hero where it was then; play from a tapped spot
   starts the hero there; walking through `exit` in the links game opens room-2 in the editor and the top bar says so;
-  a game with a door into a missing level opens with "1 problem".
+  a game with a door into a missing level opens with "1 problem" and Play of that level says why instead of
+  starting; a level with a missing character plays with that thing left out and the problem still listed; with the world
+  file naming a level that is not there, Play runs the level alone and says the doors are shut; on the Crate Game the
+  crate at "How heavy" 4 goes less than half as far as at 0.5 under the same 120 ticks of the hero's right button.
 - [ ] **Step 2 to 4: push red, implement, push green.**
 - [ ] **Step 5: Commit** `feat(play): one step, slow, back 30 seconds, from here, and doors followed`
 
-## Pull request 18: every journey at every size, and the close
+## Pull request 18: Drawn behind, with the hero, in front
+
+### Task 42a: "Drawn", and the order things are drawn in
+
+Needs Pin 2 (Task 41, which brings F5's `draw`) and pull request 12 (the settings sheet and its "Look" group). The Owner
+chose draw order (2026-11-16); this is where the editor offers it.
+
+**Files:** Create `src/features/levels/draw.ts`. Modify `levels/ThingSettings.svelte` (the "Look" group gains "Drawn"),
+`levels/ThingMenu.svelte` ("Bring to the front", "Send to the back"), `levels/level-canvas.ts` (the three layers, in the
+order F5's renderer uses, so the level view and Play agree), `levels/Marks.svelte` (the marks stay above every layer),
+`words/levels.ts`. Test `tests/features/levels/draw.test.ts`, `draw.browser.test.ts`,
+`tests/journeys/draw-order.journey.test.ts`. Mockups: `world-levels-settings`, `world-levels-more`.
+
+**Interfaces (produces):**
+
+```ts
+// draw.ts
+export type Draw = 'behind' | 'with-hero' | 'in-front'        // F5's values for a thing's `draw`
+export const DRAWS: readonly Draw[]                           // in that order: the "Drawn" control's three choices
+/** How a thing is drawn: its own `draw`, else with the hero. */
+export function drawOf(thing: LevelThing): Draw
+/** Sets `draw` on each thing. `with-hero` takes the key out (a file never holds the default). `things` keeps its order, which is the spawn order, so the sim and every recording stay as they are. 'same' when nothing changes. */
+export function setDraw(level: Level, ids: readonly string[], to: Draw): Done
+```
+
+"Drawn" is a `Segment` of three in the "Look" group (Behind, With the hero, In front), each with its line of what it
+does. "Bring to the front" is `setDraw(…, 'in-front')` and "Send to the back" is `setDraw(…, 'behind')`; they move a
+thing to the top or the bottom layer, never within one, and a row that cannot act says why ("It is already in front").
+Within a layer, things stay in the file's order, as the framework draws them. It is one undoable step and several picked
+things change together.
+
+- [ ] **Step 1: Write the failing tests:** `setDraw` leaves `things` in the same order with the same ids and takes the
+  key out for `with-hero`; the result passes the framework's `LevelSchema`; in the three browsers the level view paints a
+  front crate over the hero's start and a back one under the ground colour, and the same level in Play (Task 35) paints
+  the same pixels; the journey: pick the crate, choose "In front", see it over the hero's start, Play and see it still
+  there, Undo; use the menu's two rows and read that each is switched off where it is already; `toPut` after the changes
+  lists `things` in the opened order (the recording never moves for this).
+- [ ] **Step 2 to 4: push red, implement, push green.**
+- [ ] **Step 5: Commit** `feat(levels): choose what a thing is drawn behind or in front of`
+
+## Pull request 19: every journey at every size, and the close
 
 ### Task 43: The end-to-end check's journeys, and the four layout fixes proved
 
@@ -1562,12 +2073,19 @@ below not yet there. Test: themselves.
 The screens journey's rules hold on every World screen at the five sizes: no sideways scroll; every control 44 by 44
 and the main action 48 tall; none overlapping; at most two things floating over the level; no text off the side or cut
 short; every sheet with its way out. It takes a picture of each, and four named ones: `issue-1-move-card` (iPad
-sideways: the card clear of Level 2 and Level 3), `issue-2-join-hint` (phone: the hint clear of the gate),
-`issue-3-map-whole` (phone: Level 1 whole), `issue-4-dropdown` (iPad upright: "Where it is" in sight). One journey for
+sideways, the links game: Room 3 picked and Room 2 beside it, as `world-map-move` draws Level 4 and Level 3, the card
+clear of both), `issue-2-join-hint` (phone: the hint clear of the gate), `issue-3-map-whole` (phone: Room 1 whole),
+`issue-4-dropdown` (iPad upright: "Where it is" in sight). Every picture uses the games' own names: Room 1 to Room 3 on
+the map and Level 1 in the Crate Game. One journey for
 each of the spec's list exists and checks the opposite of every action: first open to the first change in the game;
-place, move, paint, erase and join, each undone; a value at its limits; the map's push, pull apart, overlap, wall and
-delete with undo; a door followed in play; play with touch controls; put in game; send, ask, turn down, undo; offline;
-problems first; two people on one thing; signed out, keep a copy; the Pencil.
+place, move, paint, erase and join, each undone; a value at its limits; the tour's third step by "How heavy" and by the
+arrows; draw order set, played and undone; a heavier crate pushed less far in play; the map's push, pull apart, overlap,
+wall and delete with undo; a door followed in play; play with touch controls; put in game; send, ask, turn down, undo;
+offline; problems first; two people on one thing; signed out, keep a copy; the Pencil; and **turning the device** (spec,
+"Every size"): with a thing picked, the number pad open and a field focused, the window turns from 1210 by 834 to 834 by
+1210 and back, and the pick, the open sheet and the focused field survive each turn; the on-screen keyboard is stood in
+for by a smaller visual viewport with the layout viewport unchanged (CI cannot open a real keyboard; a real iPad is the
+Owner's review), and the same three things survive it.
 
 - [ ] **Step 1:** Add what is missing; mark the pull request ready with the `screenshots` label so the full run takes
   every picture in three browsers.
@@ -1577,7 +2095,9 @@ problems first; two people on one thing; signed out, keep a copy; the Pencil.
 
 ### Task 44: The documents and the close
 
-**Files:** `CLAUDE.md` (the features, lowest first; the structure; the device's keys), `README.md`, `docs/teams.md`
+**Files:** `CLAUDE.md` (the features, lowest first; the structure; the device's keys; and one clause to "An editor changes
+authorable content and nothing else": it also reads, and never writes, the pictures a game's tilesets name, "My calls" 17),
+`README.md`, `docs/teams.md`
 (the three files and the notes branch, in one place), `docs/superpowers/progress.md` and `history.md`.
 
 - [ ] **Step 1:** Bring each document to what was built; `tests/docs/` passes.
@@ -1589,29 +2109,81 @@ problems first; two people on one thing; signed out, keep a copy; the Pencil.
 
 ## Handoffs
 
-- **Stage 3, the plan audit** (Opus, medium): this plan has 44 tasks, so it is audited. It writes
-  `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
-- **Stage 4, execution** (Sonnet, high), one thread per lane. Each thread reads: the spec, this plan's header through
-  "Pull requests, order and lanes", its own pull request's tasks, `docs/design-language.md`, and the mockup pages its
-  tasks name. It reports to the coordinator one line per task (commit, test count, surprises), at once at any stop,
-  and each change from the plan with its reason.
-- **The framework's F1 to F3** go to a thread in AutomataFramework with this plan's "The framework's part" only. F3 may
-  start now; F1 and F2 after Plan W's pull request 4.
+- **Stage 3, the plan audit** (done): `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`. Its fixes are
+  this page; the table at the end says where each one went.
+- **Stage 4, execution** (Sonnet, high), **two lanes** (a lane is a thread; never more than two while Plan W is
+  building, "Pull requests, order and lanes"). Each thread reads: the spec, this plan's header through "Pull requests,
+  order and lanes", its own pull request's tasks, `docs/design-language.md`, and the mockup pages its tasks name. It
+  reports to the coordinator one line per task (commit, test count, surprises), at once at any stop, and each change
+  from the plan with its reason.
+- **The framework's F1 to F5** go to a thread in AutomataFramework with this plan's "The framework's part" only. F3 may
+  start now; F1, F2, F4 and F5 after Plan W's pull request 4. They merge before pull request 17.
+- **The test game's E4** goes to a thread in AutomataFrameworkExamples after F4 and F5 merge, with Plan W's E1 to E3 when
+  those are not done. **`replays/level-1.json` moves twice over (Plan W's reason and this plan's): the Owner sees the
+  before and after once, with the template's recording if it moves too, and nothing merges until the Owner says yes.**
+  One docs line is asked of the coordinator, not made here: `automata/notes` in the test game's `CLAUDE.md` (Task 23).
+- **The Site** is told, in its next cycle, that the crate's numbers change (E4).
 - **The board:** this build draws no new mockup. A screen that must differ from its mockup is named in its pull
-  request, with why.
+  request, with why (Tasks 20, 27, 31, 35 name theirs).
 
 ## Self-review
 
-- **Spec coverage.** Goals 1 (Tasks 20 to 22, 27, 28, 40), 2 (15 to 17, 24 to 26, 31, 32), 3 (18, 19, 29, 30), 4 (35,
-  42), 5 (7 to 14, 33, 36, 37), 6 (9, 34, 42), 7 (23, 38 to 40), 8 (6), 9 (27). The Pencil: 4, 25, 32. Every size and the
-  four issues: 29, 30, 31, 43. The files World writes: 8, 9, 10, 23. What World needs from the framework: Pin 1, F1 to
-  F3, Pin 2.
-- **Differences from the spec, each named above:** "Look" holds one row ("My calls" 4); locked and hidden are for the
-  visit ("My calls" 5); the map does not use `paintWorld` ("My calls" 3); turning a change down is held for 8 seconds
-  so it can be undone, where the spec's Undo "brings them back under 1 to check" (Task 36: the App cannot reopen a
-  closed change in someone else's name without rewriting it); the fall band is left out while the framework has no
-  fall-off rule (Task 19).
+- **Spec coverage.** Goals 1 (Tasks 20 to 22, 27, 28, 40), 2 (15 to 17, 24 to 26, 31, 32, 42a), 3 (18, 19, 29, 30), 4
+  (35, 42), 5 (7 to 14, 33, 36, 37), 6 (9, 34, 42), 7 (23, 38 to 40), 8 (6), 9 (27). The Pencil: 4, 25, 32. Every size
+  and the four issues: 29, 30, 31, 43. The faces: 20 and 38; the small map: 24; "Every crate starts like this": 31; the
+  turn of the device and the on-screen keyboard: 43. The files World writes: 8, 9, 10, 23. What World needs from the
+  framework: Pin 1, F1 to F5, Pin 2.
+- **Differences from the spec, each named above and again in the pull request that builds it:** "Look" holds "Looks
+  like" alone until Task 42a adds "Drawn" ("My calls" 4); locked and hidden are for the visit, with "Locked until you
+  close the game" ("My calls" 5); the map does not use `paintWorld` ("My calls" 3); the spec's "Try a change" card is
+  left out, and "Back to Level 1" is for the slices that come from another editor ("My calls" 12); Play shows the
+  game's content, not its code ("My calls" 13); the five unbuilt editors never say "Comes later" or "Soon" (Task 20);
+  the fall band is left out while the framework has no fall-off rule (Task 19); the editor also reads, and never writes,
+  the pictures a game's tilesets name ("My calls" 17). Turning a change down closes it at once and Undo brings it back,
+  which is the spec's own wording; the first draft's 8-second hold is gone ("My calls" 14).
 - **Names across tasks:** `Working`, `Edits`, `inLevel`, `Done`, `PutFile`, `PutAsk`, `ProjectChange`, `ChangeLine`,
-  `Merged`, `Clash`, `LevelView`, `Camera`, `Mark`, `Act`, `Landing`, `Wall`, `Playing` are each defined once (Tasks 12,
-  15, 10, 8, 13, 14, 24, 25, 18, 35) and used by those names after.
+  `Merged`, `Clash`, `LevelView`, `Camera`, `Mark`, `Act`, `Landing`, `Wall`, `Playing`, `Stage`, `OpenPicture`,
+  `HistoryPage`, `Draw` are each defined once (Tasks 12, 15, 10, 8, 13, 14, 24, 25, 18, 35, 24, 23, 23, 42a) and used by
+  those names after.
 - **Review Focus:** each of the five has its tests in the tasks named beside it.
+
+---
+
+## The audit's findings, and where each is fixed
+
+The audit found 26 (4 high, 11 medium, 11 low). Each is fixed in this page, in one round, low ones included. The
+Owner's two answers are rows of their own.
+
+| Finding | What the page does now | Where |
+|---|---|---|
+| **H1** lane order breaks; "Needs" short | The rules for the new features move to pull request 2 (before any new folder); pull request 5 needs 4, 7 needs 3 and 5 only (pull request 6 is additive), 10 needs 7 and 8, 11 needs 6, 7 and 9, 12 needs 9 to 11, 13 needs 4, 5, 7, 8, 9 and 11, 15 needs 13 and 14; waves of at most two | "Pull requests, order and lanes", Tasks 2a, 10, 12, 15, 22 |
+| **H2** "ask for a change" as a review is refused | The App writes a comment with a fixed first line; the pretend GitHub refuses a changes-requested review by the author, so no task can bring one back | "My calls" 16, Tasks 11, 36 |
+| **H3** the tour's step 3 has nothing to drag | The Owner chose a real "How heavy": F4 (a weight is the thing's Rapier mass), E4 (the crate declares and names it), `stepThree` (the arrows when a thing has no number) | Owner's answer 1, F4, E4, Tasks 27, 31 |
+| **H4** no game that plays, joins or matches the names | The fixture hero moves; a links game built from data and served beside the demo; the pretend GitHub holds several games; journeys name Room 1 to 3 | Task 2b, Tasks 30, 43 |
+| **M1** a tileset's picture cannot reach the page | `open` sends the PNGs a tileset names (read only, capped); `readPictureOf(content, pictures)` | "My calls" 17, Tasks 23, 24, 2b |
+| **M2** approving refuses on any problem and uses the wrong project file | Approve loads the change's own `automata.toml`, and refuses only when the game says `stop` | Task 11, Task 36 |
+| **M3** F3's `places` with a problem; Play with a problem | F3 says when `places` is left out; Play refuses with "Show me the problem" or runs the level with its doors shut | F3, Tasks 35, 42 |
+| **M4** more threads and branches than allowed | Two lanes while Plan W builds, F-tasks take the next free slot, branches counted | "Pull requests, order and lanes" |
+| **M5** "Bring to the front" changes the play | The Owner chose a stored `draw`: F5 adds it, `things` is never reordered, Task 42a sets it | Owner's answer 2, "My calls" 4, F5, Tasks 15, 26, 42a |
+| **M6** the 8-second hold's reason and its hole | A turn-down closes at once and keeps its branch; Undo is `reopen`; the author is told | "My calls" 14, Tasks 11, 36 |
+| **M7** "What changed" needs many calls | One list call and ten `commitPaths` per page, at most five pages | Tasks 7, 23, 38 |
+| **M8** spec items with no task | Faces; the small map; "Every crate starts like this"; the turn of the device and the keyboard; "Try a change" and "Back to Level 1" left out on purpose | Tasks 20, 24, 31, 43; "My calls" 12 |
+| **M9** what plays is content, not code | Said in a tip, in Help and in the calls; a game without the person's language plays in its own | "My calls" 13, Tasks 28, 35 |
+| **M10** sizes cannot tell an iPad from a computer | `sizeClass` is total; `deviceWord`; `layout` takes the device; 24 rows | "My calls" 10, Tasks 4, 21 |
+| **M11** `levels = [...]` | A new level is added to `levels` when the line exists; the last id never leaves it empty; tests use the links game's text | Task 8 |
+| **L1** percentages | 19 pull requests add to 95, the framework and test game 5; pull request 18 is 1 | The table |
+| **L2** Noto versions | Three exact versions named | Global Constraints |
+| **L3** `things.2…` | `things[2].x`, from a real diagnostic | Task 34 |
+| **L4** `oneLine` in a file that is deleted | Moved to `service/message.ts` first | Task 10 |
+| **L5** a second take-back route | One route, `turnDownChange`, for the author's own too | Task 11, Task 33 |
+| **L6** the links game is not files | Built from data in the editors' tests, never written out | Task 2b |
+| **L7** names of the move-card picture | Room 3 picked and Room 2 beside it | Tasks 30, 43 |
+| **L8** "Comes later" | Unbuilt editors are drawn as the mockup draws them, a tap opens a note with "Got it"; no "Soon" | Task 20 |
+| **L9** the notes branch's name | `suggestionBranch('notes')` is `automata/notes-`; the test game's `CLAUDE.md` gets one line | Task 23 |
+| **L10** renaming changes ids | A plain warning before every rename; the demo's `crate-1` is never renamed | Tasks 15, 19 |
+| **L11** two Pixi Applications | One shared Application; the games list draws lazily | "My calls" 15, Tasks 24, 38 |
+
+The audit's three calls for the Owner: **locked and hidden for the visit only** stands, with the words "Locked until you
+close the game" ("My calls" 5; the Owner has not answered, and keeping them in the team's file is a choice for a later
+round); **draw order** is the Owner's answer 2; **the 8 seconds** is gone for the spec's own wording ("My calls" 14; the
+Owner has not answered, and the reason to change it is in the audit's M6).
