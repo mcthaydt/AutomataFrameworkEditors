@@ -76,20 +76,27 @@ test('when the sign-in is gone for good the person is on Welcome, told so', asyn
   await text(j, WORDS.signedOutAgain)
 })
 
-test('a sign-in renewal that a reload cuts off is not a fault, in any browser', async () => {
-  const j = await open('ipadUpright')
-  await signIn(j.page)
-  await title(j, WORDS.pickTitle)
-  j.fake.signedOutEverywhere()
-  // The renewal's answer is held, so the reload below is certain to cut the call off; then it is let through.
-  const release = j.hold('/api/token')
-  const asked = j.page.waitForRequest('**/api/token')
-  await j.page.goto(`${j.site}/${GAME}`)
-  await asked
-  await j.page.reload()
-  release()
-  await title(j, WORDS.appName)
-  await text(j, WORDS.signedOutAgain)
+test('a sign-in renewal whose answer comes as the page reloads is not a fault, in any browser', async () => {
+  // WebKit reports a call whose answer arrives while the page is being replaced as a page error. Whether the answer or
+  // the reload wins is a race, so the journey runs it several times, each time from a sign-in that is gone.
+  for (let round = 0; round < 6; round += 1) {
+    const j = await open('ipadUpright')
+    await signIn(j.page)
+    await title(j, WORDS.pickTitle)
+    j.fake.signedOutEverywhere()
+    const release = j.hold('/api/token')
+    const asked = j.page.waitForRequest('**/api/token')
+    await j.page.goto(`${j.site}/${GAME}`)
+    await asked
+    release()
+    await j.page.reload()
+    await title(j, WORDS.appName)
+    await text(j, WORDS.signedOutAgain)
+    const found = await j.problems()
+    await j.close()
+    journey = undefined
+    expect(found, `round ${round}`).toEqual([])
+  }
 })
 
 test('a game that is not there says so', async () => {
