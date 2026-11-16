@@ -12,6 +12,7 @@ import { levels } from './levels.ts'
 import { map } from './map.ts'
 import { menus } from './menus.ts'
 import { panels } from './panels.ts'
+import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
 
@@ -24,6 +25,7 @@ export { levels } from './levels.ts'
 export { map } from './map.ts'
 export { menus } from './menus.ts'
 export { panels } from './panels.ts'
+export { play } from './play.ts'
 export { settings } from './settings.ts'
 export { shell } from './shell.ts'
 
@@ -155,6 +157,7 @@ export interface Words {
   readonly arrange: Readonly<Record<keyof (typeof arrange)['en'], Row>>
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
+  readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
 }
 
 /**
@@ -174,6 +177,7 @@ export function wordsIn(lang: Lang): Words {
     levels: { ...levels.en, ...levels[lang] },
     map: { ...map.en, ...map[lang] },
     arrange: { ...arrange.en, ...arrange[lang] },
+    play: { ...play.en, ...play[lang] },
   }
 }
 

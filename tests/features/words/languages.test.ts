@@ -12,6 +12,7 @@ import {
   menus,
   nameOf,
   panels,
+  play,
   READ_BY_A_SPEAKER,
   type Row,
   settings,
@@ -20,7 +21,7 @@ import {
 } from '#src/features/words/words.ts'
 import { bannedInLanguage } from '../../fixtures/banned.ts'
 
-const AREAS = { shell, first, bar, menus, panels, settings, help, levels, map, arrange } as const
+const AREAS = { shell, first, bar, menus, panels, settings, help, levels, map, arrange, play } as const
 
 const MARKS = ['⟦0⟧', '⟦1⟧', '⟦2⟧'] as const
 /** A row said with marks for its parts, so what it names can be compared across languages. */

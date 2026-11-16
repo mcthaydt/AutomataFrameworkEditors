@@ -5,9 +5,9 @@
   import type { Api } from '../api/api.ts'
   import { deviceWord, type Me, nextPointers, type Pointers, rowSize, sizeClass } from '../device/device.ts'
   import {
+    change,
     describe,
     dropDrafts,
-    change,
     type Edits,
     inLevel,
     isChanged,
@@ -19,37 +19,25 @@
     titleOf,
     undo,
   } from '../game/game.ts'
-  import { MapPart } from '../map/map.ts'
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
-  import {
-    commandFor,
-    type Docks,
-    layout,
-    SettingsPanel,
-    type StatusFacts,
-    Toolbar,
-    type Tool,
-    TopBar,
-  } from '../shell/shell.ts'
-  import { type Route, Share, Waiting, WaitingChange, withoutSheet } from '../team/team.ts'
-  import { nameOf, type Row, WORDS, wordsIn } from '../words/words.ts'
+  import { MapPart } from '../map/map.ts'
+  import { PlayPart } from '../play/play.ts'
+  import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
+  import { type Route, withoutSheet } from '../team/team.ts'
+  import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
-  import { type Answer, type Saying, say, saveProblem, unsay } from './events.ts'
+  import { type Answer, cantPlay, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
   import { insetsOf } from './insets.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
-  import { listen, typing } from './listen.ts'
-  import Nudge from './Nudge.svelte'
+  import { listen, onControl, typing } from './listen.ts'
+  import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
-  import { tipKept } from './tips.ts'
+  import { playTip, tipKept } from './tips.ts'
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
-  import WorldList from './WorldList.svelte'
-
-  /** The map has no tools of its own: only what the shell adds (Undo and Redo on a phone, the list's button). */
-  const NO_TOOLS = { ...WORLD, tools: [] }
 
   // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
   // settings), and everything a person does to it. What is changed is held as `Edits`, with one history, and kept on
@@ -111,12 +99,9 @@
   let online = $state(navigator.onLine)
   /** What is picked: thing ids, and `start-1` for a start. */
   let picked = $state.raw<readonly string[]>([])
-  /** The level that is picked on the map. */
-  let pickedLevel = $state<string | undefined>(
-    untrack(() => (route.screen === 'map' && route.level !== undefined && given.content.levels[route.level] ? route.level : undefined)),
-  )
-  // A level that is gone (undone away) is no longer picked.
-  const pickedOnMap = $derived(pickedLevel !== undefined && edits.now.levels[pickedLevel] !== undefined ? pickedLevel : undefined)
+  /** The level that is picked on the map; one that is gone (undone away) is no longer picked. */
+  let pickedLevel = $state<string | undefined>(untrack(() => (route.screen === 'map' ? route.level : undefined)))
+  const pickedOnMap = $derived(pickedLevel !== undefined && edits.now.levels[pickedLevel] ? pickedLevel : undefined)
   let tool = $state<Tool>('pick')
   /** The character the Place tool is holding (or the tray's start). */
   let placing = $state<string | undefined>(undefined)
@@ -126,6 +111,9 @@
   let locked = $state.raw<ReadonlySet<string>>(new Set())
   let hidden = $state.raw<ReadonlySet<string>>(new Set())
   let part: LevelPart | undefined = $state()
+  /** The level is playing where it is drawn; `big`: the panels are put away while it does. */
+  let playing = $state(false)
+  let big = $state(false)
   let viewport = $state(first)
   let docks = $state<Docks>({
     list: 'closed',
@@ -159,9 +147,7 @@
   const onMap = $derived(route.screen === 'map')
   // The level the address asks for; one that is no longer there (made, renamed or taken away since) is the start.
   const asked = $derived(route.screen === 'games' ? undefined : route.level)
-  const levelId = $derived(
-    asked !== undefined && edits.now.levels[asked] !== undefined ? asked : held.content.project.start,
-  )
+  const levelId = $derived(asked !== undefined && edits.now.levels[asked] ? asked : held.content.project.start)
   const level = $derived(edits.now.levels[levelId])
   const things = $derived(level?.things ?? [])
   const dirty = $derived(isChanged(edits))
@@ -175,8 +161,6 @@
     toCheck,
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  const levelIds = $derived(Object.keys(edits.now.levels))
-  const startId = $derived(held.content.project.start)
   const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
   $effect(() => showGlass(me))
@@ -191,12 +175,20 @@
         if (dirty) e.preventDefault()
       },
       key: (e) => {
+        // While it plays, a key belongs to the game; only Escape comes back.
+        if (playing) {
+          if (e.key === 'Escape') {
+            e.preventDefault()
+            stopPlay()
+          }
+          return
+        }
         const command = commandFor({
           key: e.key,
           meta: e.metaKey,
           ctrl: e.ctrlKey,
           shift: e.shiftKey,
-          inField: typing(e),
+          inField: typing(e) || (e.key === ' ' && onControl(e)),
         })
         if (command === 'undo' || command === 'redo') {
           e.preventDefault()
@@ -205,6 +197,9 @@
           picked = []
           pickedLevel = undefined
           placing = undefined
+        } else if (command === 'play' && level !== undefined && !onMap) {
+          e.preventDefault()
+          startPlay()
         } else if (command === 'help') {
           e.preventDefault()
           guide?.open('help')
@@ -230,6 +225,29 @@
       },
     }),
   )
+
+  function startPlay(): void {
+    events = unsay(events, 'play')
+    big = false
+    playing = true
+  }
+  function stopPlay(): void {
+    playing = false
+    big = false
+    events = unsay(events, 'tip-play-code')
+  }
+  /** The level could not be played: what is wrong, said where the person is looking. */
+  function noPlay(lines: readonly string[]): void {
+    stopPlay()
+    events = say(events, cantPlay(words.play, lines))
+  }
+  // Playing ends when the level in view changes or a sheet takes the screen: it would play a level no one is looking at.
+  $effect(() => {
+    levelId
+    sheet
+    onMap
+    untrack(stopPlay)
+  })
 
   function pick(ids: readonly string[]): void {
     picked = ids
@@ -398,8 +416,8 @@
     go({ screen: 'map', ...here, level: levelId })
   }
 
-  // Held whether or not a thing is picked, so picking one never moves the level under a finger that is dragging it.
-  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, onMap))
+  // Where the level may be drawn: clear of the top bar, the toolbar and whatever panels are open.
+  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
 </script>
 
 {#if sheet !== undefined}
@@ -415,6 +433,7 @@
     {#if onMap || level !== undefined}
       <div
         class="level"
+        class:hidden={playing}
         style:left="{insets.left}px"
         style:right="{insets.right}px"
         style:bottom="{insets.bottom}px"
@@ -457,11 +476,21 @@
           onhide={(id, on) => (hidden = withId(hidden, id, on))}
           onclip={(next) => (clip = next)}
           onundo={() => step('undo')}
-          onmap={() => {
-            pickedLevel = levelId
-            go({ screen: 'map', ...here, level: levelId })
-          }}
+          {onmap}
         />
+        {/if}
+        {#if playing}
+          <PlayPart
+            game={held}
+            {edits}
+            level={levelId}
+            {lang}
+            {big}
+            waiting={events.some((one) => one.id === 'tip-play-code')}
+            onbig={() => (big = !big)}
+            onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))}
+            onproblem={noPlay}
+          />
         {/if}
       </div>
     {/if}
@@ -494,68 +523,42 @@
         if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
       }}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
+      onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
+      {playing}
     />
 
-    {#if !onMap || size === 'phone' || lay.list === 'hidden'}
-    <Toolbar
-      workspace={onMap ? NO_TOOLS : WORLD}
+    <Panels
       {lang}
+      {lay}
+      {device}
+      {size}
+      {docks}
       {tool}
-      side={lay.toolbar}
-      keys={device === 'computer'}
-      undoHere={size === 'phone'}
+      {placing}
+      characters={held.content.characters}
+      {level}
+      {picked}
+      {locked}
+      {rowHeight}
       canUndo={edits.past.length > 0}
       canRedo={edits.future.length > 0}
-      mirror={lay.mirror}
-      onpick={(next) => (tool = next)}
+      quiet={playing}
+      away={playing && big}
+      ontool={(next) => (tool = next)}
       onundo={() => step('undo')}
       onredo={() => step('redo')}
-      onlist={lay.list === 'hidden' ? () => openList('list') : undefined}
+      onopen={openList}
+      ondocks={(next) => (docks = next)}
+      onplacing={(id) => (placing = id)}
+      onpick={pick}
+      onnudge={nudge}
+      levels={onMap ? Object.keys(edits.now.levels) : undefined}
+      start={held.content.project.start}
+      {pickedLevel}
+      onpicklevel={(id) => (pickedLevel = id)}
     />
-    {/if}
 
-    {#if lay.list !== 'hidden'}
-      <WorldList
-        {lang}
-        mode={lay.list}
-        tab={docks.list === 'add' ? 'add' : 'list'}
-        {rowHeight}
-        inset={lay.toolbar === 'left'}
-        mirror={lay.mirror}
-        onopen={openList}
-        onhide={() => (docks = { ...docks, list: 'closed' })}
-        levels={onMap ? levelIds : undefined}
-        start={startId}
-        {pickedLevel}
-        onpicklevel={(id) => (pickedLevel = id)}
-        {level}
-        {things}
-        {picked}
-        {locked}
-        onpick={pick}
-        characters={held.content.characters}
-        {placing}
-        onchoose={(id) => {
-          placing = id
-          if (id !== undefined) tool = 'place'
-        }}
-      />
-    {/if}
-
-    {#if !onMap && lay.settings !== 'none' && placed !== undefined}
-      <SettingsPanel
-        {lang}
-        mode={lay.settings}
-        name={nameOf(placed.id)}
-        mirror={lay.mirror}
-        onhide={() => (docks = { ...docks, settings: 'hidden' })}
-        onshow={() => (docks = { ...docks, settings: 'shown' })}
-      >
-        <Nudge onnudge={(way) => nudge(placed.id, way)} />
-      </SettingsPanel>
-    {/if}
-
-    <Events {events} onanswer={answered} />
+    <Events {events} low={playing} onanswer={answered} />
 
     <Guidance
       bind:this={guide}
@@ -576,6 +579,10 @@
 {/if}
 
 <style>
+  .level.hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
   .world {
     position: relative;
     flex: 1;

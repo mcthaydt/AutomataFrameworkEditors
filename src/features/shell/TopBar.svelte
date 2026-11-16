@@ -92,6 +92,8 @@
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
   const compact = $derived(size === 'phone')
+  // A game that plays does not show a change made under it, so none is made until it stops.
+  const canStep = $derived(!playing)
 
   type Open = 'game' | 'editors' | 'part'
   let open = $state<Open | undefined>(undefined)
@@ -223,13 +225,13 @@
     {/if}
     <span class="fill"></span>
     {#if !compact}
-      <button type="button" class="icon" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => {
-          if (canUndo) onundo()
+      <button type="button" class="icon" aria-label={text(words.shell.undo)} aria-disabled={canUndo && canStep ? undefined : 'true'} onclick={() => {
+          if (canUndo && canStep) onundo()
         }}>
         <Icon name="arrow-counter-clockwise" />
       </button>
-      <button type="button" class="icon" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => {
-          if (canRedo) onredo()
+      <button type="button" class="icon" aria-label={text(words.shell.redo)} aria-disabled={canRedo && canStep ? undefined : 'true'} onclick={() => {
+          if (canRedo && canStep) onredo()
         }}>
         <Icon name="arrow-clockwise" />
       </button>
