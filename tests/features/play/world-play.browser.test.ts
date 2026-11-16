@@ -45,7 +45,7 @@ async function open(opened: OpenGame = game): Promise<void> {
     },
   })
   await tick()
-  await vi.waitFor(() => expect(box.querySelector('[data-thing]')).not.toBeNull())
+  await vi.waitFor(() => expect(box.querySelector('[data-thing]')).not.toBeNull(), { timeout: 15_000 })
 }
 beforeEach(async () => {
   box = document.createElement('div')
@@ -76,8 +76,10 @@ const press = async (word: string): Promise<void> => {
   bar(word).click()
   await tick()
 }
+// The first game a browser starts compiles its graphics first, which in WebKit on a busy runner takes longer than the
+// default second: wait for the game to be there, not for a fixed time.
 const started = (): Promise<void> =>
-  vi.waitFor(() => expect(playBox()?.querySelector('canvas')).not.toBeNull())
+  vi.waitFor(() => expect(playBox()?.querySelector('canvas')).not.toBeNull(), { timeout: 15_000 })
 const marksHidden = (): boolean => {
   const mark = box.querySelector<HTMLElement>('[data-thing]')
   return mark !== null && getComputedStyle(mark).visibility === 'hidden'
