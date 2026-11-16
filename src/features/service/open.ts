@@ -1,9 +1,9 @@
 // Opening a game: its files, who the API says you are, what you may do, and your own waiting change if you have one.
 import { PROJECT_FILE, parseProject } from '@automataframework/framework/headless'
 import { EDITORS_DEFAULT, EDITORS_FILE, type EditorsFile, parseEditors } from '../files/files.ts'
+import type { Repo } from '../github/github.ts'
 import type { Answer, GameRef, OpenAnswer, OpenPicture, Waiting, WireFile } from '../wire/wire.ts'
 import { turnedDownOf, withAsked } from './ask.ts'
-import type { Repo } from '../github/github.ts'
 import { type ApiDeps, enter } from './enter.ts'
 import { readPictures } from './pictures.ts'
 import { isWaiting, ownPull, toWaiting } from './pulls.ts'

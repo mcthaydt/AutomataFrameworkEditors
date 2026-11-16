@@ -12,7 +12,7 @@ import {
   setDone,
   writeNotes,
 } from '../files/files.ts'
-import type { Answer, GameRef, NoteAsk } from '../wire/wire.ts'
+import type { Answer, GameRef } from '../wire/wire.ts'
 import { isObject, type Json, readBody, readGame } from './body.ts'
 import { type ApiDeps, enter } from './enter.ts'
 

@@ -3,7 +3,13 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
 import { parseAccess } from '#src/features/access/access.ts'
-import { EDITORS_FILE, NOTES_BRANCH, NOTES_FILE, parseEditors, parseNotes } from '#src/features/files/files.ts'
+import {
+  EDITORS_FILE,
+  NOTES_BRANCH,
+  NOTES_FILE,
+  parseEditors,
+  parseNotes,
+} from '#src/features/files/files.ts'
 
 const ROOT = join(import.meta.dirname, '../..')
 const read = (path: string): string => readFileSync(join(ROOT, path), 'utf8')

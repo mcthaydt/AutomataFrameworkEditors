@@ -9,7 +9,6 @@ export {
   parseEditors,
   writeEditors,
 } from './editors-file.ts'
-export { changeProject, type ProjectChange } from './project-lines.ts'
 export {
   addNote,
   answer,
@@ -22,3 +21,4 @@ export {
   setDone,
   writeNotes,
 } from './notes-file.ts'
+export { changeProject, type ProjectChange } from './project-lines.ts'

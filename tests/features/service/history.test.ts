@@ -144,7 +144,11 @@ test('a person who may only look can read it, and someone with no access cannot'
 })
 
 test('a visitor reads the demo game only; any other game is not-found', async () => {
-  const res = await api.call<HistoryPage>('visitor', 'GET', '/api/history?owner=grandma&name=crate-game&page=0')
+  const res = await api.call<HistoryPage>(
+    'visitor',
+    'GET',
+    '/api/history?owner=grandma&name=crate-game&page=0',
+  )
   expect(res.answer.ok).toBe(true)
   expect(problem(await history('visitor', 0))).toBe('not-found')
 })
