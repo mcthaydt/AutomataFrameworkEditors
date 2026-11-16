@@ -5,6 +5,7 @@ import {
   idOf,
   LANGUAGE_NAMES,
   LANGUAGES,
+  levels,
   menus,
   nameOf,
   panels,
@@ -15,7 +16,7 @@ import {
 } from '#src/features/words/words.ts'
 import { bannedInLanguage } from '../../fixtures/banned.ts'
 
-const AREAS = { shell, first, bar, menus, panels } as const
+const AREAS = { shell, first, bar, menus, panels, levels } as const
 
 const MARKS = ['⟦0⟧', '⟦1⟧', '⟦2⟧'] as const
 /** A row said with marks for its parts, so what it names can be compared across languages. */
