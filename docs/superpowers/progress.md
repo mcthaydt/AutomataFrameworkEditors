@@ -16,9 +16,10 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   goes 15, 17 (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
-- Plan PR 11 (the map on screen, #96): built, audited twice, `main` (with #95) merged in; the second audit's fix and a
-  re-review come next.
-- Next after #96 merges: map pan, zoom and a "Whole world" button, as its own pull request from `main` (the Owner's choice).
+- Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.
+- Map pan, zoom and "Whole world" (#98): two reviews (`555b6f7` three reds, then `6a6e6fb` none); merged (`7ab9d87`) with a
+  merge commit after a green full run on `75ad807` in Chromium, WebKit and Firefox. This record was written by the
+  implementer, because the coordinator cannot write to the repo.
 
 ### Completed outcomes
 
@@ -97,7 +98,13 @@ None.
   The words test bans "pull" (`tests/fixtures/banned.ts`, since 2026-11-14), so the mockups' word never passed it. Easy
   to change: one row in `words/arrange.ts`.
 - The Owner's, 2026-11-16: map pan, zoom and a "Whole world" button are a follow-up pull request after #96 merges, built
-  from `main` as the design draws them. Until then the map is always fitted, so with many levels each one is small.
+  from `main` (built in #98).
+- The Owner's, 2026-11-16 19:57 UTC: "Whole world" stays in the map's top bar, to the right of List, where #98 puts it
+  ("better UX"), not under List as the mockup draws it. It is the Owner's call, not a mismatch to fix: the design drift
+  check reads the mockup as out of date on this one point.
+- Agent-selected, 2026-11-16, in #98: a plain wheel or a trackpad's two-finger scroll slides the zoomed map, and Ctrl +
+  wheel or a pinch zooms (a Mac trackpad's scroll arrives as a plain wheel); a Windows mouse wheel does not zoom on its
+  own. The map's hands are read by the level view's gesture reader. Easy to change: `wheel` in `MapPart.svelte`.
 
 ### Open items
 
