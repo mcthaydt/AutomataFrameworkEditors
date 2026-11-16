@@ -60,7 +60,8 @@
     if (result.ok) rememberGame(remembered, ref)
     else if (refused) forgetGame(remembered, ref)
     const asked = route.screen === 'games' ? undefined : route.level
-    found = result.ok && (asked === undefined || result.game.content.levels[asked] !== undefined)
+    // The map only picks a level, so one renamed since the link was kept does not make the game unfindable.
+    found = result.ok && (route.screen === 'map' || asked === undefined || result.game.content.levels[asked] !== undefined)
     opened = result
     generation += 1
   }

@@ -88,7 +88,7 @@ test('the map route shows every level on one sheet, with the Map button pressed 
     props: {
       game,
       api: {} as unknown as Api,
-      route: { screen: 'map', owner: game.ref.owner, name: game.ref.name },
+      route: { screen: 'map', owner: game.ref.owner, name: game.ref.name, level: 'room-2' },
       me: ME_DEFAULT,
       go: (route: Route) => went.push(route),
       drafts: memoryStore(),
@@ -104,9 +104,11 @@ test('the map route shows every level on one sheet, with the Map button pressed 
   })
   await tick()
   await vi.waitFor(() => expect(box.querySelectorAll('[data-level]')).toHaveLength(3))
+  // The level the address names is the one picked when the map opens.
+  expect(box.querySelector('[data-level="room-2"]')?.getAttribute('aria-pressed')).toBe('true')
   const map = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Map')
   expect(map?.getAttribute('aria-pressed')).toBe('true')
   map?.click()
   await tick()
-  expect(went.at(-1)).toMatchObject({ screen: 'level', level: 'room-1' })
+  expect(went.at(-1)).toMatchObject({ screen: 'level', level: 'room-2' })
 })

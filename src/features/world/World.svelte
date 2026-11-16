@@ -112,7 +112,9 @@
   /** What is picked: thing ids, and `start-1` for a start. */
   let picked = $state.raw<readonly string[]>([])
   /** The level that is picked on the map. */
-  let pickedLevel = $state<string | undefined>(undefined)
+  let pickedLevel = $state<string | undefined>(
+    untrack(() => (route.screen === 'map' && route.level !== undefined && given.content.levels[route.level] ? route.level : undefined)),
+  )
   let tool = $state<Tool>('pick')
   /** The character the Place tool is holding (or the tray's start). */
   let placing = $state<string | undefined>(undefined)
