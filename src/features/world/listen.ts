@@ -14,7 +14,8 @@ const POINTERS = ['pointerdown', 'pointermove', 'pointerover', 'pointerout', 'po
 export function typing(e: KeyboardEvent): boolean {
   const target = e.target
   return (
-    target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+    target instanceof HTMLElement &&
+    (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
   )
 }
 
