@@ -71,6 +71,8 @@
       ring = next
     }
   }
+  // The card sits clear of what the step is about: at the top when that is in the lower half, so it never covers it.
+  const high = $derived(ring !== undefined && ring.top + ring.height / 2 > window.innerHeight / 2)
   $effect(() => {
     void target
     void now
@@ -98,7 +100,7 @@
 {:else}
   <div class="dim" aria-hidden="true"></div>
 {/if}
-<div class="coach" role="dialog" aria-label={label}>
+<div class="coach" class:high role="dialog" aria-label={label}>
   <span class="n">{label}</span>
   <h3>{text(card.title)}</h3>
   <p>{text(card.body)}</p>
@@ -151,6 +153,10 @@
     color: var(--words);
     transform: translateX(-50%);
   }
+  .coach.high {
+    top: calc(var(--bar) + 12px);
+    bottom: auto;
+  }
   .n {
     color: var(--g-quiet);
     font-size: 13px;
@@ -175,6 +181,7 @@
   }
   /* A phone on its side has no room under the level: the card sits to one side and says only what to do. */
   :global(.look[data-size='phone-sideways']) .coach {
+    top: auto;
     right: 8px;
     bottom: 8px;
     left: auto;

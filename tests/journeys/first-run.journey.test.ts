@@ -113,7 +113,7 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
 
     // The end of the tour is said, and then it is done for good.
     await coach(j)
-      .getByText(said(first('en').tourEndTitle))
+      .getByRole('heading', { name: said(first('en').tourEndTitle) })
       .waitFor()
     await coach(j)
       .getByRole('button', { name: said(first('en').tourEnd) })
