@@ -7,8 +7,8 @@ The tracker every stage reads first and updates last. One section per cycle; new
 Visual review step 1's fixes (the [plain-words check of board v15](audits/2026-11-15-mockups-v15-plain-words.md)),
 mockups only (no editor code), in one Sonnet session on PR 70 (it replaces PR 64, whose branch had stopped getting CI
 after `main`'s `ci.yml` changed under it; PR 70 is the same branch plus a merge of `main`, no history rewritten).
-Progress on this step: **90%**: every finding is fixed in the pages and the stylesheet and pushed; what is left is
-reading CI's pictures at five sizes and republishing the board (a new version of the same artifact).
+Progress on this step: **100%** of the fixes; the board is republished (a new version of the same artifact) from CI's
+own pictures at five sizes. Next: the design pass (visual review step 2).
 
 - **All 29 findings, high and low together:** "The six editors" with a Screens row (1); a button's gate is a gate, with
   its own icon and drawn as bars, on every page and the library, and a door is only a way into another level (2, 3, 13,
@@ -23,6 +23,15 @@ reading CI's pictures at five sizes and republishing the board (a new version of
   was a drawing mistake: the level's tools are hidden on the map); inside a level it stays "Whole level" and "Close up".
 - **One judgement call:** the three-dots menu's clipboard Copy (with Paste) is a different action from Make a copy, so it
   is worded "Copy to paste" there, and both words stay.
+- **Found by reading CI's pictures, and fixed:** the world-map wall page was blank (an unescaped apostrophe in its
+  script); the edge card and its bar sat off the level's right edge (they are now placed from the level's real edge, at
+  6.3% of the sheet); the "Send 1 more" button was 1176 px wide (its class `more` collided with the settings' `.more`
+  row; now `extra`); the "For good" choice, the join's tag and the part menu were cut off at the smaller sizes (the
+  choices wrap, the tag wraps, the menu is three columns on a phone sideways); on an upright iPad the top bar clipped the
+  "Put in game" and "Send 1 more" badges (the `· Level 1` after the level name is dropped there).
+- **Seen, not part of this round (for the design pass):** on iPad sideways the map's Move card covers Level 3, so the
+  gap between two touching levels is half hidden; on a phone the join page's hint bubble sits over the gate; the phone
+  map is panned so Level 1 is cut off; an upright iPad's bottom sheet loses "Where it is" while a dropdown is open.
 - **Not changed:** game content in the Story, Characters and Sound pages that names a door (a door in a story is a
   door); the board stays trimmed to this round's screens.
 
