@@ -72,7 +72,8 @@ export const menus = {
       'Characters is not in this version yet. It will be where you decide who is in the game and how they move.',
     noteFeel: 'Feel is not in this version yet. It will be where you tune how the game feels to play.',
     noteSound: 'Sound is not in this version yet. It will be where you choose the music and the sounds.',
-    noteStory: 'Story is not in this version yet. It will be where you write what people say and what happens.',
+    noteStory:
+      'Story is not in this version yet. It will be where you write what people say and what happens.',
     noteScreens:
       'Screens is not in this version yet. It will be where you make the menus and what a player sees.',
   },
@@ -107,10 +108,8 @@ export const menus = {
     editorScreensAbout: 'Menús, pausa y lo que ve quien juega',
     noteCharacters:
       'Personajes todavía no está en esta versión. Será donde decidas quién está en el juego y cómo se mueve.',
-    noteFeel:
-      'Sensación todavía no está en esta versión. Será donde ajustes cómo se siente jugar.',
-    noteSound:
-      'Sonido todavía no está en esta versión. Será donde elijas la música y los sonidos.',
+    noteFeel: 'Sensación todavía no está en esta versión. Será donde ajustes cómo se siente jugar.',
+    noteSound: 'Sonido todavía no está en esta versión. Será donde elijas la música y los sonidos.',
     noteStory:
       'Historia todavía no está en esta versión. Será donde escribas lo que dice la gente y lo que pasa.',
     noteScreens:
@@ -185,10 +184,8 @@ export const menus = {
       'キャラクターはこのバージョンにはまだありません。誰がゲームに出て、どう動くかを決める場所になります。',
     noteFeel: '操作感はこのバージョンにはまだありません。遊んだときの感じを整える場所になります。',
     noteSound: 'サウンドはこのバージョンにはまだありません。音楽と効果音を選ぶ場所になります。',
-    noteStory:
-      'ストーリーはこのバージョンにはまだありません。人のせりふと起きることを書く場所になります。',
-    noteScreens:
-      '画面はこのバージョンにはまだありません。メニューや遊ぶ人が見るものを作る場所になります。',
+    noteStory: 'ストーリーはこのバージョンにはまだありません。人のせりふと起きることを書く場所になります。',
+    noteScreens: '画面はこのバージョンにはまだありません。メニューや遊ぶ人が見るものを作る場所になります。',
   },
   zh: {
     whoCanChange: '谁可以改动',
@@ -260,8 +257,7 @@ export const menus = {
     noteSound: 'Som ainda não está nesta versão. Será onde você escolhe a música e os sons.',
     noteStory:
       'História ainda não está nesta versão. Será onde você escreve o que as pessoas dizem e o que acontece.',
-    noteScreens:
-      'Telas ainda não está nesta versão. Será onde você faz os menus e o que quem joga vê.',
+    noteScreens: 'Telas ainda não está nesta versão. Será onde você faz os menus e o que quem joga vê.',
   },
   fr: {
     whoCanChange: 'Qui peut le changer',
@@ -296,8 +292,7 @@ export const menus = {
       'Personnages n’est pas encore dans cette version. Ce sera là que tu décideras qui est dans le jeu et comment il bouge.',
     noteFeel:
       'Sensation n’est pas encore dans cette version. Ce sera là que tu règleras ce que l’on ressent en jouant.',
-    noteSound:
-      'Son n’est pas encore dans cette version. Ce sera là que tu choisiras la musique et les sons.',
+    noteSound: 'Son n’est pas encore dans cette version. Ce sera là que tu choisiras la musique et les sons.',
     noteStory:
       'Histoire n’est pas encore dans cette version. Ce sera là que tu écriras ce que disent les gens et ce qui arrive.',
     noteScreens:
@@ -338,8 +333,7 @@ export const menus = {
     noteSound: 'Раздела «Звук» в этой версии пока нет. Здесь вы выберете музыку и звуки.',
     noteStory:
       'Раздела «История» в этой версии пока нет. Здесь вы напишете, что говорят люди и что происходит.',
-    noteScreens:
-      'Раздела «Экраны» в этой версии пока нет. Здесь вы сделаете меню и всё, что видит игрок.',
+    noteScreens: 'Раздела «Экраны» в этой версии пока нет. Здесь вы сделаете меню и всё, что видит игрок.',
   },
   de: {
     whoCanChange: 'Wer es ändern darf',
@@ -374,8 +368,7 @@ export const menus = {
       'Figuren gibt es in dieser Version noch nicht. Dort legst du fest, wer im Spiel ist und wie er sich bewegt.',
     noteFeel:
       'Spielgefühl gibt es in dieser Version noch nicht. Dort stellst du ein, wie sich das Spielen anfühlt.',
-    noteSound:
-      'Klang gibt es in dieser Version noch nicht. Dort wählst du die Musik und die Geräusche aus.',
+    noteSound: 'Klang gibt es in dieser Version noch nicht. Dort wählst du die Musik und die Geräusche aus.',
     noteStory:
       'Geschichte gibt es in dieser Version noch nicht. Dort schreibst du, was die Leute sagen und was passiert.',
     noteScreens:

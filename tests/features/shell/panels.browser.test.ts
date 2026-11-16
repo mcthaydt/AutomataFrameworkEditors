@@ -9,6 +9,12 @@ import { WORLD } from '../../fixtures/shell.ts'
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
 
+/** A press that does not need the control on the screen: the test's box can be larger than the browser's window. */
+async function press(el: Element | null | undefined): Promise<void> {
+  if (el instanceof HTMLElement) el.click()
+  await tick()
+}
+
 beforeEach(() => {
   box = document.createElement('div')
   box.className = 'look'
@@ -59,7 +65,7 @@ test('picking a tool says which, and the picked one is marked', async () => {
   await put(Toolbar, { ...toolbar, onpick: (tool: string) => seen.push(tool) })
   const pick = [...box.querySelectorAll('button')]
   expect(pick[0]?.getAttribute('aria-pressed')).toBe('true')
-  await userEvent.click(pick[2] as HTMLElement)
+  await press(pick[2])
   expect(seen).toEqual(['erase'])
 })
 
@@ -80,7 +86,7 @@ test('an upright phone has Undo and Redo in the toolbar, and Undo says it cannot
   await put(Toolbar, { ...toolbar, undoHere: true, onundo: () => seen.push('undo') })
   const undo = box.querySelector('[aria-label=Undo]') as HTMLElement
   expect(undo.getAttribute('aria-disabled')).toBe('true')
-  await userEvent.click(undo)
+  await press(undo)
   expect(seen).toEqual([])
 })
 
@@ -141,14 +147,14 @@ test('a picked thing shows its settings, Hide folds them to a tab with its name,
   const props = { ...settings, onhide: () => seen.push('hide'), onshow: () => seen.push('show') }
   await put(SettingsPanel, props)
   expect(box.textContent).toContain('Where it is')
-  await userEvent.click(box.querySelector('[aria-label="Hide the settings"]') as HTMLElement)
+  await press(box.querySelector('[aria-label="Hide the settings"]'))
   unmount(mounted as never)
   await put(SettingsPanel, { ...props, mode: 'tab' })
   const tab = box.querySelector('button') as HTMLElement
   expect(tab.textContent).toContain('Crate 1 · settings')
   expect(hit(tab).width).toBeGreaterThanOrEqual(44)
   expect(box.textContent).not.toContain('Where it is')
-  await userEvent.click(tab)
+  await press(tab)
   expect(seen).toEqual(['hide', 'show'])
 })
 
@@ -157,12 +163,12 @@ test('on a small screen the settings are a bar that pulls up into a sheet closed
   const props = { ...settings, onhide: () => seen.push('done'), onshow: () => seen.push('open') }
   await put(SettingsPanel, { ...props, mode: 'bar' })
   expect(box.textContent).toContain('Crate 1 · settings')
-  await userEvent.click(box.querySelector('button') as HTMLElement)
+  await press(box.querySelector('button'))
   unmount(mounted as never)
   await put(SettingsPanel, { ...props, mode: 'sheet' })
   expect(box.textContent).toContain('Where it is')
   const done = [...box.querySelectorAll('button')].find((b) => b.textContent?.includes('Done'))
-  await userEvent.click(done as HTMLElement)
+  await press(done)
   expect(seen).toEqual(['open', 'done'])
 })
 

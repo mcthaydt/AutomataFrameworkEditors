@@ -1,13 +1,19 @@
 // The top bar in each real browser: the height the design language gives it, controls a finger can hit, menus that
 // open under their button and close again, and editors that are not built saying so in plain words.
 import { mount, tick, unmount } from 'svelte'
-import { afterEach, beforeEach, expect, test } from 'vitest'
+import { afterEach, expect, test } from 'vitest'
 import { userEvent } from 'vitest/browser'
 import { Faces, TopBar } from '#src/features/shell/shell.ts'
 import { WORLD } from '../../fixtures/shell.ts'
 
 let box: HTMLDivElement
 let mounted: ReturnType<typeof mount> | undefined
+
+/** A press that does not need the control on the screen: the test's box can be larger than the browser's window. */
+async function press(el: Element | null | undefined): Promise<void> {
+  if (el instanceof HTMLElement) el.click()
+  await tick()
+}
 
 const sizes = {
   wide: { width: 1210, height: 834 },
@@ -100,7 +106,7 @@ test('Undo and Redo say they cannot act when there is nothing to undo, and act w
   const undo = box.querySelector('[aria-label=Undo]') as HTMLElement
   const redo = box.querySelector('[aria-label=Redo]') as HTMLElement
   expect(undo.getAttribute('aria-disabled')).toBe('true')
-  await userEvent.click(undo)
+  await press(undo)
   expect(seen).toEqual([])
   unmount(mounted as never)
   await put({ canUndo: true, onundo: () => seen.push('undo') })
@@ -192,7 +198,7 @@ test("on a phone the part's name opens one menu with the parts, the editors and 
   await userEvent.click(named('Levels · Level 1') as HTMLElement)
   const menus = box.querySelectorAll('[role=menu]')
   expect(menus.length).toBe(1)
-  const words = [...menus[0]?.querySelectorAll('[role=menuitem]') ?? []].map((row) => row.textContent ?? '')
+  const words = [...(menus[0]?.querySelectorAll('[role=menuitem]') ?? [])].map((row) => row.textContent ?? '')
   expect(words.some((w) => w.includes('Levels'))).toBe(true)
   expect(words.some((w) => w.includes('Characters'))).toBe(true)
   expect(words.some((w) => w.includes('Who can change it'))).toBe(true)
