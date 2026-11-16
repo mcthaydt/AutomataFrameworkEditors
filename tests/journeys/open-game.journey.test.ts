@@ -93,7 +93,7 @@ test('when the sign-in is gone for good the person is on Welcome, told so', asyn
 test('a sign-in renewal whose answer comes as the page reloads is not a fault, in any browser', async () => {
   // WebKit reports a call whose answer arrives while the page is being replaced as a page error. Whether the answer or
   // the reload wins is a race (and which page then shows the sign-out is the race's outcome), so the journey runs it
-  // several times, each time from a sign-in that is gone, and asks only that the page shows its first heading and
+  // several times, each time from a sign-in that is gone, and asks only that the page shows its first heading (or the bar of an open game) and
   // that nothing was a fault.
   for (let round = 0; round < 4; round += 1) {
     const j = await open('ipadUpright')
@@ -106,7 +106,7 @@ test('a sign-in renewal whose answer comes as the page reloads is not a fault, i
     await asked
     release()
     await j.page.reload()
-    await j.page.getByRole('heading', { level: 1 }).first().waitFor()
+    await j.page.locator('h1, [data-bar]').first().waitFor()
     const found = await j.problems()
     await j.close()
     journey = undefined

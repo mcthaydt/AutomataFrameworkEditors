@@ -112,7 +112,7 @@ test('Undo and Redo say they cannot act when there is nothing to undo, and act w
   await put({ canUndo: true, onundo: () => seen.push('undo') })
   const live = box.querySelector('[aria-label=Undo]') as HTMLElement
   expect(live.getAttribute('aria-disabled')).toBeNull()
-  await userEvent.click(live)
+  await press(live)
   expect(seen).toEqual(['undo'])
   expect(redo).toBeDefined()
 })

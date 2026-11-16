@@ -6,7 +6,7 @@ import type { Api } from '#src/features/api/api.ts'
 import { ME_DEFAULT } from '#src/features/device/device.ts'
 import World from '#src/features/world/World.svelte'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
-import { openedGame } from '../../fixtures/open-game.ts'
+import { openedGameWith } from '../../fixtures/open-game-with.ts'
 import { memoryStore } from '../../fixtures/store.ts'
 
 const FILL = 'position:fixed;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column'
@@ -36,7 +36,7 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
     x: 0.5 + (n % 32) / 2,
     y: 0.5 + Math.floor(n / 32) / 4,
   }))
-  const game = await openedGame({
+  const game = await openedGameWith((text) => `v${text.length}`, {
     ...fixtureFiles,
     [LEVEL_PATH]: JSON.stringify({ ...level1, things }),
   })

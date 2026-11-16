@@ -123,6 +123,8 @@ test('the same, moving with the arrow buttons instead of a finger', async () => 
   await signIn(j.page)
   await openLevel(j.page)
   await thingNamed(j.page, 'crate-1').tap()
+  // On a phone the settings of what is picked wait in a bar until it is pulled up.
+  await j.page.locator('button.peek').tap()
   for (let step = 0; step < 4; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
   await hasChanges(j)
   await putButton(j.page).tap()

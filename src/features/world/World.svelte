@@ -402,7 +402,9 @@
   const insets = $derived.by(() => {
     const toolbar = lay.toolbar === 'left' ? 76 : 0
     const list = lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0
-    const settings = lay.settings === 'side' ? 296 : lay.settings === 'tab' ? 44 : 0
+    // Held whether or not a thing is picked, so picking one never moves the level under a finger that is dragging it.
+    const wide = layout(device, size, docks, true, me.leftHand).settings
+    const settings = wide === 'side' ? 296 : wide === 'tab' ? 44 : 0
     const bottom = (lay.toolbar === 'bottom' ? 76 : 0) + (lay.settings === 'bar' ? 56 : 0)
     return lay.mirror
       ? { left: settings, right: toolbar + list, bottom }
