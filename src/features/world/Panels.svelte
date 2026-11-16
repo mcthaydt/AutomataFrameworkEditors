@@ -9,6 +9,7 @@
   import { type Docks, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
   import Nudge from './Nudge.svelte'
+  import { sayFor } from './said.ts'
   import { WORLD } from './world-workspace.ts'
   import WorldList from './WorldList.svelte'
 
@@ -53,8 +54,8 @@
     ways: Working['levels']
     hand: { grab: () => void; edit: (next: Level) => void; drop: (gaveUp: boolean) => void }
     ongo: (level: string, door?: string) => void
-    /** The game's words for a message, in its own language. */
-    says: (message: string) => string | undefined
+    /** The game, for the words a thing's message stands for. */
+    content: GameContent
   }
   let {
     lang,
@@ -89,7 +90,7 @@
     ways,
     hand,
     ongo,
-    says,
+    content,
   }: Props = $props()
 
   const things = $derived(level?.things ?? [])
@@ -167,7 +168,7 @@
           levels={ways}
           {hand}
           {ongo}
-          {says}
+          says={(message) => sayFor(content, message)}
         />
         {#if placed !== undefined}<Nudge onnudge={(way) => onnudge(placed.id, way)} />{/if}
       </SettingsPanel>

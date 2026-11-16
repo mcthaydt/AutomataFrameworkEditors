@@ -134,10 +134,9 @@
     box-shadow: 0 0 0 100vmax var(--dim);
     pointer-events: none;
   }
-  /* Above everything that floats over the level (the bar, the hints, the cards), so "Next" can always be pressed. */
   .coach {
     position: absolute;
-    z-index: 50;
+    z-index: 25;
     left: 50%;
     bottom: calc(var(--tools-room, 0px) + 76px);
     display: flex;

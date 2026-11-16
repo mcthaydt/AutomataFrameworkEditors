@@ -10,7 +10,7 @@ export interface Insets {
 }
 
 /** The room the pulled-up sheet may take from the bottom of the world, as the sheet's own `max-height` says it, and its gap. */
-export const SHEET_ROOM = 'calc(60% + 8px)'
+const SHEET_ROOM = 'calc(60% + 8px)'
 
 /**
  * `settings` is how the settings panel is drawn with something picked: it is held whether or not a thing is picked, so
@@ -28,3 +28,6 @@ export function insetsOf(lay: Layout, settings: Layout['settings'], away: boolea
     ? { left: side, right: toolbar + list, bottom, sheet }
     : { left: toolbar + list, right: side, bottom, sheet }
 }
+
+/** The level's bottom edge as a style value: a pixel gap, or the room the pulled-up sheet takes. */
+export const bottomOf = (insets: Insets): string => (insets.sheet ? SHEET_ROOM : `${insets.bottom}px`)

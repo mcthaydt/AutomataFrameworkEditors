@@ -4,6 +4,7 @@
 // the settings, "Where it is" stays in them with a list open, and the hint covers neither the plate nor the gate.
 import type { Locator, Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
+import { LANGUAGES } from '#src/features/words/words.ts'
 import {
   type JourneyPage,
   openGame,
@@ -172,21 +173,33 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await picture(page, `join-drawn-${size}`)
   })
 
-  test('"Where it is" stays inside the settings with the "Opens" list open', async () => {
+  test('"Where it is" stays in sight when a list in the settings is used, and nothing scrolls it away', async () => {
     journey = await openPage(size)
     const { page } = journey
     await openLinks(page)
     await thingNamed(page, 'plate-1').click()
     await showSettings(page)
+    const body = page.locator('aside.panel .body')
     const heading = page.locator('[data-group="where"] h3')
-    await heading.scrollIntoViewIfNeeded()
-    const panel = await boxOf(page.locator('aside.panel'))
-    const at = await boxOf(heading)
-    expect(inside(at, panel), 'the heading is outside the settings').toBe(true)
-    expect(at.y).toBeGreaterThanOrEqual(
-      (await boxOf(page.locator('[data-value="opens"] .opens'))).y +
-        (await boxOf(page.locator('[data-value="opens"] .opens'))).height,
-    )
+    const visible = async (): Promise<boolean> => inside(await boxOf(heading), await boxOf(body))
+    const wasVisible = await visible()
+    const scrolled = await body.evaluate((el) => el.scrollTop)
+    // Use the "Opens" list: let go of the gate, then take it again.
+    await page.locator('[data-value="opens"] .opens').getByRole('button', { name: 'Nothing' }).click()
+    await page
+      .locator('[data-value="opens"] .opens button[aria-pressed="true"]', { hasText: 'Nothing' })
+      .waitFor()
+    await page.locator('[data-value="opens"] .opens').getByRole('button', { name: 'Gate 1' }).click()
+    await page
+      .locator('[data-value="opens"] .opens button[aria-pressed="true"]', { hasText: 'Gate 1' })
+      .waitFor()
+    expect(await body.evaluate((el) => el.scrollTop), 'the settings scrolled by themselves').toBe(scrolled)
+    expect(await visible(), '"Where it is" went out of sight').toBe(wasVisible)
+    // Where the sheet has room for it at all, it is in view without scrolling.
+    if (size !== 'phone') expect(wasVisible, '"Where it is" is not in view').toBe(true)
+    expect(
+      inside(await boxOf(page.locator('[data-group="does"] h3')), await boxOf(body)) || scrolled > 0,
+    ).toBe(true)
     await settled(page)
     await picture(page, `settings-where-${size}`)
   })
@@ -241,5 +254,66 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     expect(await slider.inputValue()).toBe('1.5')
     await settled(page)
     await picture(page, `settings-heavy-${size}`)
+  })
+})
+
+describe('at phone', () => {
+  test('a thing pressed with the sheet pulled up does not move under the finger', async () => {
+    journey = await openPage('phone')
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page)
+    await thingNamed(page, 'crate-1').click()
+    await showSettings(page)
+    // Tap the empty sky: nothing is picked, and the sheet is still the person's choice.
+    const stage = await boxOf(page.locator('.stage').first())
+    await page.mouse.click(stage.x + stage.width / 2, stage.y + 12)
+    await settled(page)
+    const before = await boxOf(thingNamed(page, 'crate-1'))
+    await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2)
+    await page.mouse.down()
+    await settled(page)
+    const during = await boxOf(thingNamed(page, 'crate-1'))
+    expect(during.y, 'the thing moved while the finger was down').toBeCloseTo(before.y, 0)
+    expect(during.x).toBeCloseTo(before.x, 0)
+    await page.mouse.up()
+  })
+
+  test('the toolbar of every language is wholly on screen, with its names readable', async () => {
+    journey = await openPage('phone')
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page)
+    const width = page.viewportSize()?.width ?? 0
+    for (const lang of LANGUAGES) {
+      await page.evaluate((l) => localStorage.setItem('af.me.language', l), lang)
+      await page.reload()
+      await thingNamed(page, 'crate-1').waitFor()
+      const found = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('.tools .tool')].map((button) => {
+          const box = button.getBoundingClientRect()
+          const name = button.querySelector<HTMLElement>('span')
+          const shown = name !== null && name.getBoundingClientRect().width > 2
+          return {
+            name: button.getAttribute('aria-label') ?? button.textContent?.trim() ?? '',
+            left: box.left,
+            right: box.right,
+            width: box.width,
+            cut: shown && name.scrollWidth > name.clientWidth + 1,
+          }
+        }),
+      )
+      expect(found.length, lang).toBeGreaterThanOrEqual(6)
+      for (const one of found) {
+        expect(one.left, `${lang} ${one.name} starts off screen`).toBeGreaterThanOrEqual(0)
+        expect(one.right, `${lang} ${one.name} runs off the right`).toBeLessThanOrEqual(width)
+        expect(one.width, `${lang} ${one.name} is too small to press`).toBeGreaterThanOrEqual(44)
+        expect(one.cut, `${lang} ${one.name} is cut`).toBe(false)
+      }
+      if (lang === 'de' || lang === 'ru') {
+        await settled(page)
+        await picture(page, `toolbar-${lang}-phone`)
+      }
+    }
   })
 })

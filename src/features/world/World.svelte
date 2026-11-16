@@ -31,8 +31,8 @@
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
-  import { insetsOf, SHEET_ROOM } from './insets.ts'
-  import { sayFor } from './said.ts'
+  import { afterFinger } from './finger.svelte.ts'
+  import { bottomOf, insetsOf } from './insets.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
   import { listen, measure, onControl, typing } from './listen.ts'
   import { savedAs } from './saved.ts'
@@ -42,9 +42,9 @@
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
 
-  // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
-  // settings), and everything a person does to it. What is changed is held as `Edits`, with one history, and kept on
-  // the device as it goes. The main button still saves the one level that is open (only it can have changed here).
+  // The World editor on the page: the open level under floating glass (top bar, toolbar, list, settings) and everything a
+  // person does to it. Changes are held as `Edits`, one history, kept on the device as they go; the main button saves
+  // the one level that is open (only it can have changed here).
   interface Props {
     game: OpenGame
     api: Api
@@ -409,8 +409,7 @@
     go({ screen: 'map', ...here, level: levelId })
   }
 
-  // Where the level may be drawn: clear of the top bar, the toolbar and whatever panels are open.
-  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
+  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
 </script>
 
 {#if sheet !== undefined}
@@ -427,9 +426,9 @@
       <div
         class="level"
         class:hidden={playing}
-        style:left="{insets.left}px"
-        style:right="{insets.right}px"
-        style:bottom={insets.sheet ? SHEET_ROOM : `${insets.bottom}px`}
+        style:left="{insets.value.left}px"
+        style:right="{insets.value.right}px"
+        style:bottom={bottomOf(insets.value)}
       >
         {#if onMap}
           <MapPart
@@ -555,7 +554,7 @@
       ways={edits.now.levels}
       hand={{ grab, edit, drop }}
       ongo={goLevel}
-      says={(message) => sayFor(held.content, message)}
+      content={held.content}
     />
 
     <Events {events} low={playing} onanswer={answered} />
@@ -591,6 +590,7 @@
   }
   /* The level sits under the glass: clear of the top bar, and of whatever sits at its sides and foot. */
   .level {
+    isolation: isolate; /* what floats over the level stays under the tour and the dialogs, whatever its z-index */
     position: absolute;
     top: calc(var(--bar) + 20px);
     display: flex;
