@@ -82,9 +82,9 @@ test('the second page holds the older ones, and has no more', async () => {
 
 test('page 0 makes one list call and ten calls for what each commit touched, eleven in all', async () => {
   many(30)
-  api.fake.log.length = 0
+  const before = commitCalls()
   await lines(0)
-  expect(commitCalls()).toBe(11)
+  expect(commitCalls() - before).toBe(11)
 })
 
 test('a commit names the levels it touched from their paths, and says when it touched the world file', async () => {
