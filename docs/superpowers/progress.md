@@ -435,6 +435,13 @@ build after that approval and go before any other editor work:
   `docs/mockups/`, so the fault is in the editors' code or the journey server. Find it and fix it; do not retry
   past it.
 
+## The World editor (roadmap slice 3, items 5 and 6)
+
+Spec written 2026-11-16 after the Owner approved the mockups (board v17):
+[`specs/2026-11-16-world-editor-design.md`](specs/2026-11-16-world-editor-design.md). Stage 1 of 7, **4%**. No Owner
+question open: the shell, Levels and the world map now, Tiles and Scenes later (Q1 = A); notes live on
+`automata/notes` (Q2 = A). Next: the plan (Fable 5.2, medium).
+
 ## Task 6 and Task 7 part 1 reverted (2026-11-15)
 
 The Owner said (2026-11-15) that the editors were built before their mockups were shown, and chose to revert what had
