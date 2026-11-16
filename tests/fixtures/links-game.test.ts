@@ -1,19 +1,19 @@
 import { loadGame, parseContent, writeContent } from '@automataframework/framework/headless'
 import { expect, test } from 'vitest'
 import { readFrom } from './game/read.ts'
-import { linksFiles } from './links-game/links.ts'
+import { linksMap } from './links-game/read.ts'
 
 test('the links game loads with no problem', async () => {
-  const loaded = await loadGame(readFrom(linksFiles()))
+  const loaded = await loadGame(readFrom(linksMap()))
   expect(loaded.ok).toBe(true)
 })
 
 test('each content file is byte for byte what the framework writes', async () => {
-  const files = linksFiles()
+  const files = linksMap()
   const loaded = await loadGame(readFrom(files))
   if (!loaded.ok) throw new Error('the links game did not load')
   for (const ref of loaded.value.project.content) {
-    const text = files[ref.path] ?? ''
+    const text = files.get(ref.path) ?? ''
     const parsed = parseContent(ref.type, text, ref.path)
     expect(parsed.ok, ref.path).toBe(true)
     if (parsed.ok) expect(writeContent(ref.type, parsed.value as never), ref.path).toBe(text)
@@ -21,7 +21,7 @@ test('each content file is byte for byte what the framework writes', async () =>
 })
 
 test('it has three rooms, a hero that moves and a world file that places them', async () => {
-  const loaded = await loadGame(readFrom(linksFiles()))
+  const loaded = await loadGame(readFrom(linksMap()))
   if (!loaded.ok) throw new Error('the links game did not load')
   expect(Object.keys(loaded.value.levels).sort()).toEqual(['room-1', 'room-2', 'room-3'])
   expect(loaded.value.characters.hero?.moves?.tuning).toBe('hero-moves')
@@ -29,7 +29,7 @@ test('it has three rooms, a hero that moves and a world file that places them', 
 })
 
 test("room-1's right edge is open where room-2's left edge is solid, so pushing them together makes a wall", async () => {
-  const loaded = await loadGame(readFrom(linksFiles()))
+  const loaded = await loadGame(readFrom(linksMap()))
   if (!loaded.ok) throw new Error('the links game did not load')
   const edge = (room: string, side: 'left' | 'right'): string[] =>
     (loaded.value.levels[room]?.tiles ?? []).map(
