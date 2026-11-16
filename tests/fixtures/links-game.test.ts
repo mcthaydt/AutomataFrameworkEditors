@@ -32,7 +32,9 @@ test("room-1's right edge is open where room-2's left edge is solid, so pushing 
   const loaded = await loadGame(readFrom(linksFiles()))
   if (!loaded.ok) throw new Error('the links game did not load')
   const edge = (room: string, side: 'left' | 'right'): string[] =>
-    (loaded.value.levels[room]?.tiles ?? []).map((row) => (side === 'left' ? row[0] : row[row.length - 1]) ?? '')
+    (loaded.value.levels[room]?.tiles ?? []).map(
+      (row) => (side === 'left' ? row[0] : row[row.length - 1]) ?? '',
+    )
   // Rows 5 to 7 (counting from 0) are the lower rows.
   for (const row of [5, 6, 7]) {
     expect(edge('room-1', 'right')[row]).toBe('.')

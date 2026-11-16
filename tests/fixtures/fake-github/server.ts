@@ -8,10 +8,10 @@ import type { AppEnv } from '#src/features/github/github.ts'
 import { fromBase64, toBase64 } from '#src/lib/base64.ts'
 import { makeKeys } from './keys.ts'
 import {
+  addGame,
   blobSha,
   type FakePull,
   type FakeRepo,
-  addGame,
   gameRepo,
   linksRepo,
   nextSha,
@@ -430,7 +430,9 @@ export async function startFakeGitHub(port: number, site: string): Promise<FakeG
                 path,
                 sha: blobSha(picture),
                 encoding: 'base64',
-                content: Buffer.from(picture).toString('base64').replace(/(.{60})/g, '$1\n'),
+                content: Buffer.from(picture)
+                  .toString('base64')
+                  .replace(/(.{60})/g, '$1\n'),
               })
         }
         const inside = [...files.keys(), ...repo.bytes.keys()].filter((p) => p.startsWith(`${path}/`))

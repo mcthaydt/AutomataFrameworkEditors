@@ -86,3 +86,7 @@ side, which uses nothing a page has); `device`, `ui`, `api`, `session`, `game`, 
 `world`, `suite` (the page side, which never imports the API side). Features import only from features below them. No
 top-level `components/`, `services/` or `utils/`. `smol-toml` is for `access` and `files` only (TOML is read there); Pixi
 is for `levels/level-canvas.ts` and `map/map-canvas.ts` only, the page's one Application and the map's pictures.
+
+`biome.json` turns the formatter off for `tests/fixtures/game/content/**` and says why here, since JSON has no comments:
+those files are byte for byte what the framework's `writeContent` writes (a test checks it), and Biome would fold a
+short list onto one line where `writeContent` puts one item to a line.

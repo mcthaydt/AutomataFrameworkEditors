@@ -37,7 +37,7 @@ test('a visitor opens the demo game: look, no login, from main, the same files g
   expect(visitor.files).toEqual(grandma.files)
 })
 
-test("grandma opens the links game, which the pretend GitHub serves beside the crate game", async () => {
+test('grandma opens the links game, which the pretend GitHub serves beside the crate game', async () => {
   const [owner, name] = LINKS.split('/')
   const game = await opened('grandma', `/api/game?owner=${owner}&name=${name}`)
   expect(game.game).toEqual({ owner: 'grandma', name: 'links-game' })

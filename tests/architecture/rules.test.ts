@@ -99,7 +99,8 @@ test('a feature that is not in the list is named', () =>
 
 // The World editor's features (Task 2a): each folder is a known one, in the order the plan gives.
 test.each(['device', 'shell', 'map', 'play', 'team', 'world'])('%s is a known feature', (feature) =>
-  expect(one({ [`src/features/${feature}/${feature}.ts`]: '' })).toEqual([]))
+  expect(one({ [`src/features/${feature}/${feature}.ts`]: '' })).toEqual([]),
+)
 
 test('TOML is read by the files feature too', () =>
   expect(
