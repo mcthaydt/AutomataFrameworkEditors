@@ -10,6 +10,7 @@ import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { levels } from './levels.ts'
 import { menus } from './menus.ts'
 import { panels } from './panels.ts'
+import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
 
@@ -20,6 +21,7 @@ export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } fro
 export { levels } from './levels.ts'
 export { menus } from './menus.ts'
 export { panels } from './panels.ts'
+export { play } from './play.ts'
 export { settings } from './settings.ts'
 export { shell } from './shell.ts'
 
@@ -149,6 +151,7 @@ export interface Words {
   readonly levels: Readonly<Record<keyof (typeof levels)['en'], Row>>
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
+  readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
 }
 
 /**
@@ -166,6 +169,7 @@ export function wordsIn(lang: Lang): Words {
     menus: { ...menus.en, ...menus[lang] },
     panels: { ...panels.en, ...panels[lang] },
     levels: { ...levels.en, ...levels[lang] },
+    play: { ...play.en, ...play[lang] },
   }
 }
 

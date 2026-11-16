@@ -19,29 +19,27 @@
     undo,
   } from '../game/game.ts'
   import { withId } from './with-id.ts'
-  import { type Clip, countsOf, LevelPart, nudgeThings, Tray } from '../levels/levels.ts'
+  import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
+  import { PlayPart } from '../play/play.ts'
   import {
     commandFor,
     type Docks,
     layout,
-    ListPanel,
-    SettingsPanel,
     type StatusFacts,
-    Toolbar,
     type Tool,
     TopBar,
   } from '../shell/shell.ts'
   import { type Route, Share, Waiting, WaitingChange, withoutSheet } from '../team/team.ts'
-  import { nameOf, type Row, WORDS, wordsIn } from '../words/words.ts'
+  import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
-  import { type Answer, type Saying, say, saveProblem, unsay } from './events.ts'
+  import { type Answer, cantPlay, copied, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
   import { listen, typing } from './listen.ts'
-  import Nudge from './Nudge.svelte'
-  import ThingRow from './ThingRow.svelte'
-  import { tipKept } from './tips.ts'
+  import Panels from './Panels.svelte'
+  import { insetsOf } from './insets.ts'
+  import { playTip, tipKept } from './tips.ts'
   import { WORLD } from './world-workspace.ts'
   import type { Level } from '@automataframework/framework/headless'
 
@@ -114,6 +112,9 @@
   let locked = $state.raw<ReadonlySet<string>>(new Set())
   let hidden = $state.raw<ReadonlySet<string>>(new Set())
   let part: LevelPart | undefined = $state()
+  /** The level is playing where it is drawn; `big`: the panels are put away while it does. */
+  let playing = $state(false)
+  let big = $state(false)
   let viewport = $state(first)
   let docks = $state<Docks>({
     list: 'closed',
@@ -172,6 +173,14 @@
         if (dirty) e.preventDefault()
       },
       key: (e) => {
+        // While it plays, a key belongs to the game; only Escape comes back.
+        if (playing) {
+          if (e.key === 'Escape') {
+            e.preventDefault()
+            stopPlay()
+          }
+          return
+        }
         const command = commandFor({
           key: e.key,
           meta: e.metaKey,
@@ -210,6 +219,29 @@
       },
     }),
   )
+
+  function startPlay(): void {
+    const tip = playTip(remembered, me.tips, text(words.play.tipCode))
+    events = unsay(events, 'play')
+    if (tip !== undefined) events = say(events, tip)
+    big = false
+    playing = true
+  }
+  function stopPlay(): void {
+    playing = false
+    big = false
+  }
+  /** The level could not be played: what is wrong, said where the person is looking. */
+  function noPlay(lines: readonly string[]): void {
+    stopPlay()
+    events = say(events, cantPlay(words.play, lines))
+  }
+  // Playing ends when the level in view changes or a sheet takes the screen: it would play a level no one is looking at.
+  $effect(() => {
+    levelId
+    sheet
+    untrack(stopPlay)
+  })
 
   function pick(ids: readonly string[]): void {
     picked = ids
@@ -308,13 +340,7 @@
     const copy = copyOfNow()
     if (copy === undefined) return
     events = unsay(events, 'keep')
-    try {
-      await navigator.clipboard.writeText(copy.text)
-      events = say(events, { id: 'copied', kind: 'good', text: WORDS.copyCopied, dismiss: true })
-    } catch {
-      // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
-      events = say(events, { id: 'copied', kind: 'info', text: WORDS.copySelect, box: copy.text, dismiss: true })
-    }
+    events = say(events, await copied(copy.text))
   }
   function copyFile(): void {
     const copy = copyOfNow()
@@ -382,17 +408,7 @@
   }
 
   // Where the level may be drawn: clear of the top bar, the toolbar and whatever panels are open.
-  const insets = $derived.by(() => {
-    const toolbar = lay.toolbar === 'left' ? 76 : 0
-    const list = lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0
-    // Held whether or not a thing is picked, so picking one never moves the level under a finger that is dragging it.
-    const wide = layout(device, size, docks, true, me.leftHand).settings
-    const settings = wide === 'side' ? 296 : wide === 'tab' ? 44 : 0
-    const bottom = (lay.toolbar === 'bottom' ? 76 : 0) + (lay.settings === 'bar' ? 56 : 0)
-    return lay.mirror
-      ? { left: settings, right: toolbar + list, bottom }
-      : { left: toolbar + list, right: settings, bottom }
-  })
+  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big))
 </script>
 
 {#if sheet !== undefined}
@@ -417,6 +433,7 @@
 {:else}
   <div
     class="look world"
+    class:playing
     {lang}
     data-size={size}
     data-rows={rows}
@@ -425,6 +442,7 @@
     {#if level !== undefined}
       <div
         class="level"
+        class:hidden={playing}
         style:left="{insets.left}px"
         style:right="{insets.right}px"
         style:bottom="{insets.bottom}px"
@@ -455,6 +473,9 @@
           onclip={(next) => (clip = next)}
           onundo={() => step('undo')}
         />
+        {#if playing}
+          <PlayPart game={held} {edits} level={levelId} {lang} {big} onbig={() => (big = !big)} onproblem={noPlay} />
+        {/if}
       </div>
     {/if}
 
@@ -484,75 +505,36 @@
         if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
       }}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
+      onplay={level === undefined ? undefined : playing ? stopPlay : startPlay}
+      {playing}
     />
 
-    <Toolbar
-      workspace={WORLD}
+    <Panels
       {lang}
+      {lay}
+      {device}
+      {size}
+      {docks}
       {tool}
-      side={lay.toolbar}
-      keys={device === 'computer'}
-      undoHere={size === 'phone'}
+      {placing}
+      characters={held.content.characters}
+      {level}
+      {picked}
+      {locked}
+      {rowHeight}
       canUndo={edits.past.length > 0}
       canRedo={edits.future.length > 0}
-      mirror={lay.mirror}
-      onpick={(next) => (tool = next)}
+      quiet={playing}
+      away={playing && big}
+      ontool={(next) => (tool = next)}
       onundo={() => step('undo')}
       onredo={() => step('redo')}
-      onlist={lay.list === 'hidden' ? () => openList('list') : undefined}
+      onopen={openList}
+      ondocks={(next) => (docks = next)}
+      onplacing={(id) => (placing = id)}
+      onpick={pick}
+      onnudge={nudge}
     />
-
-    {#if lay.list !== 'hidden'}
-      <ListPanel
-        {lang}
-        mode={lay.list}
-        tab={docks.list === 'add' ? 'add' : 'list'}
-        name={text(words.panels.listIn)}
-        count={things.length}
-        {rowHeight}
-        inset={lay.toolbar === 'left'}
-        mirror={lay.mirror}
-        onopen={openList}
-        onhide={() => (docks = { ...docks, list: 'closed' })}
-      >
-        {#snippet row(at)}
-          {@const thing = things[at]}
-          {#if thing !== undefined}
-            <ThingRow
-              {thing}
-              picked={picked.includes(thing.id)}
-              note={locked.has(thing.id) ? text(words.levels.lockedNote) : undefined}
-              onpick={() => pick([thing.id])}
-            />
-          {/if}
-        {/snippet}
-        {#snippet add()}
-          <Tray
-            {lang}
-            characters={held.content.characters}
-            counts={level === undefined ? {} : countsOf(level)}
-            chosen={placing}
-            onchoose={(id) => {
-              placing = id
-              if (id !== undefined) tool = 'place'
-            }}
-          />
-        {/snippet}
-      </ListPanel>
-    {/if}
-
-    {#if lay.settings !== 'none' && placed !== undefined}
-      <SettingsPanel
-        {lang}
-        mode={lay.settings}
-        name={nameOf(placed.id)}
-        mirror={lay.mirror}
-        onhide={() => (docks = { ...docks, settings: 'hidden' })}
-        onshow={() => (docks = { ...docks, settings: 'shown' })}
-      >
-        <Nudge onnudge={(way) => nudge(placed.id, way)} />
-      </SettingsPanel>
-    {/if}
 
     <Events {events} onanswer={answered} />
 
@@ -575,6 +557,14 @@
 {/if}
 
 <style>
+  /* The play bar sits at the top of the game: what the screen says waits under it, never over it. */
+  .world.playing :global(.events) {
+    top: calc(var(--bar) + 20px + 64px);
+  }
+  .level.hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
   .world {
     position: relative;
     flex: 1;

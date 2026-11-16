@@ -1,5 +1,6 @@
 // The levels editor: a level on screen, and the edits of its things, ground and values as plain functions.
 
+export { readPictureOf } from './art.ts'
 export type { Clip } from './clipboard.ts'
 export { compareLevels, type ThingMove } from './compare.ts'
 export { type Done, no, ok } from './done.ts'
