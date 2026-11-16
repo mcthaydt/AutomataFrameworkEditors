@@ -167,8 +167,9 @@ export const menuWords = {
   yourGames: sayRow(MENUS.yourGames),
   signIn: sayRow(MENUS.signIn),
   signOut: sayRow(MENUS.signOut),
-  help: sayRow(MENUS.helpRow),
-  settings: sayRow(MENUS.settingsRow),
+  // A row's name starts with its word: "Keep a copy of Level 1" says "helper" in its line under it.
+  help: new RegExp(`^${sayRow(MENUS.helpRow)}`),
+  settings: new RegExp(`^${sayRow(MENUS.settingsRow)}`),
 } as const
 
 /**
