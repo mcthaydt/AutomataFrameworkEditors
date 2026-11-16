@@ -1,11 +1,12 @@
 # `plan` says how much this run tests; `check` runs the static checks and the Node tests; `browsers` runs the browser
-# tests and the journeys, each browser split in two shards that run side by side; `engines` names each browser's result,
-# one check per browser. Every action is pinned to a commit. Nothing is deployed from here (Cloudflare builds the site
+# tests and the journeys, each browser split in six shards that run side by side (18 jobs in a full run); `engines` names
+# each browser's result, one check per browser. Every action is pinned to a commit. Nothing is deployed from here (Cloudflare builds the site
 # from this repo itself) and nothing is published.
 #
 # How much is tested (the Owner, 2026-11-15): while a pull request is a draft, a thread is still working on it, so only
 # what its change reaches runs, and a run stops at its first failure. The whole suite runs once the pull request is
-# ready for review, on every push to main, and on a draft that carries the `full-tests` label.
+# ready for review, on every push to main, and on a draft that carries the `full-tests` label. A draft also runs in
+# Chromium only (the Owner, 2026-11-16): WebKit and Firefox run in the full run that gates merge.
 name: ci
 
 on:
@@ -27,10 +28,13 @@ jobs:
   # How much this run tests, from the event and the files the pull request changes. Everything but `docs` is `true`
   # except on a draft without the `full-tests` label whose change leaves the build and the test setup alone:
   #   full      false: the browser tests the change reaches (Vitest's `--changed`), stopping at the first failure
+  #   engines   the browsers the shards run in: Chromium only on a draft, all three otherwise
   #   journeys  false when nothing the built page is made of changed; otherwise a draft plays them in Chromium only
   #   pictures  false when nothing that is seen changed (a `.svelte` or `.css` file, the words, the page, the mockups),
   #             so the screens journey is left out and no pictures are kept; the `screenshots` label (or the older
   #             `pictures`) asks for them
+  #   scenes    which scenes of the screens journey take their picture: on a draft, only those of the screens the
+  #             change reaches (`scripts/screens-touched.ts`); every scene on a full run
   #   docs      true when only Markdown that people read changed: `docs` passes every check main requires,
   #             under its own name, and every job that tests is left out
   #   quick     `quick ` on a draft, `skipped ` on a docs-only run, and empty otherwise: the start of every
@@ -43,11 +47,20 @@ jobs:
       pull-requests: read
     outputs:
       full: ${{ steps.plan.outputs.full }}
+      engines: ${{ steps.plan.outputs.engines }}
+      scenes: ${{ steps.plan.outputs.scenes }}
       journeys: ${{ steps.plan.outputs.journeys }}
       pictures: ${{ steps.plan.outputs.pictures }}
       docs: ${{ steps.plan.outputs.docs }}
       quick: ${{ steps.plan.outputs.docs == 'true' && 'skipped ' || steps.plan.outputs.full != 'true' && 'quick ' || '' }}
     steps:
+      # Only the scripts folder, for the script that says which screens a change reaches.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.21.0
       - id: plan
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,7 +70,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          full=true journeys=true pictures=true docs=false
+          full=true journeys=true pictures=true docs=false scenes='.*'
+          engines='["chromium","webkit","firefox"]'
           if [ "$EVENT" = pull_request ] && [[ " $LABELS " != *" full-tests "* ]] &&
             changed="$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only)" && [ -n "$changed" ]; then
             printf 'This pull request changes:\n%s\n' "$changed"
@@ -68,14 +82,16 @@ jobs:
               docs=true
             # A change to how things are installed, built or tested, or to the shared test files, reaches every test.
             elif [ "$DRAFT" = true ] && ! grep -qE '^(tests/fixtures/|package\.json|pnpm-lock\.yaml|\.pnpmfile\.cjs|[^/]*\.config\.(ts|js)|tsconfig[^/]*\.json|\.github/)' <<<"$changed"; then
-              full=false
+              full=false engines='["chromium"]'
               grep -qE '^(src/|functions/|index\.html|public/|tests/journeys/)' <<<"$changed" || journeys=false
               grep -qE '(\.svelte|\.css)$|^(src/features/(ui|words)/|index\.html|public/|docs/mockups/|tests/journeys/screens)' <<<"$changed" || pictures=false
+              # Only the pictures of the screens the change reaches.
+              scenes="$(node scripts/screens-touched.ts <<<"$changed")"
             fi
           fi
           if [[ " $LABELS " == *" screenshots "* || " $LABELS " == *" pictures "* ]]; then pictures=true; fi
-          echo "docs=$docs full=$full journeys=$journeys pictures=$pictures"
-          { echo "docs=$docs"; echo "full=$full"; echo "journeys=$journeys"; echo "pictures=$pictures"; } >> "$GITHUB_OUTPUT"
+          echo "docs=$docs full=$full engines=$engines journeys=$journeys pictures=$pictures scenes=$scenes"
+          { echo "docs=$docs"; echo "full=$full"; echo "engines=$engines"; echo "journeys=$journeys"; echo "pictures=$pictures"; echo "scenes=$scenes"; } >> "$GITHUB_OUTPUT"
 
   # A pull request that changes only Markdown that people read has nothing to test (the Owner, 2026-11-15). This job
   # stands in for every check main requires, under its exact name, and passes at once. Every job that tests is left out
@@ -123,13 +139,14 @@ jobs:
       - run: pnpm build
       - run: pnpm test:node $ONLY
 
-  # Each browser in two shards that run side by side, so a full run takes about half as long (the Owner, 2026-11-15).
-  # The screens journey alone takes as long as all the others together, so it is the first shard (with the short
-  # browser tests), and every other journey is the second; an even split by file count left one shard twice as long.
+  # Each browser in six shards that run side by side, so a full run is 18 jobs and takes about a third as long as two
+  # shards did (the Owner, 2026-11-16). A draft runs Chromium only: the `engines` list comes from `plan`. The screens
+  # journey is the longest by far, so its three sizes are shards 1 to 3 (the short browser tests ride with shard 1); every
+  # other journey is split three ways, shards 4 to 6.
   browsers:
     needs: plan
     if: needs.plan.outputs.docs != 'true'
-    name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/2)
+    name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/6)
     runs-on: ubuntu-latest
     # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
     # failures (`--bail`), or after one on a draft, so a red run is read in minutes.
@@ -138,36 +155,51 @@ jobs:
       # On a draft the first failure stops the other shards too; the whole suite lets every shard finish.
       fail-fast: ${{ needs.plan.outputs.full != 'true' }}
       matrix:
-        engine: [chromium, webkit, firefox]
-        shard: [1, 2]
+        engine: ${{ fromJSON(needs.plan.outputs.engines) }}
+        shard: [1, 2, 3, 4, 5, 6]
+        include:
+          - { shard: 1, screens: ipadUpright }
+          - { shard: 2, screens: ipadSideways }
+          - { shard: 3, screens: phone }
+          - { shard: 4, others: 1 }
+          - { shard: 5, others: 2 }
+          - { shard: 6, others: 3 }
     env:
       BAIL: ${{ needs.plan.outputs.full == 'true' && '15' || '1' }}
-      SHARD: ${{ matrix.shard == 1 && 'tests/journeys/screens.journey.test.ts' || '--exclude=tests/journeys/screens.journey.test.ts' }}
-      # The screens journey (the first shard's) is left out with the pictures.
-      JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (needs.plan.outputs.full == 'true' || matrix.engine == 'chromium') && (matrix.shard == 2 || needs.plan.outputs.pictures == 'true') }}
+      # The screens shards are left out with the pictures; the short browser tests (shard 1) always run.
+      JOURNEYS: ${{ needs.plan.outputs.journeys == 'true' && (matrix.shard > 3 || needs.plan.outputs.pictures == 'true') }}
+      # A shard with nothing to do (a draft with no journeys to play) does not even install anything.
+      WORK: ${{ matrix.shard == 1 || (needs.plan.outputs.journeys == 'true' && (matrix.shard > 3 || needs.plan.outputs.pictures == 'true')) }}
+      SCENES: ${{ needs.plan.outputs.scenes }}
     steps:
       # The browser tests run whole, on a draft too: they take seconds, and Vitest's `--changed` fails in browser mode
       # here (its `vite:css-post` step throws on `ui.css` while it works out which tests a change reaches). The journeys
       # drive the built page, which `--changed` could not trace back to its files anyway, so `plan` decides from the
-      # paths whether they run.
+      # paths whether they run, and which screens take their picture.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: env.WORK == 'true'
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: env.WORK == 'true'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: env.WORK == 'true'
         with:
           node-version: 24.21.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+        if: env.WORK == 'true'
       # The browser is kept between runs, by Playwright's version; the system libraries it needs are put in each time.
       - id: version
+        if: env.WORK == 'true'
         run: echo "playwright=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: env.WORK == 'true'
         id: browser
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.version.outputs.playwright }}-${{ matrix.engine }}
-      - if: steps.browser.outputs.cache-hit != 'true'
+      - if: env.WORK == 'true' && steps.browser.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
-      - if: steps.browser.outputs.cache-hit == 'true'
+      - if: env.WORK == 'true' && steps.browser.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps ${{ matrix.engine }}
       - if: matrix.shard == 1
         run: pnpm test:engine ${{ matrix.engine }} --bail=$BAIL
@@ -175,8 +207,14 @@ jobs:
         run: pnpm build:journeys
       - if: env.JOURNEYS == 'true'
         run: pnpm build:journeys-plain
-      - if: env.JOURNEYS == 'true'
-        run: pnpm test:journeys $SHARD --bail=$BAIL
+      # One size of the screens journey (and on a draft, only the scenes the change reaches).
+      - if: env.JOURNEYS == 'true' && matrix.screens
+        run: pnpm test:journeys tests/journeys/screens.journey.test.ts -t "at ${{ matrix.screens }} ($SCENES)" --bail=$BAIL
+        env:
+          ENGINE: ${{ matrix.engine }}
+      # Every other journey, a third of them in each of the last three shards.
+      - if: env.JOURNEYS == 'true' && matrix.others
+        run: pnpm test:journeys --exclude=tests/journeys/screens.journey.test.ts --shard=${{ matrix.others }}/3 --bail=$BAIL
         env:
           ENGINE: ${{ matrix.engine }}
       # A red run in a few lines: which journeys failed, and the first line of why.
@@ -185,14 +223,14 @@ jobs:
       # Pictures a person looks at (the drunk-grandma check); nothing compares them. A run that left the pictures out
       # keeps none, so the `ci-screens` branch keeps the last full set.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always() && needs.plan.outputs.pictures == 'true'
+        if: always() && needs.plan.outputs.pictures == 'true' && env.WORK == 'true'
         with:
           name: screens-${{ matrix.engine }}-${{ matrix.shard }}
           path: tests/**/__screenshots__/**
           if-no-files-found: ignore
 
-  # One check per browser, `engines (<browser>)`, green only when both of that browser's shards passed, so the names
-  # main's protection may ask for stay as they were.
+  # One check per browser, `engines (<browser>)`, green only when all six of that browser's shards passed, so the names
+  # main's protection may ask for stay as they were. A draft has only Chromium's.
   engines:
     needs: [plan, browsers]
     name: ${{ needs.plan.outputs.quick }}engines (${{ matrix.engine }})
@@ -205,7 +243,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        engine: [chromium, webkit, firefox]
+        engine: ${{ fromJSON(needs.plan.outputs.engines) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -213,7 +251,7 @@ jobs:
           node-version: 24.21.0
       # The script asks again after a GitHub 5xx and reads each shard from the newest attempt that ran it, so a re-run
       # of one job can pass (see `scripts/engines-gate.ts`).
-      - name: Both shards of ${{ matrix.engine }} passed
+      - name: Every shard of ${{ matrix.engine }} passed
         run: node scripts/engines-gate.ts
         env:
           GH_TOKEN: ${{ github.token }}

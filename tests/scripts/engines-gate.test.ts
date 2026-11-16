@@ -1,50 +1,64 @@
 import { describe, expect, test } from 'vitest'
-import { type Ask, getJson, type Job, judge, listJobs } from '../../scripts/engines-gate.ts'
+import { type Ask, getJson, type Job, judge, listJobs, SHARDS } from '../../scripts/engines-gate.ts'
 
 const job = (name: string, conclusion: string | null): Job => ({ name, conclusion })
-const chromium = (a: string | null, b: string | null): Job[] => [
-  job('browsers (chromium 1/2)', a),
-  job('browsers (chromium 2/2)', b),
-]
+/** The jobs of one browser's shards, in order; each result is that shard's conclusion (all `success` unless named). */
+const shards = (engine: string, results: Record<number, string | null> = {}): Job[] =>
+  Array.from({ length: SHARDS }, (_, index) => {
+    const n = index + 1
+    return job(`browsers (${engine} ${n}/${SHARDS})`, n in results ? (results[n] ?? null) : 'success')
+  })
+const chromium = (results: Record<number, string | null> = {}): Job[] => shards('chromium', results)
 
-describe('judge: both shards of a browser must have passed', () => {
-  test('passes when both shards passed', () => {
-    const verdict = judge([chromium('success', 'success')], 'chromium')
-    expect(verdict.ok).toBe(true)
-    expect(verdict.lines).toEqual(['browsers (chromium 1/2): success', 'browsers (chromium 2/2): success'])
+describe('judge: every shard of a browser must have passed', () => {
+  test('a browser is six shards, the number `ci.yml` runs', () => {
+    expect(SHARDS).toBe(6)
   })
 
-  test('fails when a shard failed, was cancelled, or has no result', () => {
-    expect(judge([chromium('success', 'failure')], 'chromium').ok).toBe(false)
-    expect(judge([chromium('cancelled', 'success')], 'chromium').ok).toBe(false)
-    expect(judge([chromium('success', null)], 'chromium').ok).toBe(false)
+  test('passes when every shard passed', () => {
+    const verdict = judge([chromium()], 'chromium')
+    expect(verdict.ok).toBe(true)
+    expect(verdict.lines).toEqual([1, 2, 3, 4, 5, 6].map((n) => `browsers (chromium ${n}/6): success`))
+  })
+
+  test('fails when any one shard failed, was cancelled, or has no result', () => {
+    for (const n of [1, 3, 6]) {
+      expect(judge([chromium({ [n]: 'failure' })], 'chromium').ok).toBe(false)
+      expect(judge([chromium({ [n]: 'cancelled' })], 'chromium').ok).toBe(false)
+      expect(judge([chromium({ [n]: null })], 'chromium').ok).toBe(false)
+    }
   })
 
   test('fails when a shard is missing, and when the browser has no shards at all', () => {
-    expect(judge([[job('browsers (chromium 1/2)', 'success')]], 'chromium').ok).toBe(false)
+    expect(judge([chromium().slice(0, 5)], 'chromium').ok).toBe(false)
     expect(judge([[]], 'chromium').ok).toBe(false)
   })
 
   test('reads only the shards of the browser it was asked about', () => {
-    const jobs = [...chromium('success', 'success'), job('browsers (webkit 1/2)', 'failure')]
+    const jobs = [...chromium(), ...shards('webkit', { 2: 'failure' })]
     expect(judge([jobs], 'chromium').ok).toBe(true)
     expect(judge([jobs], 'webkit').ok).toBe(false)
   })
 
+  test('a draft has Chromium alone, and its check is still judged by its own six', () => {
+    expect(judge([chromium()], 'webkit').ok).toBe(false)
+    expect(judge([chromium()], 'chromium').ok).toBe(true)
+  })
+
   test('a shard that was run again counts by its last result: failed then passed is a pass', () => {
-    const first = chromium('success', 'failure')
-    const second = [job('browsers (chromium 2/2)', 'success')]
+    const first = chromium({ 4: 'failure' })
+    const second = [job('browsers (chromium 4/6)', 'success')]
     expect(judge([first, second], 'chromium').ok).toBe(true)
   })
 
   test('a shard that was run again counts by its last result: passed then failed is a fail', () => {
-    const first = chromium('success', 'success')
-    const second = [job('browsers (chromium 2/2)', 'failure')]
+    const first = chromium()
+    const second = [job('browsers (chromium 4/6)', 'failure')]
     expect(judge([first, second], 'chromium').ok).toBe(false)
   })
 
   test('re-running only the check itself, which lists no shards, keeps the shards of the attempt before', () => {
-    const first = chromium('success', 'success')
+    const first = chromium()
     const second = [job('engines (chromium)', 'failure')]
     expect(judge([first, second], 'chromium').ok).toBe(true)
   })
