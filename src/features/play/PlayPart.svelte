@@ -18,12 +18,16 @@
     /** The panels are put away. */
     big: boolean
     onbig: () => void
+    /** The screen has something to say first: the game waits and goes on when it is said. */
+    waiting: boolean
+    /** The game is running. */
+    onstarted: () => void
     /** The level could not be played: what is wrong, one sentence a line (none: the reason is not known). */
     onproblem: (lines: readonly string[]) => void
     /** Only for tests: the frames the game is given. */
     frames?: Frames
   }
-  let { game, edits, level, lang, big, onbig, onproblem, frames }: Props = $props()
+  let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, frames }: Props = $props()
 
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   let holder: HTMLDivElement | undefined = $state()
@@ -43,6 +47,7 @@
       (started) => {
         if (gone) return started.stop()
         playing = started
+        onstarted()
       },
       (error: unknown) => {
         if (!gone) onproblem(error instanceof CannotPlay ? error.lines : [])
@@ -51,6 +56,41 @@
     return () => {
       gone = true
       playing?.stop()
+    }
+  })
+
+  // Waits for the screen to be heard, then goes on, unless the person paused it themselves meanwhile. It holds still only
+  // once the first picture is drawn, so what waits is a level, never an empty box.
+  let held = false
+  function drawn(cancelled: () => boolean): Promise<boolean> {
+    return new Promise((done) => {
+      const look = (): void => {
+        if (cancelled()) return done(false)
+        if (holder?.querySelector('canvas')?.style.visibility === 'hidden') return void requestAnimationFrame(look)
+        done(true)
+      }
+      look()
+    })
+  }
+  $effect(() => {
+    const now = playing
+    if (now === undefined) return
+    if (waiting) {
+      let cancelled = false
+      void drawn(() => cancelled).then((ready) => {
+        if (!ready || now.paused()) return
+        now.pause()
+        held = true
+        paused = true
+      })
+      return () => {
+        cancelled = true
+      }
+    }
+    if (held) {
+      held = false
+      if (now.paused()) now.resume()
+      paused = now.paused()
     }
   })
 

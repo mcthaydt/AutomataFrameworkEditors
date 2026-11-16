@@ -254,6 +254,40 @@ export async function dragByTouch(page: Page, id: string, by: { dx: number; dy: 
 }
 
 /**
+ * Holds one finger on a half of the game's touch controls (`walk` or `jump`) and slides it `dx` pixels, the way a thumb
+ * does, for `ms` milliseconds, then lifts it. Finger events are sent as the page's own, because a script cannot drive
+ * a second kind of finger in every engine.
+ */
+export async function slideGameHalf(
+  page: Page,
+  half: 'walk' | 'jump',
+  by: { dx: number; ms: number },
+): Promise<void> {
+  await page.evaluate(
+    async ({ half, by }) => {
+      const target = document.querySelector<HTMLElement>(`[data-play="box"] [data-half="${half}"]`)
+      if (target === null) throw new Error(`No ${half} half on this page.`)
+      const box = target.getBoundingClientRect()
+      const at = (dx: number): PointerEventInit => ({
+        pointerId: 7,
+        pointerType: 'touch',
+        isPrimary: true,
+        bubbles: true,
+        clientX: box.x + box.width / 2 + dx,
+        clientY: box.y + box.height / 2,
+      })
+      target.dispatchEvent(new PointerEvent('pointerdown', at(0)))
+      for (let step = 1; step <= 6; step += 1) {
+        target.dispatchEvent(new PointerEvent('pointermove', at((by.dx * step) / 6)))
+      }
+      await new Promise((done) => setTimeout(done, by.ms))
+      target.dispatchEvent(new PointerEvent('pointerup', at(by.dx)))
+    },
+    { half, by },
+  )
+}
+
+/**
  * The colour of the level's picture at a point of the page (CSS pixels), as `#rrggbb`: what a person sees there. The
  * buttons over the picture prove where a thing is for a finger and a screen reader; this proves the picture agrees.
  */

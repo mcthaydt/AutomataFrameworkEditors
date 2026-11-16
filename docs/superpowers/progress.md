@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 17:27 UTC (from `date`).
+Last updated: 2026-11-16 18:16 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -11,8 +11,11 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
-- Installing the new workflow and its CI gate (this repo's setup pull request).
-- Next: plan pull requests 11 and 14, side by side.
+- Plan pull request 14, play in place: Editors #95, in review (lane 2). The first review's five findings are fixed on
+  the branch; a second review and the full CI run come next. This record was written by the implementer, because the
+  coordinator cannot write to the repo.
+- Plan pull request 11, the map on screen, is built in parallel; whichever is ready later merges `main` in first
+  (`World.svelte` is 596 lines of its 600).
 
 ### Completed outcomes
 
@@ -52,6 +55,11 @@ Not built inside plan PR 9, for later pull requests: drag-in from the tray; the 
 loop; free-thumb Box erase; bring-to-front (Task 42a, PR 18); the ring handles (drawn, do nothing yet). Changed from the
 plan: the Settings arrows and the pad move one tile per tap. A fix with no regression test yet: WebKit's ResizeObserver
 needed a shrink-to-fit width plus a synchronous size update in `LevelPart`.
+
+Left out of plan PR 14, for later pull requests: one step, slow, back 30 seconds and "Play from here" (PR 17, which also
+puts `extras` and `from` back into `Playing`), and "Show me the problem" on a level that cannot play (PR 13 wires
+`cantPlay` to its problems strip). Changed from the plan: the first Play's tip comes once the game has started and holds
+the game still until "Got it"; a level that cannot play says only the framework's sentence.
 
 Then the rest of the slice: test the editor at iPad, phone and computer sizes (mostly PR 19); the website demo uses
 World (Site, with Examples); and the design drift check.

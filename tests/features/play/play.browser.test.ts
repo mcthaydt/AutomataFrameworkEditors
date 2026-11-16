@@ -122,6 +122,8 @@ test('a level that cannot be built is not started, and the first sentence says w
   )
   expect(caught).toBeInstanceOf(CannotPlay)
   expect((caught as CannotPlay).message).toContain('ghost')
+  // Only the sentence: no file, no place in it.
+  expect((caught as CannotPlay).lines.join(' ')).not.toMatch(/\.json|\[0\]/)
   expect(box.querySelector('canvas')).toBeNull()
 })
 
@@ -139,6 +141,8 @@ test('the play part has its bar: Pause says Go on, and Bigger says Smaller', asy
       onbig: () => {
         bigger = true
       },
+      waiting: false,
+      onstarted: () => {},
       onproblem: () => {},
       frames,
     },
@@ -149,6 +153,8 @@ test('the play part has its bar: Pause says Go on, and Bigger says Smaller', asy
   button('pause')?.click()
   await tick()
   expect(button('pause')?.textContent).toContain('Go on')
+  // The words change with the state, so no button is also drawn as picked: Go on and Smaller never both stand out.
+  expect(box.querySelector('[data-play][aria-pressed]')).toBeNull()
   button('big')?.click()
   expect(bigger).toBe(true)
   for (const bar of box.querySelectorAll<HTMLElement>('[data-play] ')) {

@@ -36,7 +36,7 @@
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
-  import { listen, typing } from './listen.ts'
+  import { listen, onControl, typing } from './listen.ts'
   import Panels from './Panels.svelte'
   import { insetsOf } from './insets.ts'
   import { playTip, tipKept } from './tips.ts'
@@ -186,7 +186,7 @@
           meta: e.metaKey,
           ctrl: e.ctrlKey,
           shift: e.shiftKey,
-          inField: typing(e),
+          inField: typing(e) || (e.key === ' ' && onControl(e)),
         })
         if (command === 'undo' || command === 'redo') {
           e.preventDefault()
@@ -224,15 +224,14 @@
   )
 
   function startPlay(): void {
-    const tip = playTip(remembered, me.tips, text(words.play.tipCode))
     events = unsay(events, 'play')
-    if (tip !== undefined) events = say(events, tip)
     big = false
     playing = true
   }
   function stopPlay(): void {
     playing = false
     big = false
+    events = unsay(events, 'tip-play-code')
   }
   /** The level could not be played: what is wrong, said where the person is looking. */
   function noPlay(lines: readonly string[]): void {
@@ -436,7 +435,6 @@
 {:else}
   <div
     class="look world"
-    class:playing
     {lang}
     data-size={size}
     data-rows={rows}
@@ -477,7 +475,17 @@
           onundo={() => step('undo')}
         />
         {#if playing}
-          <PlayPart game={held} {edits} level={levelId} {lang} {big} onbig={() => (big = !big)} onproblem={noPlay} />
+          <PlayPart
+            game={held}
+            {edits}
+            level={levelId}
+            {lang}
+            {big}
+            waiting={events.some((one) => one.id === 'tip-play-code')}
+            onbig={() => (big = !big)}
+            onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))}
+            onproblem={noPlay}
+          />
         {/if}
       </div>
     {/if}
@@ -539,7 +547,7 @@
       onnudge={nudge}
     />
 
-    <Events {events} onanswer={answered} />
+    <Events {events} low={playing} onanswer={answered} />
 
     <Guidance
       bind:this={guide}
@@ -560,10 +568,6 @@
 {/if}
 
 <style>
-  /* The play bar sits at the top of the game: what the screen says waits under it, never over it. */
-  .world.playing :global(.events) {
-    top: calc(var(--bar) + 20px + 64px);
-  }
   .level.hidden {
     visibility: hidden;
     pointer-events: none;

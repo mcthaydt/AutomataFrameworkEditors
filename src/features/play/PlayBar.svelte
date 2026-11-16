@@ -21,7 +21,7 @@
 </script>
 
 <div class="bar" role="toolbar" aria-label={text(words.playBar)}>
-  <button type="button" class="act" aria-pressed={paused} data-play="pause" onclick={onpause}>
+  <button type="button" class="act" data-play="pause" onclick={onpause}>
     <Icon name={paused ? 'play' : 'pause'} /><span>{text(paused ? words.goOn : words.pause)}</span>
   </button>
   <button type="button" class="act" data-play="again" onclick={onagain}>
@@ -31,7 +31,6 @@
     type="button"
     class="act"
     data-play="big"
-    aria-pressed={big}
     title={text(big ? words.smallerAbout : words.biggerAbout)}
     onclick={onbig}
   >
@@ -68,9 +67,5 @@
   }
   .act:hover {
     background: var(--hover);
-  }
-  .act[aria-pressed='true'] {
-    background: var(--picked);
-    box-shadow: inset 0 0 0 2px var(--accent);
   }
 </style>

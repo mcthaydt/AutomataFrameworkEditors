@@ -11,6 +11,7 @@ import {
   type SIZES,
   setupJourneys,
   signIn,
+  slideGameHalf,
 } from '../fixtures/journey.ts'
 
 setupJourneys()
@@ -78,7 +79,7 @@ const started = async (page: Page) => {
 }
 
 describe.each(SIZES_TO_TRY)('at %s', (size) => {
-  test("the person's change plays where it is drawn, the game's keys move the hero, and Stop leaves everything as it was", async () => {
+  test("the person's change plays where it is drawn, the game's own controls move the hero, and Stop leaves everything as it was", async () => {
     journey = await openPage(size)
     const { page } = journey
     await signIn(page)
@@ -86,15 +87,23 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
 
     await playButton(page, 'Play').click()
     await started(page)
+    // The first Play says what it leaves out and the game waits until that is read.
+    await playButton(page, 'Go on').waitFor()
+    await playButton(page, 'Got it').click()
+    await playButton(page, 'Pause').waitFor()
     await page.waitForTimeout(200)
     const crate0 = await whereIs(page, CRATE)
     const hero0 = await whereIs(page, HERO)
     if (crate0 === undefined || hero0 === undefined) throw new Error('the game shows no crate or no hero')
 
-    // The hero walks right when the game's own key is held.
-    await page.keyboard.down('ArrowRight')
-    await page.waitForTimeout(700)
-    await page.keyboard.up('ArrowRight')
+    // The hero walks right: by the game's own touch control on the phone, by its key on the iPad.
+    if (size === 'phone') {
+      await slideGameHalf(page, 'walk', { dx: 80, ms: 700 })
+    } else {
+      await page.keyboard.down('ArrowRight')
+      await page.waitForTimeout(700)
+      await page.keyboard.up('ArrowRight')
+    }
     const hero1 = await whereIs(page, HERO)
     expect(hero1?.x ?? 0).toBeGreaterThan(hero0.x + crate0.wide / 16)
 

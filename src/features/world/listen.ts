@@ -19,6 +19,17 @@ export function typing(e: KeyboardEvent): boolean {
   )
 }
 
+/** True when a key press is on a control that takes Space to press itself: the control's, not a command. */
+export function onControl(e: KeyboardEvent): boolean {
+  const target = e.target
+  return (
+    target instanceof HTMLElement &&
+    target.closest(
+      'button, a[href], summary, [role="button"], [role="tab"], [role="menuitem"], [role="switch"]',
+    ) !== null
+  )
+}
+
 /** Starts listening; the returned function stops. */
 export function listen(heard: Heard): () => void {
   const up = (): void => heard.online(true)

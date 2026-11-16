@@ -4,7 +4,6 @@
 import {
   createLocale,
   type Frames,
-  formatDiagnostic,
   type Game,
   type Language,
   languagesOf,
@@ -41,7 +40,7 @@ export interface Playing {
   tick(): number
 }
 
-/** A level that cannot be played: the first sentence, and every sentence that says what is wrong. */
+/** A level that cannot be played: the framework's own sentences, one for each thing that is wrong, with no file or place. */
 export class CannotPlay extends Error {
   readonly lines: readonly string[]
   constructor(lines: readonly string[]) {
@@ -61,7 +60,7 @@ export function playLanguage(content: GameContent, lang: string): Language {
 export async function play(options: PlayOptions): Promise<Playing> {
   const { mount, game, edits, level, lang, frames } = options
   const loaded = await loadGame(readerOf(game, edits))
-  if (!loaded.ok) throw new CannotPlay(loaded.diagnostics.map(formatDiagnostic))
+  if (!loaded.ok) throw new CannotPlay(loaded.diagnostics.map((one) => one.message))
   const content = loaded.value
   // A host of the page whose saves are in memory: nothing a game keeps (its language, its keys) reaches the device.
   const host = { ...webHost(), store: memoryStore() }
