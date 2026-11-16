@@ -140,4 +140,29 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await page.getByRole('button', { name: 'Undo' }).last().click()
     await page.locator('[data-level="cellar"]').waitFor()
   })
+  test('the map zooms with the wheel and "Whole world" brings every level back', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await openMap(page, size)
+    const scaleNow = async (): Promise<number> =>
+      Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+    const whole = page.getByRole('button', { name: 'Whole world', exact: true })
+    const fitted = await scaleNow()
+    expect(await whole.getAttribute('aria-pressed')).toBe('true')
+    const room = await page.locator('[data-level="room-2"]').boundingBox()
+    if (room === null) throw new Error('no room-2 on the map')
+    await page.mouse.move(room.x + room.width / 2, room.y + room.height / 2)
+    await page.mouse.wheel(0, -500)
+    await page.waitForFunction(
+      (was) => Number(document.querySelector('[data-scale]')?.getAttribute('data-scale')) > was * 1.5,
+      fitted,
+    )
+    expect(await whole.getAttribute('aria-pressed')).toBe('false')
+    await page.waitForTimeout(300)
+    await picture(page, `map-zoomed-${size}`)
+    await whole.click()
+    expect(await scaleNow()).toBe(fitted)
+    expect(await whole.getAttribute('aria-pressed')).toBe('true')
+    expect(await page.locator('[data-level]').count()).toBe(3)
+  })
 })
