@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, a door into another level (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
+  .tag { position: absolute; z-index: 6; padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; box-shadow: inset 0 0 0 1px #eeb480; }
+</style>
+</head>
+<body>
+<!-- A door into another level (the level links spec, 2026-11-15: a door names the level it opens and where you come
+     out). The door is picked; its settings say where it leads, in a list of the game's levels, and where you come out:
+     at that level's start, or beside one of its doors. A tag beside the door says "To Level 2" in the level, and the map
+     draws the same door as a dashed arrow. "Go to Level 2" opens that level at the door you come out of. A door takes
+     every player through at once. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="door"></div>
+      <div class="ring" style="left:85.4%;top:63%;width:7.4%;height:21%"></div>
+      <span class="tag" style="right:15%;top:72%">To Level 2</span>
+    </div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, saved: 'Not saved: 1 change', changes: 1, act: { at: [89.1, 63], w: 7.4, h: 21 },
+  values: {
+    title: 'Door 1', sub: 'Door · leads into another level', pic: { i: 'door' }, tab: 'Door 1',
+    groups: [
+      { name: 'Where it leads', open: true, rows: [
+        { t: 'pick', l: 'Level', f: 'to', v: 'Level 2', i: 'squares-four', ch: true },
+        { t: 'choice', l: 'You come out', f: 'out', opts: ['At its start', 'By a door'], on: 1, ch: true },
+        { t: 'pick', l: 'Which door', f: 'thing', v: 'Door to Level 1', i: 'door' },
+        { t: 'btns', b: [['Go to Level 2', 'arrow-right']] },
+      ] },
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '15', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '7', u: 'tiles' },
+      ] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, a new level (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .goalf { position: absolute; z-index: 1; left: 84%; top: 55%; width: 5%; height: 14.5%; display: grid; place-items: end center; color: #f37f94; }
+  .goalf .ic { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<!-- A new level (the end-to-end check, E4), made from the map's "New level" or a long press on its empty ground. It is
+     never empty: it starts with a flat run of ground, the hero on a Start, a Goal and a Fall off zone, so it can be
+     played at once and Play never meets a level with nowhere to begin. Its name is "Level 9" until changed, right here.
+     One card says what it has and offers the first two things to do; it goes when either is pressed or the level is
+     touched. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="fresh"></div>
+      <img class="thing" src="art/hero.png" alt="" style="left:11%;top:59.8%">
+      <span class="goalf"><span class="ic" data-i="flag-pennant"></span></span>
+      <div class="zone" style="left:6.3%;top:47%;width:12.5%;height:22.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
+    </div>
+  </div>
+</div>
+<section class="pop firstcard" role="dialog" aria-label="A new level">
+  <h3>A new level, ready to play</h3>
+  <p>It has ground, a Start and a Goal. Put things in, or shape the ground, then press Play to try it.</p>
+  <div class="nm"><span class="tbox">Level 9</span><button class="sbtn">Rename</button></div>
+  <div class="go"><button class="sbtn main"><span class="ic" data-i="plus-square"></span>Put things in</button><button class="sbtn"><span class="ic" data-i="paint-brush"></span>Shape the ground</button></div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 9', saved: 'Not saved: 1 change', changes: 1, zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 2 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

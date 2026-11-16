@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Keep a copy (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Someone who has not signed in, trying the demo game (the end-to-end check, E9; the Owner, 2026-11-13: anyone can change the demo game without signing in and keep a copy; every other game is its team's). Their top-bar button says "Keep a copy", because their changes can't go into a game that isn't theirs. The sheet says so in one line, keeps the level as its file first, and offers signing in only to open their own game. "Not now" at the top closes it, so someone who wants to go on playing is never pushed to choose (the actions check, M11). Nobody else's face shows: they are on their own. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
+<section class="pop share-pop">
+  <div class="hdr"><h3>Keep what you made</h3><button class="sbtn">Not now</button></div>
+  <p>Crate Game is here for anyone to try, so changes can't go into it. Keep a copy of your level instead: a file you can give to your helper, or put in your own game.</p>
+  <div class="sc"><img src="art/crate.png" alt="">Put in 2 crates<small>Level 1</small></div>
+  <button class="sbtn main wide1" style="margin-top:8px"><span class="ic" data-i="download-simple"></span>Keep a copy of Level 1</button>
+  <p class="or">Have a game of your own? Sign in to open it and put your changes in.</p>
+  <button class="sbtn wide1"><span class="ic" data-i="key"></span>Sign in with GitHub</button>
+  <p class="keep" style="margin-top:8px">You only need GitHub to sign in. Nothing else asks for it.</p>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 2 changes', changes: 2, signedOut: true, zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

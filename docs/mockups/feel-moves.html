@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feel · Moves (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .arcs { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; overflow: visible; }
+  .arcs path, .arcs line { fill: none; vector-effect: non-scaling-stroke; }
+  .halo { stroke: var(--ground); stroke-width: 5; }
+  .dash { stroke: var(--words); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .bpath { stroke: var(--touch); stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .old { stroke: var(--words); stroke-width: 2; stroke-dasharray: 3 6; opacity: 0.45; }
+  .graph { position: absolute; inset: 8px 12px 8px 12px; }
+  .graph svg { width: 100%; height: 100%; }
+  .legend { position: absolute; right: 16px; top: 10px; display: flex; gap: 14px; font-size: 13px; }
+  .legend i { display: inline-block; width: 22px; height: 0; border-top: 3px dashed var(--words); vertical-align: middle; margin-right: 6px; }
+  .legend i.b { border-color: var(--touch); }
+
+</style>
+</head>
+<body>
+<!-- Feel, Moves, first look: the Tuner (spec: Editors PR 30). The game plays in the level's place, with the play
+     controls at the top. Every number of every move is in one panel, grouped and searchable, each with the plain words
+     and the file's name. The jump is drawn on the level and redraws as the number moves. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage">
+      <svg class="arcs" viewBox="0 0 888 580" preserveAspectRatio="none" aria-hidden="true">
+        <path class="old" d="M138 484 Q255 200 372 484"/>
+        <path class="halo" d="M138 484 Q277 152 415 484"/><path class="dash" d="M138 484 Q277 152 415 484"/>
+        <line class="halo" x1="277" y1="484" x2="277" y2="318"/><line class="dash" x1="277" y1="484" x2="277" y2="318" style="stroke-dasharray:none"/>
+        <line class="halo" x1="138" y1="520" x2="415" y2="520"/><line class="dash" x1="138" y1="520" x2="415" y2="520" style="stroke-dasharray:none"/>
+      </svg>
+      <span class="chip" style="left:24%;top:49%">Reaches <span class="v">3 tiles</span> up</span>
+      <span class="chip" style="left:20%;top:91.5%"><span class="v">5 tiles</span> across</span>
+      <span class="chip" style="left:9%;top:34%">Dotted line: before your change</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle', true]], part: 0,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Measure', 'ruler', 'M'], ['Play', 'play', 'P']],
+  place: 'Level 1', what: 'Level', off: [1, 2, 3], jobs: ['Move: drag the hero to try a spot'], saved: 'Sam, 2 minutes ago', tool: 3, zoom: '100%',
+  play: { paused: false, speed: 0, at: 60, time: '0:18' },
+  status: { pointer: false, grid: false, snap: false, extra: '<span class="sb">Comparing <span class="seg"><button class="on">A</button><button>B</button></span></span>' },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise', 1], ['Problems', 'warning']],
+  changes: 1,
+  values: {
+    title: 'How the hero moves', sub: 'Hero · walking, jumping, in the air', pic: { img: 'art/hero.png' }, tab: 'Numbers', searchText: 'Find: try “jump”',
+    groups: [
+      { name: 'Walk', count: 4, open: true, rows: [
+        { t: 'slider', l: 'Top speed', f: 'walk.speed', v: '6', lo: 'A stroll', hi: 'A sprint', at: 55 },
+        { t: 'slider', l: 'Gets up to speed', f: 'walk.accel', v: '0.10', lo: 'At once', hi: 'Slowly', at: 20 },
+        { t: 'slider', l: 'Stops', f: 'walk.decel', v: '0.06', lo: 'At once', hi: 'Slides a bit', at: 15 },
+      ] },
+      { name: 'Jump', count: 5, open: true, rows: [
+        { t: 'slider', l: 'How high it jumps', f: 'jump.height', v: '3 tiles', lo: 'A hop', hi: 'Over a house', at: 52, ch: true },
+        { t: 'slider', l: 'Let go early to jump lower', f: 'jump.cut', v: 'Keeps half', lo: 'Always full', hi: 'Very short', at: 50 },
+        { t: 'slider', l: 'Can still jump just after a ledge', f: 'jump.coyote', v: '0.10', lo: 'Not at all', hi: 'Kindly', at: 40 },
+        { t: 'slider', l: 'Counts a jump pressed a moment early', f: 'jump.buffer', v: '0.08', lo: 'Not at all', hi: 'Kindly', at: 35 },
+      ] },
+      { name: 'In the air', count: 3, open: false, rows: [
+        { t: 'slider', l: 'Steer in the air', f: 'air.control', v: '0.7', lo: 'Not at all', hi: 'Like on the ground', at: 70 },
+        { t: 'slider', l: 'Falls', f: 'air.maxFall', v: '14', lo: 'Floats down', hi: 'Drops like a stone', at: 60 },
+      ] },
+      { name: 'Double jump', count: 2, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

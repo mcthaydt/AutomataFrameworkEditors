@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Tiles (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* Tiles has no spec yet: the mockup's guess. A tile drawn pixel by pixel on a canvas that fills the space, a preview
+     at the game's own size, the tiles of the set on the left and every value of the picked tile on the right. */
+  .board { display: flex; gap: 28px; align-items: center; justify-content: center; width: 100%; height: 100%; }
+  .big { position: relative; border: 1px solid var(--words); line-height: 0; }
+  .big canvas { width: min(84cqh, 58cqw); height: auto; image-rendering: pixelated; }
+  /* The colours sit beside the drawing, as in every drawing app: tap one to paint with it, the dropper takes one
+     from the tile. */
+  .strip { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .strip i { width: 44px; height: 44px; border-radius: 8px; border: 1px solid rgb(0 0 0 / 0.35); }
+  /* The set's tiles in a strip along the top, as LDtk's tile picker: the other tiles are always in sight (Fable pass,
+     F32). Colours are 44 points, and a plus at the end opens the game's colours to add one. */
+  .tilestrip { position: absolute; z-index: 6; top: 10px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; max-width: calc(100% - 24px); padding: 6px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); overflow-x: auto; }
+  .tilestrip .tt { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 64px; padding: 4px 2px; border: 0; border-radius: 8px; background: none; color: var(--quiet); font: 500 11px var(--label); }
+  .tilestrip .tt canvas { width: 36px; height: 36px; image-rendering: pixelated; }
+  .tilestrip .tt.on { background: #3a3a3a; color: var(--words); box-shadow: inset 0 0 0 2px var(--accent); }
+  .tilestrip .tt.add .ic { width: 36px; height: 36px; padding: 8px; box-sizing: border-box; }
+  html body.sh.has-tilestrip .fit { top: 84px; }
+  .strip i.on { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .strip button { width: 40px; height: 40px; border: 0; border-radius: 8px; background: var(--raised); color: var(--words); display: grid; place-items: center; }
+  .strip button .ic { width: 20px; height: 20px; }
+  .big::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgb(17 19 20 / 0.3) 1px, transparent 1px), linear-gradient(90deg, rgb(17 19 20 / 0.3) 1px, transparent 1px); background-size: 6.25% 6.25%; }
+  .big .cursor { position: absolute; z-index: 2; width: 6.25%; height: 6.25%; outline: 3px solid var(--accent); outline-offset: -1px; }
+  .mirror { position: absolute; z-index: 2; top: -8px; bottom: -8px; left: 50%; border-left: 2px dashed var(--touch); }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .patch { display: grid; grid-template-columns: repeat(6, auto); line-height: 0; border: 1px solid var(--edge); }
+  .patch canvas { width: min(5.5cqh, 4cqw); height: auto; image-rendering: pixelated; }
+  .patch.real canvas { width: 16px; }
+  .patch > span:empty { width: min(5.5cqh, 4cqw); aspect-ratio: 1; }
+  .ramp { display: flex; gap: 0; margin: 2px 0; }
+  .ramp i { flex: 1; height: 30px; border: 1px solid rgb(17 19 20 / 0.4); }
+  .ramp i.on { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: clamp(120px, 24cqh, 200px); }
+  .rules i { aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 2px; }
+  .rules i.y { background: var(--touch); }
+  .rules i.n { background: repeating-linear-gradient(45deg, var(--mark) 0 3px, transparent 3px 7px); }
+  .rules i.me { background: var(--accent); }
+  @media (max-width: 1000px), (max-height: 600px) { .side .sub.hide-narrow { display: none; } }
+  @media (max-width: 699px) and (min-height: 601px) { .board { flex-direction: column; gap: 12px; } .big canvas { width: 72cqw; } .side { align-items: center; } .strip { flex-direction: row; } .strip i, .strip button { width: 44px; height: 44px; } }
+  @media (max-height: 600px) { .strip { gap: 4px; padding: 4px; } .strip i, .strip button { width: 32px; height: 32px; } }
+  @media (max-height: 600px) { .big canvas { width: 70cqh; } .patch canvas { width: 7cqh; } }
+
+</style>
+</head>
+<body>
+<!-- World, Tiles, first look: the grass tile drawn big, with the pencil's square under the finger, and the same tile
+     beside it the way the game shows it, at real size and as a patch. The colours to paint with are beside the
+     drawing; Pencil, Fill and Line are the paint tool's own settings, just above the toolbar. -->
+<div class="canvas paper">
+<div class="tilestrip" title="The tiles of Meadow"><button class="tt on"><span data-pixel="grass" data-scale="1"></span><span>Grass top</span></button><button class="tt"><span data-pixel="corner" data-scale="1"></span><span>Grass corner</span></button><button class="tt"><span data-pixel="earth" data-scale="1"></span><span>Earth</span></button><button class="tt"><span data-pixel="slope" data-scale="1"></span><span>Slope</span></button><button class="tt more" title="More about this tile: rename it, make a copy, delete it"><span class="ic" data-i="dots-three"></span><span>This tile</span></button><button class="tt add"><span class="ic" data-i="plus"></span><span>New tile</span></button></div>
+  <div class="fit">
+    <div class="board">
+      <div class="strip" title="The colours to paint with"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#d1aa83"></i><i style="background:#a07a52"></i><button title="Take a colour from the tile"><span class="ic" data-i="eyedropper"></span></button><button title="Add a colour from the game's colours"><span class="ic" data-i="plus"></span></button></div>
+      <div class="big" data-pixel="grass" data-scale="1"><i class="cursor" style="left:37.5%;top:12.5%"></i></div>
+      <div class="side">
+        <span class="sub">In the game</span>
+        <div class="patch"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span><span data-pixel="earth" data-scale="1"></span></div>
+        <span class="sub hide-narrow">Real size</span>
+        <div class="patch real hide-narrow"><span data-pixel="corner" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="grass" data-scale="1"></span><span data-pixel="corner" data-scale="1" data-flip="1"></span></div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const G = (s) => s.split(' ')
+window.MOCK = {
+  editor: 'world', what: 'Tiles', parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 1,
+  tools: [
+    ['Pencil', 'pencil-simple', 'B'], ['Line', 'line-segment', 'L'], ['Box', 'square', 'U', true], ['Fill', 'paint-bucket', 'G'],
+    ['Select', 'selection', 'M'], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Pick a color', 'eyedropper', 'I'],
+  ],
+  place: 'Meadow', off: [0, 1, 3], jobs: ['', '', 'Paint: draw on the picked tile'], t: 2, saved: 'Sam, yesterday', tool: 0, zoom: 'Close up',
+  toolopts: '<span class="seg"><button class="on">Draw</button><button>Fill</button><button>Line</button></span><span>Size</span><span class="seg"><button class="on">1</button><button>2</button><button>4</button></span><span>Mirror</span><span class="knob2"></span><span>The hero stands on</span><button class="btn small">All of it<span class="ic" data-i="caret-down"></span></button>',
+  body: ['has-tilestrip'],
+  settings: [
+    '<span>Grid</span><span class="knob2 on"></span>',
+  ],
+  list: { title: 'Tiles', count: 13, search: 'Find a tile', rows: [
+      { head: 'Meadow tiles', count: 4 },
+      { n: 'Grass top', px: 'grass', on: true },
+      { n: 'Grass corner', px: 'corner' },
+      { n: 'Earth', px: 'earth' },
+      { n: 'Slope', px: 'slope', on: false },
+      { head: 'Cave tiles', count: 6 },
+      { head: 'Water', count: 3 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New tile</button><button class="btn small"><span class="ic" data-i="upload-simple"></span>Bring in a picture</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  // No inspector on first look: its one choice, what the hero can stand on, is in the settings strip (F32).
+  noValues: {
+    title: 'Grass top', sub: 'Meadow tiles · the top of the ground', pic: { px: 'grass' }, tab: 'Grass top',
+    groups: [
+      { name: 'Colors', open: false, count: 3, rows: [
+        { l: 'The game\'s colours, in rows from light to dark. Change one and every tile that uses it changes.' },
+        { t: 'html', h: '<div class="ramp"><i style="background:#d9ef9b"></i><i style="background:#afd472" class="on"></i><i style="background:#88a45b"></i><i style="background:#607443"></i><i style="background:#3c4a2a"></i></div><div class="ramp"><i style="background:#f1dcc0"></i><i style="background:#d1aa83"></i><i style="background:#a07a52"></i><i style="background:#6f5236"></i><i style="background:#3e2d1e"></i></div><div class="ramp"><i style="background:#cfeefc"></i><i style="background:#9fd3f0"></i><i style="background:#5a9fc8"></i><i style="background:#35607e"></i><i style="background:#1d3448"></i></div>' },
+      ] },
+      { name: 'Standing on it', open: true, rows: [
+        { t: 'choice', l: 'What the hero can stand on', f: 'solid', opts: ['All of it', 'Only the top', 'The slope', 'Nothing'], on: 0 },
+      ] },
+      { name: 'What it does', count: 2, rows: [] },
+    ],
+  },
+
+  pal: { g: '#afd472', G: '#88a45b', v: '#607443', e: '#d1aa83', E: '#a07a52' },
+  pixels: {
+    grass: G('gggggggggggggggg gGgggggGggggGggg GvGgGgGvGgGgGvGg vEvGvEvGvEvGvEvG eEeveEeEeveEeEev eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee'),
+    earth: G('eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee eeeeeEeeeeeeeeee eeeeeeeeeeeeEeee eeeEeeeeeeeeeeee eeeeeeeeEeeeeeEe eEeeeeeeeeeeeeee eeeeeeeEeeeeeeee eeeeeeeeeeeeeeee eeEeeeeeeeEeeeee eeeeeeEeeeeeeeEe eeeeeeeeeeeeeeee eEeeeeeeeEeeeeee'),
+    corner: G('......gggggggggg ....ggGgggggGggg ...gGvGgGgGvGgGg ..gvEvGvEvGvEvGv .geEeveEeEeveEeE .geeeeeeeeeeeeee gGeEeeeeeeeEeeee gveeeeEeeeeeeeEe gEeeeeeeeeeeeeee geEeeeeeeEeeeeee gveeeEeeeeeeeeee geeeeeeeeeeeEeee gveEeeeeeeeeeeee geeeeeeeEeeeeeEe gEeeeeeeeeeeeeee geeeeeeEeeeeeeee'),
+    slope: G('...............g ..............gG .............gGv ............gvEe ...........gEeee ..........gEeEee .........gveeeee ........gveeeEee .......gEeEeeeee ......gveeeeeeEe .....gEeeeEeeeee ....gveeeeeeeeee ...gEeeEeeeeeEee ..gveeeeeeEeeeee .gEeeeeEeeeeeeee gveeeeeeeeeeeEee'),
+  },}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

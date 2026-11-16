@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/dist-plain", "!pnpm-lock.yaml", "!**/*.svelte"]
+    "includes": ["**", "!**/dist", "!**/dist-plain", "!pnpm-lock.yaml", "!**/*.svelte", "!docs/mockups"]
   },
   "formatter": {
     "indentStyle": "space",

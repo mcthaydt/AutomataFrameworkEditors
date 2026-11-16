@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · The list put away (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The list put away on a computer (the end-to-end actions check, M1): the list closes to the same thin rail an iPad has, with one button to open it again ("List") and one for "Add". The level takes the room. The way back is always in sight at the left edge. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, leftClosed: true,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Press and hold on the ground (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Press and hold on empty ground (the end-to-end actions check, M13): a small menu where the finger is, with what you can do there: put a thing here, add a note here, or paste what was copied. It is a shortcut: the same things are in the toolbar's Place tool and the three dots, so nobody has to know the gesture. -->
+<style>.held { position:absolute; z-index:3; width:28px; height:28px; margin:-14px 0 0 -14px; border-radius:50%; border:2px solid var(--touch); }</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <span class="held" style="left:60%;top:50%"></span>
+    </div>
+  </div>
+</div>
+<section class="pop menup heldp" data-under=".held" role="menu" aria-label="Here"><button class="mi"><span class="ic" data-i="plus-square"></span><span>Put a thing here</span></button><button class="mi"><span class="ic" data-i="note"></span><span>Add a note here</span></button><button class="mi off"><span class="ic" data-i="copy"></span><span>Paste<small>Nothing copied yet</small></span></button></section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

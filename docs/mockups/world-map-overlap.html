@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · A level dragged on top of another (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Levels may not sit on top of each other (the spec). While Level 4 is dragged over Level 3 it turns red and a line says so: let go there and it goes back to where it was, the dashed outline. Nothing is changed until it is let go somewhere it fits. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.x = 55; l4.y = 3; l4.lift = true; l4.bad = true
+W.levels.splice(4, 0, { n: '', x: 64, y: 2, w: 20, h: 12, from: true, was: 'Level 4' })
+W.hint = { on: 'Level 4', text: 'Levels can\'t sit on top of each other. Let go here and Level 4 goes back where it was.' }
+W.focus = 'Level 4'
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

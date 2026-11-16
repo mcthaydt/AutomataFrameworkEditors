@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feel · Controls, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .device2 { position: relative; width: min(100%, 150cqh); aspect-ratio: 19.5 / 9; border: 10px solid #111314; border-radius: 34px; background: url(art/level-1.png) center / cover; image-rendering: pixelated; box-shadow: 0 0 0 2px var(--edge); }
+  .tb { position: absolute; display: grid; place-items: center; border-radius: 50%; background: rgb(245 236 194 / 0.28); border: 3px solid rgb(245 236 194 / 0.8); color: #111314; font: 600 13px var(--label); }
+  .tb.on { border-color: var(--touch); box-shadow: 0 0 0 4px rgb(238 180 128 / 0.4); }
+  .tb .ic { width: 40%; height: 40%; color: #111314; }
+  .rh { position: absolute; width: 14px; height: 14px; border-radius: 2px; background: var(--touch); border: 2px solid var(--ground); }
+  .thumbzone { position: absolute; bottom: 0; width: 34%; height: 70%; border: 2px dashed rgb(17 19 20 / 0.5); border-bottom: 0; border-radius: 50% 50% 0 0; }
+  .thumbzone span { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font: 600 11px var(--label); letter-spacing: .07em; text-transform: uppercase; color: #111314; white-space: nowrap; }
+  .pad { position: relative; width: min(calc(100% - 32px), 100cqh); aspect-ratio: 200 / 163; }
+  .pad svg { width: 100%; height: 100%; }
+  .callout { position: absolute; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--raised); border: 1px solid var(--edge); border-radius: var(--corner); font-size: 14px; white-space: nowrap; }
+  .callout.r { transform: none; }
+  .callout.on { border-color: var(--accent); color: var(--words); }
+  .vbtns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vbtns .vpick, .vbtns .btn { font-size: 13px; min-height: 32px; padding: 0 10px; gap: 6px; border-radius: 6px; border-color: var(--line); background: var(--raised); }
+  @media (max-width: 699px), (max-height: 600px) { .callout { font-size: 13px; padding: 2px 6px; } }
+</style>
+</head>
+<body>
+<!-- Feel, Controls, mid-project: the gamepad. A drawing of a pad with each button named by what it does in this game;
+     "Try it" is on, so pressing a real pad's button lights it here. Jump is picked: its keys, its pad button and its
+     touch button in one place, whether a press, a hold or a double press, and the stick's dead middle. -->
+<div class="canvas">
+  <div class="fit" style="display:grid;place-items:center">
+    <div class="pad">
+      <svg viewBox="0 -24 200 163" aria-hidden="true">
+        <path d="M40 20 H160 C185 20 198 50 196 80 C194 105 175 112 160 100 L140 82 H60 L40 100 C25 112 6 105 4 80 C2 50 15 20 40 20 Z" fill="#2a2a2a" stroke="#555" stroke-width="1.5"/>
+        <circle cx="55" cy="48" r="13" fill="#222" stroke="#555"/><circle cx="55" cy="48" r="6" fill="#444"/>
+        <circle cx="125" cy="72" r="11" fill="#222" stroke="#555"/>
+        <g stroke="#555" fill="#222"><rect x="70" y="64" width="8" height="22" rx="2"/><rect x="63" y="71" width="22" height="8" rx="2"/></g>
+        <circle cx="160" cy="62" r="7" fill="#eeb480" stroke="#eeb480"/><circle cx="160" cy="62" r="11" fill="none" stroke="#eeb480" stroke-opacity=".5" stroke-width="3"/>
+        <circle cx="173" cy="49" r="7" fill="#222" stroke="#555"/><circle cx="147" cy="49" r="7" fill="#222" stroke="#555"/><circle cx="160" cy="36" r="7" fill="#222" stroke="#555"/>
+        <rect x="92" y="38" width="7" height="5" rx="2" fill="#444"/><rect x="104" y="38" width="7" height="5" rx="2" fill="#444"/>
+        <g stroke="#6e6e6e" stroke-width="1" fill="none" vector-effect="non-scaling-stroke"><path d="M55 35 V-14"/><path d="M101 38 V-14"/><path d="M147 42 L170 -14"/><path d="M160 73 L172 128"/></g>
+      </svg>
+      <span class="callout" style="left:27.5%;top:0"><span class="ic" data-i="person-simple-walk"></span>Walk</span>
+      <span class="callout" style="left:50.5%;top:0"><span class="ic" data-i="pause"></span>Pause</span>
+      <span class="callout r" style="right:0;top:0"><span class="ic" data-i="hand"></span>Pull the crate</span>
+      <span class="callout r on" style="right:0;bottom:0"><span class="ic" data-i="arrow-fat-up"></span>Jump · pressed now</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'feel', parts: [['Moves', 'person-simple-run'], ['Controls', 'game-controller'], ['Effects', 'sparkle']], part: 1,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Try it', 'hand-tap', 'T'], ['Play', 'play', 'P']],
+  status: { pointer: false, grid: false, snap: false },
+  place: 'Gamepad', what: 'Controls', saved: 'Not saved: 2 changes', changes: 2, tool: 2, zoom: '100%', state: 'mid-project',
+  settings: [
+    '<span>Show</span><span class="seg"><button>Touch</button><button class="on">Gamepad</button><button>Keys</button></span>',
+    '<span>Drawn as</span><span class="seg"><button class="on">Xbox</button><button>PlayStation</button><button>Switch</button></span>',
+  ],
+  list: { title: 'Actions', count: 5, search: 'Find an action', rows: [
+      { head: 'The hero', count: 4 },
+      { n: 'Walk', k: 'stick or ← →', i: 'person-simple-walk' },
+      { n: 'Jump', k: 'Space', i: 'arrow-fat-up', on: true },
+      { n: 'Pull the crate', k: 'Space', i: 'hand', warn: true },
+      { n: 'Dash', k: 'off', i: 'lightning', hid: true },
+      { head: 'The game', count: 1 },
+      { n: 'Pause', k: 'Esc', i: 'pause' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 2], ['Problems', 'warning', 1]],
+  values: {
+    title: 'Jump', sub: 'Action · the hero', pic: { i: 'arrow-fat-up' }, tab: 'Jump',
+    top: '<div class="icard"><span class="ic" data-i="warning"></span><p>Space is used for both “Jump” and “Pull the crate”. Give each its own key.</p><button class="sbtn"><span class="ic" data-i="keyboard"></span>Pick another key</button></div>',
+    groups: [
+      { name: 'Pressed with', open: true, rows: [
+        { t: 'html', h: '<div class="vbtns"><span class="vpick">Space</span><span class="vpick">↑</span><span class="vpick"><span class="ic" data-i="game-controller"></span>A, the bottom button</span><span class="vpick"><span class="ic" data-i="hand-tap"></span>Jump button</span><button class="btn small"><span class="ic" data-i="plus"></span>Add</button></div>' },
+        { t: 'choice', l: 'Counts when', f: 'jump.trigger', opts: ['Pressed', 'Held', 'Pressed twice'], on: 0 },
+      ] },
+      { name: 'Sticks', count: 2, open: false, rows: [
+        { t: 'slider', l: 'Ignores tiny pushes', f: 'pad.deadzone', v: '0.15', lo: 'A little', hi: 'A lot', at: 15, ch: true },
+        { t: 'sw', l: 'Shake the pad on a landing', f: 'pad.rumble', on: true },
+      ] },
+      { name: 'Players may change it', count: 1, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

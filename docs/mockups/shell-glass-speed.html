@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glass speed test</title>
+<style>
+/* The glass speed test (the Owner, 2026-11-15: floating docks, frosted glass). One page on its own, with nothing to
+   load: open it on the iPad, press Start, and read the number. Behind is a picture that slides back and forth, in the
+   demo level's colours; in front are stand-in panels laid out as the editors lay them out, in the same two glasses
+   (the seven values below are the spec's, word for word). The card in the middle is plain and solid, never glass. The
+   five choices are the fallback steps in order, each one making a little more of the screen solid, so the Owner can
+   see which step is smooth enough. */
+
+:root {
+  color-scheme: dark;
+  --glass: rgb(30 30 30 / 0.72);
+  --glass-filter: blur(24px) brightness(0.45) saturate(1.4);
+  --glass-edge: rgb(255 255 255 / 0.10);
+  --glass-shine: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --glass-quiet: #a8a8a8;
+  --glass-soft: rgb(37 37 37 / 0.92);
+  --glass-soft-filter: blur(12px) brightness(0.5) saturate(1.2);
+
+  --panel: #252525;
+  --line: #383838;
+  --words: #ededed;
+  --quiet: #9c9c9c;
+  --peach: #eeb480;
+  --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  --gap: 8px;
+
+  /* What each surface reads; the choices below re-point them. */
+  --g-bg: var(--glass);
+  --g-filter: var(--glass-filter);
+  --g-edge: var(--glass-edge);
+  --g-shine: var(--glass-shine);
+  --g-quiet: var(--glass-quiet);
+  --s-bg: var(--glass-soft);
+  --s-filter: var(--glass-soft-filter);
+  /* The list, the inspector and the sheet (step 4 makes these solid). */
+  --side-bg: var(--g-bg);
+  --side-filter: var(--g-filter);
+}
+
+/* Step 2: the band along the bottom goes solid. */
+html[data-mode="2"] {
+  --s-bg: var(--panel);
+  --s-filter: none;
+}
+
+/* Step 3: the same, and the docks' blur is lighter (16 instead of 24). */
+html[data-mode="3"] {
+  --s-bg: var(--panel);
+  --s-filter: none;
+  --g-filter: blur(16px) brightness(0.45) saturate(1.4);
+  --side-filter: blur(16px) brightness(0.45) saturate(1.4);
+}
+
+/* Step 4: the same, and the list and the inspector (or the sheet) are solid; the top bar and small things stay glass. */
+html[data-mode="4"] {
+  --s-bg: var(--panel);
+  --s-filter: none;
+  --side-bg: var(--panel);
+  --side-filter: none;
+}
+
+/* Step 5: nothing is see-through. */
+html[data-mode="5"] {
+  --g-bg: var(--panel);
+  --g-filter: none;
+  --g-edge: var(--line);
+  --g-shine: 0 0 #0000;
+  --g-quiet: var(--quiet);
+  --s-bg: var(--panel);
+  --s-filter: none;
+  --side-bg: var(--panel);
+  --side-filter: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #181818;
+  color: var(--words);
+  font: 500 15px / 1.35 ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+#level {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- The stand-in panels ---------- */
+
+.dock {
+  position: fixed;
+  z-index: 2;
+  padding: 12px 14px;
+  color: var(--words);
+  background: var(--g-bg);
+  -webkit-backdrop-filter: var(--g-filter);
+  backdrop-filter: var(--g-filter);
+  border: 1px solid var(--g-edge);
+  border-radius: 12px;
+  box-shadow: var(--g-shine), var(--shadow);
+  overflow: hidden;
+}
+
+.dock small,
+.dock .q {
+  color: var(--g-quiet);
+}
+
+.dock h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dock p {
+  margin: 0 0 8px;
+}
+
+.top {
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  left: calc(8px + env(safe-area-inset-left, 0px));
+  right: calc(8px + env(safe-area-inset-right, 0px));
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+.top .logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--peach);
+}
+
+.top .fill {
+  flex: 1;
+}
+
+.top .q {
+  font-weight: 500;
+}
+
+.list,
+.inspector,
+.sheet {
+  background: var(--side-bg);
+  -webkit-backdrop-filter: var(--side-filter);
+  backdrop-filter: var(--side-filter);
+}
+
+.list {
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  left: calc(8px + env(safe-area-inset-left, 0px));
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  width: 240px;
+}
+
+.inspector {
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  right: calc(8px + env(safe-area-inset-right, 0px));
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  width: 280px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--g-edge);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.band {
+  left: calc(8px + 240px + 8px + env(safe-area-inset-left, 0px));
+  right: calc(8px + 280px + 8px + env(safe-area-inset-right, 0px));
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  height: 34vh;
+  background: var(--s-bg);
+  -webkit-backdrop-filter: var(--s-filter);
+  backdrop-filter: var(--s-filter);
+}
+
+.tools,
+.sheet {
+  display: none;
+}
+
+.small {
+  padding: 8px 14px;
+}
+
+.hold {
+  top: calc(64px + 16px + env(safe-area-inset-top, 0px));
+  left: calc(8px + 240px + 16px + env(safe-area-inset-left, 0px));
+}
+
+.nudge {
+  left: calc(8px + 240px + 16px + env(safe-area-inset-left, 0px));
+  top: calc(64px + 16px + 56px + env(safe-area-inset-top, 0px));
+  display: flex;
+  gap: 14px;
+}
+
+/* Narrower than a wide iPad: the top bar, a bar of tools and a sheet along the bottom, as on an upright iPad. */
+@media (max-width: 1000px) {
+  .list,
+  .inspector,
+  .band,
+  .nudge {
+    display: none;
+  }
+
+  .hold {
+    left: auto;
+    right: calc(8px + env(safe-area-inset-right, 0px));
+  }
+
+  .tools {
+    display: flex;
+    left: 50%;
+    bottom: calc(36vh + 16px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    gap: 18px;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
+
+  .sheet {
+    display: block;
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    height: 36vh;
+    border-radius: 14px;
+  }
+}
+
+/* ---------- The solid card in the middle: never glass ---------- */
+
+.card {
+  position: fixed;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.card h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.card p {
+  margin: 0 0 16px;
+  color: var(--quiet);
+}
+
+.figures {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.figures b {
+  display: block;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figures .small2 b {
+  font-size: 28px;
+}
+
+.figures span {
+  display: block;
+  margin-top: 4px;
+  color: var(--quiet);
+  font-size: 14px;
+}
+
+.go {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #ededed;
+  color: #1e1e1e;
+  font: 700 17px ui-rounded, system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+}
+
+.go.on {
+  background: var(--peach);
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--quiet);
+}
+
+.choices {
+  display: grid;
+  gap: 8px;
+}
+
+.choices button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #2f2f2f;
+  color: var(--words);
+  font: 500 15px ui-rounded, system-ui, -apple-system, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choices button[aria-pressed="true"] {
+  border-color: var(--peach);
+  background: #3a342e;
+}
+
+.choices button::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--quiet);
+  border-radius: 50%;
+}
+
+.choices button[aria-pressed="true"]::before {
+  border-color: var(--peach);
+  background: var(--peach);
+  box-shadow: inset 0 0 0 2px #3a342e;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--peach);
+  outline-offset: 2px;
+}
+
+/* A short screen (a phone held on its side): the numbers and the button on the left, the choices on the right. */
+@media (max-height: 600px) {
+  .card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+    width: min(660px, calc(100vw - 32px));
+    padding: 16px 20px;
+  }
+
+  .card .left,
+  .card .right {
+    min-width: 0;
+  }
+
+  .card h1 {
+    font-size: 21px;
+  }
+
+  .card p,
+  .figures,
+  .go {
+    margin-bottom: 12px;
+  }
+
+  .figures b {
+    font-size: 44px;
+  }
+}
+</style>
+</head>
+<body>
+<canvas id="level" aria-hidden="true"></canvas>
+
+<header class="dock top"><i class="logo"></i><span>Crate Game</span><span class="q">World</span><span class="q">Levels · Level 1</span><span class="fill"></span><span>Play</span></header>
+
+<aside class="dock list" aria-hidden="true">
+  <h2>In this level</h2>
+  <div class="row"><span>Hero</span><small>Locked</small></div>
+  <div class="row"><span>Crate 1</span><small>Picked</small></div>
+  <div class="row"><span>Goal</span><small></small></div>
+  <div class="row"><span>Start</span><small>Zone</small></div>
+  <div class="row"><span>Fall off</span><small>Zone</small></div>
+  <div class="row"><span>Ground tiles</span><small>Locked</small></div>
+</aside>
+
+<aside class="dock inspector" aria-hidden="true">
+  <h2>Crate 1</h2>
+  <p>Every crate starts like this. A change here is for this crate only.</p>
+  <div class="row"><span>How heavy</span><small>In the middle</small></div>
+  <div class="row"><span>The hero can push it</span><small>On</small></div>
+  <div class="row"><span>Looks like</span><small>Crate</small></div>
+  <div class="row"><span>Drawn</span><small>With hero</small></div>
+</aside>
+
+<section class="dock band" aria-hidden="true">
+  <h2>Keeper's tune · notes</h2>
+  <div class="row"><span>Tune</span><small>Calm, Danger, Calm, Won</small></div>
+  <div class="row"><span>Bells</span><small>0:08</small></div>
+</section>
+
+<div class="dock small hold" aria-hidden="true">Hold</div>
+<div class="dock small nudge" aria-hidden="true"><span>Make a copy</span><span>Delete</span><span>Move</span></div>
+
+<nav class="dock tools" aria-hidden="true"><span>In this level</span><span>Pick</span><span>Place</span><span>Paint</span><span>Erase</span></nav>
+<section class="dock sheet" aria-hidden="true">
+  <h2>Crate 1</h2>
+  <div class="row"><span>How heavy</span><small>In the middle</small></div>
+  <div class="row"><span>The hero can push it</span><small>On</small></div>
+</section>
+
+<main class="card">
+  <div class="left">
+    <h1>How smooth is it?</h1>
+    <p>Press Start and watch the number. 60 or more is good.</p>
+    <div class="figures">
+      <div><b id="fps">–</b><span>Frames a second</span></div>
+      <div class="small2"><b id="slow">–</b><span>Slowest so far</span></div>
+    </div>
+    <button class="go" id="go" type="button">Start</button>
+  </div>
+  <div class="right">
+    <h2>Not smooth? Try these, one at a time:</h2>
+    <div class="choices" id="choices">
+      <button type="button" aria-pressed="true" data-mode="1">Everything see-through</button>
+      <button type="button" aria-pressed="false" data-mode="2">Solid bottom band</button>
+      <button type="button" aria-pressed="false" data-mode="3">Lighter blur</button>
+      <button type="button" aria-pressed="false" data-mode="4">Only the top bar and small things</button>
+      <button type="button" aria-pressed="false" data-mode="5">Nothing see-through</button>
+    </div>
+  </div>
+</main>
+
+<script>
+// The picture behind the panels: a long strip of flat shapes in the demo level's colours, redrawn every frame while the
+// test runs, slid sideways and back. It is sized by the screen's pixel density, as the real editor's picture is.
+const SKY = '#9fd3f0'
+const SAND = '#fdd4bd'
+const PINK = '#f37f94'
+const GRASS = '#afd472'
+const canvas = document.getElementById('level')
+const ctx = canvas.getContext('2d')
+const STRIP = 3 // the strip is three windows wide
+
+// Stepped hills, fixed once so every run draws the same thing.
+const hills = []
+for (let i = 0; i < 90; i += 1) {
+  hills.push(0.6 + 0.09 * Math.sin(i / 7) + 0.05 * Math.sin(i / 2.3 + 1) + 0.04 * Math.sin(i / 13))
+}
+const clouds = []
+for (let i = 0; i < 14; i += 1) {
+  clouds.push({ x: (i + 0.3) / 14, y: 0.08 + 0.2 * ((i * 37) % 10) / 10, w: 0.06 + 0.03 * (i % 3) })
+}
+
+function size() {
+  const scale = window.devicePixelRatio || 1
+  canvas.width = Math.round(window.innerWidth * scale)
+  canvas.height = Math.round(window.innerHeight * scale)
+}
+
+function draw(now) {
+  const w = canvas.width
+  const h = canvas.height
+  const strip = w * STRIP
+  // Back and forth over eight seconds, smoothly.
+  const slide = (0.5 - 0.5 * Math.cos((now / 8000) * Math.PI * 2)) * (strip - w)
+  ctx.setTransform(1, 0, 0, 1, -slide, 0)
+  ctx.fillStyle = SKY
+  ctx.fillRect(slide, 0, w, h)
+  ctx.fillStyle = '#ffffff'
+  for (const cloud of clouds) {
+    ctx.beginPath()
+    if (ctx.roundRect) ctx.roundRect(cloud.x * strip, cloud.y * h, cloud.w * w, 0.05 * h, 0.025 * h)
+    else ctx.rect(cloud.x * strip, cloud.y * h, cloud.w * w, 0.05 * h)
+    ctx.fill()
+  }
+  ctx.fillStyle = SAND
+  ctx.fillRect(slide, h * 0.52, w, h * 0.26)
+  ctx.fillStyle = PINK
+  ctx.beginPath()
+  ctx.moveTo(0, h)
+  const step = strip / hills.length
+  for (let i = 0; i < hills.length; i += 1) {
+    ctx.lineTo(i * step, hills[i] * h)
+    ctx.lineTo((i + 1) * step, hills[i] * h)
+  }
+  ctx.lineTo(strip, h)
+  ctx.closePath()
+  ctx.fill()
+  ctx.fillStyle = GRASS
+  ctx.fillRect(slide, h * 0.86, w, h * 0.14)
+}
+
+// The count: frames each second; the slowest second since Start, leaving out the first two while the screen warms up.
+const fpsEl = document.getElementById('fps')
+const slowEl = document.getElementById('slow')
+const go = document.getElementById('go')
+let running = false
+let frames = 0
+let since = 0
+let seconds = 0
+let slowest = null
+
+function forget() {
+  frames = 0
+  since = 0
+  seconds = 0
+  slowest = null
+  slowEl.textContent = '–'
+}
+
+function loop(now) {
+  if (!running) return
+  draw(now)
+  frames += 1
+  if (since === 0) since = now
+  if (now - since >= 1000) {
+    const fps = Math.round((frames * 1000) / (now - since))
+    fpsEl.textContent = String(fps)
+    seconds += 1
+    if (seconds > 2) {
+      slowest = slowest === null ? fps : Math.min(slowest, fps)
+      slowEl.textContent = String(slowest)
+    }
+    frames = 0
+    since = now
+  }
+  requestAnimationFrame(loop)
+}
+
+go.addEventListener('click', () => {
+  running = !running
+  go.textContent = running ? 'Stop' : 'Start'
+  go.classList.toggle('on', running)
+  if (running) {
+    forget()
+    fpsEl.textContent = '–'
+    requestAnimationFrame(loop)
+  }
+})
+
+document.getElementById('choices').addEventListener('click', (event) => {
+  const button = event.target.closest('button')
+  if (!button) return
+  for (const other of document.querySelectorAll('#choices button')) {
+    other.setAttribute('aria-pressed', String(other === button))
+  }
+  document.documentElement.dataset.mode = button.dataset.mode
+  // A new choice starts the count again.
+  forget()
+  if (running) fpsEl.textContent = '–'
+})
+
+window.addEventListener('resize', () => {
+  size()
+  draw(performance.now())
+})
+
+size()
+draw(2000)
+document.documentElement.dataset.mode = '1'
+document.documentElement.dataset.ready = 'yes'
+</script>
+</body>
+</html>

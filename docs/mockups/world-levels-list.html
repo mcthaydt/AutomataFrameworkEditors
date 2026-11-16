@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · The list opened (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The list opened on a phone or an upright iPad (the end-to-end actions check, M2): the toolbar's first button ("In this level") opens everything in the level over its left side, with a Close at its top and the two tabs, "In this level" and "Add things". Tap a row to pick that thing on the level; Close, or a tap on the level, puts the list away again. On an iPad held sideways and on a computer the list is already beside the level, so those sizes look like the first page. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, listSheet: true, leftOpen: true,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

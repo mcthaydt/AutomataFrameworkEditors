@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+</style>
+</head>
+<body class="lib-open">
+<!-- World, Levels, mid-project: the same level a few hours in. Your helper (the AI you chat with) has fixed a crate
+     and asks Keep or Undo; nothing else is picked, so its card is the only thing floating over the level (the plain-words
+     audit, B5 and S2: picking several, with its bar, is drawn on the Pencil page). A button linked to a gate, two zones, a problem (a crate in the ground), a teammate's note pinned on the gate,
+     and the Library pinned open. The extra crates, the gate and the button are drawn for the mockup. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
+      <div class="gate"></div>
+      <div class="press"></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
+      </svg>
+      <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
+      <div class="pinned" style="left:88%;top:58%"><b>Mia · 10 min ago</b>Can the hero still jump over the gate when it is open?</div>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 3 changes', zoom: '100%', changes: 3, state: 'mid-project', ghost: { img: 'art/crate.png', at: [76, 72.6], card: [62, 44], who: 'Your helper', text: 'Crate 4 is half in the ground. Keep this to lift it onto the grass.' },
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 12,
+    rows: [
+      { head: 'Things', count: 8 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Crate 2', k: 'crate', img: 'art/crate.png' },
+      { n: 'Crate 3', k: 'crate', img: 'art/crate.png' },
+      { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
+      { n: 'Button', k: 'button', i: 'radio-button' },
+      { n: 'Gate 1', k: 'gate', i: 'gate' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: {
+    open: true,
+    filters: ['Everything', 'Things', 'Scenery', 'Tiles'],
+    on: 1,
+    items: [
+      { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
+      { n: 'Hero', note: 'used once', img: 'art/hero.png' },
+      { n: 'Button', note: 'used once', i: 'radio-button' },
+      { n: 'Gate', note: 'used once', i: 'gate' },
+      { n: 'Door', note: 'not used yet', i: 'door' },
+      { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
+      { n: 'Coin', note: 'not used yet', i: 'coin' },
+      { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },
+      { n: 'Sign', note: 'not used yet', i: 'signpost' },
+      { n: 'Keeper', note: 'from Characters', px: 'keeper' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

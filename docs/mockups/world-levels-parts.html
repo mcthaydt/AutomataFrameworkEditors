@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Where to go (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Where to go next (the end-to-end actions check, H3, M3). The part's name in the top bar ("Levels, Level 1") opens this: the three parts of World, with the one you are in ticked. On a phone, which has no World button, the other four editors are in the same menu, and on an upright phone the game's own menu is its last row, so nothing is more than one menu away. Tap outside it, or press the part again, and it closes. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div><section class="pop menup wherep" data-under=".partn" role="menu" aria-label="Go to">
+  <div class="wcol"><h6>In World</h6><button class="mi here"><span class="ic" data-i="squares-four"></span><span>Levels<small>Put things in a level</small></span><span class="ic tick" data-i="check"></span></button><button class="mi"><span class="ic" data-i="grid-four"></span><span>Tiles<small>Paint the ground</small></span></button><button class="mi"><span class="ic" data-i="mountains"></span><span>Scenes<small>Paint what is behind the level</small></span></button></div>
+  
+  <div class="wcol phone-only"><h6>Other editors</h6><button class="mi mi-small here"><span class="ic" data-i="map-trifold"></span><span>World</span><span class="ic tick" data-i="check"></span></button><button class="mi mi-small"><span class="ic" data-i="person"></span><span>Characters</span></button><button class="mi mi-small"><span class="ic" data-i="sliders-horizontal"></span><span>Feel</span></button><button class="mi mi-small"><span class="ic" data-i="music-notes-simple"></span><span>Sound</span></button><button class="mi mi-small"><span class="ic" data-i="book-open"></span><span>Story</span></button><button class="mi mi-small"><span class="ic" data-i="layout"></span><span>Screens</span></button></div>
+  <div class="wfoot"><hr><h6>This level, Level 1</h6><div class="lvrows"><button class="mi mi-small"><span class="ic" data-i="pencil-simple"></span><span>Rename</span></button><button class="mi mi-small"><span class="ic" data-i="copy"></span><span>Make a copy</span></button><button class="mi mi-small"><span class="ic" data-i="trash"></span><span>Delete</span></button></div><div class="upright-only"><hr><button class="mi"><span class="ic" data-i="list"></span><span>Crate Game menu<small>Help, settings, who can change it</small></span></button></div></div>
+</section>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, act: { at: [40.6, 73.2] },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

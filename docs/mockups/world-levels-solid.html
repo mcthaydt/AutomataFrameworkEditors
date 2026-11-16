@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, see-through panels off (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- World, Levels, with "See-through panels" set to Off (the Owner, 2026-11-15: floating docks, frosted). The same
+     level, dragged and zoomed so that it runs under the panels, as in "Under the glass", but the panels are plain
+     and solid, with their old edges: nothing of the level shows through them. This is what a person sees who turns
+     the setting off, or whose device is set to show fewer see-through things. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  leftOpen: true,
+  glass: 'off',
+  body: ['moved'],
+  act: { at: [40.6, 73.2] },
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', on: true },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Crate 1', sub: 'Crate · a box to push and stand on', pic: { img: 'art/crate.png' }, tab: 'Crate 1',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: '6', u: 'tiles' },
+        { t: 'num', l: 'From the top', f: 'y', v: '7', u: 'tiles' },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+        { t: 'choice', l: 'Drawn', f: 'layer', opts: ['Behind', 'With hero', 'In front'], on: 1 },
+      ] },
+      { name: 'What it does', open: true, rows: [
+        { l: 'Every crate starts like this. A change here is for this crate only.' },
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.0', w: 'In the middle', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 40 },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+        { t: 'btns', b: [['Change every crate, in Characters', 'arrow-square-out']] },
+      ] },
+      { name: 'Your own values', count: 0, rows: [] },
+      { name: 'Notes for the team', count: 0, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

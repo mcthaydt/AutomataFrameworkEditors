@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · A level deleted (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- After a level is deleted: back on the map with the Secret room gone, and the door into it gone with it. A note says what happened and has Undo, which brings the level back with everything in it. Undo is also at the top of the screen. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="trash"></span><span><b>Secret room is gone</b><small>Its things, and the door into it, are gone too. Undo brings them all back.</small></span><button class="sbtn">Undo</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map, saved: 'Not saved: 1 change', changes: 1 }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+W.levels = W.levels.filter((l) => l.n !== 'Secret room')
+W.doors = W.doors.filter((d) => d.from[0] !== 3)
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

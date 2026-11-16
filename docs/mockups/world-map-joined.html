@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Two levels put side by side (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- After letting go: Level 4 touches Level 3, the bar shows where players walk across, and a note says what changed, with Undo. Level 4 stays picked, with its own bar: Go in, Move (with buttons, a tile a tap), Pull apart (the opposite of pushing together) and the rest. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="arrows-left-right"></span><span><b>Level 3 and Level 4 now touch</b><small>Players walk straight from one into the other. The door still works too.</small></span><button class="sbtn">Undo</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map, saved: 'Not saved: 1 change', changes: 1 }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+const l4 = W.levels.find((l) => l.n === 'Level 4')
+W.levels.find((l) => l.n === 'Level 2').here = false
+l4.x = 60; l4.picked = true
+W.edges.push({ a: 'Level 3', b: 'Level 4', at: [6, 10] })
+W.bar = { on: 'Level 4', items: [['Go in', 'arrow-right', true], ['Move', 'arrows-out-cardinal'], ['Pull apart', 'arrows-out-line-horizontal'], ['', 'dots-three']] }
+W.focus = 'Level 4'
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

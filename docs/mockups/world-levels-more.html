@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · The three dots on a thing (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- What the three dots hold (the end-to-end actions check, M6): rename it, lock it so it can't move by mistake (then the menu says "Unlock it"), hide it (then "Show it"), copy it, bring it to the front or send it to the back, and add a note about it. Each has its key on a computer. The same list is on the three dots in the settings' header, and on press and hold of the thing: no way is only a gesture. -->
+
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate, act: { at: [40.6, 73.2], rest: 'Crate 1', w: 12, h: 11 },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · A change while waiting (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- A change made after sending (the end-to-end actions check, M10): Mia has the first 3 changes and Sam has made one more. The top bar offers to send it too ("Send 1 more to Mia"), so a change made while waiting is never stuck on the iPad. The note says which changes are with Mia and which are not. -->
+<style>
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
+      <div class="gate"></div>
+      <div class="press"></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
+      </svg>
+      <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
+      <div class="ring" style="left:55.7%;top:63.6%;width:7.2%;height:10.8%"></div>
+    </div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="paper-plane-tilt"></span><span><b>Mia has your first 3 changes</b><small>This new one is only on your iPad so far.</small></span><button class="sbtn">Send it too</button></div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.mid, suggest: true, waiting: 'Mia', more: 1, changes: 1,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

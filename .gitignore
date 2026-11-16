@@ -8,3 +8,4 @@ __screenshots__/
 .svelte-kit/
 .wrangler/
 journeys-result.json
+mockup-screens/

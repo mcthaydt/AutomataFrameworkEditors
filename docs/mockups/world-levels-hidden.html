@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, the settings hidden (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The settings hidden (the end-to-end actions check, H1). The panel's own "Hide" button (its tip says where the panel goes) leaves a small floating tab at the right edge on an iPad and a computer, the same tab a phone held on its side always has: the thing's picture, its name written upright. A tap on it brings the settings back. The level takes the room the panel gave up. On a phone the settings are already a tab or a bar, so this page looks like the first one there. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="ring" style="left:37%;top:73.2%;width:7.2%;height:10.8%"></div>
+    </div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = {
+  ...BASE.levels, values: BASE.crate,
+  hiddenRight: true, act: { at: [40.6, 73.2] },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

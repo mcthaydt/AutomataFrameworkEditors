@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · the world map (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The world map (the level links spec, 2026-11-15; LDtk is the inspiration). Pinch out past the whole level, or press Map, and every level is on one sheet at its true size, where the world file puts it. Levels whose edges touch, where both are open, are one place: the hero walks straight across, and the map draws that stretch as a bar. A dashed arrow is a door: from the door to where you come out. The start is marked. A key at the bottom says what each mark means. Tap a level to go in; "New level" makes one. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="wmap"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script>
+window.MOCK = { ...BASE.map }
+</script>
+<script src="frame.js"></script>
+<script>
+const W = BASE.world()
+
+window.MAP = W
+</script>
+<script src="map.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story · Conversations, mid-project (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .card { position: absolute; z-index: 2; background: var(--raised); border: 1px solid var(--line); border-radius: 3px; font-size: 16px; }
+  .card.on { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .card.faint { border-style: dashed; border-color: var(--quiet); }
+  .card header { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--edge); }
+  .card header .label { flex: 1; font-size: 15px; color: var(--quiet); }
+  .card header canvas { width: 26px; height: auto; image-rendering: pixelated; display: block; }
+  .card p { margin: 0; padding: 6px 12px; }
+  .card .tag { font: 500 15px var(--label); color: var(--quiet); display: inline-flex; gap: 6px; align-items: center; }
+  .card .tag .flag svg { width: 21px; height: 14px; display: block; }
+  .card .ask { display: flex; gap: 8px; padding: 0 12px 10px; }
+  .card .problem { border-top: 1px solid var(--line); color: var(--words); font-size: 15px; }
+  .card .cond { border-top: 1px solid var(--line); font-size: 15px; color: var(--quiet); display: flex; gap: 6px; align-items: center; }
+  .card .cond .ic { color: var(--quiet); width: 16px; height: 16px; }
+  .clinks { position: absolute; inset: 0; z-index: 1; overflow: visible; }
+  .clinks path { fill: none; stroke: var(--quiet); stroke-width: 2; }
+  .clinks .head { fill: var(--quiet); stroke: none; }
+  .minimap { position: absolute; z-index: 4; right: 10px; top: 10px; width: 150px; height: 90px; padding: 6px; }
+  .minimap i { position: absolute; background: var(--quiet); border-radius: 1px; }
+  .minimap .view { background: none; border: 1.5px solid var(--quiet); }
+  .script { width: min(100%, 680px); margin: 0 auto; height: 100%; overflow: hidden; padding: 18px 26px; background: var(--raised); border: 1px solid var(--edge); border-radius: 3px; font-size: 16px; line-height: 1.45; }
+  .script h3 { margin: 0 0 10px; font: 600 20px var(--title); }
+  .script .who { font: 500 14px var(--label); color: var(--quiet); margin-top: 12px; }
+  .script .line { margin: 0 0 0 18px; }
+  .script .line.on { position: relative; background: var(--hover); box-shadow: -18px 0 0 var(--hover); }
+  .script .line.on::before { content: ""; position: absolute; left: -16px; top: 2px; bottom: 2px; width: 3px; border-radius: 2px; background: var(--accent); }
+  .script .choice2 { margin: 6px 0 0 18px; color: var(--quiet); }
+  .script .choice2 b { color: var(--words); }
+  .script .miss { display: inline-flex; gap: 4px; align-items: center; margin-left: 8px; font-size: 14px; color: var(--quiet); vertical-align: 2px; }
+  .speech { position: relative; aspect-ratio: 888 / 300; background: url(art/level-1.png) 0 70% / 100% auto; image-rendering: pixelated; border-radius: 3px; overflow: hidden; margin: 4px 0; }
+  .speech div { position: absolute; left: 6%; right: 6%; bottom: 8%; padding: 5px 9px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 13px; line-height: 1.3; }
+  .langs { display: flex; flex-wrap: wrap; gap: 4px; }
+  .langs span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border: 1px solid var(--edge); border-radius: 3px; font-size: 12px; }
+  .langs span.miss { border-color: var(--mark); color: var(--quiet); border-style: dashed; }
+  .langs .flag svg { width: 16px; height: 11px; display: block; }
+  .script .miss .flag svg, .langrow .flag svg { width: 21px; height: 14px; display: block; }
+  .langrow { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; }
+  .langrow div { flex: 1; display: flex; flex-direction: column; gap: 2px; } .langrow b { font-weight: 500; } .langrow small { color: var(--quiet); font-size: 14px; display: flex; gap: 6px; align-items: center; }
+  .script .more3 { margin: 14px 0 0; color: var(--quiet); font-size: 14px; }
+  @media (max-width: 1180px), (max-height: 600px) { .minimap { display: none; } }
+  /* A missing language sits at the line's right end, apart from the words. */
+  .script .line:has(.miss) { display: flex; align-items: flex-start; gap: 8px; }
+  .script .line .miss { margin-left: auto; flex: none; white-space: nowrap; }
+</style>
+</head>
+<body>
+<!-- Story, Conversations, mid-project: the same conversation, now thirty cards, as a script. The script view reads
+     from the top like a play, choices indented under the line they answer; a card is still a card, picked here and on
+     the map alike. A writer works in this view and a designer in the map. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="script">
+      <h3>Keeper at the door · 30 cards</h3>
+      <div class="who">Keeper · starts here</div>
+      <p class="line">“Hello there! Lovely day for pushing crates.”</p>
+      <p class="choice2"><b>Hero chooses:</b> “What's that door?” · “Bye!” · “Who are you?”</p>
+      <div class="who">Keeper · only if the door is shut</div>
+      <p class="line on">“The door opens if you push the crate onto the button.”<span class="miss"><span class="flag" data-flag="kr"></span>Korean missing</span></p>
+      <div class="who">Keeper</div>
+      <p class="line">“Mind the gap past the tree. It is wider than it looks.”</p>
+      <p class="choice2"><b>Hero chooses:</b> “I can jump it.” · “Is there another way?”</p>
+      <div class="who">Keeper · remembers: warned about the gap</div>
+      <p class="line">“There is a spring in the cave, if you can find it.”</p>
+      <div class="who">Hero</div>
+      <p class="line">“Thanks. I will look.”</p>
+      <div class="who">Keeper · ends · plays: Door opens</div>
+      <p class="line">“Off you go, then.”</p>
+      <div class="who">Keeper · if the hero asked “Who are you?”</div>
+      <p class="line">“I keep the door. I have kept it for a long time.”</p>
+      <div class="who">Hero</div>
+      <p class="line">“Is it heavy?”</p>
+      <div class="who">Keeper</div>
+      <p class="line">“Only the first hundred years.”</p>
+      <div class="who">Keeper · ends</div>
+      <p class="line">“Now, about that crate.”</p>
+      <p class="more3">20 more cards below · scroll to read on</p>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'story', parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 0,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add a card', 'plus', 'A'], ['Link', 'arrow-bend-up-right', 'L'], ['Note', 'note', 'N'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P']],
+  status: { pointer: false, grid: false, snap: false },
+  place: 'Keeper at the door', off: [2], jobs: ['Move: pick a line', 'Place: add a card', '', 'Draw path: draw an arrow from one card to another'], what: 'Conversation', saved: 'Not saved: 5 changes', changes: 5, tool: 0, zoom: '100%', state: 'mid-project',
+  settings: [
+    '<span class="seg"><button>Map</button><button class="on">Script</button></span>',
+    '<span>Show words in</span><span class="vpick">English ▾</span>',
+  ],
+  list: { title: 'Conversations', count: 4, search: 'Find a line or a card', rows: [
+      { head: 'Level 1', count: 2 },
+      { n: 'Keeper at the door', k: '30 cards', i: 'chat-circle-text', on: true },
+      { n: 'Sign by the tree', k: '1 card', i: 'signpost' },
+      { head: 'Level 2', count: 2 },
+      { n: 'Keeper in the cave', k: '12 cards', i: 'chat-circle-text', warn: true },
+      { n: 'Lost crate', k: '5 cards', i: 'chat-circle-text' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>New conversation</button>',
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 5], ['Problems', 'warning', 3]],
+  values: {
+    title: '“The door opens…”', sub: 'Keeper speaks · 1 line', pic: { px: 'head' }, tab: '“The door opens…”',
+    groups: [
+      { name: 'The line', open: true, rows: [
+        { t: 'pick', l: 'Who speaks', f: 'speaker', v: 'Keeper', px: 'head' },
+        { t: 'text', l: 'Words', f: 'lines[0]', v: '“The door opens if you push the crate onto the button.”' },
+                { t: 'html', h: '<div class="langrow"><div><b>5 of 6 languages</b><small><span class="flag" data-flag="kr"></span>Korean missing</small></div><span class="ic" data-i="caret-right"></span></div>' },
+      ] },
+      { name: 'Only if', count: 1, rows: [
+        { t: 'pick', l: 'Shown only if', f: 'when', v: 'The door is shut', i: 'door' },
+      ] },
+      { name: 'Remember', count: 1, rows: [
+        { t: 'pick', l: 'After this, remember', f: 'remember', v: 'Met the keeper', i: 'bookmark-simple' },
+      ] },
+      { name: 'Notes for the team', count: 1, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

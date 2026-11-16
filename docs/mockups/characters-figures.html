@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Characters · Figures (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  /* The figure from three sides at once, standing on one line of ground, each with its name. */
+  .views3 { display: flex; gap: 4%; align-items: flex-end; justify-content: center; width: 100%; height: 100%; padding-bottom: 28px; position: relative; }
+  .view { display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .view .fig { position: relative; line-height: 0; padding: 0 10px; border-bottom: 2px solid #444; }
+  .view .fig canvas { display: block; image-rendering: pixelated; }
+  .view.main .fig { outline: 1px dashed var(--edge); outline-offset: 6px; }
+  .view .label { color: var(--quiet); }
+  .view.main .label { color: var(--words); }
+  .ghost { position: absolute; left: 10px; bottom: 0; opacity: 0.3; filter: grayscale(1); }
+  .handle { position: absolute; z-index: 3; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid var(--touch); background: var(--ground); }
+  .handle.on { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .bone { position: absolute; z-index: 2; height: 3px; background: var(--touch); transform-origin: 0 50%; }
+  .arc { position: absolute; z-index: 2; border: 2px dashed var(--touch); border-radius: 50%; border-color: var(--touch) transparent transparent transparent; }
+  .turnbtn { position: absolute; z-index: 4; left: 50%; bottom: -6px; transform: translateX(-50%); }
+  .facing { position: absolute; z-index: 4; left: 0; right: 0; top: 0; text-align: center; color: var(--quiet); font-size: 14px; }
+  @media (max-width: 699px) and (min-height: 601px) { .views3 { gap: 2%; } }
+</style>
+</head>
+<body>
+<!-- Characters, Figures, first look: the rigged figure builder (specs: Editors PR 29, framework PR 104). The keeper
+     from the side, the front and the back at once: a change to one shows on all three. "Play a turn" plays the figure
+     turning, the way a game shows it when it walks toward you or away from you (up a ladder, through a door). The
+     keeper is a hand-drawn sketch of what the builder paints; the demo game has no figures yet. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="views3">
+      <div class="view main"><div class="fig"><span data-pixel="keeper" data-fit="0.6"></span>
+</div>
+        <span class="label">From the side</span></div>
+      <div class="view"><div class="fig"><span data-pixel="front" data-fit="0.6"></span></div><span class="label">From the front</span></div>
+      <div class="view"><div class="fig"><span data-pixel="back" data-fit="0.6"></span></div><span class="label">From the back</span></div>
+      <span class="facing">Faces front when it walks toward you, its back when it walks away</span>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'characters', back: 'Level 1', what: 'Figure', parts: [['Figures', 'person'], ['Clips', 'film-strip'], ['How it works', 'flow-arrow']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Pose', 'person-arms-spread', 'O'], ['Paint', 'paint-brush', 'B', true],
+    ['Add a part', 'plus', 'A', true], ['Mirror', 'flip-horizontal', 'X'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  status: { pointer: '4, 18', unit: 'pixels', grid: 'Grid: pixels' },
+  place: 'Keeper', saved: 'Sam, 1 hour ago', tool: 0, zoom: '1200%',
+  settings: [
+    '<span>Show</span><span class="seg"><button class="on">All three sides</button><button>One side</button></span>',
+    '<button class="btn small"><span class="ic" data-i="arrows-clockwise"></span>Turn around</button>',
+    '<span>Show the joints</span><span class="knob2"></span>',
+  ],
+  list: { title: 'Parts', count: 11, search: 'Find a part', rows: [
+      { head: 'Head', count: 3 },
+      { n: 'Head', i: 'circle' },
+      { n: 'Hood', k: 'wear', i: 'baseball-cap', d: 1 },
+      { n: 'Face', i: 'smiley', d: 1 },
+      { head: 'Body', count: 4 },
+      { n: 'Body', i: 'person', on: true },
+      { n: 'Tunic', k: 'wear', i: 't-shirt', d: 1 },
+      { n: 'Left arm', i: 'hand', d: 1, on: false },
+      { n: 'Lantern', k: 'holds', i: 'lamp', d: 2 },
+      { head: 'Legs', count: 4 },
+      { n: 'Left leg', i: 'sneaker' },
+      { n: 'Right leg', i: 'sneaker' },
+      { n: 'Boots', k: 'wear', i: 'boot', d: 1 },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a part</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: {
+    title: 'Body', sub: 'Keeper · a person', pic: { px: 'keeper' }, tab: 'Body',
+    groups: [
+      { name: 'Body', open: true, rows: [
+        { t: 'slider', l: 'How tall', f: 'body.height', v: '30', lo: 'A child', hi: 'A giant', at: 55 },
+        { t: 'slider', l: 'How wide', f: 'body.width', v: '0.40', lo: 'Thin', hi: 'Round', at: 40 },
+      ] },
+      { name: 'Kind of body', open: true, rows: [
+        { t: 'choice', l: 'Is a', f: 'rig', opts: ['Person', 'Four legs', 'Free shape'], on: 0 },
+        { t: 'btns', b: [['Surprise me', 'shuffle']] },
+      ] },
+      { name: 'Legs, arms and copies', count: 3, rows: [] },
+      { name: 'Wear', count: 4, rows: [] },
+      { name: 'Face', count: 3, rows: [] },
+      { name: 'Colors', count: 6, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

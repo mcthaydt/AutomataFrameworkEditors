@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · The tour, done (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The tour's last step, 4 of 4 (the end-to-end check, E3; onboarding: a first-time person learns that they did it). The steps they did are ticked, and the card points at the one thing left, Put in game, which now shows because the tour's crate is a change. "Start making" closes the tour; the same ticks are in Help. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="spot"></div>
+<section class="coach" role="dialog" aria-label="The tour, step 4 of 4">
+  <span class="coach-n">4 of 4</span>
+  <h3>You did it</h3>
+  <ul class="donel">
+    <li><span class="ic" data-i="check-circle"></span>Picked the crate</li>
+    <li><span class="ic" data-i="check-circle"></span>Put in a new crate</li>
+    <li><span class="ic" data-i="check-circle"></span>Made it heavier</li>
+    <li><span class="ic" data-i="check-circle"></span>Played your level</li>
+  </ul>
+  <p>Last thing: when you are happy, press <b>Put in game</b>. Until then, your changes are only on this iPad.</p>
+  <div class="coach-go"><button class="sbtn">Back</button><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><button class="sbtn main">Start making</button></div>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 1 change', changes: 1, zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+<script>
+// The spotlight rings Put in game, and the card hangs under it, kept on the screen.
+// Measured once the fonts are in, as the frame measures, so the ring fits the button's real width.
+document.fonts.ready.then(() => {
+  const t = document.querySelector('.sh-top .share').getBoundingClientRect()
+  const spot = document.querySelector('.spot')
+  // A tight ring, so it never cuts into Play beside it (second visual look, L3).
+  Object.assign(spot.style, { left: `${t.left - 1}px`, top: `${t.top - 1}px`, width: `${t.width + 2}px`, height: `${t.height + 2}px` })
+  const c = document.querySelector('.coach')
+  const cw = Math.min(340, innerWidth - 16)
+  Object.assign(c.style, { width: `${cw}px`, left: `${Math.max(8, Math.min(t.right - cw, innerWidth - cw - 8))}px`, top: `${t.bottom + 14}px`, maxHeight: `${innerHeight - t.bottom - 22}px`, overflowY: 'auto' })
+  c.classList.add('to-above')
+})
+</script>
+</body>
+</html>

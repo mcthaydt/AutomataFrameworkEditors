@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Sent to check (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Sent to check, the moment after (the end-to-end check, E8): the sheet closes, a note says where the changes went and what happens next, and the top bar says "Waiting for Mia" until Mia puts them in or asks for a change. "Take them back" undoes the send. The changes stay on the level, and on this iPad, while they wait. -->
+<style>
+  /* A gate (a button opens it) is bars, so it never looks like a door into another level. */
+  .gate { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: repeating-linear-gradient(90deg, #587382 0 20%, transparent 20% 33%); border: 3px solid #111314; border-radius: 3px 3px 0 0; }
+  .press { position: absolute; z-index: 1; left: 70.5%; top: 81%; width: 5.4%; height: 2.6%; background: #c4566c; border: 2px solid #111314; border-radius: 3px 3px 0 0; }
+</style>
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <img class="thing" src="art/crate.png" alt="" style="left:50%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:73.8%">
+      <img class="thing" src="art/crate.png" alt="" style="left:56.25%;top:64.2%">
+      <img class="thing" src="art/crate.png" alt="" style="left:76%;top:78%">
+      <div class="ring warn" style="left:75.4%;top:77.2%;width:7.4%;height:11.4%"></div>
+      <div class="gate"></div>
+      <div class="press"></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M73 81 C 76 60, 84 56, 89 64" fill="none" stroke="#eeb480" stroke-width="0.5" stroke-dasharray="1.4 1"/>
+      </svg>
+      <div class="zone" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="zone" style="left:6.3%;top:87%;width:87.4%;height:5%"><span>Fall in here and you start again</span></div>
+    </div>
+  </div>
+</div>
+<div class="float note2" role="status"><span class="ic" data-i="paper-plane-tilt"></span><span><b>Sent to Mia to check</b><small>You'll see here when they are in the game. You can keep working.</small></span><button class="sbtn">Take them back</button></div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sent to Mia', zoom: '100%', waiting: 'Mia', state: 'sent, waiting',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 12,
+    rows: [
+      { head: 'Things', count: 8 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png', },
+      { n: 'Crate 2', k: 'crate', img: 'art/crate.png' },
+      { n: 'Crate 3', k: 'crate', img: 'art/crate.png' },
+      { n: 'Crate 4', k: 'crate', img: 'art/crate.png', warn: true },
+      { n: 'Button', k: 'button', i: 'radio-button' },
+      { n: 'Gate 1', k: 'gate', i: 'gate' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant', hid: true },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: {
+    open: true,
+    filters: ['Everything', 'Things', 'Scenery', 'Tiles'],
+    on: 1,
+    items: [
+      { n: 'Crate', note: 'used 4 times', img: 'art/crate.png', on: true },
+      { n: 'Hero', note: 'used once', img: 'art/hero.png' },
+      { n: 'Button', note: 'used once', i: 'radio-button' },
+      { n: 'Gate', note: 'used once', i: 'gate' },
+      { n: 'Door', note: 'not used yet', i: 'door' },
+      { n: 'Spring', note: 'not used yet', i: 'arrow-line-up' },
+      { n: 'Coin', note: 'not used yet', i: 'coin' },
+      { n: 'Moving floor', note: 'not used yet', i: 'arrows-left-right' },
+      { n: 'Sign', note: 'not used yet', i: 'signpost' },
+      { n: 'Keeper', note: 'from Characters', px: 'keeper' },
+    ],
+  },
+  closed: [['Changes', 'clock-counter-clockwise', 3], ['Problems', 'warning', 1]],
+  values: {
+    title: '3 crates', sub: 'Picked together · change one, change all', pic: { img: 'art/crate.png' }, tab: '3 crates',
+    groups: [
+      { name: 'Place', open: true, rows: [
+        { t: 'num', l: 'From the left', f: 'x', v: 'Not the same' },
+        { t: 'num', l: 'From the top', f: 'y', v: 'Not the same' },
+        { t: 'btns', b: [['Line up', 'align-bottom'], ['Space out', 'arrows-horizontal'], ['Stack', 'stack']] },
+      ] },
+      { name: 'Look', open: true, rows: [
+        { t: 'pick', l: 'Looks like', f: 'look', v: 'Crate', img: 'art/crate.png' },
+      ] },
+      { name: 'What it does', open: true, rows: [
+        { t: 'slider', l: 'How heavy', f: 'mass', v: '1.6', w: 'Quite heavy', lo: 'Light as a leaf', hi: 'Heavy as a rock', at: 64, ch: true },
+        { t: 'sw', l: 'The hero can push it', f: 'pushable', on: true },
+      ] },
+      { name: 'Notes for the team', count: 1, rows: [] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

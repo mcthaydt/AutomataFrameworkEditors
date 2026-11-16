@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story · Words (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .wordsbox { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .filters { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; align-items: center; scrollbar-width: none; flex: none; }
+  .filters .choice { min-height: 36px; font-size: 14px; white-space: nowrap; flex: none; display: inline-flex; gap: 6px; align-items: center; }
+  .filters .choice.on { order: -1; }
+  .bars6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px 16px; }
+  .bars6 div { font-size: 12px; display: flex; flex-direction: column; gap: 3px; }
+  .bars6 b { font-weight: 500; display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+  .bars6 .lvb { height: 5px; border-radius: 3px; background: var(--edge); position: relative; }
+  .bars6 .lvb i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--quiet); }
+  .bars6 .flag svg { width: 18px; height: 12px; display: block; }
+  .bars6 b { font-size: 13px; }
+  @media (max-width: 1365px) { .bars6 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 500px) { .bars6 { grid-template-columns: repeat(2, 1fr) !important; } }
+  table { width: 100%; border-collapse: collapse; background: var(--raised); border: 1px solid var(--line); font-size: 15px; table-layout: auto; }
+  .c-us, .c-kr { width: 38%; } .c-note { width: 24%; }
+  th, td { border: 1px solid var(--edge); padding: 5px 7px; text-align: left; vertical-align: top; overflow: hidden; }
+  th { font: 600 14px var(--label); color: var(--words); }
+  th .flag { margin-right: 6px; vertical-align: -2px; }
+  th .flag svg { width: 18px; height: 12px; }
+  th small { display: block; font: 13px var(--label); color: var(--quiet); }
+  td.group { font: 500 13px var(--label); color: var(--quiet); background: var(--ground); }
+  td.missing { color: var(--quiet); font-style: italic; }
+  td.changed { box-shadow: inset 3px 0 0 var(--mark); }
+  td.picked { outline: 2px solid var(--accent); outline-offset: -3px; }
+  td small { display: block; color: var(--quiet); font-size: 13px; }
+  td.long { box-shadow: inset 0 -3px 0 var(--mark); }
+  td.tnote { color: var(--quiet); font-size: 13px; }
+  .nm { display: inline-block; padding: 0 5px; border-radius: 3px; background: var(--ground); border: 1px solid var(--edge); font-size: 12px; }
+  .read { color: var(--words); }
+  .lineedit { min-height: 56px; padding: 8px 10px; border: 1px solid var(--quiet); border-radius: 3px; background: var(--ground); color: var(--quiet); }
+  .speech { position: relative; aspect-ratio: 16 / 9; max-height: 120px; margin-top: 12px; background: url(art/level-1.png) center 70% / cover; image-rendering: pixelated; border-radius: 3px; overflow: hidden; }
+  .speech div { position: absolute; left: 6%; right: 6%; bottom: 8%; padding: 5px 9px; background: #111314; color: #fdd4bd; border: 2px solid #fdd4bd; font-size: 13px; line-height: 1.3; }
+  .speech div.empty { color: #8a8a8a; font-style: italic; }
+  .c-mx, .c-br, .c-jp, .c-cn { display: none; }
+  .hidden4 { font-size: 14px; color: var(--quiet); display: flex; gap: 8px; align-items: center; }
+  .hidden4 { flex-wrap: wrap; } .hidden4 .sbtn { height: 32px; }
+  @media (max-width: 1000px), (max-height: 600px) { table { table-layout: auto; } .c-note { display: none; } .bars6 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-height: 600px) { .bars6 { display: none; } }
+  /* On phones the six bars fold to one line that opens them, and the hidden-languages note is its button alone. */
+  .bars1 { display: none; }
+  .hidden4 .phone-hide { display: inline-flex; gap: 8px; align-items: center; }
+  @media (max-width: 500px), (max-height: 600px) { .bars6 { display: none !important; } .bars1 { display: inline-flex; align-self: flex-start; flex: none; } .hidden4 .phone-hide { display: none; } }
+</style>
+</head>
+<body>
+<!-- Story, Words, first look: every word a player reads, English beside the language being worked on (all six side by
+     side is one press away), each column with its flag and the language's own name (a flag is a country, not a language). Bars at the top say how much of each
+     language is done; a line too long for its box is marked; names the game keeps in every language are chips; a
+     column holds the writer's note to translators; sheets go in and out for translators' own tools. -->
+<div class="canvas paper">
+  <div class="fit">
+    <div class="wordsbox">
+      <button class="sbtn bars1"><span class="ic" data-i="translate"></span>6 languages · Korean 91%<span class="ic" data-i="caret-down"></span></button>
+      <div class="bars6"><div><b><span class="flag" data-flag="us"></span>English <span class="num" style="margin-left:auto">100%</span></b><span class="lvb"><i style="width:100%"></i></span></div><div><b><span class="flag" data-flag="mx"></span>Español <span class="num" style="margin-left:auto">100%</span></b><span class="lvb"><i style="width:100%"></i></span></div><div><b><span class="flag" data-flag="br"></span>Português <span class="num" style="margin-left:auto">97%</span></b><span class="lvb"><i style="width:97%"></i></span></div><div><b><span class="flag" data-flag="jp"></span>日本語 <span class="num" style="margin-left:auto">99%</span></b><span class="lvb"><i style="width:99%"></i></span></div><div><b><span class="flag" data-flag="cn"></span>中文 <span class="num" style="margin-left:auto">100%</span></b><span class="lvb"><i style="width:100%"></i></span></div><div><b><span class="flag" data-flag="kr"></span>한국어 <span class="num" style="margin-left:auto">91%</span></b><span class="lvb"><i style="width:91%"></i></span></div></div>
+      <div class="filters"><button class="choice on">Everything</button><button class="choice">Problems <span class="num touch">7</span></button><button class="choice">Missing <span class="num touch">5</span></button><button class="choice">Changed <span class="num touch">1</span></button><button class="choice">Too long <span class="num touch">1</span></button><button class="choice">Not read yet <span class="num touch">4</span></button></div>
+      <p class="hidden4"><span class="phone-hide"><span class="ic" data-i="eye-slash"></span>Spanish, Portuguese, Japanese and Chinese are hidden.</span><button class="sbtn"><span class="ic" data-i="eye"></span>Show all six</button></p>
+      <table><thead><tr><th class="c-us"><span class="flag" data-flag="us"></span>English<small>the game's own words</small></th><th class="c-mx"><span class="flag" data-flag="mx"></span>Español<small>Spanish</small></th><th class="c-br"><span class="flag" data-flag="br"></span>Português<small>Portuguese</small></th><th class="c-jp"><span class="flag" data-flag="jp"></span>日本語<small>Japanese</small></th><th class="c-cn"><span class="flag" data-flag="cn"></span>中文<small>Chinese</small></th><th class="c-kr"><span class="flag" data-flag="kr"></span>한국어<small>Korean</small></th><th class="c-note">Note for translators</th></tr></thead><tbody><tr><td class="group" colspan="7">The keeper · Hello</td></tr><tr><td class="c-us">Hello there!</td><td class="c-mx">¡Hola!</td><td class="c-br">Olá!</td><td class="c-jp">こんにちは！</td><td class="c-cn">你好！</td><td class="c-kr">안녕하세요! <span class="read">✓</span></td><td class="c-note tnote">Friendly, an old man</td></tr><tr><td class="c-us">Lovely day for pushing crates.</td><td class="c-mx">¡Qué buen día para empujar cajas!</td><td class="c-br">Que dia lindo para empurrar caixas!</td><td class="c-jp">箱を押すのにいい日だね。</td><td class="c-cn">推箱子的好天气。</td><td class="c-kr missing picked">Not written yet</td><td class="c-note tnote">A joke: he is bored</td></tr><tr><td class="c-us">The door opens if you push the <span class="nm">crate</span> onto the button.</td><td class="c-mx long">La puerta se abre si empujas la <span class="nm">caja</span> sobre el botón, que está justo allí.</td><td class="c-br">A porta abre se você empurrar a caixa no botão.</td><td class="c-jp">箱をボタンに押すとドアが開くよ。</td><td class="c-cn">把箱子推到按钮上，门就会开。</td><td class="c-kr missing">Not written yet</td><td class="c-note tnote">“crate” is the thing's name</td></tr><tr><td class="group" colspan="7">Door opens</td></tr><tr><td class="c-us">The door is open!</td><td class="c-mx">¡La puerta está abierta!</td><td class="c-br changed">A porta abriu!<small>Its English changed. Check it still fits.</small></td><td class="c-jp">ドアが開いた！</td><td class="c-cn">门开了！</td><td class="c-kr">문이 열렸어요!</td><td class="c-note tnote"></td></tr><tr><td class="group" colspan="7">Buttons</td></tr><tr><td class="c-us">Play</td><td class="c-mx">Jugar</td><td class="c-br">Jogar</td><td class="c-jp">プレイ</td><td class="c-cn">开始</td><td class="c-kr">시작</td><td class="c-note tnote">On the title screen, one word</td></tr><tr><td class="c-us">Settings</td><td class="c-mx">Ajustes</td><td class="c-br">Configurações</td><td class="c-jp">設定</td><td class="c-cn">设置</td><td class="c-kr">설정</td><td class="c-note tnote"></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+<script>
+window.MOCK = {
+  editor: 'story', parts: [['Conversations', 'chat-circle-text'], ['Cutscenes', 'film-slate'], ['Words', 'translate']], part: 2,
+  tools: [['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Find', 'magnifying-glass', 'F'], ['Try it', 'play', 'P']],
+  status: { pointer: false, grid: false, snap: false, extra: '<span class="sb">142 lines · 6 languages</span>' },
+  place: 'Words', off: [1, 2, 3], jobs: ['Move: pick a line'], what: 'Words', saved: 'Mia, 1 hour ago', tool: 0, zoom: '100%',
+  settings: [
+    '<span>Sort by</span><span class="seg"><button class="on">Where it is</button><button>A to Z</button></span>',
+  ],
+  list: { title: 'Where the words are', count: 6, search: 'Find words', rows: [
+      { head: 'Conversations', count: 3 },
+      { n: 'The keeper · Hello', k: '3 lines', i: 'chat-circle-text', on: true, warn: true },
+      { n: 'The keeper · Cave', k: '12 lines', i: 'chat-circle-text', warn: false },
+      { n: 'Sign by the tree', k: '1 line', i: 'signpost' },
+      { head: 'Screens', count: 3 },
+      { n: 'Title screen', k: '4', i: 'squares-four' },
+      { n: 'Settings screen', k: '18', i: 'gear', warn: false },
+      { n: 'Buttons', k: '9', i: 'hand-tap' },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="download-simple"></span>Bring in a sheet</button><button class="btn small"><span class="ic" data-i="export"></span>Save as a sheet</button>',
+  },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning', 7]],
+  values: {
+    title: 'Korean', sub: 'The keeper · Hello · line 2', pic: { i: 'translate' }, tab: 'Korean',
+    groups: [
+      { name: 'The words', open: true, rows: [
+        { l: 'English: “Lovely day for pushing crates.”' },
+        { t: 'html', h: '<div class="lineedit">Type the Korean words…</div>' },
+        { t: 'html', h: '<div class="speech"><div class="empty">The Korean words go here</div></div>' },
+        { l: 'Fits the box on a phone: yes, with room for 6 more letters.' },
+      ] },
+      { name: 'Checked', open: true, rows: [
+        { t: 'sw', l: 'Read by someone who speaks it', f: 'read', on: false },
+        { l: 'The line waits until all six languages have it.' },
+      ] },
+      { name: 'Note for translators', open: true, rows: [
+        { t: 'text', l: 'From the writer', v: 'A joke: he is bored.' },
+      ] },
+    ],
+  },
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

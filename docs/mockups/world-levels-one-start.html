@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World · Levels, one Start (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+  .zone.was { opacity: 0.5; border-style: dotted; }
+  .note1 { position: absolute; z-index: 20; left: 50%; top: calc(var(--top-h) + 12px); transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 14px; font-size: 14px; white-space: nowrap; }
+  @media (max-width: 500px) { .note1 { white-space: normal; width: calc(100vw - 16px); } }
+</style>
+</head>
+<body>
+<!-- World, Levels, one Start (taken from LDtk): a level has one Start, so placing a second moves the first, and a
+     short note says so with Undo beside it. No error and no problem to fix afterwards. A second Goal asks first. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid">
+      <div class="zone was" style="left:6.3%;top:56%;width:12.5%;height:27.4%"><span>Start was here</span></div>
+      <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M19 66 C 32 52, 46 52, 56 62" fill="none" stroke="#fff" stroke-width="0.45" stroke-dasharray="1.2 1"/></svg>
+      <div class="zone" style="left:56%;top:56%;width:12.5%;height:27.4%"><span>Start</span></div>
+      <div class="ring" style="left:56%;top:56%;width:12.5%;height:27.4%"></div>
+    </div>
+  </div>
+</div>
+<div class="float note1" role="status"><span>A level has one Start, so it moved here.</span><button class="sbtn">Undo</button></div>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Not saved: 1 change', changes: 1, zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  t: 1,
+  act: { at: [62.25, 56], h: 27.4, only: 'A level needs a Start' },
+  settings: [
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+  ],
+  tray: {
+    more: 'All zones',
+    items: [
+      { n: 'Start (one per level)', i: 'map-pin', on: true },
+      { n: 'Goal', i: 'flag-pennant' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { n: 'Camera stops here', i: 'video-camera' },
+    ],
+  },
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3, fold: true, faint: true },
+      { head: 'Zones', count: 2, fold: false, on: true },
+      { n: 'Start', i: 'map-pin', d: 1, on: true },
+      { n: 'Fall off', i: 'arrow-fat-line-down', d: 1 },
+      { head: 'Ground', count: 2, fold: true, faint: true },
+      { head: 'Scene', count: 1, fold: true, faint: true },
+    ],
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise', 1], ['Problems', 'warning']],
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

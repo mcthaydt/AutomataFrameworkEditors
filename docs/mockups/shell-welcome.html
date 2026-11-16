@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Welcome (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- The first time anyone opens the editors (the Owner, 2026-11-15: onboarding first, Figma-inspired). One card over the
+     level, in plain words: what this is, the three things you do, and two ways on. "Show me around" starts the
+     four-step tour (shell-tour); "I'll look around myself" closes it, and the same tour is in Help at any time. The
+     card asks nothing else: the language was picked before it, and signing in waits until it is needed. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="dim"></div>
+<section class="pop onb" role="dialog" aria-label="Welcome">
+  <div class="onb-pic"><span class="ic" data-i="hand-waving"></span></div>
+  <h2>Welcome to the editor</h2>
+  <p>This is Crate Game's first level. You can change anything you see, and nothing goes in the game until you say so.</p>
+  <ol class="onb-steps">
+    <li><span class="n">1</span><span><b>Pick a thing</b>Tap the crate, the hero or the ground.</span></li>
+    <li><span class="n">2</span><span><b>Change it</b>Drag it, or change its settings.</span></li>
+    <li><span class="n">3</span><span><b>Put it in the game</b>Once you have changed something, an orange “Put in game” button shows at the top right. Press it when you are happy.</span></li>
+  </ol>
+  <div class="onb-go"><button class="sbtn main"><span class="ic" data-i="play-circle"></span>Show me around</button><button class="sbtn">I'll look around myself</button></div>
+  <p class="onb-small">Takes a minute. You can see it again any time in Help.</p>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>

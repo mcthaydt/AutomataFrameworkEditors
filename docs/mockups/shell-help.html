@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · Help (mockup)</title>
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<!-- Help, opened from the game's menu (Crate Game, then Help) or with ?. A short list of the basics, each ticked once
+     you have done it, so a first-time person sees what they have learned and what is next (Figma-inspired: the
+     "learn the basics" list). Every row does the thing it names: "Show me" plays that step of the tour. Below it, the
+     tour again, the keys and finger moves, and asking your helper. -->
+<div class="canvas">
+  <div class="fit">
+    <div class="stage grid"></div>
+  </div>
+</div>
+<div class="dim" style="background:rgb(0 0 0 / 0.25)"></div>
+<section class="pop helpp" role="dialog" aria-label="Help">
+  <header><h3><span class="ic" data-i="question"></span>Help</h3><button class="sbtn"><span class="ic" data-i="x"></span>Close</button></header>
+  <div class="hb2"><b>Learn the basics</b><span>2 of 5 done</span></div>
+  <div class="bar2"><i style="width:40%"></i></div>
+  <div class="lrn done"><span class="ic" data-i="check-circle"></span><span>Pick a thing</span></div>
+  <div class="lrn done"><span class="ic" data-i="check-circle"></span><span>Move it</span></div>
+  <div class="lrn next"><span class="ic" data-i="circle"></span><span>Put a new thing in the level</span><button class="sbtn main">Show me</button></div>
+  <div class="lrn"><span class="ic" data-i="circle"></span><span>Play your level</span><button class="sbtn">Show me</button></div>
+  <div class="lrn"><span class="ic" data-i="circle"></span><span>Put your changes in the game</span><button class="sbtn">Show me</button></div>
+  <h4>More help</h4>
+  <button class="hrow"><span class="ic" data-i="play-circle"></span><span>Take the tour again<small>Four steps, about a minute</small></span><span class="ic" data-i="caret-right"></span></button>
+  <button class="hrow"><span class="ic" data-i="keyboard"></span><span>Keys and finger moves<small>Every gesture, and every key for a keyboard</small></span><span class="ic" data-i="caret-right"></span></button>
+  <button class="hrow"><span class="ic" data-i="sparkle"></span><span>Ask your helper<small>The AI you chat with can change the game for you</small></span><span class="ic" data-i="caret-right"></span></button>
+</section>
+<script>
+window.MOCK = {
+  editor: 'world', place: 'Level 1', saved: 'Sam, 2 minutes ago', zoom: '100%',
+  parts: [['Levels', 'squares-four'], ['Tiles', 'grid-four'], ['Scenes', 'mountains']], part: 0,
+  tools: [
+    ['Pick', 'cursor', 'V'], ['Hand', 'hand', 'H'], ['Add', 'plus', 'A', true], ['Link', 'link', 'L'],
+    ['Zone', 'selection', 'Z'], ['Measure', 'ruler', 'M'], ['Erase', 'eraser', 'E'], ['Play', 'play', 'P'],
+  ],
+  tool: 0,
+  settings: [
+    '<span>Line up with tiles</span><span class="knob2 on"></span>',
+    '<span>Grid</span><span class="seg"><button>Off</button><button class="on">Tiles</button><button>Finer</button></span>',
+    '<button class="btn small"><span class="ic" data-i="squares-four"></span>All levels</button>',
+  ],
+  list: {
+    count: 7,
+    rows: [
+      { head: 'Things', count: 3 },
+      { n: 'Hero', k: 'hero', img: 'art/hero.png', lock: true },
+      { n: 'Crate 1', k: 'crate', img: 'art/crate.png' },
+      { n: 'Goal', k: 'flag', i: 'flag-pennant' },
+      { head: 'Zones', count: 2 },
+      { n: 'Start', i: 'map-pin' },
+      { n: 'Fall off', i: 'arrow-fat-line-down' },
+      { head: 'Ground and scene', count: 2 },
+      { n: 'Ground tiles', k: 'meadow', i: 'grid-four', lock: true },
+      { n: 'Meadow', k: 'scene', i: 'mountains', lock: true },
+    ],
+    foot: '<button class="btn small"><span class="ic" data-i="plus"></span>Add a thing</button>',
+  },
+  library: { open: false },
+  closed: [['Changes', 'clock-counter-clockwise'], ['Problems', 'warning']],
+  values: null,
+}
+</script>
+<script src="frame.js"></script>
+</body>
+</html>
