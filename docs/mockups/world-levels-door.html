@@ -9,13 +9,13 @@
 <style>
   .door { position: absolute; z-index: 1; left: 86%; top: 63.9%; width: 6.2%; height: 19.4%; background: #587382; border: 3px solid #111314; border-radius: 3px 3px 0 0; }
   .door::after { content: ""; position: absolute; right: 18%; top: 50%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: #ffe58a; }
-  .tag { position: absolute; z-index: 6; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; box-shadow: inset 0 0 0 1px #eeb480; }
+  .tag { position: absolute; z-index: 6; padding: 2px 8px; border-radius: 4px; background: rgb(30 30 30 / 0.88); color: var(--words); font: 500 12px var(--label); white-space: nowrap; box-shadow: inset 0 0 0 1px #eeb480; }
 </style>
 </head>
 <body>
 <!-- A door into another level (the level links spec, 2026-11-15: a door names the level it opens and where you come
      out). The door is picked; its settings say where it leads, in a list of the game's levels, and where you come out:
-     at that level's start, or beside one of its doors. A tag over the door says "To Level 2" in the level, and the map
+     at that level's start, or beside one of its doors. A tag beside the door says "To Level 2" in the level, and the map
      draws the same door as a dashed arrow. "Go to Level 2" opens that level at the door you come out of. A door takes
      every player through at once. -->
 <div class="canvas">
@@ -23,7 +23,7 @@
     <div class="stage grid">
       <div class="door"></div>
       <div class="ring" style="left:85.4%;top:63%;width:7.4%;height:21%"></div>
-      <span class="tag" style="left:89.1%;top:85%">To Level 2</span>
+      <span class="tag" style="right:15%;top:72%">To Level 2</span>
     </div>
   </div>
 </div>

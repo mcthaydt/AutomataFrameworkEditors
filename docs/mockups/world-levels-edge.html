@@ -8,13 +8,14 @@
 <link rel="stylesheet" href="shell.css">
 <style>
   /* The stretch of the edge where Level 2 touches Level 3 and both are open: the same bar the map draws, so a person
-     who has seen one knows the other. */
-  .edgebar { position: absolute; z-index: 3; right: 0; top: 44%; height: 19%; width: 8px; transform: translateX(50%); background: #eeb480; border-radius: 2px; }
-  .edgecard { position: absolute; z-index: 5; right: 3%; top: 16%; display: grid; gap: 6px; width: min(300px, 46%); box-sizing: border-box; padding: 12px; border: 1px solid #eeb480; border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); color: var(--words); font: 400 13px / 1.35 var(--label); }
+     who has seen one knows the other. The level's own right edge is at 93.7% of the art sheet (the sheet has a margin
+     the level is drawn without), so the bar and the card are placed from 6.3% in, never on the sheet's own edge. */
+  .edgebar { position: absolute; z-index: 3; right: 6.3%; top: 44%; height: 19%; width: 8px; transform: translateX(50%); background: #eeb480; border-radius: 2px; }
+  .edgecard { position: absolute; z-index: 5; right: calc(6.3% + 12px); top: 16%; display: grid; gap: 6px; width: min(300px, 46%); box-sizing: border-box; padding: 12px; border: 1px solid #eeb480; border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); color: var(--words); font: 400 13px / 1.35 var(--label); }
   .edgecard b { display: flex; align-items: center; gap: 6px; font: 600 14px var(--label); }
   .edgecard small { color: var(--quiet); font-size: 13px; }
   .edgecard .sbtn { justify-content: center; min-height: 44px; }
-  .edgecard::after { content: ""; position: absolute; right: -3%; top: 100%; width: 2px; height: 60%; background: #eeb480; opacity: 0.6; }
+  .edgecard::after { content: ""; position: absolute; right: -12px; top: 100%; width: 2px; height: 60%; background: #eeb480; opacity: 0.6; }
   @media (max-width: 600px), (max-height: 500px) {
     .edgecard { width: 60%; top: 8%; padding: 8px; gap: 4px; }
     .edgecard small { display: none; }
@@ -32,7 +33,7 @@
   <div class="fit">
     <div class="stage grid">
       <div class="edgebar"></div>
-      <div class="edgecard" role="note"><b><span class="ic" data-i="arrows-left-right"></span>Players walk straight into Level 3 here</b><small>Level 2 and Level 3 touch here. When you play, the hero walks across without stopping, and a crate the hero pushes goes across too.</small><button class="sbtn"><span class="ic" data-i="arrow-right"></span>Go to Level 3</button></div>
+      <div class="edgecard" role="note"><b><span class="ic" data-i="arrows-left-right"></span>Players walk straight into Level 3 here</b><small>Level 2 and Level 3 touch here. When you play, the hero walks across without stopping, and so does a crate the hero pushes.</small><button class="sbtn"><span class="ic" data-i="arrow-right"></span>Go to Level 3</button></div>
     </div>
   </div>
 </div>

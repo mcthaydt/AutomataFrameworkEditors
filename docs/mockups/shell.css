@@ -9248,3 +9248,57 @@ html body.sh .actbar .ab.jn small {
 html body.sh.tools-left.left-closed.map-on .sh-tools {
   top: calc(var(--top-h) + 78px);
 }
+
+/* The plain-words round, after CI's pictures: a choice with long answers wraps inside its segments, so "While something
+   is on it" and "For good" are both in sight on an iPad's narrow panel instead of the second running out of it. */
+html body.sh .sh-right .ir.wide .segs button {
+  height: auto;
+  min-height: calc(var(--row) - 16px);
+  padding-block: 4px;
+  line-height: 1.2;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+/* A list that drops open under a setting (the gate's choices) stays whole: it never breaks across the two columns of
+   an upright iPad's sheet. */
+html body.sh .dropopen {
+  break-inside: avoid;
+}
+
+/* A small tag on the level (what a join does) wraps on a phone, so it stays on the screen. */
+@media (max-width: 600px) {
+  html body.sh .stage .tag {
+    width: max-content;
+    max-width: 46%;
+    line-height: 1.25;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* An upright iPad with changes to check, or with more to send, has no room in the top bar for "· Level 1" as well, so
+   the part's name drops it and the button that puts changes in is whole, with its count. */
+@media (max-width: 900px) and (min-width: 501px) {
+  html body.sh .sh-top:has(.ib.checks, .share.extra) .partn .pp {
+    display: none !important;
+  }
+}
+
+/* A phone on its side is short, and there are six editors now. A part menu with a third list (the levels a scene shows
+   with, or this level's three buttons) puts it in a third column, so nothing runs off the bottom of the screen. */
+@media (max-height: 600px) and (min-width: 600px) {
+  html body.sh .menup.wherep:has(.wcol:nth-of-type(3), .wfoot .lvrows) {
+    grid-template-columns: repeat(3, 1fr);
+    width: min(840px, calc(100vw - 16px));
+  }
+
+  html body.sh .menup.wherep:has(.wfoot .lvrows) > .wfoot {
+    grid-column: auto;
+  }
+
+  html body.sh .menup.wherep .wfoot .lvrows {
+    display: flex;
+    flex-direction: column;
+  }
+}
