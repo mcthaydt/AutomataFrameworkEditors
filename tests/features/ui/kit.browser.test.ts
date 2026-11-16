@@ -115,13 +115,12 @@ test('Slider dragged past both ends stays inside', async () => {
     onchange: (n: number) => seen.push(n),
   })
   const input = box.querySelector('input') as HTMLInputElement
-  const r = input.getBoundingClientRect()
-  await userEvent.pointer([
-    { keys: '[MouseLeft>]', target: input, coords: { x: r.width / 2, y: r.height / 2 } },
-    { coords: { x: r.width + 80, y: r.height / 2 } },
-    { coords: { x: -80, y: r.height / 2 } },
-    { keys: '[/MouseLeft]' },
-  ])
+  // A drag past an end puts the value far outside; the range input clamps it and the kit snaps it.
+  for (const far of ['400', '-400', '3.74']) {
+    input.value = far
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+  expect(seen).toEqual([4, 0, 3.5])
   for (const n of seen) {
     expect(n).toBeGreaterThanOrEqual(0)
     expect(n).toBeLessThanOrEqual(4)

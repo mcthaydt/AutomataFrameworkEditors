@@ -4,7 +4,7 @@
 // adds its rows here and to that test. A value is a string, or a function of a name that gives one.
 
 import { first } from './first.ts'
-import { type Lang, LANGUAGES, type Row } from './languages.ts'
+import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { shell } from './shell.ts'
 
 export { first } from './first.ts'
