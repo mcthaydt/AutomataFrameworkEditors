@@ -1,6 +1,7 @@
 // What the page and the API say to each other. The two sides meet only here (and in `access`), so a change to what
 // one says is a change to this file, which both can read. Later tasks add the rest of the messages.
 import type { AccessFile, AccessLevel } from '../access/access.ts'
+import type { ProjectChange } from '../files/files.ts'
 
 export type ProblemKind =
   | 'signed-out'
@@ -114,6 +115,34 @@ export interface SaveAnswer {
   /** The file's new version. */
   readonly version: string
   /** The waiting change the save is part of; undefined when it went straight in. */
+  readonly mine: Waiting | undefined
+}
+
+/** One file in a Put: the content as data, and the version of the file the person started from. */
+export interface PutFile {
+  readonly path: string
+  /** The content as data; the API writes the bytes. Undefined takes the file away. */
+  readonly value: unknown | undefined
+  /** Undefined for a file that is new. */
+  readonly version: string | undefined
+}
+/** What the page sends to put every changed file into the game in one change. */
+export interface PutAsk {
+  readonly game: GameRef
+  readonly files: readonly PutFile[]
+  /** The lines of the project file to change: levels and worlds listed, taken out, or renamed. */
+  readonly project?: ProjectChange
+  /** The project file's version the person started from; needed with `project`. */
+  readonly projectVersion?: string
+  readonly message: string
+}
+export interface PutAnswer {
+  readonly how: 'direct' | 'suggestion'
+  /** The new version of each file that was written (a file taken away has none). */
+  readonly versions: Readonly<Record<string, string>>
+  /** The project file's new text when it changed. */
+  readonly project?: WireFile
+  /** The waiting change the put is part of; undefined when it went straight in. */
   readonly mine: Waiting | undefined
 }
 

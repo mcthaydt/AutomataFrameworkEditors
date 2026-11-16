@@ -8,6 +8,7 @@ import type { ApiDeps, ApiEnv } from './enter.ts'
 import { listGames } from './games.ts'
 import { openGame } from './open.ts'
 import { readSharing, writeSharing } from './people.ts'
+import { putFiles } from './put.ts'
 import { saveLevel } from './save.ts'
 import { listWaiting, showChange } from './waiting.ts'
 
@@ -25,6 +26,7 @@ const gameOf = (url: URL): GameRef => ({
 const ROUTES: Readonly<Record<string, Route>> = {
   'GET /api/games': (deps, request) => listGames(deps, request),
   'POST /api/save': (deps, request) => saveLevel(deps, request),
+  'POST /api/put': (deps, request) => putFiles(deps, request),
   'POST /api/approve': (deps, request) => approveChange(deps, request),
   'POST /api/turn-down': (deps, request) => turnDownChange(deps, request),
   'GET /api/waiting': (deps, request, url) => listWaiting(deps, request, gameOf(url)),

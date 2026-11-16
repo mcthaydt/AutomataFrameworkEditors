@@ -43,6 +43,14 @@ test('each method is one call with its verb, path, query or body, and the Bearer
   await api.sharing(GAME)
   const ask = { game: GAME, path: 'p', value: {}, version: 'v', message: 'm' }
   await api.save(ask)
+  const putAsk = {
+    game: GAME,
+    files: [{ path: 'content/levels/level-1.json', value: { id: 'level-1' }, version: 'v' }],
+    project: { add: [{ type: 'level' as const, path: 'content/levels/level-2.json' }] },
+    projectVersion: 'p',
+    message: 'm',
+  }
+  await api.put(putAsk)
   await api.approve({ game: GAME, number: 2 })
   await api.turnDown({ game: GAME, number: 2 })
   const sharing = {
@@ -58,14 +66,16 @@ test('each method is one call with its verb, path, query or body, and the Bearer
     'GET /api/change?owner=grandma&name=crate-game&number=3',
     'GET /api/sharing?owner=grandma&name=crate-game',
     'POST /api/save',
+    'POST /api/put',
     'POST /api/approve',
     'POST /api/turn-down',
     'POST /api/sharing',
   ])
   for (const call of calls) expect(call.headers.get('authorization')).toBe('Bearer t1')
   expect(calls[5]?.body).toEqual(ask)
-  expect(calls[6]?.body).toEqual({ game: GAME, number: 2 })
-  expect(calls[8]?.body).toEqual(JSON.parse(JSON.stringify(sharing)))
+  expect(calls[6]?.body).toEqual(putAsk)
+  expect(calls[7]?.body).toEqual({ game: GAME, number: 2 })
+  expect(calls[9]?.body).toEqual(JSON.parse(JSON.stringify(sharing)))
 })
 
 test('with no token, open is sent with no Authorization header and every other method is signed-out, nothing sent', async () => {
@@ -77,6 +87,7 @@ test('with no token, open is sent with no Authorization header and every other m
   const others = [
     await api.games(),
     await api.save({ game: GAME, path: 'p', value: {}, version: 'v', message: 'm' }),
+    await api.put({ game: GAME, files: [], message: 'm' }),
     await api.waiting(GAME),
     await api.change({ game: GAME, number: 1 }),
     await api.approve({ game: GAME, number: 1 }),

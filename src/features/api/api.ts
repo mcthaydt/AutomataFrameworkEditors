@@ -7,6 +7,8 @@ import type {
   ChangeAsk,
   GameRef,
   OpenAnswer,
+  PutAnswer,
+  PutAsk,
   SaveAnswer,
   SaveAsk,
   SharingAnswer,
@@ -34,6 +36,8 @@ export interface Api {
   games(): Promise<Answer<readonly GameRef[]>>
   open(game: GameRef): Promise<Answer<OpenAnswer>>
   save(ask: SaveAsk): Promise<Answer<SaveAnswer>>
+  /** Every changed file in one change: straight into the game, or as a waiting change. */
+  put(ask: PutAsk): Promise<Answer<PutAnswer>>
   waiting(game: GameRef): Promise<Answer<readonly Waiting[]>>
   change(ask: ChangeAsk): Promise<Answer<WaitingChange>>
   approve(ask: ChangeAsk): Promise<Answer<true>>
@@ -109,6 +113,7 @@ export function createApi(auth: Auth, fetcher: Fetcher = wrapped): Api {
     games: () => call('GET', '/api/games'),
     open: (game) => call('GET', `/api/game?${query(game)}`, undefined, true),
     save: (ask) => call('POST', '/api/save', ask),
+    put: (ask) => call('POST', '/api/put', ask),
     waiting: (game) => call('GET', `/api/waiting?${query(game)}`),
     change: ({ game, number }) => call('GET', `/api/change?${query(game, { number: String(number) })}`),
     approve: (ask) => call('POST', '/api/approve', ask),
