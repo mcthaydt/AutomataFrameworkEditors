@@ -289,12 +289,13 @@ describe('at phone', () => {
       await page.evaluate((l) => localStorage.setItem('af.me.language', l), lang)
       await page.reload()
       await thingNamed(page, 'crate-1').waitFor()
+      await settled(page)
       const found = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('.tools .tool')].map((button) => {
           const box = button.getBoundingClientRect()
           const name = button.querySelector<HTMLElement>('span')
           const shown = name !== null && name.getBoundingClientRect().width > 2
-          // The text itself, not the box it grew to: a word that runs out of its button is cut, or lands on the next one.
+          // The text itself, not the box it grew to, with 2 points of room each side for the picked tool's ring and a gap to the next.
           const text = document.createRange()
           if (name !== null) text.selectNodeContents(name)
           const words = text.getBoundingClientRect()
@@ -303,7 +304,7 @@ describe('at phone', () => {
             left: box.left,
             right: box.right,
             width: box.width,
-            cut: shown && (words.left < box.left - 0.5 || words.right > box.right + 0.5),
+            cut: shown && (words.left < box.left + 2 || words.right > box.right - 2),
           }
         }),
       )

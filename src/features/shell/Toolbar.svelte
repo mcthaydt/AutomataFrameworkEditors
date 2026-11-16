@@ -149,18 +149,19 @@
      their names (smaller), and the list, Undo and Redo keep only their pictures, their names left for a screen reader. */
   @media (max-width: 440px) {
     .tools:not(.column) {
-      gap: 2px;
-      padding: 4px 2px;
+      gap: 1px;
+      padding: 4px 1px;
     }
     .tools:not(.column) .tool {
       flex: 1 1 auto;
       min-width: 44px;
-      padding: 4px 0;
+      padding: 4px 3px;
       font-size: 11px;
     }
     .tools:not(.column) .plain {
       position: relative;
       flex: 0 0 44px;
+      padding: 4px 0;
     }
     .tools:not(.column) .plain span {
       position: absolute;
@@ -171,7 +172,7 @@
       white-space: nowrap;
     }
     .tools:not(.column) .rule {
-      margin: 4px 1px;
+      margin: 4px 0;
     }
   }
   /* A phone on its side has little height: the column is packed to 44 pixel buttons so it fits between the bars. */
