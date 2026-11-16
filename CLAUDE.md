@@ -77,9 +77,9 @@ reports into one owner-facing update. Otherwise the implementer handles these du
   material decisions made; the latest preview and verification status; and anything the owner needs to decide. Omit
   unchanged details. Say "No action needed" when work can continue. Prefer completed outcomes and remaining work over
   an unsupported percentage. Label timing estimates and revise them when the evidence changes.
-- **Show work early:** share the first working screen or playable core loop before extending it across the product.
-  Show meaningful visual and interaction changes as they become available, using an available live preview, screenshot
-  or short recording. Label mockups, incomplete work and known defects clearly. Identify the version shown. Reuse
+- **Show work early:** share the first working screen or playable core loop before extending it across the product. Show
+  meaningful visual and interaction changes as they become available, using an available live preview, screenshot or
+  short recording. Label layout sketches, incomplete work and known defects clearly. Identify the version shown. Reuse
   current previews until the output changes. Creating a public preview still requires the appropriate permission.
 - **Expose decisions:** disclose material choices that affect user experience, appearance, architecture, dependencies,
   compatibility, cost, delivery order or accepted tradeoffs. State the choice, why it was made, its consequence and how
@@ -250,11 +250,12 @@ The least every brief's acceptance criteria cover, where they apply:
   and is archived when it is done. Nothing waits idle.
 - **The advisor** gives a short second opinion on a big call: the risks, what is missing, a recommendation. It never
   writes code or changes files. The coordinator starts it only for big calls: specs, plans, roadmap changes, and
-  approving designs or mockups. It does not reopen the owner's decisions.
+  approving designs. It does not reopen the owner's decisions.
 - Sessions the coordinator starts are threads, not subagents. No session starts subagents of its own unless the owner
   says so.
 - **Slices.** Do not move to the next slice without a design review loop on the screens completed during that slice (see
   `visual-check`), then a slice retro (see `review`).
+- **Screens start from a layout sketch,** never a pixel mockup (`visual-check`, "Before the build").
 - **Handoff.** Every stage reads the files its prompt names, normally the spec, the audits so far and `progress.md`; the
   plan also reads Lessons in `history.md`. It reports its progress to the coordinator, which keeps `progress.md`, and
   its last step is to commit and push. `progress.md` holds the active milestone, including completed outcomes needed
@@ -348,7 +349,9 @@ What is particular to this repo, kept from its earlier notes and the 2026-11-16 
 - **The look** is `docs/design-language.md`: Fraunces and Onest, Phosphor icons, peach the only accent, the helper's
   colour (`--agent`, Wada No. 177 `#b5b1d8`) only for what a helper did. Colours and sizes come only from
   `src/features/ui/ui.css` tokens. The approved mockups are in `docs/mockups/`.
-- **Mockups first.** No editor code until the Owner approves that editor's mockups.
+- **Sketch first.** No editor code until that editor's spec has a layout sketch of each of its screens (`visual-check`).
+  No new mockups are drawn; the approved ones in `docs/mockups/` stay the reference for the shell and World screens they
+  cover.
 - **The framework is a git dependency** pinned to a commit on its `main` until Release 1, listed in
   `pnpm.onlyBuiltDependencies`; moving the pin is its own pull request. Nothing here is published to npm.
 - **Journeys** (`tests/journeys/`) drive the built suite in real browsers, with the real API code against a pretend
