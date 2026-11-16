@@ -10,6 +10,8 @@ export function begin(
   drafts: Storage,
   remembered: Storage,
   savedBefore: boolean,
+  /** False once the person has turned the tips off in Settings. */
+  tips = true,
 ): { edits: Edits; said: readonly Saying[] } {
   const taken = takeDrafts(drafts, given)
   let said: readonly Saying[] = []
@@ -29,10 +31,16 @@ export function begin(
     said = say(said, { id: 'standing', kind: 'info', text: WORDS.mineWaiting, dismiss: true })
   }
   const toCheck = given.waiting - (given.mine === undefined ? 0 : 1)
-  if (given.level === 'owner' && given.login !== undefined && savedBefore && !tipDone(remembered, 'share')) {
+  if (
+    tips &&
+    given.level === 'owner' &&
+    given.login !== undefined &&
+    savedBefore &&
+    !tipDone(remembered, 'share')
+  ) {
     said = say(said, { id: 'tip-share', kind: 'info', text: WORDS.tipShare, dismiss: true })
   }
-  if (can(given.level, 'approve') && toCheck > 0 && !tipDone(remembered, 'approve')) {
+  if (tips && can(given.level, 'approve') && toCheck > 0 && !tipDone(remembered, 'approve')) {
     said = say(said, { id: 'tip-approve', kind: 'info', text: WORDS.tipApprove, dismiss: true })
   }
   return { edits, said }

@@ -17,9 +17,15 @@ export const EVERY_SCENE = '.*'
  */
 export const SCREEN_FILES: Readonly<Record<string, string>> = {
   'src/features/suite/Welcome.svelte': 'welcome-|visitor-',
+  'src/features/shell/Language.svelte': 'first-run-language',
+  'src/features/shell/Welcome.svelte': 'first-run-welcome',
+  'src/features/shell/Tour.svelte': 'first-run-tour',
+  'src/features/shell/Settings.svelte': 'world-settings',
+  'src/features/shell/Help.svelte': 'world-help',
+  'src/features/shell/Keys.svelte': 'world-keys',
   'src/features/team/Games.svelte': 'pick-a-game|add-the-editor|game-cant-be-reached',
   'src/features/world/Opening.svelte': 'game-|not-a-game|world-|level-|visitor-',
-  'src/features/world/World.svelte': 'world-|level-|visitor-',
+  'src/features/world/World.svelte': 'world-|level-|visitor-|first-run-',
   'src/features/world/Events.svelte': 'world-|level-|visitor-',
   'src/features/world/Nudge.svelte': 'level-thing-picked',
   'src/features/world/ThingRow.svelte': 'level-thing-picked',

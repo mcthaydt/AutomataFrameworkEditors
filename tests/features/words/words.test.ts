@@ -109,21 +109,6 @@ const PINNED: Readonly<Record<string, string>> = {
   copySelect: "Copy the text below, then paste it to your agent or into your game's files.",
   copyKeep: 'Save it as a file',
   copyKept: 'A copy of this level is on your device.',
-  guideCount: 'Step crate-1 of undefined',
-  guideStart: 'Try the example game, or sign in to open your own.',
-  guideStartPlain: 'First, sign in.',
-  guideSaveVisitor: "Nice. To put it in the game, sign in from the game's menu. Or keep a copy.",
-  guideDoneCopy: 'You did it. You have a copy. Sign in whenever you want to save into a game.',
-  guideAdd:
-    "Next, let the editor open your game. Press the button, choose your game on GitHub, and you'll come back here. You only do this once.",
-  guidePick: 'Now pick your game.',
-  guidePickLevel: 'Pick a level to change.',
-  guideMove: 'Touch a box and drag it somewhere new.',
-  guideSave: 'Nice. Now press the button at the top right.',
-  guideDoneDirect: 'You did it. The change is in your game.',
-  guideDoneSuggestion: 'You did it. Your change is waiting for someone to approve it.',
-  guideLook: 'You can look around this game. To change things, ask its owner.',
-  guideHide: 'Hide these tips',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
   tipApprove: 'Someone made a change for you to look at. Open it to approve it or turn it down.',
   tipGotIt: 'Got it',
@@ -151,8 +136,4 @@ test('no word a person reads is one of the banned ones', () => {
 test('the banned list matches whole words only', () => {
   expect(bannedIn('Save the sharing list')).toEqual([])
   expect(bannedIn('Your commit and the Repository')).toEqual(['repository', 'commit'])
-})
-
-test('the step count says which step of how many', () => {
-  expect(WORDS.guideCount(2, 4)).toBe('Step 2 of 4')
 })

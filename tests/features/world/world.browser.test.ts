@@ -40,6 +40,9 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
     ...fixtureFiles,
     [LEVEL_PATH]: JSON.stringify({ ...level1, things }),
   })
+  const remembered = memoryStore()
+  // The first run is done, so no welcome stands over the list.
+  remembered.setItem('af.guide.done', '1')
   mounted = mount(World, {
     target: box,
     props: {
@@ -49,15 +52,14 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
       me: ME_DEFAULT,
       go: () => {},
       drafts: memoryStore(),
-      remembered: memoryStore(),
+      remembered,
       savedBefore: false,
       onsignin: () => {},
       onsignout: () => {},
       onsignedout: () => {},
       onreload: () => {},
-      onfacts: () => {},
       onsaved: () => {},
-      onkept: () => {},
+      onme: () => {},
     },
   })
   await tick()

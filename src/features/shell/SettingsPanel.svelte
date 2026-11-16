@@ -27,7 +27,7 @@
 </script>
 
 {#if mode === 'side' || mode === 'sheet'}
-  <aside class="panel {mode}" class:mirror aria-label={title}>
+  <aside class="panel {mode}" class:mirror aria-label={title} data-tour="settings">
     <header>
       <b class="name">{name}</b>
       {#if mode === 'side'}
@@ -41,11 +41,11 @@
     <div class="body">{@render children()}</div>
   </aside>
 {:else if mode === 'tab'}
-  <button type="button" class="tab" class:mirror aria-label={title} onclick={onshow}>
+  <button type="button" class="tab" class:mirror aria-label={title} data-tour="settings" onclick={onshow}>
     <Icon name="caret-left" /><span class="upright">{title}</span>
   </button>
 {:else}
-  <button type="button" class="peek" aria-label={title} onclick={onshow}>
+  <button type="button" class="peek" aria-label={title} data-tour="settings" onclick={onshow}>
     <span class="name">{title}</span><Icon name="caret-up" />
   </button>
 {/if}

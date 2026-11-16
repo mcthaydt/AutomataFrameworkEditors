@@ -102,6 +102,8 @@ export interface OpenAnswer {
   readonly files: readonly WireFile[]
   /** The editors' settings for everyone on this game: the default when the game has no file, or one that cannot be read. */
   readonly editors: EditorsFile
+  /** The version of the settings file, to change it from; undefined when the game has no such file (yet). */
+  readonly editorsVersion?: string | undefined
   /** Who is in the game, from its sharing file, so even a person who only looks sees the faces. */
   readonly people: readonly Person[]
   /** The pictures the game's tilesets name, as bytes in base64; one that is too big, or not where it should be, is left out. */
