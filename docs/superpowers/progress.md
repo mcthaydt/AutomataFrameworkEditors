@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 17:27 UTC (from `date`).
+Last updated: 2026-11-16 18:42 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -12,7 +12,8 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 ### Current work
 
 - Installing the new workflow and its CI gate (this repo's setup pull request).
-- Next: plan pull requests 11 and 14, side by side.
+- Plan PR 11 (the map on screen, #96): built, audited once, audit fixes pushed (`abe0ee7`), re-review running. Plan PR 14 (#95) is in its fix round.
+- Next after #96 merges: map pan, zoom and a "Whole world" button, as its own pull request from `main` (the Owner's choice).
 
 ### Completed outcomes
 
@@ -76,3 +77,19 @@ None.
 - Agent-selected, 2026-11-16: the design drift check's record goes in
   `docs/superpowers/audits/<date>-slice-3-design-review.md`, with a `Scope:` line and `Recheck: passed`, and the
   approval under "Approved screens" in `history.md`.
+- Agent-selected, 2026-11-16: "Move apart" is the word on screen, in nine languages, where the mockups say "Pull apart".
+  The words test bans "pull" (`tests/fixtures/banned.ts`, since 2026-11-14), so the mockups' word never passed it. Easy
+  to change: one row in `words/arrange.ts`.
+- The Owner's, 2026-11-16: map pan, zoom and a "Whole world" button are a follow-up pull request after #96 merges, built
+  from `main` as the design draws them. Until then the map is always fitted, so with many levels each one is small.
+
+### Open items
+
+- A journey failed once and passed on its own straight after (a defect under the rules, so it is recorded here, not
+  fixed in #96 unless it recurs in CI): `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on
+  Welcome, told so". Text: `locator.waitFor: Timeout 10000ms exceeded. waiting for getByRole('heading', { name:
+  'Automata Editors', level: 1 }) to be visible`, at `title` (line 29) from line 91. It was one full local run of all 347
+  journeys in Chromium on `abe0ee7`, at 18:34 UTC, under the load of the whole run; alone it passed (15 of 15).
+- WebKit failed once in CI on `83c7274` (run 43928020067, shard `browsers (webkit 6/6)`):
+  `approve.journey.test.ts`, "grandpa opens the game…" at iPad upright; the crate drag did not register as a change.
+  Cause not found; the run for `abe0ee7` shows whether it recurs.
