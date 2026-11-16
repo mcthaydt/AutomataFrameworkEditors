@@ -1,6 +1,8 @@
 // What the screen says to the person in a few words, and the one or two things they can press about it. Plain data:
 // the screen decides what it says; the list below it draws it.
 
+import { WORDS } from '../words/words.ts'
+
 export interface Saying {
   /** Names the event: a new event with the same id replaces the old one. */
   readonly id: string
@@ -36,3 +38,29 @@ export function say(events: readonly Saying[], event: Saying): readonly Saying[]
 /** The list without the event with this id. */
 export const unsay = (events: readonly Saying[], id: string): readonly Saying[] =>
   events.filter((one) => one.id !== id)
+
+/** What a save that did not go through says, in words a person can act on. */
+export function saveProblem(problem: string, details?: readonly string[]): Saying {
+  const failed = (text: string, lines?: readonly string[]): Saying => ({
+    id: 'failed',
+    kind: 'problem',
+    text,
+    ...(lines === undefined ? {} : { details: lines }),
+  })
+  switch (problem) {
+    case 'changed-elsewhere':
+      return { id: 'elsewhere', kind: 'problem', text: WORDS.changedElsewhere, ask: 'changed-elsewhere' }
+    case 'not-allowed':
+      return { id: 'standing', kind: 'info', text: WORDS.lookOnly, dismiss: true }
+    case 'broken':
+      return failed(WORDS.saveFailed, details ?? [])
+    case 'blocked':
+      return failed(WORDS.blockedOwner)
+    case 'offline':
+      return failed(WORDS.offline)
+    case 'busy':
+      return failed(WORDS.busy)
+    default:
+      return failed(WORDS.saveFailed)
+  }
+}

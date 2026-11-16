@@ -5,18 +5,22 @@
 
 import { bar } from './bar.ts'
 import { first } from './first.ts'
+import { help } from './help.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { levels } from './levels.ts'
 import { menus } from './menus.ts'
 import { panels } from './panels.ts'
+import { settings } from './settings.ts'
 import { shell } from './shell.ts'
 
 export { bar } from './bar.ts'
 export { first } from './first.ts'
+export { help } from './help.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
 export { levels } from './levels.ts'
 export { menus } from './menus.ts'
 export { panels } from './panels.ts'
+export { settings } from './settings.ts'
 export { shell } from './shell.ts'
 
 export const WORDS = Object.freeze({
@@ -126,21 +130,6 @@ export const WORDS = Object.freeze({
   copySelect: "Copy the text below, then paste it to your agent or into your game's files.",
   copyKeep: 'Save it as a file',
   copyKept: 'A copy of this level is on your device.',
-  guideCount: (n: number, of: number): string => `Step ${n} of ${of}`,
-  guideStart: 'Try the example game, or sign in to open your own.',
-  guideStartPlain: 'First, sign in.',
-  guideSaveVisitor: "Nice. To put it in the game, sign in from the game's menu. Or keep a copy.",
-  guideDoneCopy: 'You did it. You have a copy. Sign in whenever you want to save into a game.',
-  guideAdd:
-    "Next, let the editor open your game. Press the button, choose your game on GitHub, and you'll come back here. You only do this once.",
-  guidePick: 'Now pick your game.',
-  guidePickLevel: 'Pick a level to change.',
-  guideMove: 'Touch a box and drag it somewhere new.',
-  guideSave: 'Nice. Now press the button at the top right.',
-  guideDoneDirect: 'You did it. The change is in your game.',
-  guideDoneSuggestion: 'You did it. Your change is waiting for someone to approve it.',
-  guideLook: 'You can look around this game. To change things, ask its owner.',
-  guideHide: 'Hide these tips',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
   tipApprove: 'Someone made a change for you to look at. Open it to approve it or turn it down.',
   tipGotIt: 'Got it',
@@ -158,6 +147,8 @@ export interface Words {
   readonly panels: Readonly<Record<keyof (typeof panels)['en'], Row>>
   readonly first: Readonly<Record<keyof (typeof first)['en'], Row>>
   readonly levels: Readonly<Record<keyof (typeof levels)['en'], Row>>
+  readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
+  readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
 }
 
 /**
@@ -170,6 +161,8 @@ export function wordsIn(lang: Lang): Words {
     bar: { ...bar.en, ...bar[lang] },
     shell: { ...shell.en, ...shell[lang] },
     first: { ...first.en, ...first[lang] },
+    settings: { ...settings.en, ...settings[lang] },
+    help: { ...help.en, ...help[lang] },
     menus: { ...menus.en, ...menus[lang] },
     panels: { ...panels.en, ...panels[lang] },
     levels: { ...levels.en, ...levels[lang] },

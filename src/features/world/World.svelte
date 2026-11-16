@@ -34,9 +34,10 @@
   import { type Route, Share, Waiting, WaitingChange, withoutSheet } from '../team/team.ts'
   import { nameOf, type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
-  import { type Answer, type Saying, say, unsay } from './events.ts'
+  import { type Answer, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
+  import Guidance from './Guidance.svelte'
   import { listen, typing } from './listen.ts'
   import Nudge from './Nudge.svelte'
   import ThingRow from './ThingRow.svelte'
@@ -64,12 +65,10 @@
     onsignedout: () => void
     /** Open the game again: their version, with nothing of mine. */
     onreload: () => void
-    /** Where the person is in the first run: told whenever it changes. */
-    onfacts: (facts: { dirty: boolean; look: boolean }) => void
     /** Told once a save has gone in, and how. */
     onsaved: (how: 'direct' | 'suggestion') => void
-    /** Told when a copy was made. */
-    onkept: () => void
+    /** Told when something "For me" in Settings is changed: the page keeps it on this device. */
+    onme: (next: Me) => void
   }
   let {
     game: given,
@@ -84,9 +83,8 @@
     onsignout,
     onsignedout,
     onreload,
-    onfacts,
     onsaved,
-    onkept,
+    onme,
   }: Props = $props()
 
   const measure = (): { w: number; h: number } => ({
@@ -96,7 +94,7 @@
   const first = measure()
 
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
-  const started = untrack(() => begin(given, drafts, remembered, savedBefore))
+  const started = untrack(() => begin(given, drafts, remembered, savedBefore, me.tips))
 
   let held = $state.raw<OpenGame>(untrack(() => given))
   /** What I may do. It can be lowered by a save the API refuses. */
@@ -132,6 +130,9 @@
   /** What to do once "Leave without saving" is pressed. */
   let pending: (() => void) | undefined
 
+  /** The first run and the sheets of help: told what the person does, asked to open a sheet. */
+  let guide = $state.raw<ReturnType<typeof Guidance>>()
+
   const lang = $derived(me.language ?? 'en')
   const words = $derived(wordsIn(lang))
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -159,8 +160,6 @@
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
   const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
-  $effect(() => onfacts({ dirty, look: signedIn && !can(access, 'save') }))
-
   $effect(() => showGlass(me))
 
   onMount(() =>
@@ -186,6 +185,14 @@
         } else if (command === 'escape') {
           picked = []
           placing = undefined
+        } else if (command === 'help') {
+          e.preventDefault()
+          guide?.open('help')
+        } else if (command?.startsWith('nudge:') && picked.length === 1 && !e.defaultPrevented && guide?.sheetOpen() !== true) {
+          // A thing that has focus moves itself; this is for a picked thing when the focus is elsewhere.
+          e.preventDefault()
+          const way = command.slice('nudge:'.length)
+          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked[0] as string, way)
         } else if (command?.startsWith('tool:') && WORLD.tools.includes(command.slice(5) as Tool)) {
           tool = command.slice(5) as Tool
         } else if (command === 'delete' || command === 'duplicate' || command === 'copy' || command === 'paste') {
@@ -203,6 +210,11 @@
       },
     }),
   )
+
+  function pick(ids: readonly string[]): void {
+    picked = ids
+    if (ids.length > 0) guide?.happen({ kind: 'picked' })
+  }
 
   /** A new `Edits`: shown, kept on the device, and the last "saved" is no longer true. */
   function keep(next: Edits): void {
@@ -222,10 +234,14 @@
   // A hand holding things: every move is worked out from the level as it was when the hand took hold, so the whole grab is
   // one step back.
   let dragFrom: Edits | undefined
-  const grab = (): void => {
-    dragFrom = edits
-  }
+  const grab = (): void => void (dragFrom = edits)
   function edit(next: Level): void {
+    const was = edits.now.levels[levelId]
+    const moved = (t: { id: string; x: number; y: number }): boolean => {
+      const o = was?.things.find((w) => w.id === t.id)
+      return o !== undefined && (o.x !== t.x || o.y !== t.y)
+    }
+    if (next.things.some(moved)) guide?.happen({ kind: 'moved' })
     keep(inLevel(dragFrom ?? edits, levelId, () => next))
   }
   function drop(gaveUp: boolean): void {
@@ -239,7 +255,7 @@
     if (start === undefined) return
     const result = nudgeThings(start, held.content.characters, [id], way)
     solid(!result.ok && result.why === 'solid')
-    if (result.ok) keep(inLevel(edits, levelId, () => result.value))
+    if (result.ok) edit(result.value)
   }
   function openList(tab: 'list' | 'add'): void {
     rows = rowSize(pointers, me.rows)
@@ -267,8 +283,7 @@
     saving = false
     if (result.ok) {
       held = result.game
-      const base = { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } }
-      edits = { ...edits, base }
+      edits = { ...edits, base: { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } } }
       keepDrafts(drafts, held, edits)
       events = say(events, {
         id: 'saved',
@@ -279,40 +294,9 @@
       onsaved(result.how)
       return
     }
-    const problem = (id: string, said: string, details?: readonly string[]): void => {
-      events = say(events, {
-        id,
-        kind: 'problem',
-        text: said,
-        ...(details === undefined ? {} : { details }),
-      })
-    }
-    switch (result.problem) {
-      case 'signed-out':
-        return onsignedout()
-      case 'changed-elsewhere':
-        events = say(events, {
-          id: 'elsewhere',
-          kind: 'problem',
-          text: WORDS.changedElsewhere,
-          ask: 'changed-elsewhere',
-        })
-        return
-      case 'not-allowed':
-        access = 'look'
-        events = say(events, { id: 'standing', kind: 'info', text: WORDS.lookOnly, dismiss: true })
-        return
-      case 'broken':
-        return problem('failed', WORDS.saveFailed, result.details ?? [])
-      case 'blocked':
-        return problem('failed', WORDS.blockedOwner)
-      case 'offline':
-        return problem('failed', WORDS.offline)
-      case 'busy':
-        return problem('failed', WORDS.busy)
-      default:
-        return problem('failed', WORDS.saveFailed)
-    }
+    if (result.problem === 'signed-out') return onsignedout()
+    if (result.problem === 'not-allowed') access = 'look'
+    events = say(events, saveProblem(result.problem, result.details))
   }
 
   /** The level as it is on the screen now, saved or not. */
@@ -331,7 +315,6 @@
       // Where the clipboard is not allowed, the text is shown and selected so it can be copied by hand.
       events = say(events, { id: 'copied', kind: 'info', text: WORDS.copySelect, box: copy.text, dismiss: true })
     }
-    onkept()
   }
   function copyFile(): void {
     const copy = copyOfNow()
@@ -339,7 +322,6 @@
     keepCopy(document, copy)
     events = unsay(events, 'keep')
     events = say(events, { id: 'copied', kind: 'good', text: WORDS.copyKept, dismiss: true })
-    onkept()
   }
 
   function answered(event: Saying, answer: Answer): void {
@@ -384,6 +366,7 @@
     else if (id === 'waiting') asSheet({ kind: 'waiting' })
     else if (id === 'keep') askKeep()
     else if (id === 'games') leave(() => go({ screen: 'games' }))
+    else if (id === 'help' || id === 'settings') guide?.open(id)
     else if (id === 'sign-in') onsignin()
     else if (id === 'sign-out') onsignout()
   }
@@ -462,7 +445,7 @@
           {clip}
           {pointers}
           fingerDraws={me.fingerDraws}
-          onpick={(ids) => (picked = ids)}
+          onpick={pick}
           onplacing={(id) => (placing = id)}
           ongrab={grab}
           onedit={edit}
@@ -539,7 +522,7 @@
               {thing}
               picked={picked.includes(thing.id)}
               note={locked.has(thing.id) ? text(words.levels.lockedNote) : undefined}
-              onpick={() => (picked = [thing.id])}
+              onpick={() => pick([thing.id])}
             />
           {/if}
         {/snippet}
@@ -572,6 +555,22 @@
     {/if}
 
     <Events {events} onanswer={answered} />
+
+    <Guidance
+      bind:this={guide}
+      {lang}
+      {me}
+      game={held}
+      {api}
+      owner={signedIn && can(access, 'share')}
+      {remembered}
+      {things}
+      picked={placed?.id}
+      {onme}
+      onsettings={(settings) => (held = { ...held, ...settings })}
+      {onsignedout}
+      onkeep={level === undefined ? undefined : askKeep}
+    />
   </div>
 {/if}
 

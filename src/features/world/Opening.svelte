@@ -23,11 +23,8 @@
     remembered: Storage
     drafts: Storage
     savedBefore: boolean
-    /** Told whenever the game has been asked for: its name, or that it could not be opened. */
-    onopened: (said: { name: string | undefined; askSignIn: boolean }) => void
-    onfacts: (facts: { dirty: boolean; look: boolean }) => void
     onsaved: (how: 'direct' | 'suggestion') => void
-    onkept: () => void
+    onme: (next: Me) => void
     onsignin: () => void
     onsignout: () => void
     onsignedout: () => void
@@ -42,10 +39,8 @@
     remembered,
     drafts,
     savedBefore,
-    onopened,
-    onfacts,
     onsaved,
-    onkept,
+    onme,
     onsignin,
     onsignout,
     onsignedout,
@@ -64,10 +59,6 @@
     else if (refused) forgetGame(remembered, ref)
     opened = result
     generation += 1
-    onopened({
-      name: result.ok ? result.game.content.project.name : undefined,
-      askSignIn: refused && !signedIn,
-    })
   }
   onMount(() => void load())
 
@@ -101,9 +92,8 @@
       {onsignout}
       {onsignedout}
       onreload={() => void load()}
-      {onfacts}
       {onsaved}
-      {onkept}
+      {onme}
     />
   {/key}
 {:else if opened.ok}

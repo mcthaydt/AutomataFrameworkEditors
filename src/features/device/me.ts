@@ -75,3 +75,12 @@ export function keepMe(store: Storage, me: Me): void {
     // Nothing to do: the choice lasts until the page is closed.
   }
 }
+
+/** The language this device asks for, among the nine the editors speak: its first choice that is one, else English. */
+export function languageFor(asked: readonly string[]): Lang {
+  for (const tag of asked) {
+    const lang = LANGUAGES.find((one) => one === tag.toLowerCase().split('-')[0])
+    if (lang !== undefined) return lang
+  }
+  return 'en'
+}

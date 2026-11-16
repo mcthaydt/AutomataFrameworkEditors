@@ -65,17 +65,27 @@ export async function openGame(deps: ApiDeps, request: Request, game: GameRef): 
       waiting,
       turnedDown,
       files,
-      editors: editors.value,
+      editors: editors.value.file,
+      editorsVersion: editors.value.version,
       people,
       pictures,
     },
   }
 }
 
-/** The editors' settings on `branch`: the default with no file, and with one that cannot be read. */
-async function readEditors(repo: Repo, branch: string): Promise<Answer<EditorsFile>> {
+/** The editors' settings on `branch`, and the version of their file: the default with no file, and with one that cannot be read. */
+async function readEditors(
+  repo: Repo,
+  branch: string,
+): Promise<Answer<{ readonly file: EditorsFile; readonly version: string | undefined }>> {
   const read = await repo.readFile(branch, EDITORS_FILE)
-  if (!read.ok) return read.problem === 'not-found' ? { ok: true, value: EDITORS_DEFAULT } : read
+  if (!read.ok) {
+    if (read.problem !== 'not-found') return read
+    return { ok: true, value: { file: EDITORS_DEFAULT, version: undefined } }
+  }
   const parsed = parseEditors(read.value.text)
-  return { ok: true, value: parsed.ok ? parsed.value : EDITORS_DEFAULT }
+  return {
+    ok: true,
+    value: { file: parsed.ok ? parsed.value : EDITORS_DEFAULT, version: read.value.version },
+  }
 }

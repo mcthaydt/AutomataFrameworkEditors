@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { keepMe, ME_DEFAULT, type Me, readMe } from '#src/features/device/device.ts'
+import { keepMe, languageFor, ME_DEFAULT, type Me, readMe } from '#src/features/device/device.ts'
 
 function memory(initial: Record<string, string> = {}): Storage {
   const map = new Map(Object.entries(initial))
@@ -66,4 +66,13 @@ test('a store that throws is the default', () => {
 
 test('a language the editors do not speak is not kept', () => {
   expect(readMe(memory({ 'af.me.language': 'xx' })).language).toBeUndefined()
+})
+
+test("the language card starts on the device's own: its first choice the editors speak, else English", () => {
+  expect(languageFor(['es-MX', 'en-US'])).toBe('es')
+  expect(languageFor(['pt-BR'])).toBe('pt')
+  expect(languageFor(['sv-SE', 'de-DE', 'en'])).toBe('de')
+  expect(languageFor(['ZH-Hans-CN'])).toBe('zh')
+  expect(languageFor(['sv-SE', 'fi'])).toBe('en')
+  expect(languageFor([])).toBe('en')
 })
