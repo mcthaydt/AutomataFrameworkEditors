@@ -148,6 +148,23 @@ test('a spot with a thing on it is left as it was, and the note says so', async 
   expect(said()).toContain('Left the spots with things on them as they were')
 })
 
+test('a Box pulled back onto only the spot a thing stands on leaves the level as it was, and adds no step back', async () => {
+  const stage = await show()
+  held.setHeld(['box'])
+  const crate = at(stage, 6, 7)
+  send(stage, 'pointerdown', crate)
+  for (const to of [at(stage, 5, 6), at(stage, 4, 5), at(stage, 5, 6), crate]) {
+    send(stage, 'pointermove', to)
+    await tick()
+  }
+  expect(held.now()).toEqual(level1)
+  send(stage, 'pointerup', crate)
+  await tick()
+  expect(held.now()).toEqual(level1)
+  expect(held.pastNow()).toBe(0)
+  expect(said()).toContain('Something is already there')
+})
+
 test('press and hold on the level picks the kind of ground that is there', async () => {
   const stage = await show()
   held.setLetter('~')

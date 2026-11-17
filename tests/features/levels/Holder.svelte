@@ -88,6 +88,8 @@
   ondrop={(gaveUp) => {
     grabbing = false
     if (gaveUp) undo()
+    // As the page does: a grab that ended with the level as it was adds no step back.
+    else if (past.at(-1) === level) past = past.slice(0, -1)
   }}
   onlock={(id, on) => {
     const next = new Set(locked)

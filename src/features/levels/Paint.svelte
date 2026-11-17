@@ -60,9 +60,10 @@
       onedit(painted.done.value)
     } else {
       why = painted.done
-      // A box that shrank back to nothing, or a stroke that has nowhere to go yet, is the level as it was.
+      // A box that shrank back to nothing or onto only a spot a thing stands on, or a stroke that has nowhere to go yet, is
+      // the level as it was.
       latest = undefined
-      if (painted.done.why === 'same') onedit(from.base)
+      if (painted.done.why === 'same' || painted.done.why === 'occupied') onedit(from.base)
     }
   }
 
