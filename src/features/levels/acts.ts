@@ -51,6 +51,7 @@ export function movePicked(
   hero: string,
   ids: readonly string[],
   by: Point,
+  lineUp = true,
 ): Done {
   const things = ids.filter((id) => !isStart(id))
   const starts = ids.filter(isStart)
@@ -58,7 +59,7 @@ export function movePicked(
   let now = base
   let moved = false
   if (things.length > 0) {
-    const done = moveThings(now, characters, things, by, true)
+    const done = moveThings(now, characters, things, by, lineUp)
     if (done.ok) {
       now = done.value
       moved = true

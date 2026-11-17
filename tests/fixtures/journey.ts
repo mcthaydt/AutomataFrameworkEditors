@@ -87,6 +87,11 @@ export async function openPage(
     hasTouch: true,
     ...(options.locale === undefined ? {} : { locale: options.locale }),
   })
+  // `hasTouch` gives a touch screen, but Firefox and WebKit still report no touch points: the editor then takes the window
+  // for a computer with no touch (no free-thumb buttons). Chromium reports one, so say it for the others too.
+  await context.addInitScript(() => {
+    if (navigator.maxTouchPoints === 0) Object.defineProperty(navigator, 'maxTouchPoints', { value: 1 })
+  })
   if (options.firstRun !== true) {
     // A person who has been here: the first run is finished and English chosen, but only until they choose otherwise.
     await context.addInitScript(() => {

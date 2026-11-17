@@ -8,6 +8,7 @@ import { bar } from './bar.ts'
 import { changes } from './changes.ts'
 import { first } from './first.ts'
 import { games } from './games.ts'
+import { ground } from './ground.ts'
 import { help } from './help.ts'
 import { kept } from './kept.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
@@ -26,6 +27,7 @@ export { bar } from './bar.ts'
 export { changes } from './changes.ts'
 export { first } from './first.ts'
 export { games } from './games.ts'
+export { ground } from './ground.ts'
 export { help } from './help.ts'
 export { kept } from './kept.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
@@ -124,6 +126,7 @@ export interface Words {
   readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
   readonly team: Readonly<Record<keyof (typeof team)['en'], Row>>
   readonly games: Readonly<Record<keyof (typeof games)['en'], Row>>
+  readonly ground: Readonly<Record<keyof (typeof ground)['en'], Row>>
 }
 
 /**
@@ -149,6 +152,7 @@ export function wordsIn(lang: Lang): Words {
     thing: { ...thing.en, ...thing[lang] },
     team: { ...team.en, ...team[lang] },
     games: { ...games.en, ...games[lang] },
+    ground: { ...ground.en, ...ground[lang] },
   }
 }
 
