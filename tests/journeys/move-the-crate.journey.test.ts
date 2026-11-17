@@ -6,12 +6,16 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
   type JourneyPage,
+  levelPut,
   openLevel,
   openPage,
   pictureColourBeside,
   pictureColourUnder,
   pressPut,
   putButton,
+  putSheet,
+  putThemIn,
+  putWords,
   quietButton,
   SIZES,
   setupJourneys,
@@ -43,7 +47,7 @@ const crateAt = (x: number): Level => ({
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
 /** The note under the bar that says it, or the button that has something to put in. */
-const says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
+const _says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 const hasChanges = (j: JourneyPage) => putButton(j.page).waitFor()
 
 describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
@@ -58,8 +62,7 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
     // proves nothing about the picture (the first build moved the buttons and never redrew).
     await expect.poll(() => pictureColourUnder(j.page, 'crate-1')).toBe(CRATE)
     await expect.poll(() => pictureColourBeside(j.page, 'crate-1', -2)).toBe(SKY)
-    await pressPut(j.page)
-    await says(j, WORDS.savedDirect)
+    await putThemIn(j.page)
     await quietButton(j.page).waitFor()
 
     const repo = repoOf(j)
@@ -71,7 +74,7 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('at %s', (size) => {
         author: 'grandma',
       }),
     ])
-    expect(repo.commits[0]?.text).toBe(writeContent('level', crateAt(8.5) as never))
+    expect(levelPut(repo, LEVEL_PATH)).toBe(writeContent('level', crateAt(8.5) as never))
     expect([...(repo.branches.get('main')?.keys() ?? [])].sort()).toEqual(Object.keys(fixtureFiles).sort())
     expect(repo.pulls).toEqual([])
 
@@ -92,8 +95,7 @@ describe('someone who may only suggest', () => {
   test('does the same: it waits for approval, and main is untouched', async () => {
     const j = await asKid()
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-    await pressPut(j.page)
-    await says(j, WORDS.savedSuggestion)
+    await putThemIn(j.page, 'suggestion')
     const repo = repoOf(j)
     expect(repo.commits.map((c) => [c.branch, c.author])).toEqual([['automata/kid', 'kid']])
     expect(repo.pulls.filter((p) => p.state === 'open')).toHaveLength(1)
@@ -107,12 +109,10 @@ describe('someone who may only suggest', () => {
   test('a second change by kid adds to the same waiting change', async () => {
     const j = await asKid()
     await dragByTouch(j.page, 'crate-1', { dx: 1, dy: 0 })
-    await pressPut(j.page)
-    await says(j, WORDS.savedSuggestion)
+    await putThemIn(j.page, 'suggestion')
     await dragByTouch(j.page, 'crate-1', { dx: 1, dy: 0 })
     await hasChanges(j)
-    await pressPut(j.page)
-    await says(j, WORDS.savedSuggestion)
+    await putThemIn(j.page, 'suggestion')
     expect(repoOf(j).commits).toHaveLength(2)
     expect(repoOf(j).pulls.filter((p) => p.state === 'open')).toHaveLength(1)
   })
@@ -128,8 +128,11 @@ test('the same, moving with the arrow buttons instead of a finger', async () => 
   for (let step = 0; step < 2; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
   await hasChanges(j)
   await putButton(j.page).tap()
-  await says(j, WORDS.savedDirect)
-  expect(repoOf(j).commits[0]?.text).toBe(writeContent('level', crateAt(8.5) as never))
+  await putSheet(j.page)
+    .getByRole('button', { name: /^Put them in/ })
+    .tap()
+  await putSheet(j.page).getByRole('heading', { name: putWords.doneTitle, exact: true }).waitFor()
+  expect(levelPut(repoOf(j), LEVEL_PATH)).toBe(writeContent('level', crateAt(8.5) as never))
 })
 
 test('the same, with the keyboard only, from the welcome screen to the game', async () => {
@@ -144,17 +147,24 @@ test('the same, with the keyboard only, from the welcome screen to the game', as
   await hasChanges(j)
   await putButton(j.page).focus()
   await j.page.keyboard.press('Enter')
-  await says(j, WORDS.savedDirect)
-  expect(repoOf(j).commits[0]?.text).toBe(writeContent('level', crateAt(8.5) as never))
+  await putSheet(j.page)
+    .getByRole('button', { name: /^Put them in/ })
+    .focus()
+  await j.page.keyboard.press('Enter')
+  await putSheet(j.page).getByRole('heading', { name: putWords.doneTitle, exact: true }).waitFor()
+  expect(levelPut(repoOf(j), LEVEL_PATH)).toBe(writeContent('level', crateAt(8.5) as never))
 })
 
-test('pressing Save twice quickly makes one commit', async () => {
+test('pressing "Put them in" twice quickly makes one commit', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
   await openLevel(j.page)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await putButton(j.page).dblclick()
-  await says(j, WORDS.savedDirect)
+  await pressPut(j.page)
+  await putSheet(j.page)
+    .getByRole('button', { name: /^Put them in/ })
+    .dblclick()
+  await putSheet(j.page).getByRole('heading', { name: putWords.doneTitle, exact: true }).waitFor()
   expect(repoOf(j).commits).toHaveLength(1)
 })
 
@@ -163,8 +173,7 @@ test("the whole journey made no request to any address but the page's own", asyn
   await signIn(j.page)
   await openLevel(j.page)
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressPut(j.page)
-  await says(j, WORDS.savedDirect)
+  await putThemIn(j.page)
   // Signing in goes to GitHub's own page (the pretend one) and back; everything the page itself asked for is its own.
   const own = j.requests.filter((r) => !r.includes(`127.0.0.1:4801`) && !r.startsWith('GET data:'))
   for (const request of own) expect(request).toContain(j.site)

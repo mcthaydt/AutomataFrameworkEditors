@@ -13,7 +13,9 @@ import {
   pressPut,
   putButton,
   putButtonSaying,
-  quietButton,
+  putSheet,
+  putThemIn,
+  putWords,
   setupJourneys,
   signIn,
   thingNamed,
@@ -39,7 +41,7 @@ const crateAt = (x: number): Level => ({
   things: level1.things.map((t) => (t.id === 'crate-1' ? { ...t, x } : t)),
 })
 const theirs = writeContent('level', crateAt(10.5) as never)
-const says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
+const _says = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 /** The main button offers a copy and not a save: what a person who may not save is shown once something changed. */
 const offersCopy = (j: JourneyPage) => putButtonSaying(j.page, KEEP).waitFor()
 const KEEP = String(wordsIn('en').bar.keepCopy)
@@ -54,61 +56,69 @@ const asGrandma = async (): Promise<JourneyPage> => {
   await openLevel(j.page)
   return j
 }
-const moveAndSave = async (j: JourneyPage): Promise<void> => {
+/** Moves the crate, presses the main button, then the sheet's own "Put them in": it does not wait to hear how that went. */
+const moveAndPut = async (j: JourneyPage): Promise<void> => {
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await pressPut(j.page)
+  await putSheet(j.page)
+    .getByRole('button', { name: /^(Put them in|Send)/ })
+    .click()
 }
 
 describe('when someone else changed the level first', () => {
   const clash = async (): Promise<JourneyPage> => {
     const j = await asGrandma()
     repoOf(j).put('main', LEVEL_PATH, theirs)
-    await moveAndSave(j)
-    await text(j, WORDS.changedElsewhere)
+    await moveAndPut(j)
+    await putSheet(j.page).getByText(/clash/).waitFor()
     return j
   }
 
-  test('nothing of mine is written over theirs, and the screen says so', async () => {
+  test('nothing of mine is written over theirs, and the sheet says which changes clash', async () => {
     const j = await clash()
     expect(repoOf(j).commits).toEqual([])
     expect(repoOf(j).branches.get('main')?.get(LEVEL_PATH)).toBe(theirs)
+    // Nothing is left to put in: no \"Put 0 changes\", no button that fails; the one way on is Close.
+    const sheet = putSheet(j.page)
+    await sheet.getByRole('heading', { name: /version is kept/ }).waitFor()
+    expect(await sheet.getByText(/Put 0 change/).count()).toBe(0)
+    expect(await sheet.getByRole('button', { name: /^Put them in/ }).count()).toBe(0)
+    expect(await sheet.getByText(/came in from the game/).count()).toBe(0)
   })
 
-  test('"Show their version" shows their crate and clears the unsaved change', async () => {
+  test("the game's version is kept for now, and one Undo brings my crate back", async () => {
     const j = await clash()
-    await j.page.getByRole('button', { name: WORDS.takeTheirs }).click()
+    await putSheet(j.page).getByRole('button', { name: 'Close' }).first().click()
     await crateX(j).toBe('10.5')
-    await quietButton(j.page).waitFor()
-  })
-
-  test('"Keep my change for now" keeps my crate where I put it, and Save says the same again', async () => {
-    const j = await clash()
-    await j.page.getByRole('button', { name: WORDS.keepMine }).click()
+    await j.page.getByRole('button', { name: 'Undo' }).last().click()
     await crateX(j).toBe('8.5')
-    await pressPut(j.page)
-    await text(j, WORDS.changedElsewhere)
     expect(repoOf(j).commits).toEqual([])
   })
 })
 
-test('offline: the offline words; back online, Save works and makes one commit', async () => {
+test('offline: the sheet says so and keeps the change; back online, Try again makes one commit', async () => {
   const j = await asGrandma()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await j.page.context().setOffline(true)
   await pressPut(j.page)
-  await text(j, WORDS.offline)
+  await j.page.context().setOffline(true)
+  await putSheet(j.page)
+    .getByRole('button', { name: /^(Put them in|Send)/ })
+    .click()
+  await putSheet(j.page)
+    .getByText(/no internet/)
+    .waitFor()
   await crateX(j).toBe('8.5')
   await j.page.context().setOffline(false)
-  await pressPut(j.page)
-  await says(j, WORDS.savedDirect)
+  await putSheet(j.page).getByRole('button', { name: putWords.again }).click()
+  await putSheet(j.page).getByRole('heading', { name: putWords.doneTitle, exact: true }).waitFor()
   expect(repoOf(j).commits).toHaveLength(1)
 })
 
-test('the token ran out mid-edit: Save still works, and the person never sees a sign-in screen', async () => {
+test('the token ran out mid-edit: putting them in still works, and the person never sees a sign-in screen', async () => {
   const j = await asGrandma()
   j.fake.tokensRunOut()
-  await moveAndSave(j)
-  await says(j, WORDS.savedDirect)
+  await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await putThemIn(j.page)
   expect(await j.page.getByRole('button', { name: WORDS.signIn }).count()).toBe(0)
   expect(repoOf(j).commits).toHaveLength(1)
 })
@@ -116,14 +126,13 @@ test('the token ran out mid-edit: Save still works, and the person never sees a 
 test('signed out everywhere: sign in again and my unsaved crate is where I left it', async () => {
   const j = await asGrandma()
   j.fake.signedOutEverywhere()
-  await moveAndSave(j)
+  await moveAndPut(j)
   await text(j, WORDS.signedOutAgain)
   await signIn(j.page)
   await thingNamed(j.page, 'crate-1').waitFor()
   await text(j, WORDS.draftBack)
   await crateX(j).toBe('8.5')
-  await pressPut(j.page)
-  await says(j, WORDS.savedDirect)
+  await putThemIn(j.page)
 })
 
 test('a reload with an unsaved change brings it back, and says so', async () => {
@@ -186,8 +195,8 @@ describe('someone who has not signed in', () => {
   test('moves the crate: offered a copy to keep, and the API was never asked to save', async () => {
     const j = await visit()
     await pressPut(j.page)
-    await j.page.getByRole('button', { name: WORDS.copyKeep }).waitFor()
-    expect(j.requests.filter((r) => r.includes('/api/save'))).toEqual([])
+    await putSheet(j.page).getByRole('heading', { name: putWords.keepTitle }).waitFor()
+    expect(j.requests.filter((r) => r.includes('/api/put'))).toEqual([])
     await crateX(j).toBe('8.5')
   })
 
@@ -196,8 +205,7 @@ describe('someone who has not signed in', () => {
     await signIn(j.page)
     await text(j, WORDS.draftBack)
     await crateX(j).toBe('8.5')
-    await pressPut(j.page)
-    await says(j, WORDS.savedDirect)
+    await putThemIn(j.page)
     expect(repoOf(j).commits.map((c) => [c.branch, c.author])).toEqual([['main', 'grandma']])
   })
 
@@ -207,8 +215,7 @@ describe('someone who has not signed in', () => {
     j.fake.person = 'kid'
     await signIn(j.page)
     await text(j, WORDS.draftBack)
-    await pressPut(j.page)
-    await says(j, WORDS.savedSuggestion)
+    await putThemIn(j.page, 'suggestion')
     expect(repoOf(j).commits.map((c) => c.branch)).toEqual(['automata/kid'])
   })
 
@@ -231,22 +238,26 @@ describe('someone who has not signed in', () => {
   })
 })
 
-test('my level was lowered while I worked: Save says lookOnly and my crate stays on screen', async () => {
+test('my level was lowered while I worked: the sheet says so, keeps my crate, and offers a copy', async () => {
   const j = await open('ipadUpright', 'kid')
   share(j, 'suggest')
   await signIn(j.page)
   await openLevel(j.page)
   share(j, 'look')
-  await moveAndSave(j)
-  await text(j, WORDS.lookOnly)
+  await moveAndPut(j)
+  await putSheet(j.page)
+    .getByText(/you can look at this game/i)
+    .waitFor()
   await crateX(j).toBe('8.5')
   expect(repoOf(j).commits).toEqual([])
 })
 
-test('a rule on GitHub blocks the editor: blockedOwner, and my crate stays on screen', async () => {
+test('a rule on GitHub blocks the editor: the sheet says so, and my crate stays on screen', async () => {
   const j = await asGrandma()
   repoOf(j).rule = 'blocks-app'
-  await moveAndSave(j)
-  await text(j, WORDS.blockedOwner)
+  await moveAndPut(j)
+  await putSheet(j.page)
+    .getByText(/GitHub is set to stop the editor/)
+    .waitFor()
   await crateX(j).toBe('8.5')
 })

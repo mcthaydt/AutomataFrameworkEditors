@@ -13,8 +13,10 @@
     children: Snippet
     /** The sheet's buttons, kept at its foot. */
     foot?: Snippet
+    /** On a wide screen it sits at the right, where the settings panel is, and not in the middle. */
+    side?: boolean
   }
-  let { title, close, onclose, children, foot }: Props = $props()
+  let { title, close, onclose, children, foot, side = false }: Props = $props()
 
   const headingId = $props.id()
   let sheet: HTMLElement | undefined
@@ -37,7 +39,7 @@
 
 <svelte:window onkeydown={keys} />
 
-<div class="sheet" role="dialog" aria-modal="true" aria-labelledby={headingId} tabindex="-1" bind:this={sheet}>
+<div class="sheet" class:side role="dialog" aria-modal="true" aria-labelledby={headingId} tabindex="-1" bind:this={sheet}>
   <header>
     <h2 id={headingId}>{title}</h2>
     <button type="button" class="out" data-close onclick={onclose}>
@@ -109,6 +111,13 @@
     gap: 8px;
     padding: 12px 20px 16px;
     border-top: 1px solid var(--line);
+  }
+  @media (min-width: 900px) {
+    .sheet.side {
+      inset: calc(var(--bar) + 20px) 8px 8px auto;
+      margin: 0;
+      width: min(400px, 36%);
+    }
   }
   /* A phone: the sheet comes up from the bottom edge. */
   @media (max-width: 500px) {

@@ -4,8 +4,8 @@ import { writeAccess } from '#src/features/access/access.ts'
 import type {
   Answer,
   OpenAnswer,
-  SaveAnswer,
-  SaveAsk,
+  PutAnswer,
+  PutAsk,
   Waiting,
   WaitingChange,
 } from '#src/features/wire/wire.ts'
@@ -30,14 +30,12 @@ const problem = (r: { answer: Answer<unknown> }): string | undefined =>
 /** kid has saved a change, and its checks pass. */
 async function kidSaved(): Promise<void> {
   repo().checks = 'passing'
-  const ask: SaveAsk = {
+  const ask: PutAsk = {
     game: GAME,
-    path: LEVEL_PATH,
-    value: moved,
-    version: blobSha(fixtureFiles[LEVEL_PATH] ?? ''),
+    files: [{ path: LEVEL_PATH, value: moved, version: blobSha(fixtureFiles[LEVEL_PATH] ?? '') }],
     message: 'Move crate-1 in level-1',
   }
-  const saved = await api.call<SaveAnswer>('kid', 'POST', '/api/save', ask)
+  const saved = await api.call<PutAnswer>('kid', 'POST', '/api/put', ask)
   if (!saved.answer.ok) throw new Error(saved.answer.problem)
 }
 
@@ -110,14 +108,12 @@ test('after approval kid opens the game from main, with nothing waiting', async 
 test('kid cannot approve at all (not-allowed); grandpa cannot approve his own (own-change)', async () => {
   const kid = await api.call('kid', 'POST', '/api/approve', { game: GAME, number: 1 })
   expect([kid.status, problem(kid)]).toEqual([403, 'not-allowed'])
-  const ask: SaveAsk = {
+  const ask: PutAsk = {
     game: GAME,
-    path: LEVEL_PATH,
-    value: moved,
-    version: blobSha(fixtureFiles[LEVEL_PATH] ?? ''),
+    files: [{ path: LEVEL_PATH, value: moved, version: blobSha(fixtureFiles[LEVEL_PATH] ?? '') }],
     message: "Grandpa's change",
   }
-  await api.call('grandpa', 'POST', '/api/save', ask)
+  await api.call('grandpa', 'POST', '/api/put', ask)
   const own = await api.call('grandpa', 'POST', '/api/approve', { game: GAME, number: 2 })
   expect([own.status, problem(own)]).toEqual([403, 'own-change'])
   expect(repo().pulls[1]?.state).toBe('open')

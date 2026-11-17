@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-17 01:15 UTC (from `date`).
+Last updated: 2026-11-17 04:13 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -11,20 +11,27 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
-- Plan PR 12a (Task 31, Editors #101): five reviews, the last with no reds; merged with a merge commit after a green full run
-  on `6ffcbf7` in Chromium, WebKit and Firefox. This record was written by the implementer for the coordinator.
-- Plan PR 12b (Task 32: Paint, Show and the Pencil) is PARKED, by the Owner's "Yes" (2026-11-17 01:14 UTC) to stopping the
-  World slice cleanly after 12a and 13. The work so far is a work in progress on `claude/project-thread-ik1on4` (no pull
-  request, nothing reviewed). Done and passing locally: the Paint hand, the ground tray, Show, the Hold buttons, the pen
-  hover, the list's Ground row, nine languages, 10 browser tests, the brush unit tests, and the paint journey at iPad
-  sideways and phone. Left: all 23 `screens` journey scenes at phone sideways fail on overlaps (the left toolbar column now
-  has six buttons: "Crate Game" overlaps "Pick", and "Show" overlaps the settings tab), so the toolbar at that size needs
-  rethinking; then the full local run, the draft PR, the `screenshots` label on the last push, and the fresh review.
-  Choices made, none the Owner's yet: Shift paints a box, Alt erases, both fill; the free thumb's Box, Fill and Erase fold out
-  of a "Hold" tab on the left edge; the Show choices are kept for the visit only (no new `af.me.*` key); an upright phone's
-  toolbar is two rows with every name showing; a stroke that opens, closes, widens or narrows the way to another level
-  says which. Pick up from `docs/superpowers/live/claude-project-thread-ik1on4.md`. Lane A then goes 15, 17 (after framework
-  F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
+- Plan pull request 13 (lane B, #103), putting changes in: merged with a merge commit (`78e6f09`) after a green full run on
+  `833d47e`, which had main's PR 12a and the Firefox fix (#106) merged in. One press of the main button shows what would go;
+  the sheet's own button puts it in as one commit of every file that changed, or sends it to be checked; failures (offline,
+  busy, blocked, look-only, broken game) keep the changes and say what to do; a visitor keeps a copy; problems are counted in
+  the top bar and shown on the level or the map. `/api/save` and the save sheet are gone. Changed from the plan: the put sheet
+  is local to the World screen, not a route. Left for later: "See what changed" on the done sheet and notes (PR 16); the
+  per-clash sheet (PR 15, so after a clash the game's version is kept and one Undo brings the person's back); "Show me on the
+  level" on the waiting sheet. This record was written by the implementer, because the coordinator cannot write to the repo.
+- **Where the next session picks up (the owner paused new World work after 12a and 13, 2026-11-17).** Both are merged. Start
+  PR 16 (Tasks 38 to 40: People, History, Notes, the helper's Ghost, Find, Games, plus "See what changed" and "Show me on the
+  level") from the latest main, then 12b, 15, 17 to 19 and the end-of-slice loop (visual check, blind judge, retro). Seen and
+  not fixed: the 32 px map wall marker, and `--passWithNoTests` in the `test:journeys` script (each its own thread).
+- Plan PR 12b (Task 32: Paint, Show and the Pencil, Editors #110, draft): built on `claude/project-thread-ik1on4`, resumed from
+  the parked work. All 23 phone-sideways `screens` scenes failed because seven toolbar buttons did not fit one column; phone
+  sideways now draws the toolbar two buttons wide. Locally in a cloud container: lint, typecheck, knip, node and Chromium
+  engine tests, and all journeys in Chromium. Waits on: the fresh review, and the full CI run once the setup pull request
+  (#109) has put CI back. Choices made, none the Owner's yet: Shift paints a box and Alt erases; the free thumb's Box, Fill
+  and Erase fold out of a "Hold" tab; the Show choices last for the visit only (no new `af.me.*` key); an upright phone's
+  toolbar is two rows with every name showing; a phone on its side is two columns wide; a stroke that opens or closes the way
+  to another level says which. Pick up from `docs/superpowers/live/claude-project-thread-ik1on4.md`. Lane A then goes 15, 17
+  (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.

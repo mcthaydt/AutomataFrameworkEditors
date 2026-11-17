@@ -19,7 +19,7 @@ export type { Clash } from './merge-level.ts'
 export interface Merged {
   readonly now: Working
   readonly clashes: readonly Clash[]
-  /** What came in from the game that the person had not touched. */
+  /** What the game's side differs by, the things clashed over included. */
   readonly theirs: readonly ChangeLine[]
   /** The game's side as it was, so `keep` can give it back after "keep mine". */
   readonly their: Working
@@ -129,6 +129,31 @@ function mergeLevels(
   }
   return { levels, clashes }
 }
+
+/** Whether a line of the changes is about a thing the two sides clashed over: that is not something that came in. */
+function isClash(line: ChangeLine, clash: Clash): boolean {
+  if (line.level !== clash.level) return false
+  switch (clash.what) {
+    case 'thing':
+      return 'thing' in line && line.thing === clash.thing
+    case 'ground':
+      return line.kind === 'ground'
+    case 'starts':
+      return line.kind === 'start'
+    case 'look':
+      return line.kind === 'look'
+    case 'place':
+      return line.kind === 'level-moved'
+    case 'level':
+      return line.kind === 'level-new' || line.kind === 'level-deleted'
+    default:
+      return false
+  }
+}
+
+/** What came in from the game on its own: what the two sides clashed over is not that. */
+export const cameIn = (merged: Merged): readonly ChangeLine[] =>
+  merged.theirs.filter((line) => !merged.clashes.some((clash) => isClash(line, clash)))
 
 function finish(
   their: Working,
