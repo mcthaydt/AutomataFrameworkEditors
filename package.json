@@ -21,8 +21,8 @@
     "build:journeys": "vite build --mode journeys",
     "build:journeys-plain": "VITE_DEMO_GAME= vite build --mode journeys --outDir dist-plain",
     "test:node": "vitest run --project node",
-    "test:engine": "vitest run --passWithNoTests --project",
-    "test:journeys": "vitest run --passWithNoTests --project journeys --reporter=default --reporter=json --outputFile.json=journeys-result.json"
+    "test:engine": "vitest run --project",
+    "test:journeys": "vitest run --project journeys --reporter=default --reporter=json --outputFile.json=journeys-result.json"
   },
   "dependencies": {
     "@automataframework/framework": "github:mcthaydt/AutomataFramework#7ff579530828ec4a45e2c5bd4222b1e082e27b68",
