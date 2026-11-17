@@ -86,8 +86,9 @@ test('when the sign-in is gone for good the person is on Welcome, told so', asyn
   await signIn(j.page)
   await title(j, WORDS.pickTitle)
   j.fake.signedOutEverywhere()
+  // One page load only: a reload straight after `goto` cuts off the first page's renewal while it is still clearing the
+  // sign-in, so under load the second page found it already gone and showed the demo as a visitor, with no word of it.
   await j.page.goto(`${j.site}/${GAME}`)
-  await j.page.reload()
   await title(j, WORDS.appName)
   await text(j, WORDS.signedOutAgain)
 })

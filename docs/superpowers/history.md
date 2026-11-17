@@ -51,6 +51,15 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 - 2026-11-16, the Owner: the shell and World mockups (board v17, pull request #70, `docs/mockups/`). A design
   approval: built screens are checked against it in the slice's design drift check, and are not approved by it.
 
+## Flaky tests
+
+- `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on Welcome, told so" (Chromium). Failed once
+  locally on `abe0ee7` and once in CI on `e0fd5cc` (shard `browsers (chromium 6/6)`): `locator.waitFor: Timeout 10000ms
+  exceeded`, waiting for the "Automata Editors" heading. Cause, reproduced 19 times in 25 under CPU load: the journey called
+  `goto` and then `reload` at once, so the first page's renewal cut off by the reload had already cleared the sign-in, and the
+  second page showed the demo as a visitor. Fixed in the journey by loading the page once (0 failures in 25 under the same
+  load); every assertion is unchanged.
+
 ## Lessons
 
 None yet.
