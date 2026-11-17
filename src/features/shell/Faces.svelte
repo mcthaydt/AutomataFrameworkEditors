@@ -1,6 +1,8 @@
 <script lang="ts">
   // Who is in the game: an initial on a colour made from each login, at most four and then "+2". One button the size of
   // a finger opens "Who can change it". Nobody in the game (or a visitor alone in the demo) draws nothing.
+  import Face from './Face.svelte'
+
   interface Props {
     people: readonly { readonly login: string }[]
     /** What a screen reader calls it. */
@@ -12,20 +14,12 @@
   const MOST = 4
   const shown = $derived(people.slice(0, MOST))
   const extra = $derived(people.length - shown.length)
-  /** A number from 0 to 359 that is always the same for one login. */
-  const hue = (login: string): number => {
-    let sum = 0
-    for (const char of login) sum = (sum * 31 + char.charCodeAt(0)) % 360
-    return sum
-  }
 </script>
 
 {#if people.length > 0}
   <button type="button" class="faces" aria-label={label} onclick={onopen}>
     {#each shown as person (person.login)}
-      <span class="face face-colour" style:--hue={hue(person.login)} aria-hidden="true">
-        {person.login.charAt(0).toUpperCase()}
-      </span>
+      <span class="one"><Face login={person.login} /></span>
     {/each}
     {#if extra > 0}<span class="face rest" aria-hidden="true">+{extra}</span>{/if}
   </button>
@@ -44,6 +38,13 @@
     color: inherit;
     font: inherit;
     cursor: pointer;
+  }
+  .one {
+    display: inline-flex;
+    margin-left: -6px;
+  }
+  .one:first-child {
+    margin-left: 0;
   }
   .face {
     display: inline-flex;

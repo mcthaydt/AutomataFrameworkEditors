@@ -1,6 +1,7 @@
 // The frame every editor shares: the top bar and its menus, and what a workspace tells it. Nothing here knows what a
 // level is; the workspace brings that.
 export { type Docks, floating, type HoldButton, type Layout, layout } from './docks.ts'
+export { default as Face } from './Face.svelte'
 export { default as Faces } from './Faces.svelte'
 export { default as Help } from './Help.svelte'
 export { default as Hold } from './Hold.svelte'

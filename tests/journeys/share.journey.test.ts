@@ -6,7 +6,6 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
   dragByTouch,
-  gameMenuRows,
   type JourneyPage,
   menuWords,
   openGame,
@@ -20,6 +19,10 @@ import {
 } from '../fixtures/journey.ts'
 
 setupJourneys()
+
+const T = wordsIn('en').team
+const say = (row: unknown, ...parts: string[]): string =>
+  typeof row === 'function' ? (row as (...p: string[]) => string)(...parts) : String(row)
 
 const windows: JourneyPage[] = []
 afterEach(async () => {
@@ -51,34 +54,35 @@ const accessOf = (j: JourneyPage) => repoOf(j).branches.get('main')?.get(ACCESS)
 const file = (over: Partial<AccessFile>): string =>
   writeAccess({ format: 1, everyone: 'look', people: [], ...over })
 
-/** Grandma signs in and opens the Share screen. */
+/** Grandma signs in and opens "Who can change it". */
 async function shareScreen(size: Size = 'ipadUpright', keep = false): Promise<JourneyPage> {
   const g = await window_(size, 'grandma', keep)
   await signIn(g.page)
   await openGame(g.page)
   await chooseFromMenu(g.page, menuWords.whoCanChange)
-  await g.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
-  // The heading shows before the page has finished asking; a reload in the middle of that makes WebKit report the
-  // cancelled request as an error of the new page.
+  await g.page.getByRole('heading', { name: say(T.peopleTitle, 'Crate Game') }).waitFor()
+  // The sheet shows before it has finished asking; a reload in the middle of that makes WebKit report the cancelled
+  // request as an error of the new page.
   await g.page.waitForLoadState('networkidle')
+  await g.page.locator('#people-link').waitFor()
   return g
 }
-const level = (j: JourneyPage, words: string) => j.page.getByRole('radio', { name: new RegExp(`^${words}`) })
+const level = (j: JourneyPage, words: string) => j.page.getByRole('radio', { name: words })
 async function addPerson(j: JourneyPage, name: string, as?: string): Promise<void> {
-  await j.page.locator('#share-name').fill(name)
-  if (as !== undefined) await j.page.getByRole('combobox', { name: WORDS.addName }).selectOption(as)
-  await j.page.getByRole('button', { name: WORDS.addPerson, exact: true }).click()
+  await j.page.locator('#people-name').fill(name)
+  if (as !== undefined) await j.page.getByRole('combobox', { name: say(T.addName) }).selectOption(as)
+  await j.page.getByRole('button', { name: say(T.addPerson), exact: true }).click()
 }
-const saveSharing = (j: JourneyPage) => j.page.getByRole('button', { name: WORDS.saveSharing })
+const saveSharing = (j: JourneyPage) => j.page.getByRole('button', { name: say(T.saveList), exact: true })
 
 describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
   test('the whole point: grandma shares, grandpa approves, kid suggests, and none of them opens GitHub', async () => {
     const grandma = await shareScreen(size)
-    await level(grandma, WORDS.levelSuggest).check()
+    await level(grandma, say(T.suggestName)).check()
     await addPerson(grandma, 'grandpa', 'approve')
     await saveSharing(grandma).click()
-    await text(grandma, WORDS.sharingSaved)
-    const link = await grandma.page.locator('#share-link').inputValue()
+    await text(grandma, say(T.savedList))
+    const link = await grandma.page.locator('#people-link').inputValue()
 
     const kid = await window_(size, 'kid', true)
     await kid.page.goto(link)
@@ -116,16 +120,27 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
   })
 })
 
-test("only an Owner sees Share; anyone else who opens the Share address lands on the game's page", async () => {
+test('anyone signed in reads who can change the game; only an owner gets the list to change', async () => {
   const g = await window_('ipadUpright', 'grandpa')
   repoOf(g).put('main', ACCESS, file({ people: [{ github: 'grandpa', level: 'approve' }] }))
   await signIn(g.page)
   await openGame(g.page)
-  expect((await gameMenuRows(g.page)).filter((row) => row.includes(menuWords.whoCanChange))).toEqual([])
+  await chooseFromMenu(g.page, menuWords.whoCanChange)
+  await text(g, say(T.peopleOnlyOwner))
+  await text(g, say(T.approveName))
+  // The owner is in the list, said in words, and nothing here can be changed or saved.
+  await text(g, say(T.peopleStarted))
+  expect(await g.page.locator('#people-name').count()).toBe(0)
+  expect(await g.page.getByRole('button', { name: say(T.saveList), exact: true }).count()).toBe(0)
+  expect(await g.page.getByRole('combobox').count()).toBe(0)
+  await text(g, say(T.askOwner, 'grandma'))
+})
+
+test('the old Share address opens who can change it', async () => {
+  const g = await window_('ipadUpright', 'grandma')
+  await signIn(g.page)
   await g.page.goto(`${g.site}/#/game/grandma/crate-game/share`)
-  // Only the address changes, so the bar is already on the page; wait for the move itself.
-  await g.page.waitForURL(/#\/game\/grandma\/crate-game$/)
-  await g.page.locator('[data-bar]').waitFor()
+  await g.page.getByRole('heading', { name: say(T.peopleTitle, 'Crate Game') }).waitFor()
 })
 
 test('changing grandpa from Approve to Look, and saving: his next visit says he can look', async () => {
@@ -138,7 +153,7 @@ test('changing grandpa from Approve to Look, and saving: his next visit says he 
   await g.page.reload()
   await g.page.getByRole('combobox', { name: 'grandpa' }).selectOption('look')
   await saveSharing(g).click()
-  await text(g, WORDS.sharingSaved)
+  await text(g, say(T.savedList))
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
   await openGame(grandpa.page)
@@ -153,9 +168,9 @@ test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
     file({ everyone: 'suggest', people: [{ github: 'grandpa', level: 'approve' }] }),
   )
   await g.page.reload()
-  await g.page.getByRole('button', { name: WORDS.remove('grandpa') }).click()
+  await g.page.getByRole('button', { name: say(T.removeName, 'grandpa') }).click()
   await saveSharing(g).click()
-  await text(g, WORDS.sharingSaved)
+  await text(g, say(T.savedList))
   const grandpa = await window_('ipadUpright', 'grandpa', true)
   await signIn(grandpa.page)
   await openGame(grandpa.page)
@@ -166,10 +181,10 @@ test('removing grandpa, and saving: he gets what "anyone" gets', async () => {
 
 test('setting "anyone" to "Can\'t get in": a stranger with the link is told to ask the owner', async () => {
   const g = await shareScreen()
-  await level(g, WORDS.everyoneNothing).check()
+  await level(g, say(T.everyoneNothing)).check()
   await saveSharing(g).click()
-  await text(g, WORDS.sharingSaved)
-  const link = await g.page.locator('#share-link').inputValue()
+  await text(g, say(T.savedList))
+  const link = await g.page.locator('#people-link').inputValue()
   const stranger = await window_('ipadUpright', 'stranger', true)
   await stranger.page.goto(link)
   await signIn(stranger.page)
@@ -181,7 +196,7 @@ test('a name with a typo: the screen names it, nothing is saved, and the rest of
   await addPerson(g, 'kid')
   await addPerson(g, 'grandpaa')
   await saveSharing(g).click()
-  await text(g, WORDS.nameUnknown('grandpaa'))
+  await text(g, say(T.nameUnknown, 'grandpaa'))
   expect(accessOf(g)).toBeUndefined()
   await g.page.getByText('kid', { exact: true }).waitFor()
 })
@@ -190,9 +205,9 @@ test('a name already on the list, and a name that cannot be a GitHub name, are c
   const g = await shareScreen()
   await addPerson(g, 'kid')
   await addPerson(g, 'KID')
-  await text(g, WORDS.nameTwice('KID'))
+  await text(g, say(T.nameTwice, 'KID'))
   await addPerson(g, '-no- good')
-  await text(g, WORDS.nameBad)
+  await text(g, say(T.nameBad))
   expect(g.requests.filter((r) => r.includes('POST') && r.includes('/api/sharing'))).toEqual([])
 })
 
@@ -201,10 +216,10 @@ test('two Owners at once: the second is shown the newest list and nothing is los
   const second = await shareScreen('ipadUpright', true)
   await addPerson(first, 'kid')
   await saveSharing(first).click()
-  await text(first, WORDS.sharingSaved)
+  await text(first, say(T.savedList))
   await addPerson(second, 'stranger')
   await saveSharing(second).click()
-  await text(second, WORDS.sharingChanged)
+  await text(second, say(T.listChanged))
   expect(accessOf(first)).toBe(file({ people: [{ github: 'kid', level: 'suggest' }] }))
   await second.page.getByText('kid', { exact: true }).waitFor()
 })
@@ -215,23 +230,24 @@ test('a damaged sharing file: the screen says so, and saving mends it', async ()
   await signIn(g.page)
   await openGame(g.page)
   await chooseFromMenu(g.page, menuWords.whoCanChange)
-  await text(g, WORDS.sharingBroken)
+  await text(g, say(T.listBroken))
   await saveSharing(g).click()
-  await text(g, WORDS.sharingSaved)
+  await text(g, say(T.savedList))
   expect(accessOf(g)?.startsWith('format = 1')).toBe(true)
 })
 
 test('leaving with unsaved sharing asks first', async () => {
   const g = await shareScreen()
   await addPerson(g, 'kid')
-  await text(g, WORDS.sharingDirty)
-  await g.page.getByRole('button', { name: WORDS.back, exact: true }).click()
-  await text(g, WORDS.leaveAsk)
-  await g.page.getByRole('button', { name: WORDS.leaveNo }).click()
+  await text(g, say(T.listUnsaved))
+  await g.page.getByRole('button', { name: say(wordsIn('en').shell.close), exact: true }).click()
+  await text(g, say(T.leaveAsk))
+  await g.page.getByRole('button', { name: say(T.leaveNo) }).click()
   await g.page.getByText('kid', { exact: true }).waitFor()
-  await g.page.getByRole('button', { name: WORDS.back, exact: true }).click()
-  await g.page.getByRole('button', { name: WORDS.leaveYes }).click()
+  await g.page.getByRole('button', { name: say(wordsIn('en').shell.close), exact: true }).click()
+  await g.page.getByRole('button', { name: say(T.leaveYes) }).click()
   await g.page.locator('[data-bar]').waitFor()
+  await g.page.getByRole('dialog').waitFor({ state: 'detached' })
   expect(accessOf(g)).toBeUndefined()
 })
 
@@ -240,9 +256,9 @@ test("Copy the link puts the game's address on the clipboard", async () => {
   if ((process.env.ENGINE ?? 'chromium') !== 'chromium') return
   const g = await shareScreen()
   await g.page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: g.site })
-  await g.page.getByRole('button', { name: WORDS.copyLink }).click()
-  await text(g, WORDS.linkCopied)
-  const link = await g.page.locator('#share-link').inputValue()
+  await g.page.getByRole('button', { name: say(T.copyLink) }).click()
+  await text(g, say(T.linkCopied))
+  const link = await g.page.locator('#people-link').inputValue()
   expect(await g.page.evaluate(() => navigator.clipboard.readText())).toBe(link)
 })
 

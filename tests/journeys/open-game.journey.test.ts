@@ -4,12 +4,14 @@ import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
   gameMenuRows,
+  gamesWords,
   type JourneyPage,
   menuWords,
   openPage,
   picture,
   setupJourneys,
   signIn,
+  teamWords,
 } from '../fixtures/journey.ts'
 
 setupJourneys()
@@ -42,7 +44,7 @@ for (const size of ['ipadUpright', 'phone'] as const) {
   test(`grandma picks a game and opens it, at ${size}`, async () => {
     const j = await open(size)
     await signIn(j.page)
-    await title(j, WORDS.pickTitle)
+    await title(j, gamesWords.title)
     const rows = j.page.getByRole('link')
     await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
     await j.page.getByRole('link', { name: 'not-a-game' }).waitFor()
@@ -51,11 +53,11 @@ for (const size of ['ipadUpright', 'phone'] as const) {
       expect((await row.boundingBox())?.height).toBeGreaterThanOrEqual(55.99)
     await picture(j.page, `pick-game-${size}`)
 
-    await j.page.getByLabel(WORDS.pickFind).fill('crate')
+    await j.page.getByLabel(gamesWords.find).fill('crate')
     expect(await j.page.getByRole('link').count()).toBe(1)
-    await j.page.getByLabel(WORDS.pickFind).fill('zzz')
-    await text(j, WORDS.pickNoMatch)
-    await j.page.getByLabel(WORDS.pickFind).fill('')
+    await j.page.getByLabel(gamesWords.find).fill('zzz')
+    await text(j, gamesWords.noMatch)
+    await j.page.getByLabel(gamesWords.find).fill('')
 
     await j.page.getByRole('link', { name: 'crate-game' }).click()
     await inGame(j)
@@ -69,7 +71,7 @@ test('a repo that is not a game says so, with a way back', async () => {
   await j.page.getByRole('link', { name: 'not-a-game' }).click()
   await text(j, WORDS.notAGame)
   await j.page.getByRole('button', { name: WORDS.back }).click()
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
 })
 
 test('a level that will not load shows what is wrong and which file', async () => {
@@ -84,7 +86,7 @@ test('a level that will not load shows what is wrong and which file', async () =
 test('when the sign-in is gone for good the person is on Welcome, told so', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   j.fake.signedOutEverywhere()
   await j.page.goto(`${j.site}/${GAME}`)
   await j.page.reload()
@@ -100,7 +102,7 @@ test('a sign-in renewal whose answer comes as the page reloads is not a fault, i
   for (let round = 0; round < 4; round += 1) {
     const j = await open('ipadUpright')
     await signIn(j.page)
-    await title(j, WORDS.pickTitle)
+    await title(j, gamesWords.title)
     j.fake.signedOutEverywhere()
     const release = j.hold('/api/token')
     const asked = j.page.waitForRequest('**/api/token')
@@ -153,7 +155,7 @@ test('a stranger cannot open a private game, and it is not remembered', async ()
   await signIn(j.page)
   await text(j, WORDS.cantFindGame)
   await j.page.getByRole('button', { name: WORDS.back }).click()
-  await text(j, WORDS.pickEmpty)
+  await text(j, gamesWords.empty)
 })
 
 test('someone not signed in opens the demo game by its link, and nothing asks them to sign in', async () => {
@@ -180,20 +182,20 @@ test('a person with no game the editor was added to is shown what to do', async 
   const j = await open('ipadUpright')
   for (const repo of j.fake.repos.values()) repo.installed = false
   await signIn(j.page)
-  await text(j, WORDS.pickEmpty)
-  await text(j, WORDS.pickEmptyLink)
-  await j.page.getByRole('button', { name: WORDS.pickAdd }).waitFor()
+  await text(j, gamesWords.empty)
+  await text(j, gamesWords.emptyHelp)
+  await j.page.getByRole('button', { name: gamesWords.add }).waitFor()
 })
 
 test('a list of games that cannot be fetched says so and offers Try again, not "add the editor"', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   j.fake.down = true
   await j.page.reload()
   await text(j, WORDS.cantReach)
-  expect(await j.page.getByText(WORDS.pickEmpty).count()).toBe(0)
-  expect(await j.page.getByRole('button', { name: WORDS.pickAdd }).count()).toBe(0)
+  expect(await j.page.getByText(gamesWords.empty).count()).toBe(0)
+  expect(await j.page.getByRole('button', { name: gamesWords.add }).count()).toBe(0)
   const again = j.page.getByRole('button', { name: WORDS.tryAgain })
   expect((await again.boundingBox())?.height).toBeGreaterThanOrEqual(48)
   j.fake.down = false
@@ -207,5 +209,5 @@ test('a game that is open shows its own name in the bar, and the way into Share 
   await j.page.getByRole('link', { name: 'crate-game' }).click()
   await inGame(j)
   await chooseFromMenu(j.page, menuWords.whoCanChange)
-  await j.page.getByRole('heading', { level: 1, name: WORDS.shareTitle('Crate Game') }).waitFor()
+  await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
 })

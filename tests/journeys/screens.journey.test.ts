@@ -16,6 +16,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
   dragByTouch,
+  gamesWords,
   type JourneyPage,
   makeWall,
   menuWords,
@@ -33,6 +34,7 @@ import {
   SIZES,
   setupJourneys,
   signIn,
+  teamWords,
   thingNamed,
 } from '../fixtures/journey.ts'
 import { type Site, startSite } from '../fixtures/serve.ts'
@@ -86,6 +88,8 @@ async function welcomed(size: Size): Promise<JourneyPage> {
   await j.page.getByRole('dialog', { name: said(w().first.welcomeTitle) }).waitFor()
   return j
 }
+const addPerson = String(wordsIn('en').team.addPerson)
+const nameBad = String(wordsIn('en').team.nameBad)
 const heading = (j: JourneyPage, name: string) => j.page.getByRole('heading', { level: 1, name }).waitFor()
 const level1 = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '') as Level
 /** The level with the crate somewhere else: what a teammate saved while someone had it open. */
@@ -184,10 +188,11 @@ async function openFirstChange(j: JourneyPage): Promise<void> {
   await j.page.locator('a.row').first().click()
   await thingNamed(j.page, 'crate-1').waitFor()
 }
-async function shareScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
+async function peopleScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
   const j = await gameAs(size, 'grandma', ready)
   await chooseFromMenu(j.page, menuWords.whoCanChange)
-  await heading(j, WORDS.shareTitle('Crate Game'))
+  await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
+  await j.page.locator('#people-link').waitFor()
   return j
 }
 
@@ -320,7 +325,7 @@ const SCENES: readonly Scene[] = [
     name: 'add-the-editor',
     reach: async (size) => {
       const j = await listAs(size, 'grandma', noEditorYet)
-      await text(j, WORDS.pickEmpty)
+      await text(j, gamesWords.empty)
       return j
     },
   },
@@ -329,7 +334,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await window_(size, 'grandma')
       await j.page.getByRole('button', { name: WORDS.signIn }).click()
-      await heading(j, WORDS.pickTitle)
+      await heading(j, gamesWords.title)
       // The list was fine; GitHub goes away before a second look.
       j.fake.down = true
       await j.page.reload()
@@ -341,7 +346,7 @@ const SCENES: readonly Scene[] = [
     name: 'pick-a-game',
     reach: async (size) => {
       const j = await listAs(size, 'grandma')
-      await heading(j, WORDS.pickTitle)
+      await heading(j, gamesWords.title)
       return j
     },
   },
@@ -736,12 +741,12 @@ const SCENES: readonly Scene[] = [
       return j
     },
   },
-  // Share.
-  { name: 'share-empty', reach: (size) => shareScreen(size) },
+  // Who can change it.
+  { name: 'people-empty', reach: (size) => peopleScreen(size) },
   {
-    name: 'share-three-people',
+    name: 'people-three-people',
     reach: (size) =>
-      shareScreen(size, (j) =>
+      peopleScreen(size, (j) =>
         repoOf(j).put(
           'main',
           ACCESS,
@@ -758,12 +763,38 @@ const SCENES: readonly Scene[] = [
       ),
   },
   {
-    name: 'share-mistyped-name',
+    name: 'people-mistyped-name',
     reach: async (size) => {
-      const j = await shareScreen(size)
-      await j.page.locator('#share-name').fill('-no- good')
-      await j.page.getByRole('button', { name: WORDS.addPerson, exact: true }).click()
-      await text(j, WORDS.nameBad)
+      const j = await peopleScreen(size)
+      await j.page.locator('#people-name').fill('-no- good')
+      await j.page.getByRole('button', { name: addPerson, exact: true }).click()
+      await text(j, nameBad)
+      return j
+    },
+  },
+  {
+    name: 'people-read-only',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandpa', (g) =>
+        repoOf(g).put(
+          'main',
+          ACCESS,
+          writeAccess({ format: 1, everyone: 'look', people: [{ github: 'grandpa', level: 'approve' }] }),
+        ),
+      )
+      await chooseFromMenu(j.page, menuWords.whoCanChange)
+      await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
+      return j
+    },
+  },
+  // What changed.
+  {
+    name: 'history-list',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma', (g) => repoOf(g).put('main', LEVEL_PATH, theirs))
+      await chooseFromMenu(j.page, menuWords.whatChanged)
+      await j.page.getByRole('heading', { name: teamWords.historyTitle }).waitFor()
+      await j.page.getByRole('button', { name: teamWords.historyShow }).first().waitFor()
       return j
     },
   },

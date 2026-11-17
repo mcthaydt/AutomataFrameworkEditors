@@ -19,7 +19,9 @@ import caretDown from '@phosphor-icons/core/regular/caret-down.svg?raw'
 import caretLeft from '@phosphor-icons/core/regular/caret-left.svg?raw'
 import caretRight from '@phosphor-icons/core/regular/caret-right.svg?raw'
 import caretUp from '@phosphor-icons/core/regular/caret-up.svg?raw'
+import chatCircleText from '@phosphor-icons/core/regular/chat-circle-text.svg?raw'
 import check from '@phosphor-icons/core/regular/check.svg?raw'
+import clipboardText from '@phosphor-icons/core/regular/clipboard-text.svg?raw'
 import clockCounterClockwise from '@phosphor-icons/core/regular/clock-counter-clockwise.svg?raw'
 import cloud from '@phosphor-icons/core/regular/cloud.svg?raw'
 import copy from '@phosphor-icons/core/regular/copy.svg?raw'
@@ -43,6 +45,7 @@ import magnifyingGlass from '@phosphor-icons/core/regular/magnifying-glass.svg?r
 import mapTrifold from '@phosphor-icons/core/regular/map-trifold.svg?raw'
 import minus from '@phosphor-icons/core/regular/minus.svg?raw'
 import musicNotes from '@phosphor-icons/core/regular/music-notes.svg?raw'
+import notePencil from '@phosphor-icons/core/regular/note-pencil.svg?raw'
 import paintBrush from '@phosphor-icons/core/regular/paint-brush.svg?raw'
 import paperPlaneTilt from '@phosphor-icons/core/regular/paper-plane-tilt.svg?raw'
 import pause from '@phosphor-icons/core/regular/pause.svg?raw'
@@ -52,8 +55,10 @@ import play from '@phosphor-icons/core/regular/play.svg?raw'
 import plus from '@phosphor-icons/core/regular/plus.svg?raw'
 import plusCircle from '@phosphor-icons/core/regular/plus-circle.svg?raw'
 import plusSquare from '@phosphor-icons/core/regular/plus-square.svg?raw'
+import pushPin from '@phosphor-icons/core/regular/push-pin.svg?raw'
 import question from '@phosphor-icons/core/regular/question.svg?raw'
 import slidersHorizontal from '@phosphor-icons/core/regular/sliders-horizontal.svg?raw'
+import sparkle from '@phosphor-icons/core/regular/sparkle.svg?raw'
 import squaresFour from '@phosphor-icons/core/regular/squares-four.svg?raw'
 import stop from '@phosphor-icons/core/regular/stop.svg?raw'
 import trash from '@phosphor-icons/core/regular/trash.svg?raw'
@@ -121,6 +126,11 @@ export type IconName =
   | 'squares-four'
   | 'stop'
   | 'users-three'
+  | 'chat-circle-text'
+  | 'clipboard-text'
+  | 'note-pencil'
+  | 'push-pin'
+  | 'sparkle'
 
 /** The drawing inside an SVG file's outer tag. */
 function inner(svg: string): string {
@@ -188,4 +198,9 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'squares-four': inner(squaresFour),
   stop: inner(stop),
   'users-three': inner(usersThree),
+  'chat-circle-text': inner(chatCircleText),
+  'clipboard-text': inner(clipboardText),
+  'note-pencil': inner(notePencil),
+  'push-pin': inner(pushPin),
+  sparkle: inner(sparkle),
 }

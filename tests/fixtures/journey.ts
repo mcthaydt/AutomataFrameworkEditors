@@ -162,6 +162,7 @@ const sayRow = (row: Row, ...parts: (string | number)[]): string =>
 /** What the game's menu says for `key`, in English. */
 export const menuWords = {
   whoCanChange: sayRow(MENUS.whoCanChange),
+  whatChanged: sayRow(MENUS.whatChanged),
   waitingRow: (n: number) => sayRow(MENUS.waitingRow, n),
   keepCopy: (level: string) => sayRow(MENUS.keepCopyOf, nameOf(level)),
   yourGames: sayRow(MENUS.yourGames),
@@ -413,6 +414,30 @@ export const putWords = {
   keepText: said(KEPT.keepText),
   showMe: said(CHANGES.showMe),
   nextProblem: said(KEPT.nextProblem),
+} as const
+
+const TEAM = wordsIn('en').team
+const GAMES = wordsIn('en').games
+
+/** What the team's sheets say, in English. */
+export const teamWords = {
+  peopleTitle: said(TEAM.peopleTitle, 'Crate Game'),
+  historyTitle: said(TEAM.historyTitle, 'Crate Game'),
+  historyShow: said(TEAM.historyShow),
+  historyMore: said(TEAM.historyMore),
+  seeWhatChanged: said(TEAM.seeWhatChanged),
+  showOnLevel: said(TEAM.showOnLevel),
+} as const
+
+/** What the list of games says, in English. */
+export const gamesWords = {
+  title: said(GAMES.gamesTitle),
+  find: said(GAMES.gamesFind),
+  noMatch: said(GAMES.gamesNoMatch),
+  empty: said(GAMES.gamesEmpty),
+  emptyHelp: said(GAMES.gamesEmptyHelp),
+  add: said(GAMES.gamesAdd),
+  signOut: said(wordsIn('en').menus.signOut),
 } as const
 
 /** The sheet that opens over the level when the main button is pressed. */

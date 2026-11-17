@@ -124,6 +124,7 @@
   {/if}
   {#if route.screen === 'games'}
     <Games
+      lang={me.language ?? 'en'}
       {api}
       {remembered}
       {justAdded}

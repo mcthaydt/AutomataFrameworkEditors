@@ -36,6 +36,7 @@
   import { listen, measure, onControl, typing } from './listen.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
+import Team from './Team.svelte'
   import { playTip, tipKept } from './tips.ts'
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
@@ -162,6 +163,8 @@
     approver: approverOf(held),
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
+  /** The pages that still take the whole screen: what waits, and one waiting change. */
+  const page = $derived(sheet?.kind === 'waiting' || sheet?.kind === 'change' ? sheet : undefined)
 
   $effect(() => showGlass(me))
 
@@ -300,10 +303,6 @@
     events = say(events, { id: 'leave', kind: 'info', text: WORDS.leaveAsk, ask: 'leave' })
   }
   const closeSheet = (): void => go(withoutSheet(route))
-  // Only the Owner may change who can change the game: anyone else lands on the level.
-  $effect(() => {
-    if (sheet?.kind === 'share' && !can(access, 'share')) closeSheet()
-  })
 
   function answered(event: Saying, answer: Answer): void {
     switch (answer) {
@@ -340,6 +339,16 @@
     picked = where.thing === undefined ? [] : [where.thing]
   }
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
+  /** "Show me" on a change in the history: its level, or the map, with the sheet shut. */
+  function showChange(opening: { level: string } | { map: true }): void {
+    if ('map' in opening) {
+      pickedLevel = levelId
+      go({ screen: 'map', ...here, level: levelId })
+    } else {
+      go({ screen: 'level', ...here, level: opening.level })
+    }
+    picked = []
+  }
   /** Opens `next` with the door you come out of picked, when it has one there. */
   const goLevel = (next: string, door?: string): void => {
     go({ screen: 'level', ...here, level: next })
@@ -348,7 +357,8 @@
   const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
 
   function onmenu(id: string): void {
-    if (id === 'share') asSheet({ kind: 'share' })
+    if (id === 'people') asSheet({ kind: 'people' })
+    else if (id === 'history') asSheet({ kind: 'history' })
     else if (id === 'waiting') asSheet({ kind: 'waiting' })
     else if (id === 'keep') changes?.open('keep')
     else if (id === 'games') leave(() => go({ screen: 'games' }))
@@ -378,8 +388,8 @@
   const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
 </script>
 
-{#if sheet !== undefined}
-  <Sheets {sheet} {api} game={held.ref} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
+{#if page !== undefined}
+  <Sheets sheet={page} {api} game={held.ref} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
 {:else}
   <div
     class="look world"
@@ -469,7 +479,7 @@
       level={access}
       waiting={held.waiting}
       {facts}
-      people={[]}
+      people={signedIn ? [{ login: held.ref.owner }, ...held.people] : []}
       canUndo={edits.past.length > 0}
       canRedo={edits.future.length > 0}
       onundo={() => step('undo')}
@@ -479,9 +489,7 @@
       {onpart}
       mapOn={onMap}
       {onmap}
-      onpeople={() => {
-        if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
-      }}
+      onpeople={() => asSheet({ kind: 'people' })}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
       onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
       onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
@@ -525,6 +533,10 @@
     />
 
     <Events {events} low={playing} onanswer={answered} />
+
+    {#if sheet?.kind === 'people' || sheet?.kind === 'history'}
+      <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} />
+    {/if}
 
     <Changes
       bind:this={changes}

@@ -7,6 +7,7 @@ import { arrange } from './arrange.ts'
 import { bar } from './bar.ts'
 import { changes } from './changes.ts'
 import { first } from './first.ts'
+import { games } from './games.ts'
 import { help } from './help.ts'
 import { kept } from './kept.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
@@ -17,12 +18,14 @@ import { panels } from './panels.ts'
 import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
+import { team } from './team.ts'
 import { thing } from './thing.ts'
 
 export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
 export { changes } from './changes.ts'
 export { first } from './first.ts'
+export { games } from './games.ts'
 export { help } from './help.ts'
 export { kept } from './kept.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
@@ -33,6 +36,7 @@ export { panels } from './panels.ts'
 export { play } from './play.ts'
 export { settings } from './settings.ts'
 export { shell } from './shell.ts'
+export { team } from './team.ts'
 export { thing } from './thing.ts'
 
 export const WORDS = Object.freeze({
@@ -46,12 +50,6 @@ export const WORDS = Object.freeze({
   signInCancelled: "You didn't sign in. You can try again whenever you like.",
   signInFailed: "Sign-in didn't work. You can try again.",
   signedOutAgain: "You've been signed out. Sign in again to keep going.",
-  signOut: 'Sign out',
-  pickFind: 'Find a game by name',
-  pickNoMatch: 'No game has that name.',
-  pickEmpty: "You don't have a game here yet.",
-  pickEmptyLink: 'If someone shared a game with you, open the link they sent.',
-  pickAdd: 'Add the editor to a game of mine',
   notAGame: "This isn't an Automata game. Pick another one.",
   brokenGame: 'This game has problems that need fixing first:',
   cantFindGame: "We can't find that game, or it hasn't been shared with you. Ask its owner.",
@@ -61,7 +59,6 @@ export const WORDS = Object.freeze({
   tryAgain: 'Try again',
   mineWaiting: 'Your changes are waiting for approval. This is your version of the game.',
   back: 'Back',
-  pickTitle: 'Pick a game',
   loading: 'Getting your game…',
   moveLeft: 'Move left',
   moveRight: 'Move right',
@@ -98,38 +95,6 @@ export const WORDS = Object.freeze({
     "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
   notHere: "This change touches more than the game's levels, so it can't be approved here.",
   cantApprove: "You can look at this change, but you can't approve it.",
-  shareTitle: (game: string): string => `Share ${game}`,
-  shareLinkLabel: 'Send this link to the people you want to help:',
-  copyLink: 'Copy the link',
-  linkCopied: 'Copied.',
-  everyoneLabel: 'Anyone who opens the link and signs in:',
-  everyoneNothing: "Can't get in",
-  everyoneNothingHint: 'Only the people below can open the game.',
-  levelLook: 'Look',
-  levelLookHint: 'Can see the game.',
-  levelSuggest: 'Suggest',
-  levelSuggestHint: 'Can change things. Someone has to approve the changes.',
-  levelApprove: 'Approve',
-  levelApproveHint: "Can suggest changes and approve other people's.",
-  levelEdit: 'Edit',
-  levelEditHint: 'Changes go straight into the game.',
-  levelOwner: 'Owner',
-  levelOwnerHint: 'Can do everything, and choose who helps.',
-  peopleLabel: 'People',
-  peopleOwner: (name: string): string => `${name} owns this game.`,
-  peopleNone: 'Nobody else has been added yet.',
-  addName: 'Their GitHub name',
-  addNameHint: "It's the name they sign in to GitHub with. They don't need to do anything on GitHub.",
-  addPerson: 'Add',
-  remove: (name: string): string => `Remove ${name}`,
-  nameUnknown: (name: string): string => `There's nobody on GitHub called ${name}. Check the spelling.`,
-  nameTwice: (name: string): string => `${name} is already on the list.`,
-  nameBad: "That doesn't look like a GitHub name.",
-  saveSharing: 'Save sharing',
-  sharingSaved: 'Saved. The people on the list can use the link now.',
-  sharingChanged: 'Someone else changed the sharing while you were here. Here is the newest list.',
-  sharingBroken: 'The sharing list on this game was damaged. Check the list below and press Save to mend it.',
-  sharingDirty: "You have sharing changes that aren't saved.",
   tryIt: 'Try it now',
   tryItLine: 'No account needed. Open the example game and change it.',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
@@ -157,6 +122,8 @@ export interface Words {
   readonly changes: Readonly<Record<keyof (typeof changes)['en'], Row>>
   readonly kept: Readonly<Record<keyof (typeof kept)['en'], Row>>
   readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
+  readonly team: Readonly<Record<keyof (typeof team)['en'], Row>>
+  readonly games: Readonly<Record<keyof (typeof games)['en'], Row>>
 }
 
 /**
@@ -180,6 +147,8 @@ export function wordsIn(lang: Lang): Words {
     changes: { ...changes.en, ...changes[lang] },
     kept: { ...kept.en, ...kept[lang] },
     thing: { ...thing.en, ...thing[lang] },
+    team: { ...team.en, ...team[lang] },
+    games: { ...games.en, ...games[lang] },
   }
 }
 
