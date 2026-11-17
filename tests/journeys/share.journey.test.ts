@@ -270,3 +270,24 @@ test('every level picker and every Remove is at least 44 px, on a phone too', as
     expect((await control.boundingBox())?.height).toBeGreaterThanOrEqual(44)
   }
 })
+
+test("the faces in the top bar are the game's people, and a tap on them opens who can change it", async () => {
+  const g = await window_('ipadUpright', 'grandma')
+  repoOf(g).put(
+    'main',
+    ACCESS,
+    file({
+      people: [
+        { github: 'grandpa', level: 'approve' },
+        { github: 'kid', level: 'suggest' },
+      ],
+    }),
+  )
+  await signIn(g.page)
+  await openGame(g.page)
+  const faces = g.page.getByRole('button', { name: menuWords.whoCanChange, exact: true })
+  await faces.waitFor()
+  expect(await faces.getByText('G').count()).toBeGreaterThan(0)
+  await faces.click()
+  await g.page.getByRole('heading', { name: say(T.peopleTitle, 'Crate Game') }).waitFor()
+})

@@ -38,6 +38,7 @@ const AREAS = {
   play,
   thing,
   team,
+  games,
 } as const
 
 const MARKS = ['⟦0⟧', '⟦1⟧', '⟦2⟧'] as const

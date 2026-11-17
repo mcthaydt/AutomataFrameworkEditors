@@ -1,5 +1,6 @@
 // What the history sheet says about one saved change: when, in the person's language, and where. Pure, so a clock and
 // a language are all it needs.
+import type { ChangeLine } from '../game/game.ts'
 import type { HistoryLine } from '../wire/wire.ts'
 import { type Lang, nameOf, type Words } from '../words/words.ts'
 
@@ -34,4 +35,9 @@ export function openingOf(line: HistoryLine): { level: string } | { map: true } 
   const [first] = line.levels
   if (first !== undefined) return { level: first }
   return line.map ? { map: true } : undefined
+}
+
+/** Where a line of a change was made, for "Show me on the level": the level, and the thing when it is about one. */
+export function whereOfLine(line: ChangeLine): { level: string; thing?: string } {
+  return 'thing' in line ? { level: line.level, thing: line.thing } : { level: line.level }
 }

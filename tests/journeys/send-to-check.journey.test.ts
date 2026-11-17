@@ -14,6 +14,7 @@ import {
   quietButton,
   setupJourneys,
   signIn,
+  teamWords,
   thingNamed,
 } from '../fixtures/journey.ts'
 
@@ -70,5 +71,19 @@ test('send, wait, change more, send the one more, take them back: the game itsel
   await sheet.getByText(/Taken back/).waitFor()
   expect(repo.pulls.every((p) => p.state !== 'open')).toBe(true)
   expect(repo.branches.get('main')?.get('content/levels/level-1.json')).toBeDefined()
+  await thingNamed(j.page, 'crate-1').waitFor()
+})
+
+test('the waiting sheet says "Show me on the level" and goes to what was sent', async () => {
+  const j = await asKid()
+  const sheet = putSheet(j.page)
+  await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
+  await pressPut(j.page)
+  await sheet.getByRole('button', { name: /^Send/ }).click()
+  await sheet.getByRole('heading', { name: /^Sent to grandma/ }).waitFor()
+  await sheet.getByRole('button', { name: 'Close' }).first().click()
+  await quietButton(j.page).click()
+  await sheet.getByRole('button', { name: teamWords.showOnLevel }).click()
+  await sheet.waitFor({ state: 'detached' })
   await thingNamed(j.page, 'crate-1').waitFor()
 })

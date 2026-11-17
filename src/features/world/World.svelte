@@ -21,7 +21,7 @@
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
   import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
-  import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
+  import { type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
   import { type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
@@ -33,7 +33,8 @@
   import Guidance from './Guidance.svelte'
   import { afterFinger } from './finger.svelte.ts'
   import { bottomOf, insetsOf } from './insets.ts'
-  import { listen, measure, onControl, typing } from './listen.ts'
+  import { actOnKey } from './keys.ts'
+import { listen, measure } from './listen.ts'
   import { createLook } from './look.svelte.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
@@ -176,43 +177,31 @@ import Team from './Team.svelte'
       // The browser's own question when the tab is closed with something unsaved.
       leaving: (e) => void (dirty && e.preventDefault()),
       key: (e) => {
-        // While it plays, a key belongs to the game; only Escape comes back.
-        if (playing) {
-          if (e.key === 'Escape') {
-            e.preventDefault()
-            stopPlay()
-          }
-          return
-        }
-        const command = commandFor({
-          key: e.key,
-          meta: e.metaKey,
-          ctrl: e.ctrlKey,
-          shift: e.shiftKey,
-          inField: typing(e) || (e.key === ' ' && onControl(e)),
-        })
-        if (command === 'undo' || command === 'redo') {
-          e.preventDefault()
-          step(command)
-        } else if (command === 'escape') {
-          picked = []
-          pickedLevel = undefined
-          placing = undefined
-        } else if (command === 'play' && level !== undefined && !onMap) {
-          e.preventDefault()
-          startPlay()
-        } else if (command === 'help') {
-          e.preventDefault()
-          guide?.open('help')
-        } else if (command?.startsWith('nudge:') && picked.length === 1 && !e.defaultPrevented && guide?.sheetOpen() !== true) {
-          // A thing that has focus moves itself; this is for a picked thing when the focus is elsewhere.
-          e.preventDefault()
-          const way = command.slice('nudge:'.length)
-          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked[0] as string, way)
-        } else if (command?.startsWith('tool:') && WORLD.tools.includes(command.slice(5) as Tool)) {
-          tool = command.slice(5) as Tool
-        } else if (command === 'delete' || command === 'duplicate' || command === 'copy' || command === 'paste') {
-          part?.command(command)
+        const act = actOnKey(e, { playing, canPlay: level !== undefined && !onMap, picked: picked.length, sheetOpen: guide?.sheetOpen() === true })
+        if (act === undefined) return
+        switch (act.kind) {
+          case 'stop-play':
+            return stopPlay()
+          case 'step':
+            return step(act.which)
+          case 'escape':
+            picked = []
+            pickedLevel = undefined
+            placing = undefined
+            return
+          case 'play':
+            return startPlay()
+          case 'help':
+            return guide?.open('help')
+          case 'find':
+            return
+          case 'nudge':
+            return nudge(picked[0] as string, act.way)
+          case 'tool':
+            tool = act.tool
+            return
+          case 'level':
+            return part?.command(act.command)
         }
       },
       online: (on) => void (online = on),
@@ -558,6 +547,7 @@ import Team from './Team.svelte'
       {onsignin}
       {onsignedout}
       onshow={show}
+      onhistory={() => asSheet({ kind: 'history' })}
     />
 
     <Guidance

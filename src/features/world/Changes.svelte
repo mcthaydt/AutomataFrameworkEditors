@@ -45,6 +45,8 @@
     onsignedout: () => void
     /** Open the level or the map where a problem is. */
     onshow: (where: Problem['where']) => void
+    /** Open the list of what changed in the game. */
+    onhistory: () => void
   }
   let {
     lang,
@@ -61,6 +63,7 @@
     onsignin,
     onsignedout,
     onshow,
+    onhistory,
   }: Props = $props()
 
   type Sheet = 'put' | 'send' | 'keep' | 'waiting' | 'problems'
@@ -203,6 +206,10 @@
     {clashes}
     onput={() => void press()}
     onshow={(found) => show(problems.indexOf(found))}
+    onhistory={() => {
+      shown = undefined
+      onhistory()
+    }}
     ontakeback={() => void takeItBack()}
     onclose={close}
   />
@@ -216,6 +223,10 @@
     taken={backing === 'taken'}
     failed={backing === 'failed'}
     ontakeback={() => void takeItBack()}
+    onshow={(where) => {
+      shown = undefined
+      onshow(where)
+    }}
     onclose={() => (shown = undefined)}
   />
 {:else if shown === 'keep'}

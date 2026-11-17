@@ -28,6 +28,8 @@
     clashes: number
     onput: () => void
     onshow: (problem: Problem) => void
+    /** Look at the game's list of what changed. */
+    onhistory: () => void
     ontakeback: () => void
     onclose: () => void
   }
@@ -47,12 +49,14 @@
     clashes,
     onput,
     onshow,
+    onhistory,
     ontakeback,
     onclose,
   }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const c = $derived(words.changes)
+  const t = $derived(words.team)
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
   const n = $derived(lines.length)
@@ -157,6 +161,7 @@
         <Action label={text(c.takeBack)} onpress={ontakeback} />
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {:else if phase === 'done'}
+        <Action label={text(t.seeWhatChanged)} icon="clock-counter-clockwise" onpress={onhistory} />
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {/if}
     {/snippet}

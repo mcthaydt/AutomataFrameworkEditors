@@ -3,6 +3,7 @@
   import type { ChangeLine } from '../game/game.ts'
   import { Action, Sheet } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
+  import { whereOfLine } from './history.ts'
   import Lines from './Lines.svelte'
 
   interface Props {
@@ -19,12 +20,16 @@
     /** Taking them back did not work. */
     failed: boolean
     ontakeback: () => void
+    /** Show what the change touched, on the level or the map. */
+    onshow: (where: { level?: string; thing?: string; map?: true }) => void
     onclose: () => void
   }
-  let { lang, by, lines, title, working, taken, failed, ontakeback, onclose }: Props = $props()
+  let { lang, by, lines, title, working, taken, failed, ontakeback, onshow, onclose }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const c = $derived(words.changes)
+  const t = $derived(words.team)
+  const first = $derived(lines[0])
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
 </script>
@@ -42,6 +47,9 @@
       {#if taken}
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {:else}
+        {#if first !== undefined}
+          <Action label={text(t.showOnLevel)} icon="eye" onpress={() => onshow(whereOfLine(first))} />
+        {/if}
         <Action label={text(c.takeBack)} disabled={working} onpress={ontakeback} />
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {/if}
