@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
-import type { Answer, OpenAnswer, SaveAsk, SharingAnswer } from '#src/features/wire/wire.ts'
+import type { Answer, OpenAnswer, PutAsk, SharingAnswer } from '#src/features/wire/wire.ts'
 import { startTestApi, type TestApi } from '../../fixtures/api.ts'
 import { blobSha } from '../../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
@@ -29,11 +29,9 @@ const list = (people: AccessFile['people'], everyone: AccessFile['everyone'] = '
 })
 const level = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '{}')
 const moved = { ...level, things: [{ ...level.things[0], x: 8.5, y: 7.5 }] }
-const saveAsk = (): SaveAsk => ({
+const saveAsk = (): PutAsk => ({
   game: GAME,
-  path: LEVEL_PATH,
-  value: moved,
-  version: blobSha(fixtureFiles[LEVEL_PATH] ?? ''),
+  files: [{ path: LEVEL_PATH, value: moved, version: blobSha(fixtureFiles[LEVEL_PATH] ?? '') }],
   message: 'Move a crate',
 })
 
@@ -73,10 +71,10 @@ test("from then on grandpa's level is approve", async () => {
 })
 
 test('grandma sets everyone to suggest: kid can now save', async () => {
-  const before = await api.call('kid', 'POST', '/api/save', saveAsk())
+  const before = await api.call('kid', 'POST', '/api/put', saveAsk())
   expect(problem(before)).toBe('not-allowed')
   await write('grandma', list([], 'suggest'))
-  const after = await api.call<{ how: string }>('kid', 'POST', '/api/save', saveAsk())
+  const after = await api.call<{ how: string }>('kid', 'POST', '/api/put', saveAsk())
   expect(after.answer).toMatchObject({ ok: true, value: { how: 'suggestion' } })
 })
 
@@ -91,7 +89,7 @@ test('grandma lowers grandpa to look: his next save is refused', async () => {
   const first = await read('grandma')
   if (!first.answer.ok) throw new Error(first.answer.problem)
   await write('grandma', list([{ github: 'grandpa', level: 'look' }]), first.answer.value.version)
-  expect(problem(await api.call('grandpa', 'POST', '/api/save', saveAsk()))).toBe('not-allowed')
+  expect(problem(await api.call('grandpa', 'POST', '/api/put', saveAsk()))).toBe('not-allowed')
 })
 
 test('grandma removes grandpa: he is back to what everyone gets', async () => {

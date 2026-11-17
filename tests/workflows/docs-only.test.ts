@@ -91,11 +91,11 @@ test('every job that tests is left out of a docs-only run, so no skipped job wea
 // The quick run's engines and screens (the Owner, 2026-11-16): a draft runs Chromium only and takes only the pictures of
 // the screens its change reaches; the run that gates merge runs three browsers in six shards each, every picture taken.
 test('a draft runs Chromium only, and a ready pull request or a `full-tests` draft runs all three browsers', () => {
-  expect(plan(['src/features/game/save.ts'])).toMatchObject({ engines: '["chromium"]' })
-  expect(plan(['src/features/game/save.ts'], { draft: false })).toMatchObject({
+  expect(plan(['src/features/game/put.ts'])).toMatchObject({ engines: '["chromium"]' })
+  expect(plan(['src/features/game/put.ts'], { draft: false })).toMatchObject({
     engines: '["chromium","webkit","firefox"]',
   })
-  expect(plan(['src/features/game/save.ts'], { labels: 'full-tests' })).toMatchObject({
+  expect(plan(['src/features/game/put.ts'], { labels: 'full-tests' })).toMatchObject({
     engines: '["chromium","webkit","firefox"]',
   })
 })
@@ -103,7 +103,7 @@ test('a draft runs Chromium only, and a ready pull request or a `full-tests` dra
 test('a draft takes only the pictures of the screens it changes; anything else takes them all', () => {
   expect(plan(['src/features/team/Share.svelte'])).toMatchObject({ pictures: 'true', scenes: 'share-' })
   expect(plan(['src/features/ui/Button.svelte'])).toMatchObject({ pictures: 'true', scenes: '.*' })
-  expect(plan(['src/features/game/save.ts'])).toMatchObject({ pictures: 'false' })
+  expect(plan(['src/features/game/put.ts'])).toMatchObject({ pictures: 'false' })
   expect(plan(['src/features/team/Share.svelte'], { draft: false })).toMatchObject({ scenes: '.*' })
 })
 

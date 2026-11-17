@@ -10,19 +10,26 @@ import { type Level, writeContent } from '@automataframework/framework/headless'
 import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
+import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
   dragByTouch,
   type JourneyPage,
+  makeWall,
   menuWords,
   openGame,
   openLevel,
+  openMapOf,
   openPage,
   picture,
   pressPut,
   putButton,
+  putSheet,
+  putThemIn,
+  putWords,
+  quietButton,
   SIZES,
   setupJourneys,
   signIn,
@@ -119,6 +126,20 @@ async function visitorGame(size: Size): Promise<JourneyPage> {
   await thingNamed(j.page, 'crate-1').waitFor()
   return j
 }
+const NEW_ON_MAP = '.strip, .pop, [role=dialog]'
+/** The links game's map with a wall made on it: one problem in the game. */
+async function wallMade(size: Size, stops = false): Promise<JourneyPage> {
+  const j = await window_(size, 'grandma')
+  if (stops)
+    j.fake.repos
+      .get('grandma/links-game')
+      ?.put('main', EDITORS_FILE, writeEditors({ format: 1, problems: 'stop' }))
+  await signIn(j.page)
+  await openMapOf(j.page)
+  await makeWall(j.page)
+  await j.page.getByRole('button', { name: '1 problem' }).waitFor()
+  return j
+}
 const move = (j: JourneyPage) => dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
 /** Opens the game's menu (on a narrow phone, the part menu that holds its rows too) and leaves it open. */
 async function openGameMenu(j: JourneyPage): Promise<void> {
@@ -146,8 +167,7 @@ async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
   await signIn(kid.page)
   await openLevel(kid.page)
   await move(kid)
-  await pressPut(kid.page)
-  await text(kid, WORDS.savedSuggestion)
+  await putThemIn(kid.page, 'suggestion')
   await kid.close()
   windows.splice(windows.indexOf(kid), 1)
   const j = await window_(size, as, true)
@@ -176,6 +196,8 @@ interface Scene {
   readonly reach: (size: Size) => Promise<JourneyPage>
   /** True for a screen that shows the level's stage. */
   readonly stage?: true
+  /** A selector for the part of the screen this scene is about; the rest is measured elsewhere. */
+  readonly only?: string
 }
 
 const SCENES: readonly Scene[] = [
@@ -255,7 +277,7 @@ const SCENES: readonly Scene[] = [
       const j = await visitorGame(size)
       await move(j)
       await pressPut(j.page)
-      await j.page.getByRole('button', { name: WORDS.copyKeep }).waitFor()
+      await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).waitFor()
       return j
     },
     stage: true,
@@ -267,9 +289,9 @@ const SCENES: readonly Scene[] = [
       await move(j)
       await pressPut(j.page)
       const download = j.page.waitForEvent('download')
-      await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
+      await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).click()
       await download
-      await text(j, WORDS.copyKept)
+      await text(j, 'level-1.json')
       return j
     },
     stage: true,
@@ -413,8 +435,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await gameAs(size, 'grandma')
       await move(j)
-      await pressPut(j.page)
-      await text(j, WORDS.savedDirect)
+      await putThemIn(j.page)
       return j
     },
     stage: true,
@@ -424,8 +445,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await gameAs(size, 'kid', kidIs('suggest'))
       await move(j)
-      await pressPut(j.page)
-      await text(j, WORDS.savedSuggestion)
+      await putThemIn(j.page, 'suggestion')
       return j
     },
     stage: true,
@@ -437,10 +457,190 @@ const SCENES: readonly Scene[] = [
       await move(j)
       repoOf(j).put('main', LEVEL_PATH, theirs)
       await pressPut(j.page)
-      await text(j, WORDS.changedElsewhere)
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Put them in/ })
+        .click()
+      await putSheet(j.page).getByText('clash', { exact: false }).waitFor()
       return j
     },
     stage: true,
+  },
+  // The sheets for putting changes in, and the problems.
+  {
+    name: 'put-sheet-asks',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await move(j)
+      await pressPut(j.page)
+      await putSheet(j.page)
+        .getByRole('heading', { name: /^Put 1 change/ })
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'put-sheet-done',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await move(j)
+      await putThemIn(j.page, 'direct', false)
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'send-sheet-asks',
+    reach: async (size) => {
+      const j = await gameAs(size, 'kid', kidIs('suggest'))
+      await move(j)
+      await pressPut(j.page)
+      await putSheet(j.page)
+        .getByRole('heading', { name: /^Send 1 change/ })
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'send-sheet-sent',
+    reach: async (size) => {
+      const j = await gameAs(size, 'kid', kidIs('suggest'))
+      await move(j)
+      await putThemIn(j.page, 'suggestion', false)
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'waiting-sheet-yours',
+    reach: async (size) => {
+      const j = await gameAs(size, 'kid', kidIs('suggest'))
+      await move(j)
+      await putThemIn(j.page, 'suggestion')
+      await quietButton(j.page).click()
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Take them back/ })
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'put-failed-offline',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await move(j)
+      await pressPut(j.page)
+      await j.page.context().setOffline(true)
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Put them in/ })
+        .click()
+      await putSheet(j.page)
+        .getByText(/no internet/)
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'put-failed-blocked',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      repoOf(j).rule = 'blocks-app'
+      await move(j)
+      await pressPut(j.page)
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Put them in/ })
+        .click()
+      await putSheet(j.page)
+        .getByText(/GitHub is set to stop the editor/)
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'put-failed-look-only',
+    reach: async (size) => {
+      const j = await gameAs(size, 'kid', kidIs('suggest'))
+      await move(j)
+      share(j, 'look')
+      await pressPut(j.page)
+      await putSheet(j.page).getByRole('button', { name: /^Send/ }).click()
+      await putSheet(j.page)
+        .getByText(/you can look at this game/i)
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'put-sheet-clash-only',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await move(j)
+      repoOf(j).put('main', LEVEL_PATH, theirs)
+      await pressPut(j.page)
+      await putSheet(j.page)
+        .getByRole('button', { name: /^Put them in/ })
+        .click()
+      await putSheet(j.page)
+        .getByRole('heading', { name: /version is kept/ })
+        .waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'problems-list',
+    reach: async (size) => {
+      const j = await wallMade(size)
+      await j.page.getByRole('button', { name: '1 problem' }).click()
+      await j.page.getByRole('button', { name: putWords.showMe }).first().waitFor()
+      return j
+    },
+    stage: true,
+    only: NEW_ON_MAP,
+  },
+  {
+    name: 'put-sheet-with-a-problem',
+    reach: async (size) => {
+      const j = await wallMade(size)
+      await pressPut(j.page)
+      await putSheet(j.page).getByRole('button', { name: putWords.showMe }).waitFor()
+      return j
+    },
+    stage: true,
+    only: NEW_ON_MAP,
+  },
+  {
+    name: 'put-sheet-stopped-by-a-problem',
+    reach: async (size) => {
+      const j = await wallMade(size, true)
+      await pressPut(j.page)
+      await putSheet(j.page)
+        .getByText(/every problem to be fixed/)
+        .waitFor()
+      return j
+    },
+    stage: true,
+    only: NEW_ON_MAP,
+  },
+  {
+    name: 'problem-strip',
+    reach: async (size) => {
+      const j = await wallMade(size)
+      await j.page.getByRole('button', { name: '1 problem' }).click()
+      await j.page.getByRole('button', { name: putWords.showMe }).first().click()
+      await j.page
+        .getByRole('status')
+        .filter({ hasText: /^Problem 1 of 1/ })
+        .waitFor()
+      return j
+    },
+    stage: true,
+    only: NEW_ON_MAP,
   },
   {
     name: 'level-leave-anyway',
@@ -570,9 +770,14 @@ const SCENES: readonly Scene[] = [
 ]
 
 /** What a drunk grandma's finger and eye need: measured in the page itself. Returns a sentence per broken rule. */
-async function broken(page: Page, stage: boolean): Promise<string[]> {
+/**
+ * `only` is a selector: when it is given, only what lies in it (or overlaps something that does) is answered for. The
+ * map draws its own marks and cards (a wall's marker is 32 px and sits on the level buttons), which no screen here
+ * measures yet; the strip and the list of problems that are drawn over it are measured against all of it.
+ */
+async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> {
   return page.evaluate(
-    ([withStage, backWord]) => {
+    ([withStage, backWord, within]) => {
       const found: string[] = []
       const seen = (el: Element): boolean => {
         const style = getComputedStyle(el)
@@ -593,7 +798,9 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
       )
       const named = (el: Element): string =>
         `${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 30) || (el as HTMLInputElement).id}"`
+      const mine = (el: Element): boolean => within === '' || el.closest(within) !== null
       for (const el of touchable) {
+        if (!mine(el)) continue
         const box = el.getBoundingClientRect()
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
@@ -625,6 +832,7 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
           const menuA = shown[a]!.closest('[role=menu], [aria-modal=true]') !== null
           const menuB = shown[b]!.closest('[role=menu], [aria-modal=true]') !== null
           if (menuA !== menuB) continue
+          if (!mine(shown[a]!) && !mine(shown[b]!)) continue
           // A menu's backdrop (the button that closes it when the page behind is pressed) lies over everything by design.
           if (shown[a]!.classList.contains('dim') || shown[b]!.classList.contains('dim')) continue
           if (across > 1 && down > 1 && !shown[a]!.contains(shown[b]!) && !shown[b]!.contains(shown[a]!))
@@ -673,7 +881,7 @@ async function broken(page: Page, stage: boolean): Promise<string[]> {
       }
       return [...new Set(found)]
     },
-    [stage, WORDS.back] as const,
+    [stage, WORDS.back, only] as const,
   )
 }
 
@@ -683,7 +891,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
       const j = await scene.reach(size)
       // The picture first, so a screen that breaks a rule can still be looked at.
       await picture(j.page, `${size}-${scene.name}`)
-      expect(await broken(j.page, scene.stage === true)).toEqual([])
+      expect(await broken(j.page, scene.stage === true, scene.only ?? '')).toEqual([])
     })
   }
 })

@@ -9,9 +9,9 @@ import {
   menuWords,
   openGame,
   openPage,
-  pressPut,
   putButton,
   putButtonSaying,
+  putThemIn,
   type SIZES,
   setupJourneys,
   signIn,
@@ -228,8 +228,7 @@ test('an Owner who has already had the tour goes from nothing to a saved change,
   await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
   await j.page.getByRole('link', { name: 'crate-game' }).click()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressPut(j.page)
-  await text(j, WORDS.savedDirect)
+  await putThemIn(j.page)
   expect(repoOf(j).commits).toHaveLength(1)
   await j.page.reload()
   await text(j, WORDS.tipShare)
@@ -241,9 +240,9 @@ test('a visitor, from nothing to a change and a copy', async () => {
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await putButton(j.page).click()
   const download = j.page.waitForEvent('download')
-  await j.page.getByRole('button', { name: WORDS.copyKeep }).click()
+  await j.page.getByRole('button', { name: menuWords.keepCopy('level-1') }).click()
   await readFile(await (await download).path(), 'utf8')
-  await text(j, WORDS.copyKept)
+  await text(j, 'level-1.json')
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
 })
 
@@ -254,8 +253,7 @@ test("a visitor who signs in from the game's menu: the change comes back and sav
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await signIn(j.page)
   await text(j, WORDS.draftBack)
-  await pressPut(j.page)
-  await text(j, WORDS.savedDirect)
+  await putThemIn(j.page)
 })
 
 describe('someone sent a link, not signed in', () => {
@@ -267,12 +265,11 @@ describe('someone sent a link, not signed in', () => {
     await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
     await signIn(j.page)
     await text(j, WORDS.draftBack)
-    await pressPut(j.page)
     return j
   }
   test('(suggest) lands in the game, signs in from its menu, ends "waiting for someone to approve it"', async () => {
     const j = await viaLink('kid', { format: 1, everyone: 'suggest', people: [] })
-    await text(j, WORDS.savedSuggestion)
+    await putThemIn(j.page, 'suggestion')
   })
   test('(edit) the same, ending "the change is in your game"', async () => {
     const j = await viaLink('grandpa', {
@@ -280,7 +277,7 @@ describe('someone sent a link, not signed in', () => {
       everyone: 'look',
       people: [{ github: 'grandpa', level: 'edit' }],
     })
-    await text(j, WORDS.savedDirect)
+    await putThemIn(j.page)
   })
 })
 
@@ -327,8 +324,7 @@ test("an approver's first visit with a change waiting: the tip points at it, onc
   await kid.page.goto(`${kid.site}/${GAME}/level/level-1`)
   await thingNamed(kid.page, 'crate-1').waitFor()
   await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
-  await pressPut(kid.page)
-  await text(kid, WORDS.savedSuggestion)
+  await putThemIn(kid.page, 'suggestion')
   const g = await window_('ipadUpright', 'grandpa', true)
   await signIn(g.page)
   await openGame(g.page)

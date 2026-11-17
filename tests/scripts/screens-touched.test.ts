@@ -46,6 +46,6 @@ test('a change to anything seen that no one screen owns takes every picture', ()
 })
 
 test('a change that nothing sees names every scene, which `plan` turns off by the pictures flag instead', () => {
-  expect(scenesFor(['src/features/game/save.ts'])).toBe(EVERY_SCENE)
-  expect(scenesFor(['src/features/team/Share.svelte', 'src/features/game/save.ts'])).toBe('share-')
+  expect(scenesFor(['src/features/game/put.ts'])).toBe(EVERY_SCENE)
+  expect(scenesFor(['src/features/team/Share.svelte', 'src/features/game/put.ts'])).toBe('share-')
 })

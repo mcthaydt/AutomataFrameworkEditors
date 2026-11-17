@@ -16,7 +16,7 @@ const problem = (r: { answer: Answer<unknown> }): string | undefined =>
   r.answer.ok ? undefined : r.answer.problem
 
 test('a call from another origin is refused before GitHub is asked anything', async () => {
-  const post = await api.raw('POST', '/api/save', { headers: { origin: 'https://evil.test' } })
+  const post = await api.raw('POST', '/api/put', { headers: { origin: 'https://evil.test' } })
   const get = await api.raw('GET', GAME, { headers: { origin: 'https://evil.test' } })
   expect([problem(post), problem(get)]).toEqual(['not-allowed', 'not-allowed'])
   expect(api.fake.log).toEqual([])

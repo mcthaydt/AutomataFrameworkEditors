@@ -5,6 +5,7 @@
   import type { Api } from '../api/api.ts'
   import { deviceWord, type Me, nextPointers, type Pointers, rowSize, sizeClass } from '../device/device.ts'
   import {
+    approverOf,
     change,
     describe,
     dropDrafts,
@@ -12,11 +13,9 @@
     inLevel,
     isChanged,
     keepDrafts,
-    levelCopy,
     type OpenGame,
+    type Problem,
     redo,
-    saveLevel,
-    titleOf,
     undo,
   } from '../game/game.ts'
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
@@ -27,15 +26,14 @@
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { didWhat } from './did.ts'
-  import { type Answer, cantPlay, type Saying, say, saveProblem, unsay } from './events.ts'
+  import { type Answer, cantPlay, type Saying, say, unsay } from './events.ts'
+  import Changes from './Changes.svelte'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
   import { afterFinger } from './finger.svelte.ts'
   import { bottomOf, insetsOf } from './insets.ts'
-  import { copyFile, copyText, type Update } from './keeping.ts'
   import { listen, measure, onControl, typing } from './listen.ts'
-  import { savedAs } from './saved.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
   import { playTip, tipKept } from './tips.ts'
@@ -94,7 +92,6 @@
   let access = $state<AccessLevel>(untrack(() => given.level))
   let edits = $state.raw<Edits>(started.edits)
   let events = $state.raw<readonly Saying[]>(started.said)
-  let saving = $state(false)
   let online = $state(navigator.onLine)
   /** What is picked: thing ids, and `start-1` for a start. */
   let picked = $state.raw<readonly string[]>([])
@@ -129,6 +126,10 @@
   /** What to do once "Leave without saving" is pressed. */
   let pending: (() => void) | undefined
 
+  /** The sheets for putting changes in, and what is wrong with the game as the person has changed it. */
+  let changes = $state.raw<ReturnType<typeof Changes>>()
+  let problems = $state.raw<readonly Problem[]>([])
+
   /** The first run and the sheets of help: told what the person does, asked to open a sheet. */
   let guide = $state.raw<ReturnType<typeof Guidance>>()
 
@@ -154,10 +155,11 @@
   const toCheck = $derived(can(access, 'approve') ? Math.max(0, held.waiting - (held.mine === undefined ? 0 : 1)) : 0)
   const facts = $derived<StatusFacts>({
     online,
-    problems: 0,
+    problems: problems.length,
     changes: lines.length,
     mine: held.mine,
     toCheck,
+    approver: approverOf(held),
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
 
@@ -252,11 +254,10 @@
     if (ids.length > 0) guide?.happen({ kind: 'picked' })
   }
 
-  /** A new `Edits`: shown, kept on the device, and the last "saved" is no longer true. */
+  /** A new `Edits`: shown, and kept on the device. */
   function keep(next: Edits): void {
     if (next === edits) return
     edits = next
-    events = unsay(events, 'saved')
     keepDrafts(drafts, held, next)
   }
   function step(which: 'undo' | 'redo'): void {
@@ -304,44 +305,8 @@
     if (sheet?.kind === 'share' && !can(access, 'share')) closeSheet()
   })
 
-  async function put(): Promise<void> {
-    const now = edits.now.levels[levelId]
-    if (now === undefined || saving) return
-    saving = true
-    events = []
-    const result = await saveLevel(api, held, now, titleOf(lines))
-    saving = false
-    if (result.ok) {
-      const next = savedAs(result, edits, levelId, now)
-      held = next.game
-      edits = next.edits
-      keepDrafts(drafts, held, edits)
-      events = say(events, next.saying)
-      onsaved(result.how)
-      return
-    }
-    if (result.problem === 'signed-out') return onsignedout()
-    if (result.problem === 'not-allowed') access = 'look'
-    events = say(events, saveProblem(result.problem, result.details))
-  }
-
-  /** The level as it is on the screen now, saved or not. */
-  const copyOfNow = () => (level === undefined ? undefined : levelCopy(held, level))
-  function askKeep(): void {
-    events = say(events, { id: 'keep', kind: 'info', text: text(words.menus.keepCopyAbout), ask: 'keep' })
-  }
-  const update: Update = (next) => void (events = next(events))
-
   function answered(event: Saying, answer: Answer): void {
     switch (answer) {
-      case 'sign-in':
-        return onsignin()
-      case 'take-theirs':
-        dropDrafts(drafts, held)
-        return onreload()
-      case 'keep-mine':
-        events = unsay(events, event.id)
-        return
       case 'stay':
         pending = undefined
         events = unsay(events, event.id)
@@ -354,14 +319,6 @@
         then?.()
         return
       }
-      case 'copy-file': {
-        const copy = copyOfNow()
-        return copy === undefined ? undefined : copyFile(copy, update)
-      }
-      case 'copy-text': {
-        const copy = copyOfNow()
-        return copy === undefined ? undefined : void copyText(copy, update)
-      }
       case 'dismiss':
         if (event.id === 'tip-share') tipKept(remembered, 'share')
         if (event.id === 'tip-approve') tipKept(remembered, 'approve')
@@ -370,6 +327,18 @@
     }
   }
 
+  /** Opens the level or the map at a problem, and picks the thing it is about. */
+  function show(where: Problem['where']): void {
+    if (where.map === true) {
+      pickedLevel = levelId
+      go({ screen: 'map', ...here, level: levelId })
+      return
+    }
+    if (where.level !== undefined && (where.level !== levelId || onMap)) {
+      go({ screen: 'level', ...here, level: where.level })
+    }
+    picked = where.thing === undefined ? [] : [where.thing]
+  }
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
   /** Opens `next` with the door you come out of picked, when it has one there. */
   const goLevel = (next: string, door?: string): void => {
@@ -381,17 +350,13 @@
   function onmenu(id: string): void {
     if (id === 'share') asSheet({ kind: 'share' })
     else if (id === 'waiting') asSheet({ kind: 'waiting' })
-    else if (id === 'keep') askKeep()
+    else if (id === 'keep') changes?.open('keep')
     else if (id === 'games') leave(() => go({ screen: 'games' }))
     else if (id === 'help' || id === 'settings') guide?.open(id)
     else if (id === 'sign-in') onsignin()
     else if (id === 'sign-out') onsignout()
   }
-  function onmain(what: 'put' | 'send' | 'keep' | 'waiting'): void {
-    if (what === 'waiting') asSheet({ kind: 'waiting' })
-    else if (what === 'keep') askKeep()
-    else void put()
-  }
+  const onmain = (what: 'put' | 'send' | 'keep' | 'waiting'): void => changes?.open(what)
   function onpart(id: string): void {
     if (id === 'part:levels') {
       if (onMap) go({ screen: 'level', ...here, level: pickedLevel ?? levelId })
@@ -400,7 +365,8 @@
     if (id === 'map') return onmap()
     if (!id.startsWith('level:')) return
     const next = id.slice('level:'.length)
-    if (next !== levelId || onMap) leave(() => go({ screen: 'level', ...here, level: next }))
+    // Another level is another file of the same game: nothing is left behind, so nothing is asked.
+    if (next !== levelId || onMap) go({ screen: 'level', ...here, level: next })
   }
   /** The Map button: the map when a level is open, the level that was open when the map is. */
   function onmap(): void {
@@ -517,6 +483,7 @@
         if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
       }}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
+      onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
       onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
       {playing}
     />
@@ -559,6 +526,28 @@
 
     <Events {events} low={playing} onanswer={answered} />
 
+    <Changes
+      bind:this={changes}
+      bind:problems
+      {lang}
+      {device}
+      {api}
+      game={held}
+      {edits}
+      level={onMap ? undefined : levelId}
+      onchanged={(next, now) => {
+        held = next
+        edits = now
+        keepDrafts(drafts, next, now)
+      }}
+      onput={onsaved}
+      onlowered={(next) => (access = next)}
+      ononline={(on) => (online = on)}
+      {onsignin}
+      {onsignedout}
+      onshow={show}
+    />
+
     <Guidance
       bind:this={guide}
       {lang}
@@ -572,7 +561,7 @@
       {onme}
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}
-      onkeep={level === undefined ? undefined : askKeep}
+      onkeep={level === undefined ? undefined : () => changes?.open('keep')}
     />
   </div>
 {/if}
