@@ -68,6 +68,16 @@ function occupied(level: Level, characters: Characters, cell: Cell): boolean {
   return level.starts.some((s) => overlaps(hero, s, cell))
 }
 
+/** The cells a solid kind would leave alone because a thing or a start stands on them. */
+export function leftAlone(
+  level: Level,
+  characters: Characters,
+  cells: readonly Cell[],
+  kind: Kind,
+): readonly Cell[] {
+  return kind.solid ? cells.filter((c) => insideLevel(level, c) && occupied(level, characters, c)) : []
+}
+
 /**
  * Paints cells with one kind. Cells outside the level are skipped, and so, for a solid kind, are cells under a thing or
  * a start. `occupied` when everything inside was skipped, `same` when nothing changed. A row is changed only at the

@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 20:52 UTC (from `date`).
+Last updated: 2026-11-17 01:15 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -11,9 +11,20 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
-- Plan PR 12 is split in two: 12a (Task 31: a thing's settings, Join, tags, and a door's or an edge's "Go to") is built on
-  `claude/project-thread-ik1on4` and waits for a fresh review; 12b (Task 32: Paint, Show, Pencil) follows it. Lane A then
-  goes 15, 17 (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
+- Plan PR 12a (Task 31, Editors #101): five reviews, the last with no reds; merged with a merge commit after a green full run
+  on `6ffcbf7` in Chromium, WebKit and Firefox. This record was written by the implementer for the coordinator.
+- Plan PR 12b (Task 32: Paint, Show and the Pencil) is PARKED, by the Owner's "Yes" (2026-11-17 01:14 UTC) to stopping the
+  World slice cleanly after 12a and 13. The work so far is a work in progress on `claude/project-thread-ik1on4` (no pull
+  request, nothing reviewed). Done and passing locally: the Paint hand, the ground tray, Show, the Hold buttons, the pen
+  hover, the list's Ground row, nine languages, 10 browser tests, the brush unit tests, and the paint journey at iPad
+  sideways and phone. Left: all 23 `screens` journey scenes at phone sideways fail on overlaps (the left toolbar column now
+  has six buttons: "Crate Game" overlaps "Pick", and "Show" overlaps the settings tab), so the toolbar at that size needs
+  rethinking; then the full local run, the draft PR, the `screenshots` label on the last push, and the fresh review.
+  Choices made, none the Owner's yet: Shift paints a box, Alt erases, both fill; the free thumb's Box, Fill and Erase fold out
+  of a "Hold" tab on the left edge; the Show choices are kept for the visit only (no new `af.me.*` key); an upright phone's
+  toolbar is two rows with every name showing; a stroke that opens, closes, widens or narrows the way to another level
+  says which. Pick up from `docs/superpowers/live/claude-project-thread-ik1on4.md`. Lane A then goes 15, 17 (after framework
+  F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.
@@ -44,8 +55,8 @@ The framework pin here is `7ff5795`.
 | # | Pull request | Tasks | Needs |
 |---|---|---|---|
 | 11 | The map on screen | 29, 30 | 6, 7, 9: ready |
-| 12a | A thing's settings, Join, tags, Go to (built, in review) | 31 | 9, 10, 11 |
-| 12b | Paint, Show and the Pencil | 32 | 12a |
+| 12a | A thing's settings, Join, tags, Go to (merged, #101) | 31 | 9, 10, 11 |
+| 12b | Paint, Show and the Pencil (parked: work in progress on the branch, no PR) | 32 | 12a |
 | 13 | Putting changes in, problems in plain words, offline | 33, 34 | 4, 5, 7, 8, 9, 11 |
 | 15 | Checking someone's changes; whose to keep | 36, 37 | 13 |
 | 16 | The team, notes, the helper's ghost and Find | 38 to 40 | 8, 12, 13 |

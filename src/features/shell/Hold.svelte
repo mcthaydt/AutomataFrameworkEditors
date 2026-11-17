@@ -2,6 +2,7 @@
   // The free thumb's buttons: on a touch screen, the keys a computer holds (Shift, Alt) are buttons held with the thumb
   // that is not drawing. Holding keeps one on; a quick tap keeps it on until it is tapped again. A computer is drawn
   // none of this, since it has the keys. They fold away behind one button, and "I draw with my left hand" turns them round.
+  import { onDestroy } from 'svelte'
   import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import type { HoldButton } from './docks.ts'
@@ -13,17 +14,21 @@
     touch: boolean
     open: boolean
     mirror?: boolean
+    /** How far in from the screen's side it sits, clear of a toolbar or the list there. */
+    inset?: number
     /** One is held (true) or let go (false). */
     onhold: (id: string, held: boolean) => void
     ontoggle: () => void
   }
-  let { lang, buttons, touch, open, mirror = false, onhold, ontoggle }: Props = $props()
+  let { lang, buttons, touch, open, mirror = false, inset = 0, onhold, ontoggle }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const text = (one: Row): string => (typeof one === 'string' ? one : one())
   let kept = $state<readonly string[]>([])
   const downAt: Record<string, number> = {}
   const TAP = 300
+  // Taken away (another tool is picked): what was kept on is let go, so nothing stays held that cannot be seen.
+  onDestroy(() => kept.forEach((id) => onhold(id, false)))
 
   function down(id: string): void {
     downAt[id] = Date.now()
@@ -57,7 +62,7 @@
 </script>
 
 {#if touch}
-  <div class="hold" class:mirror role="group" aria-label={text(words.panels.holdLabel)}>
+  <div class="hold" class:mirror style:--inset="{inset}px" role="group" aria-label={text(words.panels.holdLabel)}>
     <button
       type="button"
       class="fold"
@@ -88,10 +93,12 @@
 <style>
   .hold {
     position: absolute;
-    left: max(8px, env(safe-area-inset-left));
-    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 72px);
+    left: calc(max(8px, env(safe-area-inset-left)) + var(--inset));
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
@@ -105,13 +112,12 @@
   }
   .mirror {
     left: auto;
-    right: max(8px, env(safe-area-inset-right));
-    flex-direction: row-reverse;
+    right: calc(max(8px, env(safe-area-inset-right)) + var(--inset));
   }
   button {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 6px;
     min-width: 44px;
     min-height: 44px;

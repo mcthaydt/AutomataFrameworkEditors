@@ -44,6 +44,7 @@ import mapTrifold from '@phosphor-icons/core/regular/map-trifold.svg?raw'
 import minus from '@phosphor-icons/core/regular/minus.svg?raw'
 import musicNotes from '@phosphor-icons/core/regular/music-notes.svg?raw'
 import paintBrush from '@phosphor-icons/core/regular/paint-brush.svg?raw'
+import paintBucket from '@phosphor-icons/core/regular/paint-bucket.svg?raw'
 import paperPlaneTilt from '@phosphor-icons/core/regular/paper-plane-tilt.svg?raw'
 import pause from '@phosphor-icons/core/regular/pause.svg?raw'
 import pencilSimple from '@phosphor-icons/core/regular/pencil-simple.svg?raw'
@@ -54,6 +55,7 @@ import plusCircle from '@phosphor-icons/core/regular/plus-circle.svg?raw'
 import plusSquare from '@phosphor-icons/core/regular/plus-square.svg?raw'
 import question from '@phosphor-icons/core/regular/question.svg?raw'
 import slidersHorizontal from '@phosphor-icons/core/regular/sliders-horizontal.svg?raw'
+import square from '@phosphor-icons/core/regular/square.svg?raw'
 import squaresFour from '@phosphor-icons/core/regular/squares-four.svg?raw'
 import stop from '@phosphor-icons/core/regular/stop.svg?raw'
 import trash from '@phosphor-icons/core/regular/trash.svg?raw'
@@ -65,6 +67,8 @@ export type IconName =
   | 'cursor'
   | 'plus-circle'
   | 'paint-brush'
+  | 'paint-bucket'
+  | 'square'
   | 'eraser'
   | 'link'
   | 'play'
@@ -132,6 +136,8 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   cursor: inner(cursor),
   'plus-circle': inner(plusCircle),
   'paint-brush': inner(paintBrush),
+  'paint-bucket': inner(paintBucket),
+  square: inner(square),
   eraser: inner(eraser),
   link: inner(link),
   play: inner(play),

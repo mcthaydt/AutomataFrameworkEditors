@@ -21,6 +21,9 @@ type Key =
   | 'pickSeveral'
   | 'dragCopy'
   | 'straightLines'
+  | 'holdBox'
+  | 'holdFill'
+  | 'holdErase'
   | 'settingsOf'
 
 export const panels = {
@@ -43,6 +46,9 @@ export const panels = {
     pickSeveral: 'Pick several',
     dragCopy: 'Drag a copy',
     straightLines: 'Straight lines',
+    holdBox: 'Box',
+    holdFill: 'Fill',
+    holdErase: 'Erase',
     settingsOf: (name) => `${name} · settings`,
   },
   es: {
@@ -64,6 +70,9 @@ export const panels = {
     pickSeveral: 'Elegir varios',
     dragCopy: 'Arrastrar una copia',
     straightLines: 'Líneas rectas',
+    holdBox: 'Caja',
+    holdFill: 'Rellenar',
+    holdErase: 'Borrar',
     settingsOf: (name) => `${name} · ajustes`,
   },
   ko: {
@@ -85,6 +94,9 @@ export const panels = {
     pickSeveral: '여러 개 선택',
     dragCopy: '복사본 끌기',
     straightLines: '직선',
+    holdBox: '상자',
+    holdFill: '채우기',
+    holdErase: '지우기',
     settingsOf: (name) => `${name} · 설정`,
   },
   ja: {
@@ -106,6 +118,9 @@ export const panels = {
     pickSeveral: '複数を選ぶ',
     dragCopy: 'コピーをドラッグ',
     straightLines: 'まっすぐな線',
+    holdBox: '四角',
+    holdFill: '塗りつぶし',
+    holdErase: '消す',
     settingsOf: (name) => `${name} · 設定`,
   },
   zh: {
@@ -127,6 +142,9 @@ export const panels = {
     pickSeveral: '选取多个',
     dragCopy: '拖出副本',
     straightLines: '直线',
+    holdBox: '方框',
+    holdFill: '填充',
+    holdErase: '擦除',
     settingsOf: (name) => `${name} · 设置`,
   },
   pt: {
@@ -148,6 +166,9 @@ export const panels = {
     pickSeveral: 'Escolher vários',
     dragCopy: 'Arrastar uma cópia',
     straightLines: 'Linhas retas',
+    holdBox: 'Caixa',
+    holdFill: 'Preencher',
+    holdErase: 'Apagar',
     settingsOf: (name) => `${name} · ajustes`,
   },
   fr: {
@@ -169,6 +190,9 @@ export const panels = {
     pickSeveral: 'Choisir plusieurs',
     dragCopy: 'Glisser une copie',
     straightLines: 'Lignes droites',
+    holdBox: 'Boîte',
+    holdFill: 'Remplir',
+    holdErase: 'Effacer',
     settingsOf: (name) => `${name} · réglages`,
   },
   ru: {
@@ -190,6 +214,9 @@ export const panels = {
     pickSeveral: 'Выбрать несколько',
     dragCopy: 'Перетащить копию',
     straightLines: 'Прямые линии',
+    holdBox: 'Рамка',
+    holdFill: 'Залить',
+    holdErase: 'Стереть',
     settingsOf: (name) => `${name} · настройки`,
   },
   de: {
@@ -211,6 +238,9 @@ export const panels = {
     pickSeveral: 'Mehrere wählen',
     dragCopy: 'Kopie ziehen',
     straightLines: 'Gerade Linien',
+    holdBox: 'Kasten',
+    holdFill: 'Füllen',
+    holdErase: 'Löschen',
     settingsOf: (name) => `${name} · Einstellungen`,
   },
 } as const satisfies Area<Key>

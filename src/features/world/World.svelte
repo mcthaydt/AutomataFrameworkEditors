@@ -35,6 +35,7 @@
   import { bottomOf, insetsOf } from './insets.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
   import { listen, measure, onControl, typing } from './listen.ts'
+  import { createLook } from './look.svelte.ts'
   import { savedAs } from './saved.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
@@ -102,6 +103,7 @@
   let pickedLevel = $state<string | undefined>(untrack(() => (route.screen === 'map' ? route.level : undefined)))
   const pickedOnMap = $derived(pickedLevel !== undefined && edits.now.levels[pickedLevel] ? pickedLevel : undefined)
   let tool = $state<Tool>('pick')
+  const look = createLook()
   /** The character the Place tool is holding (or the tray's start). */
   let placing = $state<string | undefined>(undefined)
   /** Copied to paste, for this visit only. */
@@ -165,13 +167,9 @@
 
   onMount(() =>
     listen({
-      resized: () => {
-        viewport = measure()
-      },
+      resized: () => void (viewport = measure()),
       // The browser's own question when the tab is closed with something unsaved.
-      leaving: (e) => {
-        if (dirty) e.preventDefault()
-      },
+      leaving: (e) => void (dirty && e.preventDefault()),
       key: (e) => {
         // While it plays, a key belongs to the game; only Escape comes back.
         if (playing) {
@@ -212,15 +210,8 @@
           part?.command(command)
         }
       },
-      online: (on) => {
-        online = on
-      },
-      pointer: (e) => {
-        const next = nextPointers(pointers, e)
-        if (next.last !== pointers.last || next.penSeen !== pointers.penSeen || next.hovering !== pointers.hovering) {
-          pointers = next
-        }
-      },
+      online: (on) => void (online = on),
+      pointer: (e) => void (pointers = nextPointers(pointers, e)),
     }),
   )
 
@@ -409,7 +400,7 @@
     go({ screen: 'map', ...here, level: levelId })
   }
 
-  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
+  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone'))
 </script>
 
 {#if sheet !== undefined}
@@ -420,7 +411,7 @@
     {lang}
     data-size={size}
     data-rows={rows}
-    style:--tools-room={lay.toolbar === 'bottom' ? '72px' : '0px'}
+    style:--tools-room={lay.toolbar === 'bottom' ? (size === 'phone' ? '132px' : '72px') : '0px'}
   >
     {#if onMap || level !== undefined}
       <div
@@ -459,6 +450,11 @@
           {clip}
           {pointers}
           fingerDraws={me.fingerDraws}
+          show={look.show}
+          brush={look.brush}
+          onbrush={look.paintWith}
+          onnear={(near) => look.showing({ near })}
+          edgesFor={(next) => edgesOf({ ...edits.now, levels: { ...edits.now.levels, [levelId]: next } }, held.content, levelId)}
           onpick={pick}
           onplacing={(id) => (placing = id)}
           ongrab={grab}
@@ -555,6 +551,10 @@
       hand={{ grab, edit, drop }}
       ongo={goLevel}
       content={held.content}
+      {look}
+      {me}
+      {onme}
+      onnear={(near) => part?.command(near)}
     />
 
     <Events {events} low={playing} onanswer={answered} />

@@ -16,9 +16,14 @@
   const finger = $derived([
     { what: k.keysPick, how: k.keysTap },
     { what: k.keysMove, how: k.keysDrag },
+    { what: k.keysPaint, how: k.keysDrag },
+    { what: k.keysTake, how: k.keysHold },
   ])
   const keys = $derived([
     { what: k.keysNudge, how: '← ↑ ↓ →' },
+    { what: k.keysBox, how: `Shift + ${text(k.keysDrag)}` },
+    { what: k.keysErase, how: `Alt + ${text(k.keysDrag)}` },
+    { what: k.keysFill, how: `Shift + Alt + ${text(k.keysDrag)}` },
     { what: k.keysUndo, how: '⌘Z' },
     { what: k.keysRedo, how: '⇧⌘Z' },
     { what: k.keysHelp, how: '?' },

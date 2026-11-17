@@ -24,6 +24,9 @@
     onredo: () => void
     /** The list is shut and not drawn as a rail (a small screen): this button opens it. Left out: not drawn. */
     onlist?: (() => void) | undefined
+    /** Show opens a menu of what the level shows; the button is pressed while it is open. Left out: not drawn. */
+    onshow?: (() => void) | undefined
+    showOpen?: boolean
   }
   let {
     workspace,
@@ -39,6 +42,8 @@
     onundo,
     onredo,
     onlist,
+    onshow,
+    showOpen = false,
   }: Props = $props()
 
   const words = $derived(wordsIn(lang))
@@ -61,31 +66,39 @@
   const keyOf = (one: Tool): string => KEYS.find((k) => k.id === `tool:${one}`)?.key ?? ''
 </script>
 
-<Dock label={text(words.panels.toolbarLabel)} side={mirror && side === 'left' ? 'right' : side} fit>
-  <div class="tools" class:column={side === 'left'}>
-    {#each shown as one (one)}
-      <button type="button" class="tool" class:on={one === tool} aria-pressed={one === tool} onclick={() => onpick(one)}>
-        <Icon name={ICON[one]} />
-        <span>{text(words.panels[NAME[one]])}</span>
-        {#if keys}<kbd>{keyOf(one)}</kbd>{/if}
-      </button>
-    {/each}
-    {#if onlist}
-      <i class="rule"></i>
-      <button type="button" class="tool plain" aria-label={text(words.panels.listLabel)} onclick={onlist}>
-        <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
-      </button>
-    {/if}
-    {#if undoHere}
-      <i class="rule"></i>
-      <button type="button" class="tool plain" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
-        <Icon name="arrow-counter-clockwise" /><span>{text(words.shell.undo)}</span>
-      </button>
-      <button type="button" class="tool plain" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
-        <Icon name="arrow-clockwise" /><span>{text(words.shell.redo)}</span>
-      </button>
-    {/if}
-  </div>
+<Dock label={text(words.panels.toolbarLabel)} side={mirror && side === 'left' ? 'right' : side} fit={!undoHere}>
+  <div class="tools" class:column={side === 'left'} class:rows={undoHere}>
+  {#each shown as one (one)}
+    <button type="button" class="tool" class:on={one === tool} aria-pressed={one === tool} onclick={() => onpick(one)}>
+      <Icon name={ICON[one]} />
+      <span>{text(words.panels[NAME[one]])}</span>
+      {#if keys}<kbd>{keyOf(one)}</kbd>{/if}
+    </button>
+  {/each}
+  {#if undoHere}
+    <i class="break"></i>
+  {:else if onlist || onshow}
+    <i class="rule"></i>
+  {/if}
+  {#if onlist}
+    <button type="button" class="tool plain" aria-label={text(words.panels.listLabel)} onclick={onlist}>
+      <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
+    </button>
+  {/if}
+  {#if undoHere}
+    <button type="button" class="tool plain" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
+      <Icon name="arrow-counter-clockwise" /><span>{text(words.shell.undo)}</span>
+    </button>
+    <button type="button" class="tool plain" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
+      <Icon name="arrow-clockwise" /><span>{text(words.shell.redo)}</span>
+    </button>
+  {/if}
+  {#if onshow}
+    <button type="button" class="tool plain" class:on={showOpen} aria-pressed={showOpen} onclick={onshow}>
+      <Icon name="eye" /><span>{text(words.ground.showTitle)}</span>
+    </button>
+  {/if}
+</div>
 </Dock>
 
 <style>
@@ -145,8 +158,15 @@
     height: 1px;
     margin: 4px 0;
   }
-  /* An upright phone is about 390 points wide, too narrow for the name of every button in every language: the four tools keep
-     their names (smaller), and the list, Undo and Redo keep only their pictures, their names left for a screen reader. */
+  /* An upright phone has two rows: the tools, then the list, Undo, Redo and Show, each with its name. At about 390 points
+     wide the five tools keep their names smaller, so the longest in every language still fits its button. */
+  .rows {
+    flex-wrap: wrap;
+  }
+  .break {
+    flex-basis: 100%;
+    height: 0;
+  }
   @media (max-width: 440px) {
     .tools:not(.column) {
       gap: 1px;
@@ -157,22 +177,6 @@
       min-width: 44px;
       padding: 4px 3px;
       font-size: 11px;
-    }
-    .tools:not(.column) .plain {
-      position: relative;
-      flex: 0 0 44px;
-      padding: 4px 0;
-    }
-    .tools:not(.column) .plain span {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-    .tools:not(.column) .rule {
-      margin: 4px 0;
     }
   }
   /* A phone on its side has little height: the column is packed to 44 pixel buttons so it fits between the bars. */

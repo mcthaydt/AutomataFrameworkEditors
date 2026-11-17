@@ -63,5 +63,5 @@ export interface HoldButton {
   readonly id: string
   readonly icon: IconName
   /** The row of `words/panels.ts` that names it. */
-  readonly words: 'pickSeveral' | 'dragCopy' | 'straightLines'
+  readonly words: 'pickSeveral' | 'dragCopy' | 'straightLines' | 'holdBox' | 'holdFill' | 'holdErase'
 }

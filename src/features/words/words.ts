@@ -6,6 +6,7 @@
 import { arrange } from './arrange.ts'
 import { bar } from './bar.ts'
 import { first } from './first.ts'
+import { ground } from './ground.ts'
 import { help } from './help.ts'
 import { LANGUAGES, type Lang, type Row } from './languages.ts'
 import { levels } from './levels.ts'
@@ -20,6 +21,7 @@ import { thing } from './thing.ts'
 export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
 export { first } from './first.ts'
+export { ground } from './ground.ts'
 export { help } from './help.ts'
 export { LANGUAGE_NAMES, LANGUAGES, type Lang, READ_BY_A_SPEAKER, type Row } from './languages.ts'
 export { levels } from './levels.ts'
@@ -161,6 +163,7 @@ export interface Words {
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
   readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
   readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
+  readonly ground: Readonly<Record<keyof (typeof ground)['en'], Row>>
 }
 
 /**
@@ -182,6 +185,7 @@ export function wordsIn(lang: Lang): Words {
     arrange: { ...arrange.en, ...arrange[lang] },
     play: { ...play.en, ...play[lang] },
     thing: { ...thing.en, ...thing[lang] },
+    ground: { ...ground.en, ...ground[lang] },
   }
 }
 
