@@ -3,6 +3,7 @@ import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, test } from 'vitest'
+import { SIZES } from '../fixtures/journey.ts'
 
 // The docs-only fast path (the Owner, 2026-11-15): a pull request that changes only Markdown that people read runs no
 // tests, and the `docs` job passes every check main requires under its exact name. The workflow only runs on GitHub,
@@ -124,4 +125,12 @@ test('the journeys are split over the six shards: three sizes of the screens jou
   }
   for (const part of [1, 2, 3]) expect(browsers).toContain(`others: ${part} }`)
   expect(browsers).toContain(`--shard=\${{ matrix.others }}/3`)
+})
+
+// A `-t` filter that matches nothing still exits 0, so a size renamed in the journey but not here would make its shard
+// test nothing and pass. Each shard's size must be one the screens journey is drawn at.
+test('each screens shard names a size the screens journey has, so its filter picks real tests', () => {
+  const sizes = [...job('browsers').matchAll(/screens: (\w+) }/g)].map((match) => match[1])
+  expect(sizes).toHaveLength(3)
+  for (const size of sizes) expect(Object.keys(SIZES)).toContain(size)
 })
