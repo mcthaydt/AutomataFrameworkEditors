@@ -213,8 +213,9 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await page.locator('[data-line]').waitFor()
     await page.locator('[data-line]').click()
     await page.getByRole('button', { name: 'Take this line away' }).click()
+    // The hint waits for the note with "Undo" to go (9 s), so it comes at 9.4 to 10 s: the default 10 s wait is a race.
     const hint = page.locator('.hint')
-    await hint.waitFor()
+    await hint.waitFor({ timeout: 20_000 })
     const at = await boxOf(hint)
     for (const id of ['plate-1', 'gate-1']) {
       expect(overlap(at, await boxOf(thingNamed(page, id))), `the hint covers ${id}`).toBe(false)
