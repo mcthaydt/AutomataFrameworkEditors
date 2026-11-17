@@ -8,6 +8,7 @@
   import { kindsOf, ShowMenu, type Show, ThingSettings } from '../levels/levels.ts'
   import { type Docks, type HoldButton, Hold, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
+  import { SECOND_COLUMN } from './insets.ts'
   import type { Look } from './look.svelte.ts'
   import Nudge from './Nudge.svelte'
   import { sayFor } from './said.ts'
@@ -114,6 +115,8 @@
   }
   const holds = $derived(levels === undefined ? HOLDS[tool] : undefined)
   let showOpen = $state(false)
+  /** A phone on its side draws the toolbar two buttons wide; the panels beside it move over by the second column. */
+  const extra = $derived(size === 'phone-sideways' ? SECOND_COLUMN : 0)
   const things = $derived(level?.things ?? [])
   /** The things that are picked (a start has no settings), and the one when there is one. */
   const held = $derived(things.filter((thing) => picked.includes(thing.id)))
@@ -124,7 +127,7 @@
 </script>
 
 {#if !away}
-  <div class="panels" data-panels inert={quiet} class:quiet>
+  <div class="panels" data-panels inert={quiet} class:quiet style:--bar-extra="{extra}px">
     {#if !levels || size === 'phone' || lay.list === 'hidden'}
     <Toolbar
       workspace={levels ? NO_TOOLS : WORLD}
@@ -133,6 +136,7 @@
       side={lay.toolbar}
       keys={device === 'computer'}
       undoHere={size === 'phone'}
+      twoColumns={extra > 0}
       {canUndo}
       {canRedo}
       mirror={lay.mirror}
@@ -152,7 +156,7 @@
         touch={device !== 'computer' || navigator.maxTouchPoints > 0}
         open={docks.hold}
         mirror={lay.mirror}
-        inset={(lay.toolbar === 'left' ? 84 : 0) + (lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0)}
+        inset={(lay.toolbar === 'left' ? 84 + extra : 0) + (lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0)}
         onhold={look.hold}
         ontoggle={() => ondocks({ ...docks, hold: !docks.hold })}
       />
@@ -234,7 +238,7 @@
   }
   .show.left {
     right: auto;
-    left: calc(max(8px, env(safe-area-inset-left)) + 84px);
+    left: calc(max(8px, env(safe-area-inset-left)) + 84px + var(--bar-extra, 0px));
     bottom: max(8px, env(safe-area-inset-bottom));
   }
   .show.mirror {
@@ -243,7 +247,7 @@
   }
   .show.left.mirror {
     left: auto;
-    right: calc(max(8px, env(safe-area-inset-right)) + 84px);
+    right: calc(max(8px, env(safe-area-inset-right)) + 84px + var(--bar-extra, 0px));
   }
   .quiet :global(.dock),
   .quiet :global(aside.panel),

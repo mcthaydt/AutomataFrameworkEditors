@@ -27,6 +27,8 @@
     /** Show opens a menu of what the level shows; the button is pressed while it is open. Left out: not drawn. */
     onshow?: (() => void) | undefined
     showOpen?: boolean
+    /** A phone on its side: the column is two buttons wide, so all seven fit between the top bar and the bottom. */
+    twoColumns?: boolean
   }
   let {
     workspace,
@@ -44,6 +46,7 @@
     onlist,
     onshow,
     showOpen = false,
+    twoColumns = false,
   }: Props = $props()
 
   const words = $derived(wordsIn(lang))
@@ -67,7 +70,7 @@
 </script>
 
 <Dock label={text(words.panels.toolbarLabel)} side={mirror && side === 'left' ? 'right' : side} fit={!undoHere}>
-  <div class="tools" class:column={side === 'left'} class:rows={undoHere}>
+  <div class="tools" class:column={side === 'left'} class:rows={undoHere} class:pair={twoColumns}>
   {#each shown as one (one)}
     <button type="button" class="tool" class:on={one === tool} aria-pressed={one === tool} onclick={() => onpick(one)}>
       <Icon name={ICON[one]} />
@@ -113,6 +116,13 @@
   .column {
     flex-direction: column;
     align-items: stretch;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+  }
+  .pair .rule {
+    display: none;
   }
   .tool {
     display: inline-flex;

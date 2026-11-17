@@ -400,7 +400,7 @@
     go({ screen: 'map', ...here, level: levelId })
   }
 
-  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone'))
+  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
 {#if sheet !== undefined}

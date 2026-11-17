@@ -54,3 +54,12 @@ test('a pulled-up sheet takes the foot for itself, so the level ends where it be
     sheet: true,
   })
 })
+
+test('a phone on its side draws the toolbar two buttons wide, and the level keeps clear of both', () => {
+  expect(insetsOf(lay({ list: 'hidden' }), 'tab', false, false, false, true)).toEqual({
+    left: 76 + 52,
+    right: 44,
+    bottom: 0,
+    sheet: false,
+  })
+})
