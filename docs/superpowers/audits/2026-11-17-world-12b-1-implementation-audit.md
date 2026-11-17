@@ -55,3 +55,18 @@ FIX: change the visible words only, in `words/panels.ts` (and its test if one pi
 ## Screenshots
 
 Taken at ce75a38, English, signed in on the links game, Room 2. Each size has: level-pick, paint-tray, paint-painted, paint-way-closed-note, show-menu, show-on, hold-open, hold-box-painted, pencil-hover, ground-in-list (a few are missing at sizes where the Hold tab or the list is not drawn at that size).
+
+## Cycle 2: re-check of the two reds at d8a9579
+
+Written 2026-11-17 05:33 UTC (from `date`), by the same fresh review session. Examined: d8a9579 (the fix round d8a9579, with main bfc9b72 merged in). Diff read since ce75a38: `Paint.svelte`, `words/panels.ts`, `tests/features/levels/Holder.svelte`, `paint.browser.test.ts`, the main merge (`package.json`, workflow tests, another audit file); none of the merge touches a file this audit named.
+
+| Red | Result | Evidence |
+|---|---|---|
+| 1. Box pulled back onto only a thing's spot | **PASS** | `reach()` now treats `occupied` like `same` and puts the level back to how it was. New test "a Box pulled back onto only the spot a thing stands on…" passes (Chromium, 11 of 11 in `paint.browser.test.ts`): level equals the original, no step back added, "Something is already there" said. The test's `Holder` drops an unchanged step; I checked that the real page does the same (`World.svelte` `edit` goes through `inLevel`, which returns the same edits when the level did not change). |
+| 2. "Hold" tab not plain words | **PASS** | The folded tab reads "More ways" in all nine languages (`words/panels.ts`); `phone-hold-open.png` and `phoneSideways-paint-tray.png` show it fits with Box, Fill and Erase under it. |
+
+Other checks at d8a9579: `pnpm lint` clean (same single warning), `pnpm typecheck` clean, `pnpm knip` clean, `pnpm test:node` 93 files, 1156 tests passed. WebKit and Firefox still not run here.
+
+New note: the folded button's accessible name is the long sentence ("Hold with your free thumb, or tap to keep on") while the visible word is now "More ways", so a voice-control user who says "More ways" will not match it. Make the aria-label start with the visible words. Not blocking.
+
+Screens re-shot at d8a9579: `<device>-paint-tray.png` and `<device>-hold-open.png` for phone, ipadUpright, ipadSideways, computer, phoneSideways. The other screens did not change.
