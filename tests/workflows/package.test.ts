@@ -4,6 +4,7 @@ import { expect, test } from 'vitest'
 
 const manifest = JSON.parse(readFileSync(join(import.meta.dirname, '../../package.json'), 'utf8')) as {
   private?: boolean
+  scripts: Record<string, string>
   publishConfig?: unknown
   dependencies: Record<string, string>
   devDependencies: Record<string, string>
@@ -11,6 +12,14 @@ const manifest = JSON.parse(readFileSync(join(import.meta.dirname, '../../packag
 }
 
 const FRAMEWORK = '@automataframework/framework'
+
+// CLAUDE.md: no flag that lets an empty suite pass in CI. A run that finds no tests must fail, so a typo in a path or
+// a filter can never turn a check green by testing nothing.
+test('no script lets a run that finds no tests pass', () => {
+  for (const [name, command] of Object.entries(manifest.scripts)) {
+    expect(command, name).not.toMatch(/pass-?with-?no-?tests/i)
+  }
+})
 
 test('nothing is published: the package is private and has no publish settings', () => {
   expect(manifest.private).toBe(true)
