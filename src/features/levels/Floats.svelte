@@ -6,6 +6,8 @@
   import { Note } from '../ui/ui.ts'
   import type { Lang } from '../words/words.ts'
   import ActBar from './ActBar.svelte'
+  import GroundTray from './GroundTray.svelte'
+  import type { Kind } from './ground.ts'
   import { barPlace, padPlace } from './float.ts'
   import type { Rect } from './marks.ts'
   import MovePad from './MovePad.svelte'
@@ -26,6 +28,10 @@
     placing: string | undefined
     pad: boolean
     note: { words: string; button?: string; press?: () => void } | undefined
+    /** What the ground can be, and the letter of the one being painted. */
+    kinds: readonly Kind[]
+    letter: string
+    onkind: (letter: string) => void
     onpad: () => void
     oncopy: () => void
     ondelete: () => void
@@ -36,7 +42,7 @@
   }
   let {
     lang, characters, counts, size, tool, readOnly, paused, pickedBox, picked, placing, pad, note,
-    onpad, oncopy, ondelete, onmore, onnudge, onchoose, onnote,
+    onpad, oncopy, ondelete, onmore, onnudge, onchoose, onnote, kinds, letter, onkind,
   }: Props = $props()
 
   let barWidth = $state(0)
@@ -57,6 +63,11 @@
 {#if tool === 'place' && !readOnly}
   <div class="strip" data-ui>
     <Tray {lang} {characters} {counts} chosen={placing} {onchoose} />
+  </div>
+{/if}
+{#if tool === 'paint' && !readOnly}
+  <div class="strip" data-ui>
+    <GroundTray {lang} {kinds} {letter} onchoose={onkind} />
   </div>
 {/if}
 {#if note !== undefined && !paused}

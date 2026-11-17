@@ -24,12 +24,14 @@ export function nextPointers(
   const pen = last === 'pen'
   const hovering =
     pen && (event.type === 'pointermove' || event.type === 'pointerover') && event.buttons === 0
-  return {
+  const next: Pointers = {
     last,
     penSeen: now.penSeen || pen,
     // Pressing or leaving ends a hover; anything else a pen does that is not a move keeps what it was.
     hovering: !pen || ENDS.has(event.type) ? false : hovering || now.hovering,
   }
+  // Nothing changed: the same object, so what watches it is not woken for every move.
+  return next.last === now.last && next.penSeen === now.penSeen && next.hovering === now.hovering ? now : next
 }
 
 /**

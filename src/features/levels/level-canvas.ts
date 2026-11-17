@@ -18,13 +18,12 @@ import {
 import { Application, Container, Graphics, loadTextures, RenderTexture, Sprite } from 'pixi.js'
 import type { OpenPicture } from '../wire/wire.ts'
 import { readPictureOf } from './art.ts'
+import { KIND_TINTS } from './tints.ts'
 import { type Camera, toScreen } from './view.ts'
 
 /** The framework's dark edge round every box. */
 const EDGE = 0x1b1b24
 const FALLBACK_COLOR = '#888888'
-/** What each kind of tile is tinted when the person asks what the tiles are: the first kind, the second, and so on round. */
-const KIND_TINTS = [0xd9534f, 0x2f9e8f, 0xe0a030, 0x7a5cc8, 0x4a90d9, 0xc0568f] as const
 
 /** How a level is looked at: what is faint or hidden, whether the tiles are tinted by kind, and the grid. */
 export interface Look {

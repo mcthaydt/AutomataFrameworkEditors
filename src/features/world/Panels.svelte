@@ -3,11 +3,13 @@
   // picked. While the level plays they stay where they are and go quiet (nothing in them can be touched); put away
   // (`away`), they are not drawn at all. They decide nothing: every press goes up as a call.
   import type { GameContent, Level } from '@automataframework/framework/headless'
-  import type { SizeClass } from '../device/device.ts'
+  import type { Me, SizeClass } from '../device/device.ts'
   import type { Working } from '../game/game.ts'
-  import { ThingSettings } from '../levels/levels.ts'
-  import { type Docks, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
+  import { kindsOf, ShowMenu, type Show, ThingSettings } from '../levels/levels.ts'
+  import { type Docks, type HoldButton, Hold, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
+  import { SECOND_COLUMN } from './insets.ts'
+  import type { Look } from './look.svelte.ts'
   import Nudge from './Nudge.svelte'
   import { sayFor } from './said.ts'
   import { WORLD } from './world-workspace.ts'
@@ -56,6 +58,12 @@
     ongo: (level: string, door?: string) => void
     /** The game, for the words a thing's message stands for. */
     content: GameContent
+    /** What the level shows and what Paint holds; `me` for the two choices about the drawing hand. */
+    look: Look
+    me: Me
+    onme: (next: Me) => void
+    /** Asks the level to come to the whole of it, or close up. */
+    onnear: (near: Show['near']) => void
   }
   let {
     lang,
@@ -91,8 +99,24 @@
     hand,
     ongo,
     content,
+    look,
+    me,
+    onme,
+    onnear,
   }: Props = $props()
 
+  const HOLDS: Readonly<Partial<Record<Tool, readonly HoldButton[]>>> = {
+    paint: [
+      { id: 'box', icon: 'square', words: 'holdBox' },
+      { id: 'fill', icon: 'paint-bucket', words: 'holdFill' },
+      { id: 'erase', icon: 'eraser', words: 'holdErase' },
+    ],
+    erase: [{ id: 'box', icon: 'square', words: 'holdBox' }],
+  }
+  const holds = $derived(levels === undefined ? HOLDS[tool] : undefined)
+  let showOpen = $state(false)
+  /** A phone on its side draws the toolbar two buttons wide; the panels beside it move over by the second column. */
+  const extra = $derived(size === 'phone-sideways' ? SECOND_COLUMN : 0)
   const things = $derived(level?.things ?? [])
   /** The things that are picked (a start has no settings), and the one when there is one. */
   const held = $derived(things.filter((thing) => picked.includes(thing.id)))
@@ -103,7 +127,7 @@
 </script>
 
 {#if !away}
-  <div class="panels" data-panels inert={quiet} class:quiet>
+  <div class="panels" data-panels inert={quiet} class:quiet style:--bar-extra="{extra}px">
     {#if !levels || size === 'phone' || lay.list === 'hidden'}
     <Toolbar
       workspace={levels ? NO_TOOLS : WORLD}
@@ -112,6 +136,7 @@
       side={lay.toolbar}
       keys={device === 'computer'}
       undoHere={size === 'phone'}
+      twoColumns={extra > 0}
       {canUndo}
       {canRedo}
       mirror={lay.mirror}
@@ -119,7 +144,28 @@
       {onundo}
       {onredo}
       onlist={lay.list === 'hidden' ? () => onopen('list') : undefined}
+      onshow={levels ? undefined : () => (showOpen = !showOpen)}
+      {showOpen}
     />
+    {/if}
+
+    {#if holds !== undefined}
+      <Hold
+        {lang}
+        buttons={holds}
+        touch={device !== 'computer' || navigator.maxTouchPoints > 0}
+        open={docks.hold}
+        mirror={lay.mirror}
+        inset={(lay.toolbar === 'left' ? 84 + extra : 0) + (lay.list === 'rail' ? 68 : lay.list === 'beside' ? 288 : 0)}
+        onhold={look.hold}
+        ontoggle={() => ondocks({ ...docks, hold: !docks.hold })}
+      />
+    {/if}
+
+    {#if showOpen && !levels}
+      <div class="show" class:left={lay.toolbar === 'left'} class:mirror={lay.mirror}>
+        <ShowMenu {lang} show={look.show} {me} onshow={look.showing} {onnear} {onme} onclose={() => (showOpen = false)} />
+      </div>
     {/if}
 
     {#if lay.list !== 'hidden'}
@@ -143,6 +189,9 @@
         {onpick}
         {characters}
         {placing}
+        painting={tool === 'paint'}
+        kinds={level === undefined ? 0 : kindsOf(level, content.tilesets).length}
+        onground={() => ontool('paint')}
         onchoose={(id) => {
           onplacing(id)
           if (id !== undefined) ontool('place')
@@ -180,6 +229,25 @@
   /* The panels float where they always do; this box only carries "quiet" over all of them. */
   .panels {
     display: contents;
+  }
+  .show {
+    position: absolute;
+    z-index: 40;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(var(--tools-room, 0px) + max(8px, env(safe-area-inset-bottom)));
+  }
+  .show.left {
+    right: auto;
+    left: calc(max(8px, env(safe-area-inset-left)) + 84px + var(--bar-extra, 0px));
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  .show.mirror {
+    right: auto;
+    left: max(8px, env(safe-area-inset-left));
+  }
+  .show.left.mirror {
+    left: auto;
+    right: calc(max(8px, env(safe-area-inset-right)) + 84px + var(--bar-extra, 0px));
   }
   .quiet :global(.dock),
   .quiet :global(aside.panel),

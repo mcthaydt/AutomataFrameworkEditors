@@ -7,13 +7,15 @@
     picked: boolean
     /** Said under the name instead of the character, when there is something to say ("Locked until you close the game"). */
     note?: string | undefined
+    /** What it is called when that is not the id's name ('Ground'). */
+    label?: string | undefined
     onpick: () => void
   }
-  let { thing, picked, note, onpick }: Props = $props()
+  let { thing, picked, note, label, onpick }: Props = $props()
 </script>
 
 <button type="button" class="thing-row" data-row={thing.id} aria-pressed={picked} onclick={onpick}>
-  <span class="what">{nameOf(thing.id)}</span>
+  <span class="what">{label ?? nameOf(thing.id)}</span>
   <small>{note ?? nameOf(thing.character)}</small>
 </button>
 

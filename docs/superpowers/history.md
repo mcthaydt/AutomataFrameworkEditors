@@ -51,6 +51,22 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 - 2026-11-16, the Owner: the shell and World mockups (board v17, pull request #70, `docs/mockups/`). A design
   approval: built screens are checked against it in the slice's design drift check, and are not approved by it.
 
+## Flaky tests
+
+- `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on Welcome, told so" (Chromium). Failed once
+  locally on `abe0ee7` and once in CI on `e0fd5cc` (shard `browsers (chromium 6/6)`): `locator.waitFor: Timeout 10000ms
+  exceeded`, waiting for the "Automata Editors" heading. Cause, reproduced 19 times in 25 under CPU load: the journey called
+  `goto` and then `reload` at once, so the first page's renewal cut off by the reload had already cleared the sign-in, and the
+  second page showed the demo as a visitor. Fixed in the journey by loading the page once (0 failures in 25 under the same
+  load); every assertion is unchanged.
+- `settings.browser.test.ts`, "a value put back to its default leaves no key, and the settings of the Crate Game hold "How
+  heavy" to halves" (Firefox). Failed once in CI on `e5d1311`, shard `browsers (firefox 1/6)`: `AssertionError: expected {
+  heavy: 4 } to deeply equal { heavy: 2.5 }` (line 85), after typing "2.5" into the number pad. The same file passed in that
+  shard on `6721ee1`, and nothing it reads changed between the two (only `tests/fixtures/journey.ts`). Not reproduced in 6 runs,
+  12 under CPU load and 40 repeats under load, all passing. A `4` is the slider's top: one guess is that the field moved
+  under the click (the click landed on the slider), but that is a guess with no evidence. Left as it is; if it fails again,
+  the next step is to log where the click lands.
+
 ## Lessons
 
 None yet.

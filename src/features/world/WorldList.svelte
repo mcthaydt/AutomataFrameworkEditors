@@ -29,6 +29,10 @@
     characters: Readonly<Record<string, Character>>
     placing: string | undefined
     onchoose: (id: string | undefined) => void
+    /** The ground is a row of its own: picking it picks Paint. `kinds` is how many kinds the ground can be. */
+    painting: boolean
+    kinds: number
+    onground: () => void
   }
   let {
     lang,
@@ -51,10 +55,15 @@
     characters,
     placing,
     onchoose,
+    painting,
+    kinds,
+    onground,
   }: Props = $props()
 
   const words = $derived(wordsIn(lang))
-  const text = (row: Row): string => (typeof row === 'function' ? row() : row)
+  const text = (row: Row, ...parts: (string | number)[]): string => (typeof row === 'function' ? row(...parts) : row)
+  /** The ground comes first in the list of a level, before its things. */
+  const lead = $derived(levels === undefined && level !== undefined ? 1 : 0)
 </script>
 
 {#snippet levelRow(at: number)}
@@ -79,6 +88,19 @@
     />
   {/if}
 {/snippet}
+{#snippet listRow(at: number)}
+  {#if at < lead}
+    <ThingRow
+      thing={{ id: '@ground', character: '' }}
+      label={text(words.ground.groundHead)}
+      note={text(words.ground.groundKinds, kinds)}
+      picked={painting}
+      onpick={onground}
+    />
+  {:else}
+    {@render thingRow(at - lead)}
+  {/if}
+{/snippet}
 {#snippet tray()}
   <Tray
     {lang}
@@ -94,12 +116,12 @@
   {mode}
   tab={levels !== undefined || tab !== 'add' ? 'list' : 'add'}
   name={text(levels !== undefined ? words.map.listLevels : words.panels.listIn)}
-  count={levels?.length ?? things.length}
+  count={levels?.length ?? things.length + lead}
   {rowHeight}
   {inset}
   {mirror}
   {onopen}
   {onhide}
-  row={levels !== undefined ? levelRow : thingRow}
+  row={levels !== undefined ? levelRow : listRow}
   add={levels !== undefined ? undefined : tray}
 />
