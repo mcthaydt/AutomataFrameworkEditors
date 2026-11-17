@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-17 01:00 UTC (from `date`).
+Last updated: 2026-11-17 01:18 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -19,6 +19,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   their changes and presses the main button once more. Left for later: "See what changed" on the done sheet and notes (PR 16);
   the per-clash sheet (PR 15, so after a clash the game's version is kept and one Undo brings the person's back); "Show me on
   the level" on the waiting sheet. This record was written by the implementer, because the coordinator cannot write to the repo.
+- **Where the next session picks up (owner paused new World work after 12a and 13, 2026-11-17).** PR 13 (#103) is reviewed
+  (0 reds at cycle 3) and has main's PR 12a merged in at `2e9c7f4`. Its full run is green except one Firefox failure that main
+  itself has at `61369fd`: settings-and-join, "the Join hint covers neither the plate nor the gate it points at", at
+  ipadSideways (`.hint` is not visible within 10 s). That needs a fix on main first; then integrate main into #103 again,
+  re-run the checks, and merge #103 with a merge commit. After that the next work is PR 16 (Tasks 38 to 40: People, History,
+  Notes, the helper's Ghost, Find, Games, plus "See what changed" and "Show me on the level"), started from the latest main,
+  then 12b, 15, 17 to 19 and the end-of-slice loop. Seen and not fixed: the 32 px map wall marker, and `--passWithNoTests` in
+  the `test:journeys` script (each its own thread).
 - Plan PR 12 is split in two: 12a (Task 31: a thing's settings, Join, tags, and a door's or an edge's "Go to") is built on
   `claude/project-thread-ik1on4` and waits for a fresh review; 12b (Task 32: Paint, Show, Pencil) follows it. Lane A then
   goes 15, 17 (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
