@@ -53,3 +53,9 @@ export function listen(heard: Heard): () => void {
     }
   }
 }
+
+/** The page's size now, in points. */
+export const measure = (): { w: number; h: number } => ({
+  w: document.documentElement.clientWidth,
+  h: document.documentElement.clientHeight,
+})

@@ -14,4 +14,5 @@ export {
   type Wall,
   wholeWorld,
 } from './arrange.ts'
+export { edgesOf } from './edges.ts'
 export { default as MapPart } from './MapPart.svelte'

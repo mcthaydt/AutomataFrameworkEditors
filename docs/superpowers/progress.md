@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-16 21:08 UTC (from `date`).
+Last updated: 2026-11-17 01:00 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -19,6 +19,9 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   their changes and presses the main button once more. Left for later: "See what changed" on the done sheet and notes (PR 16);
   the per-clash sheet (PR 15, so after a clash the game's version is kept and one Undo brings the person's back); "Show me on
   the level" on the waiting sheet. This record was written by the implementer, because the coordinator cannot write to the repo.
+- Plan PR 12 is split in two: 12a (Task 31: a thing's settings, Join, tags, and a door's or an edge's "Go to") is built on
+  `claude/project-thread-ik1on4` and waits for a fresh review; 12b (Task 32: Paint, Show, Pencil) follows it. Lane A then
+  goes 15, 17 (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.
@@ -49,7 +52,8 @@ The framework pin here is `7ff5795`.
 | # | Pull request | Tasks | Needs |
 |---|---|---|---|
 | 11 | The map on screen | 29, 30 | 6, 7, 9: ready |
-| 12 | A thing's settings and Join; Paint, Show and the Pencil | 31, 32 | 9, 10, 11 |
+| 12a | A thing's settings, Join, tags, Go to (built, in review) | 31 | 9, 10, 11 |
+| 12b | Paint, Show and the Pencil | 32 | 12a |
 | 13 | Putting changes in, problems in plain words, offline | 33, 34 | 4, 5, 7, 8, 9, 11 |
 | 15 | Checking someone's changes; whose to keep | 36, 37 | 13 |
 | 16 | The team, notes, the helper's ghost and Find | 38 to 40 | 8, 12, 13 |

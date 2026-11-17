@@ -2,17 +2,19 @@
 // a choice, some words, links to other things, a path, a way into another level); a thing writes only the ones that are
 // not the default. Pure functions of the level that give the new level or the reason it will not. A value the
 // character does not declare is shown but never edited, so a level an agent wrote by hand is met as it is.
-import type {
-  Character,
-  Level,
-  LevelThing,
-  ThingValue,
-  ValueDeclaration,
+import {
+  type Character,
+  type Level,
+  type LevelThing,
+  levelSize,
+  type ThingValue,
+  type ValueDeclaration,
 } from '@automataframework/framework/headless'
 import { same } from '../../lib/same.ts'
 import type { Working } from '../game/game.ts'
 import { type Done, no, ok } from './done.ts'
 import type { Characters } from './edit.ts'
+import { moveThings } from './things.ts'
 
 /** One value of one thing, as a card shows it. */
 export interface ValueRow {
@@ -242,4 +244,74 @@ export function waysOut(
     .filter((id) => id !== from)
     .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
     .map((id) => ({ level: id, things: (levels[id]?.things ?? []).filter(isWay).map((t) => t.id) }))
+}
+
+/** What a switch opens, made this one thing (or nothing): a switch that opens one thing swaps it, a list adds to it. */
+export function opens(
+  level: Level,
+  characters: Characters,
+  from: string,
+  value: string,
+  to: string | undefined,
+): Done {
+  const thing = level.things.find((t) => t.id === from)
+  if (thing === undefined) return no('no-such-thing')
+  const declaration = declarationOf(characters, thing, value)
+  if (declaration === undefined) return no('not-allowed')
+  const now = linked(thing, value)
+  if (to === undefined) {
+    return now.length === 0 ? no('same') : ok(withThing(level, from, (t) => setIn(t, value, undefined)))
+  }
+  if (!level.things.some((t) => t.id === to)) return no('no-such-thing')
+  if ((declaration.most ?? 1) > 1) return link(level, characters, from, value, to)
+  if (!candidates(level, characters, thing, value).includes(to)) return no('not-allowed')
+  return now.length === 1 && now[0] === to
+    ? no('same')
+    : ok(withThing(level, from, (t) => setIn(t, value, to)))
+}
+
+/** One value set the same on several things: all of them change or none. */
+export function setValues(
+  level: Level,
+  characters: Characters,
+  ids: readonly string[],
+  value: string,
+  to: ThingValue | undefined,
+): Done {
+  if (ids.length === 0) return no('no-such-thing')
+  let now = level
+  let changed = false
+  for (const id of ids) {
+    const done = setValue(now, characters, id, value, to)
+    if (done.ok) {
+      now = done.value
+      changed = true
+    } else if (done.why !== 'same') return done
+  }
+  return changed ? ok(now) : no('same')
+}
+
+/** Where a thing is as a person says it: the left and top of its box, in tiles, and the furthest each may go. */
+export function whereIs(
+  level: Level,
+  characters: Characters,
+  thing: LevelThing,
+): { readonly left: number; readonly top: number; readonly leftMost: number; readonly topMost: number } {
+  const size = characters[thing.character]?.size ?? { w: 1, h: 1 }
+  const room = levelSize(level)
+  return {
+    left: tidy(thing.x - size.w / 2),
+    top: tidy(thing.y - size.h / 2),
+    leftMost: tidy(room.w - size.w),
+    topMost: tidy(room.h - size.h),
+  }
+}
+
+/** A thing's box put with its left or top at `edge` tiles, moved by half tiles at the finest. */
+export function putAt(level: Level, characters: Characters, id: string, axis: 'x' | 'y', edge: number): Done {
+  const thing = level.things.find((t) => t.id === id)
+  if (thing === undefined) return no('no-such-thing')
+  const size = characters[thing.character]?.size ?? { w: 1, h: 1 }
+  const by = axis === 'x' ? edge + size.w / 2 - thing.x : edge + size.h / 2 - thing.y
+  return moveThings(level, characters, [id], axis === 'x' ? { x: by, y: 0 } : { x: 0, y: by }, false)
 }
