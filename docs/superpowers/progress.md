@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-17 04:23 UTC (from `date`).
+Last updated: 2026-11-17 06:41 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,27 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- **Where things stand (2026-11-17 06:41 UTC; written by the slice lead, thread "Coordinate the World slice", which now coordinates
+  this slice; the "Complete all Automata slices" thread is the master coordinator).** Merged: plan PRs 1 to 11, 12a, 12b,
+  13, 14. Building side by side from `bfc9b72`: PR 15 on `claude/project-thread-wouq77` (Sonnet 5.5, medium) and PR 16 on
+  `claude/project-thread-2r8m50` (Sonnet 5.5, high: three tasks, four two-window journeys). Starting: the glass and icons
+  pull request (Opus 5.5, medium, lane 2). Then 17, 18, 19, the website demo, the plan for native-speaker reads, and the
+  slice end. Briefs: the project's shared folder, `handoff/world/`.
+- Plan PR 12b (#110) merged with a merge commit (`fd1f3b1`) after a green full run on `ece2cc0` (27 checks). Reviewed at
+  `d8a9579` (cycle 2, audit `6721ee1`); after it only `tests/fixtures/journey.ts` changed (Firefox and WebKit report no
+  touch points under emulation, so the fixture says one), read by the slice lead before the merge. Builder choices the
+  Owner has seen and not approved: Shift paints a box, Alt erases; a "More ways" tab for Box, Fill, Erase; Show choices
+  last for the visit; a two-column toolbar on a phone on its side.
+- Owner instructions, 2026-11-17: (06:19 UTC) the glass semi-transparent look on every surface, no solid panels, and
+  icons over text as much as possible; (06:20) glass blur and dimming are z-layer based, from one shared set of tokens
+  (bars and panels least, menus and sheets more, dialogs most); (06:21) every pull request that adds or changes a screen
+  starts with a layout sketch, shown to the Owner as written, not a gate; (06:23) one coordinator per slice, with a
+  master coordinator over all slices; the design loop runs at the slice end.
+- Layout sketches shown to the Owner (2026-11-17, no notes yet): PR 15 (check, ask, turned down, whose to keep) and PR 16
+  (people, what changed, games, notes, the helper's ghost, Find). Agent-selected, not approved: "1 to check" opens the
+  list of waiting changes first; People and What changed open as glass sheets over the level, not pages; new World code
+  goes in new files because `World.svelte` is at 589 of 600 lines.
 
 - Restart (2026-11-17): this repo's setup pull request puts back the apps kit (CLAUDE.md, skills, compaction hook) and the
   CI, gate and commit-authors check saved in AutomataPrivate `docs/superpowers/handoffs/2026-11-17-restart/`. The
@@ -71,10 +92,10 @@ The framework pin here is `7ff5795`.
 |---|---|---|---|
 | 11 | The map on screen | 29, 30 | 6, 7, 9: ready |
 | 12a | A thing's settings, Join, tags, Go to (merged, #101) | 31 | 9, 10, 11 |
-| 12b | Paint, Show and the Pencil (parked: work in progress on the branch, no PR) | 32 | 12a |
+| 12b | Paint, Show and the Pencil (merged, #110) | 32 | 12a |
 | 13 | Putting changes in, problems in plain words, offline | 33, 34 | 4, 5, 7, 8, 9, 11 |
-| 15 | Checking someone's changes; whose to keep | 36, 37 | 13 |
-| 16 | The team, notes, the helper's ghost and Find | 38 to 40 | 8, 12, 13 |
+| 15 | Checking someone's changes; whose to keep (building) | 36, 37 | 13 |
+| 16 | The team, notes, the helper's ghost and Find (building) | 38 to 40 | 8, 12, 13 |
 | 17 | Pin 2 (its own PR), then one step, slow, back 30 seconds, play from here, doors, a game with a problem | 41, 42 | 13; framework F1, F2, F4, F5 |
 | 18 | Drawn behind, with the hero, in front | 42a | 12, 17 |
 | 19 | Every journey at every size, the four layout fixes proved, the documents and the close | 43, 44 | all |
