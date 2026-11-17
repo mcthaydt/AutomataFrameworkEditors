@@ -20,28 +20,31 @@
     undo,
   } from '../game/game.ts'
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
-  import { MapPart } from '../map/map.ts'
+  import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
   import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
   import { type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
+  import { didWhat } from './did.ts'
   import { type Answer, cantPlay, type Saying, say, saveProblem, unsay } from './events.ts'
   import Events from './Events.svelte'
   import { showGlass } from './glass.ts'
   import Guidance from './Guidance.svelte'
-  import { insetsOf } from './insets.ts'
+  import { afterFinger } from './finger.svelte.ts'
+  import { bottomOf, insetsOf } from './insets.ts'
   import { copyFile, copyText, type Update } from './keeping.ts'
-  import { listen, onControl, typing } from './listen.ts'
+  import { listen, measure, onControl, typing } from './listen.ts'
+  import { savedAs } from './saved.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
   import { playTip, tipKept } from './tips.ts'
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
 
-  // The World editor on the page: the open level under floating glass (the top bar, the toolbar, the list and the
-  // settings), and everything a person does to it. What is changed is held as `Edits`, with one history, and kept on
-  // the device as it goes. The main button still saves the one level that is open (only it can have changed here).
+  // The World editor on the page: the open level under floating glass (top bar, toolbar, list, settings) and everything a
+  // person does to it. Changes are held as `Edits`, one history, kept on the device as they go; the main button saves
+  // the one level that is open (only it can have changed here).
   interface Props {
     game: OpenGame
     api: Api
@@ -81,10 +84,6 @@
     onme,
   }: Props = $props()
 
-  const measure = (): { w: number; h: number } => ({
-    w: document.documentElement.clientWidth,
-    h: document.documentElement.clientHeight,
-  })
   const first = measure()
 
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
@@ -161,7 +160,6 @@
     toCheck,
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
 
   $effect(() => showGlass(me))
 
@@ -269,17 +267,11 @@
     events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid')
   }
 
-  // A hand holding things: every move is worked out from the level as it was when the hand took hold, so the whole grab is
-  // one step back.
+  // A hand holding things: moves are worked out from the level as it was when the hand took hold: one grab, one step back.
   let dragFrom: Edits | undefined
   const grab = (): void => void (dragFrom = edits)
   function edit(next: Level): void {
-    const was = edits.now.levels[levelId]
-    const moved = (t: { id: string; x: number; y: number }): boolean => {
-      const o = was?.things.find((w) => w.id === t.id)
-      return o !== undefined && (o.x !== t.x || o.y !== t.y)
-    }
-    if (next.things.some(moved)) guide?.happen({ kind: 'moved' })
+    for (const kind of didWhat(edits.now.levels[levelId], next)) guide?.happen({ kind })
     keep(inLevel(dragFrom ?? edits, levelId, () => next))
   }
   function drop(gaveUp: boolean): void {
@@ -320,15 +312,11 @@
     const result = await saveLevel(api, held, now, titleOf(lines))
     saving = false
     if (result.ok) {
-      held = result.game
-      edits = { ...edits, base: { ...edits.base, levels: { ...edits.base.levels, [levelId]: now } } }
+      const next = savedAs(result, edits, levelId, now)
+      held = next.game
+      edits = next.edits
       keepDrafts(drafts, held, edits)
-      events = say(events, {
-        id: 'saved',
-        kind: 'good',
-        text: result.how === 'suggestion' ? WORDS.savedSuggestion : WORDS.savedDirect,
-        dismiss: true,
-      })
+      events = say(events, next.saying)
       onsaved(result.how)
       return
     }
@@ -383,6 +371,11 @@
   }
 
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
+  /** Opens `next` with the door you come out of picked, when it has one there. */
+  const goLevel = (next: string, door?: string): void => {
+    go({ screen: 'level', ...here, level: next })
+    picked = edits.now.levels[next]?.things.some((t) => t.id === door) ? [door as string] : []
+  }
   const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
 
   function onmenu(id: string): void {
@@ -416,8 +409,7 @@
     go({ screen: 'map', ...here, level: levelId })
   }
 
-  // Where the level may be drawn: clear of the top bar, the toolbar and whatever panels are open.
-  const insets = $derived(insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
+  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap))
 </script>
 
 {#if sheet !== undefined}
@@ -434,9 +426,9 @@
       <div
         class="level"
         class:hidden={playing}
-        style:left="{insets.left}px"
-        style:right="{insets.right}px"
-        style:bottom="{insets.bottom}px"
+        style:left="{insets.value.left}px"
+        style:right="{insets.value.right}px"
+        style:bottom={bottomOf(insets.value)}
       >
         {#if onMap}
           <MapPart
@@ -446,7 +438,7 @@
             {lang}
             picked={pickedOnMap}
             onpick={(next) => (pickedLevel = next)}
-            ongo={(next) => go({ screen: 'level', ...here, level: next })}
+            ongo={goLevel}
             onchange={(next) => keep(change(edits, next))}
             onundo={() => step('undo')}
           />
@@ -477,6 +469,8 @@
           onclip={(next) => (clip = next)}
           onundo={() => step('undo')}
           {onmap}
+          edges={edgesOf(edits.now, held.content, levelId)}
+          ongo={goLevel}
         />
         {/if}
         {#if playing}
@@ -556,6 +550,11 @@
       start={held.content.project.start}
       {pickedLevel}
       onpicklevel={(id) => (pickedLevel = id)}
+      {levelId}
+      ways={edits.now.levels}
+      hand={{ grab, edit, drop }}
+      ongo={goLevel}
+      content={held.content}
     />
 
     <Events {events} low={playing} onanswer={answered} />
@@ -569,7 +568,7 @@
       owner={signedIn && can(access, 'share')}
       {remembered}
       {things}
-      picked={placed?.id}
+      {picked}
       {onme}
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}
@@ -591,6 +590,7 @@
   }
   /* The level sits under the glass: clear of the top bar, and of whatever sits at its sides and foot. */
   .level {
+    isolation: isolate; /* what floats over the level stays under the tour and the dialogs, whatever its z-index */
     position: absolute;
     top: calc(var(--bar) + 20px);
     display: flex;

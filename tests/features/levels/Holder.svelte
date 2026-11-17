@@ -4,7 +4,7 @@
   import type { GameContent, Level } from '@automataframework/framework/headless'
   import { untrack } from 'svelte'
   import type { Pointers } from '#src/features/device/device.ts'
-  import { type Clip, LevelPart } from '#src/features/levels/levels.ts'
+  import { type Clip, type Edge, LevelPart } from '#src/features/levels/levels.ts'
   import type { Tool } from '#src/features/shell/shell.ts'
   import type { OpenPicture } from '#src/features/wire/wire.ts'
 
@@ -14,8 +14,10 @@
     start: Level
     tool?: Tool
     onmap?: (() => void) | undefined
+    edges?: readonly Edge[]
+    ongo?: ((level: string) => void) | undefined
   }
-  let { content, pictures, start, tool = 'pick', onmap }: Props = $props()
+  let { content, pictures, start, tool = 'pick', onmap, edges = [], ongo }: Props = $props()
 
   let level = $state.raw<Level>(untrack(() => start))
   let past = $state.raw<readonly Level[]>([])
@@ -79,4 +81,6 @@
   onclip={(next) => (clip = next)}
   onundo={undo}
   {onmap}
+  {edges}
+  {ongo}
 />

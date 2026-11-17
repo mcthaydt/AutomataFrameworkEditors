@@ -4,9 +4,12 @@
   // (`away`), they are not drawn at all. They decide nothing: every press goes up as a call.
   import type { GameContent, Level } from '@automataframework/framework/headless'
   import type { SizeClass } from '../device/device.ts'
-    import { type Docks, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
-  import { type Lang, nameOf } from '../words/words.ts'
+  import type { Working } from '../game/game.ts'
+  import { ThingSettings } from '../levels/levels.ts'
+  import { type Docks, type Layout, SettingsPanel, type Tool, Toolbar } from '../shell/shell.ts'
+  import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
   import Nudge from './Nudge.svelte'
+  import { sayFor } from './said.ts'
   import { WORLD } from './world-workspace.ts'
   import WorldList from './WorldList.svelte'
 
@@ -46,6 +49,13 @@
     start: string
     pickedLevel: string | undefined
     onpicklevel: (id: string) => void
+    /** The level that is open, every level (for where a door may lead) and the hand on the history. */
+    levelId: string
+    ways: Working['levels']
+    hand: { grab: () => void; edit: (next: Level) => void; drop: (gaveUp: boolean) => void }
+    ongo: (level: string, door?: string) => void
+    /** The game, for the words a thing's message stands for. */
+    content: GameContent
   }
   let {
     lang,
@@ -76,10 +86,20 @@
     start,
     pickedLevel,
     onpicklevel,
+    levelId,
+    ways,
+    hand,
+    ongo,
+    content,
   }: Props = $props()
 
   const things = $derived(level?.things ?? [])
-  const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
+  /** The things that are picked (a start has no settings), and the one when there is one. */
+  const held = $derived(things.filter((thing) => picked.includes(thing.id)))
+  const placed = $derived(held.length === 1 ? held[0] : undefined)
+  const said = $derived(wordsIn(lang))
+  const text = (row: Row, ...parts: (string | number)[]): string =>
+    typeof row === 'function' ? row(...parts) : row
 </script>
 
 {#if !away}
@@ -130,16 +150,27 @@
       />
     {/if}
 
-    {#if !levels && lay.settings !== 'none' && placed !== undefined}
+    {#if !levels && lay.settings !== 'none' && level !== undefined && held.length > 0}
       <SettingsPanel
         {lang}
         mode={lay.settings}
-        name={nameOf(placed.id)}
+        name={placed === undefined ? text(said.thing.settingsMany, held.length) : nameOf(placed.id)}
         mirror={lay.mirror}
         onhide={() => ondocks({ ...docks, settings: 'hidden' })}
         onshow={() => ondocks({ ...docks, settings: 'shown' })}
       >
-        <Nudge onnudge={(way) => onnudge(placed.id, way)} />
+        <ThingSettings
+          {lang}
+          {level}
+          {levelId}
+          {characters}
+          ids={held.map((thing) => thing.id)}
+          levels={ways}
+          {hand}
+          {ongo}
+          says={(message) => sayFor(content, message)}
+        />
+        {#if placed !== undefined}<Nudge onnudge={(way) => onnudge(placed.id, way)} />{/if}
       </SettingsPanel>
     {/if}
   </div>

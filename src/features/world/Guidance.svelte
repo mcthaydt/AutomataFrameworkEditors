@@ -36,7 +36,7 @@
     remembered: Storage
     /** The ids of the things in the open level, and the one that is picked. */
     things: readonly { readonly id: string; readonly character: string }[]
-    picked: string | undefined
+    picked: readonly string[]
     onme: (next: Me) => void
     /** The game's settings changed: the screen holds the newest. */
     onsettings: (settings: Pick<OpenGame, 'editors' | 'editorsVersion'>) => void
@@ -55,6 +55,18 @@
   let tour = $state<TourState>(tourFrom(steps))
   let ticks = $state<ReadonlySet<Step>>(untrack(() => readTicks(remembered)))
   let panel = $state<'settings' | 'help' | 'keys' | undefined>(undefined)
+
+  /** The one thing that is picked, when one is. */
+  const placed = $derived(picked.length === 1 ? things.find((thing) => thing.id === picked[0]) : undefined)
+  /** Step 3 asks to change a number when the picked thing has one (by its name, "How heavy"), else to move the thing. */
+  const number = $derived(
+    game.content.characters[placed?.character ?? '']?.values?.find((value) => value.type === 'number'),
+  )
+  const three = $derived(
+    number === undefined
+      ? { asks: 'arrows' as const, name: placed === undefined ? '' : nameOf(placed.id) }
+      : { asks: 'value' as const, name: number.name },
+  )
 
   const owners = $derived(game.people.filter((one) => one.level === 'owner').map((one) => one.login))
   /** What the tour rings: the crate (or the first thing) for step 1, the settings for step 3. */
@@ -123,7 +135,7 @@
     {lang}
     now={tour}
     {steps}
-    three={{ asks: 'arrows', name: picked === undefined ? '' : nameOf(picked) }}
+    {three}
     {target}
     onnext={() => happen({ kind: 'next' })}
     onskip={() => happen({ kind: 'skip' })}

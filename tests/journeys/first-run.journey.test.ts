@@ -38,8 +38,9 @@ const window_ = async (
   person: Person,
   keep = false,
   options: Parameters<typeof openPage>[4] = {},
+  game?: string,
 ): Promise<JourneyPage> => {
-  const j = await openPage(size, person, keep, undefined, options)
+  const j = await openPage(size, person, keep, game, options)
   windows.push(j)
   return j
 }
@@ -98,12 +99,22 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
       .getByRole('button', { name: said(first('en').tourNext) })
       .click()
 
-    // Step 2 asks for a move of what is picked, and a plain pick does not count.
+    // Step 2 asks for a change to a number of what is picked ("How heavy"), and a plain pick does not count.
     await coach(j)
-      .getByText(said(first('en').tourArrowsDo, 'Crate 1'))
+      .getByText(said(first('en').tourValueDo, 'How heavy'))
       .waitFor()
-    await thingNamed(j.page, 'crate-1').focus()
-    await j.page.keyboard.press('ArrowRight')
+    // On a small screen the settings are folded to a line until it is pressed.
+    const folded = j.page.locator('button[data-tour="settings"]')
+    if ((await folded.count()) > 0) await folded.click()
+    // The slider is dragged with a finger's path across it, the way a person changes a number.
+    const slider = j.page.locator('input[type="range"][aria-label="How heavy"]')
+    const track = await slider.boundingBox()
+    if (track === null) throw new Error('no slider for how heavy')
+    const y = track.y + track.height / 2
+    await j.page.mouse.move(track.x + track.width * 0.15, y)
+    await j.page.mouse.down()
+    await j.page.mouse.move(track.x + track.width * 0.6, y, { steps: 6 })
+    await j.page.mouse.up()
     await coach(j)
       .getByText(said(first('en').tourDid))
       .waitFor()
@@ -126,6 +137,38 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     expect(await j.page.getByRole('dialog', { name: said(first('en').welcomeTitle) }).count()).toBe(0)
     expect(await coach(j).count()).toBe(0)
   })
+})
+
+test('with a thing that has no number, the tour asks for a move by the arrows and is ticked by them', async () => {
+  const j = await window_(
+    'ipadUpright',
+    'grandma',
+    false,
+    { firstRun: true, locale: 'en-US' },
+    'grandma/links-game',
+  )
+  await j.page.getByRole('heading', { level: 1, name: said(first('en').languageTitle) }).waitFor()
+  await goOn(j, 'en')
+  await signIn(j.page)
+  await openGame(j.page, 'links-game')
+  const welcome = j.page.getByRole('dialog', { name: said(first('en').welcomeTitle) })
+  await welcome.waitFor()
+  await welcome.getByRole('button', { name: said(first('en').welcomeShow) }).click()
+  await thingNamed(j.page, 'crate-1').tap()
+  await coach(j)
+    .getByText(said(first('en').tourDid))
+    .waitFor()
+  await coach(j)
+    .getByRole('button', { name: said(first('en').tourNext) })
+    .click()
+  await coach(j)
+    .getByText(said(first('en').tourArrowsDo, 'Crate 1'))
+    .waitFor()
+  await thingNamed(j.page, 'crate-1').focus()
+  await j.page.keyboard.press('ArrowRight')
+  await coach(j)
+    .getByText(said(first('en').tourDid))
+    .waitFor()
 })
 
 test("a new person's device language is already chosen, and everything after it is in it", async () => {

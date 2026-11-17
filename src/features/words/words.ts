@@ -15,6 +15,7 @@ import { panels } from './panels.ts'
 import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
+import { thing } from './thing.ts'
 
 export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
@@ -28,6 +29,7 @@ export { panels } from './panels.ts'
 export { play } from './play.ts'
 export { settings } from './settings.ts'
 export { shell } from './shell.ts'
+export { thing } from './thing.ts'
 
 export const WORDS = Object.freeze({
   appName: 'Automata Editors',
@@ -158,6 +160,7 @@ export interface Words {
   readonly settings: Readonly<Record<keyof (typeof settings)['en'], Row>>
   readonly help: Readonly<Record<keyof (typeof help)['en'], Row>>
   readonly play: Readonly<Record<keyof (typeof play)['en'], Row>>
+  readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
 }
 
 /**
@@ -178,6 +181,7 @@ export function wordsIn(lang: Lang): Words {
     map: { ...map.en, ...map[lang] },
     arrange: { ...arrange.en, ...arrange[lang] },
     play: { ...play.en, ...play[lang] },
+    thing: { ...thing.en, ...thing[lang] },
   }
 }
 

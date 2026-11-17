@@ -72,16 +72,16 @@
     {/each}
     {#if onlist}
       <i class="rule"></i>
-      <button type="button" class="tool" onclick={onlist}>
+      <button type="button" class="tool plain" aria-label={text(words.panels.listLabel)} onclick={onlist}>
         <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
       </button>
     {/if}
     {#if undoHere}
       <i class="rule"></i>
-      <button type="button" class="tool" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
+      <button type="button" class="tool plain" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
         <Icon name="arrow-counter-clockwise" /><span>{text(words.shell.undo)}</span>
       </button>
-      <button type="button" class="tool" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
+      <button type="button" class="tool plain" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
         <Icon name="arrow-clockwise" /><span>{text(words.shell.redo)}</span>
       </button>
     {/if}
@@ -144,6 +144,36 @@
     width: auto;
     height: 1px;
     margin: 4px 0;
+  }
+  /* An upright phone is about 390 points wide, too narrow for the name of every button in every language: the four tools keep
+     their names (smaller), and the list, Undo and Redo keep only their pictures, their names left for a screen reader. */
+  @media (max-width: 440px) {
+    .tools:not(.column) {
+      gap: 1px;
+      padding: 4px 1px;
+    }
+    .tools:not(.column) .tool {
+      flex: 1 1 auto;
+      min-width: 44px;
+      padding: 4px 3px;
+      font-size: 11px;
+    }
+    .tools:not(.column) .plain {
+      position: relative;
+      flex: 0 0 44px;
+      padding: 4px 0;
+    }
+    .tools:not(.column) .plain span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .tools:not(.column) .rule {
+      margin: 4px 0;
+    }
   }
   /* A phone on its side has little height: the column is packed to 44 pixel buttons so it fits between the bars. */
   @media (max-height: 480px) {
