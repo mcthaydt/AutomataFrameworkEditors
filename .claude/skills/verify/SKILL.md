@@ -13,9 +13,9 @@ From a clean checkout in a cloud container, in order. First pick the Node versio
 
 ```sh
 export PATH=/opt/node24/bin:$PATH
+export S=$(mktemp -d)   # scratch for the loader and the screenshots, outside the repo
 pnpm install --frozen-lockfile
 pnpm build:journeys
-export S=$(mktemp -d)   # scratch for the loader and the screenshots, outside the repo
 cat > $S/raw.mjs <<'EOF'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -46,7 +46,7 @@ EOF
 node --import $S/reg.mjs $S/up.mjs > $S/up.log 2>&1 &
 ```
 
-It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: @@TIME@@, on commit @@COMMIT@@.
+It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 14 seconds from a fresh clone to the page answering 200, install, build and the git workaround for the blocked host included (2026-11-18 02:03 UTC), on commit fa7e558.
 
 ## Drive it
 
@@ -80,7 +80,7 @@ One line each, from a person's side: where it starts, the steps, and what they s
 
 - First run: open the page with nothing remembered, pick English, tap "Go on", tap "Try it now", and see Crate Game open with the welcome card.
 - Look around and change something: tap a thing in the level, drag it, and see the top right button change to say the change can be put in the game (sign in first to save).
-- Every other path (sign in, put it in the game, waiting changes, share, approve) is a file in `tests/journeys/`; run the ones a change reaches with `pnpm exec vitest run --project journeys <file>` (they start their own servers on ports 4800 and 4801, so stop the ones started above first).
+- Every other path (sign in, put it in the game, waiting changes, share, approve) is a file in `tests/journeys/`; run the ones a change reaches with `pnpm exec vitest run --project journeys` and the file's path (they start their own servers on ports 4800 and 4801, so stop the ones started above first).
 
 ## Stop it
 
@@ -97,7 +97,7 @@ A step that breaks or flakes is fixed in this skill first. Each known way a star
 
 - `pnpm install` stops with `ERR_PNPM_FETCH_403 ... codeload.github.com/mcthaydt/AutomataFramework/tar.gz/` plus the pinned commit: the container's network turns that host away, and the framework is a git dependency. Install it from git instead, then put `package.json` and `pnpm-lock.yaml` back:
   ```sh
-  git clone https://github.com/mcthaydt/AutomataFramework "$S/fw" && git -C "$S/fw" checkout the commit that package.json pins
+  git clone https://github.com/mcthaydt/AutomataFramework "$S/fw" && git -C "$S/fw" checkout $(grep -o 'AutomataFramework#[0-9a-f]*' package.json | cut -d# -f2)
   (cd "$S/fw" && pnpm install --frozen-lockfile && pnpm pack --pack-destination "$S")
   sed -i "s#\"github:mcthaydt/AutomataFramework[^\"]*\"#\"file:$S/automataframework-framework-0.1.0.tgz\"#" package.json
   pnpm install --no-frozen-lockfile; git checkout package.json pnpm-lock.yaml
