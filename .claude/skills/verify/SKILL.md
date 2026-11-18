@@ -14,7 +14,8 @@ From a clean checkout in a cloud container, in order. First pick the Node versio
 ```sh
 export PATH=/opt/node24/bin:$PATH
 export S=$(mktemp -d -p "$SCRATCH")   # set SCRATCH to the session scratchpad first; everything below lives in $S, outside the repo
-git clone -q --branch "$(git branch --show-current)" "$(git remote get-url origin)" $S/repo && cd $S/repo   # a fresh clone is the clean start; commit and push first
+R=$(git rev-parse HEAD)   # works on a branch and on a detached checkout; commit and push first, the clone has only what is pushed
+git clone -q "$(git remote get-url origin)" $S/repo && cd $S/repo && git checkout -q $R   # a fresh clone is the clean start
 pnpm install --frozen-lockfile || {
   # 403 from codeload.github.com: the framework is a git dependency and the host is turned away here. Install it from git:
   git clone -q https://github.com/mcthaydt/AutomataFramework $S/fw && git -C $S/fw checkout -q $(grep -o 'AutomataFramework#[0-9a-f]*' package.json | cut -d# -f2)
@@ -54,7 +55,7 @@ node --import $S/reg.mjs $S/up.mjs > $S/up.log 2>&1 &
 until grep -q '^up' $S/up.log && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4800/)" = 200 ]; do sleep 0.5; done
 ```
 
-It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 52 seconds and 58 seconds in two runs, from a fresh clone to the page answering 200, with the install, the git fallback and the build included (2026-11-18 02:12 UTC); a fresh runner measured 20 seconds with a warm package store, on commit afafe43.
+It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 52 seconds and 58 seconds in two runs, from a fresh clone to the page answering 200, with the install, the git fallback and the build included (2026-11-18 02:12 UTC); a fresh runner measured 20 seconds with a warm package store, on commit fa7e558.
 
 ## Drive it
 
@@ -73,7 +74,7 @@ const { chromium } = require('playwright')
   await p.getByRole('button', { name: 'Go on' }).tap()
   await p.getByRole('button', { name: 'Try it now' }).tap()
   await p.locator('[data-bar]').waitFor()
-  await p.screenshot({ path: process.env.S + '/main-' + size.width + '.png' })
+  await p.screenshot({ path: process.env.SCRATCH + '/verify-main-' + size.width + '.png' })
   await b.close()
 })()
 EOF
@@ -83,7 +84,7 @@ node $S/drive.js '{"width":834,"height":1210}'    # tablet
 node $S/drive.js '{"width":1280,"height":800}'    # computer
 ```
 
-Read the screenshot: the top bar with "Crate Game", the level, the tool bar.
+Read the screenshots in `$SCRATCH` (`verify-main-390.png`, `-834.png`, `-1280.png`; they survive the stop step). Run "Start it" and "Drive it" as one script, or set `PATH`, `SCRATCH`, `S` and `NODE_PATH` again in every call, since each call is a new shell. What each size shows: at 834 and 1280 the top bar says "Crate Game", and the tool bar is at the bottom; at 390 the bar shows "Levels · Level 1", "Play" and "Up to date" instead of the game's name, and the welcome card covers the tool bar until it is closed.
 
 ## The journeys
 
