@@ -95,7 +95,7 @@ git clean -xfd   # only on a throwaway checkout: it also removes node_modules an
 
 A step that breaks or flakes is fixed in this skill first. Each known way a start or a step fails, what it looks like, and the fix:
 
-- `pnpm install` stops with `ERR_PNPM_FETCH_403 ... codeload.github.com/mcthaydt/AutomataFramework/tar.gz/` plus the pinned commit: the container's network turns that host away, and the framework is a git dependency. Install it from git instead, then put `package.json` and `pnpm-lock.yaml` back:
+- `pnpm install` stops with `ERR_PNPM_FETCH_403 ... codeload.github.com/mcthaydt/AutomataFramework/tar.gz/` plus the pinned commit: this happens when the session does not have mcthaydt/AutomataFramework attached, and the framework is a git dependency; the git fallback below needs no extra access. Install it from git instead, then put `package.json` and `pnpm-lock.yaml` back:
   ```sh
   git clone https://github.com/mcthaydt/AutomataFramework "$S/fw" && git -C "$S/fw" checkout $(grep -o 'AutomataFramework#[0-9a-f]*' package.json | cut -d# -f2)
   (cd "$S/fw" && pnpm install --frozen-lockfile && pnpm pack --pack-destination "$S")
