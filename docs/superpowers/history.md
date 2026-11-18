@@ -85,6 +85,20 @@ Finished milestones and their decision records, setup, rule changes, standing pe
   12 under CPU load and 40 repeats under load, all passing. A `4` is the slider's top: one guess is that the field moved
   under the click (the click landed on the slider), but that is a guess with no evidence. Left as it is; if it fails again,
   the next step is to log where the click lands.
+  Followed up on 2026-11-18 in three tries. The slider guess does not fit: Vitest's `type` only focuses the field, it never
+  clicks. A `4` is "1" (the old number) followed by "2.5": "12.5", held to the top. 450 repeats of the steps under CPU load:
+  no failure. The CI log has nothing more (its failure picture was not uploaded). Then 4 runs of the whole Firefox suite under
+  load: one failed, in the test above it in the same file ("typing 99 …", `expected { …(2) } to match object { reach: 1 }`
+  after typing "0" over the 8): "8" followed by "0" makes 80, held to 8. Shown on purpose: a blur between `clear` and `type`
+  gives exactly that failure every time, because the number pad puts its number back when the field is left empty (by
+  design). What took the focus away in the failing runs was not found; a test in another file stealing focus in a loop did not
+  cause it (60 repeats). With that fixed, 6 more runs under load failed twice in a third test of the file, the only other
+  one with the same two steps ("several things show "Not the same"…", `expected { …(2) } to match object { reach: 6 }`: "5"
+  followed by "6"). So all three tests now put their words in at once and press Enter (no gap for a blur to land in), with
+  every assertion unchanged; they still fail when Enter stops saving, when nothing holds a number to its limits, or when a
+  default stays in the file. The gap it leaves: in these three tests the browser's own typing does not put the words in; that
+  part of the number pad (fill, then Enter, held to its limit) is still checked in all three browsers by `kit.browser.test.ts`
+  ("NumberPad: plus and minus stop at the limits").
 
 ## Lessons
 
