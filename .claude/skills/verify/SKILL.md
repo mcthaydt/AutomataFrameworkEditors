@@ -13,8 +13,15 @@ From a clean checkout in a cloud container, in order. First pick the Node versio
 
 ```sh
 export PATH=/opt/node24/bin:$PATH
-export S=$(mktemp -d)   # scratch for the loader and the screenshots, outside the repo
-pnpm install --frozen-lockfile
+export S=$(mktemp -d -p "$SCRATCH")   # set SCRATCH to the session scratchpad first; everything below lives in $S, outside the repo
+git clone -q --branch "$(git branch --show-current)" "$(git remote get-url origin)" $S/repo && cd $S/repo   # a fresh clone is the clean start; commit and push first
+pnpm install --frozen-lockfile || {
+  # 403 from codeload.github.com: the framework is a git dependency and the host is turned away here. Install it from git:
+  git clone -q https://github.com/mcthaydt/AutomataFramework $S/fw && git -C $S/fw checkout -q $(grep -o 'AutomataFramework#[0-9a-f]*' package.json | cut -d# -f2)
+  (cd $S/fw && pnpm install --frozen-lockfile && pnpm pack --pack-destination $S)
+  sed -i "s|github:mcthaydt/AutomataFramework#[0-9a-f]*|file:$S/automataframework-framework-0.1.0.tgz|" package.json
+  pnpm install --no-frozen-lockfile; git checkout package.json pnpm-lock.yaml   # never commit that change
+}
 pnpm build:journeys
 cat > $S/raw.mjs <<'EOF'
 import { readFileSync } from 'node:fs'
@@ -44,6 +51,7 @@ await startSite(4800, { ...fake.env, DEMO_GAME: DEMO })
 console.log('up')
 EOF
 node --import $S/reg.mjs $S/up.mjs > $S/up.log 2>&1 &
+until grep -q '^up' $S/up.log && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4800/)" = 200 ]; do sleep 0.5; done
 ```
 
 It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 14 seconds from a fresh clone to the page answering 200, install, build and the git workaround for the blocked host included (2026-11-18 02:03 UTC), on commit fa7e558.
@@ -69,7 +77,10 @@ const { chromium } = require('playwright')
   await b.close()
 })()
 EOF
-NODE_PATH=$(pnpm root)/ node $S/drive.js
+export NODE_PATH=$(pnpm root)
+node $S/drive.js '{"width":390,"height":844}'     # small phone
+node $S/drive.js '{"width":834,"height":1210}'    # tablet
+node $S/drive.js '{"width":1280,"height":800}'    # computer
 ```
 
 Read the screenshot: the top bar with "Crate Game", the level, the tool bar.
@@ -87,22 +98,14 @@ One line each, from a person's side: where it starts, the steps, and what they s
 Stop every server it started and clear what it wrote, so the next run starts clean.
 
 ```sh
-pkill -f "$S/up.mjs"; rm -rf "$S"; unset S
-git clean -xfd   # only on a throwaway checkout: it also removes node_modules and dist
+pkill -f "$S/up.mjs"; cd; rm -rf "$S"; unset S   # the fresh clone, the loader and the screenshots all live in $S
 ```
 
 ## When it breaks
 
 A step that breaks or flakes is fixed in this skill first. Each known way a start or a step fails, what it looks like, and the fix:
 
-- `pnpm install` stops with `ERR_PNPM_FETCH_403 ... codeload.github.com/mcthaydt/AutomataFramework/tar.gz/` plus the pinned commit: this happens when the session does not have mcthaydt/AutomataFramework attached, and the framework is a git dependency; the git fallback below needs no extra access. Install it from git instead, then put `package.json` and `pnpm-lock.yaml` back:
-  ```sh
-  git clone https://github.com/mcthaydt/AutomataFramework "$S/fw" && git -C "$S/fw" checkout $(grep -o 'AutomataFramework#[0-9a-f]*' package.json | cut -d# -f2)
-  (cd "$S/fw" && pnpm install --frozen-lockfile && pnpm pack --pack-destination "$S")
-  sed -i "s#\"github:mcthaydt/AutomataFramework[^\"]*\"#\"file:$S/automataframework-framework-0.1.0.tgz\"#" package.json
-  pnpm install --no-frozen-lockfile; git checkout package.json pnpm-lock.yaml
-  ```
-  Never commit that change. Use a normal install where the host is open.
+- `pnpm install` stops with `ERR_PNPM_FETCH_403` on `codeload.github.com`: the session does not have mcthaydt/AutomataFramework attached, and the framework is a git dependency. The install step already falls back to git, which needs no extra access; if it still fails, check that `$S/fw` was cloned.
 - `vite: not found` after a failed install: the install did not finish; fix the install first.
 - `ERR_UNKNOWN_FILE_EXTENSION ".toml"` when starting: the `--import $S/reg.mjs` part is missing; the fixtures read `automata.toml?raw`, which only Vite or that loader understands.
 - `EADDRINUSE` on 4800 or 4801: an earlier run is still up (or a journey test); stop it with the stop commands.
