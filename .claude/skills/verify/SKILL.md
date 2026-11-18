@@ -54,7 +54,7 @@ node --import $S/reg.mjs $S/up.mjs > $S/up.log 2>&1 &
 until grep -q '^up' $S/up.log && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4800/)" = 200 ]; do sleep 0.5; done
 ```
 
-It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 14 seconds from a fresh clone to the page answering 200, install, build and the git workaround for the blocked host included (2026-11-18 02:03 UTC), on commit fa7e558.
+It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 52 seconds and 58 seconds in two runs, from a fresh clone to the page answering 200, with the install, the git fallback and the build included (2026-11-18 02:12 UTC); a fresh runner measured 20 seconds with a warm package store, on commit fa7e558.
 
 ## Drive it
 
