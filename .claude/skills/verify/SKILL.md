@@ -53,14 +53,17 @@ await startSite(4800, { ...fake.env, DEMO_GAME: DEMO })
 console.log('up')
 EOF
 node --import $S/reg.mjs $S/up.mjs > $S/up.log 2>&1 &
-until grep -q '^up' $S/up.log && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4800/)" = 200 ]; do sleep 0.5; done
+n=0; until grep -q '^up' $S/up.log && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4800/)" = 200 ]; do
+  n=$((n+1)); [ $n -ge 60 ] && { echo "NOT READY after 60 tries (30 seconds); see $S/up.log:"; cat $S/up.log; exit 1; }
+  sleep 0.5
+done
 ```
 
 It is ready when `$S/up.log` says `up` and `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4800/` prints `200`. The page is the built suite in `dist/`, served with the real Function code (`/api`) in front of the pretend GitHub on port 4801 (`tests/fixtures/serve.ts`, `tests/fixtures/fake-github/`). Last clean start, timed with `date` before and after: 69 seconds on a detached checkout and 79 seconds on the branch, from a fresh clone to the page answering 200, with the install, the git fallback and the build included (2026-11-18); 20 seconds was measured with a warm package store, on commit 3369165.
 
 ## Drive it
 
-Open it in a real browser: the Chromium and Playwright the container already has (`require('playwright')`, then `chromium.launch()`), at each size in the device matrix in Settings. Tap, click, type and press keys the way a person would, and find things by their label or role. Take a screenshot at deviceScaleFactor 1 for your own check, and save it in the scratchpad, never in the repo. The main screen, what it shows and how to use it:
+Open it in a real browser: the Chromium and Playwright the container already has (`require('playwright')`, then `chromium.launch()`), at each size in the device matrix in Settings. The sizes come from `SIZES` in `tests/fixtures/journey.ts` (phone 390×844, iPad 834×1210, computer 1280×800); the sizes below copy them, so change both together. Tap, click, type and press keys the way a person would, and find things by their label or role. Take a screenshot at deviceScaleFactor 1 for your own check, and save it in the scratchpad, never in the repo. The main screen, what it shows and how to use it:
 
 A person with no sign-in first sees "Choose your language" (tap "Go on"), then the welcome page "Automata Editors" with "Try it now" and "Sign in with GitHub". "Try it now" opens the demo game, Crate Game: a top bar (`[data-bar]`, with the game's name), the level drawn big, a tool bar at the bottom (Pick, Place, Paint, Erase, Join, List, Show), and a "Welcome to the editor" card to dismiss. Never sign in for real: the real sign-in goes to GitHub.
 
