@@ -138,7 +138,7 @@ describe('Help and the keys', () => {
   test('Help lists the basics, ticks one once it is done, and walks through one on request', async () => {
     const j = await inGame('ipadUpright', 'grandma')
     let help = await openHelp(j)
-    await help.getByText(said(w().help.helpDone, 0, 2)).waitFor()
+    await help.getByText(said(w().help.helpDone, 0, 4)).waitFor()
     await help
       .getByRole('button', { name: said(w().help.helpShow) })
       .first()
@@ -150,7 +150,7 @@ describe('Help and the keys', () => {
     await coach.getByText(said(w().first.tourDid)).waitFor()
     await coach.getByRole('button', { name: said(w().first.tourSkip) }).click()
     help = await openHelp(j)
-    await help.getByText(said(w().help.helpDone, 1, 2)).waitFor()
+    await help.getByText(said(w().help.helpDone, 1, 4)).waitFor()
     expect(await stored(j, 'af.tip.tap-the-crate')).toBe('1')
   })
 
