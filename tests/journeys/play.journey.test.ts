@@ -2,6 +2,7 @@
 // move the hero; Bigger and Smaller put the panels away and back; Stop leaves the level as it was.
 import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
+import { LINKS } from '../fixtures/api.ts'
 import { fixtureFiles } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -199,4 +200,57 @@ path = "content/messages/es.json"
     .evaluateAll((halves) => halves.map((half) => half.getAttribute('aria-label')))
   expect(names).toHaveLength(2)
   for (const name of names) expect(['Walk', 'Jump']).not.toContain(name)
+})
+
+test('Play from here puts the hero beside the door; walking into it opens the next room and plays on there', async () => {
+  journey = await openPage('ipadSideways', 'grandma', false, LINKS)
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page, 'links-game', 'room-1')
+  await playButton(page, 'Play').click()
+  await started(page)
+  await playButton(page, 'Got it').click()
+  await playButton(page, 'Pause').waitFor()
+
+  await playButton(page, 'Play from here').click()
+  await page.getByText('Tap the level where the hero should start').waitFor()
+  const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
+  if (canvas === null) throw new Error('No game on this page.')
+  // 16 by 9 tiles, as large as fits: the door of room 1 is at tile 13.5, so a tap a tile short of it.
+  const scale = Math.min(canvas.width / 16, canvas.height / 9)
+  const left = canvas.x + (canvas.width - 16 * scale) / 2
+  const top = canvas.y + (canvas.height - 9 * scale) / 2
+  await page.mouse.click(left + 12 * scale, top + 7.5 * scale)
+  await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
+  // The game starts again from there; a key held before it is up is not the game's.
+  await started(page)
+  await page.waitForTimeout(500)
+
+  await page.keyboard.down('ArrowRight')
+  await page.waitForFunction(() => location.hash.includes('room-2'), undefined, { timeout: 15_000 })
+  await page.keyboard.up('ArrowRight')
+  // The play goes on in the room the door leads to.
+  await started(page)
+  await playButton(page, 'Stop').waitFor()
+  expect(page.url()).toContain('room-2')
+  // The top bar names the room the door led to.
+  await page.locator('[data-bar]').getByText('Levels · Room 2').waitFor()
+})
+
+test('one step and slow are in the play bar, and the strip goes back', async () => {
+  journey = await openPage('ipadSideways')
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page)
+  await playButton(page, 'Play').click()
+  await started(page)
+  await playButton(page, 'Got it').click()
+  await playButton(page, 'Pause').waitFor()
+  await page.getByRole('button', { name: 'How fast the game plays: Normal' }).click()
+  await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
+  await playButton(page, 'Pause').click()
+  await playButton(page, 'One step').click()
+  await page.locator('[data-play="strip"] input[type="range"]').waitFor()
+  await playButton(page, 'Stop').click()
+  await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
 })

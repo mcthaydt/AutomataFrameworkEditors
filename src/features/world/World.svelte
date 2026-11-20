@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Level } from '@automataframework/framework/headless'
+  import type { Arrive, Level, Way } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
@@ -112,6 +112,9 @@
   /** The level is playing where it is drawn; `big`: the panels are put away while it does. */
   let playing = $state(false)
   let big = $state(false)
+  /** Beside the door the play came through. */
+  let arrival = $state.raw<Arrive | undefined>(undefined)
+  let following = false // a door opened the level in view: the play goes on in it
   let viewport = $state(first)
   let docks = $state<Docks>({
     list: 'closed',
@@ -225,6 +228,7 @@
   function stopPlay(): void {
     playing = false
     big = false
+    arrival = undefined
     events = unsay(events, 'tip-play-code')
   }
   /** The level could not be played: what is wrong, said where the person is looking. */
@@ -237,8 +241,20 @@
     levelId
     sheet
     onMap
-    untrack(stopPlay)
+    untrack(() => {
+      // A door opened this level: the play goes on in it.
+      if (following) following = false
+      else stopPlay()
+    })
   })
+  /** A hero went through a door while the level played: the level it leads to opens, and the play goes on there. */
+  function followDoor(way: Way): void {
+    arrival = way.thing === undefined ? undefined : { thing: way.thing }
+    following = true
+    // The panels stay put while it plays: no door is picked, so the settings do not open over the game.
+    go({ screen: 'level', ...here, level: way.level })
+    picked = []
+  }
 
   function pick(ids: readonly string[]): void {
     picked = ids
@@ -436,17 +452,9 @@
         />
         {/if}
         {#if playing}
-          <PlayPart
-            game={held}
-            {edits}
-            level={levelId}
-            {lang}
-            {big}
-            waiting={events.some((one) => one.id === 'tip-play-code')}
-            onbig={() => (big = !big)}
-            onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))}
-            onproblem={noPlay}
-          />
+          {#key levelId}
+            <PlayPart game={held} {edits} level={levelId} {lang} {big} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
+          {/key}
         {/if}
       </div>
     {/if}
