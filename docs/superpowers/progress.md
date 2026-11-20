@@ -28,6 +28,11 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- The Owner's, 2026-11-20 09:27 UTC (decision card "Allow a slightly bigger CI fix, since the one-line version is
+  unsafe?"): "Yes, add the retry (about 8 lines)". Why it was asked: every run pushes its pictures to the one branch
+  `ci-screens` with a plain push and no retry, so a queue per commit alone would swap a cancelled job for a rejected
+  push. Scope: the `screens` job in `.github/workflows/ci.yml` only: a group per commit for pushes and a retry of
+  fetch, rebuild, commit, push from a fresh fetch. Audited (lane 3) before it merges.
 - 2026-11-20 09:26 UTC: Framework #222 (`Game.levelAt`, for the walk's R5) passed its review at `3dbcbfa` with no reds and is going
   ready. #128's review at `e3a8dce`: six reds (calls in `handoff/world/pr19-review-1-fixes.md`); #129 passed at
   `b3acf00` after three cycles and merges on its green full run once Escape during a played change is checked
