@@ -18,6 +18,12 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- State at 2026-11-20 02:27 UTC: PR 15 (#118) passed cycle 2 at `dd52277` (audit `f54d376`); it is ready and in its
+  full run, and merges on green without waiting for glass. Glass (#119): N6 and N7 fixed at `efdccd0`, but the last read
+  found R4 (a phone held sideways: the pinned foot leaves the settings 32px to scroll in; addendum `a5084ae`); the
+  builder is fixing it (second try on the move pad's place). PR 16 (#113): the full run on `4244205` left one family of
+  WebKit reds (games still opened for their picture while GitHub is down); the builder is fixing that test-first and
+  logging a third case it cannot yet explain (its third try).
 - State at 2026-11-20 02:04 UTC: glass and icons (#119) passed its review at `d961ead` (cycle 2, audit `b026b9a`) with the Owner's
   three notes in; two small notes are being fixed, then the full run and the merge. PR 16 (#113) passed cycle 2 at
   `8831e91` (audit `4244205`) with one WebKit red only the full run can prove; it merges after #119. PR 15 (#118) had
