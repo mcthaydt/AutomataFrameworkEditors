@@ -193,8 +193,12 @@ test('a list of games that cannot be fetched says so and offers Try again, not "
   await signIn(j.page)
   await title(j, gamesWords.title)
   j.fake.down = true
+  const asked = j.requests.length
   await j.page.reload()
   await text(j, gamesWords.trouble)
+  // With GitHub out of reach no game is opened for its picture: the rows keep their tiles.
+  await j.page.waitForTimeout(300)
+  expect(j.requests.slice(asked).filter((r) => r.includes('/api/game?'))).toEqual([])
   expect(await j.page.getByText(gamesWords.empty).count()).toBe(0)
   expect(await j.page.getByRole('button', { name: gamesWords.add }).count()).toBe(0)
   const again = j.page.getByRole('button', { name: gamesWords.again })
