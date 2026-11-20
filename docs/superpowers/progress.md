@@ -11,6 +11,10 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
+- Owner instruction (2026-11-20 01:00 UTC, on the after shot of a picked thing's settings panel): "this needs some
+  padding and margin, it's hugging the edges". The settings panel gets padding inside and a margin from the screen's
+  edges; given to the glass builder (#119) with the Owner's picture. Not yet applied.
+
 - Owner instruction (2026-11-20 00:59 UTC, on the glass before-and-after page, the "game that cannot open" page):
   "this should be centered", then (01:00 UTC) "actually all of those panels at the top of the page, should be at the
   middle of the page". Read by the slice lead as: every plain page whose card or panel sits at the top (the
