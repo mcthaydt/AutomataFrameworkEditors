@@ -22,7 +22,7 @@
   import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
   import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
-  import { type Route, withoutSheet } from '../team/team.ts'
+  import { AuthorNote, type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { didWhat } from './did.ts'
@@ -370,7 +370,7 @@
 </script>
 
 {#if sheet !== undefined}
-  <Sheets {sheet} {api} game={held.ref} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
+  <Sheets {sheet} {api} game={held.ref} {lang} {size} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
 {:else}
   <div
     class="look world"
@@ -525,6 +525,7 @@
     />
 
     <Events {events} low={playing} onanswer={answered} />
+    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
 
     <Changes
       bind:this={changes}
@@ -534,6 +535,7 @@
       {api}
       game={held}
       {edits}
+      {drafts}
       level={onMap ? undefined : levelId}
       onchanged={(next, now) => {
         held = next

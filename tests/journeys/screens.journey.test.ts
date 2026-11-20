@@ -15,6 +15,7 @@ import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  checkWords,
   chooseFromMenu,
   dragByTouch,
   type JourneyPage,
@@ -197,6 +198,8 @@ interface Scene {
   readonly reach: (size: Size) => Promise<JourneyPage>
   /** True for a screen that shows the level's stage. */
   readonly stage?: true
+  /** True for a screen that rings what changed: the ring must be on screen and not under a sheet. */
+  readonly ringed?: true
   /** A selector for the part of the screen this scene is about; the rest is measured elsewhere. */
   readonly only?: string
 }
@@ -461,7 +464,7 @@ const SCENES: readonly Scene[] = [
       await putSheet(j.page)
         .getByRole('button', { name: /^Put them in/ })
         .click()
-      await putSheet(j.page).getByText('clash', { exact: false }).waitFor()
+      await putSheet(j.page).getByRole('button', { name: checkWords.keepMine }).waitFor()
       return j
     },
     stage: true,
@@ -587,8 +590,9 @@ const SCENES: readonly Scene[] = [
         .getByRole('button', { name: /^Put them in/ })
         .click()
       await putSheet(j.page)
-        .getByRole('heading', { name: /version is kept/ })
-        .waitFor()
+        .getByRole('button', { name: /^Keep .*’s$/ })
+        .click()
+      await putSheet(j.page).getByText(checkWords.nothingLeft).waitFor()
       return j
     },
     stage: true,
@@ -704,6 +708,7 @@ const SCENES: readonly Scene[] = [
       return j
     },
     stage: true,
+    ringed: true,
   },
   {
     name: 'waiting-change-as-its-author',
@@ -720,10 +725,11 @@ const SCENES: readonly Scene[] = [
       const j = await suggestionWaiting(size, 'grandpa')
       repoOf(j).checks = 'failing'
       await openFirstChange(j)
-      await text(j, WORDS.checksFailed)
+      await text(j, checkWords.checksFailed)
       return j
     },
     stage: true,
+    ringed: true,
   },
   {
     name: 'waiting-change-gone',
@@ -732,8 +738,8 @@ const SCENES: readonly Scene[] = [
       await openFirstChange(j)
       // Someone else was quicker: the change is not waiting any more.
       repoOf(j).pulls[0]!.state = 'closed'
-      await j.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
-      await text(j, WORDS.changeGone)
+      await j.page.getByRole('button', { name: checkWords.putThem, exact: true }).click()
+      await text(j, checkWords.gone)
       return j
     },
   },
@@ -1040,13 +1046,33 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
   )
 }
 
+/** Says what is wrong when a ringed thing is out of sight or under a sheet; empty when it is plainly visible. */
+async function ringHidden(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const ring = document.querySelector('[data-marked] .ring')
+    if (ring === null) return 'nothing is ringed'
+    const box = ring.getBoundingClientRect()
+    if (box.width === 0 || box.height === 0) return 'the ring has no size'
+    if (box.left < 0 || box.top < 0 || box.right > innerWidth || box.bottom > innerHeight)
+      return 'the ring is off the screen'
+    for (const sheet of document.querySelectorAll('[role="dialog"]')) {
+      const s = sheet.getBoundingClientRect()
+      const apart = box.right <= s.left || box.left >= s.right || box.bottom <= s.top || box.top >= s.bottom
+      if (!apart)
+        return `the ring (${Math.round(box.left)},${Math.round(box.top)},${Math.round(box.width)}x${Math.round(box.height)}) is under the sheet`
+    }
+    return ''
+  })
+}
+
 describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
   for (const scene of SCENES) {
     test(`${scene.name}: pictured, then measured`, async () => {
       const j = await scene.reach(size)
       // The picture first, so a screen that breaks a rule can still be looked at.
       await picture(j.page, `${size}-${scene.name}`)
-      expect(await broken(j.page, scene.stage === true, scene.only ?? '')).toEqual([])
+      expect((await broken(j.page, scene.stage === true, scene.only ?? '')).join('; ')).toBe('')
+      if (scene.ringed === true) expect(await ringHidden(j.page)).toBe('')
     })
   }
 })
