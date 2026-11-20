@@ -28,6 +28,22 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 13:32 UTC: #128 (plan PR 19) passed its review: four cycles, reviewed head `34c63a53` (audits
+  `2026-11-20-world-19-1` to `-4-implementation-audit.md`), and has the go to mark ready, run in full and merge.
+  Cycle 3's red (C3-1): the R5 and door journeys took a "tile" from the canvas width, so the 0.75-tile bound was
+  about 33 px at phone sideways. The builder then found the ground's extent is a crop there too. Agent-selected: the
+  scale comes from two things of known place (the hero and the crate of Links Game room 1, 3 tiles apart in the level
+  file): 22.0 px at phone sideways, 49.3 at iPad sideways; on the old `PlayPart` the phone-sideways journeys fail
+  ("hero at tile 10.6, tap at tile 12.5"). No bound was widened.
+- 2026-11-20 13:32 UTC: main is green again. #137 (the approve journey's wait, test only, lane 1) merged as `ffa5fa2`, main's run
+  there green in every check; `8a5ec44` went green on the re-run of its two timed-out WebKit jobs. Agent-selected,
+  on the slow package mirror: the one-re-run rule is about a test that ran and failed; a job cancelled at its
+  timeout inside `playwright install-deps`, before any test ran, has given no test result, so re-running it is not
+  retrying code into green. Such a job may be re-run (failed jobs only), each time recorded; a test that runs and
+  fails keeps the ordinary rule. #137's `webkit 3/6` needed three attempts this way. The sign-in journey that failed
+  once on #137's draft run stays unproven (see "Flaky tests"): a first claim of a sign-out race was withdrawn by the
+  builder before anything was built, and no fix was made. For the Owner's list: `renew()` in `session.ts` can swap
+  the token twice on a late 401 (harmless as shown; repro in `/mnt/project-files/notes/`).
 - 2026-11-20 12:09 UTC: where things stand. #128 (plan PR 19): the review fixes and the walk's R5 are in (the pin moved from
   `b10ffe6` to `2cbd6d0`, the tap is mapped through `Game.levelAt`, an undefined answer keeps waiting; the door
   journey now taps by the ground's extent). Cycle 2 at `bcf2fa6b`: one low red (C2-1, the settings rule's tools half
