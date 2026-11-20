@@ -106,3 +106,42 @@ change and that is a framework decision; ask it as a card, not here.
 
 ## Verdict
 Two reds. A second cycle re-reads only the fix diff, and needs WebKit and Firefox from the full run on the ready commit.
+
+## Cycle 2: fix diff `a2f6f14..d6a2e690cfd50a7744b7edbf436c959a7f715bc2` (`d6a2e69`)
+
+Read only the fix diff (5 files). Ran at `d6a2e69`: `pnpm lint` (the same one warning as before, not this PR),
+`typecheck` (0 errors, 0 warnings), `knip` clean, `test:node` (96 files, 1160 tests pass), Chromium `draw.browser.test.ts`
+(7 pass), `build:journeys` and the draw-order journey in Chromium (11 pass). WebKit and Firefox were not run here (not
+installable in this container); they still wait for the full run on the ready commit. Shot the open menu at all five
+sizes (picture files in this review's scratch folder, not committed).
+
+- Red 1, the menu cut off: FIXED. `Popups.svelte` now places the menu by its measured size and caps it at the level
+  box's height with its own scroll. Measured with the crate picked, menu opened through the three dots: iPad upright, iPad
+  sideways, phone and computer show all six rows whole (menu 314 px tall, nothing scrolls, last row "Send to the back"
+  inside the level box and in the pictures). Phone sideways (level box 262 px) shows five rows and a half, and scrolls.
+- The new check is honest: it opens the real menu, does not scroll a row into view, tests each row with `elementFromPoint`
+  and against the stage box, and asserts the menu scrolls only at phone sideways (`scrolls === (size === 'phoneSideways')`),
+  so a menu that starts to scroll anywhere else, or that clips without scrolling, fails it. The swipe by `scrollTop` is
+  done only where the menu scrolls, which is what a finger does there. Not a let-out.
+- Red 2, with the hero over the ground: FIXED. `level-canvas.ts` draws behind, with-the-hero boxes and the hero's start boxes,
+  the ground, with-the-hero pictures and the start pictures, then in front: the framework's order. The pixel test now
+  compares the level view with Play for a with-the-hero box (the ground's `#6b4f2a`, under the ground) and for a thing with
+  a picture (the picture's `#112233`, over it); both pass in Chromium, so Play and the level view agree for the cases the
+  first cycle disagreed on.
+- The replaced assertion is a correction, not a loosening: the first cycle's "with the hero is over the ground" read only
+  the level view and was wrong against the framework (cycle 1 evidence: Play `#6b4f2a`). It is replaced by a stricter pair:
+  an exact colour in the level view, equal to Play's own pixel, for both a box and a picture. The "behind is under the
+  ground" test also now asserts the exact ground colour. Nothing else in the file loosened.
+- Notes taken: label "With the hero" (N1 closed; Russian and the English now wrap to two lines at 86 px, nothing cut);
+  locked things behave as for the other settings (N4 closed, no code change).
+
+### New notes (not blocking)
+- N9, phone sideways: nothing says "more" except the sixth-row half peeking at the foot ("Bring to the front" is cut
+  across its middle, no scrollbar, no fade). A cut row is a common sign that a list goes on, and a finger finds it, but it is
+  weak. Suggest a fade or a visible scrollbar at the menu's foot where it scrolls. Optional; the row is reachable.
+- N10, the menu's first frame uses 260 px until its size is measured (and the size of the last menu stays until the next
+  one is measured), so on a screen where it matters the menu may move one frame. Not seen in the pictures.
+- N11, the check does not assert the "more" cue exists; it only proves reach.
+
+Cycle 2 verdict: both reds closed; no new reds. Still open for the ready commit: WebKit and Firefox results from the full
+run, and the PR body (N5).
