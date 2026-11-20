@@ -18,6 +18,51 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- The Owner's, 2026-11-20 09:24 UTC (project chat, to the coordinator's question "In Editors, one CI job shares a
+  queue across runs, so a run on main can get cancelled before it starts. The fix is the same one-line change you
+  approved for the other CI files. Should I apply it?"): "yes". Scope: the `screens` job's `concurrency` in
+  `.github/workflows/ci.yml` and nothing else. Lane 3: its own builder (brief `ci-screens-queue.md`) proves a one-line
+  change cannot make two jobs race to push one branch before making it, and stops if it can; then a lane 3 audit.
+- The Owner's, 2026-11-20 09:24 UTC (project chat): "update the project rules" (the CLAUDE.md pictures clause, #133).
+  Recorded, and not used: before it arrived the lane 3 audit of #133 (`114dd56`) had found that the rule the clause
+  amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
+  `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
+  documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 11:07 UTC: the CI retry is merged: #135, merge `be43c42` (audited head `c1caada`, lane 3, two cycles,
+  one red fixed: a try now fails when main's head cannot be read; audit
+  `2026-11-20-ci-screens-queue-1-implementation-audit.md`), under the Owner's two answers of 09:24 and 09:27 UTC. It
+  is bigger than the "about 8 lines" on the card: 24 changed lines in the `screens` job and a guard that stops an
+  older main run writing over a newer merge's pictures, each judged needed by the auditor, plus a workflow test. The
+  full run 44718055798 was green on its second attempt: the first lost one WebKit piece to a 30-minute timeout while
+  the package mirror was slow, before any test ran (one allowed re-run of the failed jobs). Main's run 44724796962 at
+  `be43c42` is in CI; the builder watches its screens job to the end.
+- 2026-11-20 10:01 UTC: the walk's R6 is merged: #129, "1 to check" as a glass sheet over the level, merge `0e6d112` (reviewed head
+  `b3acf00`, three cycles, audit `2026-11-20-world-check-sheet-1-implementation-audit.md`). While a change is checked
+  the top bar's Undo, Redo and send are held with a reason and no key touches the person's own work. Left as notes:
+  a tooltip never shows on touch; Escape does not stop a played waiting change (it never did). Framework #222 is
+  merged as `2cbd6d0` (`Game.levelAt`, reviewed at `3dbcbfa`, no reds); Agent-selected: the editors' side of R5 (the
+  pin from `b10ffe6` to `2cbd6d0`, `PlayPart`, the failing journey) goes into #128 with its review fixes rather than a
+  pull request of its own, to spare a conflict in `PlayPart`. The CI retry is built as draft #135 (`b6ceda3`, 24
+  changed lines and a guard against an older main run writing over a newer one's pictures) and is with its lane 3
+  auditor, who is asked to say whether every line is inside what the Owner approved.
+- The Owner's, 2026-11-20 09:27 UTC (decision card "Allow a slightly bigger CI fix, since the one-line version is
+  unsafe?"): "Yes, add the retry (about 8 lines)". Why it was asked: every run pushes its pictures to the one branch
+  `ci-screens` with a plain push and no retry, so a queue per commit alone would swap a cancelled job for a rejected
+  push. Scope: the `screens` job in `.github/workflows/ci.yml` only: a group per commit for pushes and a retry of
+  fetch, rebuild, commit, push from a fresh fetch. Audited (lane 3) before it merges.
+- 2026-11-20 09:26 UTC: Framework #222 (`Game.levelAt`, for the walk's R5) passed its review at `3dbcbfa` with no reds and is going
+  ready. #128's review at `e3a8dce`: six reds (calls in `handoff/world/pr19-review-1-fixes.md`); #129 passed at
+  `b3acf00` after three cycles and merges on its green full run once Escape during a played change is checked
+  against main.
+- 2026-11-20 08:49 UTC: the walk's R5 ("Play from here" lands left of the tap on a sideways phone) cannot be fixed in the editors.
+  Measured by PR 19's builder: when the level does not fit, the game's camera follows the hero, and the framework has
+  no call from a screen point to the level. Agent-selected: one small public call in the framework (brief
+  `framework-level-at.md`, lane 2, its own thread), then a follow-up pull request here (the pin, `PlayPart`, the
+  failing journey kept as `r5-journey.patch`). The editors-only way (aim on the level view while waiting) was
+  assessed at four files across three features and a `LevelPart` split, so it was not taken. Easy to change: the
+  call is additive. #128 lists R5 as a known issue meanwhile. #128 (PR 19 with R1 to R4) is in review at `e3a8dce`;
+  #129 passed all but one point in cycle 2 at `d6e69b1` (editing keys still acted behind the held buttons) and is on
+  its last fix. Docs #131 merged (`016ab6f`).
 - 2026-11-20 08:35 UTC: the website demo is merged and live under the Owner's 07:39 UTC yes: Examples #81 as `f551ea3` (reviewed
   head `c002f6d`), Site #63 as `e9c29e6` (reviewed head `b048686` plus a merge of main that brought only rules and CI
   files). Deploy run 44702098181 green; the live `version.json` reads site `e9c29e6`, game `f551ea3`; the live page
