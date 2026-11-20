@@ -74,6 +74,26 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 
 ## Flaky tests
 
+- `approve.journey.test.ts`, "with two changes waiting, "Not now" on one goes back to the list of two" (WebKit,
+  ipadUpright, shard `browsers (webkit 6/6)`, main `be43c42`, run 44724796962, 2026-11-20): `TimeoutError` waiting for
+  `locator('a.row').nth(1)` at line 193; the same code passed in #135's full run at `57c870c`. Cause proven, in the
+  test: it clicked the loading sheet's own "Not now" (which leaves to the level) before the change had loaded. With
+  `/api/change` delayed 1.5 s the unchanged test fails with that exact timeout (Chromium); with a wait for the loaded
+  sheet's "Put them in" it passes under the same delay. Fixed in #137 (`ffa5fa2`) by waiting for the loaded sheet first. Not
+  changed: the loading sheet's "Not now" goes to the level while the loaded one returns to the list when several
+  wait (`Check.svelte`), a small inconsistency for the Owner.
+- `sign-in.journey.test.ts`, "when the sign-in has run out, a reload still shows the list of games" (Chromium, shard
+  `browsers (chromium 5/6)`, #137's draft run, 2026-11-20): the heading was not visible in 10 s; passed on the one
+  re-run. Cause not found: locally it failed 1 of 12 runs under CPU load and 0 of 30 after; delaying the calls alone
+  does not fail it. A late 401 can make `renew()` swap the token a second time (`session.ts`, the page-wide
+  `lastUsed`), but with a faithful stand-in for GitHub that second swap succeeds, so it does not explain a sign-out.
+  Not fixed. If it fails again, the next step is the failing run's trace.
+- Not a test: the runner's package mirror (2026-11-20). `playwright install-deps webkit` sat for 30 minutes and the
+  job was cancelled at its timeout, before any test ran: #128 at `bcf2fa6b` (run 44714470876, webkit 1/6, 10:39 to
+  11:09 UTC), #135's full run 44718055798 (webkit 2/6), main `8a5ec44` (run 44726451517, webkit 2/6 and 5/6, 11:18
+  to 11:48 UTC); and `mockups` on main `be43c42` hit its 15-minute timeout after `playwright install --with-deps
+  chromium` took 8 minutes; #137's `webkit 3/6` was cancelled twice the same way (12:14 to 12:44 UTC and again
+  after) and passed on its third attempt. The others passed on one re-run of the failed jobs where re-run.
 - `draw.browser.test.ts`, the readiness wait in `levelView` and `inPlay` (Chromium, 2026-11-20): the wait for the
   ground picture used `vi.waitFor`'s default 1000 ms and timed out on a loaded shard, reading `#3b4a5a` for `#6b4f2a`
   at the probe; main `beb379b` (run 44690781678, 1898 ms) and #129 at `0303b2c` (2595 ms). The product is not at
@@ -87,6 +107,9 @@ Finished milestones and their decision records, setup, rule changes, standing pe
   checks." and "TypeError: Importing a module script failed."; passed on one re-run of the same code and on main's
   earlier full runs. Not fixed: PR 16's notes call and PR 17's test first met on main; the cause-hunt is on plan PR 19's
   list (a call or a lazy module cut off as the page moves).
+  Failed again on main `0e6d112` (#129's merge, `browsers (webkit 6/6)`, run 44714533039). Plan PR 19's hunt (#128)
+  did not prove a cause: the test made a second `goto` to the page's own address, which #128 removes as a tidy-up;
+  WebKit was not run locally; no fix is claimed. Still open.
 - `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on Welcome, told so" (Chromium). Failed once
   locally on `abe0ee7` and once in CI on `e0fd5cc` (shard `browsers (chromium 6/6)`): `locator.waitFor: Timeout 10000ms
   exceeded`, waiting for the "Automata Editors" heading. Cause, reproduced 19 times in 25 under CPU load: the journey called

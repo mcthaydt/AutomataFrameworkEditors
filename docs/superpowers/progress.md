@@ -1,10 +1,11 @@
 # Progress
 
-Last updated: 2026-11-20 02:04 UTC (from `date`).
+Last updated: 2026-11-20 14:23 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
-About two thirds built. The World editor plan has 19 pull requests; 1 to 10 and 14 are merged. The plan, its spec and its plan
+Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); what is left is the
+slice end (design review rounds, the blind judge, the Owner's looks and walk, the retrospective). The plan, its spec and its plan
 audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/plans/2026-11-16-world-editor.md`, `docs/superpowers/specs/2026-11-16-world-editor-design.md` and
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
@@ -28,6 +29,48 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 14:23 UTC: plan PR 19 is merged: #128, merge `fa3a853` at 13:52 UTC (reviewed and integration head `34c63a53`,
+  tested with main `ffa5fa2`, four review cycles). With it: every World journey at the five sizes, the walk's R1 to
+  R5 fixed (R5 through the framework's `Game.levelAt`, pin `2cbd6d0`), the four issue pictures. Task 44's documents
+  went in #132 (`b12283fc`: `README.md`, `docs/teams.md`, the pictures clause in the `this-repo` skill); `CLAUDE.md`
+  is unchanged. Left by #128 as notes: the Move card sits over Room 1 where no clear place exists (to the design
+  round); item 7 has a test for a language change only, not for a rename or a font arriving; German and Russian level
+  bars are wider than a phone; `pnpm lint` has a warning and three infos in untouched files. Next: design review
+  round 1 on merged main. #138's own run lost `mockups` once to its 15-minute timeout (the browser install took 8
+  minutes on the slow mirror) and passed on the re-run.
+- 2026-11-20 13:32 UTC: #128 (plan PR 19) passed its review: four cycles, reviewed head `34c63a53` (audits
+  `2026-11-20-world-19-1` to `-4-implementation-audit.md`), and has the go to mark ready, run in full and merge.
+  Cycle 3's red (C3-1): the R5 and door journeys took a "tile" from the canvas width, so the 0.75-tile bound was
+  about 33 px at phone sideways. The builder then found the ground's extent is a crop there too. Agent-selected: the
+  scale comes from two things of known place (the hero and the crate of Links Game room 1, 3 tiles apart in the level
+  file): 22.0 px at phone sideways, 49.3 at iPad sideways; on the old `PlayPart` the phone-sideways journeys fail
+  ("hero at tile 10.6, tap at tile 12.5"). No bound was widened.
+- 2026-11-20 13:32 UTC: main is green again. #137 (the approve journey's wait, test only, lane 1) merged as `ffa5fa2`, main's run
+  there green in every check; `8a5ec44` went green on the re-run of its two timed-out WebKit jobs. Agent-selected,
+  on the slow package mirror: the one-re-run rule is about a test that ran and failed; a job cancelled at its
+  timeout inside `playwright install-deps`, before any test ran, has given no test result, so re-running it is not
+  retrying code into green. Such a job may be re-run (failed jobs only), each time recorded; a test that runs and
+  fails keeps the ordinary rule. #137's `webkit 3/6` needed three attempts this way. The sign-in journey that failed
+  once on #137's draft run stays unproven (see "Flaky tests"): a first claim of a sign-out race was withdrawn by the
+  builder before anything was built, and no fix was made. For the Owner's list: `renew()` in `session.ts` can swap
+  the token twice on a late 401 (harmless as shown; repro in `/mnt/project-files/notes/`).
+- 2026-11-20 12:09 UTC: where things stand. #128 (plan PR 19): the review fixes and the walk's R5 are in (the pin moved from
+  `b10ffe6` to `2cbd6d0`, the tap is mapped through `Game.levelAt`, an undefined answer keeps waiting; the door
+  journey now taps by the ground's extent). Cycle 2 at `bcf2fa6b`: one low red (C2-1, the settings rule's tools half
+  could not fail), the rest pass, R5 measured at most 13 px off at five sizes by mouse and touch (audit
+  `2026-11-20-world-19-2-implementation-audit.md`, Chromium only). Agent-selected: C2-1 fixed by selecting the tools
+  by name with a shown failure; R-4 pinning the thumb to the game is accepted; the issue-1 card covering Room 1 goes
+  to the design round. The fix is at `2b3e7958` (main `8a5ec44` merged in), with the same reviewer for cycle 3. #132
+  (README, `teams.md`, the `this-repo` clause) merged as `b12283fc`; #133 closed unmerged. #136 (docs) merged as
+  `8a5ec44`.
+- 2026-11-20 12:09 UTC: main's runs. `be43c42` (#135) ended red, not from #135: its screens job passed (the guard printed "A newer
+  merge will write main/."), `browsers (webkit 6/6)` failed a journey from #129 (cause proven in the test, fix #137,
+  see "Flaky tests" in `history.md`), and `mockups` hit its 15-minute timeout while the runner's package mirror was
+  slow. `8a5ec44` (#136): two WebKit pieces hit the 30-minute timeout in `playwright install-deps webkit`, no test
+  ran; the failed jobs are re-run once (run 44726451517). `0e6d112` (#129) ended red on the open WebKit
+  `open-game.journey` flake. For the Owner's list: the slow mirror has cost four runs today, and a cure (caching the
+  browser packages) is a CI workflow change, lane 3; and in the "1 to check" sheet the loading sheet's "Not now" goes
+  to the level while the loaded one goes back to the list when several wait.
 - 2026-11-20 11:07 UTC: the CI retry is merged: #135, merge `be43c42` (audited head `c1caada`, lane 3, two cycles,
   one red fixed: a try now fails when main's head cannot be read; audit
   `2026-11-20-ci-screens-queue-1-implementation-audit.md`), under the Owner's two answers of 09:24 and 09:27 UTC. It
@@ -304,7 +347,7 @@ The framework pin here is `b10ffe6` (was `7ff5795` until #122).
 | 16 | The team, notes, the helper's ghost and Find (building) | 38 to 40 | 8, 12, 13 |
 | 17 | Pin 2 (its own PR), then one step, slow, back 30 seconds, play from here, doors, a game with a problem | 41, 42 | 13; framework F1, F2, F4, F5 |
 | 18 | Drawn behind, with the hero, in front | 42a | 12, 17 |
-| 19 | Every journey at every size, the four layout fixes proved, the documents and the close | 43, 44 | all |
+| 19 | Every journey at every size, the four layout fixes proved, the documents (merged, #128 and #132); the close is the slice end | 43, 44 | all |
 
 Order: 11 (14 is done), then 12 and 13, then 15 and 16, then 17, then 18, then 19. 11 and 14 both add a line to
 `World.svelte`, as do 12 and 13: the later one merges `main` in before it goes ready.
@@ -361,6 +404,10 @@ None.
 
 ### Open items
 
+- The Owner's, 2026-11-20 13:54 to 13:57 UTC (project chat; recorded 2026-11-20 13:57 UTC): a list of toolchain and CI
+  speed-ups ("We doing this?"), then "After ruken", then "We'll actually refrresh the project with a fresh workflow
+  pulling from mcthaydt-website so don't even worry about it". So the list is not tracked here and nothing is built
+  for it; after Ruken the project is refreshed with a fresh workflow from the Owner's website.
 - A journey failed once and passed on its own straight after (a defect under the rules, so it is recorded here, not
   fixed in #96 unless it recurs in CI): `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on
   Welcome, told so". Text: `locator.waitFor: Timeout 10000ms exceeded. waiting for getByRole('heading', { name:
