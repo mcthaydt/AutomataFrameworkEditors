@@ -76,23 +76,30 @@ const lookAtGlass = () => {
 mkdirSync(OUT, { recursive: true })
 const pages = readdirSync(import.meta.dirname).filter((name) => name.endsWith('.html') && name !== 'index.html')
 const browser = await chromium.launch()
-const nestedGlass = []
-const heavy = []
-for (const [size, { viewport, hasTouch }] of Object.entries(SIZES)) {
-  const context = await browser.newContext({ viewport, hasTouch, deviceScaleFactor: 2 })
-  const page = await context.newPage()
-  for (const name of pages) {
-    const title = name.replace('.html', '')
-    await page.goto(base + name, { waitUntil: 'networkidle' })
-    await page.waitForSelector('html[data-ready="yes"]')
-    await page.evaluate(() => document.fonts.ready)
-    const { nested, share } = await page.evaluate(lookAtGlass)
-    for (const el of nested) nestedGlass.push(`${title} ${size}: ${el}`)
-    if (share > 0.4) heavy.push(`${title} ${size} ${share.toFixed(2)}`)
-    await page.screenshot({ path: join(OUT, `${title}-${size}.png`) })
-  }
-  await context.close()
-}
+// The five sizes are shot side by side, one page each, which takes about a quarter of the time of one after another on
+// CI's four cores. Each size keeps its own findings, so the lines below come out in the same order every run.
+const shots = await Promise.all(
+  Object.entries(SIZES).map(async ([size, { viewport, hasTouch }]) => {
+    const nested = []
+    const heavy = []
+    const context = await browser.newContext({ viewport, hasTouch, deviceScaleFactor: 2 })
+    const page = await context.newPage()
+    for (const name of pages) {
+      const title = name.replace('.html', '')
+      await page.goto(base + name, { waitUntil: 'networkidle' })
+      await page.waitForSelector('html[data-ready="yes"]')
+      await page.evaluate(() => document.fonts.ready)
+      const glass = await page.evaluate(lookAtGlass)
+      for (const el of glass.nested) nested.push(`${title} ${size}: ${el}`)
+      if (glass.share > 0.4) heavy.push(`${title} ${size} ${glass.share.toFixed(2)}`)
+      await page.screenshot({ path: join(OUT, `${title}-${size}.png`) })
+    }
+    await context.close()
+    return { nested, heavy }
+  }),
+)
+const nestedGlass = shots.flatMap((shot) => shot.nested)
+const heavy = shots.flatMap((shot) => shot.heavy)
 await browser.close()
 server.close()
 console.log(`Took ${pages.length * Object.keys(SIZES).length} pictures of ${pages.length} mockups.`)
