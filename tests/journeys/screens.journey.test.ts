@@ -986,7 +986,6 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       // The settings, where they pull up from a bar: at rest the tools and Undo are in sight and not under anything; pulled up
       // (a person's own act, so it may cover the tools) a way back is in sight and named (item 1 of the brief).
-      const toolbar = document.querySelector('[role="toolbar"][aria-label]')
       const sheet = document.querySelector('aside.panel.sheet')
       const peek = document.querySelector('button.peek')
       const onScreen = (box: DOMRect): boolean =>
@@ -994,15 +993,9 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       const overlaid =
         document.querySelector('[aria-modal=true], [role=menu], [role=dialog], .events .event') !== null
       if (peek !== null && seen(peek) && !overlaid) {
-        const tools = [...document.querySelectorAll('[data-tour] button, nav.rail button')].filter(
-          (el) =>
-            seen(el) &&
-            /^(Undo|Select|Place|Paint|Erase|Join)/.test(
-              el.getAttribute('aria-label') ?? el.textContent ?? '',
-            ),
-        )
-        if (toolbar === null && tools.length === 0)
-          found.push('the tools are not in sight with the settings folded')
+        // The tool buttons are the toolbar's own `.tool` buttons (Select, Place, Paint, Erase, Join; Undo, Redo, Show).
+        const tools = [...document.querySelectorAll('button.tool')].filter((el) => seen(el))
+        if (tools.length === 0) found.push('the tools are not in sight with the settings folded')
         for (const el of tools) {
           const box = el.getBoundingClientRect()
           const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
