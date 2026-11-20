@@ -86,7 +86,7 @@
   // goes, the menu), before the page is drawn, so a wider bar is never placed by the narrower one's size first. The
   // bound size below still follows any later resize (the words' font arriving, a bigger text setting).
   $effect(() => {
-    void [picked, touching[0], menu, open?.kind]
+    void [picked, touching[0], menu, open?.kind, lang]
     if (barEl === undefined || barEl === null) return
     const w = barEl.clientWidth
     const h = barEl.clientHeight
