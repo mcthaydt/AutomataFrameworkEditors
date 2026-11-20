@@ -80,3 +80,23 @@ FIX: one line in `this-repo`; name that edit in the PR body (lane of the code ch
 ## Not run
 WebKit and Firefox locally (CI covers them, still running); journeys other than the three named; nine-language reads
 (a native reader is planned by the owner, Framework #219).
+
+## Cycle 2 (range `ab713d9..dd52277`, examined commit `dd52277`)
+Re-ran: lint, knip, typecheck clean; `test:node` 1147 pass; both journey builds; screens scenes for the clash, approver,
+author and failed-checks pictures at five sizes (the ring-visible assertion included) and the two-people journey: 34 pass
+(Chromium). Pictures looked at: iPad upright, phone, phone sideways for the clash; iPad upright and phone sideways for check.
+- Red 1 (clash places): PASS. A clash about one thing now draws one level framed around the thing: a ringed box named
+  "Yours" and a dashed box named "someone else's" where their version puts it, 190 px high on iPad and phone, 96 px on a
+  short phone. The two places are told apart at a glance at every size shot. Judged against the plan: the plan says "on the
+  level"; this is the real level (real stage, real marks through `Marks.svelte`) cropped to the thing, inside the sheet, not
+  the level behind the sheet. That serves the plan's purpose (both places on the level, named) and is bigger than the old
+  thumbnails; I count it a pass. Clashes not about one place (ground, starts, look, place, level, twin) keep the two
+  thumbnails; they have no single place to ring, so nothing to tell apart.
+- Red 2 (sheet over the ring): PASS. 501 to 899 px puts the sheet at the side and the level in the room left; the iPad
+  upright and phone sideways pictures show the ring plainly, and the new `ringHidden` assertion passes on both scenes at
+  five sizes.
+- Red 3 (`af.sent:`): PASS. Named in the `this-repo` key list.
+Notes: (a) the new `this-repo` line is over 120 columns; wrap it. (b) In `Marks.svelte` the tag-side logic runs the same
+`marks.find` twice per ghost; tidy later. (c) CI on `dd52277` had no results yet when this was written; the full run
+decides the merge.
+Verdict: no reds left in the range.
