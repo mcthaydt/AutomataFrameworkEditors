@@ -417,6 +417,11 @@ None.
 
 ### Open items
 
+- The Owner's, 2026-11-20 15:16 to 15:18 UTC (project chat; recorded 2026-11-20 15:18 UTC): asked "did we end up doing the migration
+  to e2e tests to reduce test load?" (answer given: never raised, planned or done; only the `build` skill's rule that a
+  changed journey gets a journey test first), then "I see, let me know when our slice is complete; we'll do new claude
+  project with updated workflow". So when the World slice is complete the Owner is told, and the slice-end handoff
+  notes are written so a fresh project can start from them.
 - The Owner's, 2026-11-20 13:54 to 13:57 UTC (project chat; recorded 2026-11-20 13:57 UTC): a list of toolchain and CI
   speed-ups ("We doing this?"), then "After ruken", then "We'll actually refrresh the project with a fresh workflow
   pulling from mcthaydt-website so don't even worry about it". So the list is not tracked here and nothing is built
