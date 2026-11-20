@@ -18,6 +18,19 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- State at 2026-11-20 04:56 UTC. PR 16 (#113) is reviewed to its head `9377b6de` (five cycles; the last two read the
+  builder's change to the cut-off tracker, which now excuses WebKit's bare-id name for an in-memory picture only on the
+  page's own host and only after a second move) and green on every engine in its draft run. It waits only for "Ready":
+  the permission guard refused that step to the builder and to the slice lead at 04:34 UTC, nobody went around it, and
+  the Owner was asked. PR 17's play tools (#123) were reviewed at `28d34dd` (audit `870feae`): 2 red, both weak tests,
+  being fixed. The plan's "a crate at How heavy 4 goes less than half as far as at 0.5" was a wrong prediction, not a
+  framework gap: measured 1.63 against 2.42 tiles at 60 ticks (0.67); the framework's own claim, 8 against 1, holds at
+  0.42. The test asserts under 0.7. PR 18 (#124) is built at `1b8208e` and going to review; its new words live in
+  `words/thing.ts` (`words/levels.ts` was at the 600-line limit). Main's run on `5021c69` shows red only because its
+  screens job was cancelled in the queue: the `ci-screens` concurrency group is shared by every run, so a waiting job
+  on main is dropped when two pull requests queue theirs (a CI workflow fault, lane 3, with the master coordinator for
+  the Owner). Briefs for PR 19 are written (`/mnt/project-files/handoff/world/pr19.md`); its `CLAUDE.md` edit is lane 3
+  and will wait for the Owner in its own pull request.
 - 2026-11-20 04:23 UTC: glass and icons (#119) merged with a merge commit `5021c69`, reviewed and tested at `d8be2be`
   (cycle 2 audit with four addenda, the last at `5e9ca67`). Its full run found one real WebKit fault after the review
   passed: a wider level bar picked after a narrower one was placed from the old bar's size and sat off screen for a
