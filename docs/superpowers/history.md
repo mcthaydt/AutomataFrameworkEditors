@@ -74,6 +74,12 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 
 ## Flaky tests
 
+- `open-game.journey.test.ts`, "a game with a door into a level that is not there opens, counts one problem, and Play of
+  that level says why" (WebKit). Failed once in CI on `738ba33` (#126, shard `browsers (webkit 6/6)`, run 44683121711,
+  2026-11-20) with two page errors: "/127.0.0.1:4800/api/notes?owner=grandma&name=links-game due to access control
+  checks." and "TypeError: Importing a module script failed."; passed on one re-run of the same code and on main's
+  earlier full runs. Not fixed: PR 16's notes call and PR 17's test first met on main; the cause-hunt is on plan PR 19's
+  list (a call or a lazy module cut off as the page moves).
 - `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on Welcome, told so" (Chromium). Failed once
   locally on `abe0ee7` and once in CI on `e0fd5cc` (shard `browsers (chromium 6/6)`): `locator.waitFor: Timeout 10000ms
   exceeded`, waiting for the "Automata Editors" heading. Cause, reproduced 19 times in 25 under CPU load: the journey called
