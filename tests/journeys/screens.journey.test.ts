@@ -613,7 +613,9 @@ const SCENES: readonly Scene[] = [
       await putSheet(j.page).getByText(checkWords.nothingLeft).waitFor()
       // The title says what the sheet shows, never "Put 0 changes in the game".
       expect(await putSheet(j.page).getByRole('heading', { name: /Put 0/ }).count()).toBe(0)
-      await putSheet(j.page).getByRole('heading', { name: String(wordsIn('en').changes.clashTitle) }).waitFor()
+      await putSheet(j.page)
+        .getByRole('heading', { name: String(wordsIn('en').changes.clashTitle) })
+        .waitFor()
       return j
     },
     stage: true,
@@ -1074,13 +1076,17 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         // A button's words sit inside the button, never over its edge into the next one (crowded bars, 2026-11-20).
         const holder = parent.closest('button, a[href]')
         // A name that is shortened with dots (the part's) is cut by its box on purpose: the whole of it is in the menu.
-        const cutShort = [parent, holder].some((el) => el !== null && getComputedStyle(el).textOverflow === 'ellipsis')
+        const cutShort = [parent, holder].some(
+          (el) => el !== null && getComputedStyle(el).textOverflow === 'ellipsis',
+        )
         if (holder !== null && !cutShort && !holder.hasAttribute('data-thing') && mine(holder)) {
           const around = holder.getBoundingClientRect()
           for (const box of range.getClientRects()) {
             const out = Math.max(around.left - box.left, box.right - around.right)
             if (box.width > 0 && out > 0.5)
-              found.push(`the words "${words.slice(0, 24)}" are ${out.toFixed(1)} px outside their button (${holder.className})`)
+              found.push(
+                `the words "${words.slice(0, 24)}" are ${out.toFixed(1)} px outside their button (${holder.className})`,
+              )
           }
         }
         const style = getComputedStyle(parent)

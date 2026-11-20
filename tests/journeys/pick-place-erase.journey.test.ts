@@ -93,14 +93,18 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('the tray at %s', (s
     const { page } = journey
     await signIn(page)
     await openLevel(page)
-    await page.getByRole('button', { name: new RegExp(`^${tool}`) }).first().click()
+    await page
+      .getByRole('button', { name: new RegExp(`^${tool}`) })
+      .first()
+      .click()
     const strip = page.locator('.strip[data-ui]')
     await strip.waitFor()
     await page.waitForTimeout(300)
     const tray = await strip.boundingBox()
     const crate = await thingNamed(page, 'crate-1').boundingBox()
     const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
-    if (tray === null || crate === null || !(scale > 0)) throw new Error('the tray or the level is not on screen')
+    if (tray === null || crate === null || !(scale > 0))
+      throw new Error('the tray or the level is not on screen')
     // The floor is the row of tiles under the crate: all of it above the tray.
     expect(
       tray.y,

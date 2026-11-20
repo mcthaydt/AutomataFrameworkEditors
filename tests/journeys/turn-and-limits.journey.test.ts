@@ -82,11 +82,16 @@ test('turning the device and the keyboard coming up keep the pick, the open sett
     const folded = page.locator('button[data-tour="settings"]')
     expect(await folded.count(), `${where}: the settings fold away`).toBe(0)
     expect(await page.locator('aside.panel').count(), `${where}: the settings`).toBe(1)
-    expect(await page.locator('aside.panel').getByText('Crate 1').count(), `${where}: the pick`).toBeGreaterThan(0)
+    expect(
+      await page.locator('aside.panel').getByText('Crate 1').count(),
+      `${where}: the pick`,
+    ).toBeGreaterThan(0)
     expect(await field(page).count(), `${where}: the number pad`).toBe(1)
     expect(await field(page).inputValue(), `${where}: what was typed`).toBe('2')
     expect(
-      await page.evaluate(() => (document.activeElement as HTMLInputElement | null)?.getAttribute('aria-label') ?? ''),
+      await page.evaluate(
+        () => (document.activeElement as HTMLInputElement | null)?.getAttribute('aria-label') ?? '',
+      ),
       `${where}: the focused field`,
     ).toMatch(/number/i)
   }
@@ -103,7 +108,10 @@ test('turning the device and the keyboard coming up keep the pick, the open sett
   await page.evaluate(() => {
     const view = window.visualViewport
     if (view === null) return
-    Object.defineProperty(view, 'height', { configurable: true, value: Math.round(window.innerHeight * 0.55) })
+    Object.defineProperty(view, 'height', {
+      configurable: true,
+      value: Math.round(window.innerHeight * 0.55),
+    })
     view.dispatchEvent(new Event('resize'))
   })
   await page.waitForTimeout(300)

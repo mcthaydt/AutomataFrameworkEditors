@@ -71,7 +71,9 @@ async function whereIs(
       },
       { shot, want: colour },
     )
-    return found === undefined ? undefined : { x: box.x + found.x, y: box.y + found.y, wide: box.width, count: found.count }
+    return found === undefined
+      ? undefined
+      : { x: box.x + found.x, y: box.y + found.y, wide: box.width, count: found.count }
   } finally {
     await reader.close()
   }
@@ -88,22 +90,25 @@ const started = async (page: Page) => {
 
 /** Both phone windows, with a thing picked (its settings sheet then stays up, so the game box is short) and with none. */
 describe.each(['phone', 'phoneSideways'] as const)('at %s', (size) => {
-  test.each([true, false])('at the start of Play the bar does not hide the hero (a thing picked: %s)', async (picked) => {
-    journey = await openPage(size)
-    const { page } = journey
-    await signIn(page)
-    await openLevel(page)
-    if (picked) await thingNamed(page, 'crate-1').click()
-    await playButton(page, 'Play').click()
-    await started(page)
-    await playButton(page, 'Got it').click()
-    await playButton(page, 'Pause').waitFor()
-    await page.waitForTimeout(300)
-    const whole = await whereIs(page, HERO, true)
-    const seen = await whereIs(page, HERO)
-    if (whole === undefined) throw new Error('the game shows no hero at its start')
-    expect(seen?.count ?? 0, 'the bar covers part of the hero').toBe(whole.count)
-  })
+  test.each([true, false])(
+    'at the start of Play the bar does not hide the hero (a thing picked: %s)',
+    async (picked) => {
+      journey = await openPage(size)
+      const { page } = journey
+      await signIn(page)
+      await openLevel(page)
+      if (picked) await thingNamed(page, 'crate-1').click()
+      await playButton(page, 'Play').click()
+      await started(page)
+      await playButton(page, 'Got it').click()
+      await playButton(page, 'Pause').waitFor()
+      await page.waitForTimeout(300)
+      const whole = await whereIs(page, HERO, true)
+      const seen = await whereIs(page, HERO)
+      if (whole === undefined) throw new Error('the game shows no hero at its start')
+      expect(seen?.count ?? 0, 'the bar covers part of the hero').toBe(whole.count)
+    },
+  )
 })
 
 describe.each(SIZES_TO_TRY)('at %s', (size) => {
@@ -386,6 +391,9 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
     await page.waitForTimeout(800)
     const hero = await whereIs(page, HERO, true)
     if (hero === undefined) throw new Error('the game shows no hero')
-    expect(Math.abs(hero.x - tapAt.x), `the hero is ${Math.round(hero.x - tapAt.x)} px from the tap`).toBeLessThan(12)
+    expect(
+      Math.abs(hero.x - tapAt.x),
+      `the hero is ${Math.round(hero.x - tapAt.x)} px from the tap`,
+    ).toBeLessThan(12)
   })
 })
