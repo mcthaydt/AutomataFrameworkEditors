@@ -1,5 +1,5 @@
 import type { Level } from '@automataframework/framework/headless'
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
 import { wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
@@ -30,6 +30,7 @@ afterEach(async () => {
   windows.length = 0
   expect(found.flat()).toEqual([])
 })
+type Size = Parameters<typeof openPage>[0]
 const level1 = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '') as Level
 const levelOf = (j: JourneyPage): Level =>
   JSON.parse(j.fake.repos.get('grandma/crate-game')?.branches.get('main')?.get(LEVEL_PATH) ?? '') as Level
@@ -37,8 +38,8 @@ const crateX = (level: Level): number | undefined => level.things.find((t) => t.
 const startX = (level: Level): number | undefined => level.starts[0]?.x
 
 /** Two Owners, each in their own window, both looking at Level 1 as it was. */
-async function twoOwners(): Promise<{ first: JourneyPage; second: JourneyPage }> {
-  const first = await openPage('ipadSideways', 'grandma')
+async function twoOwners(size: Size = 'ipadSideways'): Promise<{ first: JourneyPage; second: JourneyPage }> {
+  const first = await openPage(size, 'grandma')
   windows.push(first)
   first.fake.repos
     .get('grandma/crate-game')
@@ -49,7 +50,7 @@ async function twoOwners(): Promise<{ first: JourneyPage; second: JourneyPage }>
     )
   await signIn(first.page)
   await openLevel(first.page)
-  const second = await openPage('ipadSideways', 'grandpa', true)
+  const second = await openPage(size, 'grandpa', true)
   windows.push(second)
   await signIn(second.page)
   await openLevel(second.page)
@@ -57,8 +58,8 @@ async function twoOwners(): Promise<{ first: JourneyPage; second: JourneyPage }>
 }
 
 /** The second person moves the crate two tiles and puts it in first; the first moves the crate one tile and the start. */
-async function aClash(): Promise<{ first: JourneyPage; second: JourneyPage }> {
-  const { first, second } = await twoOwners()
+async function aClash(size: Size = 'ipadSideways'): Promise<{ first: JourneyPage; second: JourneyPage }> {
+  const { first, second } = await twoOwners(size)
   await dragByTouch(second.page, 'crate-1', { dx: 2, dy: 0 })
   await pressPut(second.page)
   await putSheet(second.page)
@@ -98,10 +99,30 @@ for (const keep of ['mine', 'theirs'] as const) {
   })
 }
 
-test('a clash is shown with both places, one picture each, named', async () => {
-  const { first } = await aClash()
-  const sheet = putSheet(first.page)
-  await sheet.getByText(said(W.yours)).first().waitFor()
-  await sheet.getByText(said(W.theirs, 'grandpa')).first().waitFor()
-  expect(await sheet.locator('[data-marked]').count()).toBeGreaterThanOrEqual(2)
+describe.each(['phone', 'phoneSideways', 'ipadUpright', 'computer'] as const)('at %s', (size) => {
+  test('a clash shows both places of the thing on the one level, each named, both on screen and in the sheet', async () => {
+    const { first } = await aClash(size)
+    const sheet = putSheet(first.page)
+    const mine = sheet.locator('[data-marked]')
+    const theirs = sheet.locator('[data-ghost="crate-1"]')
+    await mine.first().waitFor()
+    await theirs.waitFor()
+    expect(await mine.count()).toBe(1)
+    await sheet.getByText(said(W.yours), { exact: true }).waitFor()
+    await sheet.getByText(said(W.theirs, 'grandpa'), { exact: true }).waitFor()
+    const view = first.page.viewportSize()
+    const inside = await sheet.boundingBox()
+    for (const place of [mine.first(), theirs]) {
+      const box = await place.boundingBox()
+      expect(box, 'a place is drawn').not.toBeNull()
+      const b = box as { x: number; y: number; width: number; height: number }
+      expect(b.x).toBeGreaterThanOrEqual((inside?.x ?? 0) - 1)
+      expect(b.y).toBeGreaterThanOrEqual((inside?.y ?? 0) - 1)
+      expect(b.x + b.width).toBeLessThanOrEqual((inside?.x ?? 0) + (inside?.width ?? 0) + 1)
+      expect(b.y + b.height).toBeLessThanOrEqual((view?.height ?? 0) + 1)
+    }
+    // The two places are not the same place.
+    const [a, b] = [await mine.first().boundingBox(), await theirs.boundingBox()]
+    expect(Math.abs((a?.x ?? 0) - (b?.x ?? 0)) + Math.abs((a?.y ?? 0) - (b?.y ?? 0))).toBeGreaterThan(8)
+  })
 })

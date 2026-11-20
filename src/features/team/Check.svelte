@@ -312,6 +312,18 @@
       bottom: 55%;
     }
   }
+  /* Between a phone and a wide screen the kit's sheet sits in the middle, on top of the changes: here it goes to the
+     side as it does on a wide screen, and the level is drawn in the room that is left. */
+  @media (min-width: 501px) and (max-width: 899px) {
+    .level {
+      right: calc(min(400px, 36%) + 16px);
+    }
+    .check :global(.sheet) {
+      inset: calc(var(--bar) + 20px) 8px 8px auto;
+      margin: 0;
+      width: min(400px, 36%);
+    }
+  }
   .sr {
     position: absolute;
     width: 1px;

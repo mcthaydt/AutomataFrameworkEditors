@@ -197,6 +197,8 @@ interface Scene {
   readonly reach: (size: Size) => Promise<JourneyPage>
   /** True for a screen that shows the level's stage. */
   readonly stage?: true
+  /** True for a screen that rings what changed: the ring must be on screen and not under a sheet. */
+  readonly ringed?: true
   /** A selector for the part of the screen this scene is about; the rest is measured elsewhere. */
   readonly only?: string
 }
@@ -705,6 +707,7 @@ const SCENES: readonly Scene[] = [
       return j
     },
     stage: true,
+    ringed: true,
   },
   {
     name: 'waiting-change-as-its-author',
@@ -725,6 +728,7 @@ const SCENES: readonly Scene[] = [
       return j
     },
     stage: true,
+    ringed: true,
   },
   {
     name: 'waiting-change-gone',
@@ -887,6 +891,25 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
   )
 }
 
+/** Says what is wrong when a ringed thing is out of sight or under a sheet; empty when it is plainly visible. */
+async function ringHidden(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const ring = document.querySelector('[data-marked] .ring')
+    if (ring === null) return 'nothing is ringed'
+    const box = ring.getBoundingClientRect()
+    if (box.width === 0 || box.height === 0) return 'the ring has no size'
+    if (box.left < 0 || box.top < 0 || box.right > innerWidth || box.bottom > innerHeight)
+      return 'the ring is off the screen'
+    for (const sheet of document.querySelectorAll('[role="dialog"]')) {
+      const s = sheet.getBoundingClientRect()
+      const apart = box.right <= s.left || box.left >= s.right || box.bottom <= s.top || box.top >= s.bottom
+      if (!apart)
+        return `the ring (${Math.round(box.left)},${Math.round(box.top)},${Math.round(box.width)}x${Math.round(box.height)}) is under the sheet`
+    }
+    return ''
+  })
+}
+
 describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
   for (const scene of SCENES) {
     test(`${scene.name}: pictured, then measured`, async () => {
@@ -894,6 +917,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
       // The picture first, so a screen that breaks a rule can still be looked at.
       await picture(j.page, `${size}-${scene.name}`)
       expect((await broken(j.page, scene.stage === true, scene.only ?? '')).join('; ')).toBe('')
+      if (scene.ringed === true) expect(await ringHidden(j.page)).toBe('')
     })
   }
 })

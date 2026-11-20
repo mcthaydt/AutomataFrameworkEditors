@@ -35,20 +35,43 @@
   {@const sides = sidesOf(clash, mine, theirs)}
   <section class="clash" aria-label={text(c.whoseTitle, at + 1, clashes.length)}>
     <p class="said">{sayClash(words, clash, by)}</p>
-    <div class="pair">
-      {#each [{ name: text(c.yours), level: sides.mine }, { name: text(c.theirs, by), level: sides.theirs }] as side (side.name)}
-        <figure>
-          <figcaption>{side.name}</figcaption>
-          <div class="picture">
-            {#if side.level !== undefined}
-              <Stage level={side.level} {content} {pictures} marked={sides.marked} label={`${side.name}: ${nameOf(clash.level)}`} />
-            {:else}
-              <span class="none">{text(c.nothingThere)}</span>
-            {/if}
-          </div>
-        </figure>
-      {/each}
-    </div>
+    {#if clash.what === 'thing' && (sides.mine ?? sides.theirs) !== undefined}
+      <!-- One level, with both places of the thing on it: where it is for you, and where it is for them. -->
+      {@const here = sides.mine ?? sides.theirs}
+      {@const both = sides.mine !== undefined && sides.theirs !== undefined}
+      {@const apart = both && clash.mine !== undefined && clash.theirs !== undefined && (clash.mine.x !== clash.theirs.x || clash.mine.y !== clash.theirs.y)}
+      <div class="picture one">
+        {#if here !== undefined}
+          <Stage
+            level={here}
+            {content}
+            {pictures}
+            marked={sides.marked}
+            around={[clash.mine, clash.theirs].flatMap((t) => (t === undefined ? [] : [{ x: t.x, y: t.y }]))}
+            tags={{ [clash.thing]: sides.mine !== undefined ? text(c.yours) : text(c.theirs, by) }}
+            elsewhere={apart && sides.theirs !== undefined
+              ? [{ level: sides.theirs, thing: clash.thing, name: text(c.theirs, by) }]
+              : []}
+            label={nameOf(clash.level)}
+          />
+        {/if}
+      </div>
+    {:else}
+      <div class="pair">
+        {#each [{ name: text(c.yours), level: sides.mine }, { name: text(c.theirs, by), level: sides.theirs }] as side (side.name)}
+          <figure>
+            <figcaption>{side.name}</figcaption>
+            <div class="picture">
+              {#if side.level !== undefined}
+                <Stage level={side.level} {content} {pictures} marked={sides.marked} label={`${side.name}: ${nameOf(clash.level)}`} />
+              {:else}
+                <span class="none">{text(c.nothingThere)}</span>
+              {/if}
+            </div>
+          </figure>
+        {/each}
+      </div>
+    {/if}
     <div class="choose">
       <Action
         label={text(c.keepMine)}
@@ -104,10 +127,18 @@
     border-radius: 10px;
     overflow: hidden;
   }
+  /* One level with both places on it is bigger than a pair: the two places must be told apart. */
+  .one {
+    height: 190px;
+    margin-bottom: 28px;
+  }
   /* A phone on its side has little height: the pictures give way so both answers stay in view. */
   @media (max-height: 500px) {
     .picture {
       height: 56px;
+    }
+    .one {
+      height: 96px;
     }
   }
   .none {
