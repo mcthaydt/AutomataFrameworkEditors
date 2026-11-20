@@ -11,6 +11,7 @@ What is particular to this repo, kept from its earlier notes and the 2026-11-16 
   AutomataFrameworkExamples is only the test game.
 - **Content only.** An editor opens, writes and exports only the JSON content files a game's `automata.toml` lists,
   read with the framework's `loadGame` and written byte for byte by `writeContent`. It never shows or touches code.
+  It also reads, and never writes, the pictures a game's tilesets name.
 - **Sign-in only when needed** (to save, see or approve waiting changes, share, list your games). Without it, only the
   demo game opens (the Owner, 2026-11-13): change it on screen and keep a level's JSON; the API reads and writes nothing.
 - **GitHub only to sign in.** The editors' GitHub App does all GitHub work; the page talks only to this site's `/api`
