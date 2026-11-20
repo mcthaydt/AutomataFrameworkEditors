@@ -371,6 +371,50 @@ test('grandpa says no at once, undoes it, says no again; kid is told who, and "G
   expect(await kid.page.getByText(downBy('grandpa')).count()).toBe(0)
 })
 
+test("kid's changes are still on their device after a no: Send to check again works; another device says plainly they are not there", async () => {
+  const kid = await window_('ipadUpright', 'kid')
+  const repo = repoOf(kid)
+  repo.checks = 'passing'
+  repo.put(
+    'main',
+    'automata.access.toml',
+    writeAccess({
+      format: 1,
+      everyone: 'suggest',
+      people: [
+        { github: 'grandpa', level: 'approve' },
+        { github: 'grandma', level: 'owner' },
+      ],
+    }),
+  )
+  await signIn(kid.page)
+  await openLevel(kid.page)
+  await dragByTouch(kid.page, 'crate-1', { dx: 2, dy: 0 })
+  await putThemIn(kid.page, 'suggestion')
+
+  const g = await gameAs('ipadUpright', 'grandpa')
+  await openFirstChange(g)
+  await button(g, C.dontPut).click()
+  await text(g, C.down('kid'))
+
+  // The same device: the changes are back on the screen, and the note says so.
+  await kid.page.reload()
+  await text(kid, downBy('grandpa'))
+  await text(kid, said(W.check.downByBack))
+  await putThemIn(kid.page, 'suggestion')
+  expect(repoOf(kid).branches.get('automata/kid')?.get(LEVEL_PATH)).toBe(moved)
+  expect(repoOf(kid).pulls.some((pull) => pull.state === 'open')).toBe(true)
+
+  // Another device: nothing of theirs is there, and the words say so.
+  const g2 = await gameAs('ipadUpright', 'grandpa')
+  await openFirstChange(g2)
+  await button(g2, C.dontPut).click()
+  await text(g2, C.down('kid'))
+  const other = await gameAs('phone', 'kid')
+  await text(other, downBy('grandpa'))
+  await text(other, said(W.check.downByAbout))
+})
+
 test('a change with a problem can still be played, asked about and put in', async () => {
   await kidHasSaved('ipadUpright')
   const g = await gameAs('ipadUpright', 'grandpa')

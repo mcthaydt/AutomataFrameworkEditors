@@ -10,6 +10,7 @@
     cameIn,
     type ChangeLine,
     chooseSide,
+    keepDrafts,
     type Merged,
     describe,
     type Edits,
@@ -31,6 +32,8 @@
     /** The game as the page holds it, and what the person changed in it. */
     game: OpenGame
     edits: Edits
+    /** The device's store: what is sent to be checked is kept here until it is answered. */
+    drafts: Storage
     /** The level that is open, if one is. */
     level: string | undefined
     /** What is wrong with the game as it would be, 300 ms after the last change. */
@@ -54,6 +57,7 @@
     api,
     game,
     edits,
+    drafts,
     level,
     problems = $bindable([]),
     onchanged,
@@ -130,8 +134,11 @@
     phase = 'working'
     failure = undefined
     const mineNow = edits.now
+    const [before, mine] = [game, edits]
     const result = await put(api, game, edits)
     if (result.ok) {
+      // Sent to be checked: a no, or a request for a change, brings these back, so they stay on this device for now.
+      if (result.how === 'suggestion') keepDrafts(drafts, before, mine, 'sent')
       ononline(true)
       onchanged(result.game, result.edits)
       onput(result.how)

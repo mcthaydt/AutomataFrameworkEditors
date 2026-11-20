@@ -1,6 +1,6 @@
 <script lang="ts">
   // What the person who made the changes is told when they come back: someone asked for a change (in their words), or
-  // someone did not put them in. Their changes are still on this device either way. "Got it" puts the note away; for
+  // someone did not put them in. Their changes are put back on the screen when this device still has them. "Got it" puts the note away; for
   // a turned-down change it also lets the game forget it, so it is not told again.
   import type { Api } from '../api/api.ts'
   import type { OpenGame } from '../game/game.ts'
@@ -11,9 +11,11 @@
     lang: Lang
     game: OpenGame
     api: Api
+    /** Their changes are back on the screen (kept on this device); false when this device does not have them. */
+    back: boolean
     onsignedout: () => void
   }
-  let { lang, game, api, onsignedout }: Props = $props()
+  let { lang, game, api, back, onsignedout }: Props = $props()
 
   const c = $derived(wordsIn(lang).check)
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -40,7 +42,7 @@
       />
     {:else if down !== undefined}
       <Note
-        words={`${text(c.downByTitle, down.by)}. ${text(c.downByAbout)}`}
+        words={`${text(c.downByTitle, down.by)}. ${text(back ? c.downByBack : c.downByAbout)}`}
         button={text(c.gotIt)}
         onpress={() => void clear()}
       />

@@ -12,7 +12,7 @@ export {
 } from './changes.ts'
 export { keepCopy, type LevelCopy, levelCopy } from './copy.ts'
 export { type ChangeLine, describe } from './describe.ts'
-export { dropDrafts, keepDrafts, takeDrafts } from './drafts.ts'
+export { dropDrafts, keepDrafts, type Shelf, takeDrafts } from './drafts.ts'
 export { type Clash, cameIn, keep as chooseSide, type Merged } from './merge.ts'
 export { levelPath, type Opened, type OpenGame, openGame } from './open.ts'
 export { type Problem, problemsOf } from './problems.ts'

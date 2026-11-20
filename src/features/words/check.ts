@@ -30,6 +30,7 @@ type Key =
   | 'askedAbout'
   | 'downByTitle'
   | 'downByAbout'
+  | 'downByBack'
   | 'gotIt'
   | 'checksRunning'
   | 'checksFailed'
@@ -77,7 +78,10 @@ export const check = {
     askedTitle: (by) => `${by} asked for a change`,
     askedAbout: 'Change it, then press Send to check.',
     downByTitle: (by) => `${by} didn’t put your changes in`,
-    downByAbout: 'Nothing went in the game. You can change things and send them again, or leave them be.',
+    downByAbout:
+      'Nothing went in the game, and your changes are not on this device. You would need to make them again.',
+    downByBack:
+      'Nothing went in the game. Your changes are back on the screen: send them again, or change them first.',
     gotIt: 'Got it',
     checksRunning: 'This is still being checked by the game. Try again in a minute.',
     checksFailed: 'The game’s checks found a problem, so these can’t be put in.',
@@ -123,7 +127,10 @@ export const check = {
     askedTitle: (by) => `${by} pidió un cambio`,
     askedAbout: 'Cámbialo y pulsa Enviar para revisar.',
     downByTitle: (by) => `${by} no puso tus cambios`,
-    downByAbout: 'Nada entró en el juego. Puedes cambiar cosas y enviarlas otra vez, o dejarlo así.',
+    downByAbout:
+      'Nada entró en el juego y tus cambios no están en este aparato. Tendrías que hacerlos otra vez.',
+    downByBack:
+      'Nada entró en el juego. Tus cambios volvieron a la pantalla: envíalos otra vez o cámbialos antes.',
     gotIt: 'Entendido',
     checksRunning: 'El juego aún lo está comprobando. Prueba en un minuto.',
     checksFailed: 'Las comprobaciones del juego encontraron un problema, así que no se pueden poner.',
@@ -169,7 +176,9 @@ export const check = {
     askedTitle: (by) => `${by}님이 바꿔 달라고 했어요`,
     askedAbout: '바꾼 뒤에 확인 보내기를 누르세요.',
     downByTitle: (by) => `${by}님이 변경을 넣지 않았어요`,
-    downByAbout: '게임에는 아무것도 들어가지 않았어요. 다시 바꿔서 보내거나 그냥 두세요.',
+    downByAbout: '게임에는 아무것도 들어가지 않았고, 바꾼 것도 이 기기에 없어요. 다시 해야 해요.',
+    downByBack:
+      '게임에는 아무것도 들어가지 않았어요. 바꾼 것이 화면에 돌아왔어요. 다시 보내거나 먼저 고치세요.',
     gotIt: '알겠어요',
     checksRunning: '게임이 아직 확인하는 중이에요. 잠시 뒤에 다시 해 보세요.',
     checksFailed: '게임의 확인에서 문제가 나와서 넣을 수 없어요.',
@@ -215,7 +224,10 @@ export const check = {
     askedTitle: (by) => `${by}さんが直してと言っています`,
     askedAbout: '直してから「確認に送る」を押してください。',
     downByTitle: (by) => `${by}さんは変更を入れませんでした`,
-    downByAbout: 'ゲームには何も入っていません。直して送り直すか、そのままにしてください。',
+    downByAbout:
+      'ゲームには何も入っていません。変えたものはこの機器にありません。もう一度やり直してください。',
+    downByBack:
+      'ゲームには何も入っていません。変えたものは画面に戻りました。そのまま送り直すか、先に直してください。',
     gotIt: 'わかりました',
     checksRunning: 'ゲームがまだ確認中です。少ししてからもう一度どうぞ。',
     checksFailed: 'ゲームの確認で問題が見つかったので、入れられません。',
@@ -260,7 +272,8 @@ export const check = {
     askedTitle: (by) => `${by}请你再改一改`,
     askedAbout: '改好后，点“发去检查”。',
     downByTitle: (by) => `${by}没有放进你的改动`,
-    downByAbout: '游戏里什么都没变。你可以再改一改重新发，也可以先放着。',
+    downByAbout: '游戏里什么都没变，你的改动也不在这台设备上。需要重新改一遍。',
+    downByBack: '游戏里什么都没变。你的改动已回到屏幕上：可以直接再发，也可以先改一改。',
     gotIt: '知道了',
     checksRunning: '游戏还在检查。请过一分钟再试。',
     checksFailed: '游戏的检查发现了问题，所以放不进去。',
@@ -305,7 +318,9 @@ export const check = {
     askedTitle: (by) => `${by} pediu uma mudança`,
     askedAbout: 'Mude e toque em Enviar para conferir.',
     downByTitle: (by) => `${by} não colocou suas mudanças`,
-    downByAbout: 'Nada entrou no jogo. Você pode mudar e enviar de novo, ou deixar como está.',
+    downByAbout:
+      'Nada entrou no jogo e suas mudanças não estão neste aparelho. Você precisaria fazê-las de novo.',
+    downByBack: 'Nada entrou no jogo. Suas mudanças voltaram para a tela: envie de novo ou mude antes.',
     gotIt: 'Entendi',
     checksRunning: 'O jogo ainda está conferindo. Tente de novo em um minuto.',
     checksFailed: 'As conferências do jogo acharam um problema, então não dá para colocar.',
@@ -354,7 +369,9 @@ export const check = {
     askedAbout: 'Changez-le, puis touchez Envoyer à vérifier.',
     downByTitle: (by) => `${by} n’a pas mis vos changements`,
     downByAbout:
-      'Rien n’est entré dans le jeu. Vous pouvez changer des choses et les renvoyer, ou laisser comme ça.',
+      'Rien n’est entré dans le jeu et vos changements ne sont pas sur cet appareil. Il faudrait les refaire.',
+    downByBack:
+      'Rien n’est entré dans le jeu. Vos changements sont revenus à l’écran : renvoyez-les, ou changez-les d’abord.',
     gotIt: 'Compris',
     checksRunning: 'Le jeu vérifie encore. Réessayez dans une minute.',
     checksFailed: 'Les vérifications du jeu ont trouvé un problème : on ne peut pas les mettre.',
@@ -402,7 +419,10 @@ export const check = {
     askedTitle: (by) => `${by} просит изменить`,
     askedAbout: 'Измените и нажмите «Отправить на проверку».',
     downByTitle: (by) => `${by} не добавил(а) ваши изменения`,
-    downByAbout: 'В игру ничего не попало. Можно что-то изменить и отправить снова или оставить как есть.',
+    downByAbout:
+      'В игру ничего не попало, а ваших изменений нет на этом устройстве. Их придётся сделать заново.',
+    downByBack:
+      'В игру ничего не попало. Ваши изменения вернулись на экран: отправьте их снова или сначала измените.',
     gotIt: 'Понятно',
     checksRunning: 'Игра ещё проверяет. Попробуйте через минуту.',
     checksFailed: 'Проверки игры нашли проблему, поэтому добавить нельзя.',
@@ -450,7 +470,10 @@ export const check = {
     askedTitle: (by) => `${by} bittet um eine Änderung`,
     askedAbout: 'Ändere es und tippe dann auf Zur Prüfung schicken.',
     downByTitle: (by) => `${by} hat deine Änderungen nicht ins Spiel genommen`,
-    downByAbout: 'Ins Spiel kam nichts. Du kannst etwas ändern und noch einmal schicken, oder es lassen.',
+    downByAbout:
+      'Ins Spiel kam nichts, und deine Änderungen sind nicht auf diesem Gerät. Du müsstest sie noch einmal machen.',
+    downByBack:
+      'Ins Spiel kam nichts. Deine Änderungen sind wieder auf dem Bildschirm: schick sie noch einmal oder ändere sie erst.',
     gotIt: 'Verstanden',
     checksRunning: 'Das Spiel prüft noch. Versuch es in einer Minute noch einmal.',
     checksFailed: 'Die Prüfungen des Spiels haben ein Problem gefunden, darum geht es nicht.',

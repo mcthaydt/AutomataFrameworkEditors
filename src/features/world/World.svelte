@@ -525,7 +525,7 @@
     />
 
     <Events {events} low={playing} onanswer={answered} />
-    <AuthorNote {lang} game={held} {api} {onsignedout} />
+    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
 
     <Changes
       bind:this={changes}
@@ -535,6 +535,7 @@
       {api}
       game={held}
       {edits}
+      {drafts}
       level={onMap ? undefined : levelId}
       onchanged={(next, now) => {
         held = next
