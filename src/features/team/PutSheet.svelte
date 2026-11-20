@@ -76,7 +76,9 @@
   const lookOnly = $derived(failure?.problem === 'not-allowed')
 
   const title = $derived(
-    phase === 'done'
+    asking && clash !== undefined
+      ? text(words.whose.whoseTitle, clash.list.filter((_, at) => clash.answers[at] !== undefined).length + 1, clash.list.length)
+      : phase === 'done'
       ? text(c.doneTitle)
       : phase === 'sent'
         ? text(c.sentTitle, by)
@@ -135,9 +137,9 @@
       {/if}
       <Lines {words} {lines} />
     {:else}
-      <p>
+      {#if clash === undefined}<p>
         {#if kind === 'put'}{text(c.putAbout, text(c.onDevice, device))}{:else if waiting}{text(c.waitMoreAbout, n)}{:else}{text(c.sendAbout, by, text(c.onDevice, device))}{/if}
-      </p>
+      </p>{/if}
       {#if came > 0}<p class="note" role="status">{text(c.cameIn, came)}</p>{/if}
       {#if clash !== undefined}
         <Clash

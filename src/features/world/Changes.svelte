@@ -129,6 +129,7 @@
     sent = lines
     phase = 'working'
     failure = undefined
+    const mineNow = edits.now
     const result = await put(api, game, edits)
     if (result.ok) {
       ononline(true)
@@ -148,7 +149,7 @@
           ? undefined
           : {
               held: result.merged,
-              set: { list: result.merged.clashes, mine: edits.now, theirs: result.merged.their, answers: {}, by: who },
+              set: { list: result.merged.clashes, mine: mineNow, theirs: result.merged.their, answers: {}, by: who },
             }
       phase = 'ask'
       return

@@ -298,11 +298,18 @@
   }
   /* The changed level, under the glass. */
   .level {
+    isolation: isolate; /* the rings stay under the sheet */
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
     padding: 8px;
+  }
+  /* A phone's sheet comes up from the foot: the level is drawn above it, so the rings are not hidden. */
+  @media (max-width: 500px) {
+    .level {
+      bottom: 55%;
+    }
   }
   .stop {
     position: absolute;

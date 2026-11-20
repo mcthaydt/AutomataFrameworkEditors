@@ -31,11 +31,9 @@
     typeof row === 'function' ? row(...parts) : row
 </script>
 
-<p>{text(c.whoseAbout)}</p>
 {#each clashes as clash, at (at)}
   {@const sides = sidesOf(clash, mine, theirs)}
   <section class="clash" aria-label={text(c.whoseTitle, at + 1, clashes.length)}>
-    <h3>{text(c.whoseTitle, at + 1, clashes.length)}</h3>
     <p class="said">{sayClash(words, clash, by)}</p>
     <div class="pair">
       {#each [{ name: text(c.yours), level: sides.mine }, { name: text(c.theirs, by), level: sides.theirs }] as side (side.name)}
@@ -76,11 +74,6 @@
     margin-bottom: 12px;
     padding: 12px 0;
     border-top: 1px solid var(--line);
-  }
-  h3 {
-    margin: 0 0 4px;
-    color: var(--g-quiet);
-    font: 600 13px / 1.3 var(--label);
   }
   .said {
     font-weight: 600;
