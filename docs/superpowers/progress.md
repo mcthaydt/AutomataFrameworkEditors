@@ -18,6 +18,20 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- The Owner's, 2026-11-20 09:24 UTC (project chat, to the coordinator's question "In Editors, one CI job shares a
+  queue across runs, so a run on main can get cancelled before it starts. The fix is the same one-line change you
+  approved for the other CI files. Should I apply it?"): "yes". Scope: the `screens` job's `concurrency` in
+  `.github/workflows/ci.yml` and nothing else. Lane 3: its own builder (brief `ci-screens-queue.md`) proves a one-line
+  change cannot make two jobs race to push one branch before making it, and stops if it can; then a lane 3 audit.
+- The Owner's, 2026-11-20 09:24 UTC (project chat): "update the project rules" (the CLAUDE.md pictures clause, #133).
+  Recorded, and not used: before it arrived the lane 3 audit of #133 (`114dd56`) had found that the rule the clause
+  amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
+  `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
+  documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 09:26 UTC: Framework #222 (`Game.levelAt`, for the walk's R5) passed its review at `3dbcbfa` with no reds and is going
+  ready. #128's review at `e3a8dce`: six reds (calls in `handoff/world/pr19-review-1-fixes.md`); #129 passed at
+  `b3acf00` after three cycles and merges on its green full run once Escape during a played change is checked
+  against main.
 - 2026-11-20 08:49 UTC: the walk's R5 ("Play from here" lands left of the tap on a sideways phone) cannot be fixed in the editors.
   Measured by PR 19's builder: when the level does not fit, the game's camera follows the hero, and the framework has
   no call from a screen point to the level. Agent-selected: one small public call in the framework (brief

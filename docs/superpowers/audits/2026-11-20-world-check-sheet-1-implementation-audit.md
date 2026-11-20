@@ -85,3 +85,24 @@ Yes. With `World.svelte` and `TopBar.svelte` put back to `0303b2c` (rebuilt, run
 ## What ran at d6e69b1
 
 `pnpm lint`: 0 errors, 1 warning (a template-string note in a test file that came in with main's merge, not this diff); `pnpm knip` and `pnpm typecheck` clean. `approve` and `send-to-check` journeys, Chromium: 28 of 28 pass. CI for `d6e69b1`: the plan job was still queued when I looked (an earlier run was cancelled); the full browser run is not yet read.
+
+# Addendum, cycle 3: `d6e69b1..b3acf006eae0fb45cd9895d19843cd1db88f124d`
+
+One commit, `run()` in `World.svelte` returns early while `checking`, plus two journey steps. Same reviewer; nothing pushed to the pull request branch.
+
+## Verdict: PASS at b3acf006eae0fb45cd9895d19843cd1db88f124d (R2 closed). Nothing red.
+
+## Played (scratch walk, not committed; phone, computer, iPad sideways)
+
+- Own crate moved to 7.5, kid's change open. Escape (focus on nothing): the sheet closes, hash back to the level, own crate 7.5.
+- Reopened, "Play the level with them", Stop playing (the sheet's own stop button): works, the sheet comes back.
+- "Ask for a change": typing "Delete e z a Backspace" in the box types as text (kept in full); Control+Z in the box acts on the text only; the own crate is untouched.
+- After every sheet is closed: crate 7.5 (own work intact); Control+Z gives 6.5 and Control+Shift+Z gives 7.5, so keys work again at once.
+- Journey on `d6e69b1`'s `World.svelte` (fix put back): "no key changes the person's own work" fails at iPad upright and phone (`expected '6.5' to be '7.5'`), so R2's step fails without its fix, for the right reason. The "two waiting, Not now goes to the list of two" step passes with and without this commit (the behaviour came in `d6e69b1`); it is a regression guard, not a fix test. That is what N7 asked for, so N7 is closed.
+- `approve` + `send-to-check`, Chromium: 32 of 32 pass. `pnpm lint` 0 errors (the one warning is main's, from the merge), `pnpm knip` and `pnpm typecheck` clean. CI for `b3acf00` was queued when I looked (an earlier run cancelled), so the three-browser run is not read.
+
+## Notes (not blocking)
+
+N8. Escape does not stop a played change while "Play the level with them" runs; only the "Stop playing" button does. `run()` now drops every key while a change is open, `stop-play` included. I did not run the earlier commits to see whether Escape ever stopped it (the check's play is its own, not the editor's), so I cannot say this is new. Easy to add (`stop-play` allowed) if the owner wants it.
+N9. The final `expect` in the keys journey is written twice (duplicate line). Harmless; tidy when next touched.
+N6 (tooltip only on mouse hover) and the old N1, N3, N5 stand as before.
