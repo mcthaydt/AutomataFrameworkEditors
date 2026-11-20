@@ -394,6 +394,12 @@ None.
 
 ### Open items
 
+- The Owner's, 2026-11-20 13:54 and 13:55 UTC (project chat; recorded 2026-11-20 13:56 UTC): "We doing this?" with the
+  list below, then "After ruken". Backlog, not built now (the project is halted but for the World slice, the workflow
+  and docs): after Ruken, a toolchain and CI speed-up across the code repos, in the Owner's words: "Vitest -> bun
+  test", "tsc -> bun check", "oxlint -> bun lint", "oxfmt -> bun fmt", "shards filled by recorded test time", "PRs run
+  only the tests the diff can reach", "backend builds the app once per process", "lint, typecheck, build and tests all
+  in parallel". When it starts it is a staged job: a tool change and CI workflow files (lane 3).
 - A journey failed once and passed on its own straight after (a defect under the rules, so it is recorded here, not
   fixed in #96 unless it recurs in CI): `open-game.journey.test.ts`, "when the sign-in is gone for good the person is on
   Welcome, told so". Text: `locator.waitFor: Timeout 10000ms exceeded. waiting for getByRole('heading', { name:
