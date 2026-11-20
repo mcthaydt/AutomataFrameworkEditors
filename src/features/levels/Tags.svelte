@@ -47,7 +47,7 @@
 
 {#each tags as tag (tag.mark.id)}
   <span
-    class="tag"
+    class="tag glass-1"
     class:on={picked.includes(tag.mark.id)}
     aria-hidden="true"
     data-tag={tag.mark.id}
@@ -65,7 +65,6 @@
     transform: translateX(-50%);
     padding: 2px 8px;
     border-radius: 4px;
-    background: var(--panel);
     color: var(--words);
     font: 500 12px var(--label);
     white-space: nowrap;

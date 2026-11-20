@@ -3,24 +3,34 @@
   import Button from './Button.svelte'
 
   // One screen: one <h1>, which takes the focus when the screen appears so a screen reader and a keyboard start at
-  // the top. `back` is the way out, always the first thing after the title.
+  // the top. `back` is the way out, always the first thing after the title. With `glass` it is drawn in the editors'
+  // look, as a glass card on their dark ground, so going from the editor to it is no jump from dark to white.
   interface Props {
     title: string
     back?: { label: string; onpress: () => void }
+    glass?: boolean
     children: Snippet
   }
-  let { title, back, children }: Props = $props()
+  let { title, back, glass = false, children }: Props = $props()
   let heading: HTMLHeadingElement | undefined = $state()
   $effect(() => heading?.focus())
 </script>
 
-<main class="screen">
+{#snippet body()}
   <header>
     <h1 tabindex="-1" bind:this={heading}>{title}</h1>
     {#if back}<Button label={back.label} onpress={back.onpress} />{/if}
   </header>
   {@render children()}
-</main>
+{/snippet}
+
+{#if glass}
+  <main class="look plain centred">
+    <section class="screen card glass-1">{@render body()}</section>
+  </main>
+{:else}
+  <main class="screen">{@render body()}</main>
+{/if}
 
 <style>
   .screen {
@@ -43,6 +53,18 @@
     margin: 0;
     font-size: var(--font-size-big);
     overflow-wrap: anywhere;
+  }
+  .plain {
+    padding: 24px max(8px, env(safe-area-inset-right)) 24px max(8px, env(safe-area-inset-left));
+  }
+  .card {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .plain h1 {
+    font: 600 26px / 1.2 var(--title);
   }
   h1:focus {
     outline: none;

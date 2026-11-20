@@ -20,21 +20,29 @@
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
 </script>
 
-<div class="bar" role="toolbar" aria-label={text(words.playBar)}>
-  <button type="button" class="act" data-play="pause" onclick={onpause}>
-    <Icon name={paused ? 'play' : 'pause'} /><span>{text(paused ? words.goOn : words.pause)}</span>
+<div class="bar glass-1" role="toolbar" aria-label={text(words.playBar)}>
+  <button
+    type="button"
+    class="act"
+    data-play="pause"
+    aria-label={text(paused ? words.goOn : words.pause)}
+    title={text(paused ? words.goOn : words.pause)}
+    onclick={onpause}
+  >
+    <Icon name={paused ? 'play' : 'pause'} size={22} />
   </button>
-  <button type="button" class="act" data-play="again" onclick={onagain}>
-    <Icon name="arrow-counter-clockwise" /><span>{text(words.again)}</span>
+  <button type="button" class="act" data-play="again" aria-label={text(words.again)} title={text(words.again)} onclick={onagain}>
+    <Icon name="arrow-counter-clockwise" size={22} />
   </button>
   <button
     type="button"
     class="act"
     data-play="big"
+    aria-label={text(big ? words.smaller : words.bigger)}
     title={text(big ? words.smallerAbout : words.biggerAbout)}
     onclick={onbig}
   >
-    <Icon name={big ? 'arrows-in' : 'arrows-out'} /><span>{text(big ? words.smaller : words.bigger)}</span>
+    <Icon name={big ? 'arrows-in' : 'arrows-out'} size={22} />
   </button>
 </div>
 
@@ -44,9 +52,6 @@
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   .act {

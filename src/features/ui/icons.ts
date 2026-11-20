@@ -19,6 +19,7 @@ import caretDown from '@phosphor-icons/core/regular/caret-down.svg?raw'
 import caretLeft from '@phosphor-icons/core/regular/caret-left.svg?raw'
 import caretRight from '@phosphor-icons/core/regular/caret-right.svg?raw'
 import caretUp from '@phosphor-icons/core/regular/caret-up.svg?raw'
+import chatCircleText from '@phosphor-icons/core/regular/chat-circle-text.svg?raw'
 import check from '@phosphor-icons/core/regular/check.svg?raw'
 import clockCounterClockwise from '@phosphor-icons/core/regular/clock-counter-clockwise.svg?raw'
 import cloud from '@phosphor-icons/core/regular/cloud.svg?raw'
@@ -62,6 +63,7 @@ import trash from '@phosphor-icons/core/regular/trash.svg?raw'
 import usersThree from '@phosphor-icons/core/regular/users-three.svg?raw'
 import warning from '@phosphor-icons/core/regular/warning.svg?raw'
 import x from '@phosphor-icons/core/regular/x.svg?raw'
+import xCircle from '@phosphor-icons/core/regular/x-circle.svg?raw'
 
 export type IconName =
   | 'cursor'
@@ -125,6 +127,8 @@ export type IconName =
   | 'squares-four'
   | 'stop'
   | 'users-three'
+  | 'chat-circle-text'
+  | 'x-circle'
 
 /** The drawing inside an SVG file's outer tag. */
 function inner(svg: string): string {
@@ -194,4 +198,6 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'squares-four': inner(squaresFour),
   stop: inner(stop),
   'users-three': inner(usersThree),
+  'chat-circle-text': inner(chatCircleText),
+  'x-circle': inner(xCircle),
 }

@@ -51,8 +51,8 @@
   )
 </script>
 
-<main class="look games">
-  <section class="card">
+<main class="look games centred">
+  <section class="card glass-1">
     <h1>{WORDS.pickTitle}</h1>
     {#if games === undefined}
       <p>{WORDS.loading}</p>
@@ -106,12 +106,7 @@
 
 <style>
   .games {
-    display: flex;
-    justify-content: center;
-    min-height: 100%;
     padding: 24px 16px;
-    box-sizing: border-box;
-    overflow: auto;
   }
   .card {
     display: flex;
@@ -124,7 +119,6 @@
     box-sizing: border-box;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: var(--panel);
   }
   h1 {
     margin: 0;
@@ -137,7 +131,7 @@
     color: var(--quiet);
   }
   .problem {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .find {
     display: flex;

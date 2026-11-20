@@ -15,6 +15,8 @@ export interface OpenGame {
   readonly branch: string
   /** My own waiting change. */
   readonly mine: Waiting | undefined
+  /** My own changes were turned down: who did it, and when. */
+  readonly turnedDown: { readonly by: string; readonly at: number } | undefined
   /** How many changes wait in all. */
   readonly waiting: number
   readonly content: GameContent
@@ -59,6 +61,7 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       level: value.level,
       branch: value.branch,
       mine: value.mine,
+      turnedDown: value.turnedDown,
       waiting: value.waiting,
       content: loaded.value,
       files,

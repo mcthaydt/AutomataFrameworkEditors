@@ -69,7 +69,7 @@
     padding: var(--space-2) var(--space-3);
     border: 2px solid var(--line);
     border-radius: var(--radius);
-    background: var(--surface);
+    background: var(--fill);
     color: var(--fg);
     text-decoration: none;
     overflow-wrap: anywhere;

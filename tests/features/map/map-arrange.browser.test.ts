@@ -431,7 +431,10 @@ test('what Move apart does is said on the screen, not in a hover tip, and only f
   await tick()
   await press('More')
   expect(box.textContent).toContain("Move it away from Room 2, so players can't walk across")
-  expect(box.querySelector('[title]')).toBeNull()
+  // An icon's tooltip only repeats its name; what Move apart does is never kept in one.
+  expect([...box.querySelectorAll('[title]')].map((el) => el.getAttribute('title'))).not.toContainEqual(
+    expect.stringContaining('players'),
+  )
   level('room-1').click()
   await tick()
   expect(box.textContent).not.toContain('so players can')
@@ -441,22 +444,58 @@ test('on a phone the bar and its menu stay inside the screen, whichever level wa
   size(390, 700)
   await show()
   const sheetRect = (): DOMRect => sheet().getBoundingClientRect()
-  const inside = (el: Element, what: string): void => {
+  // What a failure says: where the thing and the box it is placed by are, and how they are styled, now and once the
+  // page has had time to lay out again, so a bound missed in one engine says why.
+  const said = (el: Element, id: string): string => {
+    const r = el.getBoundingClientRect()
+    const parent = el.parentElement
+    const p = parent?.getBoundingClientRect()
+    const style = getComputedStyle(el)
+    const held = parent === null ? undefined : getComputedStyle(parent)
+    const px = (n: number | undefined): number => Math.round((n ?? Number.NaN) * 10) / 10
+    return (
+      `picked ${id}; it ${px(r.left)}..${px(r.right)} w${px(r.width)}, ${style.position} left ${style.left} right ` +
+      `${style.right} width ${style.width} transform ${style.transform}; its holder ${px(p?.left)}..${px(p?.right)} ` +
+      `w${px(p?.width)}, ${held?.position} left ${held?.left} width ${held?.width} transform ${held?.transform}`
+    )
+  }
+  const settle = (): Promise<void> =>
+    new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(done, 300))))
+  const inside = async (el: Element, what: string, id: string): Promise<void> => {
     const r = el.getBoundingClientRect()
     const s = sheetRect()
-    expect(r.left, `${what} left`).toBeGreaterThanOrEqual(s.left)
-    expect(r.top, `${what} top`).toBeGreaterThanOrEqual(s.top)
-    expect(r.right, `${what} right`).toBeLessThanOrEqual(s.right)
-    expect(r.bottom, `${what} bottom`).toBeLessThanOrEqual(s.bottom)
+    const fits = r.left >= s.left && r.top >= s.top && r.right <= s.right && r.bottom <= s.bottom
+    const why = fits ? '' : `at 50 ms: ${said(el, id)}; later: ${await settle().then(() => said(el, id))}`
+    expect(r.left, `${what} left; ${why}`).toBeGreaterThanOrEqual(s.left)
+    expect(r.top, `${what} top; ${why}`).toBeGreaterThanOrEqual(s.top)
+    expect(r.right, `${what} right; ${why}`).toBeLessThanOrEqual(s.right)
+    expect(r.bottom, `${what} bottom; ${why}`).toBeLessThanOrEqual(s.bottom)
   }
   for (const id of ['room-1', 'room-3', 'room-2', 'room-3']) {
     level(id).click()
     await tick()
     await wait(50)
-    inside(box.querySelector('[role="toolbar"]') as Element, `${id}'s bar`)
+    await inside(box.querySelector('[role="toolbar"]') as Element, `${id}'s bar`, id)
     await press('More')
     await wait(50)
-    inside(box.querySelector('[role="menu"]') as Element, `${id}'s menu`)
+    await inside(box.querySelector('[role="menu"]') as Element, `${id}'s menu`, id)
     await press('More')
   }
+})
+
+// The bar is placed for the level it is drawn for, in the frame its buttons change: a wider bar picked after a narrower
+// one is never placed by the narrower one's size first (the WebKit run of 2026-11-20 showed room-3's bar placed by
+// room-1's for longer than 50 ms). No timed wait here: only Svelte's own flush.
+test('a wider bar picked after a narrower one is on the screen in the frame it is drawn', async () => {
+  size(390, 700)
+  await show()
+  level('room-1').click()
+  await tick()
+  await new Promise((done) => requestAnimationFrame(done))
+  level('room-3').click()
+  await tick()
+  const bar = (box.querySelector('[role="toolbar"]') as Element).getBoundingClientRect()
+  const screen = sheet().getBoundingClientRect()
+  expect(bar.left, 'the bar runs off the left').toBeGreaterThanOrEqual(screen.left)
+  expect(bar.right, 'the bar runs off the right').toBeLessThanOrEqual(screen.right)
 })

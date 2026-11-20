@@ -66,6 +66,21 @@ export function closeUp(level: Level, around: Point, _screen: Screen): Camera {
   }
 }
 
+/** The view that shows all of `points` with some room around them, as close as a person would place a thing by eye. */
+export function framing(level: Level, points: readonly Point[], screen: Screen): Camera {
+  const size = levelSize(level)
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const [left, right] = [Math.min(...xs), Math.max(...xs)]
+  const [top, bottom] = [Math.min(...ys), Math.max(...ys)]
+  const fit = Math.min(screen.w / (right - left + 4), screen.h / (bottom - top + 3))
+  return {
+    x: Math.min(size.w, Math.max(0, (left + right) / 2)),
+    y: Math.min(size.h, Math.max(0, (top + bottom) / 2)),
+    scale: hold(Math.min(CLOSE_UP, fit)),
+  }
+}
+
 /** Where a tile-point is on the screen, in CSS pixels. */
 export function toScreen(camera: Camera, screen: Screen, at: Point): Point {
   return {

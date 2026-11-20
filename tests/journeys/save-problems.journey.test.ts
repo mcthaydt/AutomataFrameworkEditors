@@ -70,29 +70,42 @@ describe('when someone else changed the level first', () => {
     const j = await asGrandma()
     repoOf(j).put('main', LEVEL_PATH, theirs)
     await moveAndPut(j)
-    await putSheet(j.page).getByText(/clash/).waitFor()
+    await putSheet(j.page)
+      .getByText(/^You (moved|changed) Crate 1/)
+      .waitFor()
     return j
   }
 
-  test('nothing of mine is written over theirs, and the sheet says which changes clash', async () => {
+  test('nothing of mine is written over theirs, and the sheet asks whose to keep', async () => {
     const j = await clash()
     expect(repoOf(j).commits).toEqual([])
     expect(repoOf(j).branches.get('main')?.get(LEVEL_PATH)).toBe(theirs)
-    // Nothing is left to put in: no \"Put 0 changes\", no button that fails; the one way on is Close.
+    // Nothing goes in until the clash has an answer.
     const sheet = putSheet(j.page)
-    await sheet.getByRole('heading', { name: /version is kept/ }).waitFor()
-    expect(await sheet.getByText(/Put 0 change/).count()).toBe(0)
-    expect(await sheet.getByRole('button', { name: /^Put them in/ }).count()).toBe(0)
+    expect(await sheet.getByRole('button', { name: /^Put them in/ }).isDisabled()).toBe(true)
+    await sheet.getByRole('button', { name: 'Keep mine' }).waitFor()
     expect(await sheet.getByText(/came in from the game/).count()).toBe(0)
   })
 
-  test("the game's version is kept for now, and one Undo brings my crate back", async () => {
+  test("keeping the other's leaves nothing of mine to put in, and Close ends it", async () => {
     const j = await clash()
-    await putSheet(j.page).getByRole('button', { name: 'Close' }).first().click()
+    const sheet = putSheet(j.page)
+    await sheet.getByRole('button', { name: /^Keep .*’s$/ }).click()
+    await sheet.getByText(/Nothing of yours is left/).waitFor()
+    expect(await sheet.getByRole('button', { name: /^Put them in/ }).count()).toBe(0)
+    await sheet.getByRole('button', { name: 'Close' }).first().click()
     await crateX(j).toBe('10.5')
-    await j.page.getByRole('button', { name: 'Undo' }).last().click()
-    await crateX(j).toBe('8.5')
     expect(repoOf(j).commits).toEqual([])
+  })
+
+  test('keeping mine puts my crate in, over theirs', async () => {
+    const j = await clash()
+    const sheet = putSheet(j.page)
+    await sheet.getByRole('button', { name: 'Keep mine' }).click()
+    await sheet.getByRole('button', { name: /^Put them in/ }).click()
+    await sheet.getByRole('heading', { name: putWords.doneTitle, exact: true }).waitFor()
+    await crateX(j).toBe('8.5')
+    expect(repoOf(j).commits).toHaveLength(1)
   })
 })
 

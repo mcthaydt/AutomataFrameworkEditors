@@ -48,7 +48,7 @@
   const text = (row: Row, ...parts: string[]): string => (typeof row === 'function' ? row(...parts) : row)
 </script>
 
-<div class="bar" role="toolbar" aria-label={text(words.levelBar, nameOf(level))}>
+<div class="bar glass-1" role="toolbar" aria-label={text(words.levelBar, nameOf(level))}>
   <button type="button" class="act" onclick={ongo}><Icon name="arrow-right" /><span>{text(words.goIn)}</span></button>
   <button type="button" class="act" aria-pressed={moving} onclick={onmove}>
     <Icon name="arrows-out-cardinal" /><span>{text(words.move)}</span>
@@ -58,11 +58,11 @@
       <Icon name="arrows-out-line-horizontal" /><span>{text(words.pullApart)}</span>
     </button>
   {/if}
-  <button type="button" class="act" aria-label={text(words.more)} aria-expanded={more} onclick={onmore}>
+  <button type="button" class="act" aria-label={text(words.more)} title={text(words.more)} aria-expanded={more} onclick={onmore}>
     <Icon name="dots-three" />
   </button>
   {#if more}
-    <div class="menu" role="menu" bind:this={menuEl}>
+    <div class="menu glass-2" role="menu" bind:this={menuEl}>
       <button type="button" role="menuitem" class="item" onclick={choose(ongo)}>
         <Icon name="arrow-right" /><span class="label">{text(words.goIn)}</span>
       </button>
@@ -94,9 +94,6 @@
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   .act,
@@ -134,9 +131,6 @@
     max-width: calc(100vw - 24px);
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
   }
   .menu:global(.up) {
     top: auto;

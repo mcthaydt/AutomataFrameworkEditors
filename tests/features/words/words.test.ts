@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
+import { LANGUAGES, WORDS, wordsIn } from '#src/features/words/words.ts'
 import { bannedIn } from '../../fixtures/banned.ts'
 
 // The first words, exactly as the plan pins them (Task 2). Later tasks add their own rows to this list.
@@ -31,10 +31,6 @@ const PINNED: Readonly<Record<string, string>> = {
   back: 'Back',
   pickTitle: 'Pick a game',
   loading: 'Getting your game…',
-  moveLeft: 'Move left',
-  moveRight: 'Move right',
-  moveUp: 'Move up',
-  moveDown: 'Move down',
   solid: 'That spot is solid ground. Try another spot.',
   lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
   offline: "Can't reach the game right now. Your change is still here. Check the internet and try again.",
@@ -50,20 +46,6 @@ const PINNED: Readonly<Record<string, string>> = {
   waitingNone: 'Nothing is waiting.',
   waitingBy: 'From crate-1',
   waitingMine: 'From you',
-  changeMoved: 'crate-1 was moved. The ring shows where it is now.',
-  changeOther: 'This change does more than move things.',
-  approve: 'Approve',
-  turnDown: 'Turn it down',
-  takeBack: 'Take my change back',
-  approved: 'Approved. The change is in the game now.',
-  turnedDown: 'Turned down. The game stays as it was.',
-  checksRunning: 'This change is still being checked. Try again in a minute.',
-  checksFailed: "The checks found a problem with this change, so it can't be approved.",
-  ownChange: 'Someone else has to approve your own change.',
-  clashes:
-    "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
-  notHere: "This change touches more than the game's levels, so it can't be approved here.",
-  cantApprove: "You can look at this change, but you can't approve it.",
   shareTitle: 'Share crate-1',
   shareLinkLabel: 'Send this link to the people you want to help:',
   copyLink: 'Copy the link',
@@ -112,6 +94,27 @@ const read = (key: string): string => {
 
 test.each(Object.entries(PINNED))('%s says exactly what the plan says', (key, words) => {
   expect(read(key)).toBe(words)
+})
+
+// The move arrows' spoken names and tooltips (the settings panel's cross and the pad on the level): exactly these in
+// English, and four different names in every language, so each arrow is told apart by ear (the audit of 2026-11-20, N6).
+const PAD = { padUp: 'Move up', padLeft: 'Move left', padRight: 'Move right', padDown: 'Move down' } as const
+
+test('the move arrows say exactly what the plan says, and every language names all four apart', () => {
+  const english = wordsIn('en').levels
+  for (const [key, words] of Object.entries(PAD)) expect(english[key as keyof typeof PAD]).toBe(words)
+  for (const lang of LANGUAGES) {
+    const said = wordsIn(lang).levels
+    const names = Object.keys(PAD).map((key) => {
+      const row = said[key as keyof typeof PAD]
+      return typeof row === 'string' ? row : row()
+    })
+    expect(
+      names.every((name) => name.trim() !== ''),
+      lang,
+    ).toBe(true)
+    expect(new Set(names).size, lang).toBe(4)
+  }
 })
 
 test('WORDS is frozen', () => {

@@ -1,0 +1,501 @@
+// The words checking someone's changes says (the sheet over the level, asking for a change, what the author is told).
+// A row that is a function takes what it names ("Sam", "3"). A name is always said: the page passes it.
+import type { Area } from './languages.ts'
+
+type Key =
+  | 'checkTitle'
+  | 'checkAbout'
+  | 'playThem'
+  | 'stopPlaying'
+  | 'putThem'
+  | 'askFor'
+  | 'dontPut'
+  | 'notNow'
+  | 'problemNote'
+  | 'otherChange'
+  | 'askTitle'
+  | 'askAbout'
+  | 'askLabel'
+  | 'askSend'
+  | 'askBack'
+  | 'putDoneTitle'
+  | 'putDoneAbout'
+  | 'askedDoneTitle'
+  | 'askedDoneAbout'
+  | 'downTitle'
+  | 'downAbout'
+  | 'undo'
+  | 'undone'
+  | 'askedTitle'
+  | 'askedAbout'
+  | 'downByTitle'
+  | 'downByAbout'
+  | 'downByBack'
+  | 'gotIt'
+  | 'checksRunning'
+  | 'checksFailed'
+  | 'ownChange'
+  | 'notHere'
+  | 'cantApprove'
+  | 'gone'
+  | 'failNow'
+  | 'noFit'
+  | 'loading'
+  | 'cantReach'
+  | 'cantFind'
+  | 'broken'
+  | 'tryAgain'
+  | 'goneTitle'
+
+const many = (n: string | number): boolean => Number(n) !== 1
+
+export const check = {
+  en: {
+    checkTitle: (by, n) => `${by} sent ${n} ${many(n) ? 'changes' : 'change'} to check`,
+    checkAbout: 'They are ringed on the level. Nobody else sees them until you put them in.',
+    playThem: 'Play the level with them',
+    stopPlaying: 'Stop playing',
+    putThem: 'Put them in the game',
+    askFor: 'Ask for a change',
+    dontPut: 'Don’t put them in',
+    notNow: 'Not now',
+    problemNote: 'You can still put them in.',
+    otherChange: 'It also changes something that is not a level, like a character.',
+    askTitle: (by) => `Ask ${by} to change something`,
+    askAbout: (by, n) =>
+      `Say what you would like different. ${by} gets your words along with the ${n} ${many(n) ? 'changes' : 'change'}. Nothing goes in the game.`,
+    askLabel: 'Your words',
+    askSend: (by) => `Send to ${by}`,
+    askBack: 'Back',
+    putDoneTitle: 'In the game',
+    putDoneAbout: (n) => `Everyone has the ${n} ${many(n) ? 'changes' : 'change'} now.`,
+    askedDoneTitle: (by) => `Asked ${by} to change it`,
+    askedDoneAbout: (by) => `${by} sees your words and can send the changes again. Nothing went in the game.`,
+    downTitle: (by, n) => `You didn’t put ${by}’s ${n} ${many(n) ? 'changes' : 'change'} in`,
+    downAbout: (by) => `The game stays as it is, and ${by} is told. Changed your mind? Press Undo.`,
+    undo: 'Undo',
+    undone: 'They are waiting to be checked again.',
+    askedTitle: (by) => `${by} asked for a change`,
+    askedAbout: 'Change it, then press Send to check.',
+    downByTitle: (by) => `${by} didn’t put your changes in`,
+    downByAbout:
+      'Nothing went in the game, and your changes are not on this device. You would need to make them again.',
+    downByBack:
+      'Nothing went in the game. Your changes are back on the screen: send them again, or change them first.',
+    gotIt: 'Got it',
+    checksRunning: 'This is still being checked by the game. Try again in a minute.',
+    checksFailed: 'The game’s checks found a problem, so these can’t be put in.',
+    ownChange: 'These are yours. Someone else has to put them in.',
+    notHere: 'This touches more than levels, so it can’t be put in here.',
+    cantApprove: 'You can look at these changes, but you can’t put them in.',
+    gone: 'These changes aren’t waiting any more. Someone may have put them in or said no.',
+    failNow: 'That didn’t work. Nothing was changed. Try again in a minute.',
+    noFit: 'The game changed since these were made, so they don’t fit any more. Ask for a change instead.',
+    loading: 'Getting the changes…',
+    cantReach: 'Can’t reach the game right now. Check the internet and try again.',
+    cantFind: 'We can’t find that game, or it hasn’t been shared with you. Ask its owner.',
+    broken: 'This game has problems that need fixing first:',
+    tryAgain: 'Try again',
+    goneTitle: 'Not waiting any more',
+  },
+  es: {
+    checkTitle: (by, n) => `${by} envió ${n} ${many(n) ? 'cambios' : 'cambio'} para revisar`,
+    checkAbout: 'Están marcados en el nivel. Nadie más los ve hasta que los pongas en el juego.',
+    playThem: 'Jugar el nivel con ellos',
+    stopPlaying: 'Dejar de jugar',
+    putThem: 'Ponerlos en el juego',
+    askFor: 'Pedir un cambio',
+    dontPut: 'No ponerlos',
+    notNow: 'Ahora no',
+    problemNote: 'Aún puedes ponerlos.',
+    otherChange: 'También cambia algo que no es un nivel, como un personaje.',
+    askTitle: (by) => `Pedir a ${by} que cambie algo`,
+    askAbout: (by, n) =>
+      `Di qué te gustaría distinto. ${by} recibe tus palabras junto con ${many(n) ? `los ${n} cambios` : 'el cambio'}. Nada entra en el juego.`,
+    askLabel: 'Tus palabras',
+    askSend: (by) => `Enviar a ${by}`,
+    askBack: 'Atrás',
+    putDoneTitle: 'En el juego',
+    putDoneAbout: (n) => `Todos tienen ${many(n) ? `los ${n} cambios` : 'el cambio'} ya.`,
+    askedDoneTitle: (by) => `Se pidió a ${by} que lo cambie`,
+    askedDoneAbout: (by) =>
+      `${by} ve tus palabras y puede enviar los cambios otra vez. Nada entró en el juego.`,
+    downTitle: (by, n) => `No pusiste ${many(n) ? `los ${n} cambios` : 'el cambio'} de ${by}`,
+    downAbout: (by) => `El juego queda como está y ${by} lo sabe. ¿Cambiaste de idea? Pulsa Deshacer.`,
+    undo: 'Deshacer',
+    undone: 'Vuelven a esperar revisión.',
+    askedTitle: (by) => `${by} pidió un cambio`,
+    askedAbout: 'Cámbialo y pulsa Enviar para revisar.',
+    downByTitle: (by) => `${by} no puso tus cambios`,
+    downByAbout:
+      'Nada entró en el juego y tus cambios no están en este aparato. Tendrías que hacerlos otra vez.',
+    downByBack:
+      'Nada entró en el juego. Tus cambios volvieron a la pantalla: envíalos otra vez o cámbialos antes.',
+    gotIt: 'Entendido',
+    checksRunning: 'El juego aún lo está comprobando. Prueba en un minuto.',
+    checksFailed: 'Las comprobaciones del juego encontraron un problema, así que no se pueden poner.',
+    ownChange: 'Son tuyos. Otra persona tiene que ponerlos.',
+    notHere: 'Esto toca más que niveles, así que no se puede poner aquí.',
+    cantApprove: 'Puedes mirar estos cambios, pero no puedes ponerlos.',
+    gone: 'Estos cambios ya no esperan. Quizá alguien los puso o dijo que no.',
+    failNow: 'No funcionó. No se cambió nada. Prueba en un minuto.',
+    noFit: 'El juego cambió desde que se hicieron, y ya no encajan. Pide un cambio en su lugar.',
+    loading: 'Buscando los cambios…',
+    cantReach: 'Ahora no se puede llegar al juego. Revisa internet y prueba otra vez.',
+    cantFind: 'No encontramos ese juego, o no lo han compartido contigo. Pregunta a su dueño.',
+    broken: 'Este juego tiene problemas que hay que arreglar primero:',
+    tryAgain: 'Probar otra vez',
+    goneTitle: 'Ya no esperan',
+  },
+  ko: {
+    checkTitle: (by, n) => `${by}님이 변경 ${n}개를 보냈어요`,
+    checkAbout: '레벨에 표시돼 있어요. 게임에 넣기 전에는 다른 사람에게 보이지 않아요.',
+    playThem: '변경을 넣고 레벨 해 보기',
+    stopPlaying: '그만 하기',
+    putThem: '게임에 넣기',
+    askFor: '바꿔 달라고 하기',
+    dontPut: '넣지 않기',
+    notNow: '지금은 말고',
+    problemNote: '그래도 넣을 수 있어요.',
+    otherChange: '캐릭터처럼 레벨이 아닌 것도 바뀌어요.',
+    askTitle: (by) => `${by}님에게 바꿔 달라고 하기`,
+    askAbout: (by, n) =>
+      `어떻게 바꾸면 좋을지 적어 주세요. ${by}님이 변경 ${n}개와 함께 이 글을 받아요. 게임에는 아무것도 들어가지 않아요.`,
+    askLabel: '하고 싶은 말',
+    askSend: (by) => `${by}님에게 보내기`,
+    askBack: '뒤로',
+    putDoneTitle: '게임에 들어갔어요',
+    putDoneAbout: (n) => `이제 모두에게 변경 ${n}개가 보여요.`,
+    askedDoneTitle: (by) => `${by}님에게 바꿔 달라고 했어요`,
+    askedDoneAbout: (by) =>
+      `${by}님이 글을 보고 변경을 다시 보낼 수 있어요. 게임에는 아무것도 들어가지 않았어요.`,
+    downTitle: (by, n) => `${by}님의 변경 ${n}개를 넣지 않았어요`,
+    downAbout: (by) => `게임은 그대로이고 ${by}님에게 알려요. 마음이 바뀌었나요? 되돌리기를 누르세요.`,
+    undo: '되돌리기',
+    undone: '다시 확인을 기다려요.',
+    askedTitle: (by) => `${by}님이 바꿔 달라고 했어요`,
+    askedAbout: '바꾼 뒤에 확인 보내기를 누르세요.',
+    downByTitle: (by) => `${by}님이 변경을 넣지 않았어요`,
+    downByAbout: '게임에는 아무것도 들어가지 않았고, 바꾼 것도 이 기기에 없어요. 다시 해야 해요.',
+    downByBack:
+      '게임에는 아무것도 들어가지 않았어요. 바꾼 것이 화면에 돌아왔어요. 다시 보내거나 먼저 고치세요.',
+    gotIt: '알겠어요',
+    checksRunning: '게임이 아직 확인하는 중이에요. 잠시 뒤에 다시 해 보세요.',
+    checksFailed: '게임의 확인에서 문제가 나와서 넣을 수 없어요.',
+    ownChange: '내가 보낸 거예요. 다른 사람이 넣어야 해요.',
+    notHere: '레벨 말고 다른 것도 바뀌어서 여기서는 넣을 수 없어요.',
+    cantApprove: '변경을 볼 수는 있지만 넣을 수는 없어요.',
+    gone: '이 변경은 더 이상 기다리지 않아요. 누군가 넣었거나 거절했을 수 있어요.',
+    failNow: '잘 되지 않았어요. 바뀐 건 없어요. 잠시 뒤에 다시 해 보세요.',
+    noFit: '변경을 만든 뒤에 게임이 바뀌어서 맞지 않아요. 대신 바꿔 달라고 해 보세요.',
+    loading: '변경을 가져오는 중…',
+    cantReach: '지금은 게임에 닿을 수 없어요. 인터넷을 확인하고 다시 해 보세요.',
+    cantFind: '그 게임을 찾을 수 없거나 내게 공유되지 않았어요. 주인에게 물어보세요.',
+    broken: '이 게임에는 먼저 고쳐야 할 문제가 있어요:',
+    tryAgain: '다시 해 보기',
+    goneTitle: '더 이상 기다리지 않아요',
+  },
+  ja: {
+    checkTitle: (by, n) => `${by}さんが変更を${n}件、確認に送りました`,
+    checkAbout: 'レベルに印が付いています。ゲームに入れるまで、ほかの人には見えません。',
+    playThem: '変更を入れてレベルを遊ぶ',
+    stopPlaying: '遊ぶのをやめる',
+    putThem: 'ゲームに入れる',
+    askFor: '直してとお願いする',
+    dontPut: '入れない',
+    notNow: '今はやめる',
+    problemNote: 'それでも入れられます。',
+    otherChange: 'キャラクターなど、レベルではないものも変わります。',
+    askTitle: (by) => `${by}さんに直してもらう`,
+    askAbout: (by, n) =>
+      `どう変えたいか書いてください。${by}さんには変更${n}件と一緒にこの言葉が届きます。ゲームには何も入りません。`,
+    askLabel: 'あなたの言葉',
+    askSend: (by) => `${by}さんに送る`,
+    askBack: '戻る',
+    putDoneTitle: 'ゲームに入りました',
+    putDoneAbout: (n) => `変更${n}件が、みんなに見えるようになりました。`,
+    askedDoneTitle: (by) => `${by}さんにお願いしました`,
+    askedDoneAbout: (by) => `${by}さんが言葉を見て、変更をもう一度送れます。ゲームには何も入っていません。`,
+    downTitle: (by, n) => `${by}さんの変更${n}件を入れませんでした`,
+    downAbout: (by) =>
+      `ゲームはそのままで、${by}さんに伝わります。やっぱり入れる場合は「元に戻す」を押してください。`,
+    undo: '元に戻す',
+    undone: 'もう一度、確認待ちになりました。',
+    askedTitle: (by) => `${by}さんが直してと言っています`,
+    askedAbout: '直してから「確認に送る」を押してください。',
+    downByTitle: (by) => `${by}さんは変更を入れませんでした`,
+    downByAbout:
+      'ゲームには何も入っていません。変えたものはこの機器にありません。もう一度やり直してください。',
+    downByBack:
+      'ゲームには何も入っていません。変えたものは画面に戻りました。そのまま送り直すか、先に直してください。',
+    gotIt: 'わかりました',
+    checksRunning: 'ゲームがまだ確認中です。少ししてからもう一度どうぞ。',
+    checksFailed: 'ゲームの確認で問題が見つかったので、入れられません。',
+    ownChange: 'あなたの変更です。ほかの人が入れる必要があります。',
+    notHere: 'レベル以外も変わるので、ここでは入れられません。',
+    cantApprove: '変更を見ることはできますが、入れることはできません。',
+    gone: 'この変更はもう待っていません。誰かが入れたか、断ったのかもしれません。',
+    failNow: 'うまくいきませんでした。何も変わっていません。少ししてからもう一度どうぞ。',
+    noFit: '変更を作ったあとにゲームが変わり、合わなくなりました。代わりに直してとお願いしてください。',
+    loading: '変更を取っています…',
+    cantReach: 'いまはゲームにつながりません。インターネットを確かめて、もう一度どうぞ。',
+    cantFind: 'そのゲームが見つからないか、共有されていません。持ち主に聞いてください。',
+    broken: 'このゲームには、先に直す問題があります:',
+    tryAgain: 'もう一度',
+    goneTitle: 'もう待っていません',
+  },
+  zh: {
+    checkTitle: (by, n) => `${by}发来 ${n} 处改动，等你检查`,
+    checkAbout: '关卡里已圈出来。放进游戏之前，别人看不到。',
+    playThem: '带着改动玩这一关',
+    stopPlaying: '不玩了',
+    putThem: '放进游戏',
+    askFor: '请对方再改',
+    dontPut: '不放进去',
+    notNow: '现在不要',
+    problemNote: '你仍然可以放进去。',
+    otherChange: '还改了不是关卡的东西，比如角色。',
+    askTitle: (by) => `请${by}改一改`,
+    askAbout: (by, n) =>
+      `说说你想要什么不一样。${by}会连同这 ${n} 处改动一起看到你的话。游戏里什么都不会变。`,
+    askLabel: '你的话',
+    askSend: (by) => `发给${by}`,
+    askBack: '返回',
+    putDoneTitle: '已在游戏里',
+    putDoneAbout: (n) => `现在大家都有这 ${n} 处改动了。`,
+    askedDoneTitle: (by) => `已请${by}再改`,
+    askedDoneAbout: (by) => `${by}会看到你的话，可以再发一次改动。游戏里什么都没变。`,
+    downTitle: (by, n) => `你没有放进${by}的 ${n} 处改动`,
+    downAbout: (by) => `游戏保持原样，${by}会知道。改主意了？点“撤销”。`,
+    undo: '撤销',
+    undone: '它们又在等检查了。',
+    askedTitle: (by) => `${by}请你再改一改`,
+    askedAbout: '改好后，点“发去检查”。',
+    downByTitle: (by) => `${by}没有放进你的改动`,
+    downByAbout: '游戏里什么都没变，你的改动也不在这台设备上。需要重新改一遍。',
+    downByBack: '游戏里什么都没变。你的改动已回到屏幕上：可以直接再发，也可以先改一改。',
+    gotIt: '知道了',
+    checksRunning: '游戏还在检查。请过一分钟再试。',
+    checksFailed: '游戏的检查发现了问题，所以放不进去。',
+    ownChange: '这是你自己的改动，要别人来放进去。',
+    notHere: '这里面不只是关卡，所以不能在这里放进去。',
+    cantApprove: '你可以看这些改动，但不能放进去。',
+    gone: '这些改动已经不在等了。可能有人已放进去，或说了不行。',
+    failNow: '没成功，什么都没变。请过一分钟再试。',
+    noFit: '这些改动做好之后游戏变了，已经对不上了。请改为请对方再改。',
+    loading: '正在取改动…',
+    cantReach: '现在连不上游戏。请检查网络再试一次。',
+    cantFind: '找不到这个游戏，或者没有分享给你。请问问它的所有者。',
+    broken: '这个游戏有需要先修好的问题:',
+    tryAgain: '再试一次',
+    goneTitle: '不在等了',
+  },
+  pt: {
+    checkTitle: (by, n) => `${by} enviou ${n} ${many(n) ? 'mudanças' : 'mudança'} para conferir`,
+    checkAbout: 'Estão marcadas na fase. Ninguém mais vê até você colocar no jogo.',
+    playThem: 'Jogar a fase com elas',
+    stopPlaying: 'Parar de jogar',
+    putThem: 'Colocar no jogo',
+    askFor: 'Pedir uma mudança',
+    dontPut: 'Não colocar',
+    notNow: 'Agora não',
+    problemNote: 'Você ainda pode colocar.',
+    otherChange: 'Também muda algo que não é fase, como um personagem.',
+    askTitle: (by) => `Pedir a ${by} que mude algo`,
+    askAbout: (by, n) =>
+      `Diga o que você quer diferente. ${by} recebe suas palavras junto com ${many(n) ? `as ${n} mudanças` : 'a mudança'}. Nada entra no jogo.`,
+    askLabel: 'Suas palavras',
+    askSend: (by) => `Enviar para ${by}`,
+    askBack: 'Voltar',
+    putDoneTitle: 'No jogo',
+    putDoneAbout: (n) => `Todos já têm ${many(n) ? `as ${n} mudanças` : 'a mudança'}.`,
+    askedDoneTitle: (by) => `Pedido enviado a ${by}`,
+    askedDoneAbout: (by) => `${by} vê suas palavras e pode enviar as mudanças de novo. Nada entrou no jogo.`,
+    downTitle: (by, n) => `Você não colocou ${many(n) ? `as ${n} mudanças` : 'a mudança'} de ${by}`,
+    downAbout: (by) => `O jogo fica como está e ${by} é avisado. Mudou de ideia? Toque em Desfazer.`,
+    undo: 'Desfazer',
+    undone: 'Voltaram a esperar conferência.',
+    askedTitle: (by) => `${by} pediu uma mudança`,
+    askedAbout: 'Mude e toque em Enviar para conferir.',
+    downByTitle: (by) => `${by} não colocou suas mudanças`,
+    downByAbout:
+      'Nada entrou no jogo e suas mudanças não estão neste aparelho. Você precisaria fazê-las de novo.',
+    downByBack: 'Nada entrou no jogo. Suas mudanças voltaram para a tela: envie de novo ou mude antes.',
+    gotIt: 'Entendi',
+    checksRunning: 'O jogo ainda está conferindo. Tente de novo em um minuto.',
+    checksFailed: 'As conferências do jogo acharam um problema, então não dá para colocar.',
+    ownChange: 'São suas. Outra pessoa precisa colocá-las.',
+    notHere: 'Isto mexe em mais que fases, então não dá para colocar aqui.',
+    cantApprove: 'Você pode olhar estas mudanças, mas não pode colocá-las.',
+    gone: 'Estas mudanças não estão mais esperando. Alguém pode ter colocado ou dito não.',
+    failNow: 'Não deu certo. Nada mudou. Tente de novo em um minuto.',
+    noFit: 'O jogo mudou depois que elas foram feitas e já não encaixam. Peça uma mudança.',
+    loading: 'Buscando as mudanças…',
+    cantReach: 'Não dá para chegar ao jogo agora. Veja a internet e tente de novo.',
+    cantFind: 'Não achamos esse jogo, ou ele não foi compartilhado com você. Pergunte ao dono.',
+    broken: 'Este jogo tem problemas que precisam ser consertados primeiro:',
+    tryAgain: 'Tentar de novo',
+    goneTitle: 'Não esperam mais',
+  },
+  fr: {
+    checkTitle: (by, n) => `${by} a envoyé ${n} ${many(n) ? 'changements' : 'changement'} à vérifier`,
+    checkAbout: 'Ils sont entourés sur le niveau. Personne d’autre ne les voit avant que vous les mettiez.',
+    playThem: 'Jouer le niveau avec eux',
+    stopPlaying: 'Arrêter de jouer',
+    putThem: 'Mettre dans le jeu',
+    askFor: 'Demander un changement',
+    dontPut: 'Ne pas les mettre',
+    notNow: 'Pas maintenant',
+    problemNote: 'Vous pouvez quand même les mettre.',
+    otherChange: 'Cela change aussi autre chose qu’un niveau, comme un personnage.',
+    askTitle: (by) => `Demander à ${by} de changer quelque chose`,
+    askAbout: (by, n) =>
+      `Dites ce que vous voudriez de différent. ${by} reçoit vos mots avec ${many(n) ? `les ${n} changements` : 'le changement'}. Rien n’entre dans le jeu.`,
+    askLabel: 'Vos mots',
+    askSend: (by) => `Envoyer à ${by}`,
+    askBack: 'Retour',
+    putDoneTitle: 'Dans le jeu',
+    putDoneAbout: (n) => `Tout le monde a ${many(n) ? `les ${n} changements` : 'le changement'} maintenant.`,
+    askedDoneTitle: (by) => `Demande envoyée à ${by}`,
+    askedDoneAbout: (by) =>
+      `${by} voit vos mots et peut renvoyer les changements. Rien n’est entré dans le jeu.`,
+    downTitle: (by, n) =>
+      `Vous n’avez pas mis ${many(n) ? `les ${n} changements` : 'le changement'} de ${by}`,
+    downAbout: (by) =>
+      `Le jeu reste comme il est et ${by} est prévenu. Vous changez d’avis ? Touchez Annuler.`,
+    undo: 'Annuler',
+    undone: 'Ils attendent de nouveau d’être vérifiés.',
+    askedTitle: (by) => `${by} a demandé un changement`,
+    askedAbout: 'Changez-le, puis touchez Envoyer à vérifier.',
+    downByTitle: (by) => `${by} n’a pas mis vos changements`,
+    downByAbout:
+      'Rien n’est entré dans le jeu et vos changements ne sont pas sur cet appareil. Il faudrait les refaire.',
+    downByBack:
+      'Rien n’est entré dans le jeu. Vos changements sont revenus à l’écran : renvoyez-les, ou changez-les d’abord.',
+    gotIt: 'Compris',
+    checksRunning: 'Le jeu vérifie encore. Réessayez dans une minute.',
+    checksFailed: 'Les vérifications du jeu ont trouvé un problème : on ne peut pas les mettre.',
+    ownChange: 'Ce sont les vôtres. Quelqu’un d’autre doit les mettre.',
+    notHere: 'Cela touche plus que des niveaux : on ne peut pas les mettre ici.',
+    cantApprove: 'Vous pouvez regarder ces changements, mais pas les mettre.',
+    gone: 'Ces changements n’attendent plus. Quelqu’un les a peut-être mis ou refusés.',
+    failNow: 'Ça n’a pas marché. Rien n’a changé. Réessayez dans une minute.',
+    noFit: 'Le jeu a changé depuis, et ils ne vont plus. Demandez plutôt un changement.',
+    loading: 'Récupération des changements…',
+    cantReach: 'Impossible d’atteindre le jeu pour l’instant. Vérifiez internet et réessayez.',
+    cantFind:
+      'Nous ne trouvons pas ce jeu, ou il n’a pas été partagé avec vous. Demandez à son propriétaire.',
+    broken: 'Ce jeu a des problèmes à réparer d’abord :',
+    tryAgain: 'Réessayer',
+    goneTitle: 'Plus en attente',
+  },
+  ru: {
+    checkTitle: (by, n) =>
+      `${by} прислал(а) на проверку: ${n} ${plural(n, 'изменение', 'изменения', 'изменений')}`,
+    checkAbout: 'Они обведены на уровне. Пока вы их не добавите в игру, никто другой их не видит.',
+    playThem: 'Пройти уровень с ними',
+    stopPlaying: 'Хватит играть',
+    putThem: 'Добавить в игру',
+    askFor: 'Попросить изменить',
+    dontPut: 'Не добавлять',
+    notNow: 'Не сейчас',
+    problemNote: 'Добавить всё равно можно.',
+    otherChange: 'Меняется и то, что не уровень, например персонаж.',
+    askTitle: (by) => `Попросить ${by} что-то изменить`,
+    askAbout: (by, n) =>
+      `Напишите, что хотите по-другому. ${by} получит ваши слова вместе с изменениями (${n}). В игру ничего не попадёт.`,
+    askLabel: 'Ваши слова',
+    askSend: (by) => `Отправить: ${by}`,
+    askBack: 'Назад',
+    putDoneTitle: 'В игре',
+    putDoneAbout: (n) => `Теперь у всех есть изменения (${n}).`,
+    askedDoneTitle: (by) => `Просьба отправлена: ${by}`,
+    askedDoneAbout: (by) =>
+      `${by} увидит ваши слова и сможет отправить изменения снова. В игру ничего не попало.`,
+    downTitle: (by, n) => `Вы не добавили изменения от ${by} (${n})`,
+    downAbout: (by) => `Игра остаётся как есть, ${by} узнает. Передумали? Нажмите «Отменить».`,
+    undo: 'Отменить',
+    undone: 'Они снова ждут проверки.',
+    askedTitle: (by) => `${by} просит изменить`,
+    askedAbout: 'Измените и нажмите «Отправить на проверку».',
+    downByTitle: (by) => `${by} не добавил(а) ваши изменения`,
+    downByAbout:
+      'В игру ничего не попало, а ваших изменений нет на этом устройстве. Их придётся сделать заново.',
+    downByBack:
+      'В игру ничего не попало. Ваши изменения вернулись на экран: отправьте их снова или сначала измените.',
+    gotIt: 'Понятно',
+    checksRunning: 'Игра ещё проверяет. Попробуйте через минуту.',
+    checksFailed: 'Проверки игры нашли проблему, поэтому добавить нельзя.',
+    ownChange: 'Это ваши изменения. Добавить их должен кто-то другой.',
+    notHere: 'Тут меняется не только уровень, поэтому здесь добавить нельзя.',
+    cantApprove: 'Изменения можно смотреть, но добавлять нельзя.',
+    gone: 'Эти изменения больше не ждут. Возможно, их добавили или отклонили.',
+    failNow: 'Не получилось. Ничего не изменилось. Попробуйте через минуту.',
+    noFit: 'Игра изменилась с тех пор, и они больше не подходят. Лучше попросите изменить.',
+    loading: 'Получаем изменения…',
+    cantReach: 'Сейчас не получается связаться с игрой. Проверьте интернет и попробуйте снова.',
+    cantFind: 'Мы не нашли эту игру, или ей с вами не поделились. Спросите её владельца.',
+    broken: 'В этой игре есть проблемы, которые нужно сначала исправить:',
+    tryAgain: 'Попробовать снова',
+    goneTitle: 'Больше не ждут',
+  },
+  de: {
+    checkTitle: (by, n) => `${by} hat ${n} ${many(n) ? 'Änderungen' : 'Änderung'} zum Prüfen geschickt`,
+    checkAbout: 'Sie sind im Level eingekreist. Niemand sonst sieht sie, bis du sie ins Spiel nimmst.',
+    playThem: 'Das Level damit spielen',
+    stopPlaying: 'Aufhören zu spielen',
+    putThem: 'Ins Spiel nehmen',
+    askFor: 'Um eine Änderung bitten',
+    dontPut: 'Nicht ins Spiel nehmen',
+    notNow: 'Jetzt nicht',
+    problemNote: 'Du kannst sie trotzdem ins Spiel nehmen.',
+    otherChange: 'Es ändert auch etwas, das kein Level ist, zum Beispiel eine Figur.',
+    askTitle: (by) => `${by} bitten, etwas zu ändern`,
+    askAbout: (by, n) =>
+      `Schreib, was anders sein soll. ${by} bekommt deine Worte zusammen mit ${many(n) ? `den ${n} Änderungen` : 'der Änderung'}. Ins Spiel kommt nichts.`,
+    askLabel: 'Deine Worte',
+    askSend: (by) => `An ${by} schicken`,
+    askBack: 'Zurück',
+    putDoneTitle: 'Im Spiel',
+    putDoneAbout: (n) => `Alle haben ${many(n) ? `die ${n} Änderungen` : 'die Änderung'} jetzt.`,
+    askedDoneTitle: (by) => `${by} wurde gebeten`,
+    askedDoneAbout: (by) =>
+      `${by} sieht deine Worte und kann die Änderungen noch einmal schicken. Ins Spiel kam nichts.`,
+    downTitle: (by, n) =>
+      `Du hast ${many(n) ? `die ${n} Änderungen` : 'die Änderung'} von ${by} nicht ins Spiel genommen`,
+    downAbout: (by) =>
+      `Das Spiel bleibt, wie es ist, und ${by} erfährt es. Anders überlegt? Tippe auf Rückgängig.`,
+    undo: 'Rückgängig',
+    undone: 'Sie warten wieder auf die Prüfung.',
+    askedTitle: (by) => `${by} bittet um eine Änderung`,
+    askedAbout: 'Ändere es und tippe dann auf Zur Prüfung schicken.',
+    downByTitle: (by) => `${by} hat deine Änderungen nicht ins Spiel genommen`,
+    downByAbout:
+      'Ins Spiel kam nichts, und deine Änderungen sind nicht auf diesem Gerät. Du müsstest sie noch einmal machen.',
+    downByBack:
+      'Ins Spiel kam nichts. Deine Änderungen sind wieder auf dem Bildschirm: schick sie noch einmal oder ändere sie erst.',
+    gotIt: 'Verstanden',
+    checksRunning: 'Das Spiel prüft noch. Versuch es in einer Minute noch einmal.',
+    checksFailed: 'Die Prüfungen des Spiels haben ein Problem gefunden, darum geht es nicht.',
+    ownChange: 'Das sind deine. Jemand anderes muss sie ins Spiel nehmen.',
+    notHere: 'Das berührt mehr als Level, darum geht es hier nicht.',
+    cantApprove: 'Du kannst die Änderungen ansehen, aber nicht ins Spiel nehmen.',
+    gone: 'Diese Änderungen warten nicht mehr. Vielleicht hat jemand sie ins Spiel genommen oder abgelehnt.',
+    failNow: 'Das hat nicht geklappt. Nichts wurde geändert. Versuch es in einer Minute noch einmal.',
+    noFit: 'Das Spiel hat sich seitdem geändert, sie passen nicht mehr. Bitte stattdessen um eine Änderung.',
+    loading: 'Änderungen werden geholt…',
+    cantReach: 'Das Spiel ist gerade nicht erreichbar. Prüf das Internet und versuch es noch einmal.',
+    cantFind: 'Wir finden das Spiel nicht, oder es wurde nicht mit dir geteilt. Frag den Besitzer.',
+    broken: 'Dieses Spiel hat Probleme, die zuerst repariert werden müssen:',
+    tryAgain: 'Noch einmal versuchen',
+    goneTitle: 'Warten nicht mehr',
+  },
+} satisfies Area<Key>
+
+/** Russian counts: 1 изменение, 2 to 4 изменения, 5 and more изменений (11 to 14 are the "more"). */
+function plural(n: string | number, one: string, few: string, more: string): string {
+  const k = Number(n)
+  if (k % 10 === 1 && k % 100 !== 11) return one
+  if (k % 10 >= 2 && k % 10 <= 4 && (k % 100 < 12 || k % 100 > 14)) return few
+  return more
+}

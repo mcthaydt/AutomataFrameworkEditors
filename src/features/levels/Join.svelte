@@ -160,14 +160,14 @@
   {/if}
 {/each}
 {#if lit !== undefined && cardSpot !== undefined && !readOnly}
-  <div class="card" data-ui role="group" style:left="{cardSpot.x}px" style:top="{cardSpot.y}px">
+  <div class="card glass-2" data-ui role="group" style:left="{cardSpot.x}px" style:top="{cardSpot.y}px">
     <b>{text(words.thing.joinLine, nameOf(lit.fact.from), nameOf(lit.fact.to))}</b>
     <button type="button" class="take" onclick={takeAway}>{text(words.thing.joinTake)}</button>
     <small>{text(words.thing.joinTakeAbout)}</small>
   </div>
 {/if}
 {#if tool && !noted && !readOnly && drawing === undefined && line === undefined}
-  <p class="hint" data-ui bind:clientWidth={hint.w} bind:clientHeight={hint.h} style:left="{hintSpot.x}px" style:top="{hintSpot.y}px">
+  <p class="hint glass-2" data-ui bind:clientWidth={hint.w} bind:clientHeight={hint.h} style:left="{hintSpot.x}px" style:top="{hintSpot.y}px">
     {switchHere === undefined ? text(words.thing.joinNone) : text(words.thing.joinHint, nameOf(switchHere))}
   </p>
 {/if}
@@ -235,7 +235,7 @@
     height: 14px;
     border-radius: 50%;
     border: 2px solid var(--accent);
-    background: var(--panel);
+    background: var(--ground);
   }
   .hit:focus-visible {
     outline: 3px solid var(--focus, var(--accent));
@@ -247,10 +247,7 @@
     z-index: 45;
     box-sizing: border-box;
     padding: 10px 12px;
-    border: 1px solid var(--glass-edge);
     border-radius: 12px;
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   .card {

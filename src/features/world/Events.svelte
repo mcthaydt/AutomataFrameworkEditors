@@ -16,7 +16,7 @@
 {#if events.length > 0}
   <div class="events" class:low>
     {#each events as event (event.id)}
-      <div class="event {event.kind}" role={event.kind === 'problem' ? 'alert' : 'status'}>
+      <div class="event glass-2 {event.kind}" role={event.kind === 'problem' ? 'alert' : 'status'}>
         <p>{event.text}</p>
         {#if event.details !== undefined && event.details.length > 0}
           <ul>
@@ -60,12 +60,7 @@
     flex-direction: column;
     gap: 8px;
     padding: 12px 14px;
-    border: 1px solid var(--g-edge);
     border-radius: 12px;
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   .event.problem {

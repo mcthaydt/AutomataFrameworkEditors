@@ -4,6 +4,7 @@ import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
 import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  checkWords,
   chooseFromMenu,
   dragByTouch,
   gameMenuRows,
@@ -92,8 +93,8 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await signIn(grandpa.page)
     await chooseFromMenu(grandpa.page, menuWords.waitingRow(1))
     await grandpa.page.locator('a.row').first().click()
-    await grandpa.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
-    await text(grandpa, WORDS.approved)
+    await grandpa.page.getByRole('button', { name: checkWords.putThem, exact: true }).click()
+    await grandpa.page.getByRole('heading', { name: checkWords.putDone, exact: true }).waitFor()
 
     await grandma.page.goto(`${grandma.site}/#/game/grandma/crate-game`)
     await grandma.page.reload()

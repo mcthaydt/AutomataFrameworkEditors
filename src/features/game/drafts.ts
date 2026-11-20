@@ -16,11 +16,15 @@ interface Kept {
   readonly text: string | null
 }
 
-const prefixOf = (game: OpenGame): string => `af.draft:${game.ref.owner}/${game.ref.name}:`
+/** `draft`: what is not put in yet. `sent`: what was sent to be checked, kept until it is told yes or no. */
+export type Shelf = 'draft' | 'sent'
+
+const prefixOf = (game: OpenGame, shelf: Shelf = 'draft'): string =>
+  `af.${shelf}:${game.ref.owner}/${game.ref.name}:`
 
 /** Every key of this game's drafts, whatever is in them. */
-function keysOf(store: Storage, game: OpenGame): string[] {
-  const prefix = prefixOf(game)
+function keysOf(store: Storage, game: OpenGame, shelf: Shelf): string[] {
+  const prefix = prefixOf(game, shelf)
   const keys: string[] = []
   try {
     for (let i = 0; i < store.length; i += 1) {
@@ -75,10 +79,10 @@ function kindOf(game: OpenGame, path: string, isNew: boolean): 'level' | 'world'
 }
 
 /** Writes each changed file, and removes the keys of files that are no longer changed. A full store loses nothing else. */
-export function keepDrafts(store: Storage, game: OpenGame, edits: Edits): void {
+export function keepDrafts(store: Storage, game: OpenGame, edits: Edits, shelf: Shelf = 'draft'): void {
   const wanted = new Set<string>()
   for (const file of toPut(game, edits).files) {
-    const key = `${prefixOf(game)}${file.path}`
+    const key = `${prefixOf(game, shelf)}${file.path}`
     wanted.add(key)
     const kind = kindOf(game, file.path, file.version === undefined) ?? 'level'
     const kept: Kept = {
@@ -92,7 +96,7 @@ export function keepDrafts(store: Storage, game: OpenGame, edits: Edits): void {
       // No room, or no store: the person loses nothing but the convenience.
     }
   }
-  for (const key of keysOf(store, game)) if (!wanted.has(key)) forget(store, key)
+  for (const key of keysOf(store, game, shelf)) if (!wanted.has(key)) forget(store, key)
 }
 
 export interface Taken {
@@ -108,7 +112,7 @@ const idOf = (path: string): string => path.slice(path.lastIndexOf('/') + 1, -'.
  * The changes kept for this game, laid over the game as it is now. A key that holds garbage, or a file the game no
  * longer lists, is removed and the rest is still taken. Undefined when nothing is kept.
  */
-export function takeDrafts(store: Storage, game: OpenGame): Taken | undefined {
+export function takeDrafts(store: Storage, game: OpenGame, shelf: Shelf = 'draft'): Taken | undefined {
   const start = startEdits(game)
   const nowLevels: Record<string, Level> = { ...start.now.levels }
   const baseLevels: Record<string, Level> = { ...start.base.levels }
@@ -117,8 +121,8 @@ export function takeDrafts(store: Storage, game: OpenGame): Taken | undefined {
   const moved: string[] = []
   let taken = 0
 
-  for (const key of keysOf(store, game)) {
-    const path = key.slice(prefixOf(game).length)
+  for (const key of keysOf(store, game, shelf)) {
+    const path = key.slice(prefixOf(game, shelf).length)
     const kept = readKept(store, key)
     const isNew = kept?.version === null
     const kind = kept === undefined ? undefined : kindOf(game, path, isNew)
@@ -168,6 +172,6 @@ export function takeDrafts(store: Storage, game: OpenGame): Taken | undefined {
   return { edits: { base, now, past: [], future: [] }, moved }
 }
 
-export function dropDrafts(store: Storage, game: OpenGame): void {
-  for (const key of keysOf(store, game)) forget(store, key)
+export function dropDrafts(store: Storage, game: OpenGame, shelf: Shelf = 'draft'): void {
+  for (const key of keysOf(store, game, shelf)) forget(store, key)
 }

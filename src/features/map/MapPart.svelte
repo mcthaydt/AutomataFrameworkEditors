@@ -321,7 +321,7 @@
       onfocus={(e) => focused(e, one.id)}
       onkeydown={(e) => key(e, one.id)}
     >
-      {#if one.rect.w >= 84 && one.rect.h >= 40}<span class="name">{nameOf(one.id)}</span>{/if}
+      {#if one.rect.w >= 84 && one.rect.h >= 40}<span class="name glass-1">{nameOf(one.id)}</span>{/if}
     </button>
   {/each}
   <MapMarks
@@ -335,13 +335,13 @@
     onwall={(one) => floats?.wall(one.a, one.b)}
   />
   <MapKey {lang} walls={walls.length > 0} />
-  <button type="button" class="new" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
-  <button type="button" class="whole" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
+  <button type="button" class="new glass-1" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
+  <button type="button" class="whole glass-1" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
     {text(words.wholeWorld)}
   </button>
 
   {#if drag !== undefined && dropping !== undefined}
-    <p class="landing" class:over={dropping.kind === 'overlap'} role="status">{landingWords(dropping, everything)}</p>
+    <p class="landing glass-2" class:over={dropping.kind === 'overlap'} role="status">{landingWords(dropping, everything)}</p>
   {/if}
 
   <MapFloats
@@ -417,7 +417,6 @@
     white-space: nowrap;
     padding: 2px 8px;
     border-radius: 8px;
-    background: var(--glass-soft);
     font-size: 13px;
     pointer-events: none;
   }
@@ -438,14 +437,12 @@
     margin: 0;
     padding: 8px 14px;
     border-radius: 12px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
     color: var(--words);
     font-size: 14px;
     pointer-events: none;
   }
   .landing.over {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .whole[aria-pressed='true'] {
     box-shadow: inset 0 0 0 2px var(--accent);
@@ -463,9 +460,7 @@
     z-index: 20;
     min-height: 44px;
     padding: 0 14px;
-    border: 1px solid var(--glass-edge);
     border-radius: 12px;
-    background: var(--panel);
     color: var(--words);
     font: inherit;
     cursor: pointer;

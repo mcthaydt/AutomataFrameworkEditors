@@ -10,7 +10,7 @@
   let { question, yes, no, onyes, onno }: Props = $props()
 </script>
 
-<div class="ask" role="alertdialog" aria-label={question}>
+<div class="ask glass-2" role="alertdialog" aria-label={question}>
   <p>{question}</p>
   <div class="row">
     <button type="button" onclick={onno}>{no}</button>
@@ -26,9 +26,6 @@
     max-width: min(340px, calc(100vw - 32px));
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   p {

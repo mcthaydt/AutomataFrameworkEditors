@@ -14,7 +14,7 @@
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
 </script>
 
-<div class="key" role="group" aria-label={text(words.keyLabel)}>
+<div class="key glass-1" role="group" aria-label={text(words.keyLabel)}>
   <span><i class="bar join"></i><Icon name="arrows-left-right" size={14} />{text(words.keyJoin)}</span>
   {#if walls}
     <span><i class="bar wall"></i><Icon name="warning" size={14} />{text(words.keyWall)}</span>
@@ -36,10 +36,6 @@
     max-width: calc(100% - 16px);
     padding: 8px 14px;
     border-radius: 12px;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
     box-shadow: var(--g-shine);
     color: var(--words);
     font-size: 13px;

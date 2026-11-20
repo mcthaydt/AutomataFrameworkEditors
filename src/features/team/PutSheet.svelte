@@ -1,11 +1,14 @@
 <script lang="ts">
   // Putting changes in the game, or sending them to be checked. It lists what changed, the game's problems first, and
   // has one main button. When it could not go it says what happened and that nothing is lost; when it went it says so.
+  import type { GameContent } from '@automataframework/framework/headless'
   import type { ChangeLine, Problem } from '../game/game.ts'
   import { Action, Sheet } from '../ui/ui.ts'
+  import type { OpenPicture } from '../wire/wire.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
+  import Clash from './Clash.svelte'
   import Lines from './Lines.svelte'
-  import type { Failure, Phase } from './sheets.ts'
+  import type { ClashSet, Failure, Phase } from './sheets.ts'
 
   interface Props {
     lang: Lang
@@ -23,9 +26,13 @@
     waiting: boolean
     gameName: string
     failure: Failure | undefined
-    /** What came in from the game while the person worked, and how many of their own it did not take. */
+    /** What came in from the game while the person worked. */
     came: number
-    clashes: number
+    /** Where two people changed one thing, to be answered before anything goes in. */
+    clash: ClashSet | undefined
+    content: GameContent
+    pictures: readonly OpenPicture[]
+    onchoose: (at: number, whose: 'mine' | 'theirs') => void
     onput: () => void
     onshow: (problem: Problem) => void
     ontakeback: () => void
@@ -44,7 +51,10 @@
     gameName,
     failure,
     came,
-    clashes,
+    clash,
+    content,
+    pictures,
+    onchoose,
     onput,
     onshow,
     ontakeback,
@@ -58,14 +68,16 @@
   const n = $derived(lines.length)
   const first = $derived(problems[0])
   const blocked = $derived(stops && problems.length > 0)
-  /** Everything the person changed clashed with the game: the game's version is kept and there is nothing to put in. */
-  const onlyClash = $derived(phase === 'ask' && n === 0 && clashes > 0)
+  /** Some clash has no answer yet: nothing goes in until each has one. */
+  const asking = $derived(clash !== undefined && clash.list.some((_, at) => clash.answers[at] === undefined))
+  /** Every clash was answered for the game's side, and nothing else is left to put in. */
+  const nothingLeft = $derived(phase === 'ask' && clash !== undefined && !asking && n === 0)
   /** The game no longer lets them change it: trying again cannot work. */
   const lookOnly = $derived(failure?.problem === 'not-allowed')
 
   const title = $derived(
-    onlyClash
-      ? text(c.clashTitle)
+    asking && clash !== undefined
+      ? text(words.whose.whoseTitle, clash.list.filter((_, at) => clash.answers[at] !== undefined).length + 1, clash.list.length)
       : phase === 'done'
       ? text(c.doneTitle)
       : phase === 'sent'
@@ -108,7 +120,7 @@
   )
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet {title} close={text(words.shell.close)} {onclose} side>
     {#if phase === 'done'}
       <p>{text(c.doneAbout, gameName, n)}</p>
@@ -124,14 +136,25 @@
         </ul>
       {/if}
       <Lines {words} {lines} />
-    {:else if onlyClash}
-      <p role="status">{text(c.clashed, clashes)}</p>
     {:else}
-      <p>
+      {#if clash === undefined}<p>
         {#if kind === 'put'}{text(c.putAbout, text(c.onDevice, device))}{:else if waiting}{text(c.waitMoreAbout, n)}{:else}{text(c.sendAbout, by, text(c.onDevice, device))}{/if}
-      </p>
+      </p>{/if}
       {#if came > 0}<p class="note" role="status">{text(c.cameIn, came)}</p>{/if}
-      {#if clashes > 0}<p class="note" role="status">{text(c.clashed, clashes)}</p>{/if}
+      {#if clash !== undefined}
+        <Clash
+          {lang}
+          clashes={clash.list}
+          mine={clash.mine}
+          theirs={clash.theirs}
+          answers={clash.answers}
+          by={clash.by}
+          {content}
+          {pictures}
+          {onchoose}
+        />
+      {/if}
+      {#if nothingLeft}<p role="status">{text(wordsIn(lang).whose.nothingLeft)}</p>{/if}
       {#if first !== undefined}
         <div class="problem" role="alert">
           <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {first.words}</b>
@@ -143,10 +166,10 @@
       {#if kind === 'send' && !waiting}<p class="after">{text(c.afterSend, by)}</p>{/if}
     {/if}
     {#snippet foot()}
-      {#if onlyClash}
+      {#if nothingLeft}
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
       {:else if phase === 'ask'}
-        <Action label={mainWords} kind="main" disabled={blocked} onpress={onput} />
+        <Action label={mainWords} icon="check" kind="main" disabled={blocked || asking} onpress={onput} />
         <Action label={text(c.notYet)} onpress={onclose} />
       {:else if phase === 'failed' && lookOnly}
         <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
@@ -168,7 +191,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

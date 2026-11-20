@@ -52,7 +52,7 @@
   const levelName = $derived(level === undefined ? '' : nameOf(level))
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet
     title={kept === 'file' ? text(k.keptTitle, levelName) : text(k.keepTitle)}
     close={text(words.shell.close)}
@@ -97,7 +97,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;
