@@ -111,15 +111,42 @@ async function gameAs(size: Size, person: Person): Promise<JourneyPage> {
 }
 async function openFirstChange(j: JourneyPage): Promise<void> {
   await chooseFromMenu(j.page, menuWords.waitingRow(1))
-  await j.page.getByRole('heading', { level: 1, name: WORDS.waitingTitle }).waitFor()
+  await j.page.getByRole('dialog', { name: WORDS.waitingTitle }).waitFor()
   await j.page.locator('a.row').first().click()
+  await j.page.getByRole('dialog', { name: WORDS.waitingTitle }).waitFor({ state: 'detached' })
   await thingNamed(j.page, 'crate-1').waitFor()
 }
 /** The sheet that says the changes are in the game (its words also sit in a button, so the heading is waited for). */
 const done = (j: JourneyPage) => j.page.getByRole('heading', { name: C.putDone, exact: true }).waitFor()
 const button = (j: JourneyPage, name: string) => j.page.getByRole('button', { name, exact: true })
+// The top bar is on screen now and has its own Undo: the sheet's is the one in the dialog.
+const sheetButton = (j: JourneyPage, name: string) =>
+  j.page.getByRole('dialog').getByRole('button', { name, exact: true })
 
 describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
+  test('"1 to check" opens a sheet over the level, with the top bar still there, and the change is ringed on the level', async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    // The list is a sheet: the level and the top bar are still on screen under it.
+    await g.page.getByRole('dialog', { name: WORDS.waitingTitle }).waitFor()
+    await thingNamed(g.page, 'crate-1').waitFor()
+    await g.page.locator('[data-bar]').waitFor()
+    await g.page.locator('a.row').first().click()
+    // One change: still a sheet, still the top bar, the crate ringed where kid put it.
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    await g.page.locator('[data-bar]').waitFor()
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-marked')).toBe('')
+    // At the phone's size the sheet must not cover the ringed crate.
+    const crate = await thingNamed(g.page, 'crate-1').boundingBox()
+    const sheet = await g.page.getByRole('dialog').boundingBox()
+    expect(
+      crate !== null &&
+        sheet !== null &&
+        (crate.y + crate.height <= sheet.y + 1 || crate.x + crate.width <= sheet.x + 1),
+    ).toBe(true)
+  })
+
   test('grandpa opens the game, sees "1 change is waiting", opens it, and sees the crate ringed where kid put it', async () => {
     await kidHasSaved(size)
     const g = await gameAs(size, 'grandpa')
@@ -128,6 +155,103 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe('8.5')
     expect(await thingNamed(g.page, 'crate-1').getAttribute('data-marked')).toBe('')
     await text(g, C.moved)
+  })
+
+  test('with one change waiting, "Not now" on it goes back to the level; the tip about it is held back while it is open', async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await g.page.getByText(WORDS.tipApprove).waitFor()
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    // The tip is about this very change: no part of it shows beside the sheet.
+    expect(await g.page.getByText(WORDS.tipApprove).count()).toBe(0)
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.getByRole('dialog').waitFor({ state: 'detached' })
+    await thingNamed(g.page, 'crate-1').waitFor()
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe('6.5')
+  })
+
+  test('with two changes waiting, "Not now" on one goes back to the list of two', async () => {
+    await kidHasSaved(size)
+    const other = await window_(size, 'stranger', true)
+    await signIn(other.page)
+    await openLevel(other.page)
+    await dragByTouch(other.page, 'crate-1', { dx: 3, dy: 0 })
+    await putThemIn(other.page, 'suggestion')
+    const g = await gameAs(size, 'grandpa')
+    await chooseFromMenu(g.page, menuWords.waitingRow(2))
+    await g.page.locator('a.row').nth(1).waitFor()
+    await g.page.locator('a.row').first().click()
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.locator('a.row').nth(1).waitFor()
+    expect(await g.page.locator('a.row').count()).toBe(2)
+  })
+
+  test("while someone's change is open, no key changes the person's own work behind it", async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await openLevel(g.page)
+    await dragByTouch(g.page, 'crate-1', { dx: 1, dy: 0 })
+    const own = await thingNamed(g.page, 'crate-1').getAttribute('data-x')
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    // Keys reach the page when focus is on nothing in particular, as after a tap on the level.
+    await g.page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    for (const key of [
+      'Delete',
+      'Backspace',
+      'ArrowLeft',
+      'ArrowRight',
+      'Control+c',
+      'Control+v',
+      'Control+d',
+      'e',
+      'Control+Shift+z',
+      'Control+y',
+      'Control+z',
+    ]) {
+      await g.page.keyboard.press(key)
+    }
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.getByRole('dialog').waitFor({ state: 'detached' })
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe(own)
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe(own)
+  })
+
+  test("while someone's change is open, the top bar's Undo, Redo and put-in buttons are held back and say why", async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await openLevel(g.page)
+    await dragByTouch(g.page, 'crate-1', { dx: 1, dy: 0 })
+    const bar = g.page.locator('[data-bar]')
+    // A phone's bar has no Undo or Redo: its tool bar does, and that is put away while a change is open.
+    const undo = bar.getByRole('button', { name: 'Undo', exact: true })
+    const inBar = (await undo.count()) > 0
+    if (inBar) expect(await undo.getAttribute('aria-disabled')).toBeNull()
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    if (inBar) {
+      for (const name of ['Undo', 'Redo']) {
+        expect(await bar.getByRole('button', { name, exact: true }).getAttribute('aria-disabled')).toBe(
+          'true',
+        )
+      }
+    }
+    const put = bar.locator('[data-tour="main"]')
+    expect(await put.getAttribute('aria-disabled')).toBe('true')
+    expect(await put.getAttribute('title')).toBe(said(W.bar.heldWhy))
   })
 
   test("grandpa approves: Approved; the game now has kid's crate; nothing is waiting", async () => {
@@ -355,7 +479,7 @@ test('grandpa says no at once, undoes it, says no again; kid is told who, and "G
   expect(repoOf(g).pulls[0]?.state).toBe('closed')
   // The branch is kept, so Undo can bring the change back to wait again.
   expect(repoOf(g).branches.has('automata/kid')).toBe(true)
-  await button(g, C.undo).click()
+  await sheetButton(g, C.undo).click()
   await button(g, C.putThem).waitFor()
   expect(repoOf(g).pulls[0]?.state).toBe('open')
   await button(g, C.dontPut).click()

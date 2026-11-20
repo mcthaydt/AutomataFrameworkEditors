@@ -21,14 +21,13 @@
     game: GameRef
     number: number
     lang: Lang
-    size: string
     onsignedout: () => void
     /** Back to the list of what waits. */
     onback: () => void
     /** Back to the level. */
     onhome: () => void
   }
-  let { api, game: ref, number, lang, size, onsignedout, onback, onhome }: Props = $props()
+  let { api, game: ref, number, lang, onsignedout, onback, onhome }: Props = $props()
 
   type Step = 'look' | 'ask' | 'put' | 'asked' | 'down' | 'taken' | 'gone'
   let opened = $state.raw<Opened | undefined>(undefined)
@@ -161,8 +160,7 @@
   const gone = $derived(step === 'gone' || (failed === 'not-found' && opened?.ok === true))
 </script>
 
-<div class="look check" {lang} data-size={size}>
-  <h1 class="sr">{change === undefined ? text(c.loading) : text(c.checkTitle, by, count)}</h1>
+<div class="check" {lang}>
   {#if game !== undefined && level !== undefined && levelId !== undefined && !gone}
     <div class="level">
       {#if playing && edits !== undefined}
@@ -289,22 +287,26 @@
 </div>
 
 <style>
+  /* Over the editor's level, under its top bar: the changed level is drawn in the same place, and only the sheet takes touches. */
   .check {
-    position: relative;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+  }
+  .check :global(.sheet),
+  .stop,
+  .level {
+    pointer-events: auto;
   }
   /* The changed level, under the glass. */
   .level {
     isolation: isolate; /* the rings stay under the sheet */
     position: absolute;
-    inset: 0;
+    inset: calc(var(--bar) + 20px) 0 0;
     display: flex;
     flex-direction: column;
-    padding: 8px;
+    padding: 0 8px 8px;
   }
   /* A phone's sheet comes up from the foot: the level is drawn above it, so the rings are not hidden. */
   @media (max-width: 500px) {
@@ -324,14 +326,12 @@
       width: min(400px, 36%);
     }
   }
-  .sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  /* A side sheet starts below the top bar, so it is cut to the room under it: one that is taller would be scrolled into
+     view, and the whole page with it. */
+  @media (min-width: 501px) {
+    .check :global(.sheet) {
+      max-height: calc(100% - var(--bar) - 28px);
+    }
   }
   .stop {
     position: absolute;
