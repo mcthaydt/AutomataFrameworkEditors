@@ -18,6 +18,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 08:35 UTC: the website demo is merged and live under the Owner's 07:39 UTC yes: Examples #81 as `f551ea3` (reviewed
+  head `c002f6d`), Site #63 as `e9c29e6` (reviewed head `b048686` plus a merge of main that brought only rules and CI
+  files). Deploy run 44702098181 green; the live `version.json` reads site `e9c29e6`, game `f551ea3`; the live page
+  shows the World section and /play/ seats two players with each one's keys (pictures `screens/site-world/live-*.png`).
+  Still to write: the Examples and Site `progress.md` lines and the Site's Firefox font flake (run 44684445315) in its
+  `history.md`, at the slice end. #129's review at `0303b2c`: one red (the "Got it" card stays up beside the sheet)
+  and, Agent-selected, two notes taken as fixes ("Not now" with one change waiting returns to the level; the top
+  bar's Undo and "Send to check" do not act unseen while a change is checked).
 - 2026-11-20 08:31 UTC: main was red at `beb379b` (the docs-only merge #127) on one Chromium test from PR 18, green at `8dccec5`
   under it: a readiness wait with a 1 s bound (see "Flaky tests" in `history.md`). PR 18's builder found the cause and
   fixed it in #130 (lane 1, test only, merge `39e5c84`). For under an hour four sessions held a writer place by a
