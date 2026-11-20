@@ -72,9 +72,8 @@
     }
   })
 
-  /** Looks at a game when its row first comes into view. With GitHub out of reach nothing is opened: the row keeps its tile. */
+  /** Looks at a game when its row first comes into view. */
   function whenSeen(node: HTMLElement, game: GameRef): { destroy: () => void } {
-    if (trouble) return { destroy: () => {} }
     const watcher = new IntersectionObserver((found) => {
       if (!found.some((one) => one.isIntersecting)) return
       watcher.disconnect()
@@ -130,8 +129,6 @@
         {#if shown.length === 0}
           <p>{text(t.gamesNoMatch)}</p>
         {:else}
-          <!-- Keyed by `trouble`: when "Try again" works, the rows are made again and look at their games. -->
-          {#key trouble}
           <ul class="list">
             {#each shown as game (keyOf(game))}
               {@const one = seen[keyOf(game)]}
@@ -153,7 +150,6 @@
               </li>
             {/each}
           </ul>
-          {/key}
         {/if}
         <p class="quiet">{text(t.gamesAsk)}</p>
         <div><Action label={text(t.gamesAdd)} icon="plus" onpress={onadd} /></div>
