@@ -37,6 +37,7 @@
 import { listen, measure } from './listen.ts'
   import { createLook } from './look.svelte.ts'
   import Panels from './Panels.svelte'
+  import { placesOf } from './places.ts'
   import Sheets from './Sheets.svelte'
 import Team from './Team.svelte'
   import { playTip, tipKept } from './tips.ts'
@@ -314,35 +315,26 @@ import Team from './Team.svelte'
     then?.()
   }
 
-  /** Opens the level or the map at a problem, and picks the thing it is about. */
-  function show(where: Problem['where']): void {
-    if (where.map === true) {
-      pickedLevel = levelId
-      go({ screen: 'map', ...here, level: levelId })
-      return
-    }
-    if (where.level !== undefined && (where.level !== levelId || onMap)) {
-      go({ screen: 'level', ...here, level: where.level })
-    }
-    picked = where.thing === undefined ? [] : [where.thing]
-  }
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
-  /** "Show me" on a change in the history: its level, or the map, with the sheet shut. */
-  function showChange(opening: { level: string } | { map: true }): void {
-    if ('map' in opening) {
-      pickedLevel = levelId
-      go({ screen: 'map', ...here, level: levelId })
-    } else {
-      go({ screen: 'level', ...here, level: opening.level })
-    }
-    picked = []
-  }
-  /** Opens `next` with the door you come out of picked, when it has one there. */
-  const goLevel = (next: string, door?: string): void => {
-    go({ screen: 'level', ...here, level: next })
-    picked = edits.now.levels[next]?.things.some((t) => t.id === door) ? [door as string] : []
-  }
-  const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
+  const { goLevel, asSheet, onmap, onpart, show, showChange } = placesOf({
+    go: (next) => go(next),
+    game: () => here,
+    levelId: () => levelId,
+    onMap: () => onMap,
+    edits: () => edits,
+    get pickedLevel() {
+      return pickedLevel
+    },
+    set pickedLevel(next) {
+      pickedLevel = next
+    },
+    get picked() {
+      return picked
+    },
+    set picked(next) {
+      picked = next
+    },
+  })
 
   function onmenu(id: string): void {
     if (id === 'people') asSheet({ kind: 'people' })
@@ -355,24 +347,6 @@ import Team from './Team.svelte'
     else if (id === 'sign-out') onsignout()
   }
   const onmain = (what: 'put' | 'send' | 'keep' | 'waiting'): void => changes?.open(what)
-  function onpart(id: string): void {
-    if (id === 'part:levels') {
-      if (onMap) go({ screen: 'level', ...here, level: pickedLevel ?? levelId })
-      return
-    }
-    if (id === 'map') return onmap()
-    if (!id.startsWith('level:')) return
-    const next = id.slice('level:'.length)
-    // Another level is another file of the same game: nothing is left behind, so nothing is asked.
-    if (next !== levelId || onMap) go({ screen: 'level', ...here, level: next })
-  }
-  /** The Map button: the map when a level is open, the level that was open when the map is. */
-  function onmap(): void {
-    if (onMap) return go({ screen: 'level', ...here, level: pickedLevel ?? levelId })
-    pickedLevel = levelId
-    go({ screen: 'map', ...here, level: levelId })
-  }
-
   const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
