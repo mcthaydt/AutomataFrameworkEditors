@@ -18,6 +18,12 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 08:31 UTC: main was red at `beb379b` (the docs-only merge #127) on one Chromium test from PR 18, green at `8dccec5`
+  under it: a readiness wait with a 1 s bound (see "Flaky tests" in `history.md`). PR 18's builder found the cause and
+  fixed it in #130 (lane 1, test only, merge `39e5c84`). For under an hour four sessions held a writer place by a
+  strict count (PR 19, the check sheet, this fix, and the demo's builder doing its two approved merges); said to the
+  coordinator at the time. The walk's R6 is built as #129 (draft, in review); Examples #81 merged as `f551ea3`.
+  A merged branch `claude/draw-flake` is left on the remote (its delete was refused to the session).
 - The Owner's, 2026-11-20 07:39 UTC (decision card "Merge the website demo, which moves two recorded plays and puts
   the site live?"): "Merge both". Scope: Examples #81 at `c002f6d` (level-1 and level-2 recorded plays as above) and
   Site #63 at `b048686`, whose merge deploys. The demo's builder merges the test game first, then the Site, and checks
