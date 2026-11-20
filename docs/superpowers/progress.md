@@ -1,17 +1,31 @@
 # Progress
 
-Last updated: 2026-11-20 14:23 UTC (from `date`).
+Last updated: 2026-11-20 15:40 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
-Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); what is left is the
-slice end (design review rounds, the blind judge, the Owner's looks and walk, the retrospective). The plan, its spec and its plan
+Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); the slice is
+**stopped, not closed**, by the Owner on 2026-11-20 15:37 UTC, after design review round 1. What is left, and all a new
+project needs, is in `docs/superpowers/handoff/2026-11-20-world-slice-handoff.md`. The plan, its spec and its plan
 audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/plans/2026-11-16-world-editor.md`, `docs/superpowers/specs/2026-11-16-world-editor-design.md` and
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
 
+- The Owner's, 2026-11-20 15:37 UTC (project chat; recorded 2026-11-20 15:40 UTC), to the coordinator's "The best place to stop is
+  right now. […] To wrap up, I'd have the fix PR paused, the docs PR with both reviews and the handoff notes merged,
+  and everything else closed. Want me to do that?": "yes". So the slice stops here, unclosed. Done on it: the round 1
+  fix work is paused on branch `claude/project-thread-c709zh` (head `4f0384d3`, group 1 of 5 in code, unfinished, no
+  pull request, not merged); the handoff for the new project is `docs/superpowers/handoff/2026-11-20-world-slice-handoff.md`,
+  with the three layout sketches the Owner has not been shown beside it. Not done, and left to the new project: the
+  fixes for round 1's 37 reds, round 2, the blind judge, the screens page and the Owner's looks and walk, the design
+  drift check, the retrospective, moving finished lines to `history.md`, the native-speaker reads.
+- 2026-11-20 15:40 UTC: checks. Main at `fa3a853` (#128) is green on its second attempt (run 44748205225). Main at `746c2ca` (#138,
+  documents) ended red in run 44755204131: `browsers (webkit 5/6)` was cancelled in `playwright install-deps webkit`
+  after 30 minutes, before any test ran (the slow mirror again); not re-run, since this pull request makes a newer
+  run. Examples #82 (documents) merged as `0d65e4e` at 14:59 UTC, main green. Site #64 (documents, with the Firefox
+  font flake recorded) merged as `b04483b` at 15:07 UTC; its deploy is green (run 44760075525).
 - Owner instruction (2026-11-20 02:03 UTC, project chat): "Finish the slice, I'm going to sleep". The slice lead drives
   the open pull requests to merge and carries on down the list overnight, keeping sessions and screenshot runs lean
   (the Owner is watching usage). Held for the Owner: lane 3 steps, the website demo's recorded plays (the Owner sees
@@ -29,6 +43,19 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 14:44 UTC: design review round 1 (step 1 of `visual-check`, Fable 5.2, medium, two batches, main `fa3a853`) is done:
+  416 pictures looked at one by one, 37 reds (34 distinct) and 30 notes. Audits
+  `2026-11-20-slice-3-design-review-round-1-a.md` (20 reds: cards lying on cards on the map with a problem, the top
+  bar cutting names in 59 of 130 pictures, the visitor's Undo note under the tip, the game menu taller than a phone,
+  sheets over the level at phone sideways) and `-b.md` (17 reds: the check sheet at phone sideways and iPad upright,
+  "With kid, to check" shown to kid, "Not waiting any more" losing the level, words and buttons that disagree).
+  Batch B's push was refused by its session's permission check; its file is carried from the patch it left in the
+  shared folder. The fixes go to the session that built the screens (#128's builder), one pull request, pushed group
+  by group; its estimate is 9 to 12 hours plus CI, said to the Owner. Agent-selected: A20 is not a fault in its words
+  (a real iPad already reads "only on this iPad"); R7 follows the sketch; no red needs the Owner. For the Owner's
+  first look: dialogs measure as good as solid (6 to 10 percent shows through), as the layer-3 tokens the Owner was
+  shown give. #138 (docs) merged as `746c2ca`. Main's run at `fa3a853` lost `webkit 5/6` to the slow mirror once and
+  is on its re-run.
 - 2026-11-20 14:23 UTC: plan PR 19 is merged: #128, merge `fa3a853` at 13:52 UTC (reviewed and integration head `34c63a53`,
   tested with main `ffa5fa2`, four review cycles). With it: every World journey at the five sizes, the walk's R1 to
   R5 fixed (R5 through the framework's `Game.levelAt`, pin `2cbd6d0`), the four issue pictures. Task 44's documents
@@ -404,6 +431,11 @@ None.
 
 ### Open items
 
+- The Owner's, 2026-11-20 15:16 to 15:18 UTC (project chat; recorded 2026-11-20 15:18 UTC): asked "did we end up doing the migration
+  to e2e tests to reduce test load?" (answer given: never raised, planned or done; only the `build` skill's rule that a
+  changed journey gets a journey test first), then "I see, let me know when our slice is complete; we'll do new claude
+  project with updated workflow". So when the World slice is complete the Owner is told, and the slice-end handoff
+  notes are written so a fresh project can start from them.
 - The Owner's, 2026-11-20 13:54 to 13:57 UTC (project chat; recorded 2026-11-20 13:57 UTC): a list of toolchain and CI
   speed-ups ("We doing this?"), then "After ruken", then "We'll actually refrresh the project with a fresh workflow
   pulling from mcthaydt-website so don't even worry about it". So the list is not tracked here and nothing is built
