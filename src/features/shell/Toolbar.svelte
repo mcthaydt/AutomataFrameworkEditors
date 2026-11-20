@@ -1,6 +1,6 @@
 <script lang="ts">
-  // The five tools every editor shares, as buttons with a word under each; a tool with no job in this editor is not
-  // drawn. Down the left edge on an iPad held sideways and a phone on its side, along the bottom elsewhere. On an
+  // The five tools every editor shares, as icons (the Owner, 2026-11-17: icons over words), each with its name spoken and
+  // as a tooltip, and its key under it on a computer; a tool with no job in this editor is not drawn. Down the left edge on an iPad held sideways and a phone on its side, along the bottom elsewhere. On an
   // upright phone, where the top bar has no room, it also holds Undo and Redo.
   import { Dock, Icon, type IconName } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
@@ -72,9 +72,16 @@
 <Dock label={text(words.panels.toolbarLabel)} side={mirror && side === 'left' ? 'right' : side} fit={!undoHere}>
   <div class="tools" class:column={side === 'left'} class:rows={undoHere} class:pair={twoColumns}>
   {#each shown as one (one)}
-    <button type="button" class="tool" class:on={one === tool} aria-pressed={one === tool} onclick={() => onpick(one)}>
-      <Icon name={ICON[one]} />
-      <span>{text(words.panels[NAME[one]])}</span>
+    <button
+      type="button"
+      class="tool"
+      class:on={one === tool}
+      aria-pressed={one === tool}
+      aria-label={text(words.panels[NAME[one]])}
+      title={text(words.panels[NAME[one]])}
+      onclick={() => onpick(one)}
+    >
+      <Icon name={ICON[one]} size={24} />
       {#if keys}<kbd>{keyOf(one)}</kbd>{/if}
     </button>
   {/each}
@@ -84,21 +91,21 @@
     <i class="rule"></i>
   {/if}
   {#if onlist}
-    <button type="button" class="tool plain" aria-label={text(words.panels.listLabel)} onclick={onlist}>
-      <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
+    <button type="button" class="tool plain" aria-label={text(words.panels.listLabel)} title={text(words.panels.listLabel)} onclick={onlist}>
+      <Icon name="list" size={24} />
     </button>
   {/if}
   {#if undoHere}
-    <button type="button" class="tool plain" aria-label={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
-      <Icon name="arrow-counter-clockwise" /><span>{text(words.shell.undo)}</span>
+    <button type="button" class="tool plain" aria-label={text(words.shell.undo)} title={text(words.shell.undo)} aria-disabled={canUndo ? undefined : 'true'} onclick={() => { if (canUndo) onundo() }}>
+      <Icon name="arrow-counter-clockwise" size={24} />
     </button>
-    <button type="button" class="tool plain" aria-label={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
-      <Icon name="arrow-clockwise" /><span>{text(words.shell.redo)}</span>
+    <button type="button" class="tool plain" aria-label={text(words.shell.redo)} title={text(words.shell.redo)} aria-disabled={canRedo ? undefined : 'true'} onclick={() => { if (canRedo) onredo() }}>
+      <Icon name="arrow-clockwise" size={24} />
     </button>
   {/if}
   {#if onshow}
-    <button type="button" class="tool plain" class:on={showOpen} aria-pressed={showOpen} onclick={onshow}>
-      <Icon name="eye" /><span>{text(words.ground.showTitle)}</span>
+    <button type="button" class="tool plain" class:on={showOpen} aria-pressed={showOpen} aria-label={text(words.ground.showTitle)} title={text(words.ground.showTitle)} onclick={onshow}>
+      <Icon name="eye" size={24} />
     </button>
   {/if}
 </div>
@@ -168,8 +175,7 @@
     height: 1px;
     margin: 4px 0;
   }
-  /* An upright phone has two rows: the tools, then the list, Undo, Redo and Show, each with its name. At about 390 points
-     wide the five tools keep their names smaller, so the longest in every language still fits its button. */
+  /* An upright phone has two rows: the tools, then the list, Undo, Redo and Show. */
   .rows {
     flex-wrap: wrap;
   }

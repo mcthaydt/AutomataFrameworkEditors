@@ -31,7 +31,7 @@
   ])
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet title={text(k.keysTitle)} close={text(words.shell.close)} {onclose}>
     <section aria-labelledby="keys-finger">
       <h3 id="keys-finger">{text(k.keysWithFinger)}</h3>
@@ -57,7 +57,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   h3 {
     margin: 12px 0 4px;

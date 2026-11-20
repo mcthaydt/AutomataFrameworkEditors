@@ -217,14 +217,14 @@
         {onbig}
       />
       {#if playing.doorsShut}
-        <div class="note" role="status">
-          <Icon name="door" /><span>{text(wordsIn(lang).play.noDoors)}</span>
+        <div class="note glass-2" role="status">
+          <Icon name="door" size={22} /><span>{text(wordsIn(lang).play.noDoors)}</span>
         </div>
       {/if}
     </div>
     {#if picking}
-      <div class="pick" role="status" data-play="pick-strip">
-        <Icon name="map-pin" /><span>{text(wordsIn(lang).play.hereAbout)}</span>
+      <div class="pick glass-2" role="status" data-play="pick-strip">
+        <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
         <button type="button" data-play="pick-cancel" onclick={() => (picking = false)}>
           {text(wordsIn(lang).play.cancel)}
         </button>
@@ -268,11 +268,6 @@
     gap: 8px;
     padding: 8px 12px;
     border-radius: 12px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   .pick {

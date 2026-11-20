@@ -24,7 +24,7 @@
   ])
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet title={text(words.first.welcomeTitle)} close={text(words.shell.close)} onclose={onself}>
     <p class="lead">{text(words.first.welcomeBody, game)}</p>
     <ol>
@@ -48,7 +48,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   .lead {
     margin: 0 0 12px;

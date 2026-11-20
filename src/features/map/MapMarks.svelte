@@ -97,7 +97,7 @@
 {/each}
 {#if start !== undefined}
   <span
-    class="start"
+    class="start glass-1"
     role="img"
     data-mark="start"
     data-on={start.level}
@@ -180,7 +180,6 @@
     transform: translateY(-100%);
     padding: 2px 8px 2px 6px;
     border-radius: 8px;
-    background: var(--glass-soft);
     color: var(--words);
     font-size: 12px;
     pointer-events: none;

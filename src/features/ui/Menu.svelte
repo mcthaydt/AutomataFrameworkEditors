@@ -42,7 +42,7 @@
   }
 </script>
 
-<div class="menu" role="menu" tabindex="-1" bind:this={list} onkeydown={keys}>
+<div class="menu glass-2" role="menu" tabindex="-1" bind:this={list} onkeydown={keys}>
   {#if head}<div class="head">{@render head()}</div>{/if}
   {#each items as item (item.id)}
     {#if item.kind === 'heading'}
@@ -76,11 +76,6 @@
     min-width: 220px;
     padding: 6px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   .item {

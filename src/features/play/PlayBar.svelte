@@ -35,10 +35,10 @@
   const speedWord = $derived(text(speed === 1 ? words.speedNormal : speed === 0.5 ? words.speedSlow : words.speedSlower))
 </script>
 
-<div class="bar" role="toolbar" aria-label={text(words.playBar)}>
+<div class="bar glass-1" role="toolbar" aria-label={text(words.playBar)}>
   <div class="row">
-    <button type="button" class="act" data-play="pause" aria-label={text(paused ? words.goOn : words.pause)} onclick={onpause}>
-      <Icon name={paused ? 'play' : 'pause'} /><span class="word">{text(paused ? words.goOn : words.pause)}</span>
+    <button type="button" class="act" data-play="pause" aria-label={text(paused ? words.goOn : words.pause)} title={text(paused ? words.goOn : words.pause)} onclick={onpause}>
+      <Icon name={paused ? 'play' : 'pause'} size={22} />
     </button>
     {#if paused}
       <button
@@ -49,7 +49,7 @@
         title={text(words.stepAbout)}
         onclick={onstep}
       >
-        <Icon name="skip-forward" />
+        <Icon name="skip-forward" size={22} />
       </button>
     {/if}
     <button
@@ -60,10 +60,10 @@
       title={text(words.speedAbout)}
       onclick={onspeed}
     >
-      <Icon name="gauge" /><span class="word" class:state={speed !== 1}>{speedWord}</span>
+      <Icon name="gauge" size={22} /><span class="word" class:state={speed !== 1}>{speedWord}</span>
     </button>
-    <button type="button" class="act" data-play="again" aria-label={text(words.again)} onclick={onagain}>
-      <Icon name="arrow-counter-clockwise" /><span class="word">{text(words.again)}</span>
+    <button type="button" class="act" data-play="again" aria-label={text(words.again)} title={text(words.again)} onclick={onagain}>
+      <Icon name="arrow-counter-clockwise" size={22} />
     </button>
     {#if canPick}
       <button
@@ -76,7 +76,7 @@
         title={text(words.hereAbout)}
         onclick={onpick}
       >
-        <Icon name="map-pin" /><span class="word">{text(words.here)}</span>
+        <Icon name="map-pin" size={22} /><span class="word">{text(words.here)}</span>
       </button>
     {/if}
     <button
@@ -87,7 +87,7 @@
       title={text(big ? words.smallerAbout : words.biggerAbout)}
       onclick={onbig}
     >
-      <Icon name={big ? 'arrows-in' : 'arrows-out'} /><span class="word">{text(big ? words.smaller : words.bigger)}</span>
+      <Icon name={big ? 'arrows-in' : 'arrows-out'} size={22} />
     </button>
   </div>
   {#if strip.to > strip.from}
@@ -113,11 +113,6 @@
     max-width: min(560px, calc(100vw - 32px));
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   .row {

@@ -8,7 +8,7 @@
   let { words, button, onpress }: Props = $props()
 </script>
 
-<div class="note" role="status">
+<div class="note glass-2" role="status">
   <span>{words}</span>
   {#if button}
     <button type="button" onclick={() => onpress?.()}>{button}</button>
@@ -22,11 +22,6 @@
     gap: 12px;
     padding: 4px 4px 4px 16px;
     border-radius: 12px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   button {

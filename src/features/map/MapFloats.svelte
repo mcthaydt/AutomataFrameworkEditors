@@ -3,6 +3,7 @@
   // out, a level just made, the rename), and the note that says what just happened. It also does what the bar and the
   // cards ask: a level moved, made, copied, renamed or taken away is one step up through `onchange`.
   import type { GameContent, LevelPoint } from '@automataframework/framework/headless'
+  import { untrack } from 'svelte'
   import type { Working } from '../game/game.ts'
   import {
     copyLevel,
@@ -80,6 +81,19 @@
   // `clientWidth` rounds down, so a float is taken a pixel wider: it never runs a hair past the edge.
   const whole = (size: { w: number; h: number }) => ({ w: size.w + 1, h: size.h + 1 })
   let barSize = $state({ w: 0, h: 0 })
+  let barEl = $state<HTMLElement | null | undefined>()
+  // The bar's size is read again in the same update its buttons change (another level, a Pull apart that comes or
+  // goes, the menu), before the page is drawn, so a wider bar is never placed by the narrower one's size first. The
+  // bound size below still follows any later resize (the words' font arriving, a bigger text setting).
+  $effect(() => {
+    void [picked, touching[0], menu, open?.kind]
+    if (barEl === undefined || barEl === null) return
+    const w = barEl.clientWidth
+    const h = barEl.clientHeight
+    untrack(() => {
+      if (w !== barSize.w || h !== barSize.h) barSize = { w, h }
+    })
+  })
   let cardSize = $state({ w: 0, h: 0 })
   const screen = $derived({ x: 0, y: 0, w: size.w, h: size.h })
   const keyRect = $derived({ x: 0, y: size.h - KEY_ROOM, w: size.w, h: KEY_ROOM })
@@ -186,7 +200,7 @@
 </script>
 
 {#if picked !== undefined && barAt !== undefined}
-  <div class="float" data-ui bind:clientWidth={barSize.w} bind:clientHeight={barSize.h} style:left="{barAt.x}px" style:top="{barAt.y}px">
+  <div class="float" data-ui bind:this={barEl} bind:clientWidth={barSize.w} bind:clientHeight={barSize.h} style:left="{barAt.x}px" style:top="{barAt.y}px">
     <LevelBar
       {lang}
       level={picked}

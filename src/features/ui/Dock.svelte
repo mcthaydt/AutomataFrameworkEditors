@@ -17,7 +17,7 @@
   let { label, side = 'top', tight = false, fit = false, children }: Props = $props()
 </script>
 
-<div class="dock {side}" class:tight class:fit role="group" aria-label={label}>
+<div class="dock glass-1 {side}" class:tight class:fit role="group" aria-label={label}>
   {@render children()}
 </div>
 
@@ -30,11 +30,6 @@
     min-width: 0;
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }
