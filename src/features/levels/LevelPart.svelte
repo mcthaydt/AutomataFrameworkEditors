@@ -95,6 +95,9 @@ import { tagFacts } from './tags.ts'
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
+  /** The strip of things to put down (or ground to paint) is over the level's foot: its height and gap, in pixels. */
+  const TRAY_ROOM = 100
+  const STAGE_TOO_SHORT = 400
   const words = $derived(wordsIn(lang).levels)
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
@@ -105,13 +108,19 @@ import { tagFacts } from './tags.ts'
   let engine = $state.raw<Stage | undefined>()
   /** Where a person slid or zoomed to; undefined while the whole level is shown. */
   let custom = $state.raw<Camera | undefined>()
-  const camera = $derived(custom ?? wholeLevel(level, size, NONE))
+  // On a stage too short to have room to spare (a phone held sideways) the level is drawn above the tray, not under it.
+  const room = $derived(
+    (tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 && size.h < STAGE_TOO_SHORT
+      ? { ...NONE, bottom: TRAY_ROOM }
+      : NONE,
+  )
+  const camera = $derived(custom ?? wholeLevel(level, size, room))
   $effect(() => {
     levelId
     untrack(() => (custom = undefined))
   })
   $effect(() => {
-    const near = custom !== undefined && custom.scale > wholeLevel(level, size, NONE).scale * 1.05 ? 'close' : 'whole'
+    const near = custom !== undefined && custom.scale > wholeLevel(level, size, room).scale * 1.05 ? 'close' : 'whole'
     untrack(() => onnear(near))
   })
 

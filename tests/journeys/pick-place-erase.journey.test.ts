@@ -7,7 +7,7 @@ import {
   openLevel,
   openPage,
   quietButton,
-  type SIZES,
+  SIZES,
   setupJourneys,
   signIn,
   thingNamed,
@@ -82,5 +82,29 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     expect(await thingNamed(page, 'crate-1').getAttribute('data-x')).toBe('6.5')
     await quietButton(page).waitFor()
     expect(fixtureFiles[LEVEL_PATH]).toContain('"crate-1"')
+  })
+})
+
+// The tray of things to put down (and the ground's, with Paint) is a strip over the level's foot. It leaves the floor and
+// what stands on it in sight: the level is drawn in the room above it, at every size, a phone on its side included.
+describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('the tray at %s', (size) => {
+  test.each(['Place', 'Paint'])('%s leaves the crate and the floor under it in sight', async (tool) => {
+    journey = await openPage(size)
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page)
+    await page.getByRole('button', { name: new RegExp(`^${tool}`) }).first().click()
+    const strip = page.locator('.strip[data-ui]')
+    await strip.waitFor()
+    await page.waitForTimeout(300)
+    const tray = await strip.boundingBox()
+    const crate = await thingNamed(page, 'crate-1').boundingBox()
+    const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+    if (tray === null || crate === null || !(scale > 0)) throw new Error('the tray or the level is not on screen')
+    // The floor is the row of tiles under the crate: all of it above the tray.
+    expect(
+      tray.y,
+      `the tray (top ${Math.round(tray.y)}) covers the floor under the crate (bottom ${Math.round(crate.y + crate.height)}, tile ${Math.round(scale)})`,
+    ).toBeGreaterThanOrEqual(crate.y + crate.height + scale - 1)
   })
 })
