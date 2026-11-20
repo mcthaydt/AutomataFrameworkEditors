@@ -28,6 +28,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 11:07 UTC: the CI retry is merged: #135, merge `be43c42` (audited head `c1caada`, lane 3, two cycles,
+  one red fixed: a try now fails when main's head cannot be read; audit
+  `2026-11-20-ci-screens-queue-1-implementation-audit.md`), under the Owner's two answers of 09:24 and 09:27 UTC. It
+  is bigger than the "about 8 lines" on the card: 24 changed lines in the `screens` job and a guard that stops an
+  older main run writing over a newer merge's pictures, each judged needed by the auditor, plus a workflow test. The
+  full run 44718055798 was green on its second attempt: the first lost one WebKit piece to a 30-minute timeout while
+  the package mirror was slow, before any test ran (one allowed re-run of the failed jobs). Main's run 44724796962 at
+  `be43c42` is in CI; the builder watches its screens job to the end.
 - 2026-11-20 10:01 UTC: the walk's R6 is merged: #129, "1 to check" as a glass sheet over the level, merge `0e6d112` (reviewed head
   `b3acf00`, three cycles, audit `2026-11-20-world-check-sheet-1-implementation-audit.md`). While a change is checked
   the top bar's Undo, Redo and send are held with a reason and no key touches the person's own work. Left as notes:
