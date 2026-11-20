@@ -468,8 +468,8 @@ import { listen, measure } from './listen.ts'
     {rowHeight}
     canUndo={edits.past.length > 0}
     canRedo={edits.future.length > 0}
-    quiet={playing || checking}
-    away={playing && big}
+    quiet={playing}
+    away={(playing && big) || checking}
     ontool={(next) => (tool = next)}
     onundo={() => step('undo')}
     onredo={() => step('redo')}

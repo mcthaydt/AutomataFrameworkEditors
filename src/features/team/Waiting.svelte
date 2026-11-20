@@ -61,6 +61,13 @@
     inset: 0;
     z-index: 30;
   }
+  /* A side sheet starts below the top bar, so it is cut to the room under it: one that is taller would be scrolled into
+     view, and the whole page with it. */
+  @media (min-width: 501px) {
+    .scrim :global(.sheet) {
+      max-height: calc(100% - var(--bar) - 28px);
+    }
+  }
   .rows {
     display: flex;
     flex-direction: column;
@@ -75,17 +82,20 @@
     justify-content: center;
     min-height: 56px;
     padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--fill);
-    color: var(--fg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--words);
     text-decoration: none;
     overflow-wrap: anywhere;
   }
   .title {
     font-weight: 600;
   }
+  .row:hover {
+    background: var(--hover);
+  }
   .by {
-    color: var(--muted);
+    color: var(--g-quiet);
   }
 </style>

@@ -161,7 +161,6 @@
 </script>
 
 <div class="check" {lang}>
-  <h1 class="sr">{change === undefined ? text(c.loading) : text(c.checkTitle, by, count)}</h1>
   {#if game !== undefined && level !== undefined && levelId !== undefined && !gone}
     <div class="level">
       {#if playing && edits !== undefined}
@@ -327,14 +326,12 @@
       width: min(400px, 36%);
     }
   }
-  .sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  /* A side sheet starts below the top bar, so it is cut to the room under it: one that is taller would be scrolled into
+     view, and the whole page with it. */
+  @media (min-width: 501px) {
+    .check :global(.sheet) {
+      max-height: calc(100% - var(--bar) - 28px);
+    }
   }
   .stop {
     position: absolute;
