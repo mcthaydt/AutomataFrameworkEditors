@@ -2,7 +2,8 @@
 
 The editors of a framework for making games, where agents do the authoring and every piece of authorable
 content can be edited on an iPad: one suite in which a team opens its game from its GitHub repo, changes its
-content files by touch, and saves each change into the game or as a suggestion for someone to approve. The
+content files by touch, and saves each change into the game or as a suggestion for someone to approve. An editor
+changes authorable content and nothing else: it also reads, and never writes, the pictures a game's tilesets name. The
 runtime is [AutomataFramework](https://github.com/mcthaydt/AutomataFramework); the roadmap is its
 `docs/roadmap.md`.
 
