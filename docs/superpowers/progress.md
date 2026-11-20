@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 01:00 UTC (from `date`).
+Last updated: 2026-11-20 01:06 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- Glass and icons (#119), review cycle 1 at `1381e6a` (audit `e4f61b0`): 3 red, 5 notes. Red 1: the dim's own blur
+  stops sheets and dialogs getting their layer's blur, and the dialog card is drawn lighter than a sheet (the reverse
+  of the scale): being fixed with a browser test. Agent-selected calls by the slice lead, not the Owner's: the white
+  waiting-change page is left (PR 15 deletes it); the approved mockups in `docs/mockups/` are not redrawn, and are read
+  as out of date on glass strength, icon-only buttons and centred plain pages, by the Owner's instructions of
+  2026-11-17 and 2026-11-20, in the slice-end design drift check. Found on main, not this change's: on a phone the
+  Show panel covers the top bar menu's Help; it goes to PR 19's layout fixes.
 
 - Owner instruction (2026-11-20 01:00 UTC, on the after shot of a picked thing's settings panel): "this needs some
   padding and margin, it's hugging the edges". The settings panel gets padding inside and a margin from the screen's
