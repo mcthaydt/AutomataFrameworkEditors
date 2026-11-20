@@ -74,6 +74,13 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 
 ## Flaky tests
 
+- `draw.browser.test.ts`, the readiness wait in `levelView` and `inPlay` (Chromium, 2026-11-20): the wait for the
+  ground picture used `vi.waitFor`'s default 1000 ms and timed out on a loaded shard, reading `#3b4a5a` for `#6b4f2a`
+  at the probe; main `beb379b` (run 44690781678, 1898 ms) and #129 at `0303b2c` (2595 ms). The product is not at
+  fault (the canvas starts the load once and redraws when it arrives); not reproduced locally in 13 loaded runs, so
+  the cause is read from the logs. Fixed in #130 (`39e5c84`) by a 15 s bound: same pixel, no sleep, no wider
+  tolerance, no retry. Trigger: a browser test that waits on the level canvas's tileset art or Play's first picture
+  passes an explicit readiness bound, never the 1 s default.
 - `open-game.journey.test.ts`, "a game with a door into a level that is not there opens, counts one problem, and Play of
   that level says why" (WebKit). Failed once in CI on `738ba33` (#126, shard `browsers (webkit 6/6)`, run 44683121711,
   2026-11-20) with two page errors: "/127.0.0.1:4800/api/notes?owner=grandma&name=links-game due to access control
