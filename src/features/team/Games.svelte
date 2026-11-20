@@ -52,8 +52,11 @@
       // The list of games on this device is still worth showing.
       trouble = true
     }
-    const all = [...(answer.ok ? answer.value : [])]
-    for (const game of recentGames(remembered)) if (!all.some((one) => same(one, game))) all.push(game)
+    // One row for each game, however many times it was named.
+    const all: GameRef[] = []
+    for (const game of [...(answer.ok ? answer.value : []), ...recentGames(remembered)]) {
+      if (!all.some((one) => same(one, game))) all.push(game)
+    }
     games = all
     // Back from adding the editor to exactly one game: open it, nothing more to choose.
     const only = all[0]

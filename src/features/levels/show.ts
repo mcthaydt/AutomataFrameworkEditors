@@ -11,8 +11,17 @@ export interface Show {
   readonly frames: boolean
   /** How near the view is: the whole level, or close up. Said by the level, since a pinch changes it too. */
   readonly near: 'whole' | 'close'
+  /** Notes that were finished are shown again, faint. */
+  readonly doneNotes: boolean
 }
-export const SHOW: Show = { grid: 'off', lineUp: true, whatItIs: false, frames: false, near: 'whole' }
+export const SHOW: Show = {
+  grid: 'off',
+  lineUp: true,
+  whatItIs: false,
+  frames: false,
+  near: 'whole',
+  doneNotes: false,
+}
 
 export interface Brush {
   /** The letter of the kind of ground being painted; undefined until one is picked. */

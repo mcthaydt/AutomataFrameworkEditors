@@ -12,6 +12,7 @@ import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
 import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
+import { nextSha } from '../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
@@ -338,7 +339,7 @@ const SCENES: readonly Scene[] = [
       // The list was fine; GitHub goes away before a second look.
       j.fake.down = true
       await j.page.reload()
-      await text(j, WORDS.cantReach)
+      await text(j, gamesWords.trouble)
       return j
     },
   },
@@ -767,7 +768,7 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await peopleScreen(size)
       await j.page.locator('#people-name').fill('-no- good')
-      await j.page.getByRole('button', { name: addPerson, exact: true }).click()
+      await j.page.getByRole('dialog').getByRole('button', { name: addPerson, exact: true }).click()
       await text(j, nameBad)
       return j
     },
@@ -791,7 +792,22 @@ const SCENES: readonly Scene[] = [
   {
     name: 'history-list',
     reach: async (size) => {
-      const j = await gameAs(size, 'grandma', (g) => repoOf(g).put('main', LEVEL_PATH, theirs))
+      const j = await gameAs(size, 'grandma', (g) => {
+        // Someone saved a change to the start level: a saved change in the game's history, not only a new file.
+        const repo = repoOf(g)
+        const sha = nextSha('screens:history')
+        repo.commits.push({
+          sha,
+          branch: 'main',
+          message: 'Moved Crate 1',
+          path: LEVEL_PATH,
+          text: theirs,
+          author: 'grandpa',
+          files: [{ path: LEVEL_PATH, text: theirs }],
+        })
+        repo.commitDates.set(sha, Date.now() - 120_000)
+        repo.put('main', LEVEL_PATH, theirs)
+      })
       await chooseFromMenu(j.page, menuWords.whatChanged)
       await j.page.getByRole('heading', { name: teamWords.historyTitle }).waitFor()
       await j.page.getByRole('button', { name: teamWords.historyShow }).first().waitFor()
@@ -844,8 +860,11 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       // Two things cannot overlap if one has been scrolled out of the screen's own scrolling area: it is not on show.
       const area = document.querySelector('.content')?.getBoundingClientRect()
+      // A sheet's body scrolls under its foot the same way: what is scrolled out of the body is not on show either.
       const onShow = (el: Element): boolean => {
         const box = el.getBoundingClientRect()
+        const body = el.closest('[role=dialog] .body')?.getBoundingClientRect()
+        if (body !== undefined && (box.top < body.top - 1 || box.bottom > body.bottom + 1)) return false
         return (
           area === undefined ||
           !el.closest('.content') ||

@@ -11,7 +11,6 @@ type Key =
   | 'findLevel'
   | 'findSetting'
   | 'findDo'
-  | 'findMap'
   | 'doUndo'
   | 'doRedo'
   | 'doPlay'
@@ -45,7 +44,6 @@ export const helper = {
     findLevel: 'A level',
     findSetting: (thing) => `A setting of ${thing}`,
     findDo: 'Do this',
-    findMap: 'The map of the game',
     doUndo: 'Undo',
     doRedo: 'Redo',
     doPlay: 'Play',
@@ -78,7 +76,6 @@ export const helper = {
     findLevel: 'Un nivel',
     findSetting: (thing) => `Un ajuste de ${thing}`,
     findDo: 'Hacer esto',
-    findMap: 'El mapa del juego',
     doUndo: 'Deshacer',
     doRedo: 'Rehacer',
     doPlay: 'Jugar',
@@ -111,7 +108,6 @@ export const helper = {
     findLevel: '레벨',
     findSetting: (thing) => `${thing}의 설정`,
     findDo: '이렇게 하기',
-    findMap: '게임 지도',
     doUndo: '되돌리기',
     doRedo: '다시 하기',
     doPlay: '플레이',
@@ -144,7 +140,6 @@ export const helper = {
     findLevel: 'レベル',
     findSetting: (thing) => `${thing}の設定`,
     findDo: 'これをする',
-    findMap: 'ゲームのマップ',
     doUndo: '元に戻す',
     doRedo: 'やり直す',
     doPlay: '遊ぶ',
@@ -177,7 +172,6 @@ export const helper = {
     findLevel: '关卡',
     findSetting: (thing) => `${thing}的设置`,
     findDo: '这样做',
-    findMap: '游戏地图',
     doUndo: '撤销',
     doRedo: '重做',
     doPlay: '试玩',
@@ -210,7 +204,6 @@ export const helper = {
     findLevel: 'Um nível',
     findSetting: (thing) => `Um ajuste de ${thing}`,
     findDo: 'Fazer isto',
-    findMap: 'O mapa do jogo',
     doUndo: 'Desfazer',
     doRedo: 'Refazer',
     doPlay: 'Jogar',
@@ -243,7 +236,6 @@ export const helper = {
     findLevel: 'Un niveau',
     findSetting: (thing) => `Un réglage de ${thing}`,
     findDo: 'Faire ceci',
-    findMap: 'La carte du jeu',
     doUndo: 'Annuler',
     doRedo: 'Rétablir',
     doPlay: 'Jouer',
@@ -276,7 +268,6 @@ export const helper = {
     findLevel: 'Уровень',
     findSetting: (thing) => `Настройка: ${thing}`,
     findDo: 'Сделать это',
-    findMap: 'Карта игры',
     doUndo: 'Отменить',
     doRedo: 'Вернуть',
     doPlay: 'Играть',
@@ -309,7 +300,6 @@ export const helper = {
     findLevel: 'Ein Level',
     findSetting: (thing) => `Eine Einstellung von ${thing}`,
     findDo: 'Das tun',
-    findMap: 'Die Karte des Spiels',
     doUndo: 'Rückgängig',
     doRedo: 'Wiederholen',
     doPlay: 'Spielen',

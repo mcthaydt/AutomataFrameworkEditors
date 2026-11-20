@@ -23,6 +23,7 @@
   const items = $derived<readonly MenuItem[]>(
     on === undefined
       ? [
+          { id: 'note', words: text(words.menuNote), icon: 'note-pencil' },
           { id: 'put', words: text(words.holdPut), icon: 'plus-circle' },
           {
             id: 'paste',
@@ -32,6 +33,7 @@
           },
         ]
       : [
+          { id: 'note', words: text(words.menuNote), icon: 'note-pencil' },
           { id: 'rename', words: text(words.menuRename) },
           locked
             ? { id: 'unlock', words: text(words.menuUnlock), icon: 'lock-open' }

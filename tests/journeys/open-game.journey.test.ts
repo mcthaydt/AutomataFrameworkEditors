@@ -131,9 +131,9 @@ test('when GitHub is down the game says it cannot be reached, and Try again work
   await signIn(j.page)
   j.fake.down = true
   await j.page.goto(`${j.site}/${GAME}`)
-  await text(j, WORDS.cantReach)
+  await text(j, gamesWords.trouble)
   j.fake.down = false
-  await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
+  await j.page.getByRole('button', { name: gamesWords.again }).click()
   await inGame(j)
 })
 
@@ -194,10 +194,10 @@ test('a list of games that cannot be fetched says so and offers Try again, not "
   await title(j, gamesWords.title)
   j.fake.down = true
   await j.page.reload()
-  await text(j, WORDS.cantReach)
+  await text(j, gamesWords.trouble)
   expect(await j.page.getByText(gamesWords.empty).count()).toBe(0)
   expect(await j.page.getByRole('button', { name: gamesWords.add }).count()).toBe(0)
-  const again = j.page.getByRole('button', { name: WORDS.tryAgain })
+  const again = j.page.getByRole('button', { name: gamesWords.again })
   expect((await again.boundingBox())?.height).toBeGreaterThanOrEqual(48)
   j.fake.down = false
   await again.click()

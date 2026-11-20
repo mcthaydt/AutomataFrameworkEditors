@@ -61,7 +61,7 @@ test('a pasted file that is the same as the level says nothing changes', () => {
   expect(ghost.lines).toEqual([])
 })
 
-test('garbage is not a level, said in the framework\'s own sentence', () => {
+test("garbage is not a level, said in the framework's own sentence", () => {
   const ghost = ghostOfPasted('this is not a level', base, base, 'room-1')
   expect('problem' in ghost && ghost.problem.length > 0).toBe(true)
   const empty = ghostOfPasted('{"a":1}', base, base, 'room-1')

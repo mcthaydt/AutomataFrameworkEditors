@@ -3,6 +3,7 @@
   // finger, a Pencil and a mouse reach them through `gestures.ts` on the stage that holds these; a keyboard and a screen
   // reader reach them here: Tab goes through the level's things in the order the list has them, the arrows nudge, and
   // Enter or Space picks.
+  import { Icon } from '../ui/ui.ts'
   import { WAYS, type Way } from './nudge.ts'
   import type { Mark } from './marks.ts'
 
@@ -18,8 +19,22 @@
     onpick?: (id: string) => void
     onnudge?: (id: string, way: Way) => void
     onclear?: () => void
+    /** What is laid over the level: a helper's ghosts, which are only drawn, and notes, which are pins to press. */
+    extras?: readonly Mark[]
+    onextra?: (id: string) => void
   }
-  let { marks, picked, readOnly = false, marked = [], faint = false, onpick, onnudge, onclear }: Props = $props()
+  let {
+    marks,
+    picked,
+    readOnly = false,
+    marked = [],
+    faint = false,
+    onpick,
+    onnudge,
+    onclear,
+    extras = [],
+    onextra,
+  }: Props = $props()
 
   /** The smaller a thing, the higher it stands, so it can still be reached under a bigger one. */
   const stack = $derived(
@@ -84,6 +99,34 @@
       {/if}
     </button>
   {/each}
+  {#each extras as extra (extra.id)}
+    {#if extra.kind === 'ghost'}
+      <div
+        class="ghost"
+        data-ghost={extra.id}
+        aria-hidden="true"
+        style:left="{extra.box.x}px"
+        style:top="{extra.box.y}px"
+        style:width="{extra.box.w}px"
+        style:height="{extra.box.h}px"
+      ></div>
+    {:else}
+      <button
+        type="button"
+        class="pin"
+        data-note={extra.id}
+        aria-label={extra.name}
+        style:left="{extra.hit.x}px"
+        style:top="{extra.hit.y}px"
+        style:width="{extra.hit.w}px"
+        style:height="{extra.hit.h}px"
+        onpointerdown={(e) => e.stopPropagation()}
+        onclick={() => onextra?.(extra.id)}
+      >
+        <Icon name="push-pin" />
+      </button>
+    {/if}
+  {/each}
 </div>
 
 <style>
@@ -108,6 +151,31 @@
     opacity: 0.45;
   }
   .mark:focus-visible {
+    outline: 3px solid var(--focus, var(--accent));
+    outline-offset: 2px;
+  }
+  .ghost {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px dashed var(--agent);
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--agent) 25%, transparent);
+    pointer-events: none;
+  }
+  .pin {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .pin:focus-visible {
     outline: 3px solid var(--focus, var(--accent));
     outline-offset: 2px;
   }

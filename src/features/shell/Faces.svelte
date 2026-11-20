@@ -12,11 +12,13 @@
   let { people, label, onopen }: Props = $props()
 
   const MOST = 4
-  const shown = $derived(people.slice(0, MOST))
-  const extra = $derived(people.length - shown.length)
+  // One face for each person, even when the owner is also named in the list.
+  const once = $derived(people.filter((one, at) => people.findIndex((o) => o.login === one.login) === at))
+  const shown = $derived(once.slice(0, MOST))
+  const extra = $derived(once.length - shown.length)
 </script>
 
-{#if people.length > 0}
+{#if once.length > 0}
   <button type="button" class="faces" aria-label={label} onclick={onopen}>
     {#each shown as person (person.login)}
       <span class="one"><Face login={person.login} /></span>
