@@ -15,6 +15,9 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   the open pull requests to merge and carries on down the list overnight, keeping sessions and screenshot runs lean
   (the Owner is watching usage). Held for the Owner: lane 3 steps, the website demo's recorded plays (the Owner sees
   them first), and the Owner's own looks and walk at the slice end.
+- Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
+  "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
+  review, lane or check is skipped.
 - State at 2026-11-20 02:04 UTC: glass and icons (#119) passed its review at `d961ead` (cycle 2, audit `b026b9a`) with the Owner's
   three notes in; two small notes are being fixed, then the full run and the merge. PR 16 (#113) passed cycle 2 at
   `8831e91` (audit `4244205`) with one WebKit red only the full run can prove; it merges after #119. PR 15 (#118) had
