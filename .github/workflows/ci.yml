@@ -295,9 +295,11 @@ jobs:
       actions: read
       contents: write
       pull-requests: read
-    # One writer at a time, so two runs never race to push the branch.
+    # GitHub keeps only the newest waiting job per group, so a group every run shared let a waiting job on main be
+    # dropped. Each push now gets its own group and each pull request one per branch; two writers can then run at once,
+    # so the push below starts again from a fresh fetch when the other got there first.
     concurrency:
-      group: ci-screens
+      group: ci-screens-${{ github.ref }}${{ github.event_name == 'push' && format('-{0}', github.sha) || '' }}
       cancel-in-progress: false
     env:
       GH_TOKEN: ${{ github.token }}
@@ -311,39 +313,53 @@ jobs:
           shopt -s nullglob
           engines=("$RUNNER_TEMP"/screens/screens-*)
           if [ ${#engines[@]} -eq 0 ]; then echo "This run made no pictures."; exit 0; fi
-          git init -q "$RUNNER_TEMP/branch" && cd "$RUNNER_TEMP/branch"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          # The branch has no history in common with main; the first run starts it.
-          if git fetch -q --depth 1 origin ci-screens; then git checkout -q -B ci-screens FETCH_HEAD; else git checkout -q --orphan ci-screens; fi
-          # Keep only `main`, `live` and the folders of open pull requests (`pr-<n>` and `pr-<n>-real`); everything else
-          # (closed pull requests, and the per-commit folders earlier runs kept) goes.
-          open_prs=" $(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 --json number --jq '.[].number' | tr '\n' ' ') "
-          for old in */; do
-            old="${old%/}"
-            case "$old" in
-              main | live | "$LATEST") ;;
-              pr-*) number="${old#pr-}"; [[ "$open_prs" == *" ${number%-real} "* ]] || rm -rf "$old" ;;
-              *) rm -rf "$old" ;;
-            esac
+          write_pictures() {
+            rm -rf "$RUNNER_TEMP/branch" && git init -q "$RUNNER_TEMP/branch" && cd "$RUNNER_TEMP/branch"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            # The branch has no history in common with main; the first run starts it.
+            if git fetch -q --depth 1 origin ci-screens; then git checkout -q -B ci-screens FETCH_HEAD; else git checkout -q --orphan ci-screens; fi
+            # Runs on main can now overlap: an older one finishing last must not put its pictures over a newer merge's.
+            if [ "$LATEST" = main ] && [ "$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)" != "$GITHUB_SHA" ]; then echo "A newer merge will write main/."; return 0; fi
+            # Keep only `main`, `live` and the folders of open pull requests (`pr-<n>` and `pr-<n>-real`); everything else
+            # (closed pull requests, and the per-commit folders earlier runs kept) goes.
+            open_prs=" $(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 --json number --jq '.[].number' | tr '\n' ' ') "
+            for old in */; do
+              old="${old%/}"
+              case "$old" in
+                main | live | "$LATEST") ;;
+                pr-*) number="${old#pr-}"; [[ "$open_prs" == *" ${number%-real} "* ]] || rm -rf "$old" ;;
+                *) rm -rf "$old" ;;
+              esac
+            done
+            # Each browser's pictures come in one folder per shard (`screens-<engine>-<shard>`); they go into one folder
+            # per browser, emptied first so a picture no longer taken does not stay.
+            for dir in "${engines[@]}"; do
+              engine="${dir##*/screens-}"
+              rm -rf "${LATEST:?}/${engine%-[0-9]}"
+            done
+            for dir in "${engines[@]}"; do
+              engine="${dir##*/screens-}"
+              mkdir -p "$LATEST/${engine%-[0-9]}"
+              find "$dir" -name '*.png' -exec cp {} "$LATEST/${engine%-[0-9]}/" \;
+            done
+            git add -A
+            if git diff --cached --quiet; then echo "No new pictures."; return 0; fi
+            git commit -q -m "screens: $LATEST (${{ github.event.pull_request.head.sha || github.sha }})"
+            git push -q origin ci-screens
+            echo "Pictures: https://github.com/${GITHUB_REPOSITORY}/tree/ci-screens/$LATEST"
+          }
+          # Each try runs in its own subshell, so any failing command stops that try (`set -e` does not work inside an
+          # `if` or `||`, hence the explicit status).
+          for try in 1 2 3; do
+            set +e; (set -e; write_pictures); status=$?; set -e
+            if [ "$status" -eq 0 ]; then exit 0; fi
+            echo "Try $try failed (most often another run saved its pictures first). Starting again from the newest ci-screens."
+            sleep $((try * 5))
           done
-          # Each browser's pictures come in one folder per shard (`screens-<engine>-<shard>`); they go into one folder
-          # per browser, emptied first so a picture no longer taken does not stay.
-          for dir in "${engines[@]}"; do
-            engine="${dir##*/screens-}"
-            rm -rf "${LATEST:?}/${engine%-[0-9]}"
-          done
-          for dir in "${engines[@]}"; do
-            engine="${dir##*/screens-}"
-            mkdir -p "$LATEST/${engine%-[0-9]}"
-            find "$dir" -name '*.png' -exec cp {} "$LATEST/${engine%-[0-9]}/" \;
-          done
-          git add -A
-          if git diff --cached --quiet; then echo "No new pictures."; exit 0; fi
-          git commit -q -m "screens: $LATEST (${{ github.event.pull_request.head.sha || github.sha }})"
-          git push -q origin ci-screens
-          echo "Pictures: https://github.com/${GITHUB_REPOSITORY}/tree/ci-screens/$LATEST"
+          echo "Could not save the pictures after 3 tries."
+          exit 1
 
   # The one aggregate check main requires beside the names above. `plan` decides which checks apply to this run; this
   # passes only when each of those ran and passed and every other was left out by `plan`, so a job skipped because
