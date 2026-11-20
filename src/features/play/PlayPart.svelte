@@ -27,6 +27,9 @@
     onstarted: () => void
     /** The level could not be played: what is wrong, one sentence a line (none: the reason is not known). */
     onproblem: (lines: readonly string[]) => void
+    /** How fast time passes when the play starts, and told when the person changes it: the room a door leads to is a new mount. */
+    speed?: number
+    onspeed?: (speed: number) => void
     /** Where the hero comes in at first: beside the door it came through. Left out: its own start. */
     arrive?: Arrive | undefined
     /** A hero went through a door: the level it leads to and the door to come out of. The screen opens it and plays on. */
@@ -34,13 +37,13 @@
     /** Only for tests: the frames the game is given. */
     frames?: Frames
   }
-  let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, arrive, ondoor, frames }: Props = $props()
+  let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, arrive, ondoor, frames, speed: first = 1, onspeed }: Props = $props()
 
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   let holder: HTMLDivElement | undefined = $state()
   let playing = $state.raw<Playing | undefined>()
   let paused = $state(false)
-  let speed = $state(1)
+  let speed = $state(untrack(() => first))
   let picking = $state(false)
   /** What can be gone back to and where the game is, read often: the game moves under the person's hand. */
   let strip = $state({ from: 0, to: 0, at: 0, hz: 60 })
@@ -67,6 +70,7 @@
       (started) => {
         if (gone) return started.stop()
         playing = started
+        if (speed !== 1) started.setSpeed(speed)
         sync()
         onstarted()
       },
@@ -140,8 +144,27 @@
     else playing.pause()
     paused = playing.paused()
   }
-  async function restart(how: () => Promise<void> | undefined): Promise<void> {
+  /** The game was running when "Play from here" began waiting for its tap, so it was held still, and goes on when that ends. */
+  let heldForPick = false
+  function pickSpot(): void {
+    picking = !picking
+    if (playing === undefined) return
+    if (picking) {
+      if (playing.paused()) return
+      playing.pause()
+      heldForPick = true
+      paused = true
+    } else endPick()
+  }
+  function endPick(): void {
     picking = false
+    if (!heldForPick) return
+    heldForPick = false
+    if (playing?.paused() === true) playing.resume()
+    paused = playing?.paused() ?? false
+  }
+  async function restart(how: () => Promise<void> | undefined): Promise<void> {
+    endPick()
     try {
       await how()
       paused = playing?.paused() ?? false
@@ -161,6 +184,7 @@
     if (playing === undefined) return
     speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length] ?? 1
     playing.setSpeed(speed)
+    onspeed?.(speed)
   }
   /** Dragging the strip holds the game and shows it as it was. */
   function back(tick: number): void {
@@ -217,7 +241,7 @@
         onstep={step}
         onspeed={slower}
         onagain={() => void again()}
-        onpick={() => (picking = !picking)}
+        onpick={pickSpot}
         onback={back}
         {onbig}
       />
@@ -230,7 +254,7 @@
     {#if picking}
       <div class="pick glass-2" role="status" data-play="pick-strip">
         <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
-        <button type="button" data-play="pick-cancel" onclick={() => (picking = false)}>
+        <button type="button" data-play="pick-cancel" onclick={endPick}>
           {text(wordsIn(lang).play.cancel)}
         </button>
       </div>

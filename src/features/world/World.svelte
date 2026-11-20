@@ -117,6 +117,8 @@ import Team from './Team.svelte'
   let big = $state(false)
   /** Beside the door the play came through. */
   let arrival = $state.raw<Arrive | undefined>(undefined)
+  /** How fast the game plays, kept across a door (each room is its own mount) and put back to normal by Stop. */
+  let playSpeed = $state(1)
   let following = false // a door opened the level in view: the play goes on in it
   let viewport = $state(first)
   let docks = $state<Docks>({
@@ -228,6 +230,7 @@ import Team from './Team.svelte'
   function stopPlay(): void {
     playing = false
     big = false
+    playSpeed = 1
     arrival = undefined
     events = unsay(events, 'tip-play-code')
   }
@@ -419,7 +422,7 @@ import Team from './Team.svelte'
         {/if}
         {#if playing}
           {#key levelId}
-            <PlayPart game={held} {edits} level={levelId} {lang} {big} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
+            <PlayPart game={held} {edits} level={levelId} {lang} {big} speed={playSpeed} onspeed={(next) => (playSpeed = next)} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
           {/key}
         {/if}
       </div>

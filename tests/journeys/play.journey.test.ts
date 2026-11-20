@@ -238,6 +238,15 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Got it').click()
   await playButton(page, 'Pause').waitFor()
 
+  // Slow is the person's choice: it goes with them through the door.
+  await page.getByRole('button', { name: 'How fast the game plays: Normal' }).click()
+  await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
+  // While it waits for the tap the game is held still; Cancel lets it go on as it was.
+  await playButton(page, 'Play from here').click()
+  await page.getByText('Tap the level where the hero should start').waitFor()
+  await playButton(page, 'Go on').waitFor()
+  await page.locator('[data-play="pick-cancel"]').click()
+  await playButton(page, 'Pause').waitFor()
   await playButton(page, 'Play from here').click()
   await page.getByText('Tap the level where the hero should start').waitFor()
   const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
@@ -261,6 +270,7 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   expect(page.url()).toContain('room-2')
   // The top bar names the room the door led to.
   await page.locator('[data-bar]').getByText('Levels · Room 2').waitFor()
+  await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
 })
 
 test('one step and slow are in the play bar, and the strip goes back', async () => {
