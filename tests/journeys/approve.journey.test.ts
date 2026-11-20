@@ -186,6 +186,8 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await chooseFromMenu(g.page, menuWords.waitingRow(2))
     await g.page.locator('a.row').nth(1).waitFor()
     await g.page.locator('a.row').first().click()
+    // Loaded first: while it loads, the sheet has its own "Not now", which leaves to the level.
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
     await g.page
       .getByRole('dialog')
       .getByRole('button', { name: said(W.check.notNow), exact: true })
