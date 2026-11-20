@@ -52,6 +52,9 @@ const START = { x: 2.5, y: 7.5 }
 const FLOOR = { x: 1.5, y: 8.5 }
 const SKY = '#9fd3f0'
 const CRATE = '#c9a227'
+// The tileset's picture is cut on its own time, and a loaded CI machine took over a second to do it (the default bound of a
+// wait): wait for it as long as the other readiness waits in this suite do, not a moment less.
+const READY = { timeout: 15_000 }
 
 /** The fixture level with its crate put at `where` and drawn `how`. */
 function crateAt(where: { x: number; y: number }, how: 'behind' | 'with-hero' | 'in-front'): Level {
@@ -124,7 +127,7 @@ async function levelView(
     made?.levels.show(on, pictures, level, WHOLE, plain)
     last = colourAt((made as Stage).canvas, tile)
     expect(colourAt((made as Stage).canvas, { x: 8.5, y: 8.6 })).toBe('#6b4f2a')
-  })
+  }, READY)
   return last
 }
 
@@ -162,7 +165,7 @@ async function inPlay(level: Level, tile: { x: number; y: number }, of: typeof g
   await vi.waitFor(() => {
     const canvas = holder.querySelector('canvas') as HTMLCanvasElement
     expect(colourAt(canvas, { x: 8.5, y: 8.6 })).toBe('#6b4f2a')
-  })
+  }, READY)
   const cv = holder.querySelector('canvas') as HTMLCanvasElement
   return colourAt(cv, tile)
 }
