@@ -12,24 +12,28 @@
   import { copyNear, isStart, movePicked, nudgePicked, playerOf, refusalWord } from './acts.ts'
   import { type Clip, copyToClip, pasteClip } from './clipboard.ts'
   import type { Done } from './done.ts'
-  import { ghostBox, outlines } from './float.ts'
+  import { outlines } from './float.ts'
   import Edges from './Edges.svelte'
   import type { Edge } from './edges.ts'
   import Floats from './Floats.svelte'
+import Frames from './Frames.svelte'
   import { type Act, createGestures, HOLD_MS, type PointerLike, pointerLike } from './gestures.ts'
-  import { type Cell, emptyKind, kindsOf, lineCells, paint } from './ground.ts'
+  import { type Cell, type Kind, kindsOf } from './ground.ts'
+import Hover from './Hover.svelte'
   import { createStage, type Stage } from './level-canvas.ts'
   import Join from './Join.svelte'
   import Marks from './Marks.svelte'
   import { marksFor, type Rect, unionBox } from './marks.ts'
   import MiniMap from './MiniMap.svelte'
+import Paint from './Paint.svelte'
   import Popups from './Popups.svelte'
-  import { tagFacts } from './tags.ts'
+  import { type Brush, NO_BRUSH, SHOW, type Show } from './show.ts'
+import { tagFacts } from './tags.ts'
   import Tags from './Tags.svelte'
   import type { Way } from './nudge.ts'
   import { deleteThings, moveStart, onlyOne, placeThing, renameThing } from './things.ts'
   import { countsOf, START } from './tray.ts'
-  import { type Camera, pastWhole, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
+  import { type Camera, closeUp, pastWhole, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
   import type { Point } from './place.ts'
 
   interface Props {
@@ -70,11 +74,20 @@
     /** The edges that touch another level and are open there, and the way to go and look at it. */
     edges?: readonly Edge[]
     ongo?: ((level: string) => void) | undefined
+    show?: Show
+    /** How near the view is, said whenever it changes. */
+    onnear?: (near: Show['near']) => void
+    /** The ground being painted and the free thumb's buttons held. */
+    brush?: Brush
+    onbrush?: (letter: string) => void
+    /** The edges of a level that touch another, as that level would have them: how a stroke knows a way across changed. */
+    edgesFor?: ((next: Level) => readonly Edge[]) | undefined
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
     fingerDraws = false, readOnly = false, paused = false,
     onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap, edges = [], ongo,
+    show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor,
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -94,6 +107,10 @@
     levelId
     untrack(() => (custom = undefined))
   })
+  $effect(() => {
+    const near = custom !== undefined && custom.scale > wholeLevel(level, size, NONE).scale * 1.05 ? 'close' : 'whole'
+    untrack(() => onnear(near))
+  })
 
   const nameFor = (id: string): string => {
     if (isStart(id)) return text(words.markStart, playerOf(id))
@@ -103,13 +120,16 @@
     marksFor(
       level,
       characters,
-      { tool, picked, locked, hidden, camera, ground: false },
+      { tool, picked, locked, hidden, camera, ground: tool === 'paint' },
       size,
       nameFor,
     ),
   )
   const tags = $derived(tagFacts(level, characters))
   let join: Join | undefined = $state()
+  let paintHand: Paint | undefined = $state()
+  const kinds = $derived(kindsOf(level, content.tilesets))
+  const kindNow = $derived(kinds.find((k) => k.letter === brush.letter) ?? kinds.find((k) => k.solid) ?? (kinds[0] as Kind))
   const thingsPicked = $derived(picked.filter((id) => !isStart(id)))
   const pickedBox = $derived(unionBox(marks, picked))
 
@@ -174,13 +194,14 @@
     const drawn = engine
     const { w, h } = size
     const shown = { content, pictures, level, camera, hidden }
+    const faint = tool === 'paint' ? new Set(level.things.map((thing) => thing.id)) : new Set<string>()
     if (drawn === undefined) return
     drawn.levels.resize(w, h)
     drawn.levels.show(shown.content, shown.pictures, shown.level, shown.camera, {
-      faint: new Set(),
+      faint,
       hidden: shown.hidden,
-      whatItIs: false,
-      grid: 'off',
+      whatItIs: show.whatItIs,
+      grid: show.grid,
     })
   })
 
@@ -192,6 +213,8 @@
   let holdTimer: ReturnType<typeof setTimeout> | undefined
   let downRect: { left: number; top: number } | undefined
   let shiftDown = false
+  let altDown = false
+  const keys = (): { shift: boolean; alt: boolean } => ({ shift: shiftDown, alt: altDown })
   const tilesAt = (px: Point): Point => toTiles(camera, size, px)
   const cellAt = (px: Point): Cell => {
     const at = tilesAt(px)
@@ -205,6 +228,7 @@
       if ((e.target as HTMLElement).closest('[data-ui]') !== null) return
       downRect = { left: box.left, top: box.top }
       shiftDown = e.shiftKey
+      altDown = e.altKey
       try {
         holder.setPointerCapture(e.pointerId)
       } catch {
@@ -238,16 +262,9 @@
     }
   }
 
-  // The faint copy of what would be put down, where the Pencil or the pointer is.
-  let ghost = $state.raw<Rect | undefined>()
-  function hover(px: Point): void {
-    if (tool !== 'place' || placing === undefined) {
-      ghost = undefined
-      return
-    }
-    const c = placing === START ? hero : placing
-    ghost = ghostBox(camera, size, tilesAt(px), characters[c]?.size ?? { w: 1, h: 1 })
-  }
+  // Where the Pencil or the pointer is over the stage, for what it shows before it touches.
+  let hoverAt = $state.raw<Point | undefined>()
+  const hover = (px: Point): void => void (hoverAt = px)
 
   function tap(at: Point, on: string | undefined): void {
     menu = undefined
@@ -259,13 +276,15 @@
       else onpick([on])
     } else if (tool === 'place') {
       put(tilesAt(at))
-    } else if (tool === 'erase') {
-      if (on !== undefined && !isStart(on)) remove([on])
-      else if (apply(paint(level, characters, [cellAt(at)], emptyKind(kindsOf(level, content.tilesets))))) sayUndoable(text(words.noteErased))
+    } else if (tool === 'paint' || (tool === 'erase' && (on === undefined || isStart(on)))) {
+      paintHand?.tap(at, keys())
+    } else if (tool === 'erase' && on !== undefined) {
+      remove([on])
     }
   }
 
   function hold(at: Point, on: string | undefined): void {
+    if (tool === 'paint') return paintHand?.hold(at)
     if (on !== undefined && !picked.includes(on)) onpick([on])
     menu = { on, at, tile: tilesAt(at) }
   }
@@ -285,20 +304,19 @@
     heldView = false
   }
   let grabIgnored = false
-  let erasing: { base: Level; cells: Cell[] } | undefined
   function drag(act: Extract<Act, { kind: 'drag' }>): void {
     if (act.phase === 'cancel') {
-      if (grabbed !== undefined || erasing !== undefined) ondrop(true)
+      if (grabbed !== undefined) ondrop(true)
       grabbed = undefined
-      erasing = undefined
-      ghost = undefined
+      hoverAt = undefined
+      paintHand?.drag(act, keys())
       return
     }
     if (tool === 'pick') dragPick(act)
     else if (tool === 'place') {
       if (act.phase === 'end') put(tilesAt(act.to))
       else hover(act.to)
-    } else if (tool === 'erase') dragErase(act)
+    } else if (tool === 'paint' || tool === 'erase') paintHand?.drag(act, keys())
     else if (tool === 'join') join?.drag(act)
   }
   function dragPick(act: Extract<Act, { kind: 'drag' }>): void {
@@ -315,7 +333,7 @@
     if (grabIgnored || grabbed === undefined) return
     if (act.phase === 'move') {
       const by = { x: (act.to.x - act.from.x) / camera.scale, y: (act.to.y - act.from.y) / camera.scale }
-      const done = movePicked(grabbed.base, characters, hero, grabbed.ids, by)
+      const done = movePicked(grabbed.base, characters, hero, grabbed.ids, by, show.lineUp)
       if (done.ok) onedit(done.value)
       else if (done.why === 'same') onedit(grabbed.base)
       else refuse(done)
@@ -326,26 +344,6 @@
     ondrop(false)
     if (level !== was.base) sayUndoable(text(words.noteMoved, names(was.ids)))
   }
-  function dragErase(act: Extract<Act, { kind: 'drag' }>): void {
-    if (act.phase === 'start') {
-      erasing = { base: level, cells: [cellAt(act.from)] }
-      ongrab()
-      return
-    }
-    if (erasing === undefined) return
-    if (act.phase === 'move') {
-      const last = erasing.cells.at(-1) ?? cellAt(act.from)
-      erasing.cells.push(...lineCells(last, cellAt(act.to)))
-      const done = paint(erasing.base, characters, erasing.cells, emptyKind(kindsOf(erasing.base, content.tilesets)))
-      if (done.ok) onedit(done.value)
-      return
-    }
-    const was = erasing
-    erasing = undefined
-    ondrop(false)
-    if (level !== was.base) sayUndoable(text(words.noteErased))
-  }
-
   let pad = $state(false)
   let menu = $state.raw<{ on: string | undefined; at: Point; tile: Point; more?: boolean } | undefined>()
   let renaming = $state<string | undefined>()
@@ -451,6 +449,8 @@
     else if (which === 'duplicate') copySelected()
     else if (which === 'copy') copyToClipboard(picked)
     else if (which === 'paste') paste({ x: camera.x, y: camera.y })
+    else if (which === 'whole') custom = undefined
+    else if (which === 'close') custom = closeUp(level, camera, size)
   }
 
   const was = $derived(
@@ -473,13 +473,13 @@
   {#each was as old (old.id)}
     <div class="was" style:left="{old.x}px" style:top="{old.y}px" style:width="{old.w}px" style:height="{old.h}px"></div>
   {/each}
-  {#if ghost !== undefined}
-    <div class="ghost" style:left="{ghost.x}px" style:top="{ghost.y}px" style:width="{ghost.w}px" style:height="{ghost.h}px"></div>
-  {/if}
+  <Hover {tool} at={hoverAt} {camera} {size} {characters} {hero} {placing} {marks} />
+  {#if show.frames}<Frames {level} {camera} {size} />{/if}
   <Marks
     {marks}
     {picked}
     {readOnly}
+    faint={tool === 'paint'}
     onpick={(id) => onpick([id])}
     onnudge={(id, way) => {
       if (picked.includes(id)) nudge(way)
@@ -489,6 +489,10 @@
       onpick([])
       onplacing(undefined)
     }}
+  />
+  <Paint
+    bind:this={paintHand} {lang} {level} {characters} {kinds} chosen={kindNow} tool={tool === 'erase' ? 'erase' : 'paint'}
+    held={brush.held} {cellAt} {edgesFor} {ongrab} {onedit} {ondrop} say={sayUndoable} {refuse} {onbrush}
   />
   <Tags {lang} facts={tags} {marks} {picked} />
   <Join
@@ -524,6 +528,9 @@
     {placing}
     {pad}
     {note}
+    {kinds}
+    letter={kindNow.letter}
+    onkind={onbrush}
     onpad={() => (pad = !pad)}
     oncopy={copySelected}
     ondelete={() => remove(picked)}
@@ -579,8 +586,7 @@
     position: absolute;
     inset: 0;
   }
-  .was,
-  .ghost {
+  .was {
     position: absolute;
     box-sizing: border-box;
     border-radius: 3px;
@@ -588,9 +594,5 @@
   }
   .was {
     border: 2px dashed var(--faint);
-  }
-  .ghost {
-    border: 2px solid var(--accent);
-    background: color-mix(in srgb, var(--bright) 18%, transparent);
   }
 </style>

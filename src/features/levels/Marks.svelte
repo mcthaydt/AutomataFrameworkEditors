@@ -13,11 +13,13 @@
     readOnly?: boolean
     /** Ringed because a change is being looked at. */
     marked?: readonly string[]
+    /** The ground is being painted: the things are drawn faint and are not touched. */
+    faint?: boolean
     onpick?: (id: string) => void
     onnudge?: (id: string, way: Way) => void
     onclear?: () => void
   }
-  let { marks, picked, readOnly = false, marked = [], onpick, onnudge, onclear }: Props = $props()
+  let { marks, picked, readOnly = false, marked = [], faint = false, onpick, onnudge, onclear }: Props = $props()
 
   /** The smaller a thing, the higher it stands, so it can still be reached under a bigger one. */
   const stack = $derived(
@@ -41,7 +43,7 @@
   }
 </script>
 
-<div class="marks">
+<div class="marks" class:faint>
   {#each marks as mark (mark.id)}
     {@const ringed = picked.includes(mark.id) || marked.includes(mark.id)}
     <button
@@ -100,6 +102,10 @@
     cursor: grab;
     touch-action: none;
     pointer-events: auto;
+  }
+  .faint .mark {
+    pointer-events: none;
+    opacity: 0.45;
   }
   .mark:focus-visible {
     outline: 3px solid var(--focus, var(--accent));

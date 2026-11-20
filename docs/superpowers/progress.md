@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-17 03:58 UTC (from `date`).
+Last updated: 2026-11-17 04:23 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -31,9 +31,15 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   PR 16 (Tasks 38 to 40: People, History, Notes, the helper's Ghost, Find, Games, plus "See what changed" and "Show me on the
   level") from the latest main, then 12b, 15, 17 to 19 and the end-of-slice loop (visual check, blind judge, retro). Seen and
   not fixed: the 32 px map wall marker, and `--passWithNoTests` in the `test:journeys` script (each its own thread).
-- Plan PR 12 is split in two: 12a (Task 31: a thing's settings, Join, tags, and a door's or an edge's "Go to") is built on
-  `claude/project-thread-ik1on4` and waits for a fresh review; 12b (Task 32: Paint, Show, Pencil) follows it. Lane A then
-  goes 15, 17 (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
+- Plan PR 12b (Task 32: Paint, Show and the Pencil, Editors #110, draft): built on `claude/project-thread-ik1on4`, resumed from
+  the parked work. All 23 phone-sideways `screens` scenes failed because seven toolbar buttons did not fit one column; phone
+  sideways now draws the toolbar two buttons wide. Locally in a cloud container: lint, typecheck, knip, node and Chromium
+  engine tests, and all journeys in Chromium. Waits on: the fresh review, and the full CI run once the setup pull request
+  (#109) has put CI back. Choices made, none the Owner's yet: Shift paints a box and Alt erases; the free thumb's Box, Fill
+  and Erase fold out of a "Hold" tab; the Show choices last for the visit only (no new `af.me.*` key); an upright phone's
+  toolbar is two rows with every name showing; a phone on its side is two columns wide; a stroke that opens or closes the way
+  to another level says which. Pick up from `docs/superpowers/live/claude-project-thread-ik1on4.md`. Lane A then goes 15, 17
+  (after framework F4 and F5), 18, 19. This note was written by the implementer for the coordinator.
 - Plan pull request 14, play in place (Editors #95): two reviews passed (`ccbab6a`, then `f5233b3`); merged with a merge
   commit after a green full run on its last head. This record was written by the implementer, because the coordinator cannot write to the repo.
 - Plan PR 11 (the map on screen, #96): merged (`e8693a7`) after three audits and a green full run.
@@ -64,8 +70,8 @@ The framework pin here is `7ff5795`.
 | # | Pull request | Tasks | Needs |
 |---|---|---|---|
 | 11 | The map on screen | 29, 30 | 6, 7, 9: ready |
-| 12a | A thing's settings, Join, tags, Go to (built, in review) | 31 | 9, 10, 11 |
-| 12b | Paint, Show and the Pencil | 32 | 12a |
+| 12a | A thing's settings, Join, tags, Go to (merged, #101) | 31 | 9, 10, 11 |
+| 12b | Paint, Show and the Pencil (parked: work in progress on the branch, no PR) | 32 | 12a |
 | 13 | Putting changes in, problems in plain words, offline | 33, 34 | 4, 5, 7, 8, 9, 11 |
 | 15 | Checking someone's changes; whose to keep | 36, 37 | 13 |
 | 16 | The team, notes, the helper's ghost and Find | 38 to 40 | 8, 12, 13 |

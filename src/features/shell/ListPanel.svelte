@@ -93,14 +93,14 @@
     max-width: calc(100% - 16px);
   }
   .inset {
-    left: calc(max(8px, env(safe-area-inset-left)) + 76px);
+    left: calc(max(8px, env(safe-area-inset-left)) + 76px + var(--bar-extra, 0px));
   }
   .mirror {
     left: auto;
     right: max(8px, env(safe-area-inset-right));
   }
   .mirror.inset {
-    right: calc(max(8px, env(safe-area-inset-right)) + 76px);
+    right: calc(max(8px, env(safe-area-inset-right)) + 76px + var(--bar-extra, 0px));
   }
   .over {
     z-index: 5;
