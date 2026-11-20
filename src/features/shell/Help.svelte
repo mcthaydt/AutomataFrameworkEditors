@@ -16,9 +16,11 @@
     onkeys: () => void
     /** Keeps a copy of the open level, for the helper to be handed. */
     oncopy: (() => void) | undefined
+    /** Opens the box where what the helper gave back is pasted; left out where there is no game to paste into. */
+    onpaste?: (() => void) | undefined
     onclose: () => void
   }
-  let { lang, steps, done, onshow, ontour, onkeys, oncopy, onclose }: Props = $props()
+  let { lang, steps, done, onshow, ontour, onkeys, oncopy, onpaste, onclose }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const h = $derived(words.help)
@@ -67,6 +69,7 @@
           <p>{text(h.helperWhat)}</p>
           <p>{text(h.helperTell)}</p>
           {#if oncopy !== undefined}<Action label={text(h.helperCopy)} icon="copy" onpress={oncopy} />{/if}
+          {#if onpaste !== undefined}<Action label={text(words.helper.pasteRow)} icon="clipboard-text" onpress={onpaste} />{/if}
         </div>
       {/if}
       <p class="play">{text(words.play.tipCode)}</p>

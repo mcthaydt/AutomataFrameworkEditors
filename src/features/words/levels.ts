@@ -32,6 +32,7 @@ type Key =
   | 'markStart'
   | 'holdLabel'
   | 'holdPut'
+  | 'menuNote'
   | 'holdPaste'
   | 'holdNothing'
   | 'trayLabel'
@@ -91,6 +92,7 @@ export const levels = {
     markStart: (player) => `Start for player ${player}`,
     holdLabel: 'Here',
     holdPut: 'Put a thing here',
+    menuNote: 'Add a note',
     holdPaste: 'Paste',
     holdNothing: 'Copy something first',
     trayLabel: 'Add things',
@@ -149,6 +151,7 @@ export const levels = {
     markStart: (player) => `Inicio del jugador ${player}`,
     holdLabel: 'Aquí',
     holdPut: 'Poner algo aquí',
+    menuNote: 'Añadir una nota',
     holdPaste: 'Pegar',
     holdNothing: 'Copia algo primero',
     trayLabel: 'Añadir cosas',
@@ -207,6 +210,7 @@ export const levels = {
     markStart: (player) => `플레이어 ${player}의 시작 위치`,
     holdLabel: '여기',
     holdPut: '여기에 놓기',
+    menuNote: '메모 남기기',
     holdPaste: '붙여넣기',
     holdNothing: '먼저 무언가를 복사하세요',
     trayLabel: '추가하기',
@@ -265,6 +269,7 @@ export const levels = {
     markStart: (player) => `プレイヤー${player}のスタート`,
     holdLabel: 'ここ',
     holdPut: 'ここに置く',
+    menuNote: 'メモを書く',
     holdPaste: '貼り付け',
     holdNothing: '先に何かをコピーしてください',
     trayLabel: '追加する',
@@ -323,6 +328,7 @@ export const levels = {
     markStart: (player) => `玩家${player}的起点`,
     holdLabel: '这里',
     holdPut: '在这里放东西',
+    menuNote: '写一条便签',
     holdPaste: '粘贴',
     holdNothing: '先复制点什么',
     trayLabel: '添加东西',
@@ -381,6 +387,7 @@ export const levels = {
     markStart: (player) => `Início do jogador ${player}`,
     holdLabel: 'Aqui',
     holdPut: 'Colocar algo aqui',
+    menuNote: 'Adicionar uma nota',
     holdPaste: 'Colar',
     holdNothing: 'Copie algo primeiro',
     trayLabel: 'Adicionar coisas',
@@ -439,6 +446,7 @@ export const levels = {
     markStart: (player) => `Départ du joueur ${player}`,
     holdLabel: 'Ici',
     holdPut: 'Mettre quelque chose ici',
+    menuNote: 'Ajouter une note',
     holdPaste: 'Coller',
     holdNothing: 'Copiez d’abord quelque chose',
     trayLabel: 'Ajouter des choses',
@@ -497,6 +505,7 @@ export const levels = {
     markStart: (player) => `Старт игрока ${player}`,
     holdLabel: 'Здесь',
     holdPut: 'Поставить сюда',
+    menuNote: 'Добавить заметку',
     holdPaste: 'Вставить',
     holdNothing: 'Сначала что-нибудь скопируйте',
     trayLabel: 'Добавить',
@@ -555,6 +564,7 @@ export const levels = {
     markStart: (player) => `Start von Spieler ${player}`,
     holdLabel: 'Hier',
     holdPut: 'Hier etwas hinsetzen',
+    menuNote: 'Eine Notiz hinzufügen',
     holdPaste: 'Einfügen',
     holdNothing: 'Kopiere zuerst etwas',
     trayLabel: 'Dinge hinzufügen',

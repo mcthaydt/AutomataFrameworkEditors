@@ -102,10 +102,10 @@ test('a draft runs Chromium only, and a ready pull request or a `full-tests` dra
 })
 
 test('a draft takes only the pictures of the screens it changes; anything else takes them all', () => {
-  expect(plan(['src/features/team/Share.svelte'])).toMatchObject({ pictures: 'true', scenes: 'share-' })
+  expect(plan(['src/features/team/People.svelte'])).toMatchObject({ pictures: 'true', scenes: 'people-' })
   expect(plan(['src/features/ui/Button.svelte'])).toMatchObject({ pictures: 'true', scenes: '.*' })
   expect(plan(['src/features/game/put.ts'])).toMatchObject({ pictures: 'false' })
-  expect(plan(['src/features/team/Share.svelte'], { draft: false })).toMatchObject({ scenes: '.*' })
+  expect(plan(['src/features/team/People.svelte'], { draft: false })).toMatchObject({ scenes: '.*' })
 })
 
 test('every browser is six shards, shard for shard what the `engines` gate counts', () => {

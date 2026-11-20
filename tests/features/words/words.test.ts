@@ -14,12 +14,6 @@ const PINNED: Readonly<Record<string, string>> = {
   signInWhy:
     "Signing in is how your changes get saved and shared. It's only so people know who you are. You won't need GitHub after that.",
   noAccount: "No GitHub account? Make one, it's free.",
-  signOut: 'Sign out',
-  pickFind: 'Find a game by name',
-  pickNoMatch: 'No game has that name.',
-  pickEmpty: "You don't have a game here yet.",
-  pickEmptyLink: 'If someone shared a game with you, open the link they sent.',
-  pickAdd: 'Add the editor to a game of mine',
   notAGame: "This isn't an Automata game. Pick another one.",
   brokenGame: 'This game has problems that need fixing first:',
   cantFindGame: "We can't find that game, or it hasn't been shared with you. Ask its owner.",
@@ -29,15 +23,9 @@ const PINNED: Readonly<Record<string, string>> = {
   tryAgain: 'Try again',
   mineWaiting: 'Your changes are waiting for approval. This is your version of the game.',
   back: 'Back',
-  pickTitle: 'Pick a game',
   loading: 'Getting your game…',
   solid: 'That spot is solid ground. Try another spot.',
   lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
-  offline: "Can't reach the game right now. Your change is still here. Check the internet and try again.",
-  busy: 'Things are busy. Your change is still here. Wait a minute and try again.',
-  saveFailed: "Something went wrong and your change wasn't saved. Try again.",
-  blockedOwner:
-    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
   leaveAsk: "You have changes that aren't saved. Leave anyway?",
   leaveYes: 'Leave without saving',
   leaveNo: 'Stay',
@@ -46,38 +34,6 @@ const PINNED: Readonly<Record<string, string>> = {
   waitingNone: 'Nothing is waiting.',
   waitingBy: 'From crate-1',
   waitingMine: 'From you',
-  shareTitle: 'Share crate-1',
-  shareLinkLabel: 'Send this link to the people you want to help:',
-  copyLink: 'Copy the link',
-  linkCopied: 'Copied.',
-  everyoneLabel: 'Anyone who opens the link and signs in:',
-  everyoneNothing: "Can't get in",
-  everyoneNothingHint: 'Only the people below can open the game.',
-  levelLook: 'Look',
-  levelLookHint: 'Can see the game.',
-  levelSuggest: 'Suggest',
-  levelSuggestHint: 'Can change things. Someone has to approve the changes.',
-  levelApprove: 'Approve',
-  levelApproveHint: "Can suggest changes and approve other people's.",
-  levelEdit: 'Edit',
-  levelEditHint: 'Changes go straight into the game.',
-  levelOwner: 'Owner',
-  levelOwnerHint: 'Can do everything, and choose who helps.',
-  peopleLabel: 'People',
-  peopleOwner: 'crate-1 owns this game.',
-  peopleNone: 'Nobody else has been added yet.',
-  addName: 'Their GitHub name',
-  addNameHint: "It's the name they sign in to GitHub with. They don't need to do anything on GitHub.",
-  addPerson: 'Add',
-  remove: 'Remove crate-1',
-  nameUnknown: "There's nobody on GitHub called crate-1. Check the spelling.",
-  nameTwice: 'crate-1 is already on the list.',
-  nameBad: "That doesn't look like a GitHub name.",
-  saveSharing: 'Save sharing',
-  sharingSaved: 'Saved. The people on the list can use the link now.',
-  sharingChanged: 'Someone else changed the sharing while you were here. Here is the newest list.',
-  sharingBroken: 'The sharing list on this game was damaged. Check the list below and press Save to mend it.',
-  sharingDirty: "You have sharing changes that aren't saved.",
   tryIt: 'Try it now',
   tryItLine: 'No account needed. Open the example game and change it.',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
@@ -94,6 +50,33 @@ const read = (key: string): string => {
 
 test.each(Object.entries(PINNED))('%s says exactly what the plan says', (key, words) => {
   expect(read(key)).toBe(words)
+})
+
+// Words of the old pick-a-game and share pages that live on, word for word, under their new keys in the games and team
+// words (the Share page's own others were reworded when it became "Who can change it", and left this list).
+const PINNED_IN: readonly (readonly [area: 'menus' | 'games' | 'team', key: string, words: string])[] = [
+  ['menus', 'signOut', 'Sign out'],
+  ['games', 'gamesFind', 'Find a game by name'],
+  ['games', 'gamesNoMatch', 'No game has that name.'],
+  // The apostrophe is the curly one now, as every line of the new pages has it; the words are the same.
+  ['games', 'gamesEmpty', 'You don’t have a game here yet.'],
+  ['games', 'gamesEmptyHelp', 'If someone shared a game with you, open the link they sent.'],
+  ['games', 'gamesAdd', 'Add the editor to a game of mine'],
+  ['team', 'copyLink', 'Copy the link'],
+  ['team', 'linkCopied', 'Copied.'],
+  ['team', 'ownerName', 'Owner'],
+  ['team', 'peopleNone', 'Nobody else has been added yet.'],
+  ['team', 'addName', 'Their GitHub name'],
+  ['team', 'addPerson', 'Add'],
+  ['team', 'nameTwice', 'crate-1 is already on the list.'],
+  ['team', 'savedList', 'Saved. The people on the list can use the link now.'],
+]
+
+test.each(PINNED_IN)('%s.%s still says what the old page said', (area, key, words) => {
+  const row = (
+    wordsIn('en')[area] as unknown as Readonly<Record<string, string | ((name: string) => string)>>
+  )[key]
+  expect(typeof row === 'function' ? row('crate-1') : row).toBe(words)
 })
 
 // The move arrows' spoken names and tooltips (the settings panel's cross and the pad on the level): exactly these in

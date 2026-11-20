@@ -1,6 +1,6 @@
 // The rows of the three menus, worked out from what the page knows. Pure, so what each person sees (a visitor, someone
 // who only suggests, an owner) can be checked without a page.
-import { type AccessLevel, can } from '../access/access.ts'
+import type { AccessLevel } from '../access/access.ts'
 import type { MenuItem } from '../ui/ui.ts'
 import { nameOf, type Row, type Words } from '../words/words.ts'
 import { EDITORS, type Workspace } from './workspace.ts'
@@ -21,8 +21,9 @@ export interface GameFacts {
 /** The game's menu: what belongs to the whole game, and the way out. A visitor is never shown who can change it. */
 export function gameItems(facts: GameFacts, bar: Bar): readonly MenuItem[] {
   const items: MenuItem[] = []
-  if (facts.signedIn && can(facts.level, 'share')) {
-    items.push({ id: 'share', words: say(bar.whoCanChange), icon: 'users-three' })
+  if (facts.signedIn) {
+    items.push({ id: 'people', words: say(bar.whoCanChange), icon: 'users-three' })
+    items.push({ id: 'history', words: say(bar.whatChanged), icon: 'clock-counter-clockwise' })
   }
   if (facts.signedIn && facts.waiting > 0) {
     items.push({ id: 'waiting', words: say(bar.waitingRow, facts.waiting), icon: 'clock-counter-clockwise' })

@@ -167,6 +167,7 @@ const sayRow = (row: Row, ...parts: (string | number)[]): string =>
 /** What the game's menu says for `key`, in English. */
 export const menuWords = {
   whoCanChange: sayRow(MENUS.whoCanChange),
+  whatChanged: sayRow(MENUS.whatChanged),
   waitingRow: (n: number) => sayRow(MENUS.waitingRow, n),
   keepCopy: (level: string) => sayRow(MENUS.keepCopyOf, nameOf(level)),
   yourGames: sayRow(MENUS.yourGames),
@@ -418,6 +419,67 @@ export const putWords = {
   keepText: said(KEPT.keepText),
   showMe: said(CHANGES.showMe),
   nextProblem: said(KEPT.nextProblem),
+} as const
+
+const TEAM = wordsIn('en').team
+const GAMES = wordsIn('en').games
+
+/** What the team's sheets say, in English. */
+export const teamWords = {
+  peopleTitle: said(TEAM.peopleTitle, 'Crate Game'),
+  historyTitle: said(TEAM.historyTitle, 'Crate Game'),
+  historyShow: said(TEAM.historyShow),
+  historyMore: said(TEAM.historyMore),
+  seeWhatChanged: said(TEAM.seeWhatChanged),
+  showOnLevel: said(TEAM.showOnLevel),
+} as const
+
+const NOTES = wordsIn('en').notes
+const HELPER = wordsIn('en').helper
+
+/** What notes say, in English. */
+export const noteWords = {
+  menuRow: said(wordsIn('en').levels.menuNote),
+  showDone: said(wordsIn('en').ground.showDoneNotes),
+  add: said(NOTES.noteAdd),
+  write: said(NOTES.noteWrite),
+  pin: said(NOTES.notePin),
+  answerBox: said(NOTES.noteAnswerBox),
+  send: said(NOTES.noteSend),
+  done: said(NOTES.noteDone),
+  notDone: said(NOTES.noteNotDone),
+  gone: said(NOTES.noteGone),
+  /** What a pin is called to a screen reader. */
+  pinName: (who: string, words: string) => said(NOTES.notePinName, who, words),
+  askStart: (owner: string) => said(NOTES.noteAskStart, owner),
+} as const
+
+/** What the helper's ghost, the pasted level and Find say, in English. */
+export const helperWords = {
+  ghostAbout: said(HELPER.ghostAbout),
+  keep: said(HELPER.ghostKeep),
+  undo: said(HELPER.ghostUndo),
+  helperRow: said(wordsIn('en').help.helpHelperRow),
+  pasteRow: said(HELPER.pasteRow),
+  pasteTitle: said(HELPER.pasteTitle),
+  pasteShow: said(HELPER.pasteShow),
+  pasteBad: said(HELPER.pasteBad),
+  pasteSame: said(HELPER.pasteSame),
+  findTitle: said(HELPER.findTitle),
+  findPlaceholder: said(HELPER.findPlaceholder),
+} as const
+
+/** What the list of games says, in English. */
+export const gamesWords = {
+  title: said(GAMES.gamesTitle),
+  find: said(GAMES.gamesFind),
+  noMatch: said(GAMES.gamesNoMatch),
+  empty: said(GAMES.gamesEmpty),
+  emptyHelp: said(GAMES.gamesEmptyHelp),
+  trouble: said(GAMES.gamesTrouble),
+  again: said(GAMES.gamesAgain),
+  add: said(GAMES.gamesAdd),
+  signOut: said(wordsIn('en').menus.signOut),
 } as const
 
 const CHECK = wordsIn('en').check

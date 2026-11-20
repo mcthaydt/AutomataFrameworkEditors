@@ -12,15 +12,20 @@ import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
 import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
+import { writeNotes } from '#src/features/files/notes-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
+import { nextSha } from '../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   checkWords,
   chooseFromMenu,
   dragByTouch,
+  gamesWords,
+  helperWords,
   type JourneyPage,
   makeWall,
   menuWords,
+  noteWords,
   openGame,
   openLevel,
   openMapOf,
@@ -35,6 +40,7 @@ import {
   SIZES,
   setupJourneys,
   signIn,
+  teamWords,
   thingNamed,
 } from '../fixtures/journey.ts'
 import { type Site, startSite } from '../fixtures/serve.ts'
@@ -88,6 +94,8 @@ async function welcomed(size: Size): Promise<JourneyPage> {
   await j.page.getByRole('dialog', { name: said(w().first.welcomeTitle) }).waitFor()
   return j
 }
+const addPerson = String(wordsIn('en').team.addPerson)
+const nameBad = String(wordsIn('en').team.nameBad)
 const heading = (j: JourneyPage, name: string) => j.page.getByRole('heading', { level: 1, name }).waitFor()
 const level1 = JSON.parse(fixtureFiles[LEVEL_PATH] ?? '') as Level
 /** The level with the crate somewhere else: what a teammate saved while someone had it open. */
@@ -186,10 +194,11 @@ async function openFirstChange(j: JourneyPage): Promise<void> {
   await j.page.locator('a.row').first().click()
   await thingNamed(j.page, 'crate-1').waitFor()
 }
-async function shareScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
+async function peopleScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {
   const j = await gameAs(size, 'grandma', ready)
   await chooseFromMenu(j.page, menuWords.whoCanChange)
-  await heading(j, WORDS.shareTitle('Crate Game'))
+  await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
+  await j.page.locator('#people-link').waitFor()
   return j
 }
 
@@ -324,7 +333,7 @@ const SCENES: readonly Scene[] = [
     name: 'add-the-editor',
     reach: async (size) => {
       const j = await listAs(size, 'grandma', noEditorYet)
-      await text(j, WORDS.pickEmpty)
+      await text(j, gamesWords.empty)
       return j
     },
   },
@@ -333,11 +342,11 @@ const SCENES: readonly Scene[] = [
     reach: async (size) => {
       const j = await window_(size, 'grandma')
       await j.page.getByRole('button', { name: WORDS.signIn }).click()
-      await heading(j, WORDS.pickTitle)
+      await heading(j, gamesWords.title)
       // The list was fine; GitHub goes away before a second look.
       j.fake.down = true
       await j.page.reload()
-      await text(j, WORDS.cantReach)
+      await text(j, gamesWords.trouble)
       return j
     },
   },
@@ -345,7 +354,7 @@ const SCENES: readonly Scene[] = [
     name: 'pick-a-game',
     reach: async (size) => {
       const j = await listAs(size, 'grandma')
-      await heading(j, WORDS.pickTitle)
+      await heading(j, gamesWords.title)
       return j
     },
   },
@@ -743,12 +752,12 @@ const SCENES: readonly Scene[] = [
       return j
     },
   },
-  // Share.
-  { name: 'share-empty', reach: (size) => shareScreen(size) },
+  // Who can change it.
+  { name: 'people-empty', reach: (size) => peopleScreen(size) },
   {
-    name: 'share-three-people',
+    name: 'people-three-people',
     reach: (size) =>
-      shareScreen(size, (j) =>
+      peopleScreen(size, (j) =>
         repoOf(j).put(
           'main',
           ACCESS,
@@ -765,12 +774,137 @@ const SCENES: readonly Scene[] = [
       ),
   },
   {
-    name: 'share-mistyped-name',
+    name: 'people-mistyped-name',
     reach: async (size) => {
-      const j = await shareScreen(size)
-      await j.page.locator('#share-name').fill('-no- good')
-      await j.page.getByRole('button', { name: WORDS.addPerson, exact: true }).click()
-      await text(j, WORDS.nameBad)
+      const j = await peopleScreen(size)
+      await j.page.locator('#people-name').fill('-no- good')
+      await j.page.getByRole('dialog').getByRole('button', { name: addPerson, exact: true }).click()
+      await text(j, nameBad)
+      return j
+    },
+  },
+  {
+    name: 'people-read-only',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandpa', (g) =>
+        repoOf(g).put(
+          'main',
+          ACCESS,
+          writeAccess({ format: 1, everyone: 'look', people: [{ github: 'grandpa', level: 'approve' }] }),
+        ),
+      )
+      await chooseFromMenu(j.page, menuWords.whoCanChange)
+      await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
+      return j
+    },
+  },
+  // What changed.
+  {
+    name: 'history-list',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma', (g) => {
+        // Someone saved a change to the start level: a saved change in the game's history, not only a new file.
+        const repo = repoOf(g)
+        const sha = nextSha('screens:history')
+        repo.commits.push({
+          sha,
+          branch: 'main',
+          message: 'Moved Crate 1',
+          path: LEVEL_PATH,
+          text: theirs,
+          author: 'grandpa',
+          files: [{ path: LEVEL_PATH, text: theirs }],
+        })
+        repo.commitDates.set(sha, Date.now() - 120_000)
+        repo.put('main', LEVEL_PATH, theirs)
+      })
+      await chooseFromMenu(j.page, menuWords.whatChanged)
+      await j.page.getByRole('heading', { name: teamWords.historyTitle }).waitFor()
+      await j.page.getByRole('button', { name: teamWords.historyShow }).first().waitFor()
+      return j
+    },
+  },
+  // Notes, a helper's ghost, a level pasted back, and Find.
+  {
+    name: 'note-new',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      await j.page.getByRole('button', { name: 'More', exact: true }).click()
+      await j.page.getByRole('menuitem', { name: noteWords.menuRow }).click()
+      await j.page.getByRole('heading', { name: noteWords.add }).waitFor()
+      return j
+    },
+  },
+  {
+    name: 'note-card',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma', (g) => {
+        repoOf(g).branches.set('automata/notes', new Map())
+        repoOf(g).put(
+          'automata/notes',
+          'automata.notes.toml',
+          writeNotes({
+            format: 1,
+            notes: [
+              {
+                id: 'note-1',
+                level: 'level-1',
+                thing: 'crate-1',
+                by: 'kid',
+                when: new Date(Date.now() - 3_600_000).toISOString(),
+                words: 'This crate is too heavy',
+                answers: [
+                  {
+                    by: 'grandpa',
+                    when: new Date(Date.now() - 600_000).toISOString(),
+                    words: 'I will make it lighter',
+                  },
+                ],
+                done: false,
+              },
+            ],
+          }),
+        )
+      })
+      await j.page.locator('[data-note]').click()
+      await j.page.getByRole('dialog').getByText('I will make it lighter').waitFor()
+      return j
+    },
+  },
+  {
+    name: 'ghost-offered',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      repoOf(j).put('main', LEVEL_PATH, theirs)
+      await j.page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+      await j.page.locator('[data-ghost-card]').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'paste-sheet',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await chooseFromMenu(j.page, menuWords.help)
+      await j.page.getByRole('button', { name: helperWords.helperRow }).click()
+      await j.page.getByRole('button', { name: helperWords.pasteRow }).click()
+      await j.page.getByRole('dialog', { name: helperWords.pasteTitle }).waitFor()
+      return j
+    },
+  },
+  {
+    name: 'find-open',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await j.page.locator('button.find').click()
+      const sheet = j.page.getByRole('dialog', { name: helperWords.findTitle })
+      await sheet.getByRole('searchbox').fill('crate')
+      await sheet
+        .getByRole('button', { name: /Crate 1/ })
+        .first()
+        .waitFor()
       return j
     },
   },
@@ -812,6 +946,18 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
       }
+      // The faces button must hold the faces it draws: squeezed under them, it lets them spill onto the next button, and
+      // the two boxes never overlap even though the pictures do.
+      for (const el of touchable) {
+        if (!el.matches('.faces') || !mine(el)) continue
+        const box = el.getBoundingClientRect()
+        for (const part of el.querySelectorAll('*')) {
+          if (!seen(part)) continue
+          const inner = part.getBoundingClientRect()
+          if (inner.right > box.right + 1 || inner.left < box.left - 1)
+            found.push(`${named(el)} draws outside its own button`)
+        }
+      }
       // Spoken names: a button that shows words is spoken starting with those words, so a person who says what they
       // see reaches it; a button that shows only an icon has a spoken name, and a tooltip that says it for a mouse.
       // A key shown beside a word (a computer's "V" for Pick) is a hint, not the button's words.
@@ -851,8 +997,11 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       // Two things cannot overlap if one has been scrolled out of the screen's own scrolling area: it is not on show.
       const area = document.querySelector('.content')?.getBoundingClientRect()
+      // A sheet's body scrolls under its foot the same way: what is scrolled out of the body is not on show either.
       const onShow = (el: Element): boolean => {
         const box = el.getBoundingClientRect()
+        const body = el.closest('[role=dialog] .body')?.getBoundingClientRect()
+        if (body !== undefined && (box.top < body.top - 1 || box.bottom > body.bottom + 1)) return false
         return (
           area === undefined ||
           !el.closest('.content') ||

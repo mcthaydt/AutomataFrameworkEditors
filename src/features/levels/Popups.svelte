@@ -23,6 +23,8 @@
     hidden: boolean
     draws: readonly Draw[]
     canPaste: boolean
+    /** "Add a note" is offered: only to a person who can send one. */
+    canNote: boolean
     tray: Point | undefined
     renaming: string | undefined
     asking: { character: string } | undefined
@@ -44,6 +46,7 @@
     hidden,
     draws,
     canPaste,
+    canNote,
     tray,
     renaming,
     asking,
@@ -86,7 +89,7 @@
     bind:clientWidth={menuBox.w}
     bind:clientHeight={menuBox.h}
   >
-    <ThingMenu {lang} on={menu.on} {locked} {hidden} {draws} {canPaste} onpick={onmenu} onclose={onclosemenu} />
+    <ThingMenu {lang} on={menu.on} {locked} {hidden} {draws} {canPaste} {canNote} onpick={onmenu} onclose={onclosemenu} />
   </div>
 {/if}
 

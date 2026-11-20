@@ -5,6 +5,7 @@ import { type Lang, type Row, WORDS, wordsIn } from '#src/features/words/words.t
 import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
+  gamesWords,
   type JourneyPage,
   menuWords,
   openGame,
@@ -225,7 +226,7 @@ test('an Owner who has already had the tour goes from nothing to a saved change,
   const j = await window_('ipadUpright', 'grandma')
   noEditorYet(j)
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
-  await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
+  await j.page.getByRole('button', { name: gamesWords.add }).click()
   await j.page.getByRole('link', { name: 'crate-game' }).click()
   await dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
   await putThemIn(j.page)
@@ -300,7 +301,7 @@ test('someone sent a link they may not open: told to ask the owner, with a way b
   await signIn(j.page)
   await text(j, WORDS.cantFindGame)
   await j.page.getByRole('button', { name: WORDS.back, exact: true }).click()
-  await j.page.getByRole('heading', { level: 1, name: WORDS.pickTitle }).waitFor()
+  await j.page.getByRole('heading', { level: 1, name: gamesWords.title }).waitFor()
 })
 
 test('a game that is missing, broken or not a game says so, and no tour is offered over it', async () => {
@@ -372,7 +373,7 @@ test('with only one game, coming back from GitHub opens it without asking', asyn
   noEditorYet(j)
   for (const name of [...j.fake.repos.keys()]) if (name !== 'grandma/crate-game') j.fake.repos.delete(name)
   await j.page.getByRole('button', { name: WORDS.signIn }).click()
-  await j.page.getByRole('button', { name: WORDS.pickAdd }).click()
+  await j.page.getByRole('button', { name: gamesWords.add }).click()
   await j.page.locator('[data-bar]').waitFor()
 })
 
@@ -392,5 +393,5 @@ test('the welcome screen says what signing in is for, and has a way to make an a
 test('a returning person, signed in, lands on "Pick a game"', async () => {
   const j = await window_('ipadUpright', 'grandma')
   await signIn(j.page)
-  await j.page.getByRole('heading', { level: 1, name: WORDS.pickTitle }).waitFor()
+  await j.page.getByRole('heading', { level: 1, name: gamesWords.title }).waitFor()
 })

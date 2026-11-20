@@ -26,6 +26,7 @@ type Key =
   | 'nearWhole'
   | 'nearClose'
   | 'showFrames'
+  | 'showDoneNotes'
   | 'showFinger'
   | 'showLeft'
 
@@ -54,6 +55,7 @@ export const ground = {
     nearWhole: 'Whole level',
     nearClose: 'Close up',
     showFrames: 'The frames each screen sees',
+    showDoneNotes: 'Show done notes',
     showFinger: 'Draw with a finger too',
     showLeft: 'I draw with my left hand',
   },
@@ -81,6 +83,7 @@ export const ground = {
     nearWhole: 'Todo el nivel',
     nearClose: 'De cerca',
     showFrames: 'Lo que ve cada pantalla',
+    showDoneNotes: 'Mostrar notas hechas',
     showFinger: 'Dibujar también con el dedo',
     showLeft: 'Dibujo con la mano izquierda',
   },
@@ -108,6 +111,7 @@ export const ground = {
     nearWhole: '레벨 전체',
     nearClose: '가까이',
     showFrames: '화면마다 보이는 범위',
+    showDoneNotes: '끝난 메모 보기',
     showFinger: '손가락으로도 그리기',
     showLeft: '왼손으로 그려요',
   },
@@ -135,6 +139,7 @@ export const ground = {
     nearWhole: 'レベル全体',
     nearClose: '近く',
     showFrames: '画面ごとに見える範囲',
+    showDoneNotes: '済んだメモを見せる',
     showFinger: '指でも描く',
     showLeft: '左手で描く',
   },
@@ -162,6 +167,7 @@ export const ground = {
     nearWhole: '整个关卡',
     nearClose: '近看',
     showFrames: '每个屏幕看到的范围',
+    showDoneNotes: '显示已完成的便签',
     showFinger: '也用手指画',
     showLeft: '我用左手画',
   },
@@ -189,6 +195,7 @@ export const ground = {
     nearWhole: 'Fase inteira',
     nearClose: 'De perto',
     showFrames: 'O que cada tela vê',
+    showDoneNotes: 'Mostrar notas prontas',
     showFinger: 'Desenhar com o dedo também',
     showLeft: 'Eu desenho com a mão esquerda',
   },
@@ -216,6 +223,7 @@ export const ground = {
     nearWhole: 'Tout le niveau',
     nearClose: 'De près',
     showFrames: 'Ce que voit chaque écran',
+    showDoneNotes: 'Montrer les notes faites',
     showFinger: 'Dessiner aussi avec le doigt',
     showLeft: 'Je dessine de la main gauche',
   },
@@ -243,6 +251,7 @@ export const ground = {
     nearWhole: 'Весь уровень',
     nearClose: 'Крупно',
     showFrames: 'Что видит каждый экран',
+    showDoneNotes: 'Показывать готовые заметки',
     showFinger: 'Рисовать и пальцем',
     showLeft: 'Я рисую левой рукой',
   },
@@ -270,6 +279,7 @@ export const ground = {
     nearWhole: 'Ganzes Level',
     nearClose: 'Nah dran',
     showFrames: 'Was jeder Bildschirm sieht',
+    showDoneNotes: 'Erledigte Notizen zeigen',
     showFinger: 'Auch mit dem Finger zeichnen',
     showLeft: 'Ich zeichne mit der linken Hand',
   },
