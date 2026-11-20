@@ -366,6 +366,9 @@ test('one step shows only while it is held still, and takes a single step', asyn
   // An icon on its own keeps its spoken name.
   expect(button('step')?.getAttribute('aria-label')).toBe('One step')
   expect(button('step')?.getBoundingClientRect().height).toBeGreaterThanOrEqual(44)
+  // On a short box the strip waits behind its own button.
+  button('rewind')?.click()
+  await tick()
   const before = Number(box.querySelector('[data-play="strip"] input')?.getAttribute('max') ?? 0)
   button('step')?.click()
   await tick()
@@ -393,6 +396,8 @@ test('speed says Normal, then Slow, then Slower, and round again', async () => {
 test('the strip goes back through the last seconds: dragging it holds the game at that moment', async () => {
   const { frames, button } = await mountPart()
   frames.step(200)
+  await vi.waitFor(() => expect(button('rewind')).not.toBeNull())
+  button('rewind')?.click()
   const range = () => box.querySelector<HTMLInputElement>('[data-play="strip"] input[type="range"]')
   await vi.waitFor(() => expect(range()).not.toBeNull())
   expect(range()?.getAttribute('aria-label')).toBe('Drag back to see it again')
@@ -402,9 +407,10 @@ test('the strip goes back through the last seconds: dragging it holds the game a
   input.dispatchEvent(new Event('input', { bubbles: true }))
   await tick()
   expect(button('pause')?.getAttribute('aria-label')).toBe('Go on')
-  // What was played after it is forgotten, so the strip now ends where the game is.
-  await vi.waitFor(() => expect(Number(range()?.max)).toBe(middle))
-  expect(Number(range()?.value)).toBe(middle)
+  // The strip keeps the range it had while the finger is on it (the game forgets what came after, but a second drag
+  // must land where the finger is).
+  await vi.waitFor(() => expect(Number(range()?.value)).toBe(middle))
+  expect(Number(range()?.max)).toBeGreaterThan(middle)
 })
 
 test('Play from here waits for a tap with a strip that says so and has Cancel; a tap starts the hero there', async () => {

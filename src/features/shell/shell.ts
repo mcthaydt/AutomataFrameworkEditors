@@ -23,6 +23,7 @@ export {
   type Happened,
   keepTick,
   readTicks,
+  STEPS,
   type Step,
   stepsIn,
   type TourState,

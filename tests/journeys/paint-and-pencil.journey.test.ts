@@ -113,6 +113,33 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
       .toBe('true')
   })
 
+  test('a menu opened from the top bar lies over the Show panel: every row of it can be pressed', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await inRoom2(page)
+    await tool(page, /^Show/).click()
+    await page.getByRole('dialog', { name: 'Show' }).waitFor()
+    const game = page.locator('button.game')
+    await ((await game.count()) > 0 ? game : page.locator('button.part')).first().click()
+    await page.getByRole('menuitem').first().waitFor()
+    await settled(page)
+    // A long menu scrolls inside itself: the rows in its own box are the ones in sight, and each must be on top.
+    const covered = await page.evaluate(() => {
+      const menu = document.querySelector<HTMLElement>('[role="menu"]')
+      if (menu === null) return ['no menu']
+      const room = menu.getBoundingClientRect()
+      return [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]')].flatMap((row) => {
+        const box = row.getBoundingClientRect()
+        const x = box.left + box.width / 2
+        const y = box.top + box.height / 2
+        if (y < room.top || y > room.bottom || y > window.innerHeight) return []
+        const at = document.elementFromPoint(x, y)
+        return at !== null && row.contains(at) ? [] : [(row.textContent ?? '').trim().slice(0, 24)]
+      })
+    })
+    expect(covered, 'rows of the menu under another panel').toEqual([])
+  })
+
   test("Show changes the picture, and the free thumb's buttons can be reached and pressed", async () => {
     journey = await openPage(size)
     const { page } = journey

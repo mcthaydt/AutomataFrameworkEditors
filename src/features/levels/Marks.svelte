@@ -107,6 +107,7 @@
     </button>
   {/each}
   {#each ghosts as ghost (ghost.name)}
+    {@const pickedX = marks.find((m) => marked.includes(m.id))?.box.x ?? 0}
     <span
       class="ghost"
       role="img"
@@ -117,7 +118,7 @@
       style:width="{ghost.mark.box.w}px"
       style:height="{ghost.mark.box.h}px"
     >
-      <b class="tag glass-1" class:end={ghost.mark.box.x < (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)} class:start={ghost.mark.box.x > (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)}>{ghost.name}</b>
+      <b class="tag glass-1" class:end={ghost.mark.box.x < pickedX} class:start={ghost.mark.box.x > pickedX}>{ghost.name}</b>
     </span>
   {/each}
   {#each extras as extra (extra.id)}

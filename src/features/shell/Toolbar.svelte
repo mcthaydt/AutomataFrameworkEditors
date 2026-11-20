@@ -77,6 +77,7 @@
       class="tool"
       class:on={one === tool}
       aria-pressed={one === tool}
+      data-tour={one === 'place' ? 'place' : undefined}
       aria-label={text(words.panels[NAME[one]])}
       title={text(words.panels[NAME[one]])}
       onclick={() => onpick(one)}

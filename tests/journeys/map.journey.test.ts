@@ -83,6 +83,10 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await page.locator('[data-way="clear"]').waitFor()
     expect(await count(page, 'wall')).toBe(1)
     expect(await count(page, 'join')).toBe(joins)
+    // The wall's marker is something a finger presses: 44 by 44 at least.
+    const marker = await page.locator('[data-wall]').boundingBox()
+    expect(marker?.width).toBeGreaterThanOrEqual(43.5)
+    expect(marker?.height).toBeGreaterThanOrEqual(43.5)
     await page.waitForTimeout(300)
     await picture(page, `map-wall-${size}`)
 

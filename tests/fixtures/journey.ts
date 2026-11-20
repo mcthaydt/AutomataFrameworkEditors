@@ -221,6 +221,13 @@ export async function signIn(page: Page): Promise<void> {
   )
 }
 
+/** The page can be read or pictured once its fonts are in and it has drawn twice. */
+export const settled = (page: Page): Promise<void> =>
+  page.evaluate(async () => {
+    await document.fonts.ready
+    await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+  })
+
 /**
  * Saves a picture a person can look at: `tests/journeys/__screenshots__/<name>.png`. WebKit takes a full-page picture by
  * adding a style element of its own, which the page's policy refuses and reports; that report is the camera's, not the
