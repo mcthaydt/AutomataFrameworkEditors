@@ -131,3 +131,62 @@ Out of scope, as the lead says: the pulled-up sheet covering the toolbar at phon
 and goes to PR 19.
 
 Verdict of addendum 2: **pass.** No red is left on #119.
+
+## Addendum 3: the merge of PR 15 and its fix, examined at 9b2b24e
+
+Range read: 19375af..9b2b24e. That is eb1500e, which merges main 9cd1f5d, then the builder's fix 9b2b24e
+(`levels/Marks.svelte` and `tests/journeys/screens.journey.test.ts`). At 9b2b24e on a fresh clone, typecheck, lint and
+knip are clean and 1153 node tests pass; the glass gate is among them.
+
+- (1) The merge is **clean**: `git diff-tree --cc eb1500e` shows no conflict changes. `team/WaitingChange.svelte` is
+  gone at 9b2b24e (`git ls-tree`), so R2 closes outright. `WaitingChange` is now only a wire type.
+- (2) The name tags in `levels/Marks.svelte` drop their own `background`, `backdrop-filter` and `color` and wear
+  `glass-1`. PR 15's Check, AskSheet and Clash sheets use the kit's `Sheet`, and the screens rule passed on them in
+  Chromium: `put-sheet-clash-only`, `level-changed-by-someone-else`, `waiting-change-as-approver` and
+  `waiting-change-failed-checks` at phone, iPad upright and computer, 12 of 12. That rule covers glass, spoken names and
+  tooltips. Shots: `/mnt/project-files/screens/glass/audit-1/c5-9b2b24e/`. The Yours and someone else's tags and the
+  sheets read clearly at every size.
+- (3) **The builder changed its own check, and the narrowing is right.** A glass that sits inside a blurring holder is
+  now flagged only when what lies under its middle is outside that holder. The tags inside the clash sheet blur the
+  level picture drawn inside that same sheet, so the sheet being a backdrop root takes nothing from them. Flagging them
+  was a false alarm. **The rule still catches R1**, which I re-ran myself rather than taking the builder's word. I put
+  the old blur back on the holders (`.look .dim-2` and `.look .dim-3` get `backdrop-filter: var(--dim-n-filter)`),
+  rebuilt, and ran seven scenes at phone, phone sideways, iPad upright and computer. 20 failed with "a glass glass-3
+  (or glass-2) sits inside a "scrim …" that blurs or fades": `first-run-welcome`, `world-help`, `put-sheet-asks`,
+  `put-sheet-clash-only` and `level-changed-by-someone-else`, each at all four sizes. The two `waiting-change-*` scenes
+  passed, because their side sheets have no dim holder. With `ui.css` put back, all 28 pass.
+- N8 (note): the narrowed rule looks at one point, the glass's middle, and only at its nearest blurring holder. A
+  future holder that also held its own full-size element under the glass would hide an R1 regression from it. No
+  holder does that at 9b2b24e: the scrims hold only their sheet, and the tour's dim is a sibling of its card.
+- N9 (note, PR 15's words, outside this change): the clash-only sheet's title reads "Put 0 changes in the game" at every
+  size.
+
+Out of scope, as the lead says: the WebKit `map-arrange` red on 19375af, which the full run decides, and the level bar's
+More menu (PR 19).
+
+Verdict of addendum 3: **pass.** No red is left on #119 at 9b2b24e.
+
+## Addendum 4: the level bar's WebKit fix at d8be2be
+
+Examined: **d8be2be**, range 9b2b24e..d8be2be (8e66808, a53af61, 7be6e66, d8be2be). Reviewer: Opus 5.5, medium. Run on a
+fresh clone, Chromium only (no WebKit browser in this container; the CI full run on d8be2be decides WebKit).
+
+- (1) **8e66808 loosens nothing.** It adds the `said()` and `settle()` diagnostics to `map-arrange.browser.test.ts`. The
+  bounds are unchanged and the bar is still measured before the settle, which only adds words to a failure message.
+- (2) **a53af61 and 7be6e66 net to zero:** `git diff a53af61^ 7be6e66 --stat` is empty.
+- (3) **The new test fails without the fix and passes with it.** With `MapFloats.svelte` from 7be6e66 and the test from
+  d8be2be: 1 failed, 20 passed, "the bar runs off the right: expected 515.453125 to be less than or equal to 390", the
+  reason the WebKit run showed. At d8be2be: 21 of 21 pass, four runs in a row. The new test has no timed wait, only
+  Svelte's `tick` and one frame between the two picks.
+- (4) **The old 50 ms test is untouched:** `git diff 7be6e66 d8be2be -- tests/` adds lines only, after its end.
+- (5) **No effect loop.** The new `$effect` reads `barEl` and the four listed values, measures, and writes `barSize`
+  inside `untrack`, so writing the size never re-runs it. `bind:clientWidth`/`clientHeight` write the same state and
+  the effect does not read it. It writes only when a side changed, so the two writers agree and do not ping-pong.
+- (6) **The map journeys pass:** `tests/journeys/map.journey.test.ts` 9 of 9 after `pnpm build:journeys`.
+- N10 (note): the effect lists what changes the bar's buttons (`picked`, `touching[0]`, `menu`, `open?.kind`). The
+  bar's width can also change with the language, a rename of the picked level, or a font finishing loading. None of
+  those is in the list, so in those cases the bar is placed by its old size for one frame, until the resize observer
+  behind `bind:clientWidth` catches up. That is the behaviour before this fix, it lasts one frame and no test or shot
+  shows it off the screen. Not blocking.
+
+Verdict of addendum 4: **pass** in Chromium. No red is left on #119 at d8be2be; WebKit rests on the CI full run.

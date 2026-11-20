@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 00:02 UTC (from `date`).
+Last updated: 2026-11-20 02:04 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,91 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- Owner instruction (2026-11-20 02:03 UTC, project chat): "Finish the slice, I'm going to sleep". The slice lead drives
+  the open pull requests to merge and carries on down the list overnight, keeping sessions and screenshot runs lean
+  (the Owner is watching usage). Held for the Owner: lane 3 steps, the website demo's recorded plays (the Owner sees
+  them first), and the Owner's own looks and walk at the slice end.
+- Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
+  "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
+  review, lane or check is skipped.
+- 2026-11-20 05:14 UTC: PR 17's play tools (#123) merged with a merge commit `c0f05a9` after two review cycles (pass at
+  `ff6b245`, audits `870feae` and `2fc8096`) and a green full run on every engine. Left for PR 19 or the slice-end walk
+  (both low): the speed stays Slow after a door, and the game runs on while "Play from here" waits for its tap.
+  "Ready" was accepted from the ordinary pull request tool; only the raw `ccr/ready_for_review` call had been refused,
+  so PR 16 (#113) went ready at 05:16 UTC with no tap from the Owner. PR 18 (#124) passed cycle 2 at `d6a2e69`
+  (audits `a2f6f14`, `1507ebc`): cycle 1 found the thing's menu clipped (its last row could not be tapped at four
+  sizes) and the level view drawing a with-hero box over the ground where Play draws it under; both fixed test first.
+- State at 2026-11-20 04:56 UTC. PR 16 (#113) is reviewed to its head `9377b6de` (five cycles; the last two read the
+  builder's change to the cut-off tracker, which now excuses WebKit's bare-id name for an in-memory picture only on the
+  page's own host and only after a second move) and green on every engine in its draft run. It waits only for "Ready":
+  the permission guard refused that step to the builder and to the slice lead at 04:34 UTC, nobody went around it, and
+  the Owner was asked. PR 17's play tools (#123) were reviewed at `28d34dd` (audit `870feae`): 2 red, both weak tests,
+  being fixed. The plan's "a crate at How heavy 4 goes less than half as far as at 0.5" was a wrong prediction, not a
+  framework gap: measured 1.63 against 2.42 tiles at 60 ticks (0.67); the framework's own claim, 8 against 1, holds at
+  0.42. The test asserts under 0.7. PR 18 (#124) is built at `1b8208e` and going to review; its new words live in
+  `words/thing.ts` (`words/levels.ts` was at the 600-line limit). Main's run on `5021c69` shows red only because its
+  screens job was cancelled in the queue: the `ci-screens` concurrency group is shared by every run, so a waiting job
+  on main is dropped when two pull requests queue theirs (a CI workflow fault, lane 3, with the master coordinator for
+  the Owner). Briefs for PR 19 are written (`/mnt/project-files/handoff/world/pr19.md`); its `CLAUDE.md` edit is lane 3
+  and will wait for the Owner in its own pull request.
+- 2026-11-20 04:23 UTC: glass and icons (#119) merged with a merge commit `5021c69`, reviewed and tested at `d8be2be`
+  (cycle 2 audit with four addenda, the last at `5e9ca67`). Its full run found one real WebKit fault after the review
+  passed: a wider level bar picked after a narrower one was placed from the old bar's size and sat off screen for a
+  moment. Three guesses failed; a clearer failure message showed the cause, and the fix places the float from the
+  bar's own size in the same update (`MapFloats.svelte`), with a test that failed first in Chromium. The slice lead
+  refused the other fix on offer (make the test wait), since it would hide the jump. The framework pin (#122) merged at
+  `cab466e`: the pin is now `b10ffe6` (one fresh review, no red). PR 16 (#113) passed its read with glass on at
+  `82cf6ede` (audit `a015f64`). PR 17's play tools are draft #123. For PR 19: the level bar's More menu (glass-2) sits
+  inside the bar (glass-1) so its blur sees only the bar, and no scene opens it; PR 15's clash-only sheet is titled
+  "Put 0 changes in the game"; lang, a rename and a font load still place the bar by its old size for one frame (N10);
+  the blur rule samples only the glass's middle and nearest blurring holder (N8).
+- 2026-11-20 03:11 UTC: plan pull request 15 (#118), checking and two people on one thing, merged with a merge commit
+  `9cd1f5d` after two review cycles (pass at `dd52277`, audit `f54d376`) and a green full run on `dfb8657`. Left for
+  PR 19: wrap the new this-repo line, tidy a double `marks.find` in `Marks.svelte`, and the pulled-up settings sheet
+  covering the toolbar at phone and iPad upright (the same on main). Glass (#119) passed its last read at `71382dd`
+  (addendum `19375af`) and now merges main in to bring PR 15's sheets under the glass gate; that range gets a read.
+  PR 16 (#113): the WebKit reds were opens started as the page went away; fixed at `27078f5` (the list stops its queue
+  on `beforeunload` and `pagehide`), WebKit run pending. For history: the welcome journeys need
+  `pnpm build:journeys-plain` first when run locally.
+- State at 2026-11-20 02:27 UTC: PR 15 (#118) passed cycle 2 at `dd52277` (audit `f54d376`); it is ready and in its
+  full run, and merges on green without waiting for glass. Glass (#119): N6 and N7 fixed at `efdccd0`, but the last read
+  found R4 (a phone held sideways: the pinned foot leaves the settings 32px to scroll in; addendum `a5084ae`); the
+  builder is fixing it (second try on the move pad's place). PR 16 (#113): the full run on `4244205` left one family of
+  WebKit reds (games still opened for their picture while GitHub is down); the builder is fixing that test-first and
+  logging a third case it cannot yet explain (its third try).
+- State at 2026-11-20 02:04 UTC: glass and icons (#119) passed its review at `d961ead` (cycle 2, audit `b026b9a`) with the Owner's
+  three notes in; two small notes are being fixed, then the full run and the merge. PR 16 (#113) passed cycle 2 at
+  `8831e91` (audit `4244205`) with one WebKit red only the full run can prove; it merges after #119. PR 15 (#118) had
+  3 reds at `ab713d9` (audit `0f8dcfb`); the slice lead's call on the first: build the plan's version, both places named
+  on the real level, not the two small pictures of the sketch (easy to change back: `team/Clash.svelte`).
+
+- Glass and icons (#119), review cycle 1 at `1381e6a` (audit `e4f61b0`): 3 red, 5 notes. Red 1: the dim's own blur
+  stops sheets and dialogs getting their layer's blur, and the dialog card is drawn lighter than a sheet (the reverse
+  of the scale): being fixed with a browser test. Agent-selected calls by the slice lead, not the Owner's: the white
+  waiting-change page is left (PR 15 deletes it); the approved mockups in `docs/mockups/` are not redrawn, and are read
+  as out of date on glass strength, icon-only buttons and centred plain pages, by the Owner's instructions of
+  2026-11-17 and 2026-11-20, in the slice-end design drift check. Found on main, not this change's: on a phone the
+  Show panel covers the top bar menu's Help; it goes to PR 19's layout fixes.
+
+- Owner instruction (2026-11-20 01:00 UTC, on the after shot of a picked thing's settings panel): "this needs some
+  padding and margin, it's hugging the edges". The settings panel gets padding inside and a margin from the screen's
+  edges; given to the glass builder (#119) with the Owner's picture. Not yet applied.
+
+- Owner instruction (2026-11-20 00:59 UTC, on the glass before-and-after page, the "game that cannot open" page):
+  "this should be centered", then (01:00 UTC) "actually all of those panels at the top of the page, should be at the
+  middle of the page". Read by the slice lead as: every plain page whose card or panel sits at the top (the
+  game-cannot-open pages, Welcome, Pick a game and the like) is centred in the page both ways; the editor's own bars
+  and sheets stay. Given to the glass builder (#119) to land with its review fixes. Not yet applied.
+- Glass and icons (#119, draft) is built at `1381e6a` and in its lane 2 review (fresh reviewer, Opus 5.5, medium). The
+  Owner saw the layout sketch and a before-and-after page of twelve screens at three sizes
+  (https://claude.ai/artifact/Qzm6Etuvghk3JBcyFiUzZR). Rules changed on main in #120 ("shoot only what changed"); every
+  builder and the reviewer were told.
+
+- Owner decision (2026-11-20 00:21 UTC, decision card): the World slice closes with the native-speaker reads planned,
+  not done. The plan is Framework #219 (`docs/superpowers/specs/2026-11-20-native-speaker-reads-design.md`); the reads
+  of ES, KO, JA, ZH and PT (478 rows a language, measured there) happen later, when the Owner has readers. Still the
+  Owner's and not asked yet: who reads, any payment, the extra scope, and which commit is read.
 
 - **Picked back up (2026-11-20 00:02 UTC, slice lead).** Every session hit the usage limit at 2026-11-17 06:53 UTC and stopped for
   three days; nothing merged in that time but rule and test-cleanup pull requests (#114 to #117). Owner instruction
@@ -92,7 +177,7 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 | 10 | First run, Settings, Help, the keys | #90 |
 | 14 | Play in place: the level plays where it is drawn | #95 |
 
-The framework pin here is `7ff5795`.
+The framework pin here is `b10ffe6` (was `7ff5795` until #122).
 
 ### Remaining
 
