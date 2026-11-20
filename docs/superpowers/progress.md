@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 15:40 UTC (from `date`).
+Last updated: 2026-11-20 16:44 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -13,6 +13,9 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 
 ### Current work
 
+- 2026-11-20 16:44 UTC: after the stop. Main at `0d581fa` (#139) is green (run 44767346948); Site's `ci` run at `b04483b` is green
+  (44760075467). The sign-in journey failed a second time, on draft #140's `d4f9882` (the CI-speed trial, lane 3,
+  not this slice's); recorded under "Flaky tests" in `history.md`.
 - The Owner's, 2026-11-20 15:37 UTC (project chat; recorded 2026-11-20 15:40 UTC), to the coordinator's "The best place to stop is
   right now. […] To wrap up, I'd have the fix PR paused, the docs PR with both reviews and the handoff notes merged,
   and everything else closed. Want me to do that?": "yes". So the slice stops here, unclosed. Done on it: the round 1

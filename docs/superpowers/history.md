@@ -88,6 +88,9 @@ Finished milestones and their decision records, setup, rule changes, standing pe
   does not fail it. A late 401 can make `renew()` swap the token a second time (`session.ts`, the page-wide
   `lastUsed`), but with a faithful stand-in for GitHub that second swap succeeds, so it does not explain a sign-out.
   Not fixed. If it fails again, the next step is the failing run's trace.
+  Second time (recorded 2026-11-20 16:44 UTC, reported by the CI-speed trial's session): the same test, the same shard, on draft
+  #140's commit `d4f9882`, run 44771742529: `locator.waitFor` timed out after 10 s. Not re-run; the next push passed.
+  Two failures in one day on `browsers (chromium 5/6)`: read that run's trace first.
 - Not a test: the runner's package mirror (2026-11-20). `playwright install-deps webkit` sat for 30 minutes and the
   job was cancelled at its timeout, before any test ran: #128 at `bcf2fa6b` (run 44714470876, webkit 1/6, 10:39 to
   11:09 UTC), #135's full run 44718055798 (webkit 2/6), main `8a5ec44` (run 44726451517, webkit 2/6 and 5/6, 11:18
