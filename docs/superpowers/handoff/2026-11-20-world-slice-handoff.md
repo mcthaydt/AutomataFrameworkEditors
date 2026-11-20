@@ -93,11 +93,10 @@ As of 2026-11-20 15:40 UTC:
 - `746c2ca` (#138, documents only): run 44755204131 ended red for the same cause: `browsers (webkit 5/6)` was
   cancelled inside `playwright install-deps webkit` after 30 minutes, before any test ran, which fails `engines
   (webkit)` and `gate`. It was not re-run, because this file's own pull request makes a newer run on main.
-- The merge of this file's pull request is the newest run on main; its result is in the last dated note of
-  `docs/superpowers/progress.md` if it was recorded, and on GitHub either way. Everything after `fa3a853` on main is
-  documents only.
-- Site `b04483b`: the `site` run (build and deploy) is green; the `ci` run 44760075467 was still running at this
-  time, 33 minutes in, most likely on the same mirror.
+- `0d581fa` (#139, this file's pull request, documents only): green, run 44767346948 (added 2026-11-20 16:44 UTC). Everything
+  after `fa3a853` on main is documents only.
+- Site `b04483b`: the `site` run (build and deploy, 44760075525) and the `ci` run (44760075467) are both green.
+- The sign-in journey failed a second time, on draft #140 (see "Flaky tests" in `history.md`).
 
 A known cause of red runs that is not a test: GitHub's runner package mirror is slow at times, and
 `playwright install-deps webkit` or `playwright install --with-deps chromium` then hangs until the job's timeout (30
