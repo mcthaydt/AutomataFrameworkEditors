@@ -297,6 +297,7 @@ test('the menu has both rows, and a row that cannot act says why', async () => {
         hidden: false,
         draws,
         canPaste: false,
+        canNote: false,
         onpick: (id: string) => picked.push(id),
         onclose: () => {},
       },
