@@ -21,8 +21,8 @@
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
   import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
-  import { type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
-  import { type Route, withoutSheet } from '../team/team.ts'
+  import { type Docks, Find, type Found, layout, parseGo, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
+  import { Helper, Notes, type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { didWhat } from './did.ts'
@@ -33,7 +33,7 @@
   import Guidance from './Guidance.svelte'
   import { afterFinger } from './finger.svelte.ts'
   import { bottomOf, insetsOf } from './insets.ts'
-  import { actOnKey } from './keys.ts'
+  import { actOfCommand, actOnKey, type KeyAct } from './keys.ts'
 import { listen, measure } from './listen.ts'
   import { createLook } from './look.svelte.ts'
   import Panels from './Panels.svelte'
@@ -136,6 +136,11 @@ import Team from './Team.svelte'
 
   /** The first run and the sheets of help: told what the person does, asked to open a sheet. */
   let guide = $state.raw<ReturnType<typeof Guidance>>()
+  /** The team's notes and a helper's ghost on the level, and Find with the things it says match (the list shows only those). */
+  let notes = $state.raw<ReturnType<typeof Notes>>()
+  let helper = $state.raw<ReturnType<typeof Helper>>()
+  let finding = $state(false)
+  let only = $state.raw<readonly string[] | undefined>(undefined)
 
   const lang = $derived(me.language ?? 'en')
   const words = $derived(wordsIn(lang))
@@ -178,36 +183,38 @@ import Team from './Team.svelte'
       leaving: (e) => void (dirty && e.preventDefault()),
       key: (e) => {
         const act = actOnKey(e, { playing, canPlay: level !== undefined && !onMap, picked: picked.length, sheetOpen: guide?.sheetOpen() === true })
-        if (act === undefined) return
-        switch (act.kind) {
-          case 'stop-play':
-            return stopPlay()
-          case 'step':
-            return step(act.which)
-          case 'escape':
-            picked = []
-            pickedLevel = undefined
-            placing = undefined
-            return
-          case 'play':
-            return startPlay()
-          case 'help':
-            return guide?.open('help')
-          case 'find':
-            return
-          case 'nudge':
-            return nudge(picked[0] as string, act.way)
-          case 'tool':
-            tool = act.tool
-            return
-          case 'level':
-            return part?.command(act.command)
-        }
+        if (act !== undefined) run(act)
       },
       online: (on) => void (online = on),
       pointer: (e) => void (pointers = nextPointers(pointers, e)),
     }),
   )
+
+  /** Does what a key (or something Find offered) asks for. */
+  function run(act: KeyAct): void {
+    switch (act.kind) {
+      case 'stop-play': return stopPlay()
+      case 'step': return step(act.which)
+      case 'escape': return void ((picked = []), (pickedLevel = undefined), (placing = undefined))
+      case 'play': return startPlay()
+      case 'help': return guide?.open('help')
+      case 'find': return void (finding = true)
+      case 'nudge': return nudge(picked[0] as string, act.way)
+      case 'tool': return void (tool = act.tool)
+      case 'place': return void ((placing = act.character), (tool = 'place'))
+      case 'level': return part?.command(act.command)
+    }
+  }
+  /** Something Find found was pressed: take the person to it. */
+  function found(one: Found): void {
+    finding = false
+    const to = parseGo(one.go)
+    const act = to?.kind === 'command' ? actOfCommand(to.id, { canPlay: level !== undefined && !onMap }) : undefined
+    if (to?.kind === 'thing') goLevel(to.level, to.thing)
+    else if (to?.kind === 'level') goLevel(to.level)
+    else if (to?.kind === 'map') onmap()
+    else if (act !== undefined) run(act)
+  }
 
   function startPlay(): void {
     events = unsay(events, 'play')
@@ -247,9 +254,7 @@ import Team from './Team.svelte'
     solid(false)
     keep(which === 'undo' ? undo(edits) : redo(edits))
   }
-  const solid = (on: boolean): void => {
-    events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid')
-  }
+  const solid = (on: boolean): void => void (events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid'))
 
   // A hand holding things: moves are worked out from the level as it was when the hand took hold: one grab, one step back.
   let dragFrom: Edits | undefined
@@ -285,25 +290,12 @@ import Team from './Team.svelte'
   const closeSheet = (): void => go(withoutSheet(route))
 
   function answered(event: Saying, answer: Answer): void {
-    switch (answer) {
-      case 'stay':
-        pending = undefined
-        events = unsay(events, event.id)
-        return
-      case 'leave': {
-        const then = pending
-        pending = undefined
-        dropDrafts(drafts, held)
-        events = unsay(events, event.id)
-        then?.()
-        return
-      }
-      case 'dismiss':
-        if (event.id === 'tip-share') tipKept(remembered, 'share')
-        if (event.id === 'tip-approve') tipKept(remembered, 'approve')
-        events = unsay(events, event.id)
-        return
-    }
+    const then = answer === 'leave' ? pending : undefined
+    if (answer !== 'dismiss') pending = undefined
+    if (answer === 'leave') dropDrafts(drafts, held)
+    if (answer === 'dismiss' && (event.id === 'tip-share' || event.id === 'tip-approve')) tipKept(remembered, event.id === 'tip-share' ? 'share' : 'approve')
+    events = unsay(events, event.id)
+    then?.()
   }
 
   /** Opens the level or the map at a problem, and picks the thing it is about. */
@@ -432,6 +424,7 @@ import Team from './Team.svelte'
           {onmap}
           edges={edgesOf(edits.now, held.content, levelId)}
           ongo={goLevel}
+          extras={[...(helper?.extras() ?? []), ...(notes?.extras() ?? [])]} onextra={(id) => notes?.open(id)} onnote={signedIn ? (where) => notes?.add(where) : undefined}
         />
         {/if}
         {#if playing}
@@ -477,6 +470,7 @@ import Team from './Team.svelte'
       onpeople={() => asSheet({ kind: 'people' })}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
       onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
+      onfind={() => (finding = true)}
       onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
       {playing}
     />
@@ -515,6 +509,7 @@ import Team from './Team.svelte'
       hand={{ grab, edit, drop }}
       ongo={goLevel}
       content={held.content}
+      {only}
       {look}
       {me}
       {onme}
@@ -524,7 +519,7 @@ import Team from './Team.svelte'
     <Events {events} low={playing} onanswer={answered} />
 
     {#if sheet?.kind === 'people' || sheet?.kind === 'history'}
-      <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} />
+      <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
     {/if}
 
     <Changes
@@ -564,7 +559,16 @@ import Team from './Team.svelte'
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}
       onkeep={level === undefined ? undefined : () => changes?.open('keep')}
+      onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
     />
+
+    {#if level !== undefined}
+      <Notes bind:this={notes} {lang} {api} game={held} {levelId} {level} characters={held.content.characters} showDone={look.show.doneNotes} {onsignedout} />
+      <Helper bind:this={helper} {lang} {api} game={held} {edits} {levelId} characters={held.content.characters} onchanged={(next, now) => (next !== undefined && (held = next), keep(now))} />
+    {/if}
+    {#if finding}
+      <Find {lang} working={edits.now} content={held.content} open={onMap ? undefined : levelId} onpick={found} onclose={() => (finding = false)} onfilter={(ids) => (only = ids)} />
+    {/if}
   </div>
 {/if}
 

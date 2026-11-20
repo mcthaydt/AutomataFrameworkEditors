@@ -15,12 +15,14 @@
     onclose: () => void
     /** "Show me" in what changed: the level or the map a change touched. */
     onshow: (opening: { level: string } | { map: true }) => void
+    /** "Ask the owner" in who can change it: opens a note to them. */
+    onask?: ((owner: string) => void) | undefined
   }
-  let { sheet, lang, api, game, onsignedout, onclose, onshow }: Props = $props()
+  let { sheet, lang, api, game, onsignedout, onclose, onshow, onask }: Props = $props()
 </script>
 
 {#if sheet.kind === 'people'}
-  <People {lang} {api} {game} {onsignedout} {onclose} />
+  <People {lang} {api} {game} {onsignedout} {onclose} {onask} />
 {:else}
   <History {lang} {api} {game} {onsignedout} {onclose} {onshow} />
 {/if}

@@ -14,6 +14,8 @@ export type KeyAct =
   | { readonly kind: 'nudge'; readonly way: 'left' | 'right' | 'up' | 'down' }
   | { readonly kind: 'tool'; readonly tool: Tool }
   | { readonly kind: 'level'; readonly command: 'delete' | 'duplicate' | 'copy' | 'paste' }
+  /** Hold this character to place: only Find asks for it. */
+  | { readonly kind: 'place'; readonly character: string }
 
 export interface KeyFacts {
   readonly playing: boolean
@@ -69,4 +71,15 @@ export function actOnKey(e: KeyboardEvent, facts: KeyFacts): KeyAct | undefined 
     return { kind: 'level', command }
   }
   return undefined
+}
+
+/** What a command Find offered (`command:undo`, `command:place:crate`) asks the screen to do. */
+export function actOfCommand(id: string, facts: Pick<KeyFacts, 'canPlay'>): KeyAct | undefined {
+  if (id === 'undo' || id === 'redo') return { kind: 'step', which: id }
+  if (id === 'play') return facts.canPlay ? { kind: 'play' } : undefined
+  if (id === 'help') return { kind: 'help' }
+  if (id === 'duplicate') return { kind: 'level', command: 'duplicate' }
+  if (id.startsWith('place:')) return { kind: 'place', character: id.slice('place:'.length) }
+  const tool = id.startsWith('tool:') ? WORLD.tools.find((one) => one === id.slice(5)) : undefined
+  return tool === undefined ? undefined : { kind: 'tool', tool }
 }

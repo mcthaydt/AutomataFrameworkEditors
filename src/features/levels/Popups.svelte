@@ -21,6 +21,8 @@
     locked: boolean
     hidden: boolean
     canPaste: boolean
+    /** "Add a note" is offered: only to a person who can send one. */
+    canNote: boolean
     tray: Point | undefined
     renaming: string | undefined
     asking: { character: string } | undefined
@@ -41,6 +43,7 @@
     locked,
     hidden,
     canPaste,
+    canNote,
     tray,
     renaming,
     asking,
@@ -69,7 +72,7 @@
 {#if menu !== undefined && menuAt !== undefined}
   <button type="button" class="scrim" data-ui tabindex="-1" aria-hidden="true" onclick={onclosemenu}></button>
   <div class="float" data-ui style:left="{menuAt.x}px" style:top="{menuAt.y}px">
-    <ThingMenu {lang} on={menu.on} {locked} {hidden} {canPaste} onpick={onmenu} onclose={onclosemenu} />
+    <ThingMenu {lang} on={menu.on} {locked} {hidden} {canPaste} {canNote} onpick={onmenu} onclose={onclosemenu} />
   </div>
 {/if}
 

@@ -64,6 +64,8 @@
     onme: (next: Me) => void
     /** Asks the level to come to the whole of it, or close up. */
     onnear: (near: Show['near']) => void
+    /** While Find is open: only these things of the open level are listed. */
+    only?: readonly string[] | undefined
   }
   let {
     lang,
@@ -103,6 +105,7 @@
     me,
     onme,
     onnear,
+    only,
   }: Props = $props()
 
   const HOLDS: Readonly<Partial<Record<Tool, readonly HoldButton[]>>> = {
@@ -183,7 +186,7 @@
         {pickedLevel}
         {onpicklevel}
         {level}
-        {things}
+        things={only === undefined ? things : things.filter((one) => only.includes(one.id))}
         {picked}
         {locked}
         {onpick}

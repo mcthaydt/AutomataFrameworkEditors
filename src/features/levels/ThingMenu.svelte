@@ -11,10 +11,11 @@
     hidden: boolean
     /** Whether something has been copied that a paste could put down. */
     canPaste: boolean
+    canNote: boolean
     onpick: (id: string) => void
     onclose: () => void
   }
-  let { lang, on, locked, hidden, canPaste, onpick, onclose }: Props = $props()
+  let { lang, on, locked, hidden, canPaste, canNote, onpick, onclose }: Props = $props()
 
   const words = $derived(wordsIn(lang).levels)
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -23,7 +24,7 @@
   const items = $derived<readonly MenuItem[]>(
     on === undefined
       ? [
-          { id: 'note', words: text(words.menuNote), icon: 'note-pencil' },
+          ...(canNote ? [{ id: 'note', words: text(words.menuNote), icon: 'note-pencil' } as const] : []),
           { id: 'put', words: text(words.holdPut), icon: 'plus-circle' },
           {
             id: 'paste',
@@ -33,7 +34,7 @@
           },
         ]
       : [
-          { id: 'note', words: text(words.menuNote), icon: 'note-pencil' },
+          ...(canNote ? [{ id: 'note', words: text(words.menuNote), icon: 'note-pencil' } as const] : []),
           { id: 'rename', words: text(words.menuRename) },
           locked
             ? { id: 'unlock', words: text(words.menuUnlock), icon: 'lock-open' }

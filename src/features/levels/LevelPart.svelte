@@ -84,7 +84,7 @@ import { tagFacts } from './tags.ts'
     /** What is laid over the level (ghosts, note pins), a pin pressed, and "Add a note" on a thing or a spot. */
     extras?: readonly Extra[]
     onextra?: (id: string) => void
-    onnote?: (where: { thing?: string; at: Point }) => void
+    onnote?: ((where: { thing?: string; at: Point }) => void) | undefined
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
@@ -554,7 +554,7 @@ import { tagFacts } from './tags.ts'
     {menu}
     locked={menu?.on !== undefined && locked.has(menu.on)}
     hidden={menu?.on !== undefined && hidden.has(menu.on)}
-    canPaste={clip !== undefined}
+    canPaste={clip !== undefined} canNote={onnote !== undefined}
     {tray}
     {renaming}
     {asking}

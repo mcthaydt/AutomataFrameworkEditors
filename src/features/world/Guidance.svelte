@@ -43,8 +43,10 @@
     onsignedout: () => void
     /** "Keep a copy of this level", from Help. */
     onkeep: (() => void) | undefined
+    /** "Paste what your helper gave you" in Help. */
+    onpaste?: (() => void) | undefined
   }
-  let { lang, me, game, api, owner, remembered, things, picked, onme, onsettings, onsignedout, onkeep }: Props =
+  let { lang, me, game, api, owner, remembered, things, picked, onme, onsettings, onsignedout, onkeep, onpaste }: Props =
     $props()
 
   // Only the steps whose job is on the screen are in the tour; the pull request that draws another adds it here.
@@ -169,6 +171,12 @@
       : () => {
           panel = undefined
           onkeep()
+        }}
+    onpaste={onpaste === undefined
+      ? undefined
+      : () => {
+          panel = undefined
+          onpaste()
         }}
     onclose={() => (panel = undefined)}
   />

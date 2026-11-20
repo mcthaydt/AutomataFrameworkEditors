@@ -114,6 +114,7 @@
       <button
         type="button"
         class="pin"
+        class:done={extra.done}
         data-note={extra.id}
         aria-label={extra.name}
         style:left="{extra.hit.x}px"
@@ -174,6 +175,9 @@
     color: var(--accent);
     cursor: pointer;
     pointer-events: auto;
+  }
+  .pin.done {
+    opacity: 0.45;
   }
   .pin:focus-visible {
     outline: 3px solid var(--focus, var(--accent));

@@ -27,6 +27,8 @@ export interface Mark {
   readonly name: string
   /** Where it is in the level, in tiles. */
   readonly at: Point
+  /** A note that was finished: drawn faint. */
+  readonly done?: boolean
 }
 
 const area = (r: Rect): number => r.w * r.h
@@ -154,6 +156,14 @@ export function extraMarks(extras: readonly Extra[], camera: Camera, screen: Scr
     const w = size.w * camera.scale
     const h = size.h * camera.scale
     const box = { x: c.x - w / 2, y: c.y - h / 2, w, h }
-    return { id: extra.id, kind: extra.kind, box, hit: grow(box), name: extra.name, at: extra.at }
+    return {
+      id: extra.id,
+      kind: extra.kind,
+      box,
+      hit: grow(box),
+      name: extra.name,
+      at: extra.at,
+      ...(extra.done ? { done: true } : {}),
+    }
   })
 }

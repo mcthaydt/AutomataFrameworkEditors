@@ -3,6 +3,8 @@
 export { type Docks, floating, type HoldButton, type Layout, layout } from './docks.ts'
 export { default as Face } from './Face.svelte'
 export { default as Faces } from './Faces.svelte'
+export { default as Find } from './Find.svelte'
+export { type Found, type Go, parseGo } from './find.ts'
 export { default as Help } from './Help.svelte'
 export { default as Hold } from './Hold.svelte'
 export { default as Keys } from './Keys.svelte'
