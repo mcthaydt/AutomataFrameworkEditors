@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 00:02 UTC (from `date`).
+Last updated: 2026-11-20 00:22 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,11 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- Owner decision (2026-11-20 00:21 UTC, decision card): the World slice closes with the native-speaker reads planned,
+  not done. The plan is Framework #219 (`docs/superpowers/specs/2026-11-20-native-speaker-reads-design.md`); the reads
+  of ES, KO, JA, ZH and PT (478 rows a language, measured there) happen later, when the Owner has readers. Still the
+  Owner's and not asked yet: who reads, any payment, the extra scope, and which commit is read.
 
 - **Picked back up (2026-11-20 00:02 UTC, slice lead).** Every session hit the usage limit at 2026-11-17 06:53 UTC and stopped for
   three days; nothing merged in that time but rule and test-cleanup pull requests (#114 to #117). Owner instruction
