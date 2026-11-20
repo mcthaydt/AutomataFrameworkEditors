@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 00:59 UTC (from `date`).
+Last updated: 2026-11-20 01:00 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -12,8 +12,10 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 ### Current work
 
 - Owner instruction (2026-11-20 00:59 UTC, on the glass before-and-after page, the "game that cannot open" page):
-  "this should be centered". The glass card on the plain pages is centred in the page both ways; given to the glass
-  builder (#119) to land with its review fixes. Not yet applied.
+  "this should be centered", then (01:00 UTC) "actually all of those panels at the top of the page, should be at the
+  middle of the page". Read by the slice lead as: every plain page whose card or panel sits at the top (the
+  game-cannot-open pages, Welcome, Pick a game and the like) is centred in the page both ways; the editor's own bars
+  and sheets stay. Given to the glass builder (#119) to land with its review fixes. Not yet applied.
 - Glass and icons (#119, draft) is built at `1381e6a` and in its lane 2 review (fresh reviewer, Opus 5.5, medium). The
   Owner saw the layout sketch and a before-and-after page of twelve screens at three sizes
   (https://claude.ai/artifact/Qzm6Etuvghk3JBcyFiUzZR). Rules changed on main in #120 ("shoot only what changed"); every
