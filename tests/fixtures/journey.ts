@@ -130,20 +130,7 @@ export async function openPage(
   page.on('framenavigated', (frame) => {
     if (frame === page.mainFrame()) cutOff.navigated()
   })
-  // DEBUG-WEBKIT (to be removed before the review): what the page's calls did, to explain a page error WebKit reports.
-  const t0 = Date.now()
-  const dbg = (what: string): void => console.log(`[debug ${Date.now() - t0}ms] ${what}`)
-  page.on('requestfailed', (r) => dbg(`requestfailed ${r.url()} ${r.failure()?.errorText}`))
-  page.on('response', (r) => {
-    if (r.url().includes('/api/')) dbg(`response ${r.status()} ${r.url()}`)
-  })
-  page.on('framenavigated', (f) => {
-    if (f === page.mainFrame()) dbg(`navigated ${f.url()}`)
-  })
-  page.on('pageerror', (error) => {
-    dbg(`pageerror ${error.message}`)
-    errors.push(`page error: ${error.message}`)
-  })
+  page.on('pageerror', (error) => errors.push(`page error: ${error.message}`))
   page.on('console', (message) => {
     // The API answers refusals with a status (401, 404), and a browser logs each of those; they are answers, not faults.
     // WebKit also says so, in the console, when Playwright's own screenshot style is turned away by the page's policy;
