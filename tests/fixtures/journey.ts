@@ -415,6 +415,19 @@ export const putWords = {
   nextProblem: said(KEPT.nextProblem),
 } as const
 
+const CHECK = wordsIn('en').check
+const WHOSE = wordsIn('en').whose
+
+/** What the sheet for checking someone's changes says, in English. */
+export const checkWords = {
+  putThem: said(CHECK.putThem),
+  putDone: said(CHECK.putDoneTitle),
+  checksFailed: said(CHECK.checksFailed),
+  gone: said(CHECK.gone),
+  keepMine: said(WHOSE.keepMine),
+  nothingLeft: said(WHOSE.nothingLeft),
+} as const
+
 /** The sheet that opens over the level when the main button is pressed. */
 export const putSheet = (page: Page) => page.getByRole('dialog')
 

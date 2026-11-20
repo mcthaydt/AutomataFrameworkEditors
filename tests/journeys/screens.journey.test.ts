@@ -14,6 +14,7 @@ import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
+  checkWords,
   chooseFromMenu,
   dragByTouch,
   type JourneyPage,
@@ -460,7 +461,7 @@ const SCENES: readonly Scene[] = [
       await putSheet(j.page)
         .getByRole('button', { name: /^Put them in/ })
         .click()
-      await putSheet(j.page).getByText('clash', { exact: false }).waitFor()
+      await putSheet(j.page).getByRole('button', { name: checkWords.keepMine }).waitFor()
       return j
     },
     stage: true,
@@ -586,8 +587,9 @@ const SCENES: readonly Scene[] = [
         .getByRole('button', { name: /^Put them in/ })
         .click()
       await putSheet(j.page)
-        .getByRole('heading', { name: /version is kept/ })
-        .waitFor()
+        .getByRole('button', { name: /^Keep .*’s$/ })
+        .click()
+      await putSheet(j.page).getByText(checkWords.nothingLeft).waitFor()
       return j
     },
     stage: true,
@@ -719,7 +721,7 @@ const SCENES: readonly Scene[] = [
       const j = await suggestionWaiting(size, 'grandpa')
       repoOf(j).checks = 'failing'
       await openFirstChange(j)
-      await text(j, WORDS.checksFailed)
+      await text(j, checkWords.checksFailed)
       return j
     },
     stage: true,
@@ -731,8 +733,8 @@ const SCENES: readonly Scene[] = [
       await openFirstChange(j)
       // Someone else was quicker: the change is not waiting any more.
       repoOf(j).pulls[0]!.state = 'closed'
-      await j.page.getByRole('button', { name: WORDS.approve, exact: true }).click()
-      await text(j, WORDS.changeGone)
+      await j.page.getByRole('button', { name: checkWords.putThem, exact: true }).click()
+      await text(j, checkWords.gone)
       return j
     },
   },

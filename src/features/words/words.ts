@@ -19,6 +19,7 @@ import { play } from './play.ts'
 import { settings } from './settings.ts'
 import { shell } from './shell.ts'
 import { thing } from './thing.ts'
+import { whose } from './whose.ts'
 
 export { arrange } from './arrange.ts'
 export { bar } from './bar.ts'
@@ -36,6 +37,7 @@ export { play } from './play.ts'
 export { settings } from './settings.ts'
 export { shell } from './shell.ts'
 export { thing } from './thing.ts'
+export { whose } from './whose.ts'
 
 export const WORDS = Object.freeze({
   appName: 'Automata Editors',
@@ -85,21 +87,6 @@ export const WORDS = Object.freeze({
   waitingNone: 'Nothing is waiting.',
   waitingBy: (name: string): string => `From ${name}`,
   waitingMine: 'From you',
-  changeMoved: (id: string): string => `${id} was moved. The ring shows where it is now.`,
-  changeOther: 'This change does more than move things.',
-  changeGone: "This change isn't waiting any more. Someone may have approved it or turned it down.",
-  approve: 'Approve',
-  turnDown: 'Turn it down',
-  takeBack: 'Take my change back',
-  approved: 'Approved. The change is in the game now.',
-  turnedDown: 'Turned down. The game stays as it was.',
-  checksRunning: 'This change is still being checked. Try again in a minute.',
-  checksFailed: "The checks found a problem with this change, so it can't be approved.",
-  ownChange: 'Someone else has to approve your own change.',
-  clashes:
-    "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
-  notHere: "This change touches more than the game's levels, so it can't be approved here.",
-  cantApprove: "You can look at this change, but you can't approve it.",
   shareTitle: (game: string): string => `Share ${game}`,
   shareLinkLabel: 'Send this link to the people you want to help:',
   copyLink: 'Copy the link',
@@ -159,6 +146,7 @@ export interface Words {
   readonly changes: Readonly<Record<keyof (typeof changes)['en'], Row>>
   readonly check: Readonly<Record<keyof (typeof check)['en'], Row>>
   readonly kept: Readonly<Record<keyof (typeof kept)['en'], Row>>
+  readonly whose: Readonly<Record<keyof (typeof whose)['en'], Row>>
   readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
 }
 
@@ -183,6 +171,7 @@ export function wordsIn(lang: Lang): Words {
     changes: { ...changes.en, ...changes[lang] },
     check: { ...check.en, ...check[lang] },
     kept: { ...kept.en, ...kept[lang] },
+    whose: { ...whose.en, ...whose[lang] },
     thing: { ...thing.en, ...thing[lang] },
   }
 }

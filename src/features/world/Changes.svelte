@@ -9,6 +9,8 @@
     approverOf,
     cameIn,
     type ChangeLine,
+    chooseSide,
+    type Merged,
     describe,
     type Edits,
     laidOver,
@@ -19,8 +21,8 @@
     put,
     takeBack,
   } from '../game/game.ts'
-  import { KeepCopy, type Failure, type Phase, ProblemStrip, Problems, PutSheet, WaitingSheet } from '../team/team.ts'
-  import type { Lang } from '../words/words.ts'
+  import { type ClashSet, KeepCopy, type Failure, type Phase, ProblemStrip, Problems, PutSheet, WaitingSheet } from '../team/team.ts'
+  import { type Lang, wordsIn } from '../words/words.ts'
 
   interface Props {
     lang: Lang
@@ -67,9 +69,11 @@
   let shown = $state<Sheet | undefined>(undefined)
   let phase = $state<Phase>('ask')
   let failure = $state<Failure | undefined>(undefined)
-  /** What came in from the game while the person worked, and how many of their own it did not take. */
+  /** What came in from the game while the person worked. */
   let came = $state(0)
-  let clashes = $state(0)
+  /** Where two people changed one thing: asked one by one, and answered before the put goes on. */
+  let clashing = $state.raw<{ held: Merged; set: ClashSet } | undefined>(undefined)
+  const clash = $derived(clashing?.set)
   /** What was pressed to go in, kept for the sheet that says it went. */
   let sent = $state.raw<readonly ChangeLine[]>([])
   let backing = $state<'idle' | 'working' | 'taken' | 'failed'>('idle')
@@ -86,7 +90,7 @@
     phase = 'ask'
     failure = undefined
     came = 0
-    clashes = 0
+    clashing = undefined
     backing = 'idle'
     strip = undefined
     shown = which
@@ -138,7 +142,14 @@
       ononline(true)
       onchanged(result.game, laidOver(edits, result.game, result.merged))
       came = cameIn(result.merged).length
-      clashes = result.merged.clashes.length
+      const who = await whoChanged(result.game.ref)
+      clashing =
+        result.merged.clashes.length === 0
+          ? undefined
+          : {
+              held: result.merged,
+              set: { list: result.merged.clashes, mine: edits.now, theirs: result.merged.their, answers: {}, by: who },
+            }
       phase = 'ask'
       return
     }
@@ -147,6 +158,23 @@
     if (result.problem === 'not-allowed') onlowered('look')
     failure = { problem: result.problem, details: result.details ?? [] }
     phase = 'failed'
+  }
+
+  /** Who changed the game last, by name, for "So did Mia"; someone else when it is not known. */
+  async function whoChanged(ref: OpenGame['ref']): Promise<string> {
+    const found = await api.history(ref, 0)
+    const by = found.ok ? found.value.lines.find((line) => line.by !== game.login)?.by : undefined
+    const someone = wordsIn(lang).whose.someone
+    return by ?? (typeof someone === 'string' ? someone : someone())
+  }
+  /** One answer: that clash goes the way the person says, and the screen shows it so the put sends exactly that. */
+  function choose(at: number, whose: 'mine' | 'theirs'): void {
+    const now = clashing
+    const one = now?.set.list[at]
+    if (now === undefined || one === undefined) return
+    const next = chooseSide(now.held, now.set.mine, one, whose)
+    clashing = { ...now, held: next, set: { ...now.set, answers: { ...now.set.answers, [at]: whose } } }
+    onchanged(game, { ...edits, now: next.now })
   }
 
   async function takeItBack(): Promise<void> {
@@ -200,7 +228,10 @@
     gameName={game.content.project.name}
     {failure}
     {came}
-    {clashes}
+    {clash}
+    content={game.content}
+    pictures={game.pictures}
+    onchoose={choose}
     onput={() => void press()}
     onshow={(found) => show(problems.indexOf(found))}
     ontakeback={() => void takeItBack()}
