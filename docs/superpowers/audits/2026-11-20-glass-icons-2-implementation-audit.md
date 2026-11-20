@@ -69,3 +69,40 @@ calls, which are now recorded in the PR body. The owner's three notes are done. 
   `after-2/settings-where-ipadUpright.png` shows the down arrow cut in half until the sheet scrolls. At 1280×800 the
   panel body scrolls by 8 px (scroll height 681, height 673), so the arrow shows whole but the padding under it is cut.
   It works and is reachable by scrolling; it would look tidier if the whole cross showed at first sight.
+
+## Addendum: the N6 and N7 fix, examined at efdccd0 (head 4d0e3f6)
+
+Range read: c3fade0..efdccd0 (one commit, efdccd0). The two merges around it are clean, with no conflict changes in
+`git diff-tree --cc`: c3fade0 brings main 84c7222 onto b026b9a, and 4d0e3f6 brings main 8026ccd, whose diff against its
+first parent is the one `concurrency.group` line in `.github/workflows/ci.yml`, the same as main's #121. At 4d0e3f6, on
+a fresh clone: typecheck 0 errors, lint and knip clean, 1162 node tests pass (one more than at d961ead: the new pad
+words test). Shot and measured live: the settings panel with a crate picked at 390×844, 844×390, 834×1210, 1210×834
+and 1280×800 (`/mnt/project-files/screens/glass/audit-1/c3-*-settings-4d0e3f6.png`).
+
+- N6: **fixed.** `words.test.ts` pins "Move up", "Move left", "Move right" and "Move down" in English, and checks that
+  each of the nine languages gives four different, non-empty names.
+- N7: **fixed at four sizes, and a new red at phone sideways.** The arrows are now 44×44 in a pinned foot outside the
+  scrolling body, and the Done or ✕ button sits 9 px from the panel's edge (it was 5). Whole, with the foot's 8 px
+  padding under the down arrow: 390×844 (down arrow ends at 827, panel at 836), 834×1210 (1193 and 1202), 1210×834
+  (817 and 826), 1280×800 (783 and 792). One tap on "Move up" moves the crate at every size.
+
+### R4. On a phone held sideways, the pinned arrows leave the settings a 32 px strip
+
+- UNIT: `src/features/shell/SettingsPanel.svelte` (`.foot`) and `src/features/world/Panels.svelte` (the `foot`
+  snippet).
+- VERDICT: red (introduced by efdccd0).
+- REQUIREMENT: N7's own aim, that the arrows show whole where they are held and the settings stay usable; the
+  drunk-grandma rule (nothing hidden that needs explaining); the five sizes CI checks.
+- REASON: the pulled-up settings sheet at 844×390 is 234 px tall (148 to 382). The pinned foot of three 44 px rows takes
+  most of it, so the part that scrolls is 32 px: only "WHAT IT DOES" shows, and the down arrow ends at 383, past the
+  panel's 374 inner foot.
+- EVIDENCE: live at 4d0e3f6, body `scrollHeight` 496 against `clientHeight` 32, and the screenshot
+  `audit-1/c3-phoneSideways-settings-4d0e3f6.png`. At d961ead the same sheet's body was 179 px tall (676 against 179).
+- EXPECTED: at every size a person sees some of the settings and the whole cross, or the cross scrolls with the settings
+  when the sheet is short.
+- FIX: pin the foot only when the panel has room, for example the side panel and a sheet taller than about 400 px, and
+  let the arrows go back into the scrolling body otherwise. Add a phone-sideways case to the new screens rule, or a check
+  that the scrolling part keeps a minimum height. Files: `SettingsPanel.svelte`, `Panels.svelte`, and the screens
+  journey rule.
+
+Verdict of the addendum: **fail, 1 red (R4).** Everything else in the range passes.
