@@ -16,7 +16,8 @@ const overlap = (a: Rect, b: Rect): number =>
 
 /**
  * Where a floating card may sit: the first of the places below, above, right and left of `anchor` that is inside
- * `screen` and covers none of `keepClear`. When every one does, the one that covers least (the anchor counts too).
+ * `screen` and covers none of `keepClear`; failing those, the far left or far right of the screen, level with it, where
+ * a card does not hide the level it is for. When every one does, the one that covers least (the anchor counts too).
  */
 export function placeCard(
   card: { readonly w: number; readonly h: number },
@@ -36,6 +37,8 @@ export function placeCard(
     within(across, anchor.y - card.h - GAP),
     within(anchor.x + anchor.w + GAP, down),
     within(anchor.x - card.w - GAP, down),
+    within(screen.x + GAP, down),
+    within(screen.x + screen.w - card.w - GAP, down),
   ]
   const covered = (at: Rect): number => [anchor, ...keepClear].reduce((sum, one) => sum + overlap(at, one), 0)
   return candidates.reduce((best, one) => (covered(one) < covered(best) ? one : best))
