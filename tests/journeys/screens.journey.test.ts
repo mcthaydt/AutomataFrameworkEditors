@@ -443,6 +443,19 @@ const SCENES: readonly Scene[] = [
     stage: true,
   },
   {
+    name: 'level-settings-pulled-up',
+    // Where the settings are a one-line bar that pulls up (a phone, an upright iPad), the person pulls it up on purpose.
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      const peek = j.page.locator('button.peek')
+      if ((await peek.count()) > 0) await peek.click()
+      await j.page.locator('aside[data-tour="settings"]').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
     name: 'level-unsaved',
     reach: async (size) => {
       const j = await gameAs(size, 'grandma')
@@ -970,6 +983,30 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
       }
+      // The settings, where they pull up from a bar: at rest the tools and Undo are in sight and not under anything; pulled up
+      // (a person's own act, so it may cover the tools) a way back is in sight and named (item 1 of the brief).
+      const toolbar = document.querySelector('[role="toolbar"][aria-label]')
+      const sheet = document.querySelector('aside.panel.sheet')
+      const peek = document.querySelector('button.peek')
+      const onScreen = (box: DOMRect): boolean =>
+        box.top >= 0 && box.left >= 0 && box.bottom <= innerHeight + 1 && box.right <= innerWidth + 1
+      if (peek !== null && seen(peek)) {
+        const tools = [...document.querySelectorAll('[data-tour] button, nav.rail button')].filter(
+          (el) => seen(el) && /^(Undo|Select|Place|Paint|Erase|Join)/.test(el.getAttribute('aria-label') ?? el.textContent ?? ''),
+        )
+        if (toolbar === null && tools.length === 0) found.push('the tools are not in sight with the settings folded')
+        for (const el of tools) {
+          const box = el.getBoundingClientRect()
+          const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+          if (!onScreen(box) || top === null || !(el === top || el.contains(top)))
+            found.push(`${named(el)} is out of sight or covered with the settings folded`)
+        }
+      }
+      if (sheet !== null && seen(sheet)) {
+        const done = [...sheet.querySelectorAll('button')].find((el) => el.classList.contains('done'))
+        if (done === undefined || !onScreen(done.getBoundingClientRect()) || (done.textContent ?? '').trim() === '')
+          found.push('the pulled-up settings have no named way back in sight')
+      }
       // The faces button must hold the faces it draws: squeezed under them, it lets them spill onto the next button, and
       // the two boxes never overlap even though the pictures do.
       for (const el of touchable) {
@@ -1021,10 +1058,10 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       // Two things cannot overlap if one has been scrolled out of the screen's own scrolling area: it is not on show.
       const area = document.querySelector('.content')?.getBoundingClientRect()
-      // A sheet's body scrolls under its foot the same way: what is scrolled out of the body is not on show either.
+      // A sheet's body (a dialog's or the settings') scrolls under its foot the same way: what is scrolled out of the body is not on show either.
       const onShow = (el: Element): boolean => {
         const box = el.getBoundingClientRect()
-        const body = el.closest('[role=dialog] .body')?.getBoundingClientRect()
+        const body = el.closest('[role=dialog] .body, aside.panel .body')?.getBoundingClientRect()
         if (body !== undefined && (box.top < body.top - 1 || box.bottom > body.bottom + 1)) return false
         return (
           area === undefined ||
@@ -1039,9 +1076,9 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           const second = shown[b]!.getBoundingClientRect()
           const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
           const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
-          // A menu or a sheet opens over the screen: what it covers is under it, not beside it.
-          const menuA = shown[a]!.closest('[role=menu], [aria-modal=true]') !== null
-          const menuB = shown[b]!.closest('[role=menu], [aria-modal=true]') !== null
+          // A menu or a sheet opens over the screen (the settings pulled up, too): what it covers is under it, not beside it.
+          const menuA = shown[a]!.closest('[role=menu], [aria-modal=true], aside.panel.sheet') !== null
+          const menuB = shown[b]!.closest('[role=menu], [aria-modal=true], aside.panel.sheet') !== null
           if (menuA !== menuB) continue
           if (!mine(shown[a]!) && !mine(shown[b]!)) continue
           // A menu's backdrop (the button that closes it when the page behind is pressed) lies over everything by design.

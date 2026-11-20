@@ -2,11 +2,9 @@
 // joined rooms (iPad sideways), the Join hint (phone), a whole level on the phone's map, and the thing's menu (iPad upright).
 import type { Locator, Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
-import { wordsIn } from '#src/features/words/words.ts'
 import {
   type JourneyPage,
   openGame,
-  openLevel,
   openMapOf,
   openPage,
   picture,
@@ -44,7 +42,6 @@ const inside = (a: Box, frame: Box): boolean =>
   a.y >= frame.y - 1 &&
   a.x + a.width <= frame.x + frame.width + 1 &&
   a.y + a.height <= frame.y + frame.height + 1
-const said = (row: unknown): string => (typeof row === 'function' ? (row as () => string)() : String(row))
 
 async function openLinksMap(page: Page): Promise<void> {
   await signIn(page)
@@ -102,18 +99,26 @@ describe('the pictures the owner showed', () => {
     await picture(page, 'issue-3-map-whole')
   })
 
-  test("issue 4: the thing's menu is whole and inside the level, on iPad upright", async () => {
+  test('issue 4: "Where it is" stays in sight when a list in the settings is used, on iPad upright', async () => {
     journey = await openPage('ipadUpright')
     const { page } = journey
     await signIn(page)
-    await openLevel(page)
-    await thingNamed(page, 'crate-1').click()
-    await page.getByRole('button', { name: said(wordsIn('en').levels.actMore), exact: true }).click()
-    const menu = page.locator('.menu-float')
-    await menu.waitFor()
-    const stage = await boxOf(page.locator('.stage'))
-    expect(inside(await boxOf(menu), stage), 'the menu runs out of the level').toBe(true)
+    await openGame(page, 'links-game')
+    await thingNamed(page, 'plate-1').click()
+    const folded = page.locator('button[data-tour="settings"]')
+    if ((await folded.count()) > 0) await folded.first().click()
+    const body = page.locator('aside.panel .body')
+    await body.waitFor()
+    const list = page.locator('[data-value="opens"] .opens')
+    await list.getByRole('button', { name: 'Nothing' }).click()
+    await page
+      .locator('[data-value="opens"] .opens button[aria-pressed="true"]', { hasText: 'Nothing' })
+      .waitFor()
+    expect(
+      inside(await boxOf(page.locator('[data-group="where"] h3')), await boxOf(body)),
+      '"Where it is" is out of sight',
+    ).toBe(true)
+    await settled(page)
     await picture(page, 'issue-4-dropdown')
-    await page.keyboard.press('Escape')
   })
 })
