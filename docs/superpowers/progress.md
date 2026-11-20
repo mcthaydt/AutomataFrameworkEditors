@@ -18,6 +18,13 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 05:14 UTC: PR 17's play tools (#123) merged with a merge commit `c0f05a9` after two review cycles (pass at
+  `ff6b245`, audits `870feae` and `2fc8096`) and a green full run on every engine. Left for PR 19 or the slice-end walk
+  (both low): the speed stays Slow after a door, and the game runs on while "Play from here" waits for its tap.
+  "Ready" was accepted from the ordinary pull request tool; only the raw `ccr/ready_for_review` call had been refused,
+  so PR 16 (#113) went ready at 05:16 UTC with no tap from the Owner. PR 18 (#124) passed cycle 2 at `d6a2e69`
+  (audits `a2f6f14`, `1507ebc`): cycle 1 found the thing's menu clipped (its last row could not be tapped at four
+  sizes) and the level view drawing a with-hero box over the ground where Play draws it under; both fixed test first.
 - State at 2026-11-20 04:56 UTC. PR 16 (#113) is reviewed to its head `9377b6de` (five cycles; the last two read the
   builder's change to the cut-off tracker, which now excuses WebKit's bare-id name for an in-memory picture only on the
   page's own host and only after a second move) and green on every engine in its draft run. It waits only for "Ready":
