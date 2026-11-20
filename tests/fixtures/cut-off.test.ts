@@ -82,3 +82,30 @@ test('a dropped font with no address to check is a fault', () => {
   track.navigated()
   expect(track.explains(fontFailed('2152398850').replace(/ source: [^"]*/, ''))).toBe(false)
 })
+
+// Word for word what WebKit reported in CI (open-game and sign-in journeys): the in-memory picture of a game, which the
+// page decodes with `createImageBitmap`, is named by a bare id on the site's own address. The page never asks for it
+// (no request event), so only a page that moved after its first load can have cut it off.
+const memoryPicture =
+  'ttp://127.0.0.1:4800/6bc4b496-141f-4faf-8472-120ce82ca7b7 due to access control checks.'
+
+test('a picture being decoded when the page moved on again is not a fault, though it was never a request', () => {
+  const track = cutOffTracker()
+  track.navigated() // the first load
+  track.navigated() // the reload that cut it off
+  expect(track.explains(memoryPicture)).toBe(true)
+})
+
+test('the same words on a page that has only loaded once are a fault', () => {
+  const track = cutOffTracker()
+  track.navigated()
+  expect(track.explains(memoryPicture)).toBe(false)
+})
+
+test("a bare id that is not the engine's in-memory picture is still a fault", () => {
+  const track = cutOffTracker()
+  track.navigated()
+  track.navigated()
+  expect(track.explains('ttp://127.0.0.1:4800/not-an-id due to access control checks.')).toBe(false)
+  expect(track.explains('TypeError: 6bc4b496-141f-4faf-8472-120ce82ca7b7')).toBe(false)
+})
