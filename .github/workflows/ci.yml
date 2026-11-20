@@ -151,11 +151,13 @@ jobs:
     runs-on: ubuntu-latest
     # Playwright's own image, pinned by digest to the Playwright in the lockfile: the three browsers and every system
     # library they need are already in it, so no shard installs them (that install was the slowest part of setting up,
-    # 40 s to 12 min). User 1001 is the runner's own user, which Firefox needs. A shard with nothing to do (a draft with
+    # 40 s to 12 min). User 1001 is the runner's own user, which Firefox needs; `--ipc=host` gives the
+    # browsers the runner's shared memory instead of the container's 64 MB, as Playwright's
+    # own guide for this image says. A shard with nothing to do (a draft with
     # no journeys to play) gets no image, so it pulls nothing. Moving to a newer Playwright means a new digest here.
     container:
       image: ${{ (matrix.shard == 1 || (needs.plan.outputs.journeys == 'true' && (matrix.shard > 3 || needs.plan.outputs.pictures == 'true'))) && 'mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27' || '' }}
-      options: --user 1001
+      options: --user 1001 --ipc=host
     # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
     # failures (`--bail`), or after one on a draft, so a red run is read in minutes.
     timeout-minutes: 30
@@ -261,7 +263,7 @@ jobs:
     # The same Playwright image as the browser shards, so Chromium is not installed here either.
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
-      options: --user 1001
+      options: --user 1001 --ipc=host
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

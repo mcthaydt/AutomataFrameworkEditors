@@ -54,7 +54,7 @@ test('the browser jobs run in the pinned Playwright image of the locked Playwrig
     const start = text.indexOf(`\n  ${job}:\n`)
     const body = text.slice(start, text.indexOf('\n\n  #', start))
     expect(body).toMatch(/container:\n\s+image:.*mcr\.microsoft\.com\/playwright/)
-    expect(body).toMatch(/options: --user 1001/)
+    expect(body).toMatch(/options: --user 1001 --ipc=host/)
   }
   expect(text).not.toMatch(/playwright install/)
 })
