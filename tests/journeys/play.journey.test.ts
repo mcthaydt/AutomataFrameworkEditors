@@ -290,3 +290,37 @@ test('one step and slow are in the play bar, and the strip goes back', async () 
   await playButton(page, 'Stop').click()
   await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
 })
+
+test('a heavier crate is pushed less far by the same walk', async () => {
+  journey = await openPage('ipadSideways')
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page)
+  const pushedBy = async (heavy: 'Home' | 'End'): Promise<number> => {
+    await thingNamed(page, 'crate-1').click()
+    const folded = page.locator('button[data-tour="settings"]')
+    if ((await folded.count()) > 0) await folded.first().click()
+    const slider = page.locator('input[type="range"][aria-label="How heavy"]')
+    await slider.focus()
+    await page.keyboard.press(heavy)
+    await playButton(page, 'Play').click()
+    await started(page)
+    const got = page.getByRole('button', { name: 'Got it', exact: true })
+    if ((await got.count()) > 0) await got.click()
+    await playButton(page, 'Pause').waitFor()
+    const before = await whereIs(page, CRATE)
+    if (before === undefined) throw new Error('the game shows no crate')
+    await page.keyboard.down('ArrowRight')
+    await page.waitForTimeout(2200)
+    await page.keyboard.up('ArrowRight')
+    const after = await whereIs(page, CRATE)
+    await playButton(page, 'Stop').click()
+    await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
+    return (after?.x ?? before.x) - before.x
+  }
+  const light = await pushedBy('Home')
+  const heavy = await pushedBy('End')
+  expect(light, 'the light crate moved').toBeGreaterThan(5)
+  expect(heavy, 'the heavy crate went less far').toBeLessThan(light)
+  // Stopping leaves the weights as they were set: the person's change, not the play's.
+})
