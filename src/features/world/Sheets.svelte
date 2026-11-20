@@ -2,19 +2,22 @@
   // The pages that open over the level: who can change the game, what waits, and one waiting change.
   import type { Api } from '../api/api.ts'
   import type { OpenGame } from '../game/game.ts'
-  import { Share, type Sheet, Waiting, WaitingChange } from '../team/team.ts'
+  import { Check, Share, type Sheet, Waiting } from '../team/team.ts'
+  import type { Lang } from '../words/words.ts'
 
   interface Props {
     sheet: Sheet
     api: Api
     game: OpenGame['ref']
+    lang: Lang
+    size: string
     onsignedout: () => void
     /** Back to the level. */
     onclose: () => void
     /** Back to the list of what waits. */
     onwaiting: () => void
   }
-  let { sheet, api, game, onsignedout, onclose, onwaiting }: Props = $props()
+  let { sheet, api, game, lang, size, onsignedout, onclose, onwaiting }: Props = $props()
 </script>
 
 <div class="sheet">
@@ -24,7 +27,7 @@
     <Waiting {api} {game} {onsignedout} onback={onclose} />
   {:else}
     {#key sheet.number}
-      <WaitingChange {api} {game} number={sheet.number} {onsignedout} onback={onwaiting} onhome={onclose} />
+      <Check {api} {game} number={sheet.number} {lang} {size} {onsignedout} onback={onwaiting} onhome={onclose} />
     {/key}
   {/if}
 </div>
