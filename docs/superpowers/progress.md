@@ -18,6 +18,20 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 06:41 UTC: PR 18, drawn behind, with the hero, in front (#124), merged with a merge commit `8dccec5` after two review
+  cycles and a read of its merge of main (audit `2026-11-20-world-18-1-implementation-audit.md`). Its full run's only
+  red was the known WebKit `open-game.journey` flake, green on its one re-run. The builder's notes: the words live in
+  `words/thing.ts`; a locked thing can still be sent to the back or front (the lock stops moving, not drawing order);
+  review notes N3, N9 and N10 are left. PR 19 (journeys at every size, the slice's fix list, then Task 44's documents)
+  and the end-to-end walk start from `8dccec5`.
+- 2026-11-20 06:41 UTC: the website demo's first review (Examples #81 at `d6fc285`, Site #63 at `ebcdeb9`). The reviewer replayed the
+  old recordings against the new content and found every entity in the same place on every tick: the moved hashes
+  (level-1 `971c5bd8d2dd578a` to `4acae851a8057cdc`, level-2 `f8f73cd8fed0e603` to `26ae98fee6c696f6`; `test-game`
+  unmoved; steps 240 and 330) come only from `players = 2` in the content hash. Two reds in Examples: the keys strip
+  shows the wrong keys with two players, and both heroes are the same pink. Agent-selected: player 2 gets a second
+  colour by a figure variant (`content/figures/hero.json`), which moves the recorded plays once more; the Owner sees
+  the before and after once, at the end. Easy to change: that one file. The Site had no reds. Neither merges without
+  the Owner (recorded plays; the Site deploys on merge).
 - 2026-11-20 06:07 UTC: main went red on PR 16's merge: `world/World.svelte` reached 605 lines once PR 16 and PR 17
   were both in (git merged them cleanly; the 600-line rule failed in `check`). PR 16's builder split it (#126, lane 1,
   merge `243dd0e`: `world/places.ts`, World.svelte now 579). One WebKit journey failed once on that run and passed on

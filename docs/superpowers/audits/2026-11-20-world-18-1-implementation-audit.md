@@ -145,3 +145,39 @@ sizes (picture files in this review's scratch folder, not committed).
 
 Cycle 2 verdict: both reds closed; no new reds. Still open for the ready commit: WebKit and Firefox results from the full
 run, and the PR body (N5).
+
+## Cycle 2 addendum: test diff `a9b0b46..c6bcdef` (`c6bcdef8147a32b32a60000e25ee9dda1d66e815`)
+
+Only `tests/journeys/draw-order.journey.test.ts` (+26, -5): the Play pixel read hides the play bar for the one screenshot,
+polls up to 5 s, and says what it read.
+- True that the bar covers the crate: shot Play at phone (390 by 844, crate put on the hero start, "In front") with the bar
+  shown and hidden. The game box is 374 by 246 px; the bar is 266 by 132 px at its top left, over the hero start, and the
+  bar-shown picture has no crate colour (only the bar), while the hidden picture shows the gold crate next to the red hero.
+  So the 0-pixel failure was the bar, not the draw.
+- Honest enough: only the bar is hidden (`visibility`, put back at once), the same canvas is read, the same colour
+  assertion stands, and the crate is still read in Play after Play started. The poll only waits for a first frame.
+- Weakness, a note (N12): this journey only proves the crate's colour is somewhere in Play's picture (the crate and the hero
+  start end up side by side, the hero being pushed); "over the hero start in Play" is proved by the pixel test in
+  `draw.browser.test.ts` (in front over the start and equal to the level view), not by this journey.
+- Not a product fault of PR 18: nothing in PR 18's source touches the play bar or the Play canvas; the bar over the hero
+  start at phone is PR 17's, routed to PR 19. Pass.
+
+## Cycle 2 addendum 2: merge `838beff0741b71b6bcd55422280f77ac2efc5472` (main `4381d37` into `c6bcdef`)
+
+Read `git show --cc 838beff`: the three conflicts (`ThingMenu.svelte`, `Popups.svelte`, `LevelPart.svelte`) keep both
+sides: the props (`draws` and `canNote`), the measured, scrolling `menu-float` wrapper, both `chosen()` branches, the note
+row first and the two draw rows last. Nothing of either side was lost.
+- FAULT (red, at this commit): `pnpm typecheck` fails: `tests/features/levels/draw.browser.test.ts` 293:7, "Property
+  'canNote' is missing ... but required in type 'Props'". The test's `ThingMenu` mount (props at line 299) has no `canNote`;
+  the hand-off said it was added, but it is not in `838beff`. Fix: add `canNote: false` to that mount. (CI's typecheck, and
+  the "quick check", will fail on it.)
+- Known, not this PR: `tests/architecture.test.ts` fails on `World.svelte` at 605 lines (main's, fixed by #126). That is the
+  only node failure (1182 of 1183 pass), lint is the same one old warning, `draw.browser.test.ts` 7 pass in Chromium, the
+  draw-order journey 11 pass in Chromium, built from `838beff`.
+- The menu with a note-capable thing (signed in; seven rows: Add a note, Rename, Lock, Hide, Copy to paste, Bring to the
+  front, Send to the back; 358 px tall): "every row is whole, inside the level, and what a finger would touch" passes at all
+  five sizes. Shot: iPad both ways, phone and computer show all seven rows whole, nothing scrolls; phone sideways (box
+  262 px, menu 246 px) scrolls, as the check asserts.
+- N9 gets worse, still a note: at phone sideways four and a half rows show; the last two rows, which are this PR's
+  "Bring to the front" and "Send to the back", are out of sight, hinted only by the cut "Copy to paste" row. A fade or a
+  visible scrollbar at the foot would make that clear; or put the two draw rows nearer the top. Reachable, so not red.
