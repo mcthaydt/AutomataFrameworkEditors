@@ -18,6 +18,23 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 07:32 UTC: the end-to-end walk of main `8dccec5` is done (audit `2026-11-20-world-e2e-walk.md`, Chromium, five sizes,
+  touch and pen stand-ins): 96 steps, 86 pass at every size, six reds, ten notes. R1 the tour has 2 of the spec's 4
+  steps; R2 at phone sideways the Place tray covers the floor; R3 at phone sideways the play bar covers the level;
+  R4 one drag back on the 30-second strip jumps to the start and the strip goes; R5 at phone sideways "Play from here"
+  starts about 2 tiles left of the tap; R6 "1 to check" opens two old full pages, not a sheet over the level.
+  Agent-selected: R1 to R5 go to PR 19's builder (#128, draft), R6 to its own builder (brief
+  `walk-fix-check-sheet.md`), each lane 2 with a fresh review. Not walked: a real iPad, Pencil and on-screen keyboard
+  (the Owner's walk), Firefox and WebKit by hand, languages other than English.
+- 2026-11-20 07:32 UTC: the website demo passed its review at Examples #81 `c002f6d` and Site #63 `b048686` after three cycles (the
+  strip's keys per player, a blue second hero by `content/figures/hero.json` with its painted pictures, "Left Shift"
+  and "Right Shift" on a shared keyboard; on the Site the map's level names and the doors line). Recorded plays, final:
+  level-1 `971c5bd8d2dd578a` to `44a022a7a1e8b94b`, level-2 `f8f73cd8fed0e603` to `49bf3166aa28db40`, steps 240 and
+  330, `test-game` unmoved; the reviewer replayed main's recordings and found no difference on any tick outside the
+  drawn-only sprite component. Both wait for the Owner on a decision card (07:25 UTC): nothing merged, nothing live.
+  Left as notes: no word says whose colour is whose; a Site level name over about 9 letters overflows its box.
+- 2026-11-20 07:32 UTC: docs #127 merged (`beb379b`). PR 19's item 12 (the play bar over the hero's start): Agent-selected, fold the
+  30-second strip on a short box first and keep the bar top left; move it only if the fold does not clear the hero.
 - 2026-11-20 06:41 UTC: PR 18, drawn behind, with the hero, in front (#124), merged with a merge commit `8dccec5` after two review
   cycles and a read of its merge of main (audit `2026-11-20-world-18-1-implementation-audit.md`). Its full run's only
   red was the known WebKit `open-game.journey` flake, green on its one re-run. The builder's notes: the words live in
