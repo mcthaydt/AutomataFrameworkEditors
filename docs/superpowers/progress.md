@@ -18,6 +18,15 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 08:49 UTC: the walk's R5 ("Play from here" lands left of the tap on a sideways phone) cannot be fixed in the editors.
+  Measured by PR 19's builder: when the level does not fit, the game's camera follows the hero, and the framework has
+  no call from a screen point to the level. Agent-selected: one small public call in the framework (brief
+  `framework-level-at.md`, lane 2, its own thread), then a follow-up pull request here (the pin, `PlayPart`, the
+  failing journey kept as `r5-journey.patch`). The editors-only way (aim on the level view while waiting) was
+  assessed at four files across three features and a `LevelPart` split, so it was not taken. Easy to change: the
+  call is additive. #128 lists R5 as a known issue meanwhile. #128 (PR 19 with R1 to R4) is in review at `e3a8dce`;
+  #129 passed all but one point in cycle 2 at `d6e69b1` (editing keys still acted behind the held buttons) and is on
+  its last fix. Docs #131 merged (`016ab6f`).
 - 2026-11-20 08:35 UTC: the website demo is merged and live under the Owner's 07:39 UTC yes: Examples #81 as `f551ea3` (reviewed
   head `c002f6d`), Site #63 as `e9c29e6` (reviewed head `b048686` plus a merge of main that brought only rules and CI
   files). Deploy run 44702098181 green; the live `version.json` reads site `e9c29e6`, game `f551ea3`; the live page

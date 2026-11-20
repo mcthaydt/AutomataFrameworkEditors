@@ -49,3 +49,39 @@ It fails locally on main `beb379b` and on the branch the same way ("heading Auto
 ## Follow-ups
 
 None for this pull request other than the notes above. Fix round: R1 only, by the original implementer; I re-read just that diff.
+
+# Addendum, cycle 2: the fix diff `0303b2c..d6e69b1f33a04567926573601394bb606d91d43a`
+
+Read only that range (`feceefd` is a merge of main `39e5c84`, test-only in `tests/features/levels`; `d6e69b1` holds the fixes). Same reviewer. Nothing pushed to the pull request branch.
+
+## Verdict: NOT a pass at d6e69b1. One red (R2), small. R1 and N2 pass; N1 passes for the buttons but not for the keyboard.
+
+## Checked by playing (scratch walk, not committed; phone, phone sideways, iPad upright, computer; grandpa with an own unsaved crate move, kid's change waiting)
+
+- **R1 passes.** Tip "Someone made a change..." is on screen before (count 1), gone while the change is open (0), back after closing (1). `Events` gets an empty list while `checking`, so it is the same tip, not a new one. The journey step checks the first two, not the "comes back"; I checked it by hand.
+- **N2 passes.** One waiting: "Not now" on the change closes to the level, crate at 6.5, no dialog. Two waiting (kid and stranger): "Not now" lands on "Waiting changes" with 2 rows. (`held.waiting > 1`). No journey covers the several-waiting side; add one.
+- **N1 passes for the buttons.** While the change is open: put-in button `aria-disabled="true"`, title "Finish with their change first."; Undo and Redo the same at iPad, phone sideways and computer (a phone's bar has no Undo/Redo, its tool bar is put away while checking, so nothing to hold). After closing, the title is gone, the buttons work again, and the own work is intact (crate 7.5 as left; put-in opens its sheet, `putWorks` 1). Disabled controls are `aria-disabled`, not `disabled`, and have `onclick` guards, so a click does nothing (the sheet stays, the dialog heading is still kid's change).
+- **Keyboard and touch reach (asked).** Keyboard: yes, they stay in the tab order (`tabIndex 0`, `disabled` false, `focus()` lands on them), so a keyboard user can reach them; the reason is in `title`, which becomes the accessible description next to the name "Undo", so a screen reader can say it. Touch: they are tappable but a `title` tooltip does not show on touch, and a native tooltip is not shown on keyboard focus either in most browsers, so the "why" is only visible to a mouse hover. Note N6: the words are there for hover and screen readers only; a person on an iPad taps and sees nothing. Cheap fix if the owner wants: say it in the sheet itself (one line), not only in a tooltip.
+
+## Red
+
+UNIT: `src/features/world/World.svelte` (keys: `actOnKey` facts `sheetOpen` comes from `guide?.sheetOpen()`, which does not know about the check sheet).
+VERDICT: red (small).
+REQUIREMENT: the cycle-2 brief for N1: while someone else's change is shown, Undo and Redo are held back and my own unsaved work is untouched.
+REASON: the keyboard's undo still works behind the held buttons.
+EVIDENCE: grandpa moves the crate to 7.5, opens kid's change, presses Control+Z with the sheet open, closes the sheet: crate is at 6.5 and the put-in button is quiet. His own edit was undone with nothing on screen showing it. Same run without the key press: crate stays 7.5. Seen at phone and computer; the same key path is used at every size.
+EXPECTED: Control+Z and Control+Shift+Z (and any other key that steps through the edits) do nothing while a change is open, as the buttons do.
+FIX: pass `checking` into the key facts (`sheetOpen: guide?.sheetOpen() === true || checking`) or in `step()` return early when `checking`; add a journey step "press Control+Z with a change open; after closing, the crate is where it was". Files: `World.svelte`, `approve.journey.test.ts` only.
+
+## Notes
+
+N6. As above: the "why" is only a tooltip. Not blocking.
+N7. The N2 journey fails without the fix on its tip assertion (which comes first), so the "Not now goes to the level" step itself is not shown to fail on its own. Order the asserts, or split the test, so each fix has its own failing step.
+
+## Each new journey step fails without its fix?
+
+Yes. With `World.svelte` and `TopBar.svelte` put back to `0303b2c` (rebuilt, run on the same journey file): "tip held back" fails (`expected 1 to be 0`) and "Undo, Redo and put-in are held back" fails (`expected null to be 'true'`), each at iPad upright and phone. See N7 for the Not-now half.
+
+## What ran at d6e69b1
+
+`pnpm lint`: 0 errors, 1 warning (a template-string note in a test file that came in with main's merge, not this diff); `pnpm knip` and `pnpm typecheck` clean. `approve` and `send-to-check` journeys, Chromium: 28 of 28 pass. CI for `d6e69b1`: the plan job was still queued when I looked (an earlier run was cancelled); the full browser run is not yet read.
