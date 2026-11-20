@@ -33,7 +33,6 @@
 </script>
 
 {#if !gone && (asked !== undefined || down !== undefined)}
-  <div class="told">
     {#if asked !== undefined}
       <Note
         words={`${text(c.askedTitle, asked.by)}: “${asked.words}” ${text(c.askedAbout)}`}
@@ -47,16 +46,6 @@
         onpress={() => void clear()}
       />
     {/if}
-  </div>
 {/if}
 
-<style>
-  .told {
-    position: absolute;
-    top: calc(var(--bar) + 20px);
-    left: 50%;
-    z-index: 8;
-    width: min(520px, calc(100% - 16px));
-    transform: translateX(-50%);
-  }
-</style>
+

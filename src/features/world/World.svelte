@@ -118,6 +118,10 @@ import { listen, measure } from './listen.ts'
   let arrival = $state.raw<Arrive | undefined>(undefined)
   /** How fast the game plays, kept across a door (each room is its own mount) and put back to normal by Stop. */
   let playSpeed = $state(1)
+  /** The welcome or the tour is up: the tips wait for it to end. */
+  let touring = $state(false)
+  /** A problem of the game is shown over the map. */
+  let looking = $state(false)
   let following = false // a door opened the level in view: the play goes on in it
   let viewport = $state(first)
   let docks = $state<Docks>({
@@ -175,6 +179,12 @@ import { listen, measure } from './listen.ts'
     toCheck,
     approver: approverOf(held),
   })
+  /** What the screen says: on a phone held sideways a tip gives way to a picked thing's own bar, which has no other room. */
+  const tips = $derived(
+    size === 'phone-sideways' && picked.length > 0
+      ? events.filter((one) => !(one.dismiss === true && one.ask === undefined))
+      : events,
+  )
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
   /** Someone's waiting change is open over the level: the level it draws takes this one's place. */
   const checking = $derived(sheet?.kind === 'change')
@@ -381,6 +391,7 @@ import { listen, measure } from './listen.ts'
           ongo={goLevel}
           onchange={(next) => keep(change(edits, next))}
           onundo={() => step('undo')}
+          quiet={looking}
         />
       {:else if level !== undefined}
       <LevelPart
@@ -504,8 +515,9 @@ import { listen, measure } from './listen.ts'
     onnear={(near) => part?.command(near)}
   />
 
-  <Events events={checking ? [] : events} low={playing} onanswer={answered} />
-  <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+  <Events events={checking || touring ? [] : tips} onanswer={answered}>
+    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+  </Events>
 
   {#if sheet !== undefined}
     <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
@@ -513,6 +525,7 @@ import { listen, measure } from './listen.ts'
 
   <Changes
     bind:this={changes}
+    onlooking={(on) => (looking = on)}
     bind:problems
     {lang}
     {device}
@@ -550,6 +563,7 @@ import { listen, measure } from './listen.ts'
     {onsignedout}
     onkeep={level === undefined ? undefined : () => changes?.open('keep')}
     onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
+    ontour={(on) => (touring = on)}
   />
 
   {#if level !== undefined}

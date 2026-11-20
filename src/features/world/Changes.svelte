@@ -52,6 +52,8 @@
     onshow: (where: Problem['where']) => void
     /** Open the list of what changed in the game. */
     onhistory: () => void
+    /** Told whether a problem is being shown (the list, or the strip over the map): the map's own cards wait. */
+    onlooking?: (on: boolean) => void
   }
   let {
     lang,
@@ -70,6 +72,7 @@
     onsignedout,
     onshow,
     onhistory,
+    onlooking,
   }: Props = $props()
 
   type Sheet = 'put' | 'send' | 'keep' | 'waiting' | 'problems'
@@ -86,6 +89,7 @@
   let backing = $state<'idle' | 'working' | 'taken' | 'failed'>('idle')
   /** The problem being looked at, from 0, and the sheet to go back to. */
   let strip = $state<{ at: number; back: 'put' | 'send' | undefined } | undefined>(undefined)
+  $effect(() => onlooking?.(strip !== undefined || shown === 'problems'))
 
   const lines = $derived(describe(edits.base, edits.now))
   const by = $derived(approverOf(game))

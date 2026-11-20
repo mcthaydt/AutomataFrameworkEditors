@@ -226,6 +226,11 @@ test('the first Play says what Play leaves out, once', async () => {
   await playButton(page, 'Play').click()
   await started(page)
   await tip.waitFor()
+  // The tip stands below the play bar, never on it (design round 1, A9).
+  const tipBox = await page.locator('.event').filter({ has: tip }).boundingBox()
+  const barBox = await page.locator('[data-play="box"] [role="toolbar"]').boundingBox()
+  if (tipBox === null || barBox === null) throw new Error('No tip or no play bar to measure.')
+  expect(tipBox.y, 'the tip lies on the play bar').toBeGreaterThanOrEqual(barBox.y + barBox.height - 1)
   await page.getByRole('button', { name: 'Got it' }).click()
   await playButton(page, 'Stop').click()
   await playButton(page, 'Play').click()

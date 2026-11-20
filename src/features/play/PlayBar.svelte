@@ -3,7 +3,7 @@
   // start it from a spot, go back through the last seconds, and make the game bigger by putting the panels away. Stop is
   // in the top bar and on Escape. A control that has nothing to do is not drawn: one step only while it is held still, and
   // the strip only once there is something kept to go back to.
-  import { Icon, Slider } from '../ui/ui.ts'
+  import { Icon, Slider, stack } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { clock } from './spot.ts'
 
@@ -38,7 +38,7 @@
   const speedWord = $derived(text(speed === 1 ? words.speedNormal : speed === 0.5 ? words.speedSlow : words.speedSlower))
 </script>
 
-<div class="bar glass-1" role="toolbar" aria-label={text(words.playBar)}>
+<div class="bar glass-1" role="toolbar" aria-label={text(words.playBar)} use:stack>
   <div class="row">
     <button type="button" class="act" data-play="pause" aria-label={text(paused ? words.goOn : words.pause)} title={text(paused ? words.goOn : words.pause)} onclick={onpause}>
       <Icon name={paused ? 'play' : 'pause'} size={22} />

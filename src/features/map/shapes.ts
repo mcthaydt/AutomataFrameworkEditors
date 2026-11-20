@@ -18,6 +18,8 @@ export const TOP_ROOM = 60
 
 /** Room the key takes along the bottom of the map, so no level is drawn under it. */
 export const KEY_ROOM = 56
+/** How wide the key at the foot is at most: a card may sit in the band beside it. */
+export const KEY_WIDTH = 580
 
 /** The "Whole world" view: every level inside the part, with the key's room kept clear at the foot. */
 export function mapCamera(all: readonly Box[], size: Screen): Camera {

@@ -43,8 +43,10 @@
     /** What the game is now: one step of the history. */
     onchange: (next: Working) => void
     onundo: () => void
+    /** A problem of the game is being shown over the map: the cards and the key wait. */
+    quiet?: boolean
   }
-  let { content, pictures, working, lang, picked, onpick, ongo, onchange, onundo }: Props = $props()
+  let { content, pictures, working, lang, picked, onpick, ongo, onchange, onundo, quiet = false }: Props = $props()
 
   const everything = $derived(wordsIn(lang))
   const words = $derived(everything.map)
@@ -334,11 +336,14 @@
     {soon}
     onwall={(one) => floats?.wall(one.a, one.b)}
   />
-  <MapKey {lang} walls={walls.length > 0} />
-  <button type="button" class="new glass-1" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
-  <button type="button" class="whole glass-1" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
-    {text(words.wholeWorld)}
-  </button>
+  <!-- The key waits for a problem shown over the map, and for a room's bar, which it would touch on a short screen. -->
+  {#if !quiet && picked === undefined}<MapKey {lang} walls={walls.length > 0} />{/if}
+  {#if !quiet}
+    <button type="button" class="new glass-1" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
+    <button type="button" class="whole glass-1" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
+      {text(words.wholeWorld)}
+    </button>
+  {/if}
 
   {#if drag !== undefined && dropping !== undefined}
     <p class="landing glass-2" class:over={dropping.kind === 'overlap'} role="status">{landingWords(dropping, everything)}</p>
@@ -359,6 +364,7 @@
     {size}
     {rectFor}
     dragging={drag !== undefined}
+    {quiet}
   />
 </div>
 

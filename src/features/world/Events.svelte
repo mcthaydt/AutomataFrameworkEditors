@@ -1,20 +1,23 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+  import { stacked } from '../ui/ui.ts'
   import { WORDS } from '../words/words.ts'
   import type { Answer, Saying } from './events.ts'
 
   // What the screen has to say, stacked under the top bar: each is soft glass with its words and the buttons it needs.
   interface Props {
     events: readonly Saying[]
-    /** Lower down, under the play bar. */
-    low?: boolean
     onanswer: (event: Saying, answer: Answer) => void
+    /** What else belongs in the stack (a note from someone, with its own button), above the tips. */
+    children?: Snippet
   }
-  let { events, low = false, onanswer }: Props = $props()
+  let { events, onanswer, children }: Props = $props()
 
 </script>
 
-{#if events.length > 0}
-  <div class="events" class:low>
+{#if events.length > 0 || children !== undefined}
+  <div class="events" style:--stacked="{stacked.height}px">
+    {@render children?.()}
     {#each events as event (event.id)}
       <div class="event glass-2 {event.kind}" role={event.kind === 'problem' ? 'alert' : 'status'}>
         <p>{event.text}</p>
@@ -38,13 +41,10 @@
 {/if}
 
 <style>
-  /* The play bar sits at the top of the game: what the screen says waits under it, never over it. */
-  .events.low {
-    top: calc(var(--bar) + 20px + 64px);
-  }
+  /* What floats at the top by itself (a note with Undo, the helper's card, the play bar) takes its own rows: the tips stand below, never under. */
   .events {
     position: absolute;
-    top: calc(var(--bar) + 20px);
+    top: calc(var(--bar) + 20px + var(--stacked, 0px));
     left: 50%;
     z-index: 8;
     display: flex;
@@ -98,6 +98,7 @@
     background: var(--hover);
   }
   button.main {
+    min-height: 48px;
     background: var(--accent);
     color: var(--on-accent);
   }

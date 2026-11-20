@@ -37,6 +37,9 @@ export function placeCard(
     within(across, anchor.y - card.h - GAP),
     within(anchor.x + anchor.w + GAP, down),
     within(anchor.x - card.w - GAP, down),
+    // The band under the levels, clear of the anchor's own bar: a card there hides no level at all.
+    within(screen.x + GAP, anchor.y + anchor.h + GAP),
+    within(screen.x + screen.w - card.w - GAP, anchor.y + anchor.h + GAP),
     within(screen.x + GAP, down),
     within(screen.x + screen.w - card.w - GAP, down),
   ]

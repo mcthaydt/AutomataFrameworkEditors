@@ -72,7 +72,7 @@
 {/if}
 {#if note !== undefined && !paused}
   <div class="notes" data-ui>
-    <Note words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={onnote} />
+    <Note floats words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={onnote} />
   </div>
 {/if}
 

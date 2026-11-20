@@ -1,8 +1,8 @@
 <script lang="ts">
   // What a helper (or someone else) changed in the game while the person worked, laid on the level as a ghost and said in
-  // a few lines, with Keep and Undo. It is lavender, the helper's colour, and floats over the foot of the level.
+  // a few lines, with Keep and Undo. It is lavender, the helper's colour, and floats at the top, where it cannot lie on the things on the ground.
   import type { ChangeLine } from '../game/game.ts'
-  import { Action, Icon } from '../ui/ui.ts'
+  import { Action, Icon, stack } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { sayLine } from './lines.ts'
 
@@ -24,7 +24,7 @@
   const shown = $derived(lines.slice(0, MOST))
 </script>
 
-<div class="ghost glass-1" role="group" aria-label={about ?? text(h.ghostAbout)} data-ghost-card>
+<div class="ghost glass-1" role="group" aria-label={about ?? text(h.ghostAbout)} data-ghost-card use:stack>
   <p class="about"><Icon name="sparkle" /><span>{about ?? text(h.ghostAbout)}</span></p>
   <ul>
     {#each shown as line, at (at)}
@@ -42,7 +42,7 @@
   .ghost {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--tools-room, 0px) + 16px);
+    top: calc(var(--bar) + 20px);
     z-index: 9;
     display: flex;
     flex-direction: column;

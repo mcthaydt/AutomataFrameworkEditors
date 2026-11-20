@@ -333,7 +333,7 @@
 
 {#if note !== undefined}
   <div class="notes">
-    <Note words={note} button={text(words.shell.gotIt)} onpress={() => (note = undefined)} />
+    <Note floats words={note} button={text(words.shell.gotIt)} onpress={() => (note = undefined)} />
   </div>
 {/if}
 

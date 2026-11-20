@@ -106,7 +106,8 @@
     padding: 12px 20px 16px;
     border-top: 1px solid var(--line);
   }
-  @media (min-width: 900px) {
+  /* A wide screen, and an iPad held upright too (the level has the room on its left): the sheet is at the side, off the thing. */
+  @media (min-width: 900px), (min-width: 700px) and (orientation: portrait) {
     .sheet.side {
       inset: calc(var(--bar) + 20px) 8px 8px auto;
       margin: 0;

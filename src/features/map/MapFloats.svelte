@@ -22,7 +22,7 @@
   import NewLevelCard from './NewLevelCard.svelte'
   import PadCard from './PadCard.svelte'
   import { fits, freeSpot, placeCard, type Rect } from './placing.ts'
-  import { KEY_ROOM, TOP_ROOM } from './shapes.ts'
+  import { KEY_ROOM, KEY_WIDTH, TOP_ROOM } from './shapes.ts'
   import { clearWalls, meetOpenings, tilesToClear } from './walls.ts'
   import WallCard from './WallCard.svelte'
 
@@ -41,8 +41,10 @@
     rectFor: (id: string) => Rect | undefined
     /** A level is being dragged: its bar waits. */
     dragging: boolean
+    /** A problem is being shown: the room's bar and the fix card give way to it. */
+    quiet?: boolean
   }
-  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging }: Props =
+  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging, quiet = false }: Props =
     $props()
 
   const everything = $derived(wordsIn(lang))
@@ -96,7 +98,8 @@
   })
   let cardSize = $state({ w: 0, h: 0 })
   const screen = $derived({ x: 0, y: 0, w: size.w, h: size.h })
-  const keyRect = $derived({ x: 0, y: size.h - KEY_ROOM, w: size.w, h: KEY_ROOM })
+  // The key's own place: centred at the foot, as wide as its words, so a card may sit in the band beside it.
+  const keyRect = $derived({ x: Math.max(0, size.w / 2 - KEY_WIDTH / 2), y: size.h - KEY_ROOM, w: Math.min(size.w, KEY_WIDTH), h: KEY_ROOM })
   /** The top strip holds "Whole world" and "New level": nothing floats over them. */
   const topRect = $derived({ x: 0, y: 0, w: size.w, h: TOP_ROOM })
   const pickedRect = $derived(picked === undefined ? undefined : rectFor(picked))
@@ -199,7 +202,7 @@
   export const menuOf = (level: string): void => void (menu = level)
 </script>
 
-{#if picked !== undefined && barAt !== undefined}
+{#if picked !== undefined && barAt !== undefined && !quiet}
   <div class="float" data-ui bind:this={barEl} bind:clientWidth={barSize.w} bind:clientHeight={barSize.h} style:left="{barAt.x}px" style:top="{barAt.y}px">
     <LevelBar
       {lang}
@@ -220,7 +223,7 @@
     />
   </div>
 {/if}
-{#if open !== undefined && cardAt !== undefined && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
+{#if open !== undefined && cardAt !== undefined && !quiet && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
   <div class="float" data-ui bind:clientWidth={cardSize.w} bind:clientHeight={cardSize.h} style:left="{cardAt.x}px" style:top="{cardAt.y}px">
     {#if open.kind === 'pad'}
       <PadCard {lang} level={open.level} hint={padNote} onnudge={nudge} ondone={() => (card = undefined)} />
@@ -250,7 +253,7 @@
 {/if}
 {#if note !== undefined}
   <div class="notes" data-ui>
-    <Note words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={() => { note?.press?.(); note = undefined }} />
+    <Note floats words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={() => { note?.press?.(); note = undefined }} />
   </div>
 {/if}
 
