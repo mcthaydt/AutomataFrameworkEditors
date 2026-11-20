@@ -60,17 +60,26 @@ const named = (name: string): HTMLButtonElement => {
   return found
 }
 
+// The pad's words go in at once, then Enter is pressed. Clearing the field and typing as two steps failed now and then on
+// Firefox: if the field lost focus between them, the pad put its old number back (by design, an empty field keeps the
+// number) and the keys were added after it, so "0" became "80". Where that loss of focus comes from was not found
+// (history.md, "Flaky tests"). The browser's own typing into the pad is still checked in kit.browser.test.ts.
+async function enter(field: HTMLInputElement, words: string): Promise<void> {
+  field.focus()
+  field.value = words
+  field.dispatchEvent(new Event('input', { bubbles: true }))
+  await userEvent.keyboard('{Enter}')
+}
+
 test('typing 99 into a number with a limit of 8 gives 8, and the pad and the slider hold the same limits', async () => {
   await show(linksContent, room2, ['critter-1'])
   await userEvent.click(value('reach').querySelector('button.num') as HTMLElement)
   const field = box.querySelector<HTMLInputElement>('input[inputmode="decimal"]') as HTMLInputElement
-  await userEvent.clear(field)
-  await userEvent.type(field, '99{Enter}')
+  await enter(field, '99')
   expect(thing('critter-1')?.values).toMatchObject({ reach: 8 })
   const range = value('reach').querySelector<HTMLInputElement>('input[type="range"]') as HTMLInputElement
   expect([range.min, range.max, range.step]).toEqual(['1', '8', '0.5'])
-  await userEvent.clear(field)
-  await userEvent.type(field, '0{Enter}')
+  await enter(field, '0')
   expect(thing('critter-1')?.values).toMatchObject({ reach: 1 })
 })
 
@@ -80,11 +89,9 @@ test('a value put back to its default leaves no key, and the settings of the Cra
   expect([range.min, range.max, range.step]).toEqual(['0.5', '4', '0.5'])
   await userEvent.click(value('heavy').querySelector('button.num') as HTMLElement)
   const field = box.querySelector<HTMLInputElement>('input[inputmode="decimal"]') as HTMLInputElement
-  await userEvent.clear(field)
-  await userEvent.type(field, '2.5{Enter}')
+  await enter(field, '2.5')
   expect(thing('crate-1')?.values).toEqual({ heavy: 2.5 })
-  await userEvent.clear(field)
-  await userEvent.type(field, '1{Enter}')
+  await enter(field, '1')
   expect(thing('crate-1')?.values).toBeUndefined()
   expect(box.textContent).toContain('Every crate starts like this: a change here is for this one only')
 })
@@ -161,8 +168,7 @@ test('several things show "Not the same" where they differ, and one change is fo
   expect(value('reach').textContent).toContain('Not the same')
   await userEvent.click(value('reach').querySelector('button.num') as HTMLElement)
   const field = box.querySelector<HTMLInputElement>('input[inputmode="decimal"]') as HTMLInputElement
-  await userEvent.clear(field)
-  await userEvent.type(field, '6{Enter}')
+  await enter(field, '6')
   expect(thing('critter-1')?.values).toMatchObject({ reach: 6 })
   expect(thing('critter-2')?.values).toEqual({ reach: 6 })
   await vi.waitFor(() => expect(value('reach').textContent).not.toContain('Not the same'))

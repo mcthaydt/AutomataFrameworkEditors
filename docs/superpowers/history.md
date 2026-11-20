@@ -4,6 +4,11 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 
 ## Setup
 
+- 2026-11-18: superpowers **7.0.2**'s `test-driven-development`, `verification-before-completion`, `executing-plans` and
+  `subagent-driven-development` read against the new verification rules (AutomataFramework
+  `docs/superpowers/specs/2026-11-18-verification-design.md`, section 7). Where they differ, these rules win, and the
+  differences are listed in `build` under "Superpowers' testing skills". `subagent-driven-development` is not used here
+  (writers are threads); if it ever is, its task reviewer does not replace the implementation audit.
 - 2026-11-17 03:58 UTC: restart. The apps kit (CLAUDE.md, skills `review`, `release`, `build`, `visual-check`, `staged-path`,
   `owner-updates`, `this-repo`, the compaction hook) installed again from the Owner's rules text; superpowers still
   **7.0.2**.
@@ -38,6 +43,22 @@ Finished milestones and their decision records, setup, rule changes, standing pe
   Approved in the project thread at 20:28 and 20:29 UTC, and on decision cards at 20:46 UTC. Scope: this change
   only, made the same in all five repos, as AutomataFramework
   `docs/superpowers/specs/2026-11-16-compaction-hook-design.md` describes. Later rule changes are lane 3 as usual.
+- 2026-11-18, the Owner: verification. `CLAUDE.md` gets a short Verification section in place of the Tests and Lessons
+  bullets, and `build` gets the full rules: run the change like a person through a new per-repo `verify` skill; journeys
+  first, then property tests, then old-versus-new tests; test first, from the outside in, with superpowers' testing
+  skills read under these rules; a flaky test fixed at its root in its own thread, or deleted with the reason written
+  down; a change does not quietly edit its own check; lessons carry a trigger read from the diff; each retrospective
+  prunes. A repo's own `verify` and `this-repo` skills take the lane of the code they describe. One edited alone is lane
+  1, unless it changes what needs the owner. Asked for in the project thread ("Let's rethink how we do tests", with the
+  Claude Code team's article on verification, and "We also need to evaluate how superpowers comes into the picture
+  because that's tdd") and approved on decision cards on 2026-11-18 at 00:30 UTC ("Core rewrite" only; a property-test
+  library and a commit verification stamp or gate declined) and at about 00:52 UTC ("Kits + 5 repos"; "Same lane as the
+  code") and at about 01:52 UTC ("Lane 1, with a guard"). Scope: this change only, made the same in the two kits in
+  McThayDT-Website and in RukenApp, AutomataFramework, AutomataFrameworkEditors, AutomataFrameworkExamples and
+  AutomataFrameworkSite, as AutomataFramework `docs/superpowers/specs/2026-11-18-verification-design.md` describes.
+  Later rule changes are lane 3 as usual.
+- 2026-11-18, the Owner: the shared Verification text says the full suite runs in CI where `release` sets the gate, so a games kit gate that runs the smoke set is a stated case. Chosen on a decision card ("Merge now, reword later").
+- 2026-11-18, the Owner: a plan's order is a claim that one unit waits on another, not a queue; independent units run side by side up to the writer limit (`staged-path`). Asked for in the coordinator thread.
 
 ## Standing permissions
 
@@ -66,6 +87,20 @@ Finished milestones and their decision records, setup, rule changes, standing pe
   12 under CPU load and 40 repeats under load, all passing. A `4` is the slider's top: one guess is that the field moved
   under the click (the click landed on the slider), but that is a guess with no evidence. Left as it is; if it fails again,
   the next step is to log where the click lands.
+  Followed up on 2026-11-18 in three tries. The slider guess does not fit: Vitest's `type` only focuses the field, it never
+  clicks. A `4` is "1" (the old number) followed by "2.5": "12.5", held to the top. 450 repeats of the steps under CPU load:
+  no failure. The CI log has nothing more (its failure picture was not uploaded). Then 4 runs of the whole Firefox suite under
+  load: one failed, in the test above it in the same file ("typing 99 …", `expected { …(2) } to match object { reach: 1 }`
+  after typing "0" over the 8): "8" followed by "0" makes 80, held to 8. Shown on purpose: a blur between `clear` and `type`
+  gives exactly that failure every time, because the number pad puts its number back when the field is left empty (by
+  design). What took the focus away in the failing runs was not found; a test in another file stealing focus in a loop did not
+  cause it (60 repeats). With that fixed, 6 more runs under load failed twice in a third test of the file, the only other
+  one with the same two steps ("several things show "Not the same"…", `expected { …(2) } to match object { reach: 6 }`: "5"
+  followed by "6"). So all three tests now put their words in at once and press Enter (no gap for a blur to land in), with
+  every assertion unchanged; they still fail when Enter stops saving, when nothing holds a number to its limits, or when a
+  default stays in the file. The gap it leaves: in these three tests the browser's own typing does not put the words in; that
+  part of the number pad (fill, then Enter, held to its limit) is still checked in all three browsers by `kit.browser.test.ts`
+  ("NumberPad: plus and minus stop at the limits").
 
 ## Lessons
 
