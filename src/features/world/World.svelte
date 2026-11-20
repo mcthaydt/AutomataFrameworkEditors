@@ -206,8 +206,8 @@ import Team from './Team.svelte'
       case 'help': return guide?.open('help')
       case 'find': return void (finding = true)
       case 'nudge': return nudge(picked[0] as string, act.way)
-      case 'tool': return void (tool = act.tool)
-      case 'place': return void ((placing = act.character), (tool = 'place'))
+      case 'tool': return void ((tool = act.tool), guide?.happen({ kind: 'tool', what: act.tool }))
+      case 'place': return void ((placing = act.character), (tool = 'place'), guide?.happen({ kind: 'tool', what: 'place' }))
       case 'level': return part?.command(act.command)
     }
   }
@@ -223,6 +223,7 @@ import Team from './Team.svelte'
   }
 
   function startPlay(): void {
+    guide?.happen({ kind: 'played' })
     events = unsay(events, 'play')
     big = false
     playing = true
@@ -477,7 +478,10 @@ import Team from './Team.svelte'
       canRedo={edits.future.length > 0}
       quiet={playing}
       away={playing && big}
-      ontool={(next) => (tool = next)}
+      ontool={(next) => {
+        tool = next
+        guide?.happen({ kind: 'tool', what: next })
+      }}
       onundo={() => step('undo')}
       onredo={() => step('redo')}
       onopen={openList}

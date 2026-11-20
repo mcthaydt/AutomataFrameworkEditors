@@ -267,6 +267,7 @@
       <button
         type="button"
         class="chip play"
+        data-tour="play"
         aria-pressed={playing}
         aria-label={text(playing ? w.stop : w.play)}
         title={text(playing ? w.stop : w.play)}
