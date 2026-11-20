@@ -28,7 +28,7 @@
   } as const
 </script>
 
-<Screen title={WORDS.appName}>
+<Screen glass title={WORDS.appName}>
   <p class="line">{WORDS.welcomeLine}</p>
   {#if !ready}<Notice kind="problem" text={WORDS.signInNotReady} />{/if}
   {#if notice !== undefined}<Notice kind="problem" text={NOTICE_WORDS[notice]} />{/if}
@@ -63,6 +63,7 @@
   }
   /* A link is pressed with a finger like a button, so it is as tall as one. */
   .why a {
+    color: var(--link);
     display: inline-flex;
     align-items: center;
     min-height: 44px;

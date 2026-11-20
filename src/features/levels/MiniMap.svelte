@@ -77,7 +77,7 @@
 </script>
 
 {#if !whole}
-  <div class="mini" role="group" aria-label={text(words.miniMap)}>
+  <div class="mini glass-1" role="group" aria-label={text(words.miniMap)}>
     <div
       class="map"
       role="presentation"
@@ -132,10 +132,7 @@
     top: 8px;
     left: 8px;
     padding: 4px;
-    border: 1px solid var(--g-edge, var(--glass-edge));
     border-radius: 10px;
-    background: var(--g-bg, var(--glass));
-    box-shadow: var(--shadow);
   }
   .map {
     position: relative;

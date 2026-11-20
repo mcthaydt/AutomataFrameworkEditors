@@ -61,7 +61,7 @@
 </script>
 
 {#if tray !== undefined && trayAt !== undefined}
-  <div class="float tray" data-ui style:left="{trayAt.x}px" style:top="{trayAt.y}px">
+  <div class="float tray glass-2" data-ui style:left="{trayAt.x}px" style:top="{trayAt.y}px">
     <Tray {lang} {characters} {counts} chosen={undefined} onchoose={(id) => id !== undefined && onput(id)} />
   </div>
 {/if}
@@ -74,13 +74,13 @@
 {/if}
 
 {#if renaming !== undefined}
-  <div class="center" data-ui>
+  <div class="center dim-2" data-ui>
     <RenameCard {lang} id={renaming} {onrename} oncancel={oncancelrename} />
   </div>
 {/if}
 
 {#if asking !== undefined}
-  <div class="center" data-ui>
+  <div class="center dim-2" data-ui>
     <Ask
       question={text(words.askOne, nameOf(asking.character))}
       yes={text(words.askOneYes)}
@@ -99,9 +99,6 @@
   .tray {
     max-width: calc(100% - 16px);
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
   }
   .scrim {
     position: absolute;
@@ -118,6 +115,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--dim);
   }
 </style>

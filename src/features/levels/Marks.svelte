@@ -95,7 +95,7 @@
           style:height="{mark.box.h}px"
         >
           <i class="handle tl"></i><i class="handle tr"></i><i class="handle bl"></i><i class="handle br"></i>
-          {#if tags[mark.id] !== undefined}<b class="tag" class:end={ghosts.some((g) => g.mark.box.x > mark.box.x)} class:start={ghosts.some((g) => g.mark.box.x < mark.box.x)}>{tags[mark.id]}</b>{/if}
+          {#if tags[mark.id] !== undefined}<b class="tag glass-1" class:end={ghosts.some((g) => g.mark.box.x > mark.box.x)} class:start={ghosts.some((g) => g.mark.box.x < mark.box.x)}>{tags[mark.id]}</b>{/if}
         </span>
       {/if}
     </button>
@@ -111,7 +111,7 @@
       style:width="{ghost.mark.box.w}px"
       style:height="{ghost.mark.box.h}px"
     >
-      <b class="tag" class:end={ghost.mark.box.x < (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)} class:start={ghost.mark.box.x > (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)}>{ghost.name}</b>
+      <b class="tag glass-1" class:end={ghost.mark.box.x < (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)} class:start={ghost.mark.box.x > (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)}>{ghost.name}</b>
     </span>
   {/each}
 </div>
@@ -155,17 +155,13 @@
     border-radius: 3px;
     pointer-events: none;
   }
-  /* The name sits just under its place, glass like the rest, so it reads over any picture. */
+  /* The name sits just under its place, on layer 1 glass like the other tags, so it reads over any picture. */
   .tag {
     position: absolute;
     top: 100%;
     left: 50%;
     padding: 1px 6px;
     border-radius: 6px;
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    color: var(--words);
     font-family: var(--label);
     font-size: 12px;
     font-weight: 600;

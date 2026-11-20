@@ -16,7 +16,7 @@
   const words = $derived(wordsIn(lang).arrange)
 </script>
 
-<div class="pad">
+<div class="pad glass-2">
   <p>{typeof words.padFor === 'function' ? words.padFor(nameOf(level)) : words.padFor}</p>
   <MovePad {lang} {onnudge} {ondone} />
   <p class="hint">{hint}</p>
@@ -31,9 +31,6 @@
     max-width: 260px;
     padding: 8px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   p {

@@ -2,8 +2,9 @@
 // layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
 // no sideways scroll; every button, link, field and picker at least 44 px each way, the primary Button at least
 // 48 tall; none overlapping; one heading (the World screen has none: its bar names where it is); at most one Back; one
-// primary Button; no text off the side or cut with an ellipsis; and on the World screen a stage that is at least half
-// the shorter side of the window wide.
+// primary Button; no text off the side or cut with an ellipsis; every button's spoken name starts with the words it
+// shows, and a button that shows only an icon has a spoken name and a tooltip for a mouse; and on the World screen
+// a stage that is at least half the shorter side of the window wide.
 // The pictures land in `tests/journeys/__screenshots__/` and, from CI, on the `ci-screens` branch.
 
 import { type Level, writeContent } from '@automataframework/framework/headless'
@@ -811,6 +812,37 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
       }
+      // Spoken names: a button that shows words is spoken starting with those words, so a person who says what they
+      // see reaches it; a button that shows only an icon has a spoken name, and a tooltip that says it for a mouse.
+      // A key shown beside a word (a computer's "V" for Pick) is a hint, not the button's words.
+      const shownWords = (el: Element): string => {
+        const parts: string[] = []
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        for (let node = walk.nextNode(); node !== null; node = walk.nextNode()) {
+          const parent = node.parentElement
+          if (parent === null || !seen(parent) || parent.closest('kbd, [aria-hidden=true]') !== null) continue
+          parts.push(node.textContent ?? '')
+        }
+        return parts.join(' ').replace(/\s+/g, ' ').trim()
+      }
+      for (const el of touchable) {
+        if (
+          !mine(el) ||
+          el.tagName !== 'BUTTON' ||
+          el.classList.contains('dim') ||
+          el.closest('[aria-hidden=true]')
+        )
+          continue
+        const spoken = (el.getAttribute('aria-label') ?? '').replace(/\s+/g, ' ').trim()
+        const words = shownWords(el)
+        if (words !== '' && spoken !== '' && !spoken.toLowerCase().startsWith(words.toLowerCase()))
+          found.push(`${named(el)} is spoken "${spoken.slice(0, 40)}", which does not start with its words`)
+        if (words === '' && el.querySelector('svg') !== null) {
+          if (spoken === '') found.push(`${named(el)} shows only an icon and has no spoken name`)
+          else if ((el.getAttribute('title') ?? '').trim() === '')
+            found.push(`the icon button "${spoken.slice(0, 30)}" has no tooltip on a computer`)
+        }
+      }
       const primary = [...document.querySelectorAll('.button.primary')].filter(seen)
       if (primary.length > 1) found.push(`${primary.length} primary Buttons`)
       for (const el of primary) {
@@ -876,6 +908,136 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           parent.closest('[data-bar]') === null
         )
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
+      }
+
+      // A page that is one card (the welcome, Pick a game, a game that cannot open) has it in the middle of the window
+      // both ways (the Owner, 2026-11-20). One taller than the window starts at its top and the page scrolls.
+      const page = document.querySelector<HTMLElement>('.plain, .games, .cover')
+      const plain = page?.querySelector(':scope > .card') ?? null
+      if (page !== null && plain !== null) {
+        const box = plain.getBoundingClientRect()
+        const across = Math.abs(box.left + box.width / 2 - window.innerWidth / 2)
+        if (across > 3) found.push(`the card is ${Math.round(across)} px off the middle side to side`)
+        if (box.height <= window.innerHeight - 32) {
+          const down = Math.abs(box.top + box.height / 2 - window.innerHeight / 2)
+          if (down > 3) found.push(`the card is ${Math.round(down)} px off the middle top to bottom`)
+        } else if (box.top < 0 || page.scrollHeight < box.height) {
+          found.push('the card is taller than the window and cannot be scrolled to its top')
+        }
+      }
+
+      // Every panel, bar and menu is glass, its own or the one it sits in, so nothing floats loose on the level (the
+      // Owner, 2026-11-17). Words inside a glass panel keep clear of its sides, and a panel beside the level keeps a gap
+      // from it (the Owner, 2026-11-20: "it's hugging the edges").
+      const glassy = (el: Element): boolean => el.closest('.glass-1, .glass-2, .glass-3') !== null
+      for (const el of document.querySelectorAll(
+        'aside, nav, [role="menu"], [role="toolbar"], [role="dialog"]',
+      )) {
+        if (seen(el) && !glassy(el) && el.querySelector('.glass-1, .glass-2, .glass-3') === null)
+          found.push(
+            `a ${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') ?? '').slice(0, 30)}" has no glass`,
+          )
+      }
+      for (const glass of document.querySelectorAll('.glass-1, .glass-2, .glass-3')) {
+        if (!seen(glass)) continue
+        // A blur, filter or fade on anything holding the glass cuts its own blur off from whatever lies outside that
+        // holder, so a dialog would show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
+        // Glass over a picture inside the same holder (a name on the level drawn in a sheet) still blurs what is behind
+        // it, so what lies under the glass's middle decides.
+        const middle = glass.getBoundingClientRect()
+        const under = document
+          .elementsFromPoint(middle.left + middle.width / 2, middle.top + middle.height / 2)
+          .find((el) => !glass.contains(el) && !el.contains(glass))
+        for (let up = glass.parentElement; up !== null; up = up.parentElement) {
+          const style = getComputedStyle(up)
+          const backdrop = style.backdropFilter || style.getPropertyValue('-webkit-backdrop-filter')
+          if (
+            (backdrop !== '' && backdrop !== 'none') ||
+            style.filter !== 'none' ||
+            Number(style.opacity) < 1
+          ) {
+            if (under === undefined || !up.contains(under))
+              found.push(
+                `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
+              )
+            break
+          }
+        }
+        const edge = glass.getBoundingClientRect()
+        // Small glass (a name on a room, a tag) is held by its own few pixels; the rule is for panels and cards.
+        if (edge.width < 120 || edge.height < 120) continue
+        const walker = document.createTreeWalker(glass, NodeFilter.SHOW_TEXT)
+        for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+          const words = (node.textContent ?? '').trim()
+          const holder = node.parentElement
+          if (
+            words === '' ||
+            holder === null ||
+            !seen(holder) ||
+            holder.closest('[aria-hidden="true"]') !== null
+          )
+            continue
+          const range = document.createRange()
+          range.selectNodeContents(node)
+          for (const line of range.getClientRects()) {
+            if (line.width === 0) continue
+            const gap = Math.min(line.left - edge.left, edge.right - line.right)
+            if (gap < 10) found.push(`"${words.slice(0, 30)}" is ${Math.round(gap)} px from its panel's side`)
+          }
+        }
+      }
+      // A group of icon-only buttons (the move arrows) is an even set: one size, so no name wraps one taller (the lead's
+      // finding on the Owner's picture, 2026-11-20).
+      for (const group of document.querySelectorAll('[role="group"]')) {
+        const buttons = [...group.querySelectorAll(':scope > button')].filter(seen)
+        if (buttons.length < 2 || buttons.some((one) => (one.textContent ?? '').trim() !== '')) continue
+        const sizes = new Set(
+          buttons.map((one) => {
+            const box = one.getBoundingClientRect()
+            return `${Math.round(box.width)}x${Math.round(box.height)}`
+          }),
+        )
+        // And held still, it shows whole, padding and all, without scrolling first (the audit of 2026-11-20, N7 and R4).
+        const panel = group.closest<HTMLElement>('.glass-1, .glass-2, .glass-3')
+        let holder = group.parentElement
+        while (holder !== null && holder !== panel && !/auto|scroll/.test(getComputedStyle(holder).overflowY))
+          holder = holder.parentElement
+        // Where they scroll with the settings, scrolling reaches them; where they are held still, they show whole.
+        holder = holder === null || holder === panel ? panel : null
+        if (holder !== null) {
+          const room = holder.getBoundingClientRect()
+          const foot = room.bottom - Number.parseFloat(getComputedStyle(holder).paddingBottom)
+          const last = Math.max(...buttons.map((one) => one.getBoundingClientRect().bottom))
+          // Arrows held still below the part that scrolls leave that part room to show the settings above them.
+          const scroller = [...holder.querySelectorAll<HTMLElement>('*')].find(
+            (one) => !one.contains(group) && /auto|scroll/.test(getComputedStyle(one).overflowY),
+          )
+          if (scroller !== undefined && scroller.clientHeight < 150)
+            found.push(
+              `the buttons of "${group.getAttribute('aria-label') ?? ''}" leave the settings above them ${scroller.clientHeight} px`,
+            )
+          if (last > foot + 0.5)
+            found.push(
+              `the buttons of "${group.getAttribute('aria-label') ?? ''}" are ${Math.round(last - foot)} px past their panel's foot`,
+            )
+        }
+        if (sizes.size > 1)
+          found.push(
+            `the buttons of "${group.getAttribute('aria-label') ?? ''}" are uneven: ${[...sizes].join(', ')}`,
+          )
+      }
+      const level = document.querySelector('[data-scale]')?.getBoundingClientRect()
+      if (level !== undefined) {
+        for (const panel of document.querySelectorAll('aside[data-tour="settings"], aside.panel, nav.rail')) {
+          if (!seen(panel)) continue
+          const box = panel.getBoundingClientRect()
+          const apart = Math.max(level.left - box.right, box.left - level.right)
+          const above = box.bottom <= level.top || box.top >= level.bottom
+          if (!above && apart < 8)
+            found.push(
+              `"${panel.getAttribute('aria-label') ?? ''}" is ${Math.round(apart)} px from the level`,
+            )
+        }
       }
 
       if (withStage) {

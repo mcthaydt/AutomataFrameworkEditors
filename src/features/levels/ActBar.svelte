@@ -1,6 +1,6 @@
 <script lang="ts">
-  // What can be done with what is picked, in one row of big buttons next to it and never on top of it: Move, Make a copy,
-  // Delete and the three dots. The caller places it (`LevelPart`); it only draws the buttons.
+  // What can be done with what is picked, in one row of big buttons next to it and never on top of it: Move (in words, as
+  // it starts the arrows), then Make a copy, Delete and the three dots as icons, each spoken and with a tooltip. The caller places it (`LevelPart`); it only draws the buttons.
   import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
 
@@ -19,18 +19,18 @@
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
 </script>
 
-<div class="bar" role="toolbar" aria-label={text(words.actBar)}>
+<div class="bar glass-1" role="toolbar" aria-label={text(words.actBar)}>
   <button type="button" class="act" aria-pressed={moving} onclick={onmove}>
     <Icon name="arrows-out-cardinal" /><span>{text(words.actMove)}</span>
   </button>
-  <button type="button" class="act" onclick={oncopy}>
-    <Icon name="copy" /><span>{text(words.actCopy)}</span>
+  <button type="button" class="act" aria-label={text(words.actCopy)} title={text(words.actCopy)} onclick={oncopy}>
+    <Icon name="copy" size={22} />
   </button>
-  <button type="button" class="act" onclick={ondelete}>
-    <Icon name="trash" /><span>{text(words.actDelete)}</span>
+  <button type="button" class="act" aria-label={text(words.actDelete)} title={text(words.actDelete)} onclick={ondelete}>
+    <Icon name="trash" size={22} />
   </button>
-  <button type="button" class="act" aria-label={text(words.actMore)} onclick={onmore}>
-    <Icon name="dots-three" />
+  <button type="button" class="act" aria-label={text(words.actMore)} title={text(words.actMore)} onclick={onmore}>
+    <Icon name="dots-three" size={22} />
   </button>
 </div>
 
@@ -40,9 +40,6 @@
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   .act {

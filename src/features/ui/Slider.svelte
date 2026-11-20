@@ -30,7 +30,7 @@
   <span class="line">
     <span class="name">{label}</span>
     {#if onnumber !== undefined}
-      <button type="button" class="num" aria-label="{label}: {mixed ?? value}" onclick={onnumber}>{mixed ?? value}</button>
+      <button type="button" class="num" aria-label="{mixed ?? value}, {label}" onclick={onnumber}>{mixed ?? value}</button>
     {:else}
       <span class="num">{mixed ?? value}</span>
     {/if}

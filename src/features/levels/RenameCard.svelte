@@ -28,7 +28,7 @@
 <svelte:window onkeydown={key} />
 
 <form
-  class="card"
+  class="card glass-2"
   aria-label={text(words.levels.menuRename)}
   onsubmit={(e) => {
     e.preventDefault()
@@ -55,9 +55,6 @@
     width: min(360px, calc(100vw - 32px));
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   p {

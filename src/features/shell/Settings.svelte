@@ -62,7 +62,7 @@
   ])
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet title={text(s.settingsTitle)} close={text(words.shell.close)} {onclose}>
     <section aria-labelledby="{groupId}-all">
       <h3 id="{groupId}-all">{text(s.setEveryoneFor, game)}</h3>
@@ -147,7 +147,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   h3 {
     margin: 12px 0 2px;
