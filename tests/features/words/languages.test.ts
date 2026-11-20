@@ -4,6 +4,8 @@ import {
   bar,
   first,
   games,
+  helper,
+  notes,
   help,
   idOf,
   LANGUAGE_NAMES,
@@ -39,6 +41,8 @@ const AREAS = {
   thing,
   team,
   games,
+  helper,
+  notes,
 } as const
 
 const MARKS = ['⟦0⟧', '⟦1⟧', '⟦2⟧'] as const

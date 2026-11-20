@@ -13,7 +13,7 @@ export {
 export { keepCopy, type LevelCopy, levelCopy } from './copy.ts'
 export { type ChangeLine, describe } from './describe.ts'
 export { dropDrafts, keepDrafts, takeDrafts } from './drafts.ts'
-export { cameIn } from './merge.ts'
+export { cameIn, type Merged, merge } from './merge.ts'
 export { levelPath, type Opened, type OpenGame, openGame } from './open.ts'
 export { type Problem, problemsOf } from './problems.ts'
 export { approverOf, laidOver, type PutResult, put, type TakeBack, takeBack } from './put.ts'

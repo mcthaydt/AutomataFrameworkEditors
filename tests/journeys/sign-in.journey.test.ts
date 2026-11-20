@@ -118,12 +118,12 @@ test('a sign-in that runs out while GitHub cannot be asked is kept: the person i
   j.fake.tokensRunOut()
   j.fake.failing = (_method, path) => path === '/login/oauth/access_token'
   await j.page.reload()
-  await j.page.getByText(WORDS.cantReach).waitFor()
+  await j.page.getByText(gamesWords.trouble).waitFor()
   expect(await j.page.getByText(WORDS.signedOutAgain).count()).toBe(0)
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
   expect(await j.page.evaluate(() => localStorage.getItem('af.tokens'))).toBe(before)
   // Out of the tunnel, one press and the list is there, with no new sign-in.
   j.fake.failing = undefined
-  await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
+  await j.page.getByRole('button', { name: gamesWords.again }).click()
   await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
 })

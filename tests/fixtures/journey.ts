@@ -441,6 +441,8 @@ export const gamesWords = {
   noMatch: said(GAMES.gamesNoMatch),
   empty: said(GAMES.gamesEmpty),
   emptyHelp: said(GAMES.gamesEmptyHelp),
+  trouble: said(GAMES.gamesTrouble),
+  again: said(GAMES.gamesAgain),
   add: said(GAMES.gamesAdd),
   signOut: said(wordsIn('en').menus.signOut),
 } as const

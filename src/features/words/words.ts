@@ -8,6 +8,8 @@ import { bar } from './bar.ts'
 import { changes } from './changes.ts'
 import { first } from './first.ts'
 import { games } from './games.ts'
+import { helper } from './helper.ts'
+import { notes } from './notes.ts'
 import { ground } from './ground.ts'
 import { help } from './help.ts'
 import { kept } from './kept.ts'
@@ -27,6 +29,8 @@ export { bar } from './bar.ts'
 export { changes } from './changes.ts'
 export { first } from './first.ts'
 export { games } from './games.ts'
+export { helper } from './helper.ts'
+export { notes } from './notes.ts'
 export { ground } from './ground.ts'
 export { help } from './help.ts'
 export { kept } from './kept.ts'
@@ -126,6 +130,8 @@ export interface Words {
   readonly thing: Readonly<Record<keyof (typeof thing)['en'], Row>>
   readonly team: Readonly<Record<keyof (typeof team)['en'], Row>>
   readonly games: Readonly<Record<keyof (typeof games)['en'], Row>>
+  readonly helper: Readonly<Record<keyof (typeof helper)['en'], Row>>
+  readonly notes: Readonly<Record<keyof (typeof notes)['en'], Row>>
   readonly ground: Readonly<Record<keyof (typeof ground)['en'], Row>>
 }
 
@@ -152,6 +158,8 @@ export function wordsIn(lang: Lang): Words {
     thing: { ...thing.en, ...thing[lang] },
     team: { ...team.en, ...team[lang] },
     games: { ...games.en, ...games[lang] },
+    helper: { ...helper.en, ...helper[lang] },
+    notes: { ...notes.en, ...notes[lang] },
     ground: { ...ground.en, ...ground[lang] },
   }
 }
