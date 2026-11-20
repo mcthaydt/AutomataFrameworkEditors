@@ -182,7 +182,7 @@ test('a Play that fails does not use the tip up and shows only the problem', asy
   remembered.removeItem('af.tip.play-code')
   const hurt = inLevel(startEdits(game), 'level-1', (level) => ({
     ...level,
-    things: level.things.map((thing, n) => (n === 0 ? { ...thing, character: 'ghost' } : thing)),
+    tileset: 'nowhere',
   }))
   keepDrafts(drafts, game, hurt)
   await open()
@@ -203,14 +203,14 @@ test('Play changes nothing: no change is kept on the device', async () => {
 test('a level that cannot be built is not started: the first sentence says what is wrong, and the marks stay', async () => {
   const hurt = inLevel(startEdits(game), 'level-1', (level) => ({
     ...level,
-    things: level.things.map((thing, n) => (n === 0 ? { ...thing, character: 'ghost' } : thing)),
+    tileset: 'nowhere',
   }))
   keepDrafts(drafts, game, hurt)
   await open()
   await press('Play')
   await vi.waitFor(() => expect(box.textContent).toContain("This level can't be played yet"))
   // Only the framework's plain sentence: no file name, no place in the file.
-  expect(box.textContent).toContain('There is no character called "ghost"')
+  expect(box.textContent).toContain('nowhere')
   expect(box.textContent).not.toContain('.json')
   expect(box.textContent).not.toContain('[0]')
   expect(playBox()).toBeNull()

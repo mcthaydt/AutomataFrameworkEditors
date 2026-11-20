@@ -1,6 +1,6 @@
 // Opening a game on the page: asks the API, then reads what came back the way the framework reads a game, so a game
 // that will not load says why in the framework's own sentences, and the screens never see half a game.
-import { type Diagnostic, type GameContent, loadGame } from '@automataframework/framework/headless'
+import { type Diagnostic, type GameContent, readGame } from '@automataframework/framework/headless'
 import type { AccessLevel } from '../access/access.ts'
 import type { Api } from '../api/api.ts'
 import type { EditorsFile } from '../files/files.ts'
@@ -47,12 +47,13 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
   }
   const { value } = answer
   const files = new Map(value.files.map((file) => [file.path, file] as const))
-  const loaded = await loadGame(async (path) => {
+  // The game opens whenever every file reads, even with problems between files: they are listed, not a reason to refuse.
+  const loaded = await readGame(async (path) => {
     const file = files.get(path)
     if (file === undefined) throw new Error(`${path}: no such file`)
     return file.text
   })
-  if (!loaded.ok) return { ok: false, problem: 'broken', diagnostics: loaded.diagnostics }
+  if (loaded.content === undefined) return { ok: false, problem: 'broken', diagnostics: loaded.diagnostics }
   return {
     ok: true,
     game: {
@@ -63,13 +64,13 @@ export async function openGame(api: Api, ref: GameRef): Promise<Opened> {
       mine: value.mine,
       turnedDown: value.turnedDown,
       waiting: value.waiting,
-      content: loaded.value,
+      content: loaded.content,
       files,
       editors: value.editors,
       editorsVersion: value.editorsVersion,
       people: value.people,
       pictures: value.pictures,
-      worldPath: loaded.value.project.content.find((ref) => ref.type === 'world')?.path,
+      worldPath: loaded.content.project.content.find((ref) => ref.type === 'world')?.path,
     },
   }
 }

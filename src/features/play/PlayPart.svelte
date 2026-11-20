@@ -5,10 +5,13 @@
   // words.
   import { onMount, untrack } from 'svelte'
   import type { Frames } from '@automataframework/framework'
+  import { type Arrive, levelsOf, type Way } from '@automataframework/framework/headless'
   import type { Edits, OpenGame } from '../game/game.ts'
+  import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { CannotPlay, play, type Playing } from './run.ts'
   import PlayBar from './PlayBar.svelte'
+  import { spotOf } from './spot.ts'
 
   interface Props {
     game: OpenGame
@@ -24,15 +27,23 @@
     onstarted: () => void
     /** The level could not be played: what is wrong, one sentence a line (none: the reason is not known). */
     onproblem: (lines: readonly string[]) => void
+    /** Where the hero comes in at first: beside the door it came through. Left out: its own start. */
+    arrive?: Arrive | undefined
+    /** A hero went through a door: the level it leads to and the door to come out of. The screen opens it and plays on. */
+    ondoor?: (way: Way) => void
     /** Only for tests: the frames the game is given. */
     frames?: Frames
   }
-  let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, frames }: Props = $props()
+  let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, arrive, ondoor, frames }: Props = $props()
 
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   let holder: HTMLDivElement | undefined = $state()
   let playing = $state.raw<Playing | undefined>()
   let paused = $state(false)
+  let speed = $state(1)
+  let picking = $state(false)
+  /** What can be gone back to and where the game is, read often: the game moves under the person's hand. */
+  let strip = $state({ from: 0, to: 0, at: 0, hz: 60 })
 
   /** The tick the game is at; 0 before it has started. */
   export const tick = (): number => playing?.tick() ?? 0
@@ -42,22 +53,49 @@
     const mount = holder
     if (mount === undefined) return
     play(
-      untrack(() => ({ mount, game, edits, level, lang, ...(frames === undefined ? {} : { frames }) })),
+      untrack(() => ({
+        mount,
+        game,
+        edits,
+        level,
+        lang,
+        ...(arrive === undefined ? {} : { arrive }),
+        ...(ondoor === undefined ? {} : { ondoor }),
+        ...(frames === undefined ? {} : { frames }),
+      })),
     ).then(
       (started) => {
         if (gone) return started.stop()
         playing = started
+        sync()
         onstarted()
       },
       (error: unknown) => {
         if (!gone) onproblem(error instanceof CannotPlay ? error.lines : [])
       },
     )
+    let looking = 0
+    const watch = (): void => {
+      sync()
+      looking = requestAnimationFrame(watch)
+    }
+    looking = requestAnimationFrame(watch)
     return () => {
       gone = true
+      cancelAnimationFrame(looking)
       playing?.stop()
     }
   })
+
+  /** Reads what the strip and the buttons say from the game. */
+  function sync(): void {
+    if (playing === undefined) return
+    const kept = playing.kept()
+    const at = playing.tick()
+    if (strip.from !== kept.from || strip.to !== kept.to || strip.at !== at || strip.hz !== playing.hz)
+      strip = { from: kept.from, to: kept.to, at, hz: playing.hz }
+    if (paused !== playing.paused()) paused = playing.paused()
+  }
 
   // Waits for the screen to be heard, then goes on, unless the person paused it themselves meanwhile. It holds still only
   // once the first picture is drawn, so what waits is a level, never an empty box.
@@ -102,22 +140,98 @@
     else playing.pause()
     paused = playing.paused()
   }
-  async function again(): Promise<void> {
+  async function restart(how: () => Promise<void> | undefined): Promise<void> {
+    picking = false
     try {
-      await playing?.again()
+      await how()
       paused = playing?.paused() ?? false
+      sync()
     } catch (error) {
       onproblem(error instanceof CannotPlay ? error.lines : [])
     }
   }
+  const again = (): Promise<void> => restart(() => playing?.again())
+  /** The one step is only for a game held still. */
+  function step(): void {
+    playing?.step()
+    sync()
+  }
+  const speeds = [1, 0.5, 0.25]
+  function slower(): void {
+    if (playing === undefined) return
+    speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length] ?? 1
+    playing.setSpeed(speed)
+  }
+  /** Dragging the strip holds the game and shows it as it was. */
+  function back(tick: number): void {
+    if (playing === undefined) return
+    held = false
+    if (!playing.paused()) playing.pause()
+    playing.backTo(tick)
+    sync()
+  }
+  /** A tap while the strip waits for one: the hero starts there. */
+  function tapped(event: PointerEvent): void {
+    const target = holder
+    if (playing === undefined || target === undefined) return
+    const box = target.getBoundingClientRect()
+    const spot = spotOf(
+      { w: box.width, h: box.height },
+      levelsOf(game.content, level).map((one) =>
+        one.level === level ? { ...one, ...sizeOf(one.level) } : one,
+      ),
+      level,
+      { x: event.clientX - box.left, y: event.clientY - box.top },
+    )
+    if (spot === undefined) return
+    const now = playing
+    void restart(() => now.from(spot))
+  }
+  /** The size of a level of the edited game, in tiles. */
+  function sizeOf(id: string): { w: number; h: number } {
+    const tiles = edits.now.levels[id]?.tiles ?? []
+    return { w: tiles[0]?.length ?? 0, h: tiles.length }
+  }
+  // A level with a camera shows only part of itself, so a tap on it has no place.
+  const canPick = $derived(edits.now.levels[level]?.view === undefined)
 </script>
 
 <div class="play" role="group" aria-label={text(wordsIn(lang).play.game)} data-play="box">
   <div class="game" bind:this={holder}></div>
   {#if playing !== undefined}
     <div class="bar">
-      <PlayBar {lang} {paused} {big} onpause={pause} onagain={() => void again()} onbig={onbig} />
+      <PlayBar
+        {lang}
+        {paused}
+        {big}
+        {speed}
+        {strip}
+        {picking}
+        {canPick}
+        onpause={pause}
+        onstep={step}
+        onspeed={slower}
+        onagain={() => void again()}
+        onpick={() => (picking = !picking)}
+        onback={back}
+        {onbig}
+      />
+      {#if playing.doorsShut}
+        <div class="note" role="status">
+          <Icon name="door" /><span>{text(wordsIn(lang).play.noDoors)}</span>
+        </div>
+      {/if}
     </div>
+    {#if picking}
+      <div class="pick" role="status" data-play="pick-strip">
+        <Icon name="map-pin" /><span>{text(wordsIn(lang).play.hereAbout)}</span>
+        <button type="button" data-play="pick-cancel" onclick={() => (picking = false)}>
+          {text(wordsIn(lang).play.cancel)}
+        </button>
+      </div>
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div class="tap" data-play="tap" onpointerdown={tapped}></div>
+    {/if}
   {/if}
 </div>
 
@@ -142,5 +256,51 @@
     top: 8px;
     left: 8px;
     z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .note,
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--g-edge);
+    background: var(--s-bg);
+    -webkit-backdrop-filter: var(--s-filter);
+    backdrop-filter: var(--s-filter);
+    box-shadow: var(--g-shine), var(--shadow);
+    color: var(--words);
+  }
+  .pick {
+    position: absolute;
+    z-index: 31;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 4px 4px 16px;
+    max-width: calc(100% - 16px);
+  }
+  .pick button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--words);
+    font: inherit;
+    cursor: pointer;
+  }
+  /* The game under it takes no touch while it waits for the tap that says where to start. */
+  .tap {
+    position: absolute;
+    inset: 0;
+    z-index: 29;
+    cursor: crosshair;
+    touch-action: none;
   }
 </style>
