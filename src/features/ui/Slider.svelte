@@ -15,8 +15,11 @@
     onchange: (value: number) => void
     /** A tap on the number: the page opens its number pad. Without it, the number is only read. */
     onnumber?: (() => void) | undefined
+    /** How the number is said, when a plain number is not the way (a time). */
+    format?: ((value: number) => string) | undefined
   }
-  let { value, least, most, step, label, mixed, onchange, onnumber }: Props = $props()
+  let { value, least, most, step, label, mixed, onchange, onnumber, format }: Props = $props()
+  const said = $derived(mixed ?? (format === undefined ? value : format(value)))
 
   function moved(event: Event): void {
     const input = event.currentTarget as HTMLInputElement
@@ -30,9 +33,9 @@
   <span class="line">
     <span class="name">{label}</span>
     {#if onnumber !== undefined}
-      <button type="button" class="num" aria-label="{mixed ?? value}, {label}" onclick={onnumber}>{mixed ?? value}</button>
+      <button type="button" class="num" aria-label="{said}, {label}" onclick={onnumber}>{said}</button>
     {:else}
-      <span class="num">{mixed ?? value}</span>
+      <span class="num">{said}</span>
     {/if}
   </span>
   <input type="range" aria-label={label} min={least} max={most} {step} value={mixed === undefined ? value : least} oninput={moved} />

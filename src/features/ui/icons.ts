@@ -27,12 +27,14 @@ import clockCounterClockwise from '@phosphor-icons/core/regular/clock-counter-cl
 import cloud from '@phosphor-icons/core/regular/cloud.svg?raw'
 import copy from '@phosphor-icons/core/regular/copy.svg?raw'
 import cursor from '@phosphor-icons/core/regular/cursor.svg?raw'
+import door from '@phosphor-icons/core/regular/door.svg?raw'
 import dotsThree from '@phosphor-icons/core/regular/dots-three.svg?raw'
 import downloadSimple from '@phosphor-icons/core/regular/download-simple.svg?raw'
 import eraser from '@phosphor-icons/core/regular/eraser.svg?raw'
 import eye from '@phosphor-icons/core/regular/eye.svg?raw'
 import eyeSlash from '@phosphor-icons/core/regular/eye-slash.svg?raw'
 import flagPennant from '@phosphor-icons/core/regular/flag-pennant.svg?raw'
+import gauge from '@phosphor-icons/core/regular/gauge.svg?raw'
 import gear from '@phosphor-icons/core/regular/gear.svg?raw'
 import globe from '@phosphor-icons/core/regular/globe.svg?raw'
 import keyboard from '@phosphor-icons/core/regular/keyboard.svg?raw'
@@ -43,6 +45,7 @@ import listChecks from '@phosphor-icons/core/regular/list-checks.svg?raw'
 import lock from '@phosphor-icons/core/regular/lock.svg?raw'
 import lockOpen from '@phosphor-icons/core/regular/lock-open.svg?raw'
 import magnifyingGlass from '@phosphor-icons/core/regular/magnifying-glass.svg?raw'
+import mapPin from '@phosphor-icons/core/regular/map-pin.svg?raw'
 import mapTrifold from '@phosphor-icons/core/regular/map-trifold.svg?raw'
 import minus from '@phosphor-icons/core/regular/minus.svg?raw'
 import musicNotes from '@phosphor-icons/core/regular/music-notes.svg?raw'
@@ -57,6 +60,7 @@ import plus from '@phosphor-icons/core/regular/plus.svg?raw'
 import plusCircle from '@phosphor-icons/core/regular/plus-circle.svg?raw'
 import plusSquare from '@phosphor-icons/core/regular/plus-square.svg?raw'
 import question from '@phosphor-icons/core/regular/question.svg?raw'
+import skipForward from '@phosphor-icons/core/regular/skip-forward.svg?raw'
 import slidersHorizontal from '@phosphor-icons/core/regular/sliders-horizontal.svg?raw'
 import square from '@phosphor-icons/core/regular/square.svg?raw'
 import squaresFour from '@phosphor-icons/core/regular/squares-four.svg?raw'
@@ -133,6 +137,10 @@ export type IconName =
   | 'users-three'
   | 'chat-circle-text'
   | 'x-circle'
+  | 'skip-forward'
+  | 'map-pin'
+  | 'gauge'
+  | 'door'
 
 /** The drawing inside an SVG file's outer tag. */
 function inner(svg: string): string {
@@ -206,4 +214,8 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'users-three': inner(usersThree),
   'chat-circle-text': inner(chatCircleText),
   'x-circle': inner(xCircle),
+  'skip-forward': inner(skipForward),
+  'map-pin': inner(mapPin),
+  gauge: inner(gauge),
+  door: inner(door),
 }
