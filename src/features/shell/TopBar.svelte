@@ -255,7 +255,7 @@
       {/if}
     {/if}
     {#if offline}
-      <span class="chip bad"><Icon name="cloud" /><span>{text(w.noInternet)}</span></span>
+      <span class="chip bad" role="status" aria-label={text(w.noInternet)}><Icon name="cloud" /><span class="long">{text(w.noInternet)}</span></span>
     {/if}
     {#if onfind}
       <button type="button" class="chip find" aria-label={text(w.find)} onclick={onfind}>

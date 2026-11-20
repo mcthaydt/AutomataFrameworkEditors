@@ -3,7 +3,6 @@
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
-import type { Api } from '#src/features/api/api.ts'
 import { ME_DEFAULT } from '#src/features/device/device.ts'
 import { inLevel, keepDrafts, type OpenGame, startEdits } from '#src/features/game/game.ts'
 import World from '#src/features/world/World.svelte'
@@ -11,6 +10,7 @@ import { bytesToBase64 } from '#src/lib/base64.ts'
 import { groundPicture } from '../../fixtures/game/ground-picture.ts'
 import { fixtureFiles } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
+import { noGame } from '../../fixtures/no-game.ts'
 import { openedGameWith } from '../../fixtures/open-game-with.ts'
 import { memoryStore } from '../../fixtures/store.ts'
 
@@ -29,7 +29,7 @@ async function open(opened: OpenGame = game): Promise<void> {
     target: box,
     props: {
       game: opened,
-      api: {} as unknown as Api,
+      api: noGame,
       route: { screen: 'level', owner: opened.ref.owner, name: opened.ref.name },
       me: ME_DEFAULT,
       go: () => {},

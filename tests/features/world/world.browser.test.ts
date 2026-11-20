@@ -3,12 +3,12 @@ import type { Level } from '@automataframework/framework/headless'
 import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { page } from 'vitest/browser'
-import type { Api } from '#src/features/api/api.ts'
 import { ME_DEFAULT } from '#src/features/device/device.ts'
 import type { Route } from '#src/features/team/route.ts'
 import World from '#src/features/world/World.svelte'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
+import { noGame } from '../../fixtures/no-game.ts'
 import { openedGameWith } from '../../fixtures/open-game-with.ts'
 import { memoryStore } from '../../fixtures/store.ts'
 
@@ -50,7 +50,7 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
     target: box,
     props: {
       game,
-      api: {} as unknown as Api,
+      api: noGame,
       route: { screen: 'level', owner: game.ref.owner, name: game.ref.name },
       me: ME_DEFAULT,
       go: () => {},
@@ -87,7 +87,7 @@ test('the map route shows every level on one sheet, with the Map button pressed 
     target: box,
     props: {
       game,
-      api: {} as unknown as Api,
+      api: noGame,
       route: { screen: 'map', owner: game.ref.owner, name: game.ref.name, level: 'room-2' },
       me: ME_DEFAULT,
       go: (route: Route) => went.push(route),
