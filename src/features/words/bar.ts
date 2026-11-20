@@ -10,6 +10,7 @@ type Key =
   | 'map'
   | 'noInternet'
   | 'upToDate'
+  | 'heldWhy'
   | 'putInGame'
   | 'sendToCheck'
   | 'keepCopy'
@@ -37,6 +38,7 @@ export const bar = {
     map: 'Map',
     noInternet: 'No internet',
     upToDate: 'Up to date',
+    heldWhy: 'Finish with their change first.',
     putInGame: 'Put in game',
     sendToCheck: 'Send to check',
     keepCopy: 'Keep a copy',
@@ -63,6 +65,7 @@ export const bar = {
     map: 'Mapa',
     noInternet: 'Sin internet',
     upToDate: 'Al día',
+    heldWhy: 'Primero termina con su cambio.',
     putInGame: 'Poner en el juego',
     sendToCheck: 'Enviar a revisar',
     keepCopy: 'Guardar una copia',
@@ -89,6 +92,7 @@ export const bar = {
     map: '지도',
     noInternet: '인터넷 없음',
     upToDate: '최신 상태',
+    heldWhy: '먼저 이 변경을 마무리하세요.',
     putInGame: '게임에 넣기',
     sendToCheck: '확인 요청 보내기',
     keepCopy: '사본 저장',
@@ -115,6 +119,7 @@ export const bar = {
     map: 'マップ',
     noInternet: 'ネットにつながっていません',
     upToDate: '最新です',
+    heldWhy: '先にこの変更を終わらせてください。',
     putInGame: 'ゲームに入れる',
     sendToCheck: '確認に送る',
     keepCopy: 'コピーを残す',
@@ -141,6 +146,7 @@ export const bar = {
     map: '地图',
     noInternet: '没有网络',
     upToDate: '已是最新',
+    heldWhy: '请先处理完这个更改。',
     putInGame: '放进游戏',
     sendToCheck: '发去检查',
     keepCopy: '保存副本',
@@ -167,6 +173,7 @@ export const bar = {
     map: 'Mapa',
     noInternet: 'Sem internet',
     upToDate: 'Em dia',
+    heldWhy: 'Termine primeiro com a mudança deles.',
     putInGame: 'Pôr no jogo',
     sendToCheck: 'Enviar para verificar',
     keepCopy: 'Guardar uma cópia',
@@ -193,6 +200,7 @@ export const bar = {
     map: 'Carte',
     noInternet: 'Pas d’internet',
     upToDate: 'À jour',
+    heldWhy: 'Finissez d’abord avec leur changement.',
     putInGame: 'Mettre dans le jeu',
     sendToCheck: 'Envoyer à vérifier',
     keepCopy: 'Garder une copie',
@@ -219,6 +227,7 @@ export const bar = {
     map: 'Карта',
     noInternet: 'Нет интернета',
     upToDate: 'Всё актуально',
+    heldWhy: 'Сначала закончите с их изменением.',
     putInGame: 'Внести в игру',
     sendToCheck: 'Отправить на проверку',
     keepCopy: 'Сохранить копию',
@@ -245,6 +254,7 @@ export const bar = {
     map: 'Karte',
     noInternet: 'Kein Internet',
     upToDate: 'Auf dem neuesten Stand',
+    heldWhy: 'Erst mit deren Änderung fertig werden.',
     putInGame: 'Ins Spiel übernehmen',
     sendToCheck: 'Zur Prüfung senden',
     keepCopy: 'Kopie behalten',

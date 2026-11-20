@@ -8,7 +8,23 @@ For the person who owns a game and wants their team to change it by touch.
 2. Press "Add the editor to a game of mine". GitHub asks which game; choose it. You only do this once per game, and
    you come back to the editors on your own.
 3. Set up the game's main branch the way "Set up your game's main branch" below says. It is one setting, once.
-4. Open the game, open a level, drag something and press Save.
+4. Open the game, open a level, drag something and press "Put in game" (or "Send to check", if your level only
+   suggests).
+
+## What your team sees
+
+Everything is on one screen, World, and works with a finger, a Pencil, a mouse or the keyboard:
+
+- **A level.** Tap a thing to pick it, drag it to move it, and change its numbers on the settings that open beside it.
+  The tools place new things, paint the ground, erase and join a plate to a gate. Undo and Redo are always at the top.
+- **The map.** Press the map button to see every level of the game together, move levels, join them, or make a new one.
+- **Play.** Press Play to try the level where it is drawn. It changes nothing, and Stop puts you back.
+- **Changes.** Your changes stay on your device until you put them in the game, or send them to someone to check. The
+  list shows what each one did.
+- **Notes.** Leave a note on a level, a thing or a spot; anyone can answer it or mark it done.
+- **Help.** The first time, a short tour. Help has the keys and the finger moves, and "For me" holds row size,
+  see-through panels and tips, kept on that device only. The editors speak English, Spanish, Korean, Japanese,
+  Chinese, Portuguese, French, Russian and German.
 
 A game that belongs to an organisation works the same way: the people GitHub shows as admins of the game are Owners
 here, with no need to add them to the sharing file.
