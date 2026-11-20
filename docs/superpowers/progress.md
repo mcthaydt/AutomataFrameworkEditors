@@ -18,6 +18,10 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- The Owner's, 2026-11-20 07:39 UTC (decision card "Merge the website demo, which moves two recorded plays and puts
+  the site live?"): "Merge both". Scope: Examples #81 at `c002f6d` (level-1 and level-2 recorded plays as above) and
+  Site #63 at `b048686`, whose merge deploys. The demo's builder merges the test game first, then the Site, and checks
+  the live page.
 - 2026-11-20 07:32 UTC: the end-to-end walk of main `8dccec5` is done (audit `2026-11-20-world-e2e-walk.md`, Chromium, five sizes,
   touch and pen stand-ins): 96 steps, 86 pass at every size, six reds, ten notes. R1 the tour has 2 of the spec's 4
   steps; R2 at phone sideways the Place tray covers the floor; R3 at phone sideways the play bar covers the level;
