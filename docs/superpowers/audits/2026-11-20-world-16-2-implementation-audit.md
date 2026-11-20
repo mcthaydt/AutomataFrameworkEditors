@@ -27,3 +27,15 @@ I did not look at `main` for this, so I cannot say whether it was there before. 
 
 - Cycle 1's notes A to E stand unchanged.
 - Red 1 must be decided by the WebKit full run after ready. If the second journey (`kid opens a link…`) still fails there, send me its error line.
+
+## Cycle 3: the merge with the glass branch, head `82cf6ede550b9a8a37b1fad4838356899e24f9c9`
+
+Reviewer: the same fresh session. Read: `git diff 42442056 27078f55 -- src tests`, the merge's own edits, the four removed pins. Nothing fixed here.
+
+Verdict: **pass, no red.**
+
+- **Red 1 (WebKit)**: closed. The list stops its queue on `pagehide` and `beforeunload` (`Games.svelte`), and `games.journey` has a test for it that passes here in Chromium; the lead reports the full run on 27078f55 green on all 27 checks, WebKit included, so the open-game journeys pass there. I could not run WebKit myself.
+- **Merge**: lint (same one warning, three infos), typecheck, knip clean; node 1167 tests pass; screens scenes for people, history, notes, ghost, paste, find, pick-a-game and the World scene (60 tests, all five sizes) pass. Looked at the pictures at phone, iPad upright and computer: every PR 16 sheet is glass and over a dimmed, blurred level (Find the most), text reads on the glass, the ghost card and the faces sit clear of Play, "Who can change it" reads whole at all three sizes, the lone Pick a game card is centred up and down at phone and computer.
+- **Spoken names and tooltips**: the bin, copy and add buttons in `People.svelte` and the faces button carry both an `aria-label` and a `title`; pins carry `title` and a name.
+- **Four removed pins** (`offline`, `busy`, `saveFailed`, `blockedOwner`): the flat keys are gone from `words.ts` and nothing in `src` or `tests` uses them any more (grep). Their jobs are said by `words/changes.ts` and `words/team.ts` in reworded form (for example `Things are busy. Wait a minute…`). So removing the pins hides no defect, because there is no word left for them to pin. Note (not blocking): the reworded lines in `changes.ts` have no exact-copy pin of their own.
+- Not run: WebKit and Firefox locally; the full run on this merge head is the builder's to watch after the last glass commit. After that, only the last merge needs checking.
