@@ -177,6 +177,11 @@
     pointer-events: auto;
     z-index: 1000; /* over every thing, which are stacked from 1 */
   }
+  .pin :global(svg) {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 50%));
+  }
   .pin.done {
     opacity: 0.45;
   }
