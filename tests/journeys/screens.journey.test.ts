@@ -893,7 +893,7 @@ describe.each(Object.keys(SIZES) as Size[])('at %s', (size) => {
       const j = await scene.reach(size)
       // The picture first, so a screen that breaks a rule can still be looked at.
       await picture(j.page, `${size}-${scene.name}`)
-      expect(await broken(j.page, scene.stage === true, scene.only ?? '')).toEqual([])
+      expect((await broken(j.page, scene.stage === true, scene.only ?? '')).join('; ')).toBe('')
     })
   }
 })

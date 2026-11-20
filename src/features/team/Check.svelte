@@ -162,6 +162,7 @@
 </script>
 
 <div class="look check" {lang} data-size={size}>
+  <h1 class="sr">{change === undefined ? text(c.loading) : text(c.checkTitle, by, count)}</h1>
   {#if game !== undefined && level !== undefined && levelId !== undefined && !gone}
     <div class="level">
       {#if playing && edits !== undefined}
@@ -310,6 +311,15 @@
     .level {
       bottom: 55%;
     }
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .stop {
     position: absolute;

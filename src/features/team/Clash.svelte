@@ -104,6 +104,12 @@
     border-radius: 10px;
     overflow: hidden;
   }
+  /* A phone on its side has little height: the pictures give way so both answers stay in view. */
+  @media (max-height: 500px) {
+    .picture {
+      height: 56px;
+    }
+  }
   .none {
     margin: auto;
     color: var(--g-quiet);
