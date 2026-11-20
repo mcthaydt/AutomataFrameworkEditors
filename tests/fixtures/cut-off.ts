@@ -29,16 +29,22 @@ const whereIs = (url: string): string => {
   return parsed.pathname + parsed.search
 }
 
-/** The engine's name for a picture the page is decoding in memory: a bare id on the site's own address, never a request. */
+/**
+ * The engine's name for a picture the page is decoding in memory: a bare id on the site's own address, never a request.
+ * The host is the one capture; the engine's report starts with a clipped scheme, so only what follows the slashes counts.
+ */
 const MEMORY_PICTURE =
-  /^[a-z]*:?\/*\/?[\w.:-]+\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} due to access control checks\.?$/
+  /^[a-z]*:?\/*\/?([\w.:-]+)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} due to access control checks\.?$/
 
 export function cutOffTracker(): CutOffTracker {
   let moves = 0
   /** For each address (its path and its question, so one game's open is not another's), how many moves the page had made when its first call started. */
   const firstCall = new Map<string, number>()
+  /** The hosts the page has called: its own origin, and any other it reached. A bare id is excused only on one of them. */
+  const hosts = new Set<string>()
   return {
     started(url) {
+      if (URL.canParse(url)) hosts.add(new URL(url).host)
       const path = whereIs(url)
       if (!firstCall.has(path)) firstCall.set(path, moves)
     },
@@ -53,7 +59,8 @@ export function cutOffTracker(): CutOffTracker {
         return at !== undefined && at < moves
       }
       // A picture decoded in memory has no request to start from; the page moving on after its first load is what cuts it.
-      if (moves >= 2 && MEMORY_PICTURE.test(error.replace(/^page error: /, ''))) return true
+      const host = MEMORY_PICTURE.exec(error.replace(/^page error: /, ''))?.[1]
+      if (moves >= 2 && host !== undefined && hosts.has(host)) return true
       for (const [path, at] of firstCall) {
         if (at < moves && error.includes(`${path} due to access control checks`)) return true
       }

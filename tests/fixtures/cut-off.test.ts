@@ -91,13 +91,28 @@ const memoryPicture =
 
 test('a picture being decoded when the page moved on again is not a fault, though it was never a request', () => {
   const track = cutOffTracker()
+  track.started('http://127.0.0.1:4800/')
   track.navigated() // the first load
   track.navigated() // the reload that cut it off
   expect(track.explains(memoryPicture)).toBe(true)
 })
 
+test("a bare id on a host the page never called is a fault, only the page's own host is excused", () => {
+  const track = cutOffTracker()
+  track.started('http://127.0.0.1:4800/')
+  track.navigated()
+  track.navigated()
+  expect(
+    track.explains(
+      'ttp://elsewhere.example/6bc4b496-141f-4faf-8472-120ce82ca7b7 due to access control checks.',
+    ),
+  ).toBe(false)
+  expect(track.explains(memoryPicture)).toBe(true)
+})
+
 test('the same words on a page that has only loaded once are a fault', () => {
   const track = cutOffTracker()
+  track.started('http://127.0.0.1:4800/')
   track.navigated()
   expect(track.explains(memoryPicture)).toBe(false)
 })
