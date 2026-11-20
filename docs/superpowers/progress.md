@@ -18,6 +18,41 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 08:35 UTC: the website demo is merged and live under the Owner's 07:39 UTC yes: Examples #81 as `f551ea3` (reviewed
+  head `c002f6d`), Site #63 as `e9c29e6` (reviewed head `b048686` plus a merge of main that brought only rules and CI
+  files). Deploy run 44702098181 green; the live `version.json` reads site `e9c29e6`, game `f551ea3`; the live page
+  shows the World section and /play/ seats two players with each one's keys (pictures `screens/site-world/live-*.png`).
+  Still to write: the Examples and Site `progress.md` lines and the Site's Firefox font flake (run 44684445315) in its
+  `history.md`, at the slice end. #129's review at `0303b2c`: one red (the "Got it" card stays up beside the sheet)
+  and, Agent-selected, two notes taken as fixes ("Not now" with one change waiting returns to the level; the top
+  bar's Undo and "Send to check" do not act unseen while a change is checked).
+- 2026-11-20 08:31 UTC: main was red at `beb379b` (the docs-only merge #127) on one Chromium test from PR 18, green at `8dccec5`
+  under it: a readiness wait with a 1 s bound (see "Flaky tests" in `history.md`). PR 18's builder found the cause and
+  fixed it in #130 (lane 1, test only, merge `39e5c84`). For under an hour four sessions held a writer place by a
+  strict count (PR 19, the check sheet, this fix, and the demo's builder doing its two approved merges); said to the
+  coordinator at the time. The walk's R6 is built as #129 (draft, in review); Examples #81 merged as `f551ea3`.
+  A merged branch `claude/draw-flake` is left on the remote (its delete was refused to the session).
+- The Owner's, 2026-11-20 07:39 UTC (decision card "Merge the website demo, which moves two recorded plays and puts
+  the site live?"): "Merge both". Scope: Examples #81 at `c002f6d` (level-1 and level-2 recorded plays as above) and
+  Site #63 at `b048686`, whose merge deploys. The demo's builder merges the test game first, then the Site, and checks
+  the live page.
+- 2026-11-20 07:32 UTC: the end-to-end walk of main `8dccec5` is done (audit `2026-11-20-world-e2e-walk.md`, Chromium, five sizes,
+  touch and pen stand-ins): 96 steps, 86 pass at every size, six reds, ten notes. R1 the tour has 2 of the spec's 4
+  steps; R2 at phone sideways the Place tray covers the floor; R3 at phone sideways the play bar covers the level;
+  R4 one drag back on the 30-second strip jumps to the start and the strip goes; R5 at phone sideways "Play from here"
+  starts about 2 tiles left of the tap; R6 "1 to check" opens two old full pages, not a sheet over the level.
+  Agent-selected: R1 to R5 go to PR 19's builder (#128, draft), R6 to its own builder (brief
+  `walk-fix-check-sheet.md`), each lane 2 with a fresh review. Not walked: a real iPad, Pencil and on-screen keyboard
+  (the Owner's walk), Firefox and WebKit by hand, languages other than English.
+- 2026-11-20 07:32 UTC: the website demo passed its review at Examples #81 `c002f6d` and Site #63 `b048686` after three cycles (the
+  strip's keys per player, a blue second hero by `content/figures/hero.json` with its painted pictures, "Left Shift"
+  and "Right Shift" on a shared keyboard; on the Site the map's level names and the doors line). Recorded plays, final:
+  level-1 `971c5bd8d2dd578a` to `44a022a7a1e8b94b`, level-2 `f8f73cd8fed0e603` to `49bf3166aa28db40`, steps 240 and
+  330, `test-game` unmoved; the reviewer replayed main's recordings and found no difference on any tick outside the
+  drawn-only sprite component. Both wait for the Owner on a decision card (07:25 UTC): nothing merged, nothing live.
+  Left as notes: no word says whose colour is whose; a Site level name over about 9 letters overflows its box.
+- 2026-11-20 07:32 UTC: docs #127 merged (`beb379b`). PR 19's item 12 (the play bar over the hero's start): Agent-selected, fold the
+  30-second strip on a short box first and keep the bar top left; move it only if the fold does not clear the hero.
 - 2026-11-20 06:41 UTC: PR 18, drawn behind, with the hero, in front (#124), merged with a merge commit `8dccec5` after two review
   cycles and a read of its merge of main (audit `2026-11-20-world-18-1-implementation-audit.md`). Its full run's only
   red was the known WebKit `open-game.journey` flake, green on its one re-run. The builder's notes: the words live in
