@@ -194,9 +194,13 @@
   }
   // A level with a camera shows only part of itself, so a tap on it has no place.
   const canPick = $derived(edits.now.levels[level]?.view === undefined)
+
+  /** A box too short to hold the bar with its strip and the level: the strip waits behind its own button. */
+  let boxHeight = $state(0)
+  const short = $derived(boxHeight > 0 && boxHeight < 320)
 </script>
 
-<div class="play" role="group" aria-label={text(wordsIn(lang).play.game)} data-play="box">
+<div class="play" role="group" aria-label={text(wordsIn(lang).play.game)} data-play="box" bind:clientHeight={boxHeight}>
   <div class="game" bind:this={holder}></div>
   {#if playing !== undefined}
     <div class="bar">
@@ -207,6 +211,7 @@
         {speed}
         {strip}
         {picking}
+        {short}
         {canPick}
         onpause={pause}
         onstep={step}

@@ -18,6 +18,8 @@
     strip: { readonly from: number; readonly to: number; readonly at: number; readonly hz: number }
     /** Waiting for a tap on the level, to start from there. */
     picking: boolean
+    /** The box is too short for the strip to stay open: it waits behind its own button. */
+    short: boolean
     /** Starting from a spot is on offer (a level with a camera does not show its whole self, so a tap has no place). */
     canPick: boolean
     onpause: () => void
@@ -28,8 +30,9 @@
     onback: (tick: number) => void
     onbig: () => void
   }
-  let { lang, paused, big, speed, strip, picking, canPick, onpause, onstep, onspeed, onagain, onpick, onback, onbig }: Props = $props()
+  let { lang, paused, big, speed, strip, picking, short, canPick, onpause, onstep, onspeed, onagain, onpick, onback, onbig }: Props = $props()
 
+  let rewinding = $state(false)
   const words = $derived(wordsIn(lang).play)
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   const speedWord = $derived(text(speed === 1 ? words.speedNormal : speed === 0.5 ? words.speedSlow : words.speedSlower))
@@ -79,6 +82,20 @@
         <Icon name="map-pin" size={22} /><span class="word">{text(words.here)}</span>
       </button>
     {/if}
+    {#if short && strip.to > strip.from}
+      <button
+        type="button"
+        class="act"
+        class:on={rewinding}
+        data-play="rewind"
+        aria-pressed={rewinding}
+        aria-label={text(words.back)}
+        title={text(words.back)}
+        onclick={() => (rewinding = !rewinding)}
+      >
+        <Icon name="clock-counter-clockwise" size={22} />
+      </button>
+    {/if}
     <button
       type="button"
       class="act"
@@ -90,7 +107,7 @@
       <Icon name={big ? 'arrows-in' : 'arrows-out'} size={22} />
     </button>
   </div>
-  {#if strip.to > strip.from}
+  {#if strip.to > strip.from && (!short || rewinding)}
     <div class="strip" data-play="strip">
       <Slider
         value={strip.at}

@@ -14,6 +14,7 @@ import {
   setupJourneys,
   signIn,
   slideGameHalf,
+  thingNamed,
 } from '../fixtures/journey.ts'
 
 setupJourneys()
@@ -37,10 +38,15 @@ const HERO = '#e4572e'
 async function whereIs(
   page: Page,
   colour: string,
-): Promise<{ x: number; y: number; wide: number } | undefined> {
+  /** The play bar is put out of sight for the picture, so what is read is the game alone. */
+  withoutBar = false,
+): Promise<{ x: number; y: number; wide: number; count: number } | undefined> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
+  const bar = page.locator('[data-play="box"] [role="toolbar"]')
+  if (withoutBar) await bar.evaluate((el) => el.style.setProperty('visibility', 'hidden'))
   const shot = (await pictureOf(page, box)).toString('base64')
+  if (withoutBar) await bar.evaluate((el) => el.style.removeProperty('visibility'))
   const reader = await page.context().newPage()
   try {
     const found = await reader.evaluate(
@@ -61,11 +67,11 @@ async function whereIs(
           sumY += Math.floor(i / 4 / copy.width)
           count += 1
         }
-        return count === 0 ? undefined : { x: sumX / count, y: sumY / count }
+        return count === 0 ? undefined : { x: sumX / count, y: sumY / count, count }
       },
       { shot, want: colour },
     )
-    return found === undefined ? undefined : { x: box.x + found.x, y: box.y + found.y, wide: box.width }
+    return found === undefined ? undefined : { x: box.x + found.x, y: box.y + found.y, wide: box.width, count: found.count }
   } finally {
     await reader.close()
   }
@@ -79,6 +85,26 @@ const started = async (page: Page) => {
     return canvas !== null && getComputedStyle(canvas).visibility !== 'hidden'
   })
 }
+
+/** Both phone windows, with a thing picked (its settings sheet then stays up, so the game box is short) and with none. */
+describe.each(['phone', 'phoneSideways'] as const)('at %s', (size) => {
+  test.each([true, false])('at the start of Play the bar does not hide the hero (a thing picked: %s)', async (picked) => {
+    journey = await openPage(size)
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page)
+    if (picked) await thingNamed(page, 'crate-1').click()
+    await playButton(page, 'Play').click()
+    await started(page)
+    await playButton(page, 'Got it').click()
+    await playButton(page, 'Pause').waitFor()
+    await page.waitForTimeout(300)
+    const whole = await whereIs(page, HERO, true)
+    const seen = await whereIs(page, HERO)
+    if (whole === undefined) throw new Error('the game shows no hero at its start')
+    expect(seen?.count ?? 0, 'the bar covers part of the hero').toBe(whole.count)
+  })
+})
 
 describe.each(SIZES_TO_TRY)('at %s', (size) => {
   test("the person's change plays where it is drawn, the game's own controls move the hero, and Stop leaves everything as it was", async () => {
