@@ -321,7 +321,10 @@ jobs:
             # The branch has no history in common with main; the first run starts it.
             if git fetch -q --depth 1 origin ci-screens; then git checkout -q -B ci-screens FETCH_HEAD; else git checkout -q --orphan ci-screens; fi
             # Runs on main can now overlap: an older one finishing last must not put its pictures over a newer merge's.
-            if [ "$LATEST" = main ] && [ "$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)" != "$GITHUB_SHA" ]; then echo "A newer merge will write main/."; return 0; fi
+            if [ "$LATEST" = main ]; then
+              head="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+              if [ "$head" != "$GITHUB_SHA" ]; then echo "A newer merge will write main/."; return 0; fi
+            fi
             # Keep only `main`, `live` and the folders of open pull requests (`pr-<n>` and `pr-<n>-real`); everything else
             # (closed pull requests, and the per-commit folders earlier runs kept) goes.
             open_prs=" $(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 --json number --jq '.[].number' | tr '\n' ' ') "
@@ -355,8 +358,10 @@ jobs:
           for try in 1 2 3; do
             set +e; (set -e; write_pictures); status=$?; set -e
             if [ "$status" -eq 0 ]; then exit 0; fi
-            echo "Try $try failed (most often another run saved its pictures first). Starting again from the newest ci-screens."
-            sleep $((try * 5))
+            if [ "$try" -lt 3 ]; then
+              echo "Try $try failed (most often another run saved its pictures first). Starting again from the newest ci-screens."
+              sleep $((try * 5))
+            fi
           done
           echo "Could not save the pictures after 3 tries."
           exit 1

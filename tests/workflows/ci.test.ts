@@ -35,4 +35,6 @@ test('the screens job never shares one queue across runs, and its push starts ag
   expect(job).toMatch(/for try in 1 2 3; do/)
   expect(job).toMatch(/rm -rf "\$RUNNER_TEMP\/branch"/)
   expect(job).toMatch(/after 3 tries[^\n]*\n\s+exit 1/)
+  // main's head is read on its own line, so a failed read fails the try instead of skipping the pictures.
+  expect(job).toMatch(/^\s+head="\$\(gh api "repos\/\$GITHUB_REPOSITORY\/commits\/main" --jq \.sha\)"$/m)
 })
