@@ -21,13 +21,18 @@ export interface CutOffTracker {
 /** Firefox's status for a download the page dropped (NS_BINDING_ABORTED). */
 const ABORTED = 'status=2152398850'
 
+const whereIs = (url: string): string => {
+  const parsed = new URL(url)
+  return parsed.pathname + parsed.search
+}
+
 export function cutOffTracker(): CutOffTracker {
   let moves = 0
-  /** For each address, how many moves the page had made when its first call started. */
+  /** For each address (its path and its question, so one game's open is not another's), how many moves the page had made when its first call started. */
   const firstCall = new Map<string, number>()
   return {
     started(url) {
-      const path = new URL(url).pathname
+      const path = whereIs(url)
       if (!firstCall.has(path)) firstCall.set(path, moves)
     },
     navigated() {
@@ -37,7 +42,7 @@ export function cutOffTracker(): CutOffTracker {
       if (error.includes('downloadable font: download failed')) {
         const source = /source: ([^\s"\]]+)/.exec(error)?.[1]
         if (!error.includes(ABORTED) || source === undefined || !URL.canParse(source)) return false
-        const at = firstCall.get(new URL(source).pathname)
+        const at = firstCall.get(whereIs(source))
         return at !== undefined && at < moves
       }
       for (const [path, at] of firstCall) {

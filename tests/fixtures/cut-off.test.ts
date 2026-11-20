@@ -32,6 +32,20 @@ test('an error about another address, or another kind of error, is not explained
   expect(track.explains('TypeError: undefined is not a function')).toBe(false)
 })
 
+test('a call with a question in its address is explained by its whole address, not only its path', () => {
+  const open = 'http://127.0.0.1:4800/api/game?owner=grandma&name=not-a-game'
+  const track = cutOffTracker()
+  track.started(open)
+  track.navigated()
+  expect(
+    track.explains('/127.0.0.1:4800/api/game?owner=grandma&name=not-a-game due to access control checks.'),
+  ).toBe(true)
+  // Another game's open, never started, is not excused by this one.
+  expect(
+    track.explains('/127.0.0.1:4800/api/game?owner=grandma&name=other due to access control checks.'),
+  ).toBe(false)
+})
+
 const font = 'http://127.0.0.1:4800/assets/fraunces-latin-wght-normal-ukD16Tqj.woff2'
 // Word for word what Firefox logged in CI (Editors PR 90, the phone's pick-a-game-cant-reach), but the status.
 const fontFailed = (status: string) =>

@@ -105,6 +105,32 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await owner.page.getByRole('dialog').getByRole('button', { name: noteWords.notDone }).waitFor()
   })
 
+  test('an answer that could not be sent stays in the box with what went wrong, and goes when sent again', async () => {
+    const owner = await window_(size, 'grandma', false)
+    repoOf(owner).put(
+      'main',
+      'automata.access.toml',
+      writeAccess({ format: 1, everyone: 'look', people: [{ github: 'grandma', level: 'owner' }] }),
+    )
+    await thingNamed(owner.page, 'crate-1').click()
+    await owner.page.getByRole('button', { name: 'More', exact: true }).click()
+    await owner.page.getByRole('menuitem', { name: noteWords.menuRow }).click()
+    const sheet = owner.page.getByRole('dialog')
+    await sheet.getByLabel(noteWords.write).fill(NOTE_WORDS)
+    await sheet.getByRole('button', { name: noteWords.pin }).click()
+    await pin(owner).click()
+    const card = owner.page.getByRole('dialog')
+    await card.getByLabel(noteWords.answerBox).fill(ANSWER)
+    owner.fake.down = true
+    await card.getByRole('button', { name: noteWords.send }).click()
+    await card.getByRole('alert').waitFor()
+    expect(await card.getByLabel(noteWords.answerBox).inputValue()).toBe(ANSWER)
+    owner.fake.down = false
+    await card.getByRole('button', { name: noteWords.send }).click()
+    await card.getByText(ANSWER, { exact: true }).waitFor()
+    expect(await card.getByLabel(noteWords.answerBox).inputValue()).toBe('')
+  })
+
   test('"Ask the owner" in who can change it opens a note that starts with a greeting', async () => {
     const owner = await window_(size, 'grandma', false)
     repoOf(owner).put(

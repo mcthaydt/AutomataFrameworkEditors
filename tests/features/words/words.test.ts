@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
+import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { bannedIn } from '../../fixtures/banned.ts'
 
 // The first words, exactly as the plan pins them (Task 2). Later tasks add their own rows to this list.
@@ -73,6 +73,33 @@ const read = (key: string): string => {
 
 test.each(Object.entries(PINNED))('%s says exactly what the plan says', (key, words) => {
   expect(read(key)).toBe(words)
+})
+
+// Words of the old pick-a-game and share pages that live on, word for word, under their new keys in the games and team
+// words (the Share page's own others were reworded when it became "Who can change it", and left this list).
+const PINNED_IN: readonly (readonly [area: 'menus' | 'games' | 'team', key: string, words: string])[] = [
+  ['menus', 'signOut', 'Sign out'],
+  ['games', 'gamesFind', 'Find a game by name'],
+  ['games', 'gamesNoMatch', 'No game has that name.'],
+  // The apostrophe is the curly one now, as every line of the new pages has it; the words are the same.
+  ['games', 'gamesEmpty', 'You don’t have a game here yet.'],
+  ['games', 'gamesEmptyHelp', 'If someone shared a game with you, open the link they sent.'],
+  ['games', 'gamesAdd', 'Add the editor to a game of mine'],
+  ['team', 'copyLink', 'Copy the link'],
+  ['team', 'linkCopied', 'Copied.'],
+  ['team', 'ownerName', 'Owner'],
+  ['team', 'peopleNone', 'Nobody else has been added yet.'],
+  ['team', 'addName', 'Their GitHub name'],
+  ['team', 'addPerson', 'Add'],
+  ['team', 'nameTwice', 'crate-1 is already on the list.'],
+  ['team', 'savedList', 'Saved. The people on the list can use the link now.'],
+]
+
+test.each(PINNED_IN)('%s.%s still says what the old page said', (area, key, words) => {
+  const row = (
+    wordsIn('en')[area] as unknown as Readonly<Record<string, string | ((name: string) => string)>>
+  )[key]
+  expect(typeof row === 'function' ? row('crate-1') : row).toBe(words)
 })
 
 test('WORDS is frozen', () => {

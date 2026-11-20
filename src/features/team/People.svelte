@@ -200,16 +200,18 @@
             <small>{about(person.level)}</small>
           </span>
           {#if mayChange && ready}
-            <select
-              aria-label={person.github}
-              value={person.level}
-              onchange={(e) => setLevel(person.github, e.currentTarget.value as Given)}
-            >
-              {#each GIVEN as level (level)}<option value={level}>{name(level)}</option>{/each}
-            </select>
-            <button type="button" class="icon" aria-label={text(t.removeName, person.github)} onclick={() => remove(person.github)}>
-              <Icon name="trash" />
-            </button>
+            <span class="controls">
+              <select
+                aria-label={person.github}
+                value={person.level}
+                onchange={(e) => setLevel(person.github, e.currentTarget.value as Given)}
+              >
+                {#each GIVEN as level (level)}<option value={level}>{name(level)}</option>{/each}
+              </select>
+              <button type="button" class="icon" aria-label={text(t.removeName, person.github)} onclick={() => remove(person.github)}>
+                <Icon name="trash" />
+              </button>
+            </span>
           {:else}
             <span class="level">{name(person.level)}</span>
           {/if}
@@ -319,18 +321,31 @@
     padding: 0;
     list-style: none;
   }
+  /* Where the sheet is narrow (a phone, the side panel) the picker and the bin drop under the name, never squeeze it. */
   .person {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 6px 10px;
     min-height: 48px;
+    padding: 4px 0;
   }
   .who {
     display: flex;
-    flex: 1;
+    flex: 1 1 150px;
     flex-direction: column;
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+  .controls {
+    display: flex;
+    flex: 0 1 auto;
+    gap: 8px;
+    margin-left: auto;
+    max-width: 100%;
+  }
+  .controls select {
+    max-width: 230px;
   }
   small {
     color: var(--g-quiet);
@@ -368,6 +383,10 @@
   }
   input {
     flex: 1;
+  }
+  /* The name box keeps room to type in: the level beside it gives way first. */
+  .row select {
+    flex: 0 1 150px;
   }
   .icon {
     display: inline-flex;

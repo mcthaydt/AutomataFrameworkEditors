@@ -170,7 +170,7 @@
     {problem}
     {sending}
     onclose={shut}
-    onanswer={(said) => void send({ answer: { id: card.id, words: said } }, () => {})}
+    onanswer={(said, sent) => void send({ answer: { id: card.id, words: said } }, sent)}
     ondone={(done) => void send({ done: { id: card.id, done } }, shut)}
   />
 {/if}

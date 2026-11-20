@@ -939,6 +939,18 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
       }
+      // The faces button must hold the faces it draws: squeezed under them, it lets them spill onto the next button, and
+      // the two boxes never overlap even though the pictures do.
+      for (const el of touchable) {
+        if (!el.matches('.faces') || !mine(el)) continue
+        const box = el.getBoundingClientRect()
+        for (const part of el.querySelectorAll('*')) {
+          if (!seen(part)) continue
+          const inner = part.getBoundingClientRect()
+          if (inner.right > box.right + 1 || inner.left < box.left - 1)
+            found.push(`${named(el)} draws outside its own button`)
+        }
+      }
       const primary = [...document.querySelectorAll('.button.primary')].filter(seen)
       if (primary.length > 1) found.push(`${primary.length} primary Buttons`)
       for (const el of primary) {

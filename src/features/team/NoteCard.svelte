@@ -16,7 +16,8 @@
     now?: () => number
     problem?: string | undefined
     sending: boolean
-    onanswer: (words: string) => void
+    /** `sent` is called once the answer has gone; until then the words stay in the box. */
+    onanswer: (words: string, sent: () => void) => void
     ondone: (done: boolean) => void
     onclose: () => void
   }
@@ -31,8 +32,7 @@
   let reply = $state('')
   const ready = $derived(reply.trim() !== '' && !sending)
   function send(): void {
-    onanswer(reply.trim())
-    reply = ''
+    onanswer(reply.trim(), () => (reply = ''))
   }
 </script>
 

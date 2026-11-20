@@ -1,6 +1,7 @@
 <script lang="ts">
-  // Who is in the game: an initial on a colour made from each login, at most four and then "+2". One button the size of
-  // a finger opens "Who can change it". Nobody in the game (or a visitor alone in the demo) draws nothing.
+  // Who is in the game: an initial on a colour made from each login, as many as the bar has room for (four on a wide
+  // window, one on a phone) and then "+2". One button the size of a finger opens "Who can change it". Nobody in the game
+  // (or a visitor alone in the demo) draws nothing.
   import Face from './Face.svelte'
 
   interface Props {
@@ -8,13 +9,15 @@
     /** What a screen reader calls it. */
     label: string
     onopen: () => void
+    /** How many faces the bar has room for before "+N": the bar is shared with the game's name, Play and the main button. */
+    most?: number
   }
-  let { people, label, onopen }: Props = $props()
+  // The button never shrinks under the faces it holds, so they cannot sit on top of Play.
+  let { people, label, onopen, most = 4 }: Props = $props()
 
-  const MOST = 4
   // One face for each person, even when the owner is also named in the list.
   const once = $derived(people.filter((one, at) => people.findIndex((o) => o.login === one.login) === at))
-  const shown = $derived(once.slice(0, MOST))
+  const shown = $derived(once.slice(0, most))
   const extra = $derived(once.length - shown.length)
 </script>
 
@@ -30,6 +33,7 @@
 <style>
   .faces {
     display: inline-flex;
+    flex: none;
     align-items: center;
     min-width: 44px;
     min-height: 44px;

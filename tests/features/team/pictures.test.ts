@@ -68,3 +68,18 @@ test('a game whose name differs only in case is the same game', async () => {
   await Promise.all([a, b])
   expect(s.opened).toHaveLength(1)
 })
+
+test('once the list is left, games still waiting are never opened and nothing new is asked for', async () => {
+  const s = slow()
+  const peeker = createPeeker(s.peek, 1)
+  const first = peeker.peek(ref('one'))
+  const second = peeker.peek(ref('two'))
+  await Promise.resolve()
+  peeker.stop()
+  await s.release()
+  await s.release()
+  expect(await first).toBe(seen)
+  expect(await second).toBeUndefined()
+  expect(await peeker.peek(ref('three'))).toBeUndefined()
+  expect(s.opened).toEqual(['one'])
+})

@@ -66,7 +66,10 @@
   }
   onMount(() => {
     void load()
-    return drawing.destroy
+    return () => {
+      peeker.stop()
+      drawing.destroy()
+    }
   })
 
   /** Looks at a game when its row first comes into view. */
@@ -100,7 +103,7 @@
     )
 </script>
 
-<main class="look games" {lang}>
+<main class="look games centred" {lang}>
   <section class="card">
     <h1>{text(t.gamesTitle)}</h1>
     {#if games === undefined}

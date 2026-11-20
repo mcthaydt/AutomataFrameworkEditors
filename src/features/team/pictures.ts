@@ -19,6 +19,8 @@ export interface Peek {
 export interface Peeker {
   /** The game's small copy, once; undefined for a game that cannot be opened (it keeps its tile). */
   peek(game: GameRef): Promise<Peek | undefined>
+  /** The list was left: games still waiting are not opened, and nothing new is asked for. */
+  stop(): void
 }
 
 const keyOf = (game: GameRef): string => `${game.owner}/${game.name}`.toLowerCase()
@@ -26,37 +28,47 @@ const keyOf = (game: GameRef): string => `${game.owner}/${game.name}`.toLowerCas
 /** Asks `look` for each game once, at most `limit` at a time, and keeps the answers for the visit. */
 export function createPeeker(look: (game: GameRef) => Promise<Peek | undefined>, limit = 2): Peeker {
   const kept = new Map<string, Promise<Peek | undefined>>()
-  const line: (() => void)[] = []
+  const line: { go: () => void; give: (one: Peek | undefined) => void }[] = []
   let running = 0
+  let stopped = false
 
   function next(): void {
-    while (running < limit) {
-      const go = line.shift()
-      if (go === undefined) return
+    while (!stopped && running < limit) {
+      const turn = line.shift()
+      if (turn === undefined) return
       running += 1
-      go()
+      turn.go()
     }
   }
 
   return {
     peek(game) {
+      if (stopped) return Promise.resolve(undefined)
       const key = keyOf(game)
       const had = kept.get(key)
       if (had !== undefined) return had
       const made = new Promise<Peek | undefined>((resolve) => {
-        line.push(() => {
-          look(game)
-            .catch(() => undefined)
-            .then((one) => {
-              running -= 1
-              resolve(one)
-              next()
-            })
+        line.push({
+          give: resolve,
+          go: () => {
+            look(game)
+              .catch(() => undefined)
+              .then((one) => {
+                running -= 1
+                resolve(one)
+                next()
+              })
+          },
         })
       })
       kept.set(key, made)
       next()
       return made
+    },
+    stop() {
+      stopped = true
+      // A row waiting for its turn is let go with no picture, never left waiting for ever.
+      for (const turn of line.splice(0)) turn.give(undefined)
     },
   }
 }
