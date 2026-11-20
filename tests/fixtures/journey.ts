@@ -434,6 +434,41 @@ export const teamWords = {
   showOnLevel: said(TEAM.showOnLevel),
 } as const
 
+const NOTES = wordsIn('en').notes
+const HELPER = wordsIn('en').helper
+
+/** What notes say, in English. */
+export const noteWords = {
+  menuRow: said(wordsIn('en').levels.menuNote),
+  showDone: said(wordsIn('en').ground.showDoneNotes),
+  add: said(NOTES.noteAdd),
+  write: said(NOTES.noteWrite),
+  pin: said(NOTES.notePin),
+  answerBox: said(NOTES.noteAnswerBox),
+  send: said(NOTES.noteSend),
+  done: said(NOTES.noteDone),
+  notDone: said(NOTES.noteNotDone),
+  gone: said(NOTES.noteGone),
+  /** What a pin is called to a screen reader. */
+  pinName: (who: string, words: string) => said(NOTES.notePinName, who, words),
+  askStart: (owner: string) => said(NOTES.noteAskStart, owner),
+} as const
+
+/** What the helper's ghost, the pasted level and Find say, in English. */
+export const helperWords = {
+  ghostAbout: said(HELPER.ghostAbout),
+  keep: said(HELPER.ghostKeep),
+  undo: said(HELPER.ghostUndo),
+  helperRow: said(wordsIn('en').help.helpHelperRow),
+  pasteRow: said(HELPER.pasteRow),
+  pasteTitle: said(HELPER.pasteTitle),
+  pasteShow: said(HELPER.pasteShow),
+  pasteBad: said(HELPER.pasteBad),
+  pasteSame: said(HELPER.pasteSame),
+  findTitle: said(HELPER.findTitle),
+  findPlaceholder: said(HELPER.findPlaceholder),
+} as const
+
 /** What the list of games says, in English. */
 export const gamesWords = {
   title: said(GAMES.gamesTitle),

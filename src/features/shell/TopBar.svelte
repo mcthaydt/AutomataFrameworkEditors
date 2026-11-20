@@ -258,7 +258,7 @@
       <span class="chip bad"><Icon name="cloud" /><span>{text(w.noInternet)}</span></span>
     {/if}
     {#if onfind}
-      <button type="button" class="chip find" onclick={onfind}>
+      <button type="button" class="chip find" aria-label={text(w.find)} onclick={onfind}>
         <Icon name="magnifying-glass" /><span class="long">{text(w.find)}</span>
       </button>
     {/if}

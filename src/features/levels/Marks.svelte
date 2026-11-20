@@ -175,6 +175,7 @@
     color: var(--accent);
     cursor: pointer;
     pointer-events: auto;
+    z-index: 1000; /* over every thing, which are stacked from 1 */
   }
   .pin.done {
     opacity: 0.45;
