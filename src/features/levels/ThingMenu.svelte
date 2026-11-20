@@ -1,6 +1,7 @@
 <script lang="ts">
   // The menu a press and hold opens: on a thing, what can be done to it; on empty ground, what can be put there.
   import { Menu, type MenuItem } from '../ui/ui.ts'
+  import type { Draw } from './draw.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
 
   interface Props {
@@ -9,15 +10,18 @@
     on: string | undefined
     locked: boolean
     hidden: boolean
+    /** How each picked thing is drawn now, so a row that would change nothing can say why. */
+    draws: readonly Draw[]
     /** Whether something has been copied that a paste could put down. */
     canPaste: boolean
     canNote: boolean
     onpick: (id: string) => void
     onclose: () => void
   }
-  let { lang, on, locked, hidden, canPaste, canNote, onpick, onclose }: Props = $props()
+  let { lang, on, locked, hidden, draws, canPaste, canNote, onpick, onclose }: Props = $props()
 
   const words = $derived(wordsIn(lang).levels)
+  const thing = $derived(wordsIn(lang).thing)
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
 
@@ -43,6 +47,18 @@
             ? { id: 'show', words: text(words.menuShow), icon: 'eye' }
             : { id: 'hide', words: text(words.menuHide), icon: 'eye-slash' },
           { id: 'copy', words: text(words.menuCopy), icon: 'copy' },
+          {
+            id: 'front',
+            words: text(thing.menuFront),
+            icon: 'arrow-line-up',
+            ...(draws.every((one) => one === 'in-front') ? { off: text(thing.offFront) } : {}),
+          },
+          {
+            id: 'back',
+            words: text(thing.menuBack),
+            icon: 'arrow-line-down',
+            ...(draws.every((one) => one === 'behind') ? { off: text(thing.offBack) } : {}),
+          },
         ],
   )
 </script>

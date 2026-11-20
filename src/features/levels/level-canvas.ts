@@ -18,6 +18,7 @@ import {
 import { Application, Container, Graphics, loadTextures, RenderTexture, Sprite } from 'pixi.js'
 import type { OpenPicture } from '../wire/wire.ts'
 import { readPictureOf } from './art.ts'
+import { drawOf } from './draw.ts'
 import { KIND_TINTS } from './tints.ts'
 import { type Camera, toScreen } from './view.ts'
 
@@ -124,6 +125,53 @@ function drawLevel(
     }
   }
 
+  /** One thing or start: its figure's first pose standing on the bottom of its box, or its coloured box. */
+  const drawThing = (
+    character: string,
+    at: { x: number; y: number },
+    player: number,
+    alpha: number,
+    pass: 'boxes' | 'figures' | 'both' = 'both',
+  ): void => {
+    const c = characters[character]
+    const w = c?.size.w ?? 1
+    const h = c?.size.h ?? 1
+    const shown = art?.figure(character, '', player)
+    if ((pass === 'boxes' && shown !== undefined) || (pass === 'figures' && shown === undefined)) return
+    if (shown !== undefined) {
+      const sprite = new Sprite({ texture: shown.texture })
+      sprite.anchor.set(0.5, 1)
+      sprite.position.set(at.x, at.y + h / 2)
+      sprite.width = shown.w
+      sprite.height = shown.h
+      sprite.alpha = alpha
+      into.addChild(sprite)
+      return
+    }
+    const box = new Graphics()
+    box
+      .rect(-w / 2, -h / 2, w, h)
+      .fill({ color: c?.color ?? FALLBACK_COLOR, alpha })
+      .stroke({ width: edge, color: EDGE, alpha, alignment: 1 })
+    box.position.set(at.x, at.y)
+    into.addChild(box)
+  }
+  // The layers, bottom to top, in the order the framework's renderer uses so the level view and Play agree: the things
+  // drawn behind, the coloured boxes drawn with the hero (and the hero's start boxes), the ground, the pictures drawn
+  // with the hero (and the hero's start pictures), then the things drawn in front. The marks a person touches are an SVG
+  // layer above all of them.
+  const drawn = (thing: Level['things'][number], pass: 'boxes' | 'figures' | 'both'): void => {
+    if (!look.hidden.has(thing.id))
+      drawThing(thing.character, thing, 1, look.faint.has(thing.id) ? 0.35 : 1, pass)
+  }
+  const starts = (pass: 'boxes' | 'figures'): void => {
+    for (const start of level.starts) drawThing(content.project.hero, start, start.player, 0.5, pass)
+  }
+  const withHero = level.things.filter((thing) => drawOf(thing) === 'with-hero')
+  for (const thing of level.things) if (drawOf(thing) === 'behind') drawn(thing, 'both')
+  for (const thing of withHero) drawn(thing, 'boxes')
+  starts('boxes')
+
   // The ground: the tileset's pictures, or the level's ground colour wherever a tile is solid.
   if (art !== undefined && art.tiles.length > 0) {
     for (const tile of art.tiles) {
@@ -167,40 +215,9 @@ function drawLevel(
     into.addChild(lines)
   }
 
-  /** One thing or start: its figure's first pose standing on the bottom of its box, or its coloured box. */
-  const drawThing = (
-    character: string,
-    at: { x: number; y: number },
-    player: number,
-    alpha: number,
-  ): void => {
-    const c = characters[character]
-    const w = c?.size.w ?? 1
-    const h = c?.size.h ?? 1
-    const shown = art?.figure(character, '', player)
-    if (shown !== undefined) {
-      const sprite = new Sprite({ texture: shown.texture })
-      sprite.anchor.set(0.5, 1)
-      sprite.position.set(at.x, at.y + h / 2)
-      sprite.width = shown.w
-      sprite.height = shown.h
-      sprite.alpha = alpha
-      into.addChild(sprite)
-      return
-    }
-    const box = new Graphics()
-    box
-      .rect(-w / 2, -h / 2, w, h)
-      .fill({ color: c?.color ?? FALLBACK_COLOR, alpha })
-      .stroke({ width: edge, color: EDGE, alpha, alignment: 1 })
-    box.position.set(at.x, at.y)
-    into.addChild(box)
-  }
-  for (const thing of level.things) {
-    if (look.hidden.has(thing.id)) continue
-    drawThing(thing.character, thing, 1, look.faint.has(thing.id) ? 0.35 : 1)
-  }
-  for (const start of level.starts) drawThing(content.project.hero, start, start.player, 0.5)
+  for (const thing of withHero) drawn(thing, 'figures')
+  starts('figures')
+  for (const thing of level.things) if (drawOf(thing) === 'in-front') drawn(thing, 'both')
 }
 
 export async function createStage(): Promise<Stage> {
