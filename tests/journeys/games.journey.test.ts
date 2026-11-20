@@ -55,3 +55,25 @@ test('twenty games: a game is opened for its picture only when its row is on scr
   expect(most).toBeLessThanOrEqual(2)
   expect(most).toBeGreaterThan(0)
 })
+
+test('when the page is going away, the opens still waiting are not started as the cut-off ones end', async () => {
+  // WebKit reports a call started while the page is being replaced as a page error, so a list that is left (a reload, a
+  // new address) must not start its next games just because the ones going on were cut off.
+  journey = await openPage('phone')
+  const { page, fake } = journey
+  for (const name of TWENTY) fake.addGame('grandma', name, fixtureMap(), { ...fixtureBytes() })
+  const release = journey.hold('/api/game')
+  const started: string[] = []
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/api/game') started.push(request.url())
+  })
+  await signIn(page)
+  await page.getByRole('heading', { level: 1, name: gamesWords.title }).waitFor()
+  await page.waitForFunction(() => document.querySelectorAll('a.row').length > 2)
+  while (started.length < 2) await page.waitForTimeout(20)
+  // The page is going away: what was going on ends, and nothing new may begin.
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide')))
+  release()
+  await page.waitForTimeout(500)
+  expect(started).toHaveLength(2)
+})

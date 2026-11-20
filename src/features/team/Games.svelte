@@ -66,7 +66,13 @@
   }
   onMount(() => {
     void load()
+    // A page being replaced (a reload, a new address) cuts off the opens going on; the ones still waiting must not start
+    // in its last moments, where a call that cannot finish is reported by WebKit as a page error.
+    addEventListener('pagehide', peeker.stop)
+    addEventListener('beforeunload', peeker.stop)
     return () => {
+      removeEventListener('pagehide', peeker.stop)
+      removeEventListener('beforeunload', peeker.stop)
       peeker.stop()
       drawing.destroy()
     }
