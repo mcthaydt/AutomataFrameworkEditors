@@ -93,6 +93,9 @@
     display: flex;
     gap: 4px;
     padding: 4px;
+    /* The edge the bar had before it was glass, in the layer's own edge colour: WebKit placed the bar off a phone's
+       screen once it was gone (a guess under test, see the map-arrange browser test). */
+    border: 1px solid var(--g-edge);
     border-radius: 14px;
     color: var(--words);
   }
