@@ -59,7 +59,13 @@
   const words = $derived(wordsIn(lang).levels)
   const text = (row: Row, ...parts: (string | number)[]): string =>
     typeof row === 'function' ? row(...parts) : row
-  const menuAt = $derived(menu === undefined ? undefined : menuPlace(menu.at, size))
+  /** The menu's own size once it is on screen (it grows with its rows), so it is kept inside the level by what it is. */
+  let menuBox = $state({ w: 0, h: 0 })
+  const menuAt = $derived(
+    menu === undefined
+      ? undefined
+      : menuPlace(menu.at, size, { w: menuBox.w > 0 ? menuBox.w : 260, h: menuBox.h > 0 ? menuBox.h : 260 }),
+  )
   const trayAt = $derived(tray === undefined ? undefined : menuPlace(tray, size, { w: 300, h: 200 }))
 </script>
 
@@ -71,7 +77,15 @@
 
 {#if menu !== undefined && menuAt !== undefined}
   <button type="button" class="scrim" data-ui tabindex="-1" aria-hidden="true" onclick={onclosemenu}></button>
-  <div class="float" data-ui style:left="{menuAt.x}px" style:top="{menuAt.y}px">
+  <div
+    class="float menu-float"
+    data-ui
+    style:left="{menuAt.x}px"
+    style:top="{menuAt.y}px"
+    style:max-height="{Math.max(0, size.h - 16)}px"
+    bind:clientWidth={menuBox.w}
+    bind:clientHeight={menuBox.h}
+  >
     <ThingMenu {lang} on={menu.on} {locked} {hidden} {draws} {canPaste} onpick={onmenu} onclose={onclosemenu} />
   </div>
 {/if}
@@ -98,6 +112,11 @@
   .float {
     position: absolute;
     z-index: 30;
+  }
+  /* A level box shorter than the menu (a phone on its side): the menu scrolls inside it rather than run out of it. */
+  .menu-float {
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .tray {
     max-width: calc(100% - 16px);

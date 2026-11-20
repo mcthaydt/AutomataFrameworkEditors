@@ -64,7 +64,7 @@ export const thing = {
     looksLike: 'Looks like',
     drawn: 'Drawn',
     drawBehind: 'Behind',
-    drawWith: 'With hero',
+    drawWith: 'With the hero',
     drawFront: 'In front',
     drawBehindAbout: 'Under the ground, behind the hero.',
     drawWithAbout: 'Drawn like the hero is.',

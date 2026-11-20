@@ -131,11 +131,13 @@ function drawLevel(
     at: { x: number; y: number },
     player: number,
     alpha: number,
+    pass: 'boxes' | 'figures' | 'both' = 'both',
   ): void => {
     const c = characters[character]
     const w = c?.size.w ?? 1
     const h = c?.size.h ?? 1
     const shown = art?.figure(character, '', player)
+    if ((pass === 'boxes' && shown !== undefined) || (pass === 'figures' && shown === undefined)) return
     if (shown !== undefined) {
       const sprite = new Sprite({ texture: shown.texture })
       sprite.anchor.set(0.5, 1)
@@ -154,13 +156,21 @@ function drawLevel(
     box.position.set(at.x, at.y)
     into.addChild(box)
   }
-  // The layers, in the order the framework's renderer uses so the level view and Play agree: the things drawn behind,
-  // the ground, the things drawn with the hero (and the hero's starts), then the things drawn in front. The marks a
-  // person touches are an SVG layer above all of them.
-  const drawn = (thing: Level['things'][number]): void => {
-    if (!look.hidden.has(thing.id)) drawThing(thing.character, thing, 1, look.faint.has(thing.id) ? 0.35 : 1)
+  // The layers, bottom to top, in the order the framework's renderer uses so the level view and Play agree: the things
+  // drawn behind, the coloured boxes drawn with the hero (and the hero's start boxes), the ground, the pictures drawn
+  // with the hero (and the hero's start pictures), then the things drawn in front. The marks a person touches are an SVG
+  // layer above all of them.
+  const drawn = (thing: Level['things'][number], pass: 'boxes' | 'figures' | 'both'): void => {
+    if (!look.hidden.has(thing.id))
+      drawThing(thing.character, thing, 1, look.faint.has(thing.id) ? 0.35 : 1, pass)
   }
-  for (const thing of level.things) if (drawOf(thing) === 'behind') drawn(thing)
+  const starts = (pass: 'boxes' | 'figures'): void => {
+    for (const start of level.starts) drawThing(content.project.hero, start, start.player, 0.5, pass)
+  }
+  const withHero = level.things.filter((thing) => drawOf(thing) === 'with-hero')
+  for (const thing of level.things) if (drawOf(thing) === 'behind') drawn(thing, 'both')
+  for (const thing of withHero) drawn(thing, 'boxes')
+  starts('boxes')
 
   // The ground: the tileset's pictures, or the level's ground colour wherever a tile is solid.
   if (art !== undefined && art.tiles.length > 0) {
@@ -205,9 +215,9 @@ function drawLevel(
     into.addChild(lines)
   }
 
-  for (const thing of level.things) if (drawOf(thing) === 'with-hero') drawn(thing)
-  for (const start of level.starts) drawThing(content.project.hero, start, start.player, 0.5)
-  for (const thing of level.things) if (drawOf(thing) === 'in-front') drawn(thing)
+  for (const thing of withHero) drawn(thing, 'figures')
+  starts('figures')
+  for (const thing of level.things) if (drawOf(thing) === 'in-front') drawn(thing, 'both')
 }
 
 export async function createStage(): Promise<Stage> {

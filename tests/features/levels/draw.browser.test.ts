@@ -21,6 +21,28 @@ import SettingsHolder from './SettingsHolder.svelte'
 const pictures = [{ path: 'art/ground.png', base64: bytesToBase64(groundPicture()) }]
 const game = await openedGameWith((text) => `v${text.length}`, fixtureFiles, { pictures })
 const content: GameContent = game.content
+
+// The same game with a figure for the crate: one solid square of its own colour, so a thing drawn from a picture is told
+// from a coloured box.
+const FIGURE_COLOUR = '#112233'
+const figureFiles: Record<string, string> = {
+  ...fixtureFiles,
+  'automata.toml': `${fixtureFiles['automata.toml']}\n[[content]]\ntype = "figure"\npath = "content/figures/box.json"\n`,
+  'content/figures/box.json': JSON.stringify({
+    format: 1,
+    id: 'box',
+    tile: 16,
+    frame: { w: 16, h: 16 },
+    paints: [{ id: 'body', color: FIGURE_COLOUR }],
+    parts: [{ id: 'all', shape: 'block', x: 8, y: 8, w: 16, h: 16, paint: 'body' }],
+    poses: [{ id: 'idle', moves: [] }],
+  }),
+  'content/characters/crate.json': JSON.stringify({
+    ...JSON.parse(fixtureFiles['content/characters/crate.json'] ?? '{}'),
+    figure: 'box',
+  }),
+}
+const figureGame = await openedGameWith((text) => `v${text.length}`, figureFiles, { pictures })
 const plain: Look = { faint: new Set(), hidden: new Set(), whatItIs: false, grid: 'off' }
 
 const SCREEN = { w: 480, h: 270 }
@@ -55,6 +77,12 @@ afterEach(() => {
   box = undefined
 })
 
+/** Takes the level view away, so the next one starts clean. */
+function dropStage(): void {
+  made?.destroy()
+  made = undefined
+}
+
 function mountBox(): HTMLDivElement {
   box?.remove()
   box = document.createElement('div')
@@ -82,14 +110,18 @@ function colourAt(canvas: HTMLCanvasElement, tile: { x: number; y: number }): st
   return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
 }
 
-async function levelView(level: Level, tile: { x: number; y: number }): Promise<string> {
+async function levelView(
+  level: Level,
+  tile: { x: number; y: number },
+  on: GameContent = content,
+): Promise<string> {
   made = await createStage()
   mountBox().append(made.canvas)
   made.levels.resize(SCREEN.w, SCREEN.h)
   // The tileset's picture loads on its own time; the ground is the picture's brown once it has.
   let last = ''
   await vi.waitFor(() => {
-    made?.levels.show(content, pictures, level, WHOLE, plain)
+    made?.levels.show(on, pictures, level, WHOLE, plain)
     last = colourAt((made as Stage).canvas, tile)
     expect(colourAt((made as Stage).canvas, { x: 8.5, y: 8.6 })).toBe('#6b4f2a')
   })
@@ -121,11 +153,11 @@ function handFrames(): Frames & { step(count?: number): void } {
 }
 
 /** The same level in Play, held at its first picture, read at `tile`. */
-async function inPlay(level: Level, tile: { x: number; y: number }): Promise<string> {
-  const edits = inLevel(startEdits(game), 'level-1', () => level)
+async function inPlay(level: Level, tile: { x: number; y: number }, of: typeof game = game): Promise<string> {
+  const edits = inLevel(startEdits(of), 'level-1', () => level)
   const frames = handFrames()
   const holder = mountBox()
-  playing = await play({ mount: holder, game, edits, level: 'level-1', lang: 'en', frames })
+  playing = await play({ mount: holder, game: of, edits, level: 'level-1', lang: 'en', frames })
   frames.step(3)
   await vi.waitFor(() => {
     const canvas = holder.querySelector('canvas') as HTMLCanvasElement
@@ -144,12 +176,24 @@ test('a crate drawn in front is over the hero start, and one drawn with the hero
   expect(withHero).not.toBe(SKY)
 })
 
-test('a crate drawn behind is under the ground, and one drawn with the hero is over it', async () => {
+test('a crate drawn behind is under the ground', async () => {
   const back = await levelView(crateAt(FLOOR, 'behind'), FLOOR)
   expect(back).not.toBe(CRATE)
-  made?.destroy()
-  const withHero = await levelView(crateAt(FLOOR, 'with-hero'), FLOOR)
-  expect(withHero).toBe(CRATE)
+  expect(back).toBe('#6b4f2a')
+})
+
+test('with the hero, a coloured box is under the ground in the level view and in Play, and a picture is over it', async () => {
+  const level = crateAt(FLOOR, 'with-hero')
+  const box = await levelView(level, FLOOR)
+  dropStage()
+  expect(box).toBe('#6b4f2a')
+  expect(await inPlay(level, FLOOR)).toBe(box)
+  playing?.stop()
+  playing = undefined
+  const picture = await levelView(level, FLOOR, figureGame.content)
+  dropStage()
+  expect(picture).toBe(FIGURE_COLOUR)
+  expect(await inPlay(level, FLOOR, figureGame)).toBe(picture)
 })
 
 test('the level view and Play paint the same colour where a crate is in front and where it is behind', async () => {
@@ -205,10 +249,10 @@ test('Drawn is three choices in the Look group, with a line saying what the pick
   const look = (sheet as HTMLElement).querySelector('[data-group="look"]') as HTMLElement
   expect([...look.querySelectorAll('[role=radio]')].map((b) => b.textContent?.trim())).toEqual([
     'Behind',
-    'With hero',
+    'With the hero',
     'In front',
   ])
-  expect(choice('With hero').getAttribute('aria-checked')).toBe('true')
+  expect(choice('With the hero').getAttribute('aria-checked')).toBe('true')
   expect(look.querySelector('[data-draw-about]')?.textContent?.trim()).toBe('Drawn like the hero is.')
   await userEvent.click(choice('In front'))
   await tick()
@@ -229,7 +273,7 @@ test('several picked things change together, and where they differ no choice is 
   }
   const ids = mixed.things.slice(0, 2).map((t) => t.id)
   const held = await settings(ids, mixed)
-  for (const name of ['Behind', 'With hero', 'In front'])
+  for (const name of ['Behind', 'With the hero', 'In front'])
     expect(choice(name).getAttribute('aria-checked')).toBe('false')
   expect((sheet as HTMLElement).querySelector('[data-draw-about]')?.textContent?.trim()).toBe('Not the same')
   await userEvent.click(choice('In front'))

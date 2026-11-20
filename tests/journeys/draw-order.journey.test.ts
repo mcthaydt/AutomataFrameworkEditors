@@ -15,7 +15,7 @@ import {
   pictureColourUnder,
   pictureOf,
   putThemIn,
-  type SIZES,
+  SIZES,
   setupJourneys,
   signIn,
   thingNamed,
@@ -152,5 +152,53 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     }
     const repo = journey.fake.repos.get('grandma/crate-game')!
     expect(levelPut(repo, LEVEL_PATH)).toBe(writeContent('level', written as never))
+  })
+})
+
+describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])("the thing's menu at %s", (size) => {
+  test('every row is whole, inside the level, and what a finger would touch (no scrolling it into view)', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page)
+    await thingNamed(page, 'crate-1').click()
+    await page.getByRole('button', { name: more, exact: true }).click()
+    await page.getByRole('menuitem', { name: new RegExp(BACK) }).waitFor()
+    const rows = await page.getByRole('menuitem').count()
+    // A level box shorter than the menu (a phone on its side) makes the menu scroll inside it; a finger swipes it. Where
+    // the menu fits, nothing may need scrolling at all.
+    const scrolls = await page.locator('.menu-float').evaluate((el) => el.scrollHeight > el.clientHeight + 1)
+    expect(scrolls, 'the menu scrolls only where the level box is shorter than it').toBe(
+      size === 'phoneSideways',
+    )
+    for (let at = 0; at < rows; at += 1) {
+      const found = await page
+        .getByRole('menuitem')
+        .nth(at)
+        .evaluate((row, swipe) => {
+          const float = row.closest<HTMLElement>('.menu-float')
+          if (swipe && float !== null) {
+            const own = row.getBoundingClientRect()
+            const frame = float.getBoundingClientRect()
+            if (own.bottom > frame.bottom) float.scrollTop += own.bottom - frame.bottom
+            if (own.top < frame.top) float.scrollTop -= frame.top - own.top
+          }
+          const box = row.getBoundingClientRect()
+          const stage = document.querySelector('.stage')?.getBoundingClientRect()
+          const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+          return {
+            touched: hit !== null && (hit === row || row.contains(hit)),
+            inside:
+              stage !== undefined &&
+              box.top >= stage.top - 1 &&
+              box.bottom <= stage.bottom + 1 &&
+              box.left >= stage.left - 1 &&
+              box.right <= stage.right + 1,
+            name: row.textContent?.trim().slice(0, 30),
+          }
+        }, scrolls)
+      expect(found, `row ${at + 1} of the menu`).toMatchObject({ touched: true, inside: true })
+    }
+    await page.keyboard.press('Escape')
   })
 })
