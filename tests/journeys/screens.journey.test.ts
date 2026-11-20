@@ -150,6 +150,15 @@ async function wallMade(size: Size, stops = false): Promise<JourneyPage> {
   await j.page.getByRole('button', { name: '1 problem' }).waitFor()
   return j
 }
+/** The links game's map, grandma signed in, with `level` picked. */
+async function mapPicked(size: Size, level: string): Promise<JourneyPage> {
+  const j = await window_(size, 'grandma')
+  await signIn(j.page)
+  await openMapOf(j.page)
+  await j.page.locator(`[data-level="${level}"]`).click()
+  await j.page.getByRole('toolbar').waitFor()
+  return j
+}
 const move = (j: JourneyPage) => dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
 /** Opens the game's menu (on a narrow phone, the part menu that holds its rows too) and leaves it open. */
 async function openGameMenu(j: JourneyPage): Promise<void> {
@@ -658,6 +667,16 @@ const SCENES: readonly Scene[] = [
     },
     stage: true,
     only: NEW_ON_MAP,
+  },
+  {
+    name: 'map-level-more',
+    reach: async (size) => {
+      const j = await mapPicked(size, 'room-3')
+      await j.page.getByRole('button', { name: 'More' }).click()
+      await j.page.getByRole('menu').waitFor()
+      return j
+    },
+    stage: true,
   },
   {
     name: 'level-leave-anyway',

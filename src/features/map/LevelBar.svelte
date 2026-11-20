@@ -25,14 +25,15 @@
   let { lang, level, moving, touching, more, ongo, onmove, onapart, onmore, onrename, oncopy, onremove }: Props = $props()
 
   const words = $derived(wordsIn(lang).arrange)
-  // The menu hangs from the bar; where that would take it past the sheet's edge it slides in, opens upward, or sits over the bar.
+  // The menu hangs from the bar, beside it and not inside it: glass inside glass would blur only the bar's own
+  // pane, not the map behind. Where that would take it past the sheet's edge it slides in, opens upward, or sits over the bar.
   let menuEl: HTMLElement | undefined = $state()
   // It is set straight on the element, which is new at every opening, so nothing earlier is left to measure around.
   $effect(() => {
     const room = menuEl?.closest('[role="region"]')?.getBoundingClientRect()
     if (menuEl === undefined || room === undefined) return
     const at = menuEl.getBoundingClientRect()
-    const bar = (menuEl.parentElement as HTMLElement).getBoundingClientRect()
+    const bar = (menuEl.previousElementSibling as HTMLElement).getBoundingClientRect()
     const dx = at.left < room.left ? room.left - at.left : at.right > room.right ? room.right - at.right : 0
     const up = at.bottom > room.bottom && bar.top - at.height - 6 >= room.top
     // With room neither below nor above the bar, it covers the bar rather than leave the sheet.
@@ -61,7 +62,8 @@
   <button type="button" class="act" aria-label={text(words.more)} title={text(words.more)} aria-expanded={more} onclick={onmore}>
     <Icon name="dots-three" />
   </button>
-  {#if more}
+</div>
+{#if more}
     <div class="menu glass-2" role="menu" bind:this={menuEl}>
       <button type="button" role="menuitem" class="item" onclick={choose(ongo)}>
         <Icon name="arrow-right" /><span class="label">{text(words.goIn)}</span>
@@ -83,9 +85,8 @@
       <button type="button" role="menuitem" class="item" onclick={onremove}>
         <Icon name="trash" /><span class="label">{text(words.remove)}<small>{text(words.removeAbout)}</small></span>
       </button>
-    </div>
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style>
   .bar {
