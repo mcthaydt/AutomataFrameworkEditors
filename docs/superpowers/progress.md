@@ -18,6 +18,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 03:11 UTC: plan pull request 15 (#118), checking and two people on one thing, merged with a merge commit
+  `9cd1f5d` after two review cycles (pass at `dd52277`, audit `f54d376`) and a green full run on `dfb8657`. Left for
+  PR 19: wrap the new this-repo line, tidy a double `marks.find` in `Marks.svelte`, and the pulled-up settings sheet
+  covering the toolbar at phone and iPad upright (the same on main). Glass (#119) passed its last read at `71382dd`
+  (addendum `19375af`) and now merges main in to bring PR 15's sheets under the glass gate; that range gets a read.
+  PR 16 (#113): the WebKit reds were opens started as the page went away; fixed at `27078f5` (the list stops its queue
+  on `beforeunload` and `pagehide`), WebKit run pending. For history: the welcome journeys need
+  `pnpm build:journeys-plain` first when run locally.
 - State at 2026-11-20 02:27 UTC: PR 15 (#118) passed cycle 2 at `dd52277` (audit `f54d376`); it is ready and in its
   full run, and merges on green without waiting for glass. Glass (#119): N6 and N7 fixed at `efdccd0`, but the last read
   found R4 (a phone held sideways: the pinned foot leaves the settings 32px to scroll in; addendum `a5084ae`); the
