@@ -18,6 +18,19 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 05:31 UTC: PR 16, the team (#113), merged with a merge commit `f86e550` after five review cycles (pass at
+  `9377b6de`, last audit `756ee96`) and a green full run on every engine. The repeated WebKit page error
+  ("…:4800/<id> due to access control checks") was real, not flaky: WebKit names a picture the old page was decoding in
+  memory when the page reloads under it. The cut-off tracker now excuses that shape only on the page's own host and
+  only after the page has moved twice; the product is unchanged.
+- State at 2026-11-20 05:38 UTC. PR 18 (#124): its full run at `a9b0b46` was green but for one WebKit journey at phone
+  (draw-order: the crate not yet read as in front in Play, read once with no wait); the builder polls the same
+  assertion for a bounded time and reports what was read; if it is still red it is a product fault at phone. The
+  website demo (roadmap item 7): the test game already has three levels, the door and two levels joined; left are
+  "one or two players" in the test game (`players = 2` changes the content hash, so all three recorded plays move: it
+  stops at a reviewed green draft for the Owner) and the site's card (three levels, a door, a small world map, one or
+  two players, and the count of recorded plays read from the facts), which also stops unmerged for the Owner because a
+  merge deploys the site. PR 19 starts when PR 18 is on main.
 - 2026-11-20 05:14 UTC: PR 17's play tools (#123) merged with a merge commit `c0f05a9` after two review cycles (pass at
   `ff6b245`, audits `870feae` and `2fc8096`) and a green full run on every engine. Left for PR 19 or the slice-end walk
   (both low): the speed stays Slow after a door, and the game runs on while "Play from here" waits for its tap.
