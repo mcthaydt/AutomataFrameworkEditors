@@ -69,7 +69,8 @@ const buttons = (): HTMLElement[] =>
   [...box.querySelectorAll<HTMLElement>('button')].filter((b) => b.getAttribute('tabindex') !== '-1')
 function named(words: string): HTMLElement | undefined {
   const all = [...box.querySelectorAll<HTMLElement>('button, [role=menuitem]')]
-  return all.find((b) => b.textContent?.includes(words))
+  // What a person hears: the spoken name of a button that shows an icon, else its words.
+  return all.find((b) => (b.getAttribute('aria-label') ?? b.textContent)?.includes(words))
 }
 
 test('the bar is 56 high with a finger, 48 with a mouse and 44 on a phone on its side', async () => {
@@ -271,14 +272,16 @@ test('the Map button is drawn only when there is a map, says so when it is open,
   unmount(mounted as never)
   let opened = 0
   await put({ onmap: () => (opened += 1) })
-  const button = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent?.trim() === 'Map')
+  const button = [...box.querySelectorAll<HTMLElement>('button')].find(
+    (b) => b.getAttribute('aria-label') === 'Map',
+  )
   expect(button?.getAttribute('aria-pressed')).toBe('false')
   expect(box.querySelector('button.part')?.textContent).toContain('Levels · Level 1')
   await press(button)
   expect(opened).toBe(1)
   unmount(mounted as never)
   await put({ onmap: () => {}, mapOn: true })
-  const now = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent?.trim() === 'Map')
+  const now = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.getAttribute('aria-label') === 'Map')
   expect(now?.getAttribute('aria-pressed')).toBe('true')
   expect(box.querySelector('button.part')?.textContent).toContain('Levels · Map')
 })
