@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { WORDS, wordsIn } from '#src/features/words/words.ts'
+import { LANGUAGES, WORDS, wordsIn } from '#src/features/words/words.ts'
 import { bannedIn } from '../../fixtures/banned.ts'
 
 // The first words, exactly as the plan pins them (Task 2). Later tasks add their own rows to this list.
@@ -24,17 +24,8 @@ const PINNED: Readonly<Record<string, string>> = {
   mineWaiting: 'Your changes are waiting for approval. This is your version of the game.',
   back: 'Back',
   loading: 'Getting your game…',
-  moveLeft: 'Move left',
-  moveRight: 'Move right',
-  moveUp: 'Move up',
-  moveDown: 'Move down',
   solid: 'That spot is solid ground. Try another spot.',
   lookOnly: "You can look and try things, but you can't save changes to this game. Ask its owner to let you.",
-  offline: "Can't reach the game right now. Your change is still here. Check the internet and try again.",
-  busy: 'Things are busy. Your change is still here. Wait a minute and try again.',
-  saveFailed: "Something went wrong and your change wasn't saved. Try again.",
-  blockedOwner:
-    "GitHub is set to stop the editor changing this game. The game's owner needs to let Automata Editors past that rule.",
   leaveAsk: "You have changes that aren't saved. Leave anyway?",
   leaveYes: 'Leave without saving',
   leaveNo: 'Stay',
@@ -43,20 +34,6 @@ const PINNED: Readonly<Record<string, string>> = {
   waitingNone: 'Nothing is waiting.',
   waitingBy: 'From crate-1',
   waitingMine: 'From you',
-  changeMoved: 'crate-1 was moved. The ring shows where it is now.',
-  changeOther: 'This change does more than move things.',
-  approve: 'Approve',
-  turnDown: 'Turn it down',
-  takeBack: 'Take my change back',
-  approved: 'Approved. The change is in the game now.',
-  turnedDown: 'Turned down. The game stays as it was.',
-  checksRunning: 'This change is still being checked. Try again in a minute.',
-  checksFailed: "The checks found a problem with this change, so it can't be approved.",
-  ownChange: 'Someone else has to approve your own change.',
-  clashes:
-    "The game changed since this was made, so it doesn't fit any more. Turn it down and ask for it again.",
-  notHere: "This change touches more than the game's levels, so it can't be approved here.",
-  cantApprove: "You can look at this change, but you can't approve it.",
   tryIt: 'Try it now',
   tryItLine: 'No account needed. Open the example game and change it.',
   tipShare: "Want help with your game? Open the game's menu to let someone in.",
@@ -100,6 +77,27 @@ test.each(PINNED_IN)('%s.%s still says what the old page said', (area, key, word
     wordsIn('en')[area] as unknown as Readonly<Record<string, string | ((name: string) => string)>>
   )[key]
   expect(typeof row === 'function' ? row('crate-1') : row).toBe(words)
+})
+
+// The move arrows' spoken names and tooltips (the settings panel's cross and the pad on the level): exactly these in
+// English, and four different names in every language, so each arrow is told apart by ear (the audit of 2026-11-20, N6).
+const PAD = { padUp: 'Move up', padLeft: 'Move left', padRight: 'Move right', padDown: 'Move down' } as const
+
+test('the move arrows say exactly what the plan says, and every language names all four apart', () => {
+  const english = wordsIn('en').levels
+  for (const [key, words] of Object.entries(PAD)) expect(english[key as keyof typeof PAD]).toBe(words)
+  for (const lang of LANGUAGES) {
+    const said = wordsIn(lang).levels
+    const names = Object.keys(PAD).map((key) => {
+      const row = said[key as keyof typeof PAD]
+      return typeof row === 'string' ? row : row()
+    })
+    expect(
+      names.every((name) => name.trim() !== ''),
+      lang,
+    ).toBe(true)
+    expect(new Set(names).size, lang).toBe(4)
+  }
 })
 
 test('WORDS is frozen', () => {

@@ -202,6 +202,9 @@
       />
     {/if}
 
+    {#snippet arrows()}
+      {#if placed !== undefined}<Nudge {lang} onnudge={(way) => onnudge(placed.id, way)} />{/if}
+    {/snippet}
     {#if !levels && lay.settings !== 'none' && level !== undefined && held.length > 0}
       <SettingsPanel
         {lang}
@@ -210,6 +213,7 @@
         mirror={lay.mirror}
         onhide={() => ondocks({ ...docks, settings: 'hidden' })}
         onshow={() => ondocks({ ...docks, settings: 'shown' })}
+        foot={placed === undefined ? undefined : arrows}
       >
         <ThingSettings
           {lang}
@@ -222,7 +226,6 @@
           {ongo}
           says={(message) => sayFor(content, message)}
         />
-        {#if placed !== undefined}<Nudge onnudge={(way) => onnudge(placed.id, way)} />{/if}
       </SettingsPanel>
     {/if}
   </div>

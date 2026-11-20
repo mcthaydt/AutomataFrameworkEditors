@@ -17,8 +17,10 @@
     /** Bring it back (tab, bar). */
     onshow: () => void
     children: Snippet
+    /** What stays at the panel's foot, outside the part that scrolls, so it always shows whole (the move arrows). */
+    foot?: Snippet | undefined
   }
-  let { lang, mode, name, mirror = false, onhide, onshow, children }: Props = $props()
+  let { lang, mode, name, mirror = false, onhide, onshow, children, foot }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const text = (one: Row, ...parts: (string | number)[]): string =>
@@ -27,25 +29,28 @@
 </script>
 
 {#if mode === 'side' || mode === 'sheet'}
-  <aside class="panel {mode}" class:mirror aria-label={title} data-tour="settings">
+  <aside class="panel glass-1 {mode}" class:mirror aria-label={title} data-tour="settings">
     <header>
       <b class="name">{name}</b>
       {#if mode === 'side'}
-        <button type="button" aria-label={text(words.panels.hideSettings)} onclick={onhide}>
+        <button type="button" aria-label={text(words.panels.hideSettings)} title={text(words.panels.hideSettings)} onclick={onhide}>
           <Icon name="x" />
         </button>
       {:else}
         <button type="button" class="done" onclick={onhide}>{text(words.shell.done)}</button>
       {/if}
     </header>
-    <div class="body">{@render children()}</div>
+    <div class="scroll">
+      <div class="body">{@render children()}</div>
+      {#if foot}<div class="foot">{@render foot()}</div>{/if}
+    </div>
   </aside>
 {:else if mode === 'tab'}
-  <button type="button" class="tab" class:mirror aria-label={title} data-tour="settings" onclick={onshow}>
+  <button type="button" class="tab glass-1" class:mirror aria-label={title} data-tour="settings" onclick={onshow}>
     <Icon name="caret-left" /><span class="upright">{title}</span>
   </button>
 {:else}
-  <button type="button" class="peek" aria-label={title} data-tour="settings" onclick={onshow}>
+  <button type="button" class="peek glass-1" aria-label={title} data-tour="settings" onclick={onshow}>
     <span class="name">{title}</span><Icon name="caret-up" />
   </button>
 {/if}
@@ -55,11 +60,6 @@
   .tab,
   .peek {
     position: absolute;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }
@@ -69,11 +69,11 @@
     border-radius: 14px;
   }
   .side {
-    top: calc(var(--bar) + 16px);
-    right: max(8px, env(safe-area-inset-right));
-    bottom: max(8px, env(safe-area-inset-bottom));
+    top: calc(var(--bar) + var(--space-3));
+    right: max(var(--space-2), env(safe-area-inset-right));
+    bottom: max(var(--space-2), env(safe-area-inset-bottom));
     width: 300px;
-    max-width: calc(100% - 16px);
+    max-width: calc(100% - 2 * var(--space-2));
   }
   .sheet {
     left: max(8px, env(safe-area-inset-left));
@@ -90,7 +90,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 4px 4px 12px;
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
     border-bottom: 1px solid var(--g-edge);
   }
   .name {
@@ -122,7 +122,35 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 8px;
+    padding: var(--space-3);
+  }
+  /* The settings scroll and the foot (the move arrows) stays still under them, always whole. */
+  .scroll {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .foot {
+    flex: none;
+    padding: var(--space-2) var(--space-3);
+    border-top: 1px solid var(--g-edge);
+  }
+  /* A sheet pulled up on a short screen (a phone on its side) has no room to hold the foot still: the settings and
+     the foot scroll together, so the settings keep their room and scrolling reaches the arrows. */
+  @media (max-height: 666px) {
+    .sheet .scroll {
+      overflow-y: auto;
+    }
+    .sheet .body {
+      flex: none;
+      overflow: visible;
+    }
+    .sheet .foot {
+      padding-top: 0;
+      padding-bottom: var(--space-3);
+      border-top: 0;
+    }
   }
   .tab {
     top: calc(var(--bar) + 24px);

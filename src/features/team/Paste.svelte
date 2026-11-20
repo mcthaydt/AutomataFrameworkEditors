@@ -20,7 +20,7 @@
   let pasted = $state('')
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet title={text(h.pasteTitle)} close={text(words.shell.close)} {onclose} side>
     <p class="quiet">{text(h.pasteAbout)}</p>
     <textarea
@@ -50,7 +50,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

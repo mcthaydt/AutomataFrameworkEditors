@@ -28,7 +28,7 @@
     justify-content: center;
     width: var(--across);
     height: var(--across);
-    border: 2px solid var(--panel);
+    border: 2px solid var(--g-edge);
     border-radius: 50%;
     font-size: calc(var(--across) * 0.46);
     font-weight: 600;

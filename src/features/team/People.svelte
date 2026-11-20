@@ -179,7 +179,7 @@
   const hasLogin = (who: string): boolean => game.login !== undefined && same(who, game.login)
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet title={text(t.peopleTitle, game.content.project.name)} close={text(words.shell.close)} onclose={leave} side>
     <p class="lead">{text(mayChange ? t.peopleOwnerYou : t.peopleOnlyOwner)}</p>
 
@@ -208,7 +208,7 @@
               >
                 {#each GIVEN as level (level)}<option value={level}>{name(level)}</option>{/each}
               </select>
-              <button type="button" class="icon" aria-label={text(t.removeName, person.github)} onclick={() => remove(person.github)}>
+              <button type="button" class="icon" aria-label={text(t.removeName, person.github)} title={text(t.removeName, person.github)} onclick={() => remove(person.github)}>
                 <Icon name="trash" />
               </button>
             </span>
@@ -234,7 +234,7 @@
         <label class="label" for="people-link">{text(t.linkLabel)}</label>
         <div class="row">
           <input id="people-link" readonly value={linkText} bind:this={link} />
-          <button type="button" class="icon" aria-label={text(t.copyLink)} onclick={() => void copy()}>
+          <button type="button" class="icon" aria-label={text(t.copyLink)} title={text(t.copyLink)} onclick={() => void copy()}>
             <Icon name={copied ? 'check' : 'copy'} />
           </button>
         </div>
@@ -253,7 +253,7 @@
           <select aria-label={text(t.addName)} bind:value={newLevel}>
             {#each GIVEN as level (level)}<option value={level}>{name(level)}</option>{/each}
           </select>
-          <button type="submit" class="icon" aria-label={text(t.addPerson)}><Icon name="plus" /></button>
+          <button type="submit" class="icon" aria-label={text(t.addPerson)} title={text(t.addPerson)}><Icon name="plus" /></button>
         </div>
         <small class="quiet">{text(t.addAbout)}</small>
         {#if nameProblem !== undefined}<small class="bad" role="alert">{nameProblem}</small>{/if}
@@ -304,7 +304,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

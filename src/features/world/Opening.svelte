@@ -73,7 +73,7 @@
 </script>
 
 {#if opened === undefined}
-  <Screen {title} {back}><p>{WORDS.loading}</p></Screen>
+  <Screen glass {title} {back}><p>{WORDS.loading}</p></Screen>
 {:else if opened.ok && found}
   {#key generation}
     <World
@@ -94,11 +94,11 @@
     />
   {/key}
 {:else if opened.ok}
-  <Screen title={opened.game.content.project.name} {back}>
+  <Screen glass title={opened.game.content.project.name} {back}>
     <Notice kind="problem" text={WORDS.cantFindGame} />
   </Screen>
 {:else if opened.problem === 'broken'}
-  <Screen {title} {back}>
+  <Screen glass {title} {back}>
     <Notice kind="problem" text={WORDS.brokenGame} />
     <ul class="problems">
       {#each opened.diagnostics as diagnostic (formatDiagnostic(diagnostic))}
@@ -107,14 +107,14 @@
     </ul>
   </Screen>
 {:else if opened.problem === 'not-found' || opened.problem === 'not-allowed'}
-  <Screen {title} {back}>
+  <Screen glass {title} {back}>
     <Notice kind="problem" text={signedIn ? WORDS.cantFindGame : WORDS.cantFindVisitor} />
     {#if !signedIn}<div><Button label={WORDS.signIn} kind="primary" onpress={onsignin} /></div>{/if}
   </Screen>
 {:else if opened.problem === 'not-a-game'}
-  <Screen {title} {back}><Notice kind="problem" text={WORDS.notAGame} /></Screen>
+  <Screen glass {title} {back}><Notice kind="problem" text={WORDS.notAGame} /></Screen>
 {:else}
-  <Screen {title} {back}>
+  <Screen glass {title} {back}>
     <Notice kind="problem" text={WORDS.cantReach} />
     <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
   </Screen>

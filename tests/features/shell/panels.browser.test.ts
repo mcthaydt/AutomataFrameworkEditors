@@ -52,7 +52,7 @@ const toolbar = {
 
 test('the toolbar draws only the tools this editor has a job for, each at least 44 by 44', async () => {
   await put(Toolbar, toolbar)
-  const names = [...box.querySelectorAll('.tool')].map((el) => el.textContent?.trim())
+  const names = [...box.querySelectorAll('.tool')].map((el) => el.getAttribute('aria-label'))
   expect(names).toEqual(['Pick', 'Place', 'Erase'])
   for (const el of box.querySelectorAll('button')) {
     expect(hit(el).width).toBeGreaterThanOrEqual(44)
@@ -104,10 +104,13 @@ const list = {
 
 test('shut to a rail the list has a List button, and an Add button only when there are things to add', async () => {
   await put(ListPanel, { ...list, mode: 'rail' })
-  expect([...box.querySelectorAll('button')].map((b) => b.textContent?.trim())).toEqual(['List'])
+  expect([...box.querySelectorAll('button')].map((b) => b.getAttribute('aria-label'))).toEqual(['List'])
   unmount(mounted as never)
   await put(ListPanel, { ...list, mode: 'rail', add: text('things') })
-  expect([...box.querySelectorAll('button')].map((b) => b.textContent?.trim())).toEqual(['List', 'Add'])
+  expect([...box.querySelectorAll('button')].map((b) => b.getAttribute('aria-label'))).toEqual([
+    'List',
+    'Add',
+  ])
   for (const el of box.querySelectorAll('button')) expect(hit(el).height).toBeGreaterThanOrEqual(44)
 })
 

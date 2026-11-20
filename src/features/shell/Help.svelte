@@ -36,7 +36,7 @@
   let helper = $state(false)
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet title={text(h.helpTitle)} close={text(words.shell.close)} {onclose}>
     <section aria-labelledby="help-basics">
       <h3 id="help-basics">{text(h.helpBasics)}</h3>
@@ -82,7 +82,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   h3 {
     margin: 12px 0 2px;

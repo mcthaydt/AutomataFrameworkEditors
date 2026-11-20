@@ -58,7 +58,7 @@
 {#if cards}
   {#each across as { edge, bar } (edge.other)}
     {@const spot = place(bar, edge.side)}
-    <div class="card" data-ui role="note" data-edge-card={edge.other} style:left="{spot.x}px" style:top="{spot.y}px" style:width="{wide}px">
+    <div class="card glass-1" data-ui role="note" data-edge-card={edge.other} style:left="{spot.x}px" style:top="{spot.y}px" style:width="{wide}px">
       <b><Icon name="arrows-left-right" />{text(words.thing.edgeTitle, nameOf(edge.other))}</b>
       <small>{text(words.thing.edgeAbout, nameOf(levelId), nameOf(edge.other))}</small>
       <button type="button" onclick={() => ongo(edge.other)}>
@@ -85,8 +85,6 @@
     padding: 12px;
     border: 1px solid var(--accent);
     border-radius: 12px;
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   b {

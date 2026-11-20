@@ -67,6 +67,7 @@ import trash from '@phosphor-icons/core/regular/trash.svg?raw'
 import usersThree from '@phosphor-icons/core/regular/users-three.svg?raw'
 import warning from '@phosphor-icons/core/regular/warning.svg?raw'
 import x from '@phosphor-icons/core/regular/x.svg?raw'
+import xCircle from '@phosphor-icons/core/regular/x-circle.svg?raw'
 
 export type IconName =
   | 'cursor'
@@ -135,6 +136,7 @@ export type IconName =
   | 'note-pencil'
   | 'push-pin'
   | 'sparkle'
+  | 'x-circle'
 
 /** The drawing inside an SVG file's outer tag. */
 function inner(svg: string): string {
@@ -209,4 +211,5 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'note-pencil': inner(notePencil),
   'push-pin': inner(pushPin),
   sparkle: inner(sparkle),
+  'x-circle': inner(xCircle),
 }

@@ -21,12 +21,13 @@
   ]
 </script>
 
-<div class="pad" role="group" aria-label={text(words.padLabel)}>
+<div class="pad glass-1" role="group" aria-label={text(words.padLabel)}>
   {#each ARROWS as arrow (arrow.way)}
     <button
       type="button"
       class="arrow {arrow.way}"
       aria-label={text(words[arrow.name])}
+      title={text(words[arrow.name])}
       onclick={() => onnudge(arrow.way)}
     >
       <Icon name={arrow.icon} />
@@ -47,9 +48,6 @@
     gap: 4px;
     padding: 6px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   button {

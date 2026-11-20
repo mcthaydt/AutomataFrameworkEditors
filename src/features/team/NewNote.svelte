@@ -27,7 +27,7 @@
   const ready = $derived(said.trim() !== '' && !sending)
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet title={text(n.noteAdd)} close={text(words.shell.close)} {onclose} side>
     <p class="quiet">{text(n.noteNewAbout, about)}</p>
     <label class="label" for="note-words">{text(n.noteWrite)}</label>
@@ -45,7 +45,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

@@ -24,7 +24,7 @@
   const shown = $derived(lines.slice(0, MOST))
 </script>
 
-<div class="ghost" role="group" aria-label={about ?? text(h.ghostAbout)} data-ghost-card>
+<div class="ghost glass-1" role="group" aria-label={about ?? text(h.ghostAbout)} data-ghost-card>
   <p class="about"><Icon name="sparkle" /><span>{about ?? text(h.ghostAbout)}</span></p>
   <ul>
     {#each shown as line, at (at)}
@@ -50,13 +50,7 @@
     width: min(420px, calc(100% - 16px));
     box-sizing: border-box;
     padding: 12px 14px;
-    border: 1px solid var(--agent);
     border-radius: 12px;
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
-    color: var(--words);
     transform: translateX(-50%);
   }
   .about {

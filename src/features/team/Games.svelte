@@ -110,7 +110,7 @@
 </script>
 
 <main class="look games centred" {lang}>
-  <section class="card">
+  <section class="card glass-1">
     <h1>{text(t.gamesTitle)}</h1>
     {#if games === undefined}
       <p role="status">{text(t.gamesLoading)}</p>
@@ -171,12 +171,7 @@
 
 <style>
   .games {
-    display: flex;
-    justify-content: center;
-    min-height: 100%;
     padding: 24px 16px;
-    box-sizing: border-box;
-    overflow: auto;
   }
   .card {
     display: flex;
@@ -187,12 +182,8 @@
     height: fit-content;
     padding: 20px;
     box-sizing: border-box;
-    border: 1px solid var(--g-edge);
-    border-radius: 16px;
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
+    border: 1px solid var(--line);
+    border-radius: 14px;
   }
   h1 {
     margin: 0;
@@ -206,7 +197,7 @@
     color: var(--g-quiet);
   }
   .problem {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .find {
     display: flex;

@@ -22,7 +22,7 @@
   import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
   import { type Docks, Find, type Found, layout, parseGo, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
-  import { Helper, Notes, type Route, withoutSheet } from '../team/team.ts'
+  import { AuthorNote, Helper, Notes, type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { didWhat } from './did.ts'
@@ -361,7 +361,7 @@ import Team from './Team.svelte'
 </script>
 
 {#if page !== undefined}
-  <Sheets sheet={page} {api} game={held.ref} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
+  <Sheets sheet={page} {api} game={held.ref} {lang} {size} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
 {:else}
   <div
     class="look world"
@@ -517,6 +517,7 @@ import Team from './Team.svelte'
     />
 
     <Events {events} low={playing} onanswer={answered} />
+    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
 
     {#if sheet?.kind === 'people' || sheet?.kind === 'history'}
       <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
@@ -530,6 +531,7 @@ import Team from './Team.svelte'
       {api}
       game={held}
       {edits}
+      {drafts}
       level={onMap ? undefined : levelId}
       onchanged={(next, now) => {
         held = next

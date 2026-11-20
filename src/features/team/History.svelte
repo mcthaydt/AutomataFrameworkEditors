@@ -52,7 +52,7 @@
   onMount(() => void ask(0))
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet title={text(t.historyTitle, game.content.project.name)} close={text(words.shell.close)} {onclose} side>
     <p class="quiet">{text(t.historyAbout)}</p>
     {#if lines.length > 0}
@@ -91,7 +91,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

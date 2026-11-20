@@ -62,12 +62,12 @@
 </script>
 
 {#if touch}
-  <div class="hold" class:mirror style:--inset="{inset}px" role="group" aria-label={text(words.panels.holdLabel)}>
+  <div class="hold glass-1" class:mirror style:--inset="{inset}px" role="group" aria-label={text(words.panels.holdLabel)}>
     <button
       type="button"
       class="fold"
       aria-expanded={open}
-      aria-label={text(open ? words.panels.holdFold : words.panels.holdHow)}
+      aria-label={`${text(words.panels.holdLabel)}: ${text(open ? words.panels.holdFold : words.panels.holdHow)}`}
       onclick={ontoggle}
     >
       <Icon name={open ? 'caret-left' : 'caret-right'} /><span>{text(words.panels.holdLabel)}</span>
@@ -102,11 +102,6 @@
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }

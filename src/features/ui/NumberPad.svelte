@@ -39,7 +39,7 @@
   }
 </script>
 
-<div class="numpad" role="group">
+<div class="numpad glass-2" role="group">
   <input
     class="field"
     inputmode="decimal"
@@ -52,8 +52,8 @@
     }}
   />
   <div class="keys">
-    <button type="button" data-step="down" aria-label={say(words.less)} onclick={() => set(current - step)}>−</button>
-    <button type="button" data-step="up" aria-label={say(words.more)} onclick={() => set(current + step)}>+</button>
+    <button type="button" data-step="down" aria-label={say(words.less)} title={say(words.less)} onclick={() => set(current - step)}><span aria-hidden="true">−</span></button>
+    <button type="button" data-step="up" aria-label={say(words.more)} title={say(words.more)} onclick={() => set(current + step)}><span aria-hidden="true">+</span></button>
     <button
       type="button"
       class="done"
@@ -76,11 +76,6 @@
     max-width: 100%;
     padding: 12px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
   }
   .field {

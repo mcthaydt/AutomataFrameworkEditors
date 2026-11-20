@@ -70,7 +70,7 @@
   }
 </script>
 
-<div class="scrim">
+<div class="scrim dim-3">
   <Sheet title={text(h.findTitle)} close={text(words.shell.close)} {onclose}>
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div onkeydown={keys}>
@@ -111,7 +111,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   .field {
     display: flex;

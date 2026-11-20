@@ -14,6 +14,10 @@
     readOnly?: boolean
     /** Ringed because a change is being looked at. */
     marked?: readonly string[]
+    /** A name drawn on a thing's ring: whose place it is, when two places of one thing are shown. */
+    tags?: Readonly<Record<string, string>>
+    /** Places where a thing could be instead, drawn dashed and named, never touched. */
+    ghosts?: readonly { readonly mark: Mark; readonly name: string }[]
     /** The ground is being painted: the things are drawn faint and are not touched. */
     faint?: boolean
     onpick?: (id: string) => void
@@ -28,6 +32,8 @@
     picked,
     readOnly = false,
     marked = [],
+    tags = {},
+    ghosts = [],
     faint = false,
     onpick,
     onnudge,
@@ -95,14 +101,29 @@
           style:height="{mark.box.h}px"
         >
           <i class="handle tl"></i><i class="handle tr"></i><i class="handle bl"></i><i class="handle br"></i>
+          {#if tags[mark.id] !== undefined}<b class="tag glass-1" class:end={ghosts.some((g) => g.mark.box.x > mark.box.x)} class:start={ghosts.some((g) => g.mark.box.x < mark.box.x)}>{tags[mark.id]}</b>{/if}
         </span>
       {/if}
     </button>
   {/each}
+  {#each ghosts as ghost (ghost.name)}
+    <span
+      class="ghost"
+      role="img"
+      data-ghost={ghost.mark.id}
+      aria-label={ghost.name}
+      style:left="{ghost.mark.box.x}px"
+      style:top="{ghost.mark.box.y}px"
+      style:width="{ghost.mark.box.w}px"
+      style:height="{ghost.mark.box.h}px"
+    >
+      <b class="tag glass-1" class:end={ghost.mark.box.x < (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)} class:start={ghost.mark.box.x > (marks.find((m) => marked.includes(m.id))?.box.x ?? 0)}>{ghost.name}</b>
+    </span>
+  {/each}
   {#each extras as extra (extra.id)}
     {#if extra.kind === 'ghost'}
       <div
-        class="ghost"
+        class="helped"
         data-ghost={extra.id}
         aria-hidden="true"
         style:left="{extra.box.x}px"
@@ -117,6 +138,7 @@
         class:done={extra.done}
         data-note={extra.id}
         aria-label={extra.name}
+        title={extra.name}
         style:left="{extra.hit.x}px"
         style:top="{extra.hit.y}px"
         style:width="{extra.hit.w}px"
@@ -155,7 +177,7 @@
     outline: 3px solid var(--focus, var(--accent));
     outline-offset: 2px;
   }
-  .ghost {
+  .helped {
     position: absolute;
     box-sizing: border-box;
     border: 2px dashed var(--agent);
@@ -194,6 +216,37 @@
     border: 2px solid var(--accent);
     border-radius: 3px;
     pointer-events: none;
+  }
+  .ghost {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px dashed var(--accent);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  /* The name sits just under its place, on layer 1 glass like the other tags, so it reads over any picture. */
+  .tag {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-family: var(--label);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+  /* Two names side by side lean away from each other, so neither covers the other. */
+  .tag.end {
+    right: 0;
+    left: auto;
+    transform: none;
+  }
+  .tag.start {
+    left: 0;
+    transform: none;
   }
   .handle {
     position: absolute;

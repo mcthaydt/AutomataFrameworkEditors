@@ -68,7 +68,7 @@ test('a level of 1,024 things draws fewer than 100 rows in the list', async () =
   await tick()
   // Every thing, and the place the player starts, is a button a finger can reach; only the rows in view are in the list.
   await vi.waitFor(() => expect(box.querySelectorAll('[data-thing]')).toHaveLength(1025))
-  const open = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'List')
+  const open = [...box.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === 'List')
   if (open === undefined) throw new Error('no button opens the list')
   open.click()
   await tick()
@@ -106,7 +106,7 @@ test('the map route shows every level on one sheet, with the Map button pressed 
   await vi.waitFor(() => expect(box.querySelectorAll('[data-level]')).toHaveLength(3))
   // The level the address names is the one picked when the map opens.
   expect(box.querySelector('[data-level="room-2"]')?.getAttribute('aria-pressed')).toBe('true')
-  const map = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Map')
+  const map = [...box.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === 'Map')
   expect(map?.getAttribute('aria-pressed')).toBe('true')
   map?.click()
   await tick()

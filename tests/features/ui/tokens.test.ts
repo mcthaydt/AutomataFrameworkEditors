@@ -12,7 +12,8 @@ function rule(selector: string): Map<string, string> {
   const wanted = selector.replaceAll("'", '"')
   const at = css.indexOf(`${wanted} {`)
   if (at < 0) throw new Error(`no rule for ${selector}`)
-  const body = css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at))
+  // A comment among the declarations is not one of them.
+  const body = css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at)).replace(/\/\*[\s\S]*?\*\//g, '')
   const found = new Map<string, string>()
   for (const line of body.split(';')) {
     const colon = line.indexOf(':')
@@ -43,8 +44,15 @@ test('the tokens are the design language table, by those names', () => {
     '--accent': '#eeb480',
     '--agent': '#b5b1d8',
     '--problem': '#e5484d',
-    '--glass': 'rgb(30 30 30 / 0.72)',
-    '--glass-soft': 'rgb(37 37 37 / 0.92)',
+    '--problem-words': '#ff8a80',
+    '--glass-1-bg': 'rgb(30 30 30 / 0.72)',
+    '--glass-1-filter': 'blur(16px) brightness(0.45) saturate(1.4)',
+    '--glass-2-bg': 'rgb(30 30 30 / 0.76)',
+    '--glass-2-filter': 'blur(24px) brightness(0.4) saturate(1.3)',
+    '--glass-3-bg': 'rgb(30 30 30 / 0.8)',
+    '--glass-3-filter': 'blur(32px) brightness(0.35) saturate(1.2)',
+    '--dim-2': 'rgb(0 0 0 / 0.2)',
+    '--dim-3': 'rgb(0 0 0 / 0.4)',
     '--glass-quiet': '#a8a8a8',
     '--row': '44px',
     '--bar': '56px',
@@ -75,10 +83,41 @@ test('words are at least 4.6 to 1 on every surface they sit on', () => {
   expect(ratio(token('--words'), token('--panel'))).toBeGreaterThanOrEqual(4.6)
   expect(ratio(token('--quiet'), token('--panel'))).toBeGreaterThanOrEqual(4.6)
   expect(ratio(token('--quiet'), token('--raised'))).toBeGreaterThanOrEqual(4.6)
-  // Glass is the ground's grey at 72% over a level darkened to 45% brightness: the worst case is the lightest level.
-  expect(ratio(token('--glass-quiet'), '#1e1e1e')).toBeGreaterThanOrEqual(4.6)
-  expect(ratio(token('--words'), '#1e1e1e')).toBeGreaterThanOrEqual(4.6)
 })
+
+// What a person sees through a layer of glass over a flat level: the level darkened by the layer's brightness, then
+// covered by its tint. A blur changes nothing in a flat colour, so a flat level is the worst case of a busy one: the
+// whitest level gives the lightest glass, and the words are light.
+function through(layer: 1 | 2 | 3, level: string): string {
+  const tint = /rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)/.exec(token(`--glass-${layer}-bg`))
+  const bright = Number(/brightness\(([\d.]+)\)/.exec(token(`--glass-${layer}-filter`))?.[1])
+  if (tint === null || Number.isNaN(bright)) throw new Error(`layer ${layer} has no tint or brightness`)
+  const alpha = Number(tint[4])
+  const n = Number.parseInt(level.slice(1), 16)
+  const mix = (channel: number, shift: number): number =>
+    Math.round(alpha * channel + (1 - alpha) * ((n >> shift) & 255) * bright)
+  const hex = (v: number): string => v.toString(16).padStart(2, '0')
+  return `#${hex(mix(Number(tint[1]), 16))}${hex(mix(Number(tint[2]), 8))}${hex(mix(Number(tint[3]), 0))}`
+}
+
+test.each([1, 2, 3] as const)(
+  'words are at least 4.6 to 1 on layer %i glass over a white level and a dark one',
+  (layer) => {
+    for (const level of ['#ffffff', '#9fd3f0', '#1e1e1e']) {
+      expect(ratio(token('--words'), through(layer, level)), `words over ${level}`).toBeGreaterThanOrEqual(
+        4.6,
+      )
+      expect(
+        ratio(token('--glass-quiet'), through(layer, level)),
+        `quiet over ${level}`,
+      ).toBeGreaterThanOrEqual(4.6)
+      // The other words drawn on glass: a pressed or chosen word, a word about an agent, and a problem (the audit of
+      // 2026-11-20, N4).
+      for (const kind of ['--accent', '--agent', '--problem-words'])
+        expect(ratio(token(kind), through(layer, level)), `${kind} over ${level}`).toBeGreaterThanOrEqual(4.6)
+    }
+  },
+)
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {

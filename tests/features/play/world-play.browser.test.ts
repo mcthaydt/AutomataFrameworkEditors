@@ -64,13 +64,14 @@ afterEach(() => {
   box.remove()
 })
 
+// A button by what a person hears: its spoken name when it shows an icon, else its words.
+const heard = (b: Element): string | undefined => b.getAttribute('aria-label') ?? b.textContent?.trim()
 const bar = (word: string): HTMLButtonElement => {
-  const found = [...box.querySelectorAll('button')].find((b) => b.textContent?.trim() === word)
+  const found = [...box.querySelectorAll('button')].find((b) => heard(b) === word)
   if (found === undefined) throw new Error(`no "${word}" button`)
   return found
 }
-const has = (word: string): boolean =>
-  [...box.querySelectorAll('button')].some((b) => b.textContent?.trim() === word)
+const has = (word: string): boolean => [...box.querySelectorAll('button')].some((b) => heard(b) === word)
 const playBox = (): HTMLElement | null => box.querySelector('[data-play="box"]')
 const press = async (word: string): Promise<void> => {
   bar(word).click()

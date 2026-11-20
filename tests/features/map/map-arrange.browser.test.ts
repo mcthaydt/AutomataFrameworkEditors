@@ -431,7 +431,10 @@ test('what Move apart does is said on the screen, not in a hover tip, and only f
   await tick()
   await press('More')
   expect(box.textContent).toContain("Move it away from Room 2, so players can't walk across")
-  expect(box.querySelector('[title]')).toBeNull()
+  // An icon's tooltip only repeats its name; what Move apart does is never kept in one.
+  expect([...box.querySelectorAll('[title]')].map((el) => el.getAttribute('title'))).not.toContainEqual(
+    expect.stringContaining('players'),
+  )
   level('room-1').click()
   await tick()
   expect(box.textContent).not.toContain('so players can')

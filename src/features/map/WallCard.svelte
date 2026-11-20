@@ -26,7 +26,7 @@
   )
 </script>
 
-<section class="card" aria-label={text(words.wallTitle)}>
+<section class="card glass-2" aria-label={text(words.wallTitle)}>
   <h2>{text(words.wallTitle)}</h2>
   <p>{text(words.wallBody, nameOf(open), nameOf(solid))}</p>
   <div class="ways">
@@ -53,9 +53,6 @@
     width: min(520px, calc(100vw - 32px));
     padding: 12px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   h2 {

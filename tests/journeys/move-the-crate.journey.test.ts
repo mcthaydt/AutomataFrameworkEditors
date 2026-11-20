@@ -1,7 +1,7 @@
 import { type Level, writeContent } from '@automataframework/framework/headless'
 import { afterEach, describe, expect, test } from 'vitest'
 import { writeAccess } from '#src/features/access/access.ts'
-import { WORDS } from '#src/features/words/words.ts'
+import { WORDS, wordsIn } from '#src/features/words/words.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   dragByTouch,
@@ -22,6 +22,10 @@ import {
   signIn,
   thingNamed,
 } from '../fixtures/journey.ts'
+
+/** The move arrow's spoken name: an icon now, named by the pad's own words. */
+const padRight = wordsIn('en').levels.padRight
+const moveRight = typeof padRight === 'string' ? padRight : padRight()
 
 setupJourneys()
 
@@ -125,7 +129,7 @@ test('the same, moving with the arrow buttons instead of a finger', async () => 
   await thingNamed(j.page, 'crate-1').tap()
   // On a phone the settings of what is picked wait in a bar until it is pulled up.
   await j.page.locator('button.peek').tap()
-  for (let step = 0; step < 2; step += 1) await j.page.getByRole('button', { name: WORDS.moveRight }).tap()
+  for (let step = 0; step < 2; step += 1) await j.page.getByRole('button', { name: moveRight }).tap()
   await hasChanges(j)
   await putButton(j.page).tap()
   await putSheet(j.page)

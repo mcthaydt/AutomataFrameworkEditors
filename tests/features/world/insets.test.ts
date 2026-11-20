@@ -11,10 +11,10 @@ const lay = (over: Partial<Layout>): Layout => ({
 })
 
 test('the level keeps clear of the toolbar and the list on one side and the settings on the other', () => {
-  expect(insetsOf(lay({}), 'side', false)).toEqual({ left: 76 + 68, right: 296, bottom: 0, sheet: false })
+  expect(insetsOf(lay({}), 'side', false)).toEqual({ left: 76 + 68, right: 308, bottom: 0, sheet: false })
   expect(insetsOf(lay({ list: 'beside' }), 'tab', false)).toEqual({
     left: 76 + 288,
-    right: 44,
+    right: 52,
     bottom: 0,
     sheet: false,
   })
@@ -31,7 +31,7 @@ test('a toolbar along the bottom and a settings bar take room at the foot', () =
 
 test('a left hand has the panels the other way round', () => {
   expect(insetsOf(lay({ mirror: true }), 'side', false)).toEqual({
-    left: 296,
+    left: 308,
     right: 76 + 68,
     bottom: 0,
     sheet: false,
@@ -58,7 +58,7 @@ test('a pulled-up sheet takes the foot for itself, so the level ends where it be
 test('a phone on its side draws the toolbar two buttons wide, and the level keeps clear of both', () => {
   expect(insetsOf(lay({ list: 'hidden' }), 'tab', false, false, false, true)).toEqual({
     left: 76 + 52,
-    right: 44,
+    right: 52,
     bottom: 0,
     sheet: false,
   })

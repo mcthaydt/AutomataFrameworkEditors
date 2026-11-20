@@ -149,10 +149,10 @@ test('the play part has its bar: Pause says Go on, and Bigger says Smaller', asy
   })
   const button = (what: string) => box.querySelector<HTMLButtonElement>(`[data-play="${what}"]`)
   await vi.waitFor(() => expect(button('pause')).not.toBeNull())
-  expect(button('pause')?.textContent).toContain('Pause')
+  expect(button('pause')?.getAttribute('aria-label')).toContain('Pause')
   button('pause')?.click()
   await tick()
-  expect(button('pause')?.textContent).toContain('Go on')
+  expect(button('pause')?.getAttribute('aria-label')).toContain('Go on')
   // The words change with the state, so no button is also drawn as picked: Go on and Smaller never both stand out.
   expect(box.querySelector('[data-play][aria-pressed]')).toBeNull()
   button('big')?.click()

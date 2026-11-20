@@ -61,12 +61,12 @@
   </div>
 {/if}
 {#if tool === 'place' && !readOnly}
-  <div class="strip" data-ui>
+  <div class="strip glass-1" data-ui>
     <Tray {lang} {characters} {counts} chosen={placing} {onchoose} />
   </div>
 {/if}
 {#if tool === 'paint' && !readOnly}
-  <div class="strip" data-ui>
+  <div class="strip glass-1" data-ui>
     <GroundTray {lang} {kinds} {letter} onchoose={onkind} />
   </div>
 {/if}
@@ -89,9 +89,6 @@
     bottom: 8px;
     z-index: 25;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
   }
   .notes {
     position: absolute;

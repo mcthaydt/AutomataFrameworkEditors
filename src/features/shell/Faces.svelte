@@ -22,7 +22,7 @@
 </script>
 
 {#if once.length > 0}
-  <button type="button" class="faces" aria-label={label} onclick={onopen}>
+  <button type="button" class="faces" aria-label={label} title={label} onclick={onopen}>
     {#each shown as person (person.login)}
       <span class="one"><Face login={person.login} /></span>
     {/each}
@@ -59,7 +59,7 @@
     width: 28px;
     height: 28px;
     margin-left: -6px;
-    border: 2px solid var(--panel);
+    border: 2px solid var(--ground);
     border-radius: 50%;
     font-size: 13px;
     font-weight: 600;
