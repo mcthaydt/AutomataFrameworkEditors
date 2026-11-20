@@ -5,6 +5,7 @@
   import type { Character } from '@automataframework/framework/headless'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
   import Ask from './Ask.svelte'
+  import type { Draw } from './draw.ts'
   import { menuPlace } from './float.ts'
   import type { Point } from './place.ts'
   import RenameCard from './RenameCard.svelte'
@@ -20,6 +21,7 @@
     menu: { on: string | undefined; at: Point } | undefined
     locked: boolean
     hidden: boolean
+    draws: readonly Draw[]
     canPaste: boolean
     tray: Point | undefined
     renaming: string | undefined
@@ -40,6 +42,7 @@
     menu,
     locked,
     hidden,
+    draws,
     canPaste,
     tray,
     renaming,
@@ -69,7 +72,7 @@
 {#if menu !== undefined && menuAt !== undefined}
   <button type="button" class="scrim" data-ui tabindex="-1" aria-hidden="true" onclick={onclosemenu}></button>
   <div class="float" data-ui style:left="{menuAt.x}px" style:top="{menuAt.y}px">
-    <ThingMenu {lang} on={menu.on} {locked} {hidden} {canPaste} onpick={onmenu} onclose={onclosemenu} />
+    <ThingMenu {lang} on={menu.on} {locked} {hidden} {draws} {canPaste} onpick={onmenu} onclose={onclosemenu} />
   </div>
 {/if}
 
