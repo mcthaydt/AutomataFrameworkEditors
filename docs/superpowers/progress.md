@@ -1,17 +1,31 @@
 # Progress
 
-Last updated: 2026-11-20 14:23 UTC (from `date`).
+Last updated: 2026-11-20 15:40 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
-Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); what is left is the
-slice end (design review rounds, the blind judge, the Owner's looks and walk, the retrospective). The plan, its spec and its plan
+Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); the slice is
+**stopped, not closed**, by the Owner on 2026-11-20 15:37 UTC, after design review round 1. What is left, and all a new
+project needs, is in `docs/superpowers/handoff/2026-11-20-world-slice-handoff.md`. The plan, its spec and its plan
 audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/plans/2026-11-16-world-editor.md`, `docs/superpowers/specs/2026-11-16-world-editor-design.md` and
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
 
+- The Owner's, 2026-11-20 15:37 UTC (project chat; recorded 2026-11-20 15:40 UTC), to the coordinator's "The best place to stop is
+  right now. […] To wrap up, I'd have the fix PR paused, the docs PR with both reviews and the handoff notes merged,
+  and everything else closed. Want me to do that?": "yes". So the slice stops here, unclosed. Done on it: the round 1
+  fix work is paused on branch `claude/project-thread-c709zh` (head `4f0384d3`, group 1 of 5 in code, unfinished, no
+  pull request, not merged); the handoff for the new project is `docs/superpowers/handoff/2026-11-20-world-slice-handoff.md`,
+  with the three layout sketches the Owner has not been shown beside it. Not done, and left to the new project: the
+  fixes for round 1's 37 reds, round 2, the blind judge, the screens page and the Owner's looks and walk, the design
+  drift check, the retrospective, moving finished lines to `history.md`, the native-speaker reads.
+- 2026-11-20 15:40 UTC: checks. Main at `fa3a853` (#128) is green on its second attempt (run 44748205225). Main at `746c2ca` (#138,
+  documents) ended red in run 44755204131: `browsers (webkit 5/6)` was cancelled in `playwright install-deps webkit`
+  after 30 minutes, before any test ran (the slow mirror again); not re-run, since this pull request makes a newer
+  run. Examples #82 (documents) merged as `0d65e4e` at 14:59 UTC, main green. Site #64 (documents, with the Firefox
+  font flake recorded) merged as `b04483b` at 15:07 UTC; its deploy is green (run 44760075525).
 - Owner instruction (2026-11-20 02:03 UTC, project chat): "Finish the slice, I'm going to sleep". The slice lead drives
   the open pull requests to merge and carries on down the list overnight, keeping sessions and screenshot runs lean
   (the Owner is watching usage). Held for the Owner: lane 3 steps, the website demo's recorded plays (the Owner sees
