@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-17 06:41 UTC (from `date`).
+Last updated: 2026-11-20 00:02 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- **Picked back up (2026-11-20 00:02 UTC, slice lead).** Every session hit the usage limit at 2026-11-17 06:53 UTC and stopped for
+  three days; nothing merged in that time but rule and test-cleanup pull requests (#114 to #117). Owner instruction
+  (2026-11-19 20:35 UTC): the project is halted until the Owner finishes another project; the only work allowed is
+  updating the workflow, creating docs, and finishing the slice we are on. So: finish World, start nothing after it.
+  State at pick-up: PR 16 is draft #113 at `8d3cae8` (Task 38 only); PR 15 and the glass and icons work were built in
+  their containers and not pushed; all three builders were asked to push first, re-read the changed rules (`verify`,
+  Verification in `build`) and carry on.
 
 - **Where things stand (2026-11-17 06:41 UTC; written by the slice lead, thread "Coordinate the World slice", which now coordinates
   this slice; the "Complete all Automata slices" thread is the master coordinator).** Merged: plan PRs 1 to 11, 12a, 12b,
