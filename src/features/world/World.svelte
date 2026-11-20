@@ -436,6 +436,7 @@ import { listen, measure } from './listen.ts'
     waiting={held.waiting}
     {facts}
     people={signedIn ? [{ login: held.ref.owner }, ...held.people] : []}
+    held={checking}
     canUndo={edits.past.length > 0}
     canRedo={edits.future.length > 0}
     onundo={() => step('undo')}
@@ -494,11 +495,11 @@ import { listen, measure } from './listen.ts'
     onnear={(near) => part?.command(near)}
   />
 
-  <Events {events} low={playing} onanswer={answered} />
+  <Events events={checking ? [] : events} low={playing} onanswer={answered} />
   <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
 
   {#if sheet !== undefined}
-    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
+    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
   {/if}
 
   <Changes

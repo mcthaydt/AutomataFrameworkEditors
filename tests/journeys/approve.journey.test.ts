@@ -157,6 +157,49 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await text(g, C.moved)
   })
 
+  test('with one change waiting, "Not now" on it goes back to the level; the tip about it is held back while it is open', async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await g.page.getByText(WORDS.tipApprove).waitFor()
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    // The tip is about this very change: no part of it shows beside the sheet.
+    expect(await g.page.getByText(WORDS.tipApprove).count()).toBe(0)
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.getByRole('dialog').waitFor({ state: 'detached' })
+    await thingNamed(g.page, 'crate-1').waitFor()
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe('6.5')
+  })
+
+  test("while someone's change is open, the top bar's Undo, Redo and put-in buttons are held back and say why", async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await openLevel(g.page)
+    await dragByTouch(g.page, 'crate-1', { dx: 1, dy: 0 })
+    const bar = g.page.locator('[data-bar]')
+    // A phone's bar has no Undo or Redo: its tool bar does, and that is put away while a change is open.
+    const undo = bar.getByRole('button', { name: 'Undo', exact: true })
+    const inBar = (await undo.count()) > 0
+    if (inBar) expect(await undo.getAttribute('aria-disabled')).toBeNull()
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    if (inBar) {
+      for (const name of ['Undo', 'Redo']) {
+        expect(await bar.getByRole('button', { name, exact: true }).getAttribute('aria-disabled')).toBe(
+          'true',
+        )
+      }
+    }
+    const put = bar.locator('[data-tour="main"]')
+    expect(await put.getAttribute('aria-disabled')).toBe('true')
+    expect(await put.getAttribute('title')).toBe(said(W.bar.heldWhy))
+  })
+
   test("grandpa approves: Approved; the game now has kid's crate; nothing is waiting", async () => {
     await kidHasSaved(size)
     const g = await gameAs(size, 'grandpa')

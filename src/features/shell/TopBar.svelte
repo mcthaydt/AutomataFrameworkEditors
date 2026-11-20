@@ -32,6 +32,8 @@
     waiting: number
     facts: StatusFacts
     people: readonly { readonly login: string }[]
+    /** Someone else's change is open: what the bar would do to the person's own work waits, and says why. */
+    held?: boolean | undefined
     canUndo: boolean
     canRedo: boolean
     onundo: () => void
@@ -69,6 +71,7 @@
     waiting,
     facts,
     people,
+    held = false,
     canUndo,
     canRedo,
     onundo,
@@ -93,7 +96,7 @@
     typeof row === 'function' ? row(...parts) : row
   const compact = $derived(size === 'phone')
   // A game that plays does not show a change made under it, so none is made until it stops.
-  const canStep = $derived(!playing)
+  const canStep = $derived(!playing && !held)
 
   type Open = 'game' | 'editors' | 'part'
   let open = $state<Open | undefined>(undefined)
@@ -225,12 +228,12 @@
     {/if}
     <span class="fill"></span>
     {#if !compact}
-      <button type="button" class="icon" aria-label={text(words.shell.undo)} title={text(words.shell.undo)} aria-disabled={canUndo && canStep ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.undo)} title={held ? text(w.heldWhy) : text(words.shell.undo)} aria-disabled={canUndo && canStep ? undefined : 'true'} onclick={() => {
           if (canUndo && canStep) onundo()
         }}>
         <Icon name="arrow-counter-clockwise" />
       </button>
-      <button type="button" class="icon" aria-label={text(words.shell.redo)} title={text(words.shell.redo)} aria-disabled={canRedo && canStep ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.redo)} title={held ? text(w.heldWhy) : text(words.shell.redo)} aria-disabled={canRedo && canStep ? undefined : 'true'} onclick={() => {
           if (canRedo && canStep) onredo()
         }}>
         <Icon name="arrow-clockwise" />
@@ -281,7 +284,9 @@
         class="put"
         data-tour="main"
         class:waiting={mine?.kind === 'more'}
-        onclick={() => onmain(main)}
+        aria-disabled={held ? 'true' : undefined}
+        title={held ? text(w.heldWhy) : undefined}
+        onclick={() => held || onmain(main)}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
         <span class="what">

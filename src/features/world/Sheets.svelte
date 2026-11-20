@@ -15,7 +15,7 @@
     onsignedout: () => void
     /** Back to the level. */
     onclose: () => void
-    /** Back to the list of what waits. */
+    /** Back to the list of what waits, or to the level when only one change waits. */
     onwaiting: () => void
     onshow: (opening: { level: string } | { map: true }) => void
     /** Ask someone, by name; undefined when the person is not signed in. */
