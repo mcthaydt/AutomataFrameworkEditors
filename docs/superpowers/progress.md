@@ -28,6 +28,23 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 12:09 UTC: where things stand. #128 (plan PR 19): the review fixes and the walk's R5 are in (the pin moved from
+  `b10ffe6` to `2cbd6d0`, the tap is mapped through `Game.levelAt`, an undefined answer keeps waiting; the door
+  journey now taps by the ground's extent). Cycle 2 at `bcf2fa6b`: one low red (C2-1, the settings rule's tools half
+  could not fail), the rest pass, R5 measured at most 13 px off at five sizes by mouse and touch (audit
+  `2026-11-20-world-19-2-implementation-audit.md`, Chromium only). Agent-selected: C2-1 fixed by selecting the tools
+  by name with a shown failure; R-4 pinning the thumb to the game is accepted; the issue-1 card covering Room 1 goes
+  to the design round. The fix is at `2b3e7958` (main `8a5ec44` merged in), with the same reviewer for cycle 3. #132
+  (README, `teams.md`, the `this-repo` clause) merged as `b12283fc`; #133 closed unmerged. #136 (docs) merged as
+  `8a5ec44`.
+- 2026-11-20 12:09 UTC: main's runs. `be43c42` (#135) ended red, not from #135: its screens job passed (the guard printed "A newer
+  merge will write main/."), `browsers (webkit 6/6)` failed a journey from #129 (cause proven in the test, fix #137,
+  see "Flaky tests" in `history.md`), and `mockups` hit its 15-minute timeout while the runner's package mirror was
+  slow. `8a5ec44` (#136): two WebKit pieces hit the 30-minute timeout in `playwright install-deps webkit`, no test
+  ran; the failed jobs are re-run once (run 44726451517). `0e6d112` (#129) ended red on the open WebKit
+  `open-game.journey` flake. For the Owner's list: the slow mirror has cost four runs today, and a cure (caching the
+  browser packages) is a CI workflow change, lane 3; and in the "1 to check" sheet the loading sheet's "Not now" goes
+  to the level while the loaded one goes back to the list when several wait.
 - 2026-11-20 11:07 UTC: the CI retry is merged: #135, merge `be43c42` (audited head `c1caada`, lane 3, two cycles,
   one red fixed: a try now fails when main's head cannot be read; audit
   `2026-11-20-ci-screens-queue-1-implementation-audit.md`), under the Owner's two answers of 09:24 and 09:27 UTC. It
