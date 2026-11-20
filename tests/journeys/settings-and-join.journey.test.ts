@@ -6,12 +6,12 @@ import type { Locator, Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { LANGUAGES } from '#src/features/words/words.ts'
 import {
+  SIZES as ALL_SIZES,
   type JourneyPage,
   openGame,
   openLevel,
   openPage,
   picture,
-  type SIZES,
   setupJourneys,
   signIn,
   thingNamed,
@@ -112,7 +112,7 @@ const SIZES_TO_TRY = [
   'ipadSideways',
   'ipadUpright',
   'phone',
-] as const satisfies readonly (keyof typeof SIZES)[]
+] as const satisfies readonly (keyof typeof ALL_SIZES)[]
 
 describe.each(SIZES_TO_TRY)('at %s', (size) => {
   test('a door is pointed at another level and tagged; nothing floats over the settings; Go to comes out at that door', async () => {
@@ -255,6 +255,44 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     expect(await slider.inputValue()).toBe('1.5')
     await settled(page)
     await picture(page, `settings-heavy-${size}`)
+  })
+})
+
+// The move arrows under a picked thing's settings show whole and leave the settings above them room, at every size the
+// editors are drawn at: held still at the panel's foot where it is tall, scrolled with the settings where it is short (the
+// Owner's picture of 2026-11-20, and the audit's N7 and R4).
+describe.each(Object.keys(ALL_SIZES) as (keyof typeof ALL_SIZES)[])('the move arrows at %s', (size) => {
+  test('show whole, or scroll with the settings, and leave the settings room', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await openLinks(page)
+    await thingNamed(page, 'plate-1').click()
+    await showSettings(page)
+    const arrows = page.getByRole('group', { name: 'Move one tile at a time' })
+    await arrows.waitFor()
+    const room = await arrows.evaluate((group) => {
+      const panel = group.closest('aside')
+      const body = panel?.querySelector<HTMLElement>('.body')
+      const scroller = [...(panel?.querySelectorAll<HTMLElement>('*') ?? [])].find((one) =>
+        /auto|scroll/.test(getComputedStyle(one).overflowY),
+      )
+      if (panel === null || body === null || body === undefined || scroller === undefined) return undefined
+      const inner = panel.getBoundingClientRect()
+      const last = Math.max(
+        ...[...group.querySelectorAll('button')].map((one) => one.getBoundingClientRect().bottom),
+      )
+      return {
+        scrolls: scroller.contains(group),
+        settings: scroller.contains(group) ? scroller.clientHeight : body.clientHeight,
+        past: last - (inner.bottom - 1),
+      }
+    })
+    expect(room, 'no settings panel with a part that scrolls').toBeDefined()
+    expect(room?.settings, 'the settings above the arrows have no room').toBeGreaterThanOrEqual(150)
+    if (room?.scrolls === false)
+      expect(room.past, 'the arrows are cut at the panel foot').toBeLessThanOrEqual(0)
+    await settled(page)
+    await picture(page, `settings-arrows-${size}`)
   })
 })
 

@@ -984,15 +984,25 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             return `${Math.round(box.width)}x${Math.round(box.height)}`
           }),
         )
-        // And it shows whole, padding and all, where it is held, without scrolling first (the audit of 2026-11-20, N7).
+        // And held still, it shows whole, padding and all, without scrolling first (the audit of 2026-11-20, N7 and R4).
+        const panel = group.closest<HTMLElement>('.glass-1, .glass-2, .glass-3')
         let holder = group.parentElement
-        while (holder !== null && !/auto|scroll/.test(getComputedStyle(holder).overflowY))
+        while (holder !== null && holder !== panel && !/auto|scroll/.test(getComputedStyle(holder).overflowY))
           holder = holder.parentElement
-        holder ??= group.closest<HTMLElement>('.glass-1, .glass-2, .glass-3')
+        // Where they scroll with the settings, scrolling reaches them; where they are held still, they show whole.
+        holder = holder === null || holder === panel ? panel : null
         if (holder !== null) {
           const room = holder.getBoundingClientRect()
           const foot = room.bottom - Number.parseFloat(getComputedStyle(holder).paddingBottom)
           const last = Math.max(...buttons.map((one) => one.getBoundingClientRect().bottom))
+          // Arrows held still below the part that scrolls leave that part room to show the settings above them.
+          const scroller = [...holder.querySelectorAll<HTMLElement>('*')].find(
+            (one) => !one.contains(group) && /auto|scroll/.test(getComputedStyle(one).overflowY),
+          )
+          if (scroller !== undefined && scroller.clientHeight < 150)
+            found.push(
+              `the buttons of "${group.getAttribute('aria-label') ?? ''}" leave the settings above them ${scroller.clientHeight} px`,
+            )
           if (last > foot + 0.5)
             found.push(
               `the buttons of "${group.getAttribute('aria-label') ?? ''}" are ${Math.round(last - foot)} px past their panel's foot`,

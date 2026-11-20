@@ -40,8 +40,10 @@
         <button type="button" class="done" onclick={onhide}>{text(words.shell.done)}</button>
       {/if}
     </header>
-    <div class="body">{@render children()}</div>
-    {#if foot}<div class="foot">{@render foot()}</div>{/if}
+    <div class="scroll">
+      <div class="body">{@render children()}</div>
+      {#if foot}<div class="foot">{@render foot()}</div>{/if}
+    </div>
   </aside>
 {:else if mode === 'tab'}
   <button type="button" class="tab glass-1" class:mirror aria-label={title} data-tour="settings" onclick={onshow}>
@@ -122,10 +124,33 @@
     overflow-y: auto;
     padding: var(--space-3);
   }
+  /* The settings scroll and the foot (the move arrows) stays still under them, always whole. */
+  .scroll {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
   .foot {
     flex: none;
     padding: var(--space-2) var(--space-3);
     border-top: 1px solid var(--g-edge);
+  }
+  /* A sheet pulled up on a short screen (a phone on its side) has no room to hold the foot still: the settings and
+     the foot scroll together, so the settings keep their room and scrolling reaches the arrows. */
+  @media (max-height: 666px) {
+    .sheet .scroll {
+      overflow-y: auto;
+    }
+    .sheet .body {
+      flex: none;
+      overflow: visible;
+    }
+    .sheet .foot {
+      padding-top: 0;
+      padding-bottom: var(--space-3);
+      border-top: 0;
+    }
   }
   .tab {
     top: calc(var(--bar) + 24px);
