@@ -59,12 +59,57 @@ test('the kit has the three layers and the two dims, each from its tokens', () =
     expect(body).toContain(`-webkit-backdrop-filter: var(--glass-${n}-filter)`)
   }
   for (const n of [2, 3]) {
-    const at = kit.indexOf(`.look .dim-${n} {`)
-    expect(at, `.dim-${n}`).toBeGreaterThanOrEqual(0)
+    const at = kit.lastIndexOf(`.look .dim-${n}::before {`)
+    expect(at, `.dim-${n}::before`).toBeGreaterThanOrEqual(0)
     const body = kit.slice(at, kit.indexOf('}', at))
     expect(body).toContain(`background: var(--dim-${n})`)
     expect(body).toContain(`backdrop-filter: var(--dim-${n}-filter)`)
   }
+})
+
+// A dim holds the sheet or dialog it is behind. A blur on the holder would cut the sheet's own blur off from the level
+// (a backdrop root), so the dim is drawn on a layer under the sheet and the holder itself blurs nothing (the audit of
+// 2026-11-20, R1). The screens journey checks the same on every drawn screen.
+test('a dim blurs on a layer under what it holds, never on the holder', () => {
+  const holders = [...kit.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((rule) =>
+    (rule[1] ?? '').split(',').some((one) => /\.dim-[23](?![\w-]|::?before)/.test(one)),
+  )
+  expect(holders.length).toBeGreaterThan(0)
+  for (const rule of holders) expect(rule[2], (rule[1] ?? '').trim()).not.toMatch(/filter|background|opacity/)
+})
+
+/** The classes on every element that wears a layer, in one component's markup. */
+const layered = (text: string): string[] =>
+  [...text.matchAll(/class="([^"]*\bglass-[123]\b[^"]*)"/g)].flatMap((match) =>
+    (match[1] ?? '')
+      .replace(/\{[^}]*\}/g, ' ')
+      .split(/\s+/)
+      .filter((name) => /^[a-z][\w-]*$/.test(name) && !/^glass-\d$/.test(name)),
+  )
+
+// A panel's fill is its layer's: an element that wears one may not paint its own on top, with any token (`--raised`,
+// `--ground`, a colour), or it is solid again however its class reads (the audit of 2026-11-20, N1).
+test('no element that wears a layer paints its own background', () => {
+  const found: string[] = []
+  for (const [path, text] of sources().filter(([path]) => path.endsWith('.svelte'))) {
+    const names = new Set(layered(text))
+    const at = text.indexOf('<style>')
+    if (at < 0) continue
+    const style = text.slice(at + '<style>'.length)
+    for (const rule of style.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selectors = (rule[1] ?? '').split(',').map((one) => one.trim())
+      const own = selectors.some((one) => {
+        const last = one.split(/[\s>+~]+/).pop() ?? ''
+        return (
+          !/:(?:hover|active|focus|focus-visible|disabled)|\[aria-pressed|::?(?:before|after)/.test(last) &&
+          [...last.matchAll(/\.([\w-]+)/g)].some((cls) => names.has(cls[1] ?? ''))
+        )
+      })
+      if (own && /(?:^|[\s;])background(?:-color)?\s*:/.test(rule[2] ?? ''))
+        found.push(`${path}: ${(rule[1] ?? '').trim()}`)
+    }
+  }
+  expect(found).toEqual([])
 })
 
 /** A token's first value in the `.look` rule. */

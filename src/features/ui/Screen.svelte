@@ -25,7 +25,7 @@
 {/snippet}
 
 {#if glass}
-  <main class="look plain">
+  <main class="look plain centred">
     <section class="screen card glass-1">{@render body()}</section>
   </main>
 {:else}
@@ -55,10 +55,10 @@
     overflow-wrap: anywhere;
   }
   .plain {
-    min-height: 100%;
     padding: 24px max(8px, env(safe-area-inset-right)) 24px max(8px, env(safe-area-inset-left));
   }
   .card {
+    width: 100%;
     max-width: 520px;
     padding: 20px;
     border-radius: 16px;

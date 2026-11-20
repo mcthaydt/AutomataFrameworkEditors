@@ -399,7 +399,7 @@
     background: var(--picked);
   }
   .bad {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .put {
     min-height: 48px;

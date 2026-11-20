@@ -160,7 +160,7 @@
   {/if}
 {/each}
 {#if lit !== undefined && cardSpot !== undefined && !readOnly}
-  <div class="card" data-ui role="group" style:left="{cardSpot.x}px" style:top="{cardSpot.y}px">
+  <div class="card glass-2" data-ui role="group" style:left="{cardSpot.x}px" style:top="{cardSpot.y}px">
     <b>{text(words.thing.joinLine, nameOf(lit.fact.from), nameOf(lit.fact.to))}</b>
     <button type="button" class="take" onclick={takeAway}>{text(words.thing.joinTake)}</button>
     <small>{text(words.thing.joinTakeAbout)}</small>

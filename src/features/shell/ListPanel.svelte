@@ -31,7 +31,7 @@
 </script>
 
 {#if mode === 'rail'}
-  <nav class="rail" class:inset class:mirror aria-label={name}>
+  <nav class="rail glass-1" class:inset class:mirror aria-label={name}>
     <button type="button" aria-label={text(words.panels.listLabel)} title={text(words.panels.listLabel)} onclick={() => onopen('list')}>
       <Icon name="list" size={24} />
     </button>

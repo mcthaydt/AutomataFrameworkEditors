@@ -442,7 +442,7 @@
     pointer-events: none;
   }
   .landing.over {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .whole[aria-pressed='true'] {
     box-shadow: inset 0 0 0 2px var(--accent);

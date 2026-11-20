@@ -219,7 +219,7 @@
           {ongo}
           says={(message) => sayFor(content, message)}
         />
-        {#if placed !== undefined}<Nudge onnudge={(way) => onnudge(placed.id, way)} />{/if}
+        {#if placed !== undefined}<Nudge {lang} onnudge={(way) => onnudge(placed.id, way)} />{/if}
       </SettingsPanel>
     {/if}
   </div>

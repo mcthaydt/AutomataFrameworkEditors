@@ -33,7 +33,7 @@
   }
 </script>
 
-<div class="look cover" lang={chosen} data-size="wide" data-rows="touch">
+<div class="look cover centred" lang={chosen} data-size="wide" data-rows="touch">
   <div
     class="card glass-3"
     role="dialog"
@@ -69,10 +69,7 @@
   .cover {
     position: fixed;
     inset: 0;
-    display: grid;
-    place-items: center;
     padding: 16px;
-    overflow: auto;
   }
   .card {
     display: flex;

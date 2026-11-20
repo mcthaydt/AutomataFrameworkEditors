@@ -97,6 +97,8 @@ body {
   --bright: #ffffff;
   --agent: #b5b1d8;
   --problem: #e5484d;
+  /* Words that say something is wrong, on glass: lighter than the problem mark so they read over a white level. */
+  --problem-words: #ff8a80;
   /* Glass by layer (the Owner, 2026-11-17): every surface is see-through, and the higher it sits the more it blurs
      and darkens what is behind it. Layer 1 is what stays on screen (bars, docks, panels, trays, cards on the level);
      layer 2 is what opens over it (menus, sheets at the side, notes, pop-ups); layer 3 is what asks for the whole
@@ -267,13 +269,30 @@ body {
 }
 
 /* What lies under a sheet or a dialog: dimmed, and a little blurred, by the layer of what covers it. */
-.look .dim-2 {
+/* The dim is drawn on a layer under what it holds, never on the holder itself: a blur on anything holding a sheet would
+   cut the sheet's own blur off from the level (a backdrop root), and the dialog would show the level clearer than the bar
+   under it. `isolation` keeps that layer inside the holder, over the level. */
+.look .dim-2,
+.look .dim-3 {
+  isolation: isolate;
+}
+
+.look .dim-2::before,
+.look .dim-3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.look .dim-2::before {
   background: var(--dim-2);
   -webkit-backdrop-filter: var(--dim-2-filter);
   backdrop-filter: var(--dim-2-filter);
 }
 
-.look .dim-3 {
+.look .dim-3::before {
   background: var(--dim-3);
   -webkit-backdrop-filter: var(--dim-3-filter);
   backdrop-filter: var(--dim-3-filter);
@@ -300,6 +319,24 @@ body {
   --good: #173525;
   --problem: #43201d;
   --link: var(--accent);
+}
+
+/* A page that is one card on the ground (the welcome, Pick a game, a game that cannot open): the card sits in the
+   middle of the window both ways (the Owner, 2026-11-20). One taller than the window starts at its top and the page
+   scrolls, so nothing is cut off (`safe`). */
+.look.centred {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  align-items: safe center;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.look.centred > * {
+  max-width: 100%;
+  flex: none;
 }
 
 /* A person's initial on a colour made from their login: `--hue` is a number from 0 to 359 the caller sets. */

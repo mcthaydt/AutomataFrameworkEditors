@@ -44,6 +44,7 @@ test('the tokens are the design language table, by those names', () => {
     '--accent': '#eeb480',
     '--agent': '#b5b1d8',
     '--problem': '#e5484d',
+    '--problem-words': '#ff8a80',
     '--glass-1-bg': 'rgb(30 30 30 / 0.72)',
     '--glass-1-filter': 'blur(16px) brightness(0.45) saturate(1.4)',
     '--glass-2-bg': 'rgb(30 30 30 / 0.76)',
@@ -110,6 +111,10 @@ test.each([1, 2, 3] as const)(
         ratio(token('--glass-quiet'), through(layer, level)),
         `quiet over ${level}`,
       ).toBeGreaterThanOrEqual(4.6)
+      // The other words drawn on glass: a pressed or chosen word, a word about an agent, and a problem (the audit of
+      // 2026-11-20, N4).
+      for (const kind of ['--accent', '--agent', '--problem-words'])
+        expect(ratio(token(kind), through(layer, level)), `${kind} over ${level}`).toBeGreaterThanOrEqual(4.6)
     }
   },
 )

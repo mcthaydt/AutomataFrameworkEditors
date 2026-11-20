@@ -904,6 +904,105 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
       }
 
+      // A page that is one card (the welcome, Pick a game, a game that cannot open) has it in the middle of the window
+      // both ways (the Owner, 2026-11-20). One taller than the window starts at its top and the page scrolls.
+      const page = document.querySelector<HTMLElement>('.plain, .games, .cover')
+      const plain = page?.querySelector(':scope > .card') ?? null
+      if (page !== null && plain !== null) {
+        const box = plain.getBoundingClientRect()
+        const across = Math.abs(box.left + box.width / 2 - window.innerWidth / 2)
+        if (across > 3) found.push(`the card is ${Math.round(across)} px off the middle side to side`)
+        if (box.height <= window.innerHeight - 32) {
+          const down = Math.abs(box.top + box.height / 2 - window.innerHeight / 2)
+          if (down > 3) found.push(`the card is ${Math.round(down)} px off the middle top to bottom`)
+        } else if (box.top < 0 || page.scrollHeight < box.height) {
+          found.push('the card is taller than the window and cannot be scrolled to its top')
+        }
+      }
+
+      // Every panel, bar and menu is glass, its own or the one it sits in, so nothing floats loose on the level (the
+      // Owner, 2026-11-17). Words inside a glass panel keep clear of its sides, and a panel beside the level keeps a gap
+      // from it (the Owner, 2026-11-20: "it's hugging the edges").
+      const glassy = (el: Element): boolean => el.closest('.glass-1, .glass-2, .glass-3') !== null
+      for (const el of document.querySelectorAll(
+        'aside, nav, [role="menu"], [role="toolbar"], [role="dialog"]',
+      )) {
+        if (seen(el) && !glassy(el) && el.querySelector('.glass-1, .glass-2, .glass-3') === null)
+          found.push(
+            `a ${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') ?? '').slice(0, 30)}" has no glass`,
+          )
+      }
+      for (const glass of document.querySelectorAll('.glass-1, .glass-2, .glass-3')) {
+        if (!seen(glass)) continue
+        // A blur, filter or fade on anything holding the glass cuts its own blur off from the level, so a dialog would
+        // show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
+        for (let up = glass.parentElement; up !== null; up = up.parentElement) {
+          const style = getComputedStyle(up)
+          const backdrop = style.backdropFilter || style.getPropertyValue('-webkit-backdrop-filter')
+          if (
+            (backdrop !== '' && backdrop !== 'none') ||
+            style.filter !== 'none' ||
+            Number(style.opacity) < 1
+          ) {
+            found.push(
+              `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
+            )
+            break
+          }
+        }
+        const edge = glass.getBoundingClientRect()
+        // Small glass (a name on a room, a tag) is held by its own few pixels; the rule is for panels and cards.
+        if (edge.width < 120 || edge.height < 120) continue
+        const walker = document.createTreeWalker(glass, NodeFilter.SHOW_TEXT)
+        for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+          const words = (node.textContent ?? '').trim()
+          const holder = node.parentElement
+          if (
+            words === '' ||
+            holder === null ||
+            !seen(holder) ||
+            holder.closest('[aria-hidden="true"]') !== null
+          )
+            continue
+          const range = document.createRange()
+          range.selectNodeContents(node)
+          for (const line of range.getClientRects()) {
+            if (line.width === 0) continue
+            const gap = Math.min(line.left - edge.left, edge.right - line.right)
+            if (gap < 10) found.push(`"${words.slice(0, 30)}" is ${Math.round(gap)} px from its panel's side`)
+          }
+        }
+      }
+      // A group of icon-only buttons (the move arrows) is an even set: one size, so no name wraps one taller (the lead's
+      // finding on the Owner's picture, 2026-11-20).
+      for (const group of document.querySelectorAll('[role="group"]')) {
+        const buttons = [...group.querySelectorAll(':scope > button')].filter(seen)
+        if (buttons.length < 2 || buttons.some((one) => (one.textContent ?? '').trim() !== '')) continue
+        const sizes = new Set(
+          buttons.map((one) => {
+            const box = one.getBoundingClientRect()
+            return `${Math.round(box.width)}x${Math.round(box.height)}`
+          }),
+        )
+        if (sizes.size > 1)
+          found.push(
+            `the buttons of "${group.getAttribute('aria-label') ?? ''}" are uneven: ${[...sizes].join(', ')}`,
+          )
+      }
+      const level = document.querySelector('[data-scale]')?.getBoundingClientRect()
+      if (level !== undefined) {
+        for (const panel of document.querySelectorAll('aside[data-tour="settings"], aside.panel, nav.rail')) {
+          if (!seen(panel)) continue
+          const box = panel.getBoundingClientRect()
+          const apart = Math.max(level.left - box.right, box.left - level.right)
+          const above = box.bottom <= level.top || box.top >= level.bottom
+          if (!above && apart < 8)
+            found.push(
+              `"${panel.getAttribute('aria-label') ?? ''}" is ${Math.round(apart)} px from the level`,
+            )
+        }
+      }
+
       if (withStage) {
         const stage = document.querySelector('[data-scale]')
         const box = stage?.getBoundingClientRect()
