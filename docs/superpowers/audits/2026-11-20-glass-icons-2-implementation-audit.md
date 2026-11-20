@@ -106,3 +106,28 @@ and 1280×800 (`/mnt/project-files/screens/glass/audit-1/c3-*-settings-4d0e3f6.p
   journey rule.
 
 Verdict of the addendum: **fail, 1 red (R4).** Everything else in the range passes.
+
+## Addendum 2: the R4 fix, examined at 71382dd
+
+Range read: a5084ae..71382dd, one commit touching `SettingsPanel.svelte`, `screens.journey.test.ts` and
+`settings-and-join.journey.test.ts`. At 71382dd on a fresh clone, typecheck, lint and knip are clean. The settings panel
+with a crate picked was shot and measured live at all five sizes
+(`/mnt/project-files/screens/glass/audit-1/c4-*-settings-71382dd.png`).
+
+- R4: **fixed.** At 844×390 the pulled-up sheet's `.scroll` wrapper scrolls (`overflow-y: auto`, 179 px shown of
+  652). The settings and the arrows scroll together, so the settings get the same 179 px as at d961ead, and scrolling
+  reaches the arrows: "Move up" moves the crate.
+- N7 still holds at the four sizes that passed before, with the arrows held still in the foot and every position the
+  same as at efdccd0. The down arrow ends at 827 with the panel at 836 (390×844), 1193 and 1202 (834×1210), 817 and 826
+  (1210×834), and 783 and 792 (1280×800).
+- The new check fails without the fix: the "move arrows" cases of `settings-and-join` run against the a5084ae source
+  fail with "expected 32 to be greater than or equal to 150", and all 5 pass at 71382dd.
+- The screens rule is stricter, not looser. Before, the search for a scroller could leave the panel and settle on any
+  ancestor, which let a cut-off arrow pass. Now it stops at the panel. Arrows held still are measured against the
+  panel's foot and must leave the scrolling part at least 150 px. Arrows that scroll with the settings are left to the
+  journey's own check, which fails if that part is under 150 px.
+
+Out of scope, as the lead says: the pulled-up sheet covering the toolbar at phone and iPad upright is the same on main
+and goes to PR 19.
+
+Verdict of addendum 2: **pass.** No red is left on #119.
