@@ -940,8 +940,14 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       for (const glass of document.querySelectorAll('.glass-1, .glass-2, .glass-3')) {
         if (!seen(glass)) continue
-        // A blur, filter or fade on anything holding the glass cuts its own blur off from the level, so a dialog would
-        // show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
+        // A blur, filter or fade on anything holding the glass cuts its own blur off from whatever lies outside that
+        // holder, so a dialog would show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
+        // Glass over a picture inside the same holder (a name on the level drawn in a sheet) still blurs what is behind
+        // it, so what lies under the glass's middle decides.
+        const middle = glass.getBoundingClientRect()
+        const under = document
+          .elementsFromPoint(middle.left + middle.width / 2, middle.top + middle.height / 2)
+          .find((el) => !glass.contains(el) && !el.contains(glass))
         for (let up = glass.parentElement; up !== null; up = up.parentElement) {
           const style = getComputedStyle(up)
           const backdrop = style.backdropFilter || style.getPropertyValue('-webkit-backdrop-filter')
@@ -950,9 +956,10 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             style.filter !== 'none' ||
             Number(style.opacity) < 1
           ) {
-            found.push(
-              `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
-            )
+            if (under === undefined || !up.contains(under))
+              found.push(
+                `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
+              )
             break
           }
         }
