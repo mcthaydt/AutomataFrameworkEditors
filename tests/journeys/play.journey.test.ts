@@ -30,7 +30,6 @@ afterEach(async () => {
 const SIZES_TO_TRY = ['ipadSideways', 'phone'] as const satisfies readonly (keyof typeof SIZES)[]
 const CRATE = '#c9a227'
 const HERO = '#e4572e'
-const GROUND = '#3b4a5a'
 
 /**
  * Where the pixels of `colour` are on the game's picture, as the middle of them in CSS pixels; undefined when none show.
@@ -90,6 +89,24 @@ async function whereIs(
   } finally {
     await reader.close()
   }
+}
+
+/**
+ * How many pixels a tile is on the picture, and where the hero and the crate of Links Game's room 1 stand on it before
+ * anything moves. They sit 3 tiles apart in the level file (the hero at x 2.5, the crate at 5.5), so the pixels between their
+ * middles over 3 is the scale, whatever the camera shows of the level.
+ */
+const HERO_TILE = 2.5
+const CRATE_TILE = 5.5
+/** The tile at picture x `x`, read from where the crate stands (the game puts it back where it was) at `scale` pixels a tile. */
+const tileAt = (x: number, crateX: number, scale: number): number => CRATE_TILE + (x - crateX) / scale
+
+async function tilesOf(page: Page) {
+  const hero = await whereIs(page, HERO, true)
+  const crate = await whereIs(page, CRATE, true)
+  if (hero === undefined || crate === undefined) throw new Error('the game shows no hero or no crate')
+  const scale = (crate.x - hero.x) / (CRATE_TILE - HERO_TILE)
+  return { hero, crate, scale }
 }
 
 const playButton = (page: Page, word: string) => page.getByRole('button', { name: word, exact: true })
@@ -260,8 +277,7 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Pause').waitFor()
 
   // Slow is the person's choice: it goes with them through the door.
-  const hero0 = await whereIs(page, HERO, true)
-  if (hero0 === undefined) throw new Error('the game shows no hero')
+  const tiles = await tilesOf(page)
   await page.getByRole('button', { name: 'How fast the game plays: Normal' }).click()
   await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
   // While it waits for the tap the game is held still; Cancel lets it go on as it was.
@@ -272,11 +288,8 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Pause').waitFor()
   await playButton(page, 'Play from here').click()
   await page.getByText('Tap the level where the hero should start').waitFor()
-  // The ground runs the level's 16 tiles, so its extent is the picture's scale: the door of room 1 is at tile 13.5, a tap a
-  // tile short of it, at the hero's height.
-  const ground = await whereIs(page, GROUND, true)
-  if (ground === undefined) throw new Error('the game shows no ground')
-  await page.mouse.click(ground.left + 12 * ((ground.right - ground.left) / 16), hero0.y)
+  // The door of room 1 is at tile 13.5: a tap a tile short of it, at the hero's height.
+  await page.mouse.click(tiles.crate.x + (12 - CRATE_TILE) * tiles.scale, tiles.hero.y)
   await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
   // The game starts again from there; a key held before it is up is not the game's.
   await started(page)
@@ -400,18 +413,13 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
       await started(page)
       await playButton(page, 'Got it').click()
       await playButton(page, 'Pause').waitFor()
-      const hero0 = await whereIs(page, HERO, true)
-      if (hero0 === undefined) throw new Error('the game shows no hero')
+      const tiles = await tilesOf(page)
       await playButton(page, 'Play from here').click()
       const prompt = page.getByText('Tap the level where the hero should start')
       await prompt.waitFor()
-      // The level is 16 tiles wide and its ground runs the whole width, so the ground's own extent is the picture's scale and
-      // its left end is tile 0: a place on the picture is a tile whatever the camera does after the tap.
-      const ground = await whereIs(page, GROUND, true)
-      if (ground === undefined) throw new Error('the game shows no ground')
-      const scale = (ground.right - ground.left) / 16
-      const tapAt = { x: hero0.x + (ground.right - ground.left) * 0.4, y: hero0.y }
-      const wanted = (tapAt.x - ground.left) / scale
+      // A tap 10 tiles right of the hero: its tile follows from the crate, which the game puts back where it was.
+      const tapAt = { x: tiles.hero.x + 10 * tiles.scale, y: tiles.hero.y }
+      const wanted = tileAt(tapAt.x, tiles.crate.x, tiles.scale)
       if (how === 'touch') await page.touchscreen.tap(tapAt.x, tapAt.y)
       else await page.mouse.click(tapAt.x, tapAt.y)
       await prompt.waitFor({ state: 'detached' })
@@ -422,10 +430,10 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
         await expect
           .poll(
             async () => {
-              const now = await whereIs(page, GROUND, true)
               const hero = await whereIs(page, HERO, true)
-              if (now === undefined || hero === undefined) return false
-              got = (hero.x - now.left) / ((now.right - now.left) / 16)
+              const crate = await whereIs(page, CRATE, true)
+              if (hero === undefined || crate === undefined) return false
+              got = tileAt(hero.x, crate.x, tiles.scale)
               return Math.abs(got - wanted) < 0.75
             },
             { timeout: 5000 },
