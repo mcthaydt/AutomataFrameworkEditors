@@ -990,7 +990,8 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       const peek = document.querySelector('button.peek')
       const onScreen = (box: DOMRect): boolean =>
         box.top >= 0 && box.left >= 0 && box.bottom <= innerHeight + 1 && box.right <= innerWidth + 1
-      const overlaid = document.querySelector('[aria-modal=true], [role=menu], [role=dialog], .events .event') !== null
+      const overlaid =
+        document.querySelector('[aria-modal=true], [role=menu], [role=dialog], .events .event') !== null
       if (peek !== null && seen(peek) && !overlaid) {
         const tools = [...document.querySelectorAll('[data-tour] button, nav.rail button')].filter(
           (el) =>
