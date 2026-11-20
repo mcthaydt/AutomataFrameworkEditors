@@ -70,6 +70,8 @@ export interface Playing {
   readonly doorsShut: boolean
   /** Every hero as its box in the game's picture, as of the last picture drawn. */
   heroes(): ReturnType<Game['heroes']>
+  /** The level under a point of the mount (CSS pixels) and where in it, as drawn; undefined where no level is drawn. */
+  levelAt(x: number, y: number): ReturnType<Game['levelAt']>
   /** What the game holds now: every thing with its parts, for a test or an agent to read. */
   view(): ReturnType<Game['sim']['describeSnapshot']>
 }
@@ -190,6 +192,7 @@ export async function play(options: PlayOptions): Promise<Playing> {
     backTo: (tick) => running.backTo(tick),
     doorsShut,
     heroes: () => running.heroes(),
+    levelAt: (x, y) => running.levelAt(x, y),
     view: () => running.sim.describeSnapshot(),
   }
 }

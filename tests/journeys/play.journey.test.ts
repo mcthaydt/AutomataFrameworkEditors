@@ -30,6 +30,7 @@ afterEach(async () => {
 const SIZES_TO_TRY = ['ipadSideways', 'phone'] as const satisfies readonly (keyof typeof SIZES)[]
 const CRATE = '#c9a227'
 const HERO = '#e4572e'
+const GROUND = '#3b4a5a'
 
 /**
  * Where the pixels of `colour` are on the game's picture, as the middle of them in CSS pixels; undefined when none show.
@@ -247,6 +248,8 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Pause').waitFor()
 
   // Slow is the person's choice: it goes with them through the door.
+  const hero0 = await whereIs(page, HERO, true)
+  if (hero0 === undefined) throw new Error('the game shows no hero')
   await page.getByRole('button', { name: 'How fast the game plays: Normal' }).click()
   await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
   // While it waits for the tap the game is held still; Cancel lets it go on as it was.
@@ -257,13 +260,11 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Pause').waitFor()
   await playButton(page, 'Play from here').click()
   await page.getByText('Tap the level where the hero should start').waitFor()
-  const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
-  if (canvas === null) throw new Error('No game on this page.')
-  // 16 by 9 tiles, as large as fits: the door of room 1 is at tile 13.5, so a tap a tile short of it.
-  const scale = Math.min(canvas.width / 16, canvas.height / 9)
-  const left = canvas.x + (canvas.width - 16 * scale) / 2
-  const top = canvas.y + (canvas.height - 9 * scale) / 2
-  await page.mouse.click(left + 12 * scale, top + 7.5 * scale)
+  // The ground runs the level's 16 tiles, so its extent is the picture's scale: the door of room 1 is at tile 13.5, a tap a
+  // tile short of it, at the hero's height.
+  const ground = await whereIs(page, GROUND, true)
+  if (ground === undefined) throw new Error('the game shows no ground')
+  await page.mouse.click(ground.x - ground.wide / 2 + 12 * (ground.wide / 16), hero0.y)
   await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
   // The game starts again from there; a key held before it is up is not the game's.
   await started(page)
@@ -377,41 +378,51 @@ test('the strip goes back part of the way, and again: the range stays, and the h
 })
 
 describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s', (size) => {
-  test('a tap near the hero starts the hero under it (a tap far from it is walk fault R5, known)', async () => {
-    journey = await openPage(size, 'grandma', false, LINKS)
-    const { page } = journey
-    await signIn(page)
-    await openLevel(page, 'links-game', 'room-1')
-    await playButton(page, 'Play').click()
-    await started(page)
-    await playButton(page, 'Got it').click()
-    await playButton(page, 'Pause').waitFor()
-    const hero0 = await whereIs(page, HERO, true)
-    if (hero0 === undefined) throw new Error('the game shows no hero')
-    await playButton(page, 'Play from here').click()
-    await page.getByText('Tap the level where the hero should start').waitFor()
-    const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
-    if (canvas === null) throw new Error('No game on this page.')
-    // On the floor, where the hero stands, a fifth of the picture to the right of it.
-    const tapAt = { x: hero0.x + canvas.width * 0.2, y: hero0.y }
-    await page.mouse.click(tapAt.x, tapAt.y)
-    await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
-    await started(page)
-    // The hero settles under the tap: read until it is there, and say how far it was if never.
-    let off = Number.NaN
-    try {
-      await expect
-        .poll(
-          async () => {
-            const there = await whereIs(page, HERO, true)
-            off = there === undefined ? Number.NaN : there.x - tapAt.x
-            return Math.abs(off) < 12
-          },
-          { timeout: 5000 },
-        )
-        .toBe(true)
-    } catch {
-      throw new Error(`the hero is ${Math.round(off)} px from the tap`)
-    }
-  })
+  for (const how of ['mouse', 'touch'] as const) {
+    test(`the hero starts under the ${how}, by the door at the right of the level`, async () => {
+      journey = await openPage(size, 'grandma', false, LINKS)
+      const { page } = journey
+      await signIn(page)
+      await openLevel(page, 'links-game', 'room-1')
+      await playButton(page, 'Play').click()
+      await started(page)
+      await playButton(page, 'Got it').click()
+      await playButton(page, 'Pause').waitFor()
+      const hero0 = await whereIs(page, HERO, true)
+      if (hero0 === undefined) throw new Error('the game shows no hero')
+      await playButton(page, 'Play from here').click()
+      const prompt = page.getByText('Tap the level where the hero should start')
+      await prompt.waitFor()
+      // The level is 16 tiles wide and its ground runs the whole width, so the ground's own extent is the picture's scale and
+      // its left end is tile 0: a place on the picture is a tile whatever the camera does after the tap.
+      const ground = await whereIs(page, GROUND, true)
+      if (ground === undefined) throw new Error('the game shows no ground')
+      const scale = ground.wide / 16
+      const left = ground.x - ground.wide / 2
+      const tapAt = { x: hero0.x + ground.wide * 0.4, y: hero0.y }
+      const wanted = (tapAt.x - left) / scale
+      if (how === 'touch') await page.touchscreen.tap(tapAt.x, tapAt.y)
+      else await page.mouse.click(tapAt.x, tapAt.y)
+      await prompt.waitFor({ state: 'detached' })
+      await started(page)
+      // The hero settles under the tap: read until it is there, and say how far it was if never.
+      let got = Number.NaN
+      try {
+        await expect
+          .poll(
+            async () => {
+              const now = await whereIs(page, GROUND, true)
+              const hero = await whereIs(page, HERO, true)
+              if (now === undefined || hero === undefined) return false
+              got = (hero.x - (now.x - now.wide / 2)) / (now.wide / 16)
+              return Math.abs(got - wanted) < 0.75
+            },
+            { timeout: 5000 },
+          )
+          .toBe(true)
+      } catch {
+        throw new Error(`the hero is at tile ${got.toFixed(1)}, the ${how} was at tile ${wanted.toFixed(1)}`)
+      }
+    })
+  }
 })

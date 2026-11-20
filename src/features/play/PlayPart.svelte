@@ -5,13 +5,12 @@
   // words.
   import { onMount, untrack } from 'svelte'
   import type { Frames } from '@automataframework/framework'
-  import { type Arrive, levelsOf, type Way } from '@automataframework/framework/headless'
+  import { type Arrive, type Way } from '@automataframework/framework/headless'
   import type { Edits, OpenGame } from '../game/game.ts'
   import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { CannotPlay, play, type Playing } from './run.ts'
   import PlayBar from './PlayBar.svelte'
-  import { spotOf } from './spot.ts'
 
   interface Props {
     game: OpenGame
@@ -212,22 +211,11 @@
     const target = holder
     if (playing === undefined || target === undefined) return
     const box = target.getBoundingClientRect()
-    const spot = spotOf(
-      { w: box.width, h: box.height },
-      levelsOf(game.content, level).map((one) =>
-        one.level === level ? { ...one, ...sizeOf(one.level) } : one,
-      ),
-      level,
-      { x: event.clientX - box.left, y: event.clientY - box.top },
-    )
-    if (spot === undefined) return
+    // The framework knows what it drew where (camera, fitting, bars), so the tap is asked of it, not worked out here.
+    const spot = playing.levelAt(event.clientX - box.left, event.clientY - box.top)
+    if (spot === undefined || spot.level !== level) return
     const now = playing
-    void restart(() => now.from(spot))
-  }
-  /** The size of a level of the edited game, in tiles. */
-  function sizeOf(id: string): { w: number; h: number } {
-    const tiles = edits.now.levels[id]?.tiles ?? []
-    return { w: tiles[0]?.length ?? 0, h: tiles.length }
+    void restart(() => now.from({ x: spot.x, y: spot.y }))
   }
   // A level with a camera shows only part of itself, so a tap on it has no place.
   const canPick = $derived(edits.now.levels[level]?.view === undefined)
