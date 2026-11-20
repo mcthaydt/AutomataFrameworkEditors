@@ -361,3 +361,31 @@ test('the strip goes back part of the way, and again: the range stays, and the h
   await playButton(page, 'Go on').click()
   await playButton(page, 'Pause').waitFor()
 })
+
+describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s', (size) => {
+  test('the hero starts under the finger', async () => {
+    journey = await openPage(size, 'grandma', false, LINKS)
+    const { page } = journey
+    await signIn(page)
+    await openLevel(page, 'links-game', 'room-1')
+    await playButton(page, 'Play').click()
+    await started(page)
+    await playButton(page, 'Got it').click()
+    await playButton(page, 'Pause').waitFor()
+    const hero0 = await whereIs(page, HERO, true)
+    if (hero0 === undefined) throw new Error('the game shows no hero')
+    await playButton(page, 'Play from here').click()
+    await page.getByText('Tap the level where the hero should start').waitFor()
+    const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
+    if (canvas === null) throw new Error('No game on this page.')
+    // On the floor, where the hero stands, a fifth of the picture to the right of it.
+    const tapAt = { x: hero0.x + canvas.width * 0.2, y: hero0.y }
+    await page.mouse.click(tapAt.x, tapAt.y)
+    await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
+    await started(page)
+    await page.waitForTimeout(800)
+    const hero = await whereIs(page, HERO, true)
+    if (hero === undefined) throw new Error('the game shows no hero')
+    expect(Math.abs(hero.x - tapAt.x), `the hero is ${Math.round(hero.x - tapAt.x)} px from the tap`).toBeLessThan(12)
+  })
+})
