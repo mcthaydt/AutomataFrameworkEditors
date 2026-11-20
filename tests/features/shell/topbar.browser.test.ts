@@ -281,7 +281,9 @@ test('the Map button is drawn only when there is a map, says so when it is open,
   expect(opened).toBe(1)
   unmount(mounted as never)
   await put({ onmap: () => {}, mapOn: true })
-  const now = [...box.querySelectorAll<HTMLElement>('button')].find((b) => b.getAttribute('aria-label') === 'Map')
+  const now = [...box.querySelectorAll<HTMLElement>('button')].find(
+    (b) => b.getAttribute('aria-label') === 'Map',
+  )
   expect(now?.getAttribute('aria-pressed')).toBe('true')
   expect(box.querySelector('button.part')?.textContent).toContain('Levels · Map')
 })
