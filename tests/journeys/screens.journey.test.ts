@@ -602,6 +602,9 @@ const SCENES: readonly Scene[] = [
         .getByRole('button', { name: /^Keep .*’s$/ })
         .click()
       await putSheet(j.page).getByText(checkWords.nothingLeft).waitFor()
+      // The title says what the sheet shows, never "Put 0 changes in the game".
+      expect(await putSheet(j.page).getByRole('heading', { name: /Put 0/ }).count()).toBe(0)
+      await putSheet(j.page).getByRole('heading', { name: String(wordsIn('en').changes.clashTitle) }).waitFor()
       return j
     },
     stage: true,

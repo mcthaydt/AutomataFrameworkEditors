@@ -161,9 +161,9 @@
     pointer-events: none;
   }
   .chip.bad {
-    width: 32px;
-    height: 32px;
-    margin: -16px 0 0 -16px;
+    width: 44px;
+    height: 44px;
+    margin: -22px 0 0 -22px;
     border: 0;
     padding: 0;
     background: var(--problem);
