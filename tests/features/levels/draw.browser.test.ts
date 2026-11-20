@@ -205,10 +205,10 @@ test('Drawn is three choices in the Look group, with a line saying what the pick
   const look = (sheet as HTMLElement).querySelector('[data-group="look"]') as HTMLElement
   expect([...look.querySelectorAll('[role=radio]')].map((b) => b.textContent?.trim())).toEqual([
     'Behind',
-    'With the hero',
+    'With hero',
     'In front',
   ])
-  expect(choice('With the hero').getAttribute('aria-checked')).toBe('true')
+  expect(choice('With hero').getAttribute('aria-checked')).toBe('true')
   expect(look.querySelector('[data-draw-about]')?.textContent?.trim()).toBe('Drawn like the hero is.')
   await userEvent.click(choice('In front'))
   await tick()
@@ -229,7 +229,7 @@ test('several picked things change together, and where they differ no choice is 
   }
   const ids = mixed.things.slice(0, 2).map((t) => t.id)
   const held = await settings(ids, mixed)
-  for (const name of ['Behind', 'With the hero', 'In front'])
+  for (const name of ['Behind', 'With hero', 'In front'])
     expect(choice(name).getAttribute('aria-checked')).toBe('false')
   expect((sheet as HTMLElement).querySelector('[data-draw-about]')?.textContent?.trim()).toBe('Not the same')
   await userEvent.click(choice('In front'))

@@ -173,14 +173,15 @@
       {#if one !== undefined}
         <p class="line"><span>{text(words.thing.looksLike)}</span> <b>{nameOf(one.character)}</b></p>
       {/if}
-      <span class="name">{text(words.thing.drawn)}</span>
-      <Segment
-        label={text(words.thing.drawn)}
-        options={DRAWS.map((id) => ({ id, words: text(drawWords[id].name) }))}
-        value={drawn ?? ''}
-        onchange={(id) => apply(setDraw(level, ids, id as Draw))}
-      />
-      <p class="note" data-draw-about>
+      <div class="draw">
+        <Segment
+          label={text(words.thing.drawn)}
+          options={DRAWS.map((id) => ({ id, words: text(drawWords[id].name) }))}
+          value={drawn ?? ''}
+          onchange={(id) => apply(setDraw(level, ids, id as Draw))}
+        />
+      </div>
+      <p class="note about" data-draw-about>
         {drawn === undefined ? text(words.thing.notTheSame) : text(drawWords[drawn].about)}
       </p>
     </section>
@@ -242,13 +243,21 @@
     margin: 0;
   }
   .line span,
-  .name,
   .note {
     color: var(--quiet);
+  }
+  /* Three choices side by side in a narrow panel: less side room in each, so a short word stays on one line. */
+  .draw :global(button) {
+    padding: 0 4px;
   }
   .note {
     margin: 0;
     font-size: 0.9em;
+  }
+  /* Close under its choices, so the settings below it keep their place above the pinned arrows. */
+  .about {
+    margin-top: -4px;
+    line-height: 1.2;
   }
   .said {
     margin: 0;
