@@ -91,8 +91,11 @@ test('a game with a door into a level that is not there opens, counts one proble
   const links = j.fake.repos.get(LINKS)!
   const room = (linksFiles()[ROOM_1] ?? '').replace('"room-2"', '"room-9"')
   links.put('main', ROOM_1, room)
+  // Signing in brings the page back to the game it was opened on. A second `goto` to the address it is already at
+  // reloads it (WebKit too), cutting off the notes call and the lazy modules the first load still had open: the two page
+  // errors this test once met in WebKit, which were its own reload, not a fault of the page.
   await signIn(j.page)
-  await j.page.goto(`${j.site}/#/game/${LINKS}`)
+  await j.page.locator('[data-bar]').waitFor()
   await j.page.getByRole('button', { name: '1 problem' }).waitFor()
   await j.page.getByRole('button', { name: 'Play', exact: true }).click()
   await j.page.getByText(`There is no level called "room-9"`, { exact: false }).first().waitFor()

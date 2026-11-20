@@ -1071,6 +1071,18 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           if (box.right > window.innerWidth + 1 || box.left < -1)
             found.push(`text runs off the side: "${words.slice(0, 30)}"`)
         }
+        // A button's words sit inside the button, never over its edge into the next one (crowded bars, 2026-11-20).
+        const holder = parent.closest('button, a[href]')
+        // A name that is shortened with dots (the part's) is cut by its box on purpose: the whole of it is in the menu.
+        const cutShort = [parent, holder].some((el) => el !== null && getComputedStyle(el).textOverflow === 'ellipsis')
+        if (holder !== null && !cutShort && !holder.hasAttribute('data-thing') && mine(holder)) {
+          const around = holder.getBoundingClientRect()
+          for (const box of range.getClientRects()) {
+            const out = Math.max(around.left - box.left, box.right - around.right)
+            if (box.width > 0 && out > 0.5)
+              found.push(`the words "${words.slice(0, 24)}" are ${out.toFixed(1)} px outside their button (${holder.className})`)
+          }
+        }
         const style = getComputedStyle(parent)
         // The bar's names may be shortened: the whole name is in the menu they open.
         if (
