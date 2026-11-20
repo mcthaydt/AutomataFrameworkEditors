@@ -11,6 +11,7 @@ import type { Page } from 'playwright'
 import { afterEach, describe, expect, test } from 'vitest'
 import { type AccessFile, writeAccess } from '#src/features/access/access.ts'
 import { EDITORS_FILE, writeEditors } from '#src/features/files/editors-file.ts'
+import { writeNotes } from '#src/features/files/notes-file.ts'
 import { type Lang, WORDS, type Row as WordRow, wordsIn } from '#src/features/words/words.ts'
 import { nextSha } from '../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
@@ -18,9 +19,11 @@ import {
   chooseFromMenu,
   dragByTouch,
   gamesWords,
+  helperWords,
   type JourneyPage,
   makeWall,
   menuWords,
+  noteWords,
   openGame,
   openLevel,
   openMapOf,
@@ -811,6 +814,90 @@ const SCENES: readonly Scene[] = [
       await chooseFromMenu(j.page, menuWords.whatChanged)
       await j.page.getByRole('heading', { name: teamWords.historyTitle }).waitFor()
       await j.page.getByRole('button', { name: teamWords.historyShow }).first().waitFor()
+      return j
+    },
+  },
+  // Notes, a helper's ghost, a level pasted back, and Find.
+  {
+    name: 'note-new',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      await j.page.getByRole('button', { name: 'More', exact: true }).click()
+      await j.page.getByRole('menuitem', { name: noteWords.menuRow }).click()
+      await j.page.getByRole('heading', { name: noteWords.add }).waitFor()
+      return j
+    },
+  },
+  {
+    name: 'note-card',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma', (g) => {
+        repoOf(g).branches.set('automata/notes', new Map())
+        repoOf(g).put(
+          'automata/notes',
+          'automata.notes.toml',
+          writeNotes({
+            format: 1,
+            notes: [
+              {
+                id: 'note-1',
+                level: 'level-1',
+                thing: 'crate-1',
+                by: 'kid',
+                when: new Date(Date.now() - 3_600_000).toISOString(),
+                words: 'This crate is too heavy',
+                answers: [
+                  {
+                    by: 'grandpa',
+                    when: new Date(Date.now() - 600_000).toISOString(),
+                    words: 'I will make it lighter',
+                  },
+                ],
+                done: false,
+              },
+            ],
+          }),
+        )
+      })
+      await j.page.locator('[data-note]').click()
+      await j.page.getByRole('dialog').getByText('I will make it lighter').waitFor()
+      return j
+    },
+  },
+  {
+    name: 'ghost-offered',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      repoOf(j).put('main', LEVEL_PATH, theirs)
+      await j.page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+      await j.page.locator('[data-ghost-card]').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
+    name: 'paste-sheet',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await chooseFromMenu(j.page, menuWords.help)
+      await j.page.getByRole('button', { name: helperWords.helperRow }).click()
+      await j.page.getByRole('button', { name: helperWords.pasteRow }).click()
+      await j.page.getByRole('dialog', { name: helperWords.pasteTitle }).waitFor()
+      return j
+    },
+  },
+  {
+    name: 'find-open',
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await j.page.locator('button.find').click()
+      const sheet = j.page.getByRole('dialog', { name: helperWords.findTitle })
+      await sheet.getByRole('searchbox').fill('crate')
+      await sheet
+        .getByRole('button', { name: /Crate 1/ })
+        .first()
+        .waitFor()
       return j
     },
   },

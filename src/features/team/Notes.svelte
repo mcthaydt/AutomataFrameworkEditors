@@ -74,12 +74,22 @@
   }
 
   let reading = false
+  /** Asked for again while a reading was on its way: it may have missed something, so read once more. */
+  let again = false
   async function read(): Promise<void> {
-    if (reading || sending || game.login === undefined) return
+    if (game.login === undefined) return
+    if (reading || sending) {
+      again = true
+      return
+    }
     reading = true
     const answer = await api.notes(game.ref)
     reading = false
     if (answer.ok && !sending) file = answer.value
+    if (again) {
+      again = false
+      void read()
+    }
   }
   onMount(() => {
     void read()

@@ -131,9 +131,9 @@ test('when GitHub is down the game says it cannot be reached, and Try again work
   await signIn(j.page)
   j.fake.down = true
   await j.page.goto(`${j.site}/${GAME}`)
-  await text(j, gamesWords.trouble)
+  await text(j, WORDS.cantReach)
   j.fake.down = false
-  await j.page.getByRole('button', { name: gamesWords.again }).click()
+  await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
   await inGame(j)
 })
 

@@ -3,7 +3,7 @@
   // comes back into view and every minute: what it says that the person's own copy does not is laid on the level as a
   // ghost, with Keep (one undoable step) and Undo (the person's own stays, and the same change is not offered twice). A
   // level pasted in from a helper is offered the same way.
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
   import type { Api } from '../api/api.ts'
   import { change, type Edits, laidOver, type OpenGame, openGame, startEdits, type Working } from '../game/game.ts'
   import type { Characters, Extra } from '../levels/levels.ts'
@@ -80,15 +80,36 @@
   }
 
   let reading = false
+  /** Asked for again while a reading was on its way: it may have missed what was asked about, so read once more. */
+  let again = false
   async function read(): Promise<void> {
-    if (reading || game.login === undefined) return
+    if (game.login === undefined) return
+    if (reading) {
+      again = true
+      return
+    }
     reading = true
+    const asked = game
     const opened = await openGame(api, game.ref)
     reading = false
-    if (opened.ok) seen = { game: opened.game, theirs: startEdits(opened.game).now }
+    if (again) {
+      again = false
+      void read()
+    }
+    // What was read is only said of the game the person has now: one they put a change into since is another game.
+    if (opened.ok && asked === game) seen = { game: opened.game, theirs: startEdits(opened.game).now }
   }
+  // A game the person has changed (a put, a keep, a reopen) starts the reading over.
+  $effect(() => {
+    game
+    untrack(() => {
+      seen = undefined
+      undone = undefined
+      reading = false
+      void read()
+    })
+  })
   onMount(() => {
-    void read()
     const timer = setInterval(() => {
       if (document.visibilityState === 'visible') void read()
     }, every)
