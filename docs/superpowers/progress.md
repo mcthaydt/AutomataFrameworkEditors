@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 01:06 UTC (from `date`).
+Last updated: 2026-11-20 02:04 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,16 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- Owner instruction (2026-11-20 02:03 UTC, project chat): "Finish the slice, I'm going to sleep". The slice lead drives
+  the open pull requests to merge and carries on down the list overnight, keeping sessions and screenshot runs lean
+  (the Owner is watching usage). Held for the Owner: lane 3 steps, the website demo's recorded plays (the Owner sees
+  them first), and the Owner's own looks and walk at the slice end.
+- State at 2026-11-20 02:04 UTC: glass and icons (#119) passed its review at `d961ead` (cycle 2, audit `b026b9a`) with the Owner's
+  three notes in; two small notes are being fixed, then the full run and the merge. PR 16 (#113) passed cycle 2 at
+  `8831e91` (audit `4244205`) with one WebKit red only the full run can prove; it merges after #119. PR 15 (#118) had
+  3 reds at `ab713d9` (audit `0f8dcfb`); the slice lead's call on the first: build the plan's version, both places named
+  on the real level, not the two small pictures of the sketch (easy to change back: `team/Clash.svelte`).
 
 - Glass and icons (#119), review cycle 1 at `1381e6a` (audit `e4f61b0`): 3 red, 5 notes. Red 1: the dim's own blur
   stops sheets and dialogs getting their layer's blur, and the dialog card is drawn lighter than a sheet (the reverse
