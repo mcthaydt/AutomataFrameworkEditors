@@ -1,6 +1,6 @@
 # Progress
 
-Last updated: 2026-11-20 00:22 UTC (from `date`).
+Last updated: 2026-11-20 00:59 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
@@ -10,6 +10,14 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
 
 ### Current work
+
+- Owner instruction (2026-11-20 00:59 UTC, on the glass before-and-after page, the "game that cannot open" page):
+  "this should be centered". The glass card on the plain pages is centred in the page both ways; given to the glass
+  builder (#119) to land with its review fixes. Not yet applied.
+- Glass and icons (#119, draft) is built at `1381e6a` and in its lane 2 review (fresh reviewer, Opus 5.5, medium). The
+  Owner saw the layout sketch and a before-and-after page of twelve screens at three sizes
+  (https://claude.ai/artifact/Qzm6Etuvghk3JBcyFiUzZR). Rules changed on main in #120 ("shoot only what changed"); every
+  builder and the reviewer were told.
 
 - Owner decision (2026-11-20 00:21 UTC, decision card): the World slice closes with the native-speaker reads planned,
   not done. The plan is Framework #219 (`docs/superpowers/specs/2026-11-20-native-speaker-reads-design.md`); the reads
