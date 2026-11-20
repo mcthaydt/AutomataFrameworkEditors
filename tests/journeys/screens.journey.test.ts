@@ -187,11 +187,12 @@ async function suggestionWaiting(size: Size, as: Person): Promise<JourneyPage> {
 }
 async function openWaiting(j: JourneyPage): Promise<void> {
   await chooseFromMenu(j.page, menuWords.waitingRow(1))
-  await heading(j, WORDS.waitingTitle)
+  await j.page.getByRole('dialog', { name: WORDS.waitingTitle }).waitFor()
 }
 async function openFirstChange(j: JourneyPage): Promise<void> {
   await openWaiting(j)
   await j.page.locator('a.row').first().click()
+  await j.page.getByRole('dialog', { name: WORDS.waitingTitle }).waitFor({ state: 'detached' })
   await thingNamed(j.page, 'crate-1').waitFor()
 }
 async function peopleScreen(size: Size, ready?: (j: JourneyPage) => void): Promise<JourneyPage> {

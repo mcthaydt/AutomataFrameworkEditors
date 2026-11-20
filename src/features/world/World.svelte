@@ -39,7 +39,6 @@ import { listen, measure } from './listen.ts'
   import Panels from './Panels.svelte'
   import { placesOf } from './places.ts'
   import Sheets from './Sheets.svelte'
-import Team from './Team.svelte'
   import { playTip, tipKept } from './tips.ts'
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
@@ -175,8 +174,8 @@ import Team from './Team.svelte'
     approver: approverOf(held),
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  /** The pages that still take the whole screen: what waits, and one waiting change. */
-  const page = $derived(sheet?.kind === 'waiting' || sheet?.kind === 'change' ? sheet : undefined)
+  /** Someone's waiting change is open over the level: the level it draws takes this one's place. */
+  const checking = $derived(sheet?.kind === 'change')
 
   $effect(() => showGlass(me))
 
@@ -350,211 +349,207 @@ import Team from './Team.svelte'
   const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
-{#if page !== undefined}
-  <Sheets sheet={page} {api} game={held.ref} {lang} {size} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
-{:else}
-  <div
-    class="look world"
-    {lang}
-    data-size={size}
-    data-rows={rows}
-    style:--tools-room={lay.toolbar === 'bottom' ? (size === 'phone' ? '132px' : '72px') : '0px'}
-  >
-    {#if onMap || level !== undefined}
-      <div
-        class="level"
-        class:hidden={playing}
-        style:left="{insets.value.left}px"
-        style:right="{insets.value.right}px"
-        style:bottom={bottomOf(insets.value)}
-      >
-        {#if onMap}
-          <MapPart
-            content={held.content}
-            pictures={held.pictures}
-            working={edits.now}
-            {lang}
-            picked={pickedOnMap}
-            onpick={(next) => (pickedLevel = next)}
-            ongo={goLevel}
-            onchange={(next) => keep(change(edits, next))}
-            onundo={() => step('undo')}
-          />
-        {:else if level !== undefined}
-        <LevelPart
-          bind:this={part}
+<div
+  class="look world"
+  {lang}
+  data-size={size}
+  data-rows={rows}
+  style:--tools-room={lay.toolbar === 'bottom' ? (size === 'phone' ? '132px' : '72px') : '0px'}
+>
+  {#if (onMap || level !== undefined) && !checking}
+    <div
+      class="level"
+      class:hidden={playing}
+      style:left="{insets.value.left}px"
+      style:right="{insets.value.right}px"
+      style:bottom={bottomOf(insets.value)}
+    >
+      {#if onMap}
+        <MapPart
           content={held.content}
           pictures={held.pictures}
-          {level}
-          {levelId}
+          working={edits.now}
           {lang}
-          {tool}
-          {picked}
-          paused={events.some((one) => one.ask !== undefined)}
-          {locked}
-          {hidden}
-          {placing}
-          {clip}
-          {pointers}
-          fingerDraws={me.fingerDraws}
-          show={look.show}
-          brush={look.brush}
-          onbrush={look.paintWith}
-          onnear={(near) => look.showing({ near })}
-          edgesFor={(next) => edgesOf({ ...edits.now, levels: { ...edits.now.levels, [levelId]: next } }, held.content, levelId)}
-          onpick={pick}
-          onplacing={(id) => (placing = id)}
-          ongrab={grab}
-          onedit={edit}
-          ondrop={drop}
-          onlock={(id, on) => (locked = withId(locked, id, on))}
-          onhide={(id, on) => (hidden = withId(hidden, id, on))}
-          onclip={(next) => (clip = next)}
-          onundo={() => step('undo')}
-          {onmap}
-          edges={edgesOf(edits.now, held.content, levelId)}
+          picked={pickedOnMap}
+          onpick={(next) => (pickedLevel = next)}
           ongo={goLevel}
-          extras={[...(helper?.extras() ?? []), ...(notes?.extras() ?? [])]} onextra={(id) => notes?.open(id)} onnote={signedIn ? (where) => notes?.add(where) : undefined}
+          onchange={(next) => keep(change(edits, next))}
+          onundo={() => step('undo')}
         />
-        {/if}
-        {#if playing}
-          {#key levelId}
-            <PlayPart game={held} {edits} level={levelId} {lang} {big} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
-          {/key}
-        {/if}
-      </div>
-    {/if}
+      {:else if level !== undefined}
+      <LevelPart
+        bind:this={part}
+        content={held.content}
+        pictures={held.pictures}
+        {level}
+        {levelId}
+        {lang}
+        {tool}
+        {picked}
+        paused={events.some((one) => one.ask !== undefined)}
+        {locked}
+        {hidden}
+        {placing}
+        {clip}
+        {pointers}
+        fingerDraws={me.fingerDraws}
+        show={look.show}
+        brush={look.brush}
+        onbrush={look.paintWith}
+        onnear={(near) => look.showing({ near })}
+        edgesFor={(next) => edgesOf({ ...edits.now, levels: { ...edits.now.levels, [levelId]: next } }, held.content, levelId)}
+        onpick={pick}
+        onplacing={(id) => (placing = id)}
+        ongrab={grab}
+        onedit={edit}
+        ondrop={drop}
+        onlock={(id, on) => (locked = withId(locked, id, on))}
+        onhide={(id, on) => (hidden = withId(hidden, id, on))}
+        onclip={(next) => (clip = next)}
+        onundo={() => step('undo')}
+        {onmap}
+        edges={edgesOf(edits.now, held.content, levelId)}
+        ongo={goLevel}
+        extras={[...(helper?.extras() ?? []), ...(notes?.extras() ?? [])]} onextra={(id) => notes?.open(id)} onnote={signedIn ? (where) => notes?.add(where) : undefined}
+      />
+      {/if}
+      {#if playing}
+        {#key levelId}
+          <PlayPart game={held} {edits} level={levelId} {lang} {big} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
+        {/key}
+      {/if}
+    </div>
+  {/if}
 
-    <TopBar
-      workspace={WORLD}
-      {lang}
-      {size}
-      {device}
-      gameName={held.content.project.name}
-      part="levels"
-      place={levelId}
-      levels={Object.keys(held.content.levels)}
-      {signedIn}
-      login={held.login}
-      level={access}
-      waiting={held.waiting}
-      {facts}
-      people={signedIn ? [{ login: held.ref.owner }, ...held.people] : []}
-      canUndo={edits.past.length > 0}
-      canRedo={edits.future.length > 0}
-      onundo={() => step('undo')}
-      onredo={() => step('redo')}
-      {onmain}
-      {onmenu}
-      {onpart}
-      mapOn={onMap}
-      {onmap}
-      onpeople={() => asSheet({ kind: 'people' })}
-      ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
-      onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
-      onfind={() => (finding = true)}
-      onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
-      {playing}
-    />
+  <TopBar
+    workspace={WORLD}
+    {lang}
+    {size}
+    {device}
+    gameName={held.content.project.name}
+    part="levels"
+    place={levelId}
+    levels={Object.keys(held.content.levels)}
+    {signedIn}
+    login={held.login}
+    level={access}
+    waiting={held.waiting}
+    {facts}
+    people={signedIn ? [{ login: held.ref.owner }, ...held.people] : []}
+    canUndo={edits.past.length > 0}
+    canRedo={edits.future.length > 0}
+    onundo={() => step('undo')}
+    onredo={() => step('redo')}
+    {onmain}
+    {onmenu}
+    {onpart}
+    mapOn={onMap}
+    {onmap}
+    onpeople={() => asSheet({ kind: 'people' })}
+    ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
+    onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
+    onfind={() => (finding = true)}
+    onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
+    {playing}
+  />
 
-    <Panels
-      {lang}
-      {lay}
-      {device}
-      {size}
-      {docks}
-      {tool}
-      {placing}
-      characters={held.content.characters}
-      {level}
-      {picked}
-      {locked}
-      {rowHeight}
-      canUndo={edits.past.length > 0}
-      canRedo={edits.future.length > 0}
-      quiet={playing}
-      away={playing && big}
-      ontool={(next) => (tool = next)}
-      onundo={() => step('undo')}
-      onredo={() => step('redo')}
-      onopen={openList}
-      ondocks={(next) => (docks = next)}
-      onplacing={(id) => (placing = id)}
-      onpick={pick}
-      onnudge={nudge}
-      levels={onMap ? Object.keys(edits.now.levels) : undefined}
-      start={held.content.project.start}
-      {pickedLevel}
-      onpicklevel={(id) => (pickedLevel = id)}
-      {levelId}
-      ways={edits.now.levels}
-      hand={{ grab, edit, drop }}
-      ongo={goLevel}
-      content={held.content}
-      {only}
-      {look}
-      {me}
-      {onme}
-      onnear={(near) => part?.command(near)}
-    />
+  <Panels
+    {lang}
+    {lay}
+    {device}
+    {size}
+    {docks}
+    {tool}
+    {placing}
+    characters={held.content.characters}
+    {level}
+    {picked}
+    {locked}
+    {rowHeight}
+    canUndo={edits.past.length > 0}
+    canRedo={edits.future.length > 0}
+    quiet={playing || checking}
+    away={playing && big}
+    ontool={(next) => (tool = next)}
+    onundo={() => step('undo')}
+    onredo={() => step('redo')}
+    onopen={openList}
+    ondocks={(next) => (docks = next)}
+    onplacing={(id) => (placing = id)}
+    onpick={pick}
+    onnudge={nudge}
+    levels={onMap ? Object.keys(edits.now.levels) : undefined}
+    start={held.content.project.start}
+    {pickedLevel}
+    onpicklevel={(id) => (pickedLevel = id)}
+    {levelId}
+    ways={edits.now.levels}
+    hand={{ grab, edit, drop }}
+    ongo={goLevel}
+    content={held.content}
+    {only}
+    {look}
+    {me}
+    {onme}
+    onnear={(near) => part?.command(near)}
+  />
 
-    <Events {events} low={playing} onanswer={answered} />
-    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+  <Events {events} low={playing} onanswer={answered} />
+  <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
 
-    {#if sheet?.kind === 'people' || sheet?.kind === 'history'}
-      <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
-    {/if}
+  {#if sheet !== undefined}
+    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
+  {/if}
 
-    <Changes
-      bind:this={changes}
-      bind:problems
-      {lang}
-      {device}
-      {api}
-      game={held}
-      {edits}
-      {drafts}
-      level={onMap ? undefined : levelId}
-      onchanged={(next, now) => {
-        held = next
-        edits = now
-        keepDrafts(drafts, next, now)
-      }}
-      onput={onsaved}
-      onlowered={(next) => (access = next)}
-      ononline={(on) => (online = on)}
-      {onsignin}
-      {onsignedout}
-      onshow={show}
-      onhistory={() => asSheet({ kind: 'history' })}
-    />
+  <Changes
+    bind:this={changes}
+    bind:problems
+    {lang}
+    {device}
+    {api}
+    game={held}
+    {edits}
+    {drafts}
+    level={onMap ? undefined : levelId}
+    onchanged={(next, now) => {
+      held = next
+      edits = now
+      keepDrafts(drafts, next, now)
+    }}
+    onput={onsaved}
+    onlowered={(next) => (access = next)}
+    ononline={(on) => (online = on)}
+    {onsignin}
+    {onsignedout}
+    onshow={show}
+    onhistory={() => asSheet({ kind: 'history' })}
+  />
 
-    <Guidance
-      bind:this={guide}
-      {lang}
-      {me}
-      game={held}
-      {api}
-      owner={signedIn && can(access, 'share')}
-      {remembered}
-      {things}
-      {picked}
-      {onme}
-      onsettings={(settings) => (held = { ...held, ...settings })}
-      {onsignedout}
-      onkeep={level === undefined ? undefined : () => changes?.open('keep')}
-      onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
-    />
+  <Guidance
+    bind:this={guide}
+    {lang}
+    {me}
+    game={held}
+    {api}
+    owner={signedIn && can(access, 'share')}
+    {remembered}
+    {things}
+    {picked}
+    {onme}
+    onsettings={(settings) => (held = { ...held, ...settings })}
+    {onsignedout}
+    onkeep={level === undefined ? undefined : () => changes?.open('keep')}
+    onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
+  />
 
-    {#if level !== undefined}
-      <Notes bind:this={notes} {lang} {api} game={held} {levelId} {level} characters={held.content.characters} showDone={look.show.doneNotes} {onsignedout} />
-      <Helper bind:this={helper} {lang} {api} game={held} {edits} {levelId} characters={held.content.characters} onchanged={(next, now) => (next !== undefined && (held = next), keep(now))} />
-    {/if}
-    {#if finding}
-      <Find {lang} working={edits.now} content={held.content} open={onMap ? undefined : levelId} onpick={found} onclose={() => (finding = false)} onfilter={(ids) => (only = ids)} />
-    {/if}
-  </div>
-{/if}
+  {#if level !== undefined}
+    <Notes bind:this={notes} {lang} {api} game={held} {levelId} {level} characters={held.content.characters} showDone={look.show.doneNotes} {onsignedout} />
+    <Helper bind:this={helper} {lang} {api} game={held} {edits} {levelId} characters={held.content.characters} onchanged={(next, now) => (next !== undefined && (held = next), keep(now))} />
+  {/if}
+  {#if finding}
+    <Find {lang} working={edits.now} content={held.content} open={onMap ? undefined : levelId} onpick={found} onclose={() => (finding = false)} onfilter={(ids) => (only = ids)} />
+  {/if}
+</div>
 
 <style>
   .level.hidden {

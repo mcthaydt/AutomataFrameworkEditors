@@ -1,19 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import type { Api } from '../api/api.ts'
-  import { Button, Notice, Screen } from '../ui/ui.ts'
+  import { Action, Notice, Sheet } from '../ui/ui.ts'
   import type { GameRef, Waiting } from '../wire/wire.ts'
-  import { WORDS } from '../words/words.ts'
+  import { type Lang, WORDS, wordsIn } from '../words/words.ts'
   import { routeHash } from './route.ts'
 
   // The changes that wait for someone to approve them: one row for each, and nothing else to decide here.
   interface Props {
     api: Api
     game: GameRef
+    lang: Lang
     onsignedout: () => void
     onback: () => void
   }
-  let { api, game, onsignedout, onback }: Props = $props()
+  let { api, game, lang, onsignedout, onback }: Props = $props()
 
   let rows = $state.raw<readonly Waiting[] | undefined>(undefined)
   let problem = $state(false)
@@ -27,13 +28,14 @@
     else problem = true
   }
   onMount(() => void load())
-  const back = $derived({ label: WORDS.back, onpress: onback })
+  const notNow = $derived(wordsIn(lang).check.notNow as string)
 </script>
 
-<Screen title={WORDS.waitingTitle} {back}>
+<div class="scrim dim-2">
+<Sheet title={WORDS.waitingTitle} close={notNow} onclose={onback} side>
   {#if problem}
     <Notice kind="problem" text={WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <div><Action label={WORDS.tryAgain} icon="arrow-clockwise" kind="main" onpress={() => void load()} /></div>
   {:else if rows === undefined}
     <p>{WORDS.loading}</p>
   {:else if rows.length === 0}
@@ -50,9 +52,15 @@
       {/each}
     </ul>
   {/if}
-</Screen>
+</Sheet>
+</div>
 
 <style>
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+  }
   .rows {
     display: flex;
     flex-direction: column;
