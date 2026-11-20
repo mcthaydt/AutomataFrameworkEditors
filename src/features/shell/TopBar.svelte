@@ -447,7 +447,7 @@
   .dim {
     position: fixed;
     inset: 0;
-    z-index: 20;
+    z-index: 50;
     min-width: 0;
     min-height: 0;
     padding: 0;
@@ -455,7 +455,7 @@
   }
   .pop {
     position: fixed;
-    z-index: 21;
+    z-index: 51;
     width: 300px;
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 80px);
@@ -463,7 +463,7 @@
   }
   .notes {
     position: fixed;
-    z-index: 22;
+    z-index: 52;
     top: calc(var(--bar) + 24px);
     left: 50%;
     transform: translateX(-50%);
