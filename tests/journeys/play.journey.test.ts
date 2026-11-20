@@ -102,7 +102,10 @@ describe.each(['phone', 'phoneSideways'] as const)('at %s', (size) => {
       await started(page)
       await playButton(page, 'Got it').click()
       await playButton(page, 'Pause').waitFor()
-      await page.waitForTimeout(300)
+      // The first picture may not be drawn yet when Pause shows: read until the hero is on it.
+      await expect
+        .poll(async () => (await whereIs(page, HERO, true))?.count ?? 0, { timeout: 10_000 })
+        .toBeGreaterThan(0)
       const whole = await whereIs(page, HERO, true)
       const seen = await whereIs(page, HERO)
       if (whole === undefined) throw new Error('the game shows no hero at its start')
@@ -362,13 +365,19 @@ test('the strip goes back part of the way, and again: the range stays, and the h
   const further = await whereIs(page, HERO)
   expect(further?.x ?? 0, 'again, further back').toBeLessThan((half?.x ?? 0) - 5)
   expect(await strip.count(), 'the strip is still there').toBe(1)
+  // Forward again: the game cannot go past where it was put back (what came after is forgotten), so the thumb stays with the
+  // hero and does not run ahead of it.
+  const thumb = await strip.inputValue()
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.9, y: 6 } })
+  expect(await strip.inputValue(), 'the thumb runs ahead of the game').toBe(thumb)
+  expect((await whereIs(page, HERO))?.x ?? 0, 'the hero moved on its own').toBeCloseTo(further?.x ?? 0, -1)
   // Going on from there is the opposite: the game runs again, and the strip is the live one.
   await playButton(page, 'Go on').click()
   await playButton(page, 'Pause').waitFor()
 })
 
 describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s', (size) => {
-  test('the hero starts under the finger', async () => {
+  test('a tap near the hero starts the hero under it (a tap far from it is walk fault R5, known)', async () => {
     journey = await openPage(size, 'grandma', false, LINKS)
     const { page } = journey
     await signIn(page)
@@ -388,12 +397,21 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
     await page.mouse.click(tapAt.x, tapAt.y)
     await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
     await started(page)
-    await page.waitForTimeout(800)
-    const hero = await whereIs(page, HERO, true)
-    if (hero === undefined) throw new Error('the game shows no hero')
-    expect(
-      Math.abs(hero.x - tapAt.x),
-      `the hero is ${Math.round(hero.x - tapAt.x)} px from the tap`,
-    ).toBeLessThan(12)
+    // The hero settles under the tap: read until it is there, and say how far it was if never.
+    let off = Number.NaN
+    try {
+      await expect
+        .poll(
+          async () => {
+            const there = await whereIs(page, HERO, true)
+            off = there === undefined ? Number.NaN : there.x - tapAt.x
+            return Math.abs(off) < 12
+          },
+          { timeout: 5000 },
+        )
+        .toBe(true)
+    } catch {
+      throw new Error(`the hero is ${Math.round(off)} px from the tap`)
+    }
   })
 })

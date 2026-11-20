@@ -99,7 +99,19 @@ describe.each(Object.keys(SIZES) as (keyof typeof SIZES)[])('the tray at %s', (s
       .click()
     const strip = page.locator('.strip[data-ui]')
     await strip.waitFor()
-    await page.waitForTimeout(300)
+    // The tray's place has stopped moving (a bar or a menu may still be settling) before it is measured.
+    let last = ''
+    await expect
+      .poll(
+        async () => {
+          const now = JSON.stringify(await strip.boundingBox())
+          const same = now === last
+          last = now
+          return same
+        },
+        { timeout: 5000 },
+      )
+      .toBe(true)
     const tray = await strip.boundingBox()
     const crate = await thingNamed(page, 'crate-1').boundingBox()
     const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))

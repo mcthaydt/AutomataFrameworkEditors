@@ -10,6 +10,7 @@ import {
   openMapOf,
   openPage,
   picture,
+  settled,
   setupJourneys,
   signIn,
   thingNamed,
@@ -64,7 +65,7 @@ describe('the pictures the owner showed', () => {
         false,
       )
     }
-    await page.waitForTimeout(300)
+    await settled(page)
     await picture(page, 'issue-1-move-card')
   })
 
@@ -84,7 +85,7 @@ describe('the pictures the owner showed', () => {
     for (const id of ['plate-1', 'gate-1']) {
       expect(overlap(at, await boxOf(thingNamed(page, id))), `the hint covers ${id}`).toBe(false)
     }
-    await page.waitForTimeout(300)
+    await settled(page)
     await picture(page, 'issue-2-join-hint')
   })
 
@@ -97,7 +98,7 @@ describe('the pictures the owner showed', () => {
     const stage = await boxOf(page.locator('[data-scale]').first())
     const room = await boxOf(page.locator('[data-level="room-1"]'))
     expect(inside(room, stage), 'room 1 runs off the map').toBe(true)
-    await page.waitForTimeout(300)
+    await settled(page)
     await picture(page, 'issue-3-map-whole')
   })
 

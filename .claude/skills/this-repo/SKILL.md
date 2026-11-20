@@ -19,8 +19,9 @@ What is particular to this repo, kept from its earlier notes and the 2026-11-16 
 - **Who may do what** is `automata.access.toml` in the game's repo (Look, Suggest, Approve, Edit, Owner), worked out
   afresh on every call from the default branch. The API trusts nothing the page says; GitHub's roles are not used.
 - **Nothing hidden from an agent.** Every action ends as a change to a documented file; a waiting change is an
-  ordinary branch and pull request. The device may keep only: an unsaved draft (`af.draft:…`), the changes last sent to be checked, kept until they are
-  answered so a "no" can bring them back (`af.sent:…`), first-run tips and their counts (`af.guide.done`, `af.tip.*`, `af.saved`), the sign-in (`af.tokens`, short-lived `af.signin.*`), games this
+  ordinary branch and pull request. The device may keep only: an unsaved draft (`af.draft:…`), the changes last sent
+  to be checked, kept until they are answered so a "no" can bring them back (`af.sent:…`), first-run tips and their
+  counts (`af.guide.done`, `af.tip.*`, `af.saved`), the sign-in (`af.tokens`, short-lived `af.signin.*`), games this
   device opened (`af.recent`) and the person's "For me" choices (`af.me.*`, with `af.me.glass` for "See-through
   panels": `auto`, `on` or `off`). A kept copy is the content file itself. Anything else is a defect. A new `af.me.*`
   key is added to this list in the change that adds it.

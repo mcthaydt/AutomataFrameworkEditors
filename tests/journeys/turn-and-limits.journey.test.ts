@@ -10,6 +10,7 @@ import {
   openLevel,
   openPage,
   picture,
+  settled,
   setupJourneys,
   signIn,
   thingNamed,
@@ -101,7 +102,7 @@ test('turning the device and the keyboard coming up keep the pick, the open sett
     [1210, 834, 'sideways again'],
   ] as const) {
     await page.setViewportSize({ width, height })
-    await page.waitForTimeout(300)
+    await settled(page)
     await kept(where)
   }
   // The keyboard: the visual viewport shrinks and tells the page, while the layout viewport stays.
@@ -114,7 +115,7 @@ test('turning the device and the keyboard coming up keep the pick, the open sett
     })
     view.dispatchEvent(new Event('resize'))
   })
-  await page.waitForTimeout(300)
+  await settled(page)
   await kept('with the keyboard up')
   await picture(page, 'turn-keyboard-ipadSideways')
 })

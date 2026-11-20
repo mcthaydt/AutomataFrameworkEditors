@@ -108,7 +108,8 @@
     </button>
   </div>
   {#if strip.to > strip.from && (!short || rewinding)}
-    <div class="strip" data-play="strip">
+    <!-- The game cannot go on past where it was put back, so a drag that went on is put back to where the game is. -->
+    <div class="strip" data-play="strip" oninput={(e) => ((e.target as HTMLInputElement).value = String(strip.at))}>
       <Slider
         value={strip.at}
         least={strip.from}
