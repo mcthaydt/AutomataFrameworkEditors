@@ -1,8 +1,7 @@
 <script lang="ts">
-  // The level on screen: the picture, the marks a hand touches, the tool in hand and the level's own floating parts (the
-  // bar over what is picked, the pad of arrows, the tray, the menus and the notes). It decides nothing about the game:
-  // every hand movement becomes one of the pure edits (`things.ts`, `ground.ts`, `clipboard.ts`) and the new level goes
-  // up through `onedit`; every refusal becomes a note that says why in plain words.
+  // The level on screen: the picture, the marks a hand touches, the tool in hand and its floating parts (the bar over what is
+  // picked, the pad of arrows, the tray, the menus and the notes). It decides nothing about the game: every hand movement
+  // becomes one of the pure edits (`things.ts`, `ground.ts`, `clipboard.ts`) and the new level goes up through `onedit`.
   import type { GameContent, Level } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import type { Pointers } from '../device/device.ts'
@@ -23,7 +22,7 @@ import Hover from './Hover.svelte'
   import { createStage, type Stage } from './level-canvas.ts'
   import Join from './Join.svelte'
   import Marks from './Marks.svelte'
-  import { marksFor, type Rect, unionBox } from './marks.ts'
+  import { type Extra, extraMarks, marksFor, type Rect, unionBox } from './marks.ts'
   import MiniMap from './MiniMap.svelte'
 import Paint from './Paint.svelte'
   import Popups from './Popups.svelte'
@@ -82,12 +81,16 @@ import { tagFacts } from './tags.ts'
     onbrush?: (letter: string) => void
     /** The edges of a level that touch another, as that level would have them: how a stroke knows a way across changed. */
     edgesFor?: ((next: Level) => readonly Edge[]) | undefined
+    /** What is laid over the level (ghosts, note pins), a pin pressed, and "Add a note" on a thing or a spot. */
+    extras?: readonly Extra[]
+    onextra?: (id: string) => void
+    onnote?: ((where: { thing?: string; at: Point }) => void) | undefined
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
     fingerDraws = false, readOnly = false, paused = false,
     onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap, edges = [], ongo,
-    show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor,
+    show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor, extras = [], onextra = () => {}, onnote,
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -96,7 +99,6 @@ import { tagFacts } from './tags.ts'
     typeof row === 'function' ? row(...parts) : row
   const characters = $derived(content.characters)
   const hero = $derived(content.project.hero)
-
   let holder: HTMLDivElement | undefined = $state()
   let size = $state({ w: 0, h: 0 })
   let engine = $state.raw<Stage | undefined>()
@@ -125,6 +127,7 @@ import { tagFacts } from './tags.ts'
       nameFor,
     ),
   )
+  const overMarks = $derived(extraMarks(extras, camera, size))
   const tags = $derived(tagFacts(level, characters))
   let join: Join | undefined = $state()
   let paintHand: Paint | undefined = $state()
@@ -429,6 +432,7 @@ import { tagFacts } from './tags.ts'
     else if (id === 'copy') copyToClipboard(picked)
     else if (id === 'paste' && at !== undefined) paste(at.tile)
     else if (id === 'put' && at !== undefined) tray = at.at
+    else if (id === 'note' && at !== undefined) onnote?.(one !== undefined && !isStart(one) ? { thing: one, at: at.tile } : { at: at.tile })
   }
   function rename(name: string): void {
     const id = renaming
@@ -476,7 +480,7 @@ import { tagFacts } from './tags.ts'
   <Hover {tool} at={hoverAt} {camera} {size} {characters} {hero} {placing} {marks} />
   {#if show.frames}<Frames {level} {camera} {size} />{/if}
   <Marks
-    {marks}
+    {marks} extras={overMarks} {onextra}
     {picked}
     {readOnly}
     faint={tool === 'paint'}
@@ -550,7 +554,7 @@ import { tagFacts } from './tags.ts'
     {menu}
     locked={menu?.on !== undefined && locked.has(menu.on)}
     hidden={menu?.on !== undefined && hidden.has(menu.on)}
-    canPaste={clip !== undefined}
+    canPaste={clip !== undefined} canNote={onnote !== undefined}
     {tray}
     {renaming}
     {asking}
@@ -591,8 +595,6 @@ import { tagFacts } from './tags.ts'
     box-sizing: border-box;
     border-radius: 3px;
     pointer-events: none;
-  }
-  .was {
     border: 2px dashed var(--faint);
   }
 </style>

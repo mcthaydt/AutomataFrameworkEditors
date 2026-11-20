@@ -5,6 +5,7 @@ import type { Area } from './languages.ts'
 
 type Key =
   | 'whoCanChange'
+  | 'whatChanged'
   | 'waitingRow'
   | 'keepCopyOf'
   | 'keepCopyAbout'
@@ -44,6 +45,7 @@ type Key =
 export const menus = {
   en: {
     whoCanChange: 'Who can change it',
+    whatChanged: 'What changed',
     waitingRow: (n) => (Number(n) === 1 ? '1 change is waiting' : `${n} changes are waiting`),
     keepCopyOf: (name) => `Keep a copy of ${name}`,
     keepCopyAbout: 'As a file, to give to your helper',
@@ -85,6 +87,7 @@ export const menus = {
   },
   es: {
     whoCanChange: 'Quién puede cambiarlo',
+    whatChanged: 'Qué cambió',
     waitingRow: (n) => (Number(n) === 1 ? '1 cambio está esperando' : `${n} cambios están esperando`),
     keepCopyOf: (name) => `Guardar una copia de ${name}`,
     keepCopyAbout: 'Como archivo, para dárselo a tu ayudante',
@@ -126,6 +129,7 @@ export const menus = {
   },
   ko: {
     whoCanChange: '누가 바꿀 수 있나요',
+    whatChanged: '바뀐 것',
     waitingRow: (n) => `변경 ${n}개가 기다리고 있어요`,
     keepCopyOf: (name) => `${name} 사본 저장`,
     keepCopyAbout: '도우미에게 줄 파일로',
@@ -165,6 +169,7 @@ export const menus = {
   },
   ja: {
     whoCanChange: '変更できる人',
+    whatChanged: '変更の履歴',
     waitingRow: (n) => `変更${n}件が待っています`,
     keepCopyOf: (name) => `${name}のコピーを残す`,
     keepCopyAbout: 'ファイルとして、手伝う人に渡せます',
@@ -204,6 +209,7 @@ export const menus = {
   },
   zh: {
     whoCanChange: '谁可以改动',
+    whatChanged: '有什么改动',
     waitingRow: (n) => `${n} 项改动在等待`,
     keepCopyOf: (name) => `保存${name}的副本`,
     keepCopyAbout: '存成文件，交给帮手',
@@ -242,6 +248,7 @@ export const menus = {
   },
   pt: {
     whoCanChange: 'Quem pode mudar',
+    whatChanged: 'O que mudou',
     waitingRow: (n) => (Number(n) === 1 ? '1 mudança está esperando' : `${n} mudanças estão esperando`),
     keepCopyOf: (name) => `Guardar uma cópia de ${name}`,
     keepCopyAbout: 'Como arquivo, para dar ao seu ajudante',
@@ -282,6 +289,7 @@ export const menus = {
   },
   fr: {
     whoCanChange: 'Qui peut le changer',
+    whatChanged: 'Ce qui a changé',
     waitingRow: (n) => (Number(n) === 1 ? '1 changement attend' : `${n} changements attendent`),
     keepCopyOf: (name) => `Garder une copie de ${name}`,
     keepCopyAbout: 'En fichier, à donner à ton aide',
@@ -324,6 +332,7 @@ export const menus = {
   },
   ru: {
     whoCanChange: 'Кто может менять',
+    whatChanged: 'Что изменилось',
     waitingRow: (n) => `Изменений в ожидании: ${n}`,
     keepCopyOf: (name) => `Сохранить копию: ${name}`,
     keepCopyAbout: 'Файлом, чтобы передать помощнику',
@@ -364,6 +373,7 @@ export const menus = {
   },
   de: {
     whoCanChange: 'Wer es ändern darf',
+    whatChanged: 'Was sich geändert hat',
     waitingRow: (n) => (Number(n) === 1 ? '1 Änderung wartet' : `${n} Änderungen warten`),
     keepCopyOf: (name) => `Kopie von ${name} behalten`,
     keepCopyAbout: 'Als Datei, zum Weitergeben an deine Hilfe',

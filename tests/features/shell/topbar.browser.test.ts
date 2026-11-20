@@ -252,6 +252,17 @@ test('Faces with five people draws four and "+1", and with nobody draws nothing'
   expect(box.querySelector('button')).toBeNull()
 })
 
+test('Faces draws only as many as the bar has room for, then "+N", and never shrinks under them', async () => {
+  stage('wide')
+  const people = ['ann', 'ben', 'cy', 'dee', 'eli'].map((login) => ({ login }))
+  const args = { target: box, props: { people, label: 'Who can change it', onopen: () => {}, most: 2 } }
+  mounted = mount(Faces as never, args as never)
+  await tick()
+  const faces = [...box.querySelectorAll('.face')].map((el) => el.textContent?.trim())
+  expect(faces).toEqual(['A', 'B', '+3'])
+  expect(getComputedStyle(box.querySelector('button') as Element).flexShrink).toBe('0')
+})
+
 test('Find, Play and problems are drawn only when something answers them', async () => {
   stage('wide')
   await put()

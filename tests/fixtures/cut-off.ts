@@ -4,6 +4,9 @@
 // under a call, not a fault, so a journey must not fail on it. The same words about a call made after the page last
 // moved are a fault and are kept.
 //
+// WebKit does it too for a picture the page is decoding in memory, which has an address but is never a request: it can only
+// be told by its shape (a bare id), and only once the page has moved after its first load.
+//
 // Firefox does the same for a font: a font file still downloading when the page moves on is dropped with status
 // 2152398850 (NS_BINDING_ABORTED), and Firefox logs "downloadable font: download failed ... status=2152398850 source:
 // <address>" as a console error. Only that status, for a font first asked for before the page last moved, is excused;
@@ -21,13 +24,28 @@ export interface CutOffTracker {
 /** Firefox's status for a download the page dropped (NS_BINDING_ABORTED). */
 const ABORTED = 'status=2152398850'
 
+const whereIs = (url: string): string => {
+  const parsed = new URL(url)
+  return parsed.pathname + parsed.search
+}
+
+/**
+ * The engine's name for a picture the page is decoding in memory: a bare id on the site's own address, never a request.
+ * The host is the one capture; the engine's report starts with a clipped scheme, so only what follows the slashes counts.
+ */
+const MEMORY_PICTURE =
+  /^[a-z]*:?\/*\/?([\w.:-]+)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} due to access control checks\.?$/
+
 export function cutOffTracker(): CutOffTracker {
   let moves = 0
-  /** For each address, how many moves the page had made when its first call started. */
+  /** For each address (its path and its question, so one game's open is not another's), how many moves the page had made when its first call started. */
   const firstCall = new Map<string, number>()
+  /** The hosts the page has called: its own origin, and any other it reached. A bare id is excused only on one of them. */
+  const hosts = new Set<string>()
   return {
     started(url) {
-      const path = new URL(url).pathname
+      if (URL.canParse(url)) hosts.add(new URL(url).host)
+      const path = whereIs(url)
       if (!firstCall.has(path)) firstCall.set(path, moves)
     },
     navigated() {
@@ -37,9 +55,12 @@ export function cutOffTracker(): CutOffTracker {
       if (error.includes('downloadable font: download failed')) {
         const source = /source: ([^\s"\]]+)/.exec(error)?.[1]
         if (!error.includes(ABORTED) || source === undefined || !URL.canParse(source)) return false
-        const at = firstCall.get(new URL(source).pathname)
+        const at = firstCall.get(whereIs(source))
         return at !== undefined && at < moves
       }
+      // A picture decoded in memory has no request to start from; the page moving on after its first load is what cuts it.
+      const host = MEMORY_PICTURE.exec(error.replace(/^page error: /, ''))?.[1]
+      if (moves >= 2 && host !== undefined && hosts.has(host)) return true
       for (const [path, at] of firstCall) {
         if (at < moves && error.includes(`${path} due to access control checks`)) return true
       }

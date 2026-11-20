@@ -6,6 +6,7 @@ import { fixtureFiles, LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
   dragByTouch,
+  gamesWords,
   type JourneyPage,
   menuWords,
   openLevel,
@@ -175,7 +176,7 @@ test('Leaving with an unsaved change asks first; Stay stays; Leave without savin
   await thingNamed(j.page, 'crate-1').waitFor()
   await chooseFromMenu(j.page, menuWords.yourGames)
   await j.page.getByRole('button', { name: WORDS.leaveYes }).click()
-  await j.page.getByRole('heading', { level: 1, name: WORDS.pickTitle }).waitFor()
+  await j.page.getByRole('heading', { level: 1, name: gamesWords.title }).waitFor()
   expect(repoOf(j).commits).toEqual([])
   // The change that was left is gone for good.
   await j.page.getByRole('link', { name: 'crate-game' }).click()

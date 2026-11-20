@@ -21,8 +21,8 @@
   import { type Clip, LevelPart, nudgeThings } from '../levels/levels.ts'
   import { edgesOf, MapPart } from '../map/map.ts'
   import { PlayPart } from '../play/play.ts'
-  import { commandFor, type Docks, layout, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
-  import { AuthorNote, type Route, withoutSheet } from '../team/team.ts'
+  import { type Docks, Find, type Found, layout, parseGo, type StatusFacts, type Tool, TopBar } from '../shell/shell.ts'
+  import { AuthorNote, Helper, Notes, type Route, withoutSheet } from '../team/team.ts'
   import { type Row, WORDS, wordsIn } from '../words/words.ts'
   import { begin } from './begin.ts'
   import { didWhat } from './did.ts'
@@ -33,10 +33,12 @@
   import Guidance from './Guidance.svelte'
   import { afterFinger } from './finger.svelte.ts'
   import { bottomOf, insetsOf } from './insets.ts'
-  import { listen, measure, onControl, typing } from './listen.ts'
+  import { actOfCommand, actOnKey, type KeyAct } from './keys.ts'
+import { listen, measure } from './listen.ts'
   import { createLook } from './look.svelte.ts'
   import Panels from './Panels.svelte'
   import Sheets from './Sheets.svelte'
+import Team from './Team.svelte'
   import { playTip, tipKept } from './tips.ts'
   import { withId } from './with-id.ts'
   import { WORLD } from './world-workspace.ts'
@@ -137,6 +139,11 @@
 
   /** The first run and the sheets of help: told what the person does, asked to open a sheet. */
   let guide = $state.raw<ReturnType<typeof Guidance>>()
+  /** The team's notes and a helper's ghost on the level, and Find with the things it says match (the list shows only those). */
+  let notes = $state.raw<ReturnType<typeof Notes>>()
+  let helper = $state.raw<ReturnType<typeof Helper>>()
+  let finding = $state(false)
+  let only = $state.raw<readonly string[] | undefined>(undefined)
 
   const lang = $derived(me.language ?? 'en')
   const words = $derived(wordsIn(lang))
@@ -167,6 +174,8 @@
     approver: approverOf(held),
   })
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
+  /** The pages that still take the whole screen: what waits, and one waiting change. */
+  const page = $derived(sheet?.kind === 'waiting' || sheet?.kind === 'change' ? sheet : undefined)
 
   $effect(() => showGlass(me))
 
@@ -176,49 +185,39 @@
       // The browser's own question when the tab is closed with something unsaved.
       leaving: (e) => void (dirty && e.preventDefault()),
       key: (e) => {
-        // While it plays, a key belongs to the game; only Escape comes back.
-        if (playing) {
-          if (e.key === 'Escape') {
-            e.preventDefault()
-            stopPlay()
-          }
-          return
-        }
-        const command = commandFor({
-          key: e.key,
-          meta: e.metaKey,
-          ctrl: e.ctrlKey,
-          shift: e.shiftKey,
-          inField: typing(e) || (e.key === ' ' && onControl(e)),
-        })
-        if (command === 'undo' || command === 'redo') {
-          e.preventDefault()
-          step(command)
-        } else if (command === 'escape') {
-          picked = []
-          pickedLevel = undefined
-          placing = undefined
-        } else if (command === 'play' && level !== undefined && !onMap) {
-          e.preventDefault()
-          startPlay()
-        } else if (command === 'help') {
-          e.preventDefault()
-          guide?.open('help')
-        } else if (command?.startsWith('nudge:') && picked.length === 1 && !e.defaultPrevented && guide?.sheetOpen() !== true) {
-          // A thing that has focus moves itself; this is for a picked thing when the focus is elsewhere.
-          e.preventDefault()
-          const way = command.slice('nudge:'.length)
-          if (way === 'left' || way === 'right' || way === 'up' || way === 'down') nudge(picked[0] as string, way)
-        } else if (command?.startsWith('tool:') && WORLD.tools.includes(command.slice(5) as Tool)) {
-          tool = command.slice(5) as Tool
-        } else if (command === 'delete' || command === 'duplicate' || command === 'copy' || command === 'paste') {
-          part?.command(command)
-        }
+        const act = actOnKey(e, { playing, canPlay: level !== undefined && !onMap, picked: picked.length, sheetOpen: guide?.sheetOpen() === true })
+        if (act !== undefined) run(act)
       },
       online: (on) => void (online = on),
       pointer: (e) => void (pointers = nextPointers(pointers, e)),
     }),
   )
+
+  /** Does what a key (or something Find offered) asks for. */
+  function run(act: KeyAct): void {
+    switch (act.kind) {
+      case 'stop-play': return stopPlay()
+      case 'step': return step(act.which)
+      case 'escape': return void ((picked = []), (pickedLevel = undefined), (placing = undefined))
+      case 'play': return startPlay()
+      case 'help': return guide?.open('help')
+      case 'find': return void (finding = true)
+      case 'nudge': return nudge(picked[0] as string, act.way)
+      case 'tool': return void (tool = act.tool)
+      case 'place': return void ((placing = act.character), (tool = 'place'))
+      case 'level': return part?.command(act.command)
+    }
+  }
+  /** Something Find found was pressed: take the person to it. */
+  function found(one: Found): void {
+    finding = false
+    const to = parseGo(one.go)
+    const act = to?.kind === 'command' ? actOfCommand(to.id, { canPlay: level !== undefined && !onMap }) : undefined
+    if (to?.kind === 'thing') goLevel(to.level, to.thing)
+    else if (to?.kind === 'level') goLevel(to.level)
+    else if (to?.kind === 'map') onmap()
+    else if (act !== undefined) run(act)
+  }
 
   function startPlay(): void {
     events = unsay(events, 'play')
@@ -271,9 +270,7 @@
     solid(false)
     keep(which === 'undo' ? undo(edits) : redo(edits))
   }
-  const solid = (on: boolean): void => {
-    events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid')
-  }
+  const solid = (on: boolean): void => void (events = on ? say(events, { id: 'solid', kind: 'info', text: WORDS.solid }) : unsay(events, 'solid'))
 
   // A hand holding things: moves are worked out from the level as it was when the hand took hold: one grab, one step back.
   let dragFrom: Edits | undefined
@@ -307,31 +304,14 @@
     events = say(events, { id: 'leave', kind: 'info', text: WORDS.leaveAsk, ask: 'leave' })
   }
   const closeSheet = (): void => go(withoutSheet(route))
-  // Only the Owner may change who can change the game: anyone else lands on the level.
-  $effect(() => {
-    if (sheet?.kind === 'share' && !can(access, 'share')) closeSheet()
-  })
 
   function answered(event: Saying, answer: Answer): void {
-    switch (answer) {
-      case 'stay':
-        pending = undefined
-        events = unsay(events, event.id)
-        return
-      case 'leave': {
-        const then = pending
-        pending = undefined
-        dropDrafts(drafts, held)
-        events = unsay(events, event.id)
-        then?.()
-        return
-      }
-      case 'dismiss':
-        if (event.id === 'tip-share') tipKept(remembered, 'share')
-        if (event.id === 'tip-approve') tipKept(remembered, 'approve')
-        events = unsay(events, event.id)
-        return
-    }
+    const then = answer === 'leave' ? pending : undefined
+    if (answer !== 'dismiss') pending = undefined
+    if (answer === 'leave') dropDrafts(drafts, held)
+    if (answer === 'dismiss' && (event.id === 'tip-share' || event.id === 'tip-approve')) tipKept(remembered, event.id === 'tip-share' ? 'share' : 'approve')
+    events = unsay(events, event.id)
+    then?.()
   }
 
   /** Opens the level or the map at a problem, and picks the thing it is about. */
@@ -347,6 +327,16 @@
     picked = where.thing === undefined ? [] : [where.thing]
   }
   const here = $derived({ owner: held.ref.owner, name: held.ref.name })
+  /** "Show me" on a change in the history: its level, or the map, with the sheet shut. */
+  function showChange(opening: { level: string } | { map: true }): void {
+    if ('map' in opening) {
+      pickedLevel = levelId
+      go({ screen: 'map', ...here, level: levelId })
+    } else {
+      go({ screen: 'level', ...here, level: opening.level })
+    }
+    picked = []
+  }
   /** Opens `next` with the door you come out of picked, when it has one there. */
   const goLevel = (next: string, door?: string): void => {
     go({ screen: 'level', ...here, level: next })
@@ -355,7 +345,8 @@
   const asSheet = (next: NonNullable<typeof sheet>): void => go({ screen: 'level', ...here, level: levelId, sheet: next })
 
   function onmenu(id: string): void {
-    if (id === 'share') asSheet({ kind: 'share' })
+    if (id === 'people') asSheet({ kind: 'people' })
+    else if (id === 'history') asSheet({ kind: 'history' })
     else if (id === 'waiting') asSheet({ kind: 'waiting' })
     else if (id === 'keep') changes?.open('keep')
     else if (id === 'games') leave(() => go({ screen: 'games' }))
@@ -385,8 +376,8 @@
   const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
-{#if sheet !== undefined}
-  <Sheets {sheet} {api} game={held.ref} {lang} {size} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
+{#if page !== undefined}
+  <Sheets sheet={page} {api} game={held.ref} {lang} {size} {onsignedout} onclose={closeSheet} onwaiting={() => asSheet({ kind: 'waiting' })} />
 {:else}
   <div
     class="look world"
@@ -449,6 +440,7 @@
           {onmap}
           edges={edgesOf(edits.now, held.content, levelId)}
           ongo={goLevel}
+          extras={[...(helper?.extras() ?? []), ...(notes?.extras() ?? [])]} onextra={(id) => notes?.open(id)} onnote={signedIn ? (where) => notes?.add(where) : undefined}
         />
         {/if}
         {#if playing}
@@ -473,7 +465,7 @@
       level={access}
       waiting={held.waiting}
       {facts}
-      people={[]}
+      people={signedIn ? [{ login: held.ref.owner }, ...held.people] : []}
       canUndo={edits.past.length > 0}
       canRedo={edits.future.length > 0}
       onundo={() => step('undo')}
@@ -483,11 +475,10 @@
       {onpart}
       mapOn={onMap}
       {onmap}
-      onpeople={() => {
-        if (signedIn && can(access, 'share')) asSheet({ kind: 'share' })
-      }}
+      onpeople={() => asSheet({ kind: 'people' })}
       ontocheck={toCheck > 0 ? () => asSheet({ kind: 'waiting' }) : undefined}
       onproblems={problems.length > 0 ? () => changes?.open('problems') : undefined}
+      onfind={() => (finding = true)}
       onplay={level === undefined || onMap ? undefined : playing ? stopPlay : startPlay}
       {playing}
     />
@@ -526,6 +517,7 @@
       hand={{ grab, edit, drop }}
       ongo={goLevel}
       content={held.content}
+      {only}
       {look}
       {me}
       {onme}
@@ -534,6 +526,10 @@
 
     <Events {events} low={playing} onanswer={answered} />
     <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+
+    {#if sheet?.kind === 'people' || sheet?.kind === 'history'}
+      <Team {sheet} {lang} {api} game={held} {onsignedout} onclose={closeSheet} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
+    {/if}
 
     <Changes
       bind:this={changes}
@@ -556,6 +552,7 @@
       {onsignin}
       {onsignedout}
       onshow={show}
+      onhistory={() => asSheet({ kind: 'history' })}
     />
 
     <Guidance
@@ -572,7 +569,16 @@
       onsettings={(settings) => (held = { ...held, ...settings })}
       {onsignedout}
       onkeep={level === undefined ? undefined : () => changes?.open('keep')}
+      onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
     />
+
+    {#if level !== undefined}
+      <Notes bind:this={notes} {lang} {api} game={held} {levelId} {level} characters={held.content.characters} showDone={look.show.doneNotes} {onsignedout} />
+      <Helper bind:this={helper} {lang} {api} game={held} {edits} {levelId} characters={held.content.characters} onchanged={(next, now) => (next !== undefined && (held = next), keep(now))} />
+    {/if}
+    {#if finding}
+      <Find {lang} working={edits.now} content={held.content} open={onMap ? undefined : levelId} onpick={found} onclose={() => (finding = false)} onfilter={(ids) => (only = ids)} />
+    {/if}
   </div>
 {/if}
 

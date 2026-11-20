@@ -255,14 +255,14 @@
       {/if}
     {/if}
     {#if offline}
-      <span class="chip bad"><Icon name="cloud" /><span>{text(w.noInternet)}</span></span>
+      <span class="chip bad" role="status" aria-label={text(w.noInternet)}><Icon name="cloud" /><span class="wordy">{text(w.noInternet)}</span></span>
     {/if}
     {#if onfind}
       <button type="button" class="chip find" aria-label={text(w.find)} title={text(w.find)} onclick={onfind}>
         <Icon name="magnifying-glass" />
       </button>
     {/if}
-    <Faces {people} label={text(m.whoCanChange)} onopen={onpeople} />
+    <Faces {people} label={text(m.whoCanChange)} onopen={onpeople} most={size === 'phone' ? 1 : size === 'wide' ? 4 : 2} />
     {#if onplay}
       <button
         type="button"
@@ -435,6 +435,14 @@
   /* An upright phone has no room for the second line, or for the words beside the icons. */
   :global(.look[data-size='phone']) .long {
     display: none;
+  }
+  /* Words beside an icon in the bar's chips (Find, No internet) show only where the bar is wide; the icon and its spoken
+     name carry them elsewhere. */
+  .wordy {
+    display: none;
+  }
+  :global(.look[data-size='wide']) .wordy {
+    display: inline;
   }
   .dim {
     position: fixed;

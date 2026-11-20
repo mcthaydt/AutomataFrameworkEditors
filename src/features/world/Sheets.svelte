@@ -1,12 +1,12 @@
 <script lang="ts">
-  // The pages that open over the level: who can change the game, what waits, and one waiting change.
+  // The pages that still take the whole screen: what waits, and one waiting change.
   import type { Api } from '../api/api.ts'
   import type { OpenGame } from '../game/game.ts'
-  import { Check, Share, type Sheet, Waiting } from '../team/team.ts'
+  import { Check, type Sheet, Waiting } from '../team/team.ts'
   import type { Lang } from '../words/words.ts'
 
   interface Props {
-    sheet: Sheet
+    sheet: Extract<Sheet, { kind: 'waiting' | 'change' }>
     api: Api
     game: OpenGame['ref']
     lang: Lang
@@ -21,9 +21,7 @@
 </script>
 
 <div class="sheet">
-  {#if sheet.kind === 'share'}
-    <Share {api} {game} {onsignedout} onhome={onclose} />
-  {:else if sheet.kind === 'waiting'}
+  {#if sheet.kind === 'waiting'}
     <Waiting {api} {game} {onsignedout} onback={onclose} />
   {:else}
     {#key sheet.number}

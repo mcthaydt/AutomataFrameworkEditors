@@ -33,7 +33,8 @@ test.each(ROUTES)('%j is %s, both ways', (route, hash) => {
 
 // A kept link to a game's page, its Share page or its waiting pages opens the level with that sheet asked for.
 const KEPT: readonly [string, Route][] = [
-  [`#/game/${G}/share`, level(undefined, { kind: 'share' })],
+  [`#/game/${G}/people`, level(undefined, { kind: 'people' })],
+  [`#/game/${G}/history`, level(undefined, { kind: 'history' })],
   [`#/game/${G}/waiting`, level(undefined, { kind: 'waiting' })],
   [`#/game/${G}/waiting/3`, level(undefined, { kind: 'change', number: 3 })],
 ]
@@ -41,6 +42,11 @@ const KEPT: readonly [string, Route][] = [
 test.each(KEPT)('the kept address %s opens %j', (hash, route) => {
   expect(parseRoute(hash)).toEqual(route)
   expect(routeHash(route)).toBe(hash)
+})
+
+test('the old Share address opens who can change it, and says so in its new address', () => {
+  expect(parseRoute(`#/game/${G}/share`)).toEqual(level(undefined, { kind: 'people' }))
+  expect(parseRoute(`#/game/${G}/level/level-2/share`)).toEqual(level('level-2', { kind: 'people' }))
 })
 
 test('a sheet over a level keeps its level, in the address and back', () => {
@@ -67,6 +73,8 @@ test.each([
   '#/game/a/b/level',
   '#/game/a/b/level/x/y',
   '#/game/a/b/level/x/share/y',
+  '#/game/a/b/people/x',
+  '#/game/a/b/history/2',
   '#/game/a/b/waiting/0',
   '#/game/a/b/waiting/-1',
   '#/game/a/b/waiting/1.5',
@@ -82,6 +90,6 @@ test.each([
 })
 
 test('only the screens about a person ask a visitor to sign in', () => {
-  const asked = [...ROUTES.map(([route]) => route), level(undefined, { kind: 'share' })]
+  const asked = [...ROUTES.map(([route]) => route), level(undefined, { kind: 'people' })]
   expect(asked.map((route) => needsPerson(route))).toEqual([true, false, false, false, false, true])
 })

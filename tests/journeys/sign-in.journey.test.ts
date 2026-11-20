@@ -1,6 +1,14 @@
 import { afterEach, expect, test } from 'vitest'
 import { WORDS } from '#src/features/words/words.ts'
-import { type JourneyPage, openPage, picture, setupJourneys, signIn } from '../fixtures/journey.ts'
+import {
+  gamesWords,
+  type JourneyPage,
+  openPage,
+  picture,
+  setupJourneys,
+  signIn,
+  teamWords,
+} from '../fixtures/journey.ts'
 
 setupJourneys()
 
@@ -35,15 +43,15 @@ test('Welcome shows its pieces, and signing in ends on the list of games with a 
   await picture(j.page, 'welcome')
 
   await signIn(j.page)
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   expect(new URL(j.page.url()).search).toBe('')
 
   // A reload stays signed in.
   await j.page.reload()
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
 
   // Signing out returns to Welcome, and a reload stays there.
-  await j.page.getByRole('button', { name: WORDS.signOut }).click()
+  await j.page.getByRole('button', { name: gamesWords.signOut }).click()
   await title(j, WORDS.appName)
   await j.page.reload()
   await title(j, WORDS.appName)
@@ -84,18 +92,18 @@ test('a screen about a person shows Welcome, and signing in lands on that screen
   await j.page.goto(`${j.site}/#/game/grandma/crate-game/share`)
   await title(j, WORDS.appName)
   await signIn(j.page)
-  await title(j, WORDS.shareTitle('Crate Game'))
+  await j.page.getByRole('heading', { name: teamWords.peopleTitle }).waitFor()
   expect(new URL(j.page.url()).hash).toBe('#/game/grandma/crate-game/share')
 })
 
 test('when the sign-in has run out, a reload still shows the list of games (renewed, and nobody noticed)', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   const before = await j.page.evaluate(() => localStorage.getItem('af.tokens'))
   j.fake.tokensRunOut()
   await j.page.reload()
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   await j.page.waitForFunction((was) => localStorage.getItem('af.tokens') !== was, before)
   await j.page.waitForTimeout(100)
   expect(await j.page.getByText(WORDS.signedOutAgain).count()).toBe(0)
@@ -104,18 +112,18 @@ test('when the sign-in has run out, a reload still shows the list of games (rene
 test('a sign-in that runs out while GitHub cannot be asked is kept: the person is not sent back to Welcome', async () => {
   const j = await open('ipadUpright')
   await signIn(j.page)
-  await title(j, WORDS.pickTitle)
+  await title(j, gamesWords.title)
   const before = await j.page.evaluate(() => localStorage.getItem('af.tokens'))
   // The train goes through a tunnel: the sign-in has run out, and the renewing question gets no answer.
   j.fake.tokensRunOut()
   j.fake.failing = (_method, path) => path === '/login/oauth/access_token'
   await j.page.reload()
-  await j.page.getByText(WORDS.cantReach).waitFor()
+  await j.page.getByText(gamesWords.trouble).waitFor()
   expect(await j.page.getByText(WORDS.signedOutAgain).count()).toBe(0)
   expect(await j.page.getByRole('heading', { level: 1, name: WORDS.appName }).count()).toBe(0)
   expect(await j.page.evaluate(() => localStorage.getItem('af.tokens'))).toBe(before)
   // Out of the tunnel, one press and the list is there, with no new sign-in.
   j.fake.failing = undefined
-  await j.page.getByRole('button', { name: WORDS.tryAgain }).click()
+  await j.page.getByRole('button', { name: gamesWords.again }).click()
   await j.page.getByRole('link', { name: 'crate-game' }).waitFor()
 })

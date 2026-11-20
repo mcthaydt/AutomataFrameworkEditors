@@ -4,7 +4,7 @@
 import type { Level } from '@automataframework/framework/headless'
 import type { Characters } from './edit.ts'
 import type { Point } from './place.ts'
-import { type LevelView, type Screen, toScreen } from './view.ts'
+import { type Camera, type LevelView, type Screen, toScreen } from './view.ts'
 
 /** The fewest points a thing may be hit across. */
 export const MIN_HIT = 44
@@ -27,6 +27,8 @@ export interface Mark {
   readonly name: string
   /** Where it is in the level, in tiles. */
   readonly at: Point
+  /** A note that was finished: drawn faint. */
+  readonly done?: boolean
 }
 
 const area = (r: Rect): number => r.w * r.h
@@ -130,4 +132,38 @@ export function unionBox(marks: readonly Mark[], ids: readonly string[]): Rect |
     w: Math.max(...boxes.map((b) => b.x + b.w)) - x,
     h: Math.max(...boxes.map((b) => b.y + b.h)) - y,
   }
+}
+
+/** Something laid over the level that is not a thing of it: a helper's change drawn as a ghost, or a note pinned on a spot. */
+export interface Extra {
+  readonly id: string
+  readonly kind: 'ghost' | 'note'
+  /** Where it is in the level, in tiles. */
+  readonly at: Point
+  /** How big a ghost is, in tiles. */
+  readonly size?: { readonly w: number; readonly h: number }
+  /** What a screen reader says. */
+  readonly name: string
+  /** A note that was finished. */
+  readonly done?: boolean
+}
+
+/** The marks for what is laid over the level, at this camera: a pin is hit across at least 44 points. */
+export function extraMarks(extras: readonly Extra[], camera: Camera, screen: Screen): readonly Mark[] {
+  return extras.map((extra) => {
+    const c = toScreen(camera, screen, extra.at)
+    const size = extra.size ?? { w: 0, h: 0 }
+    const w = size.w * camera.scale
+    const h = size.h * camera.scale
+    const box = { x: c.x - w / 2, y: c.y - h / 2, w, h }
+    return {
+      id: extra.id,
+      kind: extra.kind,
+      box,
+      hit: grow(box),
+      name: extra.name,
+      at: extra.at,
+      ...(extra.done ? { done: true } : {}),
+    }
+  })
 }

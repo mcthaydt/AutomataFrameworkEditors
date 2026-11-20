@@ -59,6 +59,10 @@
     <Knob on={show.frames} label={text(g.showFrames)} onchange={(on) => onshow({ frames: on })} />
   </div>
   <div class="row">
+    <span>{text(g.showDoneNotes)}</span>
+    <Knob on={show.doneNotes} label={text(g.showDoneNotes)} onchange={(on) => onshow({ doneNotes: on })} />
+  </div>
+  <div class="row">
     <span>{text(g.showFinger)}</span>
     <Knob on={me.fingerDraws} label={text(g.showFinger)} onchange={(on) => onme({ ...me, fingerDraws: on })} />
   </div>

@@ -1,11 +1,12 @@
 // Which screen the page is on, kept in the URL's hash so that a link opens a game, a level or a screen directly. A
 // game opens on a level; a sheet (who can change it, what waits, one waiting change) is asked for as part of the
 // address and opens over that level. The older addresses of a game's page, its Share page and its waiting pages are
-// still understood, so a link someone kept still works.
+// still understood, so a link someone kept still works (Share is now "who can change it", at `people`).
 
-/** A page that opens over the level: the old Share, Waiting and waiting change. */
+/** A page that opens over the level: who can change it, what changed, and the waiting changes. */
 export type Sheet =
-  | { readonly kind: 'share' }
+  | { readonly kind: 'people' }
+  | { readonly kind: 'history' }
   | { readonly kind: 'waiting' }
   | { readonly kind: 'change'; readonly number: number }
 
@@ -29,7 +30,8 @@ function sheetOf(parts: readonly (string | undefined)[]): Sheet | undefined | 'n
   const [word, number, ...rest] = parts
   if (word === undefined) return undefined
   if (rest.some((part) => part !== undefined)) return 'none'
-  if (word === 'share' && number === undefined) return { kind: 'share' }
+  if ((word === 'people' || word === 'share') && number === undefined) return { kind: 'people' }
+  if (word === 'history' && number === undefined) return { kind: 'history' }
   if (word === 'waiting' && number === undefined) return { kind: 'waiting' }
   if (word === 'waiting' && number !== undefined && /^[1-9][0-9]*$/.test(number)) {
     return { kind: 'change', number: Number(number) }

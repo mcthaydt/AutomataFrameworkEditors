@@ -25,9 +25,9 @@ test('every pattern names a scene that exists, and every screen file exists', ()
 })
 
 test('a change to one screen takes only the pictures of the scenes it draws', () => {
-  expect(scenesFor(['src/features/team/Share.svelte'])).toBe('share-')
-  expect(scenesFor(['src/features/team/Share.svelte', 'src/features/team/Waiting.svelte'])).toBe(
-    'share-|waiting-list',
+  expect(scenesFor(['src/features/team/People.svelte'])).toBe('people-')
+  expect(scenesFor(['src/features/team/People.svelte', 'src/features/team/Waiting.svelte'])).toBe(
+    'people-|waiting-list',
   )
 })
 
@@ -41,11 +41,11 @@ test('a change to anything seen that no one screen owns takes every picture', ()
     'tests/journeys/screens.journey.test.ts',
   ]
   for (const file of shared) {
-    expect(scenesFor(['src/features/team/Share.svelte', file]), file).toBe(EVERY_SCENE)
+    expect(scenesFor(['src/features/team/People.svelte', file]), file).toBe(EVERY_SCENE)
   }
 })
 
 test('a change that nothing sees names every scene, which `plan` turns off by the pictures flag instead', () => {
   expect(scenesFor(['src/features/game/put.ts'])).toBe(EVERY_SCENE)
-  expect(scenesFor(['src/features/team/Share.svelte', 'src/features/game/put.ts'])).toBe('share-')
+  expect(scenesFor(['src/features/team/People.svelte', 'src/features/game/put.ts'])).toBe('people-')
 })
