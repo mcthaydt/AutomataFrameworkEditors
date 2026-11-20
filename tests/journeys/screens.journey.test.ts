@@ -1126,11 +1126,16 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         // A blur, filter or fade on anything holding the glass cuts its own blur off from whatever lies outside that
         // holder, so a dialog would show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
         // Glass over a picture inside the same holder (a name on the level drawn in a sheet) still blurs what is behind
-        // it, so what lies under the glass's middle decides.
-        const middle = glass.getBoundingClientRect()
-        const under = document
-          .elementsFromPoint(middle.left + middle.width / 2, middle.top + middle.height / 2)
-          .find((el) => !glass.contains(el) && !el.contains(glass))
+        // it, so what lies under the glass decides: its middle and four points a quarter of the way in from its corners.
+        const around = glass.getBoundingClientRect()
+        const under = [0.5, 0.25, 0.75]
+          .flatMap((across) => [0.5, 0.25, 0.75].map((down) => ({ across, down })))
+          .filter(({ across, down }) => (across === 0.5 && down === 0.5) || (across !== 0.5 && down !== 0.5))
+          .map(({ across, down }) =>
+            document
+              .elementsFromPoint(around.left + around.width * across, around.top + around.height * down)
+              .find((el) => !glass.contains(el) && !el.contains(glass)),
+          )
         for (let up = glass.parentElement; up !== null; up = up.parentElement) {
           const style = getComputedStyle(up)
           const backdrop = style.backdropFilter || style.getPropertyValue('-webkit-backdrop-filter')
@@ -1139,7 +1144,8 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             style.filter !== 'none' ||
             Number(style.opacity) < 1
           ) {
-            if (under === undefined || !up.contains(under))
+            const holder = up
+            if (under.some((el) => el === undefined || !holder.contains(el)))
               found.push(
                 `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
               )
