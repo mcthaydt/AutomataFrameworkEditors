@@ -4,8 +4,23 @@ The editors for games made with [AutomataFramework](https://github.com/mcthaydt/
 game from its GitHub repository and changes its authorable content, the JSON files, by touch on an iPad. The code is
 the agents' work; the editors never show it or touch it.
 
-Anyone can try the example game and keep a copy of a level without signing in. Saving into a game needs a sign-in, and
-the game's owner chooses what each person may do. People need GitHub only to sign in.
+Anyone can try the example game and keep a copy of a level without signing in. Putting changes into a game needs a
+sign-in, and the game's owner chooses what each person may do. People need GitHub only to sign in.
+
+## What is in it
+
+- **World.** One screen for the whole game. Pick a thing in a level and move it, change its numbers, give it a name,
+  draw it behind or in front of other things, lock it or hide it. Place new things, paint the ground, erase, and join a
+  plate to a gate. Everything has Undo and Redo, and a key or a button for every drag.
+- **The map.** Every level of the game on one page: push levels together or pull them apart, clear a wall's way out, make
+  a new level, rename one, copy one, take one away.
+- **Play.** Play a level where it is drawn, with a pause, one step, a slower speed, a strip that goes back through the
+  last 30 seconds, and "Play from here". Playing changes nothing.
+- **The team.** Changes stay on your device until you put them in the game (or send them to someone to check, when your
+  level only suggests). A list of what is waiting, with what each change did. Notes on a level, a thing or a spot.
+- **Help.** A short tour the first time, Help with the keys and finger moves, and a "For me" setting for row size,
+  see-through panels and tips. Nine languages: English, Spanish, Korean, Japanese, Chinese, Portuguese, French,
+  Russian and German.
 
 ## Start
 
@@ -27,8 +42,9 @@ Who has which level is the file `automata.access.toml` in the game. The Share sc
 
 ## Links
 
-A game opens at `#/game/<owner>/<name>`, a level at `#/game/<owner>/<name>/level/<id>`, the waiting changes at
-`.../waiting`, one of them at `.../waiting/<number>`, and the Share screen at `.../share`.
+A game opens at `#/game/<owner>/<name>`, a level at `#/game/<owner>/<name>/level/<id>`, its map at `.../map` (with a
+level picked at `.../map/<id>`), the waiting changes at `.../waiting`, one of them at `.../waiting/<number>`, and the
+Share screen at `.../share`.
 
 ## For agents
 
