@@ -41,7 +41,7 @@ async function whereIs(
   colour: string,
   /** The play bar is put out of sight for the picture, so what is read is the game alone. */
   withoutBar = false,
-): Promise<{ x: number; y: number; wide: number; count: number } | undefined> {
+): Promise<{ x: number; y: number; left: number; right: number; canvas: number; count: number } | undefined> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
   const bar = page.locator('[data-play="box"] [role="toolbar"]')
@@ -62,19 +62,31 @@ async function whereIs(
         let sumX = 0
         let sumY = 0
         let count = 0
+        let left = Number.POSITIVE_INFINITY
+        let right = Number.NEGATIVE_INFINITY
         for (let i = 0; i < data.length; i += 4) {
           if (![0, 1, 2].every((c) => Math.abs((data[i + c] ?? 0) - (target[c] ?? 0)) < 12)) continue
-          sumX += (i / 4) % copy.width
+          const column = (i / 4) % copy.width
+          left = Math.min(left, column)
+          right = Math.max(right, column + 1)
+          sumX += column
           sumY += Math.floor(i / 4 / copy.width)
           count += 1
         }
-        return count === 0 ? undefined : { x: sumX / count, y: sumY / count, count }
+        return count === 0 ? undefined : { x: sumX / count, y: sumY / count, left, right, count }
       },
       { shot, want: colour },
     )
     return found === undefined
       ? undefined
-      : { x: box.x + found.x, y: box.y + found.y, wide: box.width, count: found.count }
+      : {
+          x: box.x + found.x,
+          y: box.y + found.y,
+          left: box.x + found.left,
+          right: box.x + found.right,
+          canvas: box.width,
+          count: found.count,
+        }
   } finally {
     await reader.close()
   }
@@ -142,7 +154,7 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
       await page.keyboard.up('ArrowRight')
     }
     const hero1 = await whereIs(page, HERO)
-    expect(hero1?.x ?? 0).toBeGreaterThan(hero0.x + crate0.wide / 16)
+    expect(hero1?.x ?? 0).toBeGreaterThan(hero0.x + crate0.canvas / 16)
 
     await playButton(page, 'Stop').click()
     await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
@@ -154,7 +166,7 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await started(page)
     await page.waitForTimeout(200)
     const crate1 = await whereIs(page, CRATE)
-    expect((crate1?.x ?? 0) - crate0.x).toBeGreaterThan(crate0.wide / 16)
+    expect((crate1?.x ?? 0) - crate0.x).toBeGreaterThan(crate0.canvas / 16)
     await playButton(page, 'Stop').click()
     await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
 
@@ -264,7 +276,7 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   // tile short of it, at the hero's height.
   const ground = await whereIs(page, GROUND, true)
   if (ground === undefined) throw new Error('the game shows no ground')
-  await page.mouse.click(ground.x - ground.wide / 2 + 12 * (ground.wide / 16), hero0.y)
+  await page.mouse.click(ground.left + 12 * ((ground.right - ground.left) / 16), hero0.y)
   await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
   // The game starts again from there; a key held before it is up is not the game's.
   await started(page)
@@ -397,10 +409,9 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
       // its left end is tile 0: a place on the picture is a tile whatever the camera does after the tap.
       const ground = await whereIs(page, GROUND, true)
       if (ground === undefined) throw new Error('the game shows no ground')
-      const scale = ground.wide / 16
-      const left = ground.x - ground.wide / 2
-      const tapAt = { x: hero0.x + ground.wide * 0.4, y: hero0.y }
-      const wanted = (tapAt.x - left) / scale
+      const scale = (ground.right - ground.left) / 16
+      const tapAt = { x: hero0.x + (ground.right - ground.left) * 0.4, y: hero0.y }
+      const wanted = (tapAt.x - ground.left) / scale
       if (how === 'touch') await page.touchscreen.tap(tapAt.x, tapAt.y)
       else await page.mouse.click(tapAt.x, tapAt.y)
       await prompt.waitFor({ state: 'detached' })
@@ -414,7 +425,7 @@ describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s'
               const now = await whereIs(page, GROUND, true)
               const hero = await whereIs(page, HERO, true)
               if (now === undefined || hero === undefined) return false
-              got = (hero.x - (now.x - now.wide / 2)) / (now.wide / 16)
+              got = (hero.x - now.left) / ((now.right - now.left) / 16)
               return Math.abs(got - wanted) < 0.75
             },
             { timeout: 5000 },
