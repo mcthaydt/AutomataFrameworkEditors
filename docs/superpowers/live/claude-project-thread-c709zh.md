@@ -1,0 +1,4 @@
+- Current task: design round 1 fixes (batch A 20 reds, batch B 17 reds; 34 distinct), one draft PR from main 746c2ca1, group 1: the card-over-card screens rule.
+- Last commit: 746c2ca1 (main)
+- Next step: add the rule, see it fail on A1 A3 A5 A9 A13 R2 R3, then fix those.
+- Open decisions: none (14:43 UTC).

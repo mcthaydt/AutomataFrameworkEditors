@@ -1092,6 +1092,28 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
         }
       }
+      // Floating glass (a bar, a tip, a note, a card, a sheet) sits beside the other glass, never on it: one card over another hides
+      // words the person needs (design round 1: A1, A3, A5, A9, R2, R3).
+      // The page's own furniture is not a card: the top bar, the docks and side panels, a sheet or menu opening over everything,
+      // the tags on the things in the level and the rooms' names (they are drawn under the cards on purpose).
+      const furniture = '.dim, .sheet[role=dialog], [role=menu], .tag, .name, .dock, .panel, [data-bar]'
+      const floating = [...document.querySelectorAll('.glass-1, .glass-2, .glass-3')].filter(
+        (el) => seen(el) && el.closest(furniture) === null,
+      )
+      for (let a = 0; a < floating.length; a += 1) {
+        for (let b = a + 1; b < floating.length; b += 1) {
+          if (floating[a]!.contains(floating[b]!) || floating[b]!.contains(floating[a]!)) continue
+          if (!mine(floating[a]!) && !mine(floating[b]!)) continue
+          const first = floating[a]!.getBoundingClientRect()
+          const second = floating[b]!.getBoundingClientRect()
+          const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
+          const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
+          if (across > 4 && down > 4)
+            found.push(
+              `card ${floating[a]!.className}|${named(floating[a]!)} lies on card ${floating[b]!.className}|${named(floating[b]!)} by ${Math.round(across)}x${Math.round(down)}`,
+            )
+        }
+      }
       // One way back, never two: a grandma asks which one.
       const backs = [...document.querySelectorAll('button')].filter(
         (el) => seen(el) && (el.textContent ?? '').trim() === backWord,
