@@ -149,6 +149,13 @@ jobs:
     if: needs.plan.outputs.docs != 'true'
     name: browsers (${{ matrix.engine }} ${{ matrix.shard }}/6)
     runs-on: ubuntu-latest
+    # Playwright's own image, pinned by digest to the Playwright in the lockfile: the three browsers and every system
+    # library they need are already in it, so no shard installs them (that install was the slowest part of setting up,
+    # 40 s to 12 min). User 1001 is the runner's own user, which Firefox needs. A shard with nothing to do (a draft with
+    # no journeys to play) gets no image, so it pulls nothing. Moving to a newer Playwright means a new digest here.
+    container:
+      image: ${{ (matrix.shard == 1 || (needs.plan.outputs.journeys == 'true' && (matrix.shard > 3 || needs.plan.outputs.pictures == 'true'))) && 'mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27' || '' }}
+      options: --user 1001
     # A browser that has gone wrong fails every journey slowly; this stops it, and the journeys give up after fifteen
     # failures (`--bail`), or after one on a draft, so a red run is read in minutes.
     timeout-minutes: 30
@@ -188,20 +195,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
         if: env.WORK == 'true'
-      # The browser is kept between runs, by Playwright's version; the system libraries it needs are put in each time.
-      - id: version
-        if: env.WORK == 'true'
-        run: echo "playwright=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: env.WORK == 'true'
-        id: browser
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.version.outputs.playwright }}-${{ matrix.engine }}
-      - if: env.WORK == 'true' && steps.browser.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps ${{ matrix.engine }}
-      - if: env.WORK == 'true' && steps.browser.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps ${{ matrix.engine }}
       - if: matrix.shard == 1
         run: pnpm test:engine ${{ matrix.engine }} --bail=$BAIL
       - if: env.JOURNEYS == 'true'
@@ -265,6 +258,10 @@ jobs:
     needs: plan
     if: needs.plan.outputs.pictures == 'true'
     runs-on: ubuntu-latest
+    # The same Playwright image as the browser shards, so Chromium is not installed here either.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --user 1001
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -274,7 +271,6 @@ jobs:
           node-version: 24.21.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
       - run: node docs/mockups/shoot.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

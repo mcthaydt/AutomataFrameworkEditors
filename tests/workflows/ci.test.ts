@@ -38,3 +38,23 @@ test('the screens job never shares one queue across runs, and its push starts ag
   // main's head is read on its own line, so a failed read fails the try instead of skipping the pictures.
   expect(job).toMatch(/^\s+head="\$\(gh api "repos\/\$GITHUB_REPOSITORY\/commits\/main" --jq \.sha\)"$/m)
 })
+
+// The browser shards and the mockups run in Playwright's own image, so no job installs a browser or its system
+// libraries (that install took 40 s to 12 minutes of a shard's setup). The image is pinned by digest and names the
+// same Playwright as the lockfile, so the browsers are the ones the tests were written against.
+test('the browser jobs run in the pinned Playwright image of the locked Playwright, and nothing installs a browser', () => {
+  const text = readFileSync(join(DIR, 'ci.yml'), 'utf8')
+  const lock = readFileSync(join(import.meta.dirname, '../../pnpm-lock.yaml'), 'utf8')
+  const locked = lock.match(/^ {2}playwright@(\d+\.\d+\.\d+):/m)?.[1]
+  expect(locked).toBeDefined()
+  const images = [...text.matchAll(/mcr\.microsoft\.com\/playwright:v([\d.]+)-noble@sha256:[0-9a-f]{64}/g)]
+  // One for the browser shards, one for the mockups.
+  expect(images.map((m) => m[1])).toEqual([locked, locked])
+  for (const job of ['browsers', 'mockups']) {
+    const start = text.indexOf(`\n  ${job}:\n`)
+    const body = text.slice(start, text.indexOf('\n\n  #', start))
+    expect(body).toMatch(/container:\n\s+image:.*mcr\.microsoft\.com\/playwright/)
+    expect(body).toMatch(/options: --user 1001/)
+  }
+  expect(text).not.toMatch(/playwright install/)
+})
