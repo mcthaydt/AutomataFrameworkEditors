@@ -28,6 +28,15 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 10:01 UTC: the walk's R6 is merged: #129, "1 to check" as a glass sheet over the level, merge `0e6d112` (reviewed head
+  `b3acf00`, three cycles, audit `2026-11-20-world-check-sheet-1-implementation-audit.md`). While a change is checked
+  the top bar's Undo, Redo and send are held with a reason and no key touches the person's own work. Left as notes:
+  a tooltip never shows on touch; Escape does not stop a played waiting change (it never did). Framework #222 is
+  merged as `2cbd6d0` (`Game.levelAt`, reviewed at `3dbcbfa`, no reds); Agent-selected: the editors' side of R5 (the
+  pin from `b10ffe6` to `2cbd6d0`, `PlayPart`, the failing journey) goes into #128 with its review fixes rather than a
+  pull request of its own, to spare a conflict in `PlayPart`. The CI retry is built as draft #135 (`b6ceda3`, 24
+  changed lines and a guard against an older main run writing over a newer one's pictures) and is with its lane 3
+  auditor, who is asked to say whether every line is inside what the Owner approved.
 - The Owner's, 2026-11-20 09:27 UTC (decision card "Allow a slightly bigger CI fix, since the one-line version is
   unsafe?"): "Yes, add the retry (about 8 lines)". Why it was asked: every run pushes its pictures to the one branch
   `ci-screens` with a plain push and no retry, so a queue per commit alone would swap a cancelled job for a rejected
