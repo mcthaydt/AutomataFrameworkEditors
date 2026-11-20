@@ -49,12 +49,7 @@ const drawn = (page: Page, word: string) => page.getByRole('radio', { name: word
 async function shows(page: Page, colour: string): Promise<{ count: number; size: string }> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
-  // The play bar lies over the top left of the game on a small screen, and a screenshot sees it: it is put out of the
-  // way for the one picture, so what is read is the game and not the bar.
-  const bar = page.locator('[data-play="box"] [role="toolbar"]')
-  await bar.evaluate((el) => el.style.setProperty('visibility', 'hidden'))
   const shot = (await pictureOf(page, box)).toString('base64')
-  await bar.evaluate((el) => el.style.removeProperty('visibility'))
   const reader = await page.context().newPage()
   try {
     const found = await reader.evaluate(

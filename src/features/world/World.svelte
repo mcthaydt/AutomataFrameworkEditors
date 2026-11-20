@@ -116,6 +116,8 @@ import { listen, measure } from './listen.ts'
   let big = $state(false)
   /** Beside the door the play came through. */
   let arrival = $state.raw<Arrive | undefined>(undefined)
+  /** How fast the game plays, kept across a door (each room is its own mount) and put back to normal by Stop. */
+  let playSpeed = $state(1)
   let following = false // a door opened the level in view: the play goes on in it
   let viewport = $state(first)
   let docks = $state<Docks>({
@@ -205,8 +207,8 @@ import { listen, measure } from './listen.ts'
       case 'help': return guide?.open('help')
       case 'find': return void (finding = true)
       case 'nudge': return nudge(picked[0] as string, act.way)
-      case 'tool': return void (tool = act.tool)
-      case 'place': return void ((placing = act.character), (tool = 'place'))
+      case 'tool': return void ((tool = act.tool), guide?.happen({ kind: 'tool', what: act.tool }))
+      case 'place': return void ((placing = act.character), (tool = 'place'), guide?.happen({ kind: 'tool', what: 'place' }))
       case 'level': return part?.command(act.command)
     }
   }
@@ -222,6 +224,7 @@ import { listen, measure } from './listen.ts'
   }
 
   function startPlay(): void {
+    guide?.happen({ kind: 'played' })
     events = unsay(events, 'play')
     big = false
     playing = true
@@ -229,6 +232,7 @@ import { listen, measure } from './listen.ts'
   function stopPlay(): void {
     playing = false
     big = false
+    playSpeed = 1
     arrival = undefined
     events = unsay(events, 'tip-play-code')
   }
@@ -417,7 +421,7 @@ import { listen, measure } from './listen.ts'
       {/if}
       {#if playing}
         {#key levelId}
-          <PlayPart game={held} {edits} level={levelId} {lang} {big} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
+          <PlayPart game={held} {edits} level={levelId} {lang} {big} speed={playSpeed} onspeed={(next) => (playSpeed = next)} arrive={arrival} waiting={events.some((one) => one.id === 'tip-play-code')} onbig={() => (big = !big)} onstarted={() => (events = playTip(events, remembered, me.tips, text(words.play.tipCode)))} onproblem={noPlay} ondoor={followDoor} />
         {/key}
       {/if}
     </div>
@@ -473,7 +477,10 @@ import { listen, measure } from './listen.ts'
     canRedo={edits.future.length > 0}
     quiet={playing}
     away={(playing && big) || checking}
-    ontool={(next) => (tool = next)}
+    ontool={(next) => {
+      tool = next
+      guide?.happen({ kind: 'tool', what: next })
+    }}
     onundo={() => step('undo')}
     onredo={() => step('redo')}
     onopen={openList}

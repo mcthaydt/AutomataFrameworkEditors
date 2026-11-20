@@ -6,6 +6,7 @@ import { mount, tick, unmount } from 'svelte'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { startEdits } from '#src/features/game/game.ts'
 import { emptyKind, kindsOf, paint } from '#src/features/levels/levels.ts'
+import type { Lang } from '#src/features/words/words.ts'
 import { readFrom } from '../../fixtures/game/read.ts'
 import { linksFiles } from '../../fixtures/links-game/links.ts'
 import { linksMap } from '../../fixtures/links-game/read.ts'
@@ -24,6 +25,7 @@ let holder: ReturnType<typeof mount> & {
   undo: () => void
   steps: () => number
   pickedNow: () => string | undefined
+  speak: (lang: Lang) => void
 }
 let mounted: ReturnType<typeof mount> | undefined
 
@@ -498,4 +500,24 @@ test('a wider bar picked after a narrower one is on the screen in the frame it i
   const screen = sheet().getBoundingClientRect()
   expect(bar.left, 'the bar runs off the left').toBeGreaterThanOrEqual(screen.left)
   expect(bar.right, 'the bar runs off the right').toBeLessThanOrEqual(screen.right)
+})
+
+// A language change makes the bar's words longer or shorter (German and Russian are wider than a phone, a fault reported
+// apart; these three fit); the bar is placed by its new size in the same flush, not
+// by the old one for a frame (the glass audit's N10).
+test('the bar is on the screen in the frame its words change language', async () => {
+  size(390, 700)
+  await show()
+  level('room-3').click()
+  await tick()
+  await new Promise((done) => requestAnimationFrame(done))
+  for (const lang of ['fr', 'es', 'en'] as const) {
+    holder.speak(lang)
+    await tick()
+    const bar = (box.querySelector('[role="toolbar"]') as Element).getBoundingClientRect()
+    const screen = sheet().getBoundingClientRect()
+    expect(bar.left, `the bar runs off the left in ${lang}`).toBeGreaterThanOrEqual(screen.left)
+    expect(bar.right, `the bar runs off the right in ${lang}`).toBeLessThanOrEqual(screen.right)
+    await new Promise((done) => requestAnimationFrame(done))
+  }
 })

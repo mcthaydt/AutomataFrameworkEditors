@@ -16,6 +16,7 @@
     readTicks,
     Settings,
     type Step,
+    STEPS,
     stepsIn,
     Tour,
     type TourState,
@@ -49,8 +50,8 @@
   let { lang, me, game, api, owner, remembered, things, picked, onme, onsettings, onsignedout, onkeep, onpaste }: Props =
     $props()
 
-  // Only the steps whose job is on the screen are in the tour; the pull request that draws another adds it here.
-  const steps = stepsIn(new Set<Step>(['tap-the-crate', 'drag-a-value']))
+  // All four steps of the first run: the level, the tools, a value, and Play then Put in game.
+  const steps = stepsIn(new Set<Step>(STEPS))
   let intro = $state<'welcome' | 'tour' | undefined>(
     untrack(() => (guideWanted(remembered) ? 'welcome' : undefined)),
   )
@@ -77,6 +78,8 @@
       const one = things.find((thing) => thing.character === 'crate') ?? things[0]
       return one === undefined ? undefined : `[data-thing="${one.id}"]`
     }
+    if (tour.step === 'tap-place') return '[data-tour="place"]'
+    if (tour.step === 'play-then-put') return '[data-tour="play"]'
     return tour.step === 'drag-a-value' ? '[data-tour="settings"]' : undefined
   })
 

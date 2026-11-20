@@ -58,7 +58,7 @@ const share = (j: JourneyPage, over: Parameters<typeof writeAccess>[0]): void =>
 const said = (row: Row, ...parts: (string | number)[]): string =>
   typeof row === 'function' ? row(...parts) : row
 const first = (lang: Lang) => wordsIn(lang).first
-/** The tour's card, which says "1 of 2" and what to try. */
+/** The tour's card, which says "1 of 4" and what to try. */
 const coach = (j: JourneyPage) => j.page.locator('.coach')
 const stored = (j: JourneyPage, key: string) => j.page.evaluate((k) => localStorage.getItem(k), key)
 
@@ -100,7 +100,19 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
       .getByRole('button', { name: said(first('en').tourNext) })
       .click()
 
-    // Step 2 asks for a change to a number of what is picked ("How heavy"), and a plain pick does not count.
+    // Step 2 asks for the Place tool; a pick alone does not count.
+    await coach(j)
+      .getByText(said(first('en').tourToolsDo))
+      .waitFor()
+    await j.page.getByRole('button', { name: 'Place', exact: true }).click()
+    await coach(j)
+      .getByText(said(first('en').tourDid))
+      .waitFor()
+    await coach(j)
+      .getByRole('button', { name: said(first('en').tourNext) })
+      .click()
+
+    // Step 3 asks for a change to a number of what is picked ("How heavy"), and a plain pick does not count.
     await coach(j)
       .getByText(said(first('en').tourValueDo, 'How heavy'))
       .waitFor()
@@ -116,6 +128,18 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     await j.page.mouse.down()
     await j.page.mouse.move(track.x + track.width * 0.6, y, { steps: 6 })
     await j.page.mouse.up()
+    await coach(j)
+      .getByText(said(first('en').tourDid))
+      .waitFor()
+    await coach(j)
+      .getByRole('button', { name: said(first('en').tourNext) })
+      .click()
+
+    // Step 4: Play, then back. Pressing Play ticks it.
+    await coach(j)
+      .getByText(said(first('en').tourPutDo))
+      .waitFor()
+    await j.page.getByRole('button', { name: 'Play', exact: true }).click()
     await coach(j)
       .getByText(said(first('en').tourDid))
       .waitFor()
@@ -159,6 +183,13 @@ test('with a thing that has no number, the tour asks for a move by the arrows an
   await coach(j)
     .getByText(said(first('en').tourDid))
     .waitFor()
+  await coach(j)
+    .getByRole('button', { name: said(first('en').tourNext) })
+    .click()
+  await coach(j)
+    .getByText(said(first('en').tourToolsDo))
+    .waitFor()
+  await j.page.getByRole('button', { name: 'Place', exact: true }).click()
   await coach(j)
     .getByRole('button', { name: said(first('en').tourNext) })
     .click()

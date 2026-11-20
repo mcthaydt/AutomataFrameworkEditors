@@ -88,7 +88,9 @@
         ? text(c.sentTitle, by)
         : phase === 'failed'
           ? text(kind === 'put' ? c.failPut : c.failSend)
-          : kind === 'put'
+          : nothingLeft
+            ? text(c.clashTitle)
+            : kind === 'put'
             ? text(c.putTitle, n)
             : waiting
               ? text(c.waitMoreTitle, by)

@@ -1,7 +1,7 @@
 <script lang="ts">
-  // The level on screen: the picture, the marks a hand touches, the tool in hand and its floating parts (the bar over what is
-  // picked, the pad of arrows, the tray, the menus and the notes). It decides nothing about the game: every hand movement
-  // becomes one of the pure edits (`things.ts`, `ground.ts`, `clipboard.ts`) and the new level goes up through `onedit`.
+  // The level on screen: the picture, the marks a hand touches, the tool in hand and its floating parts. It decides nothing
+  // about the game: every hand movement becomes one of the pure edits (`things.ts`, `ground.ts`, `clipboard.ts`) and the
+  // new level goes up through `onedit`.
   import type { GameContent, Level } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import type { Pointers } from '../device/device.ts'
@@ -95,9 +95,10 @@ import { tagFacts } from './tags.ts'
   }: Props = $props()
 
   const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
+  /** The tray's room (px) at the level's foot, kept clear on a stage shorter than STAGE_TOO_SHORT. */
+  const [TRAY_ROOM, STAGE_TOO_SHORT] = [100, 400]
   const words = $derived(wordsIn(lang).levels)
-  const text = (row: Row, ...parts: (string | number)[]): string =>
-    typeof row === 'function' ? row(...parts) : row
+  const text = (row: Row, ...parts: (string | number)[]): string => (typeof row === 'function' ? row(...parts) : row)
   const characters = $derived(content.characters)
   const hero = $derived(content.project.hero)
   let holder: HTMLDivElement | undefined = $state()
@@ -105,13 +106,15 @@ import { tagFacts } from './tags.ts'
   let engine = $state.raw<Stage | undefined>()
   /** Where a person slid or zoomed to; undefined while the whole level is shown. */
   let custom = $state.raw<Camera | undefined>()
-  const camera = $derived(custom ?? wholeLevel(level, size, NONE))
+  const trayOver = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 && size.h < STAGE_TOO_SHORT)
+  const room = $derived(trayOver ? { ...NONE, bottom: TRAY_ROOM } : NONE)
+  const camera = $derived(custom ?? wholeLevel(level, size, room))
   $effect(() => {
     levelId
     untrack(() => (custom = undefined))
   })
   $effect(() => {
-    const near = custom !== undefined && custom.scale > wholeLevel(level, size, NONE).scale * 1.05 ? 'close' : 'whole'
+    const near = custom !== undefined && custom.scale > wholeLevel(level, size, room).scale * 1.05 ? 'close' : 'whole'
     untrack(() => onnear(near))
   })
 
@@ -289,13 +292,10 @@ import { tagFacts } from './tags.ts'
 
   // A grab: everything is worked out from the level as it was when the hand took hold.
   let grabbed: { base: Level; ids: readonly string[] } | undefined
-  // Touching a thing picks it, and picking can change the room the level has (a bar comes up on a phone). The picture must
-  // not rescale under the finger, so a hand that went down on a thing holds the camera until it comes up.
+  // Picking can change the room the level has (a bar comes up on a phone): a hand on a thing holds the camera still.
   let heldView = false
   const holdView = (): void => {
-    if (custom !== undefined) return
-    custom = camera
-    heldView = true
+    if (custom === undefined) [custom, heldView] = [camera, true]
   }
   const letGoView = (): void => {
     if (heldView) custom = undefined

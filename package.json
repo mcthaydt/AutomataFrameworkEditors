@@ -25,7 +25,7 @@
     "test:journeys": "vitest run --project journeys --reporter=default --reporter=json --outputFile.json=journeys-result.json"
   },
   "dependencies": {
-    "@automataframework/framework": "github:mcthaydt/AutomataFramework#b10ffe6969916f1bf4af368bb826c876a93ec7d8",
+    "@automataframework/framework": "github:mcthaydt/AutomataFramework#2cbd6d0da04879f4890a959e938189f8d900bb30",
     "pixi.js": "8.22.0",
     "smol-toml": "1.9.0",
     "svelte": "5.57.1",
@@ -52,7 +52,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/b10ffe6969916f1bf4af368bb826c876a93ec7d8"
+      "@automataframework/framework@https://codeload.github.com/mcthaydt/AutomataFramework/tar.gz/2cbd6d0da04879f4890a959e938189f8d900bb30"
     ]
   }
 }

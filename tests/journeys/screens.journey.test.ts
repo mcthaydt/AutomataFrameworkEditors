@@ -150,6 +150,15 @@ async function wallMade(size: Size, stops = false): Promise<JourneyPage> {
   await j.page.getByRole('button', { name: '1 problem' }).waitFor()
   return j
 }
+/** The links game's map, grandma signed in, with `level` picked. */
+async function mapPicked(size: Size, level: string): Promise<JourneyPage> {
+  const j = await window_(size, 'grandma')
+  await signIn(j.page)
+  await openMapOf(j.page)
+  await j.page.locator(`[data-level="${level}"]`).click()
+  await j.page.getByRole('toolbar').waitFor()
+  return j
+}
 const move = (j: JourneyPage) => dragByTouch(j.page, 'crate-1', { dx: 2, dy: 0 })
 /** Opens the game's menu (on a narrow phone, the part menu that holds its rows too) and leaves it open. */
 async function openGameMenu(j: JourneyPage): Promise<void> {
@@ -435,6 +444,19 @@ const SCENES: readonly Scene[] = [
     stage: true,
   },
   {
+    name: 'level-settings-pulled-up',
+    // Where the settings are a one-line bar that pulls up (a phone, an upright iPad), the person pulls it up on purpose.
+    reach: async (size) => {
+      const j = await gameAs(size, 'grandma')
+      await thingNamed(j.page, 'crate-1').click()
+      const peek = j.page.locator('button.peek')
+      if ((await peek.count()) > 0) await peek.click()
+      await j.page.locator('aside[data-tour="settings"]').waitFor()
+      return j
+    },
+    stage: true,
+  },
+  {
     name: 'level-unsaved',
     reach: async (size) => {
       const j = await gameAs(size, 'grandma')
@@ -603,6 +625,11 @@ const SCENES: readonly Scene[] = [
         .getByRole('button', { name: /^Keep .*’s$/ })
         .click()
       await putSheet(j.page).getByText(checkWords.nothingLeft).waitFor()
+      // The title says what the sheet shows, never "Put 0 changes in the game".
+      expect(await putSheet(j.page).getByRole('heading', { name: /Put 0/ }).count()).toBe(0)
+      await putSheet(j.page)
+        .getByRole('heading', { name: String(wordsIn('en').changes.clashTitle) })
+        .waitFor()
       return j
     },
     stage: true,
@@ -656,6 +683,16 @@ const SCENES: readonly Scene[] = [
     },
     stage: true,
     only: NEW_ON_MAP,
+  },
+  {
+    name: 'map-level-more',
+    reach: async (size) => {
+      const j = await mapPicked(size, 'room-3')
+      await j.page.getByRole('button', { name: 'More' }).click()
+      await j.page.getByRole('menu').waitFor()
+      return j
+    },
+    stage: true,
   },
   {
     name: 'level-leave-anyway',
@@ -947,6 +984,34 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
       }
+      // The settings, where they pull up from a bar: at rest the tools and Undo are in sight and not under anything; pulled up
+      // (a person's own act, so it may cover the tools) a way back is in sight and named (item 1 of the brief).
+      const sheet = document.querySelector('aside.panel.sheet')
+      const peek = document.querySelector('button.peek')
+      const onScreen = (box: DOMRect): boolean =>
+        box.top >= 0 && box.left >= 0 && box.bottom <= innerHeight + 1 && box.right <= innerWidth + 1
+      const overlaid =
+        document.querySelector('[aria-modal=true], [role=menu], [role=dialog], .events .event') !== null
+      if (peek !== null && seen(peek) && !overlaid) {
+        // The tool buttons are the toolbar's own `.tool` buttons (Select, Place, Paint, Erase, Join; Undo, Redo, Show).
+        const tools = [...document.querySelectorAll('button.tool')].filter((el) => seen(el))
+        if (tools.length === 0) found.push('the tools are not in sight with the settings folded')
+        for (const el of tools) {
+          const box = el.getBoundingClientRect()
+          const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+          if (!onScreen(box) || top === null || !(el === top || el.contains(top)))
+            found.push(`${named(el)} is out of sight or covered with the settings folded`)
+        }
+      }
+      if (sheet !== null && seen(sheet)) {
+        const done = [...sheet.querySelectorAll('button')].find((el) => el.classList.contains('done'))
+        if (
+          done === undefined ||
+          !onScreen(done.getBoundingClientRect()) ||
+          (done.textContent ?? '').trim() === ''
+        )
+          found.push('the pulled-up settings have no named way back in sight')
+      }
       // The faces button must hold the faces it draws: squeezed under them, it lets them spill onto the next button, and
       // the two boxes never overlap even though the pictures do.
       for (const el of touchable) {
@@ -998,10 +1063,10 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       // Two things cannot overlap if one has been scrolled out of the screen's own scrolling area: it is not on show.
       const area = document.querySelector('.content')?.getBoundingClientRect()
-      // A sheet's body scrolls under its foot the same way: what is scrolled out of the body is not on show either.
+      // A sheet's body (a dialog's or the settings') scrolls under its foot the same way: what is scrolled out of the body is not on show either.
       const onShow = (el: Element): boolean => {
         const box = el.getBoundingClientRect()
-        const body = el.closest('[role=dialog] .body')?.getBoundingClientRect()
+        const body = el.closest('[role=dialog] .body, aside.panel .body')?.getBoundingClientRect()
         if (body !== undefined && (box.top < body.top - 1 || box.bottom > body.bottom + 1)) return false
         return (
           area === undefined ||
@@ -1016,9 +1081,9 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           const second = shown[b]!.getBoundingClientRect()
           const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
           const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
-          // A menu or a sheet opens over the screen: what it covers is under it, not beside it.
-          const menuA = shown[a]!.closest('[role=menu], [aria-modal=true]') !== null
-          const menuB = shown[b]!.closest('[role=menu], [aria-modal=true]') !== null
+          // A menu or a sheet opens over the screen (the settings pulled up, too): what it covers is under it, not beside it.
+          const menuA = shown[a]!.closest('[role=menu], [aria-modal=true], aside.panel.sheet') !== null
+          const menuB = shown[b]!.closest('[role=menu], [aria-modal=true], aside.panel.sheet') !== null
           if (menuA !== menuB) continue
           if (!mine(shown[a]!) && !mine(shown[b]!)) continue
           // A menu's backdrop (the button that closes it when the page behind is pressed) lies over everything by design.
@@ -1049,6 +1114,22 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         for (const box of range.getClientRects()) {
           if (box.right > window.innerWidth + 1 || box.left < -1)
             found.push(`text runs off the side: "${words.slice(0, 30)}"`)
+        }
+        // A button's words sit inside the button, never over its edge into the next one (crowded bars, 2026-11-20).
+        const holder = parent.closest('button, a[href]')
+        // A name that is shortened with dots (the part's) is cut by its box on purpose: the whole of it is in the menu.
+        const cutShort = [parent, holder].some(
+          (el) => el !== null && getComputedStyle(el).textOverflow === 'ellipsis',
+        )
+        if (holder !== null && !cutShort && !holder.hasAttribute('data-thing') && mine(holder)) {
+          const around = holder.getBoundingClientRect()
+          for (const box of range.getClientRects()) {
+            const out = Math.max(around.left - box.left, box.right - around.right)
+            if (box.width > 0 && out > 0.5)
+              found.push(
+                `the words "${words.slice(0, 24)}" are ${out.toFixed(1)} px outside their button (${holder.className})`,
+              )
+          }
         }
         const style = getComputedStyle(parent)
         // The bar's names may be shortened: the whole name is in the menu they open.
@@ -1093,11 +1174,16 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         // A blur, filter or fade on anything holding the glass cuts its own blur off from whatever lies outside that
         // holder, so a dialog would show the level less blurred than the bar under it (the audit of 2026-11-20, R1).
         // Glass over a picture inside the same holder (a name on the level drawn in a sheet) still blurs what is behind
-        // it, so what lies under the glass's middle decides.
-        const middle = glass.getBoundingClientRect()
-        const under = document
-          .elementsFromPoint(middle.left + middle.width / 2, middle.top + middle.height / 2)
-          .find((el) => !glass.contains(el) && !el.contains(glass))
+        // it, so what lies under the glass decides: its middle and four points a quarter of the way in from its corners.
+        const around = glass.getBoundingClientRect()
+        const under = [0.5, 0.25, 0.75]
+          .flatMap((across) => [0.5, 0.25, 0.75].map((down) => ({ across, down })))
+          .filter(({ across, down }) => (across === 0.5 && down === 0.5) || (across !== 0.5 && down !== 0.5))
+          .map(({ across, down }) =>
+            document
+              .elementsFromPoint(around.left + around.width * across, around.top + around.height * down)
+              .find((el) => !glass.contains(el) && !el.contains(glass)),
+          )
         for (let up = glass.parentElement; up !== null; up = up.parentElement) {
           const style = getComputedStyle(up)
           const backdrop = style.backdropFilter || style.getPropertyValue('-webkit-backdrop-filter')
@@ -1106,7 +1192,8 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             style.filter !== 'none' ||
             Number(style.opacity) < 1
           ) {
-            if (under === undefined || !up.contains(under))
+            const holder = up
+            if (under.some((el) => el === undefined || !holder.contains(el)))
               found.push(
                 `a glass ${glass.className.match(/glass-\d/)?.[0]} sits inside a "${up.className}" that blurs or fades`,
               )

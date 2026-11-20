@@ -241,20 +241,20 @@
     {/if}
     {#if problems?.kind === 'problems'}
       {#if onproblems}
-        <button type="button" class="chip bad" onclick={onproblems}>
-          <Icon name="warning" /><span>{text(w.problems, problems.count)}</span>
+        <button type="button" class="chip bad" aria-label={text(w.problems, problems.count)} title={text(w.problems, problems.count)} onclick={onproblems}>
+          <Icon name="warning" /><span class="full">{text(w.problems, problems.count)}</span><span class="short" aria-hidden="true">{problems.count}</span>
         </button>
       {:else}
-        <span class="chip bad"><Icon name="warning" /><span>{text(w.problems, problems.count)}</span></span>
+        <span class="chip bad"><Icon name="warning" /><span class="full">{text(w.problems, problems.count)}</span><span class="short" aria-hidden="true">{problems.count}</span></span>
       {/if}
     {/if}
     {#if toCheck?.kind === 'to-check'}
       {#if ontocheck}
-        <button type="button" class="chip" onclick={ontocheck}>
-          <Icon name="list-checks" /><span>{text(w.toCheck, toCheck.count)}</span>
+        <button type="button" class="chip" aria-label={text(w.toCheck, toCheck.count)} title={text(w.toCheck, toCheck.count)} onclick={ontocheck}>
+          <Icon name="list-checks" /><span class="full">{text(w.toCheck, toCheck.count)}</span><span class="short" aria-hidden="true">{toCheck.count}</span>
         </button>
       {:else}
-        <span class="chip"><Icon name="list-checks" /><span>{text(w.toCheck, toCheck.count)}</span></span>
+        <span class="chip"><Icon name="list-checks" /><span class="full">{text(w.toCheck, toCheck.count)}</span><span class="short" aria-hidden="true">{toCheck.count}</span></span>
       {/if}
     {/if}
     {#if offline}
@@ -270,6 +270,7 @@
       <button
         type="button"
         class="chip play"
+        data-tour="play"
         aria-pressed={playing}
         aria-label={text(playing ? w.stop : w.play)}
         title={text(playing ? w.stop : w.play)}
@@ -364,6 +365,10 @@
     font: inherit;
     cursor: pointer;
   }
+  /* A button is as wide as its words; the bar squeezes the names that have dots for it (the game's and the part's). */
+  button:not(.game, .part, .put) {
+    flex: none;
+  }
   button:not(.dim):hover,
   button[aria-expanded='true'] {
     background: var(--hover);
@@ -437,6 +442,18 @@
   :global(.look[data-size='phone-sideways']) .put {
     min-height: 44px;
   }
+  /* An upright phone has no room for the words of a count (1 problem, 1 to check): the icon and the number stay, and the
+     button's spoken name says it all. */
+  .short {
+    display: none;
+  }
+
+  :global(.look[data-size='phone']) .chip .full {
+    display: none;
+  }
+  :global(.look[data-size='phone']) .chip .short {
+    display: inline;
+  }
   /* An upright phone has no room for the second line, or for the words beside the icons. */
   :global(.look[data-size='phone']) .long {
     display: none;
@@ -452,7 +469,7 @@
   .dim {
     position: fixed;
     inset: 0;
-    z-index: 20;
+    z-index: 50;
     min-width: 0;
     min-height: 0;
     padding: 0;
@@ -460,7 +477,7 @@
   }
   .pop {
     position: fixed;
-    z-index: 21;
+    z-index: 51;
     width: 300px;
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 80px);
@@ -468,7 +485,7 @@
   }
   .notes {
     position: fixed;
-    z-index: 22;
+    z-index: 52;
     top: calc(var(--bar) + 24px);
     left: 50%;
     transform: translateX(-50%);

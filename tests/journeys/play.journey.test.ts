@@ -14,6 +14,7 @@ import {
   setupJourneys,
   signIn,
   slideGameHalf,
+  thingNamed,
 } from '../fixtures/journey.ts'
 
 setupJourneys()
@@ -37,10 +38,15 @@ const HERO = '#e4572e'
 async function whereIs(
   page: Page,
   colour: string,
-): Promise<{ x: number; y: number; wide: number } | undefined> {
+  /** The play bar is put out of sight for the picture, so what is read is the game alone. */
+  withoutBar = false,
+): Promise<{ x: number; y: number; left: number; right: number; canvas: number; count: number } | undefined> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
+  const bar = page.locator('[data-play="box"] [role="toolbar"]')
+  if (withoutBar) await bar.evaluate((el) => el.style.setProperty('visibility', 'hidden'))
   const shot = (await pictureOf(page, box)).toString('base64')
+  if (withoutBar) await bar.evaluate((el) => el.style.removeProperty('visibility'))
   const reader = await page.context().newPage()
   try {
     const found = await reader.evaluate(
@@ -55,20 +61,52 @@ async function whereIs(
         let sumX = 0
         let sumY = 0
         let count = 0
+        let left = Number.POSITIVE_INFINITY
+        let right = Number.NEGATIVE_INFINITY
         for (let i = 0; i < data.length; i += 4) {
           if (![0, 1, 2].every((c) => Math.abs((data[i + c] ?? 0) - (target[c] ?? 0)) < 12)) continue
-          sumX += (i / 4) % copy.width
+          const column = (i / 4) % copy.width
+          left = Math.min(left, column)
+          right = Math.max(right, column + 1)
+          sumX += column
           sumY += Math.floor(i / 4 / copy.width)
           count += 1
         }
-        return count === 0 ? undefined : { x: sumX / count, y: sumY / count }
+        return count === 0 ? undefined : { x: sumX / count, y: sumY / count, left, right, count }
       },
       { shot, want: colour },
     )
-    return found === undefined ? undefined : { x: box.x + found.x, y: box.y + found.y, wide: box.width }
+    return found === undefined
+      ? undefined
+      : {
+          x: box.x + found.x,
+          y: box.y + found.y,
+          left: box.x + found.left,
+          right: box.x + found.right,
+          canvas: box.width,
+          count: found.count,
+        }
   } finally {
     await reader.close()
   }
+}
+
+/**
+ * How many pixels a tile is on the picture, and where the hero and the crate of Links Game's room 1 stand on it before
+ * anything moves. They sit 3 tiles apart in the level file (the hero at x 2.5, the crate at 5.5), so the pixels between their
+ * middles over 3 is the scale, whatever the camera shows of the level.
+ */
+const HERO_TILE = 2.5
+const CRATE_TILE = 5.5
+/** The tile at picture x `x`, read from where the crate stands (the game puts it back where it was) at `scale` pixels a tile. */
+const tileAt = (x: number, crateX: number, scale: number): number => CRATE_TILE + (x - crateX) / scale
+
+async function tilesOf(page: Page) {
+  const hero = await whereIs(page, HERO, true)
+  const crate = await whereIs(page, CRATE, true)
+  if (hero === undefined || crate === undefined) throw new Error('the game shows no hero or no crate')
+  const scale = (crate.x - hero.x) / (CRATE_TILE - HERO_TILE)
+  return { hero, crate, scale }
 }
 
 const playButton = (page: Page, word: string) => page.getByRole('button', { name: word, exact: true })
@@ -79,6 +117,32 @@ const started = async (page: Page) => {
     return canvas !== null && getComputedStyle(canvas).visibility !== 'hidden'
   })
 }
+
+/** Both phone windows, with a thing picked (its settings sheet then stays up, so the game box is short) and with none. */
+describe.each(['phone', 'phoneSideways'] as const)('at %s', (size) => {
+  test.each([true, false])(
+    'at the start of Play the bar does not hide the hero (a thing picked: %s)',
+    async (picked) => {
+      journey = await openPage(size)
+      const { page } = journey
+      await signIn(page)
+      await openLevel(page)
+      if (picked) await thingNamed(page, 'crate-1').click()
+      await playButton(page, 'Play').click()
+      await started(page)
+      await playButton(page, 'Got it').click()
+      await playButton(page, 'Pause').waitFor()
+      // The first picture may not be drawn yet when Pause shows: read until the hero is on it.
+      await expect
+        .poll(async () => (await whereIs(page, HERO, true))?.count ?? 0, { timeout: 10_000 })
+        .toBeGreaterThan(0)
+      const whole = await whereIs(page, HERO, true)
+      const seen = await whereIs(page, HERO)
+      if (whole === undefined) throw new Error('the game shows no hero at its start')
+      expect(seen?.count ?? 0, 'the bar covers part of the hero').toBe(whole.count)
+    },
+  )
+})
 
 describe.each(SIZES_TO_TRY)('at %s', (size) => {
   test("the person's change plays where it is drawn, the game's own controls move the hero, and Stop leaves everything as it was", async () => {
@@ -107,7 +171,7 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
       await page.keyboard.up('ArrowRight')
     }
     const hero1 = await whereIs(page, HERO)
-    expect(hero1?.x ?? 0).toBeGreaterThan(hero0.x + crate0.wide / 16)
+    expect(hero1?.x ?? 0).toBeGreaterThan(hero0.x + crate0.canvas / 16)
 
     await playButton(page, 'Stop').click()
     await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
@@ -119,7 +183,7 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await started(page)
     await page.waitForTimeout(200)
     const crate1 = await whereIs(page, CRATE)
-    expect((crate1?.x ?? 0) - crate0.x).toBeGreaterThan(crate0.wide / 16)
+    expect((crate1?.x ?? 0) - crate0.x).toBeGreaterThan(crate0.canvas / 16)
     await playButton(page, 'Stop').click()
     await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
 
@@ -212,15 +276,20 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await playButton(page, 'Got it').click()
   await playButton(page, 'Pause').waitFor()
 
+  // Slow is the person's choice: it goes with them through the door.
+  const tiles = await tilesOf(page)
+  await page.getByRole('button', { name: 'How fast the game plays: Normal' }).click()
+  await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
+  // While it waits for the tap the game is held still; Cancel lets it go on as it was.
   await playButton(page, 'Play from here').click()
   await page.getByText('Tap the level where the hero should start').waitFor()
-  const canvas = await page.locator('[data-play="box"] canvas').boundingBox()
-  if (canvas === null) throw new Error('No game on this page.')
-  // 16 by 9 tiles, as large as fits: the door of room 1 is at tile 13.5, so a tap a tile short of it.
-  const scale = Math.min(canvas.width / 16, canvas.height / 9)
-  const left = canvas.x + (canvas.width - 16 * scale) / 2
-  const top = canvas.y + (canvas.height - 9 * scale) / 2
-  await page.mouse.click(left + 12 * scale, top + 7.5 * scale)
+  await playButton(page, 'Go on').waitFor()
+  await page.locator('[data-play="pick-cancel"]').click()
+  await playButton(page, 'Pause').waitFor()
+  await playButton(page, 'Play from here').click()
+  await page.getByText('Tap the level where the hero should start').waitFor()
+  // The door of room 1 is at tile 13.5: a tap a tile short of it, at the hero's height.
+  await page.mouse.click(tiles.crate.x + (12 - CRATE_TILE) * tiles.scale, tiles.hero.y)
   await page.getByText('Tap the level where the hero should start').waitFor({ state: 'detached' })
   // The game starts again from there; a key held before it is up is not the game's.
   await started(page)
@@ -235,6 +304,7 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   expect(page.url()).toContain('room-2')
   // The top bar names the room the door led to.
   await page.locator('[data-bar]').getByText('Levels · Room 2').waitFor()
+  await page.getByRole('button', { name: 'How fast the game plays: Slow' }).waitFor()
 })
 
 test('one step and slow are in the play bar, and the strip goes back', async () => {
@@ -253,4 +323,125 @@ test('one step and slow are in the play bar, and the strip goes back', async () 
   await page.locator('[data-play="strip"] input[type="range"]').waitFor()
   await playButton(page, 'Stop').click()
   await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
+})
+
+test('a heavier crate is pushed less far by the same walk', async () => {
+  journey = await openPage('ipadSideways')
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page)
+  const pushedBy = async (heavy: 'Home' | 'End'): Promise<number> => {
+    await thingNamed(page, 'crate-1').click()
+    const folded = page.locator('button[data-tour="settings"]')
+    if ((await folded.count()) > 0) await folded.first().click()
+    const slider = page.locator('input[type="range"][aria-label="How heavy"]')
+    await slider.focus()
+    await page.keyboard.press(heavy)
+    await playButton(page, 'Play').click()
+    await started(page)
+    const got = page.getByRole('button', { name: 'Got it', exact: true })
+    if ((await got.count()) > 0) await got.click()
+    await playButton(page, 'Pause').waitFor()
+    const before = await whereIs(page, CRATE)
+    if (before === undefined) throw new Error('the game shows no crate')
+    await page.keyboard.down('ArrowRight')
+    await page.waitForTimeout(2200)
+    await page.keyboard.up('ArrowRight')
+    const after = await whereIs(page, CRATE)
+    await playButton(page, 'Stop').click()
+    await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
+    return (after?.x ?? before.x) - before.x
+  }
+  const light = await pushedBy('Home')
+  const heavy = await pushedBy('End')
+  expect(light, 'the light crate moved').toBeGreaterThan(5)
+  expect(heavy, 'the heavy crate went less far').toBeLessThan(light)
+  // Stopping leaves the weights as they were set: the person's change, not the play's.
+})
+
+test('the strip goes back part of the way, and again: the range stays, and the hero is where it was', async () => {
+  journey = await openPage('ipadSideways')
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page)
+  await playButton(page, 'Play').click()
+  await started(page)
+  await playButton(page, 'Got it').click()
+  await playButton(page, 'Pause').waitFor()
+  const first = await whereIs(page, HERO)
+  if (first === undefined) throw new Error('the game shows no hero')
+  await page.keyboard.down('ArrowRight')
+  await page.waitForTimeout(2500)
+  await page.keyboard.up('ArrowRight')
+  await playButton(page, 'Pause').click()
+  const strip = page.locator('[data-play="strip"] input[type="range"]')
+  await strip.waitFor()
+  const now = await whereIs(page, HERO)
+  const most = await strip.getAttribute('max')
+  if (now === undefined) throw new Error('the game shows no hero after the walk')
+  expect(now.x, 'the hero walked').toBeGreaterThan(first.x + 20)
+
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.6, y: 6 } })
+  const half = await whereIs(page, HERO)
+  expect(half?.x ?? 0, 'back part of the way').toBeLessThan(now.x - 5)
+  expect(half?.x ?? 0, 'not all the way back').toBeGreaterThan(first.x + 5)
+  expect(await strip.getAttribute('max'), 'the strip keeps its range').toBe(most)
+
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.3, y: 6 } })
+  const further = await whereIs(page, HERO)
+  expect(further?.x ?? 0, 'again, further back').toBeLessThan((half?.x ?? 0) - 5)
+  expect(await strip.count(), 'the strip is still there').toBe(1)
+  // Forward again: the game cannot go past where it was put back (what came after is forgotten), so the thumb stays with the
+  // hero and does not run ahead of it.
+  const thumb = await strip.inputValue()
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.9, y: 6 } })
+  expect(await strip.inputValue(), 'the thumb runs ahead of the game').toBe(thumb)
+  expect((await whereIs(page, HERO))?.x ?? 0, 'the hero moved on its own').toBeCloseTo(further?.x ?? 0, -1)
+  // Going on from there is the opposite: the game runs again, and the strip is the live one.
+  await playButton(page, 'Go on').click()
+  await playButton(page, 'Pause').waitFor()
+})
+
+describe.each(['ipadSideways', 'phoneSideways'] as const)('Play from here at %s', (size) => {
+  for (const how of ['mouse', 'touch'] as const) {
+    test(`the hero starts under the ${how}, by the door at the right of the level`, async () => {
+      journey = await openPage(size, 'grandma', false, LINKS)
+      const { page } = journey
+      await signIn(page)
+      await openLevel(page, 'links-game', 'room-1')
+      await playButton(page, 'Play').click()
+      await started(page)
+      await playButton(page, 'Got it').click()
+      await playButton(page, 'Pause').waitFor()
+      const tiles = await tilesOf(page)
+      await playButton(page, 'Play from here').click()
+      const prompt = page.getByText('Tap the level where the hero should start')
+      await prompt.waitFor()
+      // A tap 10 tiles right of the hero: its tile follows from the crate, which the game puts back where it was.
+      const tapAt = { x: tiles.hero.x + 10 * tiles.scale, y: tiles.hero.y }
+      const wanted = tileAt(tapAt.x, tiles.crate.x, tiles.scale)
+      if (how === 'touch') await page.touchscreen.tap(tapAt.x, tapAt.y)
+      else await page.mouse.click(tapAt.x, tapAt.y)
+      await prompt.waitFor({ state: 'detached' })
+      await started(page)
+      // The hero settles under the tap: read until it is there, and say how far it was if never.
+      let got = Number.NaN
+      try {
+        await expect
+          .poll(
+            async () => {
+              const hero = await whereIs(page, HERO, true)
+              const crate = await whereIs(page, CRATE, true)
+              if (hero === undefined || crate === undefined) return false
+              got = tileAt(hero.x, crate.x, tiles.scale)
+              return Math.abs(got - wanted) < 0.75
+            },
+            { timeout: 5000 },
+          )
+          .toBe(true)
+      } catch {
+        throw new Error(`the hero is at tile ${got.toFixed(1)}, the ${how} was at tile ${wanted.toFixed(1)}`)
+      }
+    })
+  }
 })
