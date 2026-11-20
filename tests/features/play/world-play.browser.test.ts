@@ -211,7 +211,7 @@ test('a level that cannot be built is not started: the first sentence says what 
   await press('Play')
   await vi.waitFor(() => expect(box.textContent).toContain("This level can't be played yet"))
   // Only the framework's plain sentence: no file name, no place in the file.
-  expect(box.textContent).toContain('nowhere')
+  expect(box.textContent).toContain('There is no tileset called "nowhere"')
   expect(box.textContent).not.toContain('.json')
   expect(box.textContent).not.toContain('[0]')
   expect(playBox()).toBeNull()

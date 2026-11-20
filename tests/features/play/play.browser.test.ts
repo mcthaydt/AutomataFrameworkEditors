@@ -276,6 +276,9 @@ test('a door into a level that is not there stops the play with the framework se
   )
   expect(caught).toBeInstanceOf(CannotPlay)
   expect((caught as CannotPlay).message).toContain('room-9')
+  // Only the sentence: no file, no place in it.
+  expect((caught as CannotPlay).lines.join(' ')).not.toMatch(/\.json|\[\d+\]/)
+  expect(box.querySelector('canvas')).toBeNull()
 })
 
 test('with the world file naming a level that is not there, the level plays alone and its doors are shut', async () => {
@@ -301,7 +304,7 @@ test('with the world file naming a level that is not there, the level plays alon
   expect((await start({ frames: handFrames() })).doorsShut).toBe(false)
 })
 
-test('a crate at How heavy 4 is pushed a third less far than one at 0.5 under the same 60 ticks of walking', async () => {
+test('a crate at How heavy 4 is pushed less than 0.7 times as far as one at 0.5 under the same 60 ticks of walking (the play passes the weight to the framework; its own test holds the physics)', async () => {
   const pushed = async (heavy: number): Promise<number> => {
     const set = inLevel(edits, 'level-1', (level) => ({
       ...level,
@@ -327,8 +330,8 @@ test('a crate at How heavy 4 is pushed a third less far than one at 0.5 under th
   const light = await pushed(0.5)
   const heavy = await pushed(4)
   expect(light).toBeGreaterThan(2)
-  // The hero sets its own speed every tick, so a heavy crate slows the push (here to two thirds), it does not stop it.
-  expect(heavy).toBeLessThan(light * 0.75)
+  // The hero sets its own speed every tick, so a heavy crate slows the push (measured 0.67), it does not stop it.
+  expect(heavy).toBeLessThan(light * 0.7)
 })
 
 /** Mounts the play part over `box` with the frames the test delivers; returns how to press its buttons. */

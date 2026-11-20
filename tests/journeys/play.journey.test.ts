@@ -233,6 +233,8 @@ test('Play from here puts the hero beside the door; walking into it opens the ne
   await started(page)
   await playButton(page, 'Stop').waitFor()
   expect(page.url()).toContain('room-2')
+  // The top bar names the room the door led to.
+  await page.locator('[data-bar]').getByText('Levels · Room 2').waitFor()
 })
 
 test('one step and slow are in the play bar, and the strip goes back', async () => {
