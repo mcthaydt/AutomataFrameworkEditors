@@ -984,6 +984,20 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             return `${Math.round(box.width)}x${Math.round(box.height)}`
           }),
         )
+        // And it shows whole, padding and all, where it is held, without scrolling first (the audit of 2026-11-20, N7).
+        let holder = group.parentElement
+        while (holder !== null && !/auto|scroll/.test(getComputedStyle(holder).overflowY))
+          holder = holder.parentElement
+        holder ??= group.closest<HTMLElement>('.glass-1, .glass-2, .glass-3')
+        if (holder !== null) {
+          const room = holder.getBoundingClientRect()
+          const foot = room.bottom - Number.parseFloat(getComputedStyle(holder).paddingBottom)
+          const last = Math.max(...buttons.map((one) => one.getBoundingClientRect().bottom))
+          if (last > foot + 0.5)
+            found.push(
+              `the buttons of "${group.getAttribute('aria-label') ?? ''}" are ${Math.round(last - foot)} px past their panel's foot`,
+            )
+        }
         if (sizes.size > 1)
           found.push(
             `the buttons of "${group.getAttribute('aria-label') ?? ''}" are uneven: ${[...sizes].join(', ')}`,

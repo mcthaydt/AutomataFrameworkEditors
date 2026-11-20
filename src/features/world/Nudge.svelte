@@ -43,11 +43,10 @@
       '. up .'
       'left . right'
       '. down .';
-    grid-template-columns: repeat(3, 52px);
-    grid-template-rows: repeat(3, 52px);
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
     justify-content: center;
     gap: var(--space-1);
-    padding-top: var(--space-3);
   }
   button {
     display: grid;

@@ -17,8 +17,10 @@
     /** Bring it back (tab, bar). */
     onshow: () => void
     children: Snippet
+    /** What stays at the panel's foot, outside the part that scrolls, so it always shows whole (the move arrows). */
+    foot?: Snippet | undefined
   }
-  let { lang, mode, name, mirror = false, onhide, onshow, children }: Props = $props()
+  let { lang, mode, name, mirror = false, onhide, onshow, children, foot }: Props = $props()
 
   const words = $derived(wordsIn(lang))
   const text = (one: Row, ...parts: (string | number)[]): string =>
@@ -39,6 +41,7 @@
       {/if}
     </header>
     <div class="body">{@render children()}</div>
+    {#if foot}<div class="foot">{@render foot()}</div>{/if}
   </aside>
 {:else if mode === 'tab'}
   <button type="button" class="tab glass-1" class:mirror aria-label={title} data-tour="settings" onclick={onshow}>
@@ -85,7 +88,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
     border-bottom: 1px solid var(--g-edge);
   }
   .name {
@@ -118,6 +121,11 @@
     min-height: 0;
     overflow-y: auto;
     padding: var(--space-3);
+  }
+  .foot {
+    flex: none;
+    padding: var(--space-2) var(--space-3);
+    border-top: 1px solid var(--g-edge);
   }
   .tab {
     top: calc(var(--bar) + 24px);

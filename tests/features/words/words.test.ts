@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { WORDS } from '#src/features/words/words.ts'
+import { LANGUAGES, WORDS, wordsIn } from '#src/features/words/words.ts'
 import { bannedIn } from '../../fixtures/banned.ts'
 
 // The first words, exactly as the plan pins them (Task 2). Later tasks add their own rows to this list.
@@ -108,6 +108,27 @@ const read = (key: string): string => {
 
 test.each(Object.entries(PINNED))('%s says exactly what the plan says', (key, words) => {
   expect(read(key)).toBe(words)
+})
+
+// The move arrows' spoken names and tooltips (the settings panel's cross and the pad on the level): exactly these in
+// English, and four different names in every language, so each arrow is told apart by ear (the audit of 2026-11-20, N6).
+const PAD = { padUp: 'Move up', padLeft: 'Move left', padRight: 'Move right', padDown: 'Move down' } as const
+
+test('the move arrows say exactly what the plan says, and every language names all four apart', () => {
+  const english = wordsIn('en').levels
+  for (const [key, words] of Object.entries(PAD)) expect(english[key as keyof typeof PAD]).toBe(words)
+  for (const lang of LANGUAGES) {
+    const said = wordsIn(lang).levels
+    const names = Object.keys(PAD).map((key) => {
+      const row = said[key as keyof typeof PAD]
+      return typeof row === 'string' ? row : row()
+    })
+    expect(
+      names.every((name) => name.trim() !== ''),
+      lang,
+    ).toBe(true)
+    expect(new Set(names).size, lang).toBe(4)
+  }
 })
 
 test('WORDS is frozen', () => {
