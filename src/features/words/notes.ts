@@ -4,14 +4,10 @@ import type { Area } from './languages.ts'
 type Key =
   | 'noteAdd'
   | 'noteNewAbout'
-  | 'noteOnThing'
   | 'noteOnSpot'
-  | 'noteOnLevel'
   | 'noteWrite'
   | 'notePin'
   | 'noteCard'
-  | 'noteBy'
-  | 'noteAnswers'
   | 'noteAnswerBox'
   | 'noteSend'
   | 'noteDone'
@@ -23,20 +19,15 @@ type Key =
   | 'notePinName'
   | 'notePinDone'
   | 'noteAskStart'
-  | 'noteNobody'
 
 export const notes = {
   en: {
     noteAdd: 'Add a note',
     noteNewAbout: (where) => `Pinned to ${where}. Your team can see it.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'a spot on this level',
-    noteOnLevel: (level) => level,
     noteWrite: 'Write your note',
     notePin: 'Pin the note',
     noteCard: (who) => `A note from ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Answers',
     noteAnswerBox: 'Write an answer',
     noteSend: 'Send',
     noteDone: 'Done: hide this note',
@@ -48,19 +39,14 @@ export const notes = {
     notePinName: (who, words) => `Note from ${who}: ${words}`,
     notePinDone: (name) => `${name} (done)`,
     noteAskStart: (owner) => `Hi ${owner}, `,
-    noteNobody: 'No notes here yet.',
   },
   es: {
     noteAdd: 'Añadir una nota',
     noteNewAbout: (where) => `Fijada en ${where}. Tu equipo puede verla.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'un lugar de este nivel',
-    noteOnLevel: (level) => level,
     noteWrite: 'Escribe tu nota',
     notePin: 'Fijar la nota',
     noteCard: (who) => `Una nota de ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Respuestas',
     noteAnswerBox: 'Escribe una respuesta',
     noteSend: 'Enviar',
     noteDone: 'Hecho: ocultar esta nota',
@@ -72,19 +58,14 @@ export const notes = {
     notePinName: (who, words) => `Nota de ${who}: ${words}`,
     notePinDone: (name) => `${name} (hecha)`,
     noteAskStart: (owner) => `Hola ${owner}, `,
-    noteNobody: 'Aún no hay notas aquí.',
   },
   ko: {
     noteAdd: '메모 남기기',
     noteNewAbout: (where) => `${where}에 붙여요. 팀 사람들이 볼 수 있어요.`,
-    noteOnThing: (name) => name,
     noteOnSpot: '이 레벨의 한 곳',
-    noteOnLevel: (level) => level,
     noteWrite: '메모를 쓰세요',
     notePin: '메모 붙이기',
     noteCard: (who) => `${who}의 메모`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: '답글',
     noteAnswerBox: '답글을 쓰세요',
     noteSend: '보내기',
     noteDone: '끝났어요: 이 메모 숨기기',
@@ -96,19 +77,14 @@ export const notes = {
     notePinName: (who, words) => `${who}의 메모: ${words}`,
     notePinDone: (name) => `${name} (끝남)`,
     noteAskStart: (owner) => `${owner}님, `,
-    noteNobody: '아직 메모가 없어요.',
   },
   ja: {
     noteAdd: 'メモを書く',
     noteNewAbout: (where) => `${where}に貼ります。チームの人に見えます。`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'このレベルの一か所',
-    noteOnLevel: (level) => level,
     noteWrite: 'メモを書く',
     notePin: 'メモを貼る',
     noteCard: (who) => `${who}さんのメモ`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: '返事',
     noteAnswerBox: '返事を書く',
     noteSend: '送る',
     noteDone: '済んだ: このメモを隠す',
@@ -120,19 +96,14 @@ export const notes = {
     notePinName: (who, words) => `${who}さんのメモ: ${words}`,
     notePinDone: (name) => `${name}（済み）`,
     noteAskStart: (owner) => `${owner}さん、`,
-    noteNobody: 'ここにはまだメモがありません。',
   },
   zh: {
     noteAdd: '写一条便签',
     noteNewAbout: (where) => `贴在${where}。你的团队都能看到。`,
-    noteOnThing: (name) => name,
     noteOnSpot: '这个关卡里的一个位置',
-    noteOnLevel: (level) => level,
     noteWrite: '写下你的便签',
     notePin: '贴上便签',
     noteCard: (who) => `${who}的便签`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: '回复',
     noteAnswerBox: '写一条回复',
     noteSend: '发送',
     noteDone: '做完了：隐藏这条便签',
@@ -144,19 +115,14 @@ export const notes = {
     notePinName: (who, words) => `${who}的便签：${words}`,
     notePinDone: (name) => `${name}（已完成）`,
     noteAskStart: (owner) => `${owner}，你好，`,
-    noteNobody: '这里还没有便签。',
   },
   pt: {
     noteAdd: 'Adicionar uma nota',
     noteNewAbout: (where) => `Fixada em ${where}. Sua equipe pode ver.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'um lugar deste nível',
-    noteOnLevel: (level) => level,
     noteWrite: 'Escreva sua nota',
     notePin: 'Fixar a nota',
     noteCard: (who) => `Uma nota de ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Respostas',
     noteAnswerBox: 'Escreva uma resposta',
     noteSend: 'Enviar',
     noteDone: 'Pronto: esconder esta nota',
@@ -168,19 +134,14 @@ export const notes = {
     notePinName: (who, words) => `Nota de ${who}: ${words}`,
     notePinDone: (name) => `${name} (pronta)`,
     noteAskStart: (owner) => `Oi ${owner}, `,
-    noteNobody: 'Ainda não há notas aqui.',
   },
   fr: {
     noteAdd: 'Ajouter une note',
     noteNewAbout: (where) => `Épinglée sur ${where}. Votre équipe peut la voir.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'un endroit de ce niveau',
-    noteOnLevel: (level) => level,
     noteWrite: 'Écrivez votre note',
     notePin: 'Épingler la note',
     noteCard: (who) => `Une note de ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Réponses',
     noteAnswerBox: 'Écrivez une réponse',
     noteSend: 'Envoyer',
     noteDone: 'Fait : cacher cette note',
@@ -192,19 +153,14 @@ export const notes = {
     notePinName: (who, words) => `Note de ${who} : ${words}`,
     notePinDone: (name) => `${name} (faite)`,
     noteAskStart: (owner) => `Bonjour ${owner}, `,
-    noteNobody: 'Pas encore de notes ici.',
   },
   ru: {
     noteAdd: 'Добавить заметку',
     noteNewAbout: (where) => `Приколота: ${where}. Ваша команда её увидит.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'место на этом уровне',
-    noteOnLevel: (level) => level,
     noteWrite: 'Напишите заметку',
     notePin: 'Приколоть заметку',
     noteCard: (who) => `Заметка от ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Ответы',
     noteAnswerBox: 'Напишите ответ',
     noteSend: 'Отправить',
     noteDone: 'Готово: спрятать заметку',
@@ -216,19 +172,14 @@ export const notes = {
     notePinName: (who, words) => `Заметка от ${who}: ${words}`,
     notePinDone: (name) => `${name} (готово)`,
     noteAskStart: (owner) => `Здравствуйте, ${owner}, `,
-    noteNobody: 'Здесь пока нет заметок.',
   },
   de: {
     noteAdd: 'Eine Notiz hinzufügen',
     noteNewAbout: (where) => `Angeheftet an ${where}. Dein Team kann sie sehen.`,
-    noteOnThing: (name) => name,
     noteOnSpot: 'eine Stelle in diesem Level',
-    noteOnLevel: (level) => level,
     noteWrite: 'Schreib deine Notiz',
     notePin: 'Notiz anheften',
     noteCard: (who) => `Eine Notiz von ${who}`,
-    noteBy: (who, when) => `${who} · ${when}`,
-    noteAnswers: 'Antworten',
     noteAnswerBox: 'Schreib eine Antwort',
     noteSend: 'Senden',
     noteDone: 'Erledigt: Notiz ausblenden',
@@ -240,6 +191,5 @@ export const notes = {
     notePinName: (who, words) => `Notiz von ${who}: ${words}`,
     notePinDone: (name) => `${name} (erledigt)`,
     noteAskStart: (owner) => `Hallo ${owner}, `,
-    noteNobody: 'Hier gibt es noch keine Notizen.',
   },
 } as const satisfies Area<Key>
