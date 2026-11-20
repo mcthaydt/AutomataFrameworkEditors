@@ -45,11 +45,16 @@ async function showSettings(page: Page): Promise<void> {
 }
 const drawn = (page: Page, word: string) => page.getByRole('radio', { name: word, exact: true })
 
-/** Whether any pixel of `colour` shows on the game's picture. */
-async function shows(page: Page, colour: string): Promise<boolean> {
+/** How many pixels of `colour` show on the game's picture, and how big the picture is, for a message that says what was read. */
+async function shows(page: Page, colour: string): Promise<{ count: number; size: string }> {
   const box = await page.locator('[data-play="box"] canvas').boundingBox()
   if (box === null) throw new Error('No game on this page.')
+  // The play bar lies over the top left of the game on a small screen, and a screenshot sees it: it is put out of the
+  // way for the one picture, so what is read is the game and not the bar.
+  const bar = page.locator('[data-play="box"] [role="toolbar"]')
+  await bar.evaluate((el) => el.style.setProperty('visibility', 'hidden'))
   const shot = (await pictureOf(page, box)).toString('base64')
+  await bar.evaluate((el) => el.style.removeProperty('visibility'))
   const reader = await page.context().newPage()
   try {
     const found = await reader.evaluate(
@@ -65,11 +70,11 @@ async function shows(page: Page, colour: string): Promise<boolean> {
         for (let i = 0; i < data.length; i += 4) {
           if ([0, 1, 2].every((c) => Math.abs((data[i + c] ?? 0) - (target[c] ?? 0)) < 12)) count += 1
         }
-        return count
+        return { count, size: `${copy.width}x${copy.height}` }
       },
       { shot, want: colour },
     )
-    return found > 0
+    return found
   } finally {
     await reader.close()
   }
@@ -99,7 +104,23 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await page.locator('[data-play="box"] canvas').waitFor()
     await page.getByRole('button', { name: 'Got it', exact: true }).click()
     await page.getByRole('button', { name: 'Pause', exact: true }).waitFor()
-    expect(await shows(page, CRATE)).toBe(true)
+    // A frame may not be drawn yet when Pause shows: read until it is, for a moment, and say what was read if it never is.
+    let read = { count: 0, size: 'nothing read' }
+    try {
+      await expect
+        .poll(
+          async () => {
+            read = await shows(page, CRATE)
+            return read.count > 0
+          },
+          { timeout: 5000 },
+        )
+        .toBe(true)
+    } catch {
+      throw new Error(
+        `no pixel of the crate's colour ${CRATE} in Play at ${size}: ${read.count} found, picture ${read.size}`,
+      )
+    }
     await page.getByRole('button', { name: 'Stop', exact: true }).click()
     await page.locator('[data-play="box"]').waitFor({ state: 'detached' })
 
