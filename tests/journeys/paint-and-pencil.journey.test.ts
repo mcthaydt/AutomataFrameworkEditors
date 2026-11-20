@@ -139,7 +139,7 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await menu.waitFor({ state: 'detached' })
 
     // The Hold tab folds out Box, Fill and Erase, clear of the toolbar and the tray.
-    await page.getByRole('button', { name: /^Hold/ }).click()
+    await page.getByRole('button', { name: /^More ways/ }).click()
     for (const name of ['Box', 'Fill', 'Erase']) {
       const button = page.locator('.hold').getByRole('button', { name })
       await button.waitFor()

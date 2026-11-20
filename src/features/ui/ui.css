@@ -24,6 +24,7 @@
   --good: #e3f6e8;
   --problem: #fde8e6;
   --focus: #1d4ed8;
+  --link: LinkText;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -281,6 +282,24 @@ body {
 /* A spotlight: everything round the one part it rings is dimmed as a sheet dims, and the part itself is not. */
 .look .dim-2-around {
   box-shadow: 0 0 0 100vmax var(--dim-2);
+}
+
+/* The older plain pages (`Screen` with `glass`: the welcome and a game that cannot open), drawn in the editors' look.
+   Their own tokens are given the look's colours here, so their buttons and notices sit on the glass card like the
+   editor's do. */
+.look.plain {
+  --fg: var(--words);
+  --muted: var(--quiet);
+  --fill: var(--raised);
+  --primary: var(--accent);
+  --primary-fg: var(--on-accent);
+  --danger: #ff8a80;
+  --danger-fg: var(--on-accent);
+  --focus: var(--accent);
+  --info: #1e2a45;
+  --good: #173525;
+  --problem: #43201d;
+  --link: var(--accent);
 }
 
 /* A person's initial on a colour made from their login: `--hue` is a number from 0 to 359 the caller sets. */
