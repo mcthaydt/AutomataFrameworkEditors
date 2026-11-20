@@ -324,3 +324,40 @@ test('a heavier crate is pushed less far by the same walk', async () => {
   expect(heavy, 'the heavy crate went less far').toBeLessThan(light)
   // Stopping leaves the weights as they were set: the person's change, not the play's.
 })
+
+test('the strip goes back part of the way, and again: the range stays, and the hero is where it was', async () => {
+  journey = await openPage('ipadSideways')
+  const { page } = journey
+  await signIn(page)
+  await openLevel(page)
+  await playButton(page, 'Play').click()
+  await started(page)
+  await playButton(page, 'Got it').click()
+  await playButton(page, 'Pause').waitFor()
+  const first = await whereIs(page, HERO)
+  if (first === undefined) throw new Error('the game shows no hero')
+  await page.keyboard.down('ArrowRight')
+  await page.waitForTimeout(2500)
+  await page.keyboard.up('ArrowRight')
+  await playButton(page, 'Pause').click()
+  const strip = page.locator('[data-play="strip"] input[type="range"]')
+  await strip.waitFor()
+  const now = await whereIs(page, HERO)
+  const most = await strip.getAttribute('max')
+  if (now === undefined) throw new Error('the game shows no hero after the walk')
+  expect(now.x, 'the hero walked').toBeGreaterThan(first.x + 20)
+
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.6, y: 6 } })
+  const half = await whereIs(page, HERO)
+  expect(half?.x ?? 0, 'back part of the way').toBeLessThan(now.x - 5)
+  expect(half?.x ?? 0, 'not all the way back').toBeGreaterThan(first.x + 5)
+  expect(await strip.getAttribute('max'), 'the strip keeps its range').toBe(most)
+
+  await strip.click({ position: { x: (await strip.boundingBox())!.width * 0.3, y: 6 } })
+  const further = await whereIs(page, HERO)
+  expect(further?.x ?? 0, 'again, further back').toBeLessThan((half?.x ?? 0) - 5)
+  expect(await strip.count(), 'the strip is still there').toBe(1)
+  // Going on from there is the opposite: the game runs again, and the strip is the live one.
+  await playButton(page, 'Go on').click()
+  await playButton(page, 'Pause').waitFor()
+})

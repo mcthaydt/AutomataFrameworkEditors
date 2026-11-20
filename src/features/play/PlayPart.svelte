@@ -140,7 +140,10 @@
     if (playing === undefined) return
     // The person has taken it over: what the screen was waiting for no longer decides.
     held = false
-    if (playing.paused()) playing.resume()
+    if (playing.paused()) {
+      scrub = undefined
+      playing.resume()
+    }
     else playing.pause()
     paused = playing.paused()
   }
@@ -165,6 +168,7 @@
   }
   async function restart(how: () => Promise<void> | undefined): Promise<void> {
     endPick()
+    scrub = undefined
     try {
       await how()
       paused = playing?.paused() ?? false
@@ -186,12 +190,21 @@
     playing.setSpeed(speed)
     onspeed?.(speed)
   }
-  /** Dragging the strip holds the game and shows it as it was. */
+  /**
+   * The range the strip showed when the person began to drag back. Going back cuts what lies after the tick (the game
+   * can only go on from there), so the kept range shrinks under the finger; the strip keeps the range it began with
+   * until the game goes on, so a drag half way, then another, lands where the finger is.
+   */
+  let scrub = $state<{ readonly from: number; readonly to: number } | undefined>()
+  const shown = $derived(scrub === undefined ? strip : { ...strip, from: scrub.from, to: scrub.to })
+  /** Dragging the strip holds the game and shows it as it was; no further than where it is now, since the rest is cut. */
   function back(tick: number): void {
     if (playing === undefined) return
     held = false
     if (!playing.paused()) playing.pause()
-    playing.backTo(tick)
+    const kept = playing.kept()
+    scrub ??= { from: kept.from, to: kept.to }
+    playing.backTo(Math.min(Math.max(tick, kept.from), kept.to))
     sync()
   }
   /** A tap while the strip waits for one: the hero starts there. */
@@ -233,7 +246,7 @@
         {paused}
         {big}
         {speed}
-        {strip}
+        strip={shown}
         {picking}
         {short}
         {canPick}
