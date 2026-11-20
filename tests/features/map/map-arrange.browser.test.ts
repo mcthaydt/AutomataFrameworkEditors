@@ -482,3 +482,20 @@ test('on a phone the bar and its menu stay inside the screen, whichever level wa
     await press('More')
   }
 })
+
+// The bar is placed for the level it is drawn for, in the frame its buttons change: a wider bar picked after a narrower
+// one is never placed by the narrower one's size first (the WebKit run of 2026-11-20 showed room-3's bar placed by
+// room-1's for longer than 50 ms). No timed wait here: only Svelte's own flush.
+test('a wider bar picked after a narrower one is on the screen in the frame it is drawn', async () => {
+  size(390, 700)
+  await show()
+  level('room-1').click()
+  await tick()
+  await new Promise((done) => requestAnimationFrame(done))
+  level('room-3').click()
+  await tick()
+  const bar = (box.querySelector('[role="toolbar"]') as Element).getBoundingClientRect()
+  const screen = sheet().getBoundingClientRect()
+  expect(bar.left, 'the bar runs off the left').toBeGreaterThanOrEqual(screen.left)
+  expect(bar.right, 'the bar runs off the right').toBeLessThanOrEqual(screen.right)
+})
