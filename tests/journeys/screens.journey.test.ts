@@ -990,11 +990,17 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       const peek = document.querySelector('button.peek')
       const onScreen = (box: DOMRect): boolean =>
         box.top >= 0 && box.left >= 0 && box.bottom <= innerHeight + 1 && box.right <= innerWidth + 1
-      if (peek !== null && seen(peek)) {
+      const overlaid = document.querySelector('[aria-modal=true], [role=menu], [role=dialog], .events .event') !== null
+      if (peek !== null && seen(peek) && !overlaid) {
         const tools = [...document.querySelectorAll('[data-tour] button, nav.rail button')].filter(
-          (el) => seen(el) && /^(Undo|Select|Place|Paint|Erase|Join)/.test(el.getAttribute('aria-label') ?? el.textContent ?? ''),
+          (el) =>
+            seen(el) &&
+            /^(Undo|Select|Place|Paint|Erase|Join)/.test(
+              el.getAttribute('aria-label') ?? el.textContent ?? '',
+            ),
         )
-        if (toolbar === null && tools.length === 0) found.push('the tools are not in sight with the settings folded')
+        if (toolbar === null && tools.length === 0)
+          found.push('the tools are not in sight with the settings folded')
         for (const el of tools) {
           const box = el.getBoundingClientRect()
           const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
@@ -1004,7 +1010,11 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
       if (sheet !== null && seen(sheet)) {
         const done = [...sheet.querySelectorAll('button')].find((el) => el.classList.contains('done'))
-        if (done === undefined || !onScreen(done.getBoundingClientRect()) || (done.textContent ?? '').trim() === '')
+        if (
+          done === undefined ||
+          !onScreen(done.getBoundingClientRect()) ||
+          (done.textContent ?? '').trim() === ''
+        )
           found.push('the pulled-up settings have no named way back in sight')
       }
       // The faces button must hold the faces it draws: squeezed under them, it lets them spill onto the next button, and
