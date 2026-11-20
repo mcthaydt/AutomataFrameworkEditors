@@ -52,7 +52,7 @@
 </script>
 
 <main class="look games">
-  <section class="card">
+  <section class="card glass-1">
     <h1>{WORDS.pickTitle}</h1>
     {#if games === undefined}
       <p>{WORDS.loading}</p>
@@ -124,7 +124,6 @@
     box-sizing: border-box;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: var(--panel);
   }
   h1 {
     margin: 0;

@@ -90,7 +90,7 @@
 
 {#if step !== undefined && ring !== undefined}
   <div
-    class="ring"
+    class="ring dim-2-around"
     aria-hidden="true"
     style:left="{ring.left}px"
     style:top="{ring.top}px"
@@ -98,9 +98,9 @@
     style:height="{ring.height}px"
   ></div>
 {:else}
-  <div class="dim" aria-hidden="true"></div>
+  <div class="dim dim-2" aria-hidden="true"></div>
 {/if}
-<div class="coach" class:high role="dialog" aria-label={label}>
+<div class="coach glass-2" class:high role="dialog" aria-label={label}>
   <span class="n">{label}</span>
   <h3>{text(card.title)}</h3>
   <p>{text(card.body)}</p>
@@ -122,7 +122,6 @@
     position: fixed;
     inset: 0;
     z-index: 20;
-    background: var(--dim);
     pointer-events: none;
   }
   /* A hole in the dimming: the shadow is what dims everything round the one part the step is about. */
@@ -131,7 +130,6 @@
     z-index: 20;
     border: 2px solid var(--accent);
     border-radius: 12px;
-    box-shadow: 0 0 0 100vmax var(--dim);
     pointer-events: none;
   }
   .coach {
@@ -144,12 +142,7 @@
     gap: 8px;
     width: min(340px, calc(100% - 16px));
     padding: 16px;
-    border: 1px solid var(--g-edge);
     border-radius: 14px;
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     transform: translateX(-50%);
   }

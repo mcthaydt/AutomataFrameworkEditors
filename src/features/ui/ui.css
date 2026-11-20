@@ -14,7 +14,8 @@
   --fg: #1b1b24;
   --muted: #4b4b5a;
   --line: #c9c9d4;
-  --surface: #f3f3f7;
+  /* The older plain pages' fill for a button, a choice, a picker or a row: a control, never a panel. */
+  --fill: #f3f3f7;
   --primary: #1d4ed8;
   --primary-fg: #ffffff;
   --danger: #b42318;
@@ -31,7 +32,7 @@
     --fg: #f1f1f6;
     --muted: #b4b4c2;
     --line: #3a3a4a;
-    --surface: #1f1f2b;
+    --fill: #1f1f2b;
     --primary: #6d93ff;
     --primary-fg: #0b0b12;
     --danger: #ff8a80;
@@ -95,28 +96,39 @@ body {
   --bright: #ffffff;
   --agent: #b5b1d8;
   --problem: #e5484d;
-  --glass: rgb(30 30 30 / 0.72);
-  --glass-filter: blur(24px) brightness(0.45) saturate(1.4);
+  /* Glass by layer (the Owner, 2026-11-17): every surface is see-through, and the higher it sits the more it blurs
+     and darkens what is behind it. Layer 1 is what stays on screen (bars, docks, panels, trays, cards on the level);
+     layer 2 is what opens over it (menus, sheets at the side, notes, pop-ups); layer 3 is what asks for the whole
+     screen (dialogs). A bar dims nothing behind it; a layer-2 sheet dims the screen a little, a dialog more. */
+  --glass-1-bg: rgb(30 30 30 / 0.72);
+  --glass-1-filter: blur(16px) brightness(0.45) saturate(1.4);
+  --glass-2-bg: rgb(30 30 30 / 0.76);
+  --glass-2-filter: blur(24px) brightness(0.4) saturate(1.3);
+  --glass-3-bg: rgb(30 30 30 / 0.8);
+  --glass-3-filter: blur(32px) brightness(0.35) saturate(1.2);
+  --dim-2: rgb(0 0 0 / 0.2);
+  --dim-2-filter: blur(2px);
+  --dim-3: rgb(0 0 0 / 0.4);
+  --dim-3-filter: blur(6px);
   --glass-edge: rgb(255 255 255 / 0.1);
   --glass-shine: inset 0 1px 0 rgb(255 255 255 / 0.06);
   --glass-quiet: #a8a8a8;
-  --glass-soft: rgb(37 37 37 / 0.92);
-  --glass-soft-filter: blur(12px) brightness(0.5) saturate(1.2);
   --shadow: 0 8px 24px rgb(0 0 0 / 0.35);
-  --dim: rgb(0 0 0 / 0.25);
   --row: 44px;
   --bar: 56px;
   --fs: 15px;
   --title: "Fraunces Variable", "Onest Variable", system-ui, serif;
   --label: "Onest Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --measure: "JetBrains Mono", ui-monospace, monospace;
-  --g-bg: var(--glass);
-  --g-filter: var(--glass-filter);
   --g-edge: var(--glass-edge);
   --g-shine: var(--glass-shine);
   --g-quiet: var(--glass-quiet);
-  --s-bg: var(--glass-soft);
-  --s-filter: var(--glass-soft-filter);
+  /* The names from before the layers, for a screen written against them: the dock's glass and the soft glass. */
+  --g-bg: var(--glass-1-bg);
+  --g-filter: var(--glass-1-filter);
+  --s-bg: var(--glass-2-bg);
+  --s-filter: var(--glass-2-filter);
+  --dim: var(--dim-2);
   background: var(--ground);
   color: var(--words);
   font: var(--fs) / 1.35 var(--label);
@@ -153,53 +165,122 @@ body {
   --title: "Noto Sans SC", "Onest Variable", system-ui, sans-serif;
 }
 
-/* When there is no glass: today's solid panel, nothing else moving. Four cases: the page says so (`data-glass="off"`,
+/* When there is no glass: every layer is the solid panel and nothing behind is blurred, while a dialog still dims the
+   screen behind it, so the layers keep their order. Four cases: the page says so (`data-glass="off"`,
    which the shell sets from the person's choice and the device), the browser draws no blur, the device asks for less
    see-through (unless the person set the panels to On), or for more contrast. */
 :root[data-glass="off"] .look {
-  --g-bg: var(--panel);
-  --g-filter: none;
+  --glass-1-bg: var(--panel);
+  --glass-1-filter: none;
+  --glass-2-bg: var(--panel);
+  --glass-2-filter: none;
+  --glass-3-bg: var(--panel);
+  --glass-3-filter: none;
+  --dim-2-filter: none;
+  --dim-3-filter: none;
   --g-edge: var(--line);
   --g-shine: 0 0 #0000;
   --g-quiet: var(--quiet);
-  --s-bg: var(--panel);
-  --s-filter: none;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .look {
-    --g-bg: var(--panel);
-    --g-filter: none;
+    --glass-1-bg: var(--panel);
+    --glass-1-filter: none;
+    --glass-2-bg: var(--panel);
+    --glass-2-filter: none;
+    --glass-3-bg: var(--panel);
+    --glass-3-filter: none;
+    --dim-2-filter: none;
+    --dim-3-filter: none;
     --g-edge: var(--line);
     --g-shine: 0 0 #0000;
     --g-quiet: var(--quiet);
-    --s-bg: var(--panel);
-    --s-filter: none;
   }
 }
 
 @media (prefers-reduced-transparency: reduce) {
   :root:not([data-glass="on"]) .look {
-    --g-bg: var(--panel);
-    --g-filter: none;
+    --glass-1-bg: var(--panel);
+    --glass-1-filter: none;
+    --glass-2-bg: var(--panel);
+    --glass-2-filter: none;
+    --glass-3-bg: var(--panel);
+    --glass-3-filter: none;
+    --dim-2-filter: none;
+    --dim-3-filter: none;
     --g-edge: var(--line);
     --g-shine: 0 0 #0000;
     --g-quiet: var(--quiet);
-    --s-bg: var(--panel);
-    --s-filter: none;
   }
 }
 
 @media (prefers-contrast: more) {
   .look {
-    --g-bg: var(--panel);
-    --g-filter: none;
+    --glass-1-bg: var(--panel);
+    --glass-1-filter: none;
+    --glass-2-bg: var(--panel);
+    --glass-2-filter: none;
+    --glass-3-bg: var(--panel);
+    --glass-3-filter: none;
+    --dim-2-filter: none;
+    --dim-3-filter: none;
     --g-edge: var(--quiet);
     --g-shine: 0 0 #0000;
     --g-quiet: var(--quiet);
-    --s-bg: var(--panel);
-    --s-filter: none;
   }
+}
+
+/* The kit's layers: the only places a surface gets its fill, its blur and its edge (tests/architecture/glass.test.ts).
+   A component wears one of these classes and sets none of the three itself. They are written under `.look` so they
+   outweigh a component's own rule for every button or box (`button { background: transparent }`). Words on them are
+   the glass's quiet grey, chosen for contrast over a white level. */
+.look .glass-1 {
+  border: 1px solid var(--g-edge);
+  background: var(--glass-1-bg);
+  -webkit-backdrop-filter: var(--glass-1-filter);
+  backdrop-filter: var(--glass-1-filter);
+  box-shadow: var(--g-shine), var(--shadow);
+  color: var(--words);
+  --quiet: var(--g-quiet);
+}
+
+.look .glass-2 {
+  border: 1px solid var(--g-edge);
+  background: var(--glass-2-bg);
+  -webkit-backdrop-filter: var(--glass-2-filter);
+  backdrop-filter: var(--glass-2-filter);
+  box-shadow: var(--g-shine), var(--shadow);
+  color: var(--words);
+  --quiet: var(--g-quiet);
+}
+
+.look .glass-3 {
+  border: 1px solid var(--g-edge);
+  background: var(--glass-3-bg);
+  -webkit-backdrop-filter: var(--glass-3-filter);
+  backdrop-filter: var(--glass-3-filter);
+  box-shadow: var(--g-shine), var(--shadow);
+  color: var(--words);
+  --quiet: var(--g-quiet);
+}
+
+/* What lies under a sheet or a dialog: dimmed, and a little blurred, by the layer of what covers it. */
+.look .dim-2 {
+  background: var(--dim-2);
+  -webkit-backdrop-filter: var(--dim-2-filter);
+  backdrop-filter: var(--dim-2-filter);
+}
+
+.look .dim-3 {
+  background: var(--dim-3);
+  -webkit-backdrop-filter: var(--dim-3-filter);
+  backdrop-filter: var(--dim-3-filter);
+}
+
+/* A spotlight: everything round the one part it rings is dimmed as a sheet dims, and the part itself is not. */
+.look .dim-2-around {
+  box-shadow: 0 0 0 100vmax var(--dim-2);
 }
 
 /* A person's initial on a colour made from their login: `--hue` is a number from 0 to 359 the caller sets. */

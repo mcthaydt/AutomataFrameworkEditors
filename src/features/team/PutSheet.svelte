@@ -108,7 +108,7 @@
   )
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet {title} close={text(words.shell.close)} {onclose} side>
     {#if phase === 'done'}
       <p>{text(c.doneAbout, gameName, n)}</p>
@@ -168,7 +168,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

@@ -31,7 +31,7 @@
     <header>
       <b class="name">{name}</b>
       {#if mode === 'side'}
-        <button type="button" aria-label={text(words.panels.hideSettings)} onclick={onhide}>
+        <button type="button" aria-label={text(words.panels.hideSettings)} title={text(words.panels.hideSettings)} onclick={onhide}>
           <Icon name="x" />
         </button>
       {:else}
@@ -45,7 +45,7 @@
     <Icon name="caret-left" /><span class="upright">{title}</span>
   </button>
 {:else}
-  <button type="button" class="peek" aria-label={title} data-tour="settings" onclick={onshow}>
+  <button type="button" class="peek glass-1" aria-label={title} data-tour="settings" onclick={onshow}>
     <span class="name">{title}</span><Icon name="caret-up" />
   </button>
 {/if}
@@ -55,11 +55,6 @@
   .tab,
   .peek {
     position: absolute;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }

@@ -33,7 +33,7 @@
   const grid = (id: string): Show['grid'] => (id === 'tiles' ? 'tiles' : id === 'finer' ? 'finer' : 'off')
 </script>
 
-<div class="show" data-ui role="dialog" aria-label={text(g.showTitle)}>
+<div class="show glass-2" data-ui role="dialog" aria-label={text(g.showTitle)}>
   <header>
     <b>{text(g.showTitle)}</b>
     <button type="button" class="done" onclick={onclose}>{text(words.shell.close)}</button>
@@ -78,11 +78,6 @@
     overflow-y: auto;
     padding: 8px 12px 12px;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }

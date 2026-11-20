@@ -13,7 +13,7 @@
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
 </script>
 
-<section class="card" aria-label={text(words.arrange.newTitle)}>
+<section class="card glass-2" aria-label={text(words.arrange.newTitle)}>
   <h2>{text(words.arrange.newTitle)}</h2>
   <p>{text(words.arrange.newBody)}</p>
   <div class="row">
@@ -30,9 +30,6 @@
     width: min(320px, calc(100vw - 32px));
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid var(--glass-edge);
-    background: var(--panel);
-    box-shadow: var(--shadow);
     color: var(--words);
   }
   h2 {

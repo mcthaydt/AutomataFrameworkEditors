@@ -32,17 +32,17 @@
 
 {#if mode === 'rail'}
   <nav class="rail" class:inset class:mirror aria-label={name}>
-    <button type="button" onclick={() => onopen('list')}>
-      <Icon name="list" /><span>{text(words.panels.listLabel)}</span>
+    <button type="button" aria-label={text(words.panels.listLabel)} title={text(words.panels.listLabel)} onclick={() => onopen('list')}>
+      <Icon name="list" size={24} />
     </button>
     {#if add}
-      <button type="button" onclick={() => onopen('add')}>
-        <Icon name="plus-circle" /><span>{text(words.panels.addLabel)}</span>
+      <button type="button" aria-label={text(words.panels.addLabel)} title={text(words.panels.addLabel)} onclick={() => onopen('add')}>
+        <Icon name="plus-circle" size={24} />
       </button>
     {/if}
   </nav>
 {:else}
-  <aside class="panel {mode}" class:inset class:mirror aria-label={name}>
+  <aside class="panel glass-1 {mode}" class:inset class:mirror aria-label={name}>
     <div class="tabs" role="tablist">
       <button type="button" role="tab" aria-selected={tab === 'list'} onclick={() => onopen('list')}>{name}</button>
       {#if add}
@@ -50,7 +50,7 @@
           {text(words.panels.addThings)}
         </button>
       {/if}
-      <button type="button" class="hide" aria-label={text(words.panels.hideList)} onclick={onhide}>
+      <button type="button" class="hide" aria-label={text(words.panels.hideList)} title={text(words.panels.hideList)} onclick={onhide}>
         <Icon name="x" />
       </button>
     </div>
@@ -74,11 +74,6 @@
     display: flex;
     flex-direction: column;
     border-radius: 14px;
-    border: 1px solid var(--g-edge);
-    background: var(--g-bg);
-    -webkit-backdrop-filter: var(--g-filter);
-    backdrop-filter: var(--g-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     --quiet: var(--g-quiet);
   }

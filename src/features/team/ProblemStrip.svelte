@@ -22,7 +22,7 @@
     typeof row === 'function' ? row(...parts) : row
 </script>
 
-<div class="strip" role="status">
+<div class="strip glass-1" role="status">
   <b>{text(w.kept.problemOf, at, of)}</b>
   <p>{said}</p>
   <div class="buttons">
@@ -48,10 +48,6 @@
     padding: 12px 14px;
     border: 1px solid var(--problem);
     border-radius: 12px;
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     transform: translateX(-50%);
   }

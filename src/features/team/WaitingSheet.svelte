@@ -29,7 +29,7 @@
     typeof row === 'function' ? row(...parts) : row
 </script>
 
-<div class="scrim">
+<div class="scrim dim-2">
   <Sheet title={taken ? text(c.takeBack) : text(c.waitTitle, by)} close={text(words.shell.close)} {onclose} side>
     {#if taken}
       <p role="status">{text(c.takenBack)}</p>
@@ -54,7 +54,6 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    background: var(--dim);
   }
   p {
     margin: 0 0 12px;

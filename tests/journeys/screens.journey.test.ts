@@ -2,8 +2,9 @@
 // layout rules, then pictured for a person to look at (the drunk-grandma check). The rules, on every screen:
 // no sideways scroll; every button, link, field and picker at least 44 px each way, the primary Button at least
 // 48 tall; none overlapping; one heading (the World screen has none: its bar names where it is); at most one Back; one
-// primary Button; no text off the side or cut with an ellipsis; and on the World screen a stage that is at least half
-// the shorter side of the window wide.
+// primary Button; no text off the side or cut with an ellipsis; every button's spoken name starts with the words it
+// shows, and a button that shows only an icon has a spoken name and a tooltip for a mouse; and on the World screen
+// a stage that is at least half the shorter side of the window wide.
 // The pictures land in `tests/journeys/__screenshots__/` and, from CI, on the `ci-screens` branch.
 
 import { type Level, writeContent } from '@automataframework/framework/headless'
@@ -804,6 +805,37 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
         const box = el.getBoundingClientRect()
         if (box.width < 43.5 || box.height < 43.5)
           found.push(`${named(el)} is ${Math.round(box.width)}x${Math.round(box.height)}, under 44`)
+      }
+      // Spoken names: a button that shows words is spoken starting with those words, so a person who says what they
+      // see reaches it; a button that shows only an icon has a spoken name, and a tooltip that says it for a mouse.
+      // A key shown beside a word (a computer's "V" for Pick) is a hint, not the button's words.
+      const shownWords = (el: Element): string => {
+        const parts: string[] = []
+        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        for (let node = walk.nextNode(); node !== null; node = walk.nextNode()) {
+          const parent = node.parentElement
+          if (parent === null || !seen(parent) || parent.closest('kbd, [aria-hidden=true]') !== null) continue
+          parts.push(node.textContent ?? '')
+        }
+        return parts.join(' ').replace(/\s+/g, ' ').trim()
+      }
+      for (const el of touchable) {
+        if (
+          !mine(el) ||
+          el.tagName !== 'BUTTON' ||
+          el.classList.contains('dim') ||
+          el.closest('[aria-hidden=true]')
+        )
+          continue
+        const spoken = (el.getAttribute('aria-label') ?? '').replace(/\s+/g, ' ').trim()
+        const words = shownWords(el)
+        if (words !== '' && spoken !== '' && !spoken.toLowerCase().startsWith(words.toLowerCase()))
+          found.push(`${named(el)} is spoken "${spoken.slice(0, 40)}", which does not start with its words`)
+        if (words === '' && el.querySelector('svg') !== null) {
+          if (spoken === '') found.push(`${named(el)} shows only an icon and has no spoken name`)
+          else if ((el.getAttribute('title') ?? '').trim() === '')
+            found.push(`the icon button "${spoken.slice(0, 30)}" has no tooltip on a computer`)
+        }
       }
       const primary = [...document.querySelectorAll('.button.primary')].filter(seen)
       if (primary.length > 1) found.push(`${primary.length} primary Buttons`)

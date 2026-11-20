@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Something you read or decide in: soft glass, a heading, a way out, and its buttons at its foot. It closes on its
+  // Something you read or decide in: glass (a dialog's in the middle, the layer above a sheet's at the side), a heading, a way out, and its buttons at its foot. It closes on its
   // own button and on Escape, takes focus when it opens and gives it back to what opened it. On a phone it is a bottom
   // sheet. A sheet always has its way out in sight.
   import { onMount, type Snippet } from 'svelte'
@@ -39,12 +39,11 @@
 
 <svelte:window onkeydown={keys} />
 
-<div class="sheet" class:side role="dialog" aria-modal="true" aria-labelledby={headingId} tabindex="-1" bind:this={sheet}>
+<div class="sheet {side ? 'glass-2' : 'glass-3'}" class:side role="dialog" aria-modal="true" aria-labelledby={headingId} tabindex="-1" bind:this={sheet}>
   <header>
     <h2 id={headingId}>{title}</h2>
-    <button type="button" class="out" data-close onclick={onclose}>
-      <Icon name="x" />
-      <span>{close}</span>
+    <button type="button" class="out" data-close aria-label={close} title={close} onclick={onclose}>
+      <Icon name="x" size={22} />
     </button>
   </header>
   <div class="body">{@render children()}</div>
@@ -64,11 +63,6 @@
     display: flex;
     flex-direction: column;
     border-radius: 16px;
-    border: 1px solid var(--g-edge);
-    background: var(--s-bg);
-    -webkit-backdrop-filter: var(--s-filter);
-    backdrop-filter: var(--s-filter);
-    box-shadow: var(--g-shine), var(--shadow);
     color: var(--words);
     outline: none;
   }

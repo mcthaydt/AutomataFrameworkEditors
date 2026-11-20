@@ -42,7 +42,7 @@ export const first = {
   en: {
     languageTitle: 'Choose your language',
     languageHint: 'You can change it any time in Settings.',
-    languageUse: (name) => `Use ${name}`,
+    languageUse: (name) => `${name}: use this language`,
     languageGo: 'Go on',
     welcomeTitle: 'Welcome to the editor',
     welcomeBody: (game) =>
@@ -83,7 +83,7 @@ export const first = {
   es: {
     languageTitle: 'Elige tu idioma',
     languageHint: 'Puedes cambiarlo cuando quieras en Ajustes.',
-    languageUse: (name) => `Usar ${name}`,
+    languageUse: (name) => `${name}: usar este idioma`,
     languageGo: 'Seguir',
     welcomeTitle: 'Te damos la bienvenida al editor',
     welcomeBody: (game) =>
@@ -204,7 +204,7 @@ export const first = {
   zh: {
     languageTitle: '请选择语言',
     languageHint: '你可以随时在设置中更改。',
-    languageUse: (name) => `使用${name}`,
+    languageUse: (name) => `${name}：使用这个语言`,
     languageGo: '继续',
     welcomeTitle: '欢迎使用编辑器',
     welcomeBody: (game) =>
@@ -244,7 +244,7 @@ export const first = {
   pt: {
     languageTitle: 'Escolha seu idioma',
     languageHint: 'Você pode mudar quando quiser em Ajustes.',
-    languageUse: (name) => `Usar ${name}`,
+    languageUse: (name) => `${name}: usar este idioma`,
     languageGo: 'Continuar',
     welcomeTitle: 'Boas-vindas ao editor',
     welcomeBody: (game) =>
@@ -285,7 +285,7 @@ export const first = {
   fr: {
     languageTitle: 'Choisissez votre langue',
     languageHint: 'Vous pouvez la changer à tout moment dans Réglages.',
-    languageUse: (name) => `Utiliser ${name}`,
+    languageUse: (name) => `${name} : utiliser cette langue`,
     languageGo: 'Continuer',
     welcomeTitle: "Bienvenue dans l'éditeur",
     welcomeBody: (game) =>
@@ -326,7 +326,7 @@ export const first = {
   ru: {
     languageTitle: 'Выберите язык',
     languageHint: 'Её можно сменить в любой момент в настройках.',
-    languageUse: (name) => `Выбрать: ${name}`,
+    languageUse: (name) => `${name}: выбрать этот язык`,
     languageGo: 'Дальше',
     welcomeTitle: 'Добро пожаловать в редактор',
     welcomeBody: (game) =>

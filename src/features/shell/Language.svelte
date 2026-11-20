@@ -35,7 +35,7 @@
 
 <div class="look cover" lang={chosen} data-size="wide" data-rows="touch">
   <div
-    class="card"
+    class="card glass-3"
     role="dialog"
     aria-modal="true"
     aria-labelledby={headingId}
@@ -82,8 +82,6 @@
     padding: 24px;
     border: 1px solid var(--line);
     border-radius: 16px;
-    background: var(--panel);
-    box-shadow: var(--shadow);
     outline: none;
   }
   h1 {

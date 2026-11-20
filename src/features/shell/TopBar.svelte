@@ -219,18 +219,18 @@
       <Icon name="caret-down" />
     </button>
     {#if onmap && !compact}
-      <button type="button" class="chip" aria-pressed={mapOn} onclick={onmap}>
-        <Icon name="map-trifold" /><span>{text(words.map.mapWord)}</span>
+      <button type="button" class="chip" aria-pressed={mapOn} aria-label={text(words.map.mapWord)} title={text(words.map.mapWord)} onclick={onmap}>
+        <Icon name="map-trifold" />
       </button>
     {/if}
     <span class="fill"></span>
     {#if !compact}
-      <button type="button" class="icon" aria-label={text(words.shell.undo)} aria-disabled={canUndo && canStep ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.undo)} title={text(words.shell.undo)} aria-disabled={canUndo && canStep ? undefined : 'true'} onclick={() => {
           if (canUndo && canStep) onundo()
         }}>
         <Icon name="arrow-counter-clockwise" />
       </button>
-      <button type="button" class="icon" aria-label={text(words.shell.redo)} aria-disabled={canRedo && canStep ? undefined : 'true'} onclick={() => {
+      <button type="button" class="icon" aria-label={text(words.shell.redo)} title={text(words.shell.redo)} aria-disabled={canRedo && canStep ? undefined : 'true'} onclick={() => {
           if (canRedo && canStep) onredo()
         }}>
         <Icon name="arrow-clockwise" />
@@ -258,14 +258,21 @@
       <span class="chip bad"><Icon name="cloud" /><span>{text(w.noInternet)}</span></span>
     {/if}
     {#if onfind}
-      <button type="button" class="chip find" onclick={onfind}>
-        <Icon name="magnifying-glass" /><span class="long">{text(w.find)}</span>
+      <button type="button" class="chip find" aria-label={text(w.find)} title={text(w.find)} onclick={onfind}>
+        <Icon name="magnifying-glass" />
       </button>
     {/if}
     <Faces {people} label={text(m.whoCanChange)} onopen={onpeople} />
     {#if onplay}
-      <button type="button" class="chip play" aria-pressed={playing} onclick={onplay}>
-        <Icon name={playing ? 'stop' : 'play'} /><span>{text(playing ? w.stop : w.play)}</span>
+      <button
+        type="button"
+        class="chip play"
+        aria-pressed={playing}
+        aria-label={text(playing ? w.stop : w.play)}
+        title={text(playing ? w.stop : w.play)}
+        onclick={onplay}
+      >
+        <Icon name={playing ? 'stop' : 'play'} />
       </button>
     {/if}
     {#if main !== undefined}
@@ -306,7 +313,7 @@
 </Dock>
 
 {#if open !== undefined}
-  <button type="button" class="dim" tabindex="-1" aria-label={text(words.shell.close)} onclick={close}></button>
+  <button type="button" class="dim dim-2" tabindex="-1" aria-label={text(words.shell.close)} onclick={close}></button>
   <div class="pop" style:left="{left}px" style:top="{top}px">
     {#if open === 'game'}
       <GameMenu name={gameName} {who} items={gameRows} onpick={pickGame} onclose={close} />
@@ -352,7 +359,7 @@
     font: inherit;
     cursor: pointer;
   }
-  button:hover,
+  button:not(.dim):hover,
   button[aria-expanded='true'] {
     background: var(--hover);
   }
@@ -437,10 +444,6 @@
     min-height: 0;
     padding: 0;
     border-radius: 0;
-    background: var(--dim);
-  }
-  .dim:hover {
-    background: var(--dim);
   }
   .pop {
     position: fixed;
