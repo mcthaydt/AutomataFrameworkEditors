@@ -18,6 +18,17 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 04:23 UTC: glass and icons (#119) merged with a merge commit `5021c69`, reviewed and tested at `d8be2be`
+  (cycle 2 audit with four addenda, the last at `5e9ca67`). Its full run found one real WebKit fault after the review
+  passed: a wider level bar picked after a narrower one was placed from the old bar's size and sat off screen for a
+  moment. Three guesses failed; a clearer failure message showed the cause, and the fix places the float from the
+  bar's own size in the same update (`MapFloats.svelte`), with a test that failed first in Chromium. The slice lead
+  refused the other fix on offer (make the test wait), since it would hide the jump. The framework pin (#122) merged at
+  `cab466e`: the pin is now `b10ffe6` (one fresh review, no red). PR 16 (#113) passed its read with glass on at
+  `82cf6ede` (audit `a015f64`). PR 17's play tools are draft #123. For PR 19: the level bar's More menu (glass-2) sits
+  inside the bar (glass-1) so its blur sees only the bar, and no scene opens it; PR 15's clash-only sheet is titled
+  "Put 0 changes in the game"; lang, a rename and a font load still place the bar by its old size for one frame (N10);
+  the blur rule samples only the glass's middle and nearest blurring holder (N8).
 - 2026-11-20 03:11 UTC: plan pull request 15 (#118), checking and two people on one thing, merged with a merge commit
   `9cd1f5d` after two review cycles (pass at `dd52277`, audit `f54d376`) and a green full run on `dfb8657`. Left for
   PR 19: wrap the new this-repo line, tidy a double `marks.find` in `Marks.svelte`, and the pulled-up settings sheet
@@ -146,7 +157,7 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 | 10 | First run, Settings, Help, the keys | #90 |
 | 14 | Play in place: the level plays where it is drawn | #95 |
 
-The framework pin here is `7ff5795`.
+The framework pin here is `b10ffe6` (was `7ff5795` until #122).
 
 ### Remaining
 
