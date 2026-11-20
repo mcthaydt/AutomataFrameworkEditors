@@ -18,6 +18,12 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
 - Owner instructions (2026-11-20 02:04 UTC, project chat): "Keep it lean if that means you'll finish the slice" and
   "While following the workflow". Finishing the slice comes first; lean only where it does not slow the finish; no
   review, lane or check is skipped.
+- 2026-11-20 06:07 UTC: main went red on PR 16's merge: `world/World.svelte` reached 605 lines once PR 16 and PR 17
+  were both in (git merged them cleanly; the 600-line rule failed in `check`). PR 16's builder split it (#126, lane 1,
+  merge `243dd0e`: `world/places.ts`, World.svelte now 579). One WebKit journey failed once on that run and passed on
+  its one re-run; it is under "Flaky tests" in `history.md` and on PR 19's list. PR 18 (#124) conflicted with main in
+  the thing's menu (PR 16's "Add a note" row met the Drawn rows); both kept, read by the reviewer (`9f8ec40`).
+  Found by PR 18's journey and routed to PR 19: on a phone the play bar covers the hero's start in Play.
 - 2026-11-20 05:31 UTC: PR 16, the team (#113), merged with a merge commit `f86e550` after five review cycles (pass at
   `9377b6de`, last audit `756ee96`) and a green full run on every engine. The repeated WebKit page error
   ("…:4800/<id> due to access control checks") was real, not flaky: WebKit names a picture the old page was decoding in
