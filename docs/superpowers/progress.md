@@ -1,10 +1,11 @@
 # Progress
 
-Last updated: 2026-11-20 02:04 UTC (from `date`).
+Last updated: 2026-11-20 14:23 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)
 
-About two thirds built. The World editor plan has 19 pull requests; 1 to 10 and 14 are merged. The plan, its spec and its plan
+Built: all 19 pull requests of the World editor plan are merged (the last, #128, as `fa3a853`); what is left is the
+slice end (design review rounds, the blind judge, the Owner's looks and walk, the retrospective). The plan, its spec and its plan
 audit were removed with the earlier workflow (#93) and are read from `8109888`:
 `docs/superpowers/plans/2026-11-16-world-editor.md`, `docs/superpowers/specs/2026-11-16-world-editor-design.md` and
 `docs/superpowers/audits/2026-11-16-world-editor-plan-audit.md`.
@@ -28,6 +29,15 @@ audit were removed with the earlier workflow (#93) and are read from `8109888`:
   amends lives in the `this-repo` skill and that half the proposed sentence was false (the editors also write three
   `automata.*.toml` files). #133 was closed unmerged; the true clause goes into the `this-repo` skill in the lane 1
   documents pull request #132. `CLAUDE.md` is unchanged. Told to the coordinator for the morning summary.
+- 2026-11-20 14:23 UTC: plan PR 19 is merged: #128, merge `fa3a853` at 13:52 UTC (reviewed and integration head `34c63a53`,
+  tested with main `ffa5fa2`, four review cycles). With it: every World journey at the five sizes, the walk's R1 to
+  R5 fixed (R5 through the framework's `Game.levelAt`, pin `2cbd6d0`), the four issue pictures. Task 44's documents
+  went in #132 (`b12283fc`: `README.md`, `docs/teams.md`, the pictures clause in the `this-repo` skill); `CLAUDE.md`
+  is unchanged. Left by #128 as notes: the Move card sits over Room 1 where no clear place exists (to the design
+  round); item 7 has a test for a language change only, not for a rename or a font arriving; German and Russian level
+  bars are wider than a phone; `pnpm lint` has a warning and three infos in untouched files. Next: design review
+  round 1 on merged main. #138's own run lost `mockups` once to its 15-minute timeout (the browser install took 8
+  minutes on the slow mirror) and passed on the re-run.
 - 2026-11-20 13:32 UTC: #128 (plan PR 19) passed its review: four cycles, reviewed head `34c63a53` (audits
   `2026-11-20-world-19-1` to `-4-implementation-audit.md`), and has the go to mark ready, run in full and merge.
   Cycle 3's red (C3-1): the R5 and door journeys took a "tile" from the canvas width, so the 0.75-tile bound was
@@ -337,7 +347,7 @@ The framework pin here is `b10ffe6` (was `7ff5795` until #122).
 | 16 | The team, notes, the helper's ghost and Find (building) | 38 to 40 | 8, 12, 13 |
 | 17 | Pin 2 (its own PR), then one step, slow, back 30 seconds, play from here, doors, a game with a problem | 41, 42 | 13; framework F1, F2, F4, F5 |
 | 18 | Drawn behind, with the hero, in front | 42a | 12, 17 |
-| 19 | Every journey at every size, the four layout fixes proved, the documents and the close | 43, 44 | all |
+| 19 | Every journey at every size, the four layout fixes proved, the documents (merged, #128 and #132); the close is the slice end | 43, 44 | all |
 
 Order: 11 (14 is done), then 12 and 13, then 15 and 16, then 17, then 18, then 19. 11 and 14 both add a line to
 `World.svelte`, as do 12 and 13: the later one merges `main` in before it goes ready.
