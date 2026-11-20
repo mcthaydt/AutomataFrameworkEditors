@@ -6,6 +6,8 @@ import arrowClockwise from '@phosphor-icons/core/regular/arrow-clockwise.svg?raw
 import arrowCounterClockwise from '@phosphor-icons/core/regular/arrow-counter-clockwise.svg?raw'
 import arrowDown from '@phosphor-icons/core/regular/arrow-down.svg?raw'
 import arrowLeft from '@phosphor-icons/core/regular/arrow-left.svg?raw'
+import arrowLineDown from '@phosphor-icons/core/regular/arrow-line-down.svg?raw'
+import arrowLineUp from '@phosphor-icons/core/regular/arrow-line-up.svg?raw'
 import arrowRight from '@phosphor-icons/core/regular/arrow-right.svg?raw'
 import arrowSquareOut from '@phosphor-icons/core/regular/arrow-square-out.svg?raw'
 import arrowUp from '@phosphor-icons/core/regular/arrow-up.svg?raw'
@@ -89,6 +91,8 @@ export type IconName =
   | 'check'
   | 'caret-down'
   | 'caret-up'
+  | 'arrow-line-up'
+  | 'arrow-line-down'
   | 'caret-left'
   | 'caret-right'
   | 'arrow-up'
@@ -168,6 +172,8 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   check: inner(check),
   'caret-down': inner(caretDown),
   'caret-up': inner(caretUp),
+  'arrow-line-up': inner(arrowLineUp),
+  'arrow-line-down': inner(arrowLineDown),
   'caret-left': inner(caretLeft),
   'caret-right': inner(caretRight),
   'arrow-up': inner(arrowUp),

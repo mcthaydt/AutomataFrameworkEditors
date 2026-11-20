@@ -30,6 +30,7 @@ import Paint from './Paint.svelte'
 import { tagFacts } from './tags.ts'
   import Tags from './Tags.svelte'
   import type { Way } from './nudge.ts'
+  import { drawOf, setDraw } from './draw.ts'
   import { deleteThings, moveStart, onlyOne, placeThing, renameThing } from './things.ts'
   import { countsOf, START } from './tray.ts'
   import { type Camera, closeUp, pastWhole, slideBy, toScreen, toTiles, wholeLevel, zoomBy } from './view.ts'
@@ -119,13 +120,7 @@ import { tagFacts } from './tags.ts'
     return locked.has(id) ? text(words.markLocked, nameOf(id)) : nameOf(id)
   }
   const marks = $derived(
-    marksFor(
-      level,
-      characters,
-      { tool, picked, locked, hidden, camera, ground: tool === 'paint' },
-      size,
-      nameFor,
-    ),
+    marksFor(level, characters, { tool, picked, locked, hidden, camera, ground: tool === 'paint' }, size, nameFor),
   )
   const overMarks = $derived(extraMarks(extras, camera, size))
   const tags = $derived(tagFacts(level, characters))
@@ -430,9 +425,13 @@ import { tagFacts } from './tags.ts'
       say(text(words.noteHid, nameOf(one)), text(words.menuShow), () => onhide(one, false))
     } else if (id === 'show' && one !== undefined) onhide(one, false)
     else if (id === 'copy') copyToClipboard(picked)
+    else if (id === 'front' || id === 'back') drawPicked(id === 'front' ? 'in-front' : 'behind')
     else if (id === 'paste' && at !== undefined) paste(at.tile)
     else if (id === 'put' && at !== undefined) tray = at.at
     else if (id === 'note' && at !== undefined) onnote?.(one !== undefined && !isStart(one) ? { thing: one, at: at.tile } : { at: at.tile })
+  }
+  function drawPicked(to: 'in-front' | 'behind'): void {
+    if (apply(setDraw(level, picked, to))) sayUndoable(text(to === 'in-front' ? wordsIn(lang).thing.noteFront : wordsIn(lang).thing.noteBack, names(picked)))
   }
   function rename(name: string): void {
     const id = renaming
@@ -554,6 +553,7 @@ import { tagFacts } from './tags.ts'
     {menu}
     locked={menu?.on !== undefined && locked.has(menu.on)}
     hidden={menu?.on !== undefined && hidden.has(menu.on)}
+    draws={level.things.filter((t) => picked.includes(t.id)).map(drawOf)}
     canPaste={clip !== undefined} canNote={onnote !== undefined}
     {tray}
     {renaming}

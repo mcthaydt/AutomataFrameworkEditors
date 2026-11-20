@@ -6,10 +6,11 @@
   // slider that is being dragged is one step back, not many.
   import type { GameContent, Level, ThingValue } from '@automataframework/framework/headless'
   import type { Working } from '../game/game.ts'
-  import { NumberPad, Slider } from '../ui/ui.ts'
+  import { NumberPad, Segment, Slider } from '../ui/ui.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
   import { refusalWord } from './acts.ts'
   import type { Done } from './done.ts'
+  import { type Draw, DRAWS, drawOf, setDraw } from './draw.ts'
   import LeadsTo from './LeadsTo.svelte'
   import ValueControl from './ValueControl.svelte'
   import {
@@ -100,6 +101,17 @@
     apply(to !== undefined && !on ? unlink(level, one.id, value, to) : opens(level, characters, one.id, value, to))
   }
 
+  /** How the picked things are drawn: the one way they all are, or undefined where they differ. */
+  const drawn = $derived.by((): Draw | undefined => {
+    const all = new Set(things.map(drawOf))
+    return all.size === 1 ? [...all][0] : undefined
+  })
+  const drawWords: Readonly<Record<Draw, { name: Row; about: Row }>> = $derived({
+    behind: { name: words.thing.drawBehind, about: words.thing.drawBehindAbout },
+    'with-hero': { name: words.thing.drawWith, about: words.thing.drawWithAbout },
+    'in-front': { name: words.thing.drawFront, about: words.thing.drawFrontAbout },
+  })
+
   const where = $derived(one === undefined ? undefined : whereIs(level, characters, one))
   let pad = $state<'x' | 'y' | undefined>()
   const put = (axis: 'x' | 'y', edge: number): void => {
@@ -155,11 +167,26 @@
     {/if}
   </section>
 
-  {#if one !== undefined && where !== undefined}
+  {#if things.length > 0}
     <section data-group="look">
       <h3>{text(words.thing.groupLook)}</h3>
-      <p class="line"><span>{text(words.thing.looksLike)}</span> <b>{nameOf(one.character)}</b></p>
+      {#if one !== undefined}
+        <p class="line"><span>{text(words.thing.looksLike)}</span> <b>{nameOf(one.character)}</b></p>
+      {/if}
+      <div class="draw">
+        <Segment
+          label={text(words.thing.drawn)}
+          options={DRAWS.map((id) => ({ id, words: text(drawWords[id].name) }))}
+          value={drawn ?? ''}
+          onchange={(id) => apply(setDraw(level, ids, id as Draw))}
+        />
+      </div>
+      <p class="note about" data-draw-about>
+        {drawn === undefined ? text(words.thing.notTheSame) : text(drawWords[drawn].about)}
+      </p>
     </section>
+  {/if}
+  {#if one !== undefined && where !== undefined}
     <section data-group="where">
       <h3>{text(words.thing.groupWhere)}</h3>
       {#each [{ axis: 'x', label: words.thing.fromLeft, now: where.left, most: where.leftMost }, { axis: 'y', label: words.thing.fromTop, now: where.top, most: where.topMost }] as const as item (item.axis)}
@@ -219,9 +246,18 @@
   .note {
     color: var(--quiet);
   }
+  /* Three choices side by side in a narrow panel: less side room in each, so a short word stays on one line. */
+  .draw :global(button) {
+    padding: 0 4px;
+  }
   .note {
     margin: 0;
     font-size: 0.9em;
+  }
+  /* Close under its choices, so the settings below it keep their place above the pinned arrows. */
+  .about {
+    margin-top: -4px;
+    line-height: 1.2;
   }
   .said {
     margin: 0;
