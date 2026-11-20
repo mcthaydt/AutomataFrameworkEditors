@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from 'vitest'
 import { WORDS } from '#src/features/words/words.ts'
+import { LINKS } from '../fixtures/api.ts'
 import { LEVEL_PATH } from '../fixtures/game/read.ts'
 import {
   chooseFromMenu,
@@ -11,6 +12,7 @@ import {
   setupJourneys,
   signIn,
 } from '../fixtures/journey.ts'
+import { linksFiles } from '../fixtures/links-game/links.ts'
 
 setupJourneys()
 
@@ -37,6 +39,7 @@ const inGame = async (j: JourneyPage): Promise<void> => {
 const text = (j: JourneyPage, words: string) => j.page.getByText(words, { exact: false }).first().waitFor()
 const crate = (j: JourneyPage) => j.fake.repos.get('grandma/crate-game')!
 const GAME = '#/game/grandma/crate-game'
+const ROOM_1 = 'content/levels/room-1.json'
 
 for (const size of ['ipadUpright', 'phone'] as const) {
   test(`grandma picks a game and opens it, at ${size}`, async () => {
@@ -79,6 +82,19 @@ test('a level that will not load shows what is wrong and which file', async () =
   await j.page.goto(`${j.site}/${GAME}`)
   await text(j, WORDS.brokenGame)
   await text(j, LEVEL_PATH)
+})
+
+test('a game with a door into a level that is not there opens, counts one problem, and Play of that level says why', async () => {
+  const j = await open('ipadSideways', 'grandma', false, LINKS)
+  const links = j.fake.repos.get(LINKS)!
+  const room = (linksFiles()[ROOM_1] ?? '').replace('"room-2"', '"room-9"')
+  links.put('main', ROOM_1, room)
+  await signIn(j.page)
+  await j.page.goto(`${j.site}/#/game/${LINKS}`)
+  await j.page.getByRole('button', { name: '1 problem' }).waitFor()
+  await j.page.getByRole('button', { name: 'Play', exact: true }).click()
+  await j.page.getByText(`There is no level called "room-9"`, { exact: false }).first().waitFor()
+  expect(await j.page.locator('[data-play="box"]').count()).toBe(0)
 })
 
 test('when the sign-in is gone for good the person is on Welcome, told so', async () => {

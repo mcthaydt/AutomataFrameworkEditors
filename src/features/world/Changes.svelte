@@ -103,13 +103,10 @@
     if (phase !== 'working') shown = undefined
   }
 
-  // The game's own check, a moment after the last change, never while a hand is still moving.
+  // The game's own check, a moment after the last change, never while a hand is still moving. A game opens with the
+  // problems it already has, so it is read as it was opened too.
   $effect(() => {
     const [now, held] = [edits, game]
-    if (now.base === now.now) {
-      problems = []
-      return
-    }
     let stale = false
     const timer = setTimeout(async () => {
       const found = await problemsOf(held, now)

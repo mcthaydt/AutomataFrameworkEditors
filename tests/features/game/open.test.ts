@@ -1,9 +1,10 @@
 import { expect, test } from 'vitest'
 import type { Api } from '#src/features/api/api.ts'
-import { levelPath, openGame } from '#src/features/game/game.ts'
+import { levelPath, openGame, problemsOf, startEdits } from '#src/features/game/game.ts'
 import type { Answer, OpenAnswer, ProblemKind } from '#src/features/wire/wire.ts'
 import { blobSha } from '../../fixtures/fake-github/repos.ts'
 import { fixtureFiles, LEVEL_PATH } from '../../fixtures/game/read.ts'
+import { linksFiles } from '../../fixtures/links-game/links.ts'
 
 const REF = { owner: 'grandma', name: 'crate-game' }
 const files = (over: Record<string, string> = {}) =>
@@ -70,6 +71,22 @@ test("a level that is not JSON is broken, with the framework's sentence for that
   expect(opened.ok).toBe(false)
   if (opened.ok || opened.problem !== 'broken') throw new Error('expected broken')
   expect(opened.diagnostics.map((d) => d.file)).toContain(LEVEL_PATH)
+})
+
+test('a game whose files all read opens even with a door into a level that is not there', async () => {
+  const links = linksFiles()
+  const room1 = (links['content/levels/room-1.json'] ?? '').replace('"room-2"', '"room-9"')
+  const wire = Object.entries({ ...links, 'content/levels/room-1.json': room1 }).map(([path, text]) => ({
+    path,
+    text: text ?? '',
+    version: blobSha(text ?? ''),
+  }))
+  const opened = await openGame(apiGiving({ ok: true, value: answer({ files: wire }) }), REF)
+  if (!opened.ok) throw new Error(`did not open: ${opened.problem}`)
+  expect(Object.keys(opened.game.content.levels).sort()).toEqual(['room-1', 'room-2', 'room-3'])
+  expect(
+    await problemsOf(opened.game, startEdits(opened.game)).then((found) => found.map((one) => one.where)),
+  ).toEqual([{ level: 'room-1', thing: 'exit' }])
 })
 
 test('a file the project lists but the API left out is broken, and names it', async () => {

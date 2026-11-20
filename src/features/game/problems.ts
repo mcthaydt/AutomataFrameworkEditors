@@ -1,6 +1,6 @@
 // What the game's own check says about the game as it would be with the person's changes: the framework's sentences,
 // each with where to look. It is the framework that reads the game (`loadGame`), so the page never words a problem itself.
-import { loadGame } from '@automataframework/framework/headless'
+import { readGame } from '@automataframework/framework/headless'
 import { type Edits, readerOf } from './changes.ts'
 import type { OpenGame } from './open.ts'
 
@@ -19,8 +19,7 @@ const THING = /^things\[(\d+)\]/
 
 /** The framework's sentences on the edited game, each with where to look. */
 export async function problemsOf(game: OpenGame, edits: Edits): Promise<readonly Problem[]> {
-  const loaded = await loadGame(readerOf(game, edits))
-  if (loaded.ok) return []
+  const loaded = await readGame(readerOf(game, edits))
   return loaded.diagnostics.map((one): Problem => {
     const level = LEVEL_FILE.exec(one.file)?.[1]
     if (one.file === game.worldPath) return { words: one.message, file: one.file, where: { map: true } }
