@@ -175,6 +175,60 @@ describe.each(['ipadUpright', 'phone'] as const)('at %s', (size) => {
     expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe('6.5')
   })
 
+  test('with two changes waiting, "Not now" on one goes back to the list of two', async () => {
+    await kidHasSaved(size)
+    const other = await window_(size, 'stranger', true)
+    await signIn(other.page)
+    await openLevel(other.page)
+    await dragByTouch(other.page, 'crate-1', { dx: 3, dy: 0 })
+    await putThemIn(other.page, 'suggestion')
+    const g = await gameAs(size, 'grandpa')
+    await chooseFromMenu(g.page, menuWords.waitingRow(2))
+    await g.page.locator('a.row').nth(1).waitFor()
+    await g.page.locator('a.row').first().click()
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.locator('a.row').nth(1).waitFor()
+    expect(await g.page.locator('a.row').count()).toBe(2)
+  })
+
+  test("while someone's change is open, no key changes the person's own work behind it", async () => {
+    await kidHasSaved(size)
+    const g = await gameAs(size, 'grandpa')
+    await openLevel(g.page)
+    await dragByTouch(g.page, 'crate-1', { dx: 1, dy: 0 })
+    const own = await thingNamed(g.page, 'crate-1').getAttribute('data-x')
+    await chooseFromMenu(g.page, menuWords.waitingRow(1))
+    await g.page.locator('a.row').first().click()
+    await g.page.getByRole('dialog').getByRole('button', { name: C.putThem, exact: true }).waitFor()
+    // Keys reach the page when focus is on nothing in particular, as after a tap on the level.
+    await g.page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    for (const key of [
+      'Delete',
+      'Backspace',
+      'ArrowLeft',
+      'ArrowRight',
+      'Control+c',
+      'Control+v',
+      'Control+d',
+      'e',
+      'Control+Shift+z',
+      'Control+y',
+      'Control+z',
+    ]) {
+      await g.page.keyboard.press(key)
+    }
+    await g.page
+      .getByRole('dialog')
+      .getByRole('button', { name: said(W.check.notNow), exact: true })
+      .click()
+    await g.page.getByRole('dialog').waitFor({ state: 'detached' })
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe(own)
+    expect(await thingNamed(g.page, 'crate-1').getAttribute('data-x')).toBe(own)
+  })
+
   test("while someone's change is open, the top bar's Undo, Redo and put-in buttons are held back and say why", async () => {
     await kidHasSaved(size)
     const g = await gameAs(size, 'grandpa')

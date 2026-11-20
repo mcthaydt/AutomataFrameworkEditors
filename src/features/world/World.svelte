@@ -195,6 +195,8 @@ import { listen, measure } from './listen.ts'
 
   /** Does what a key (or something Find offered) asks for. */
   function run(act: KeyAct): void {
+    // Someone else's change is open: nothing here, by key or from Find, changes the person's own work behind it.
+    if (checking) return
     switch (act.kind) {
       case 'stop-play': return stopPlay()
       case 'step': return step(act.which)
