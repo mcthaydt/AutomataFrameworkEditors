@@ -1164,12 +1164,12 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       }
 
       // The top bar: nothing in it wraps, and a name is cut only once everything that can let go of its words has (the
-      // second line, the status's words, the main button's), so the names come first (design round 1, A2 and R1).
+      // second line, then the status's words), so the names come first (design round 1, A2 and R1).
       const bar = document.querySelector<HTMLElement>('[data-bar]')
       if (bar !== null && seen(bar)) {
         const squeezed = Number(bar.dataset.squeeze ?? '0')
         for (const name of bar.querySelectorAll<HTMLElement>('.name')) {
-          if (seen(name) && name.scrollWidth > name.clientWidth + 1 && squeezed < 3)
+          if (seen(name) && name.scrollWidth > name.clientWidth + 1 && squeezed < 2)
             found.push(
               `the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}" while it still shows other words`,
             )

@@ -190,11 +190,11 @@
   const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more' || s.kind === 'asked'))
 
   // The names come first. Where the bar has no room for every word, it lets go of words in this order before any name is
-  // cut: the second line under the main button, then the status's words, then the main button's; each keeps its icon,
-  // and its words stay in its spoken name.
+  // cut: the second line under the main button, then the status's words (it keeps its icon, and its words stay in its
+  // spoken name and its tooltip). The main button keeps its words: it is the one thing the screen most wants pressed.
   let barEl = $state<HTMLDivElement | undefined>(undefined)
   let squeeze = $state(0)
-  const MOST = 3
+  const MOST = 2
   const cut = (bar: HTMLElement): boolean =>
     [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
   let fitting = 0
@@ -345,7 +345,6 @@
         aria-disabled={held ? 'true' : undefined}
         title={held ? text(w.heldWhy) : undefined}
         onclick={() => held || onmain(main)}
-        aria-label={squeeze >= 3 ? mainWords : undefined}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
         <span class="what">
@@ -372,7 +371,7 @@
 
 {#if open !== undefined}
   <button type="button" class="dim dim-2" tabindex="-1" aria-label={text(words.shell.close)} onclick={close}></button>
-  <div class="pop" style:left="{left}px" style:top="{top}px">
+  <div class="pop" style:left="{left}px" style:top="{top}px" style:max-height="calc(100dvh - {top}px - 8px)">
     {#if open === 'game'}
       <GameMenu name={gameName} {who} items={gameRows} onpick={pickGame} onclose={close} />
     {:else if open === 'editors'}
@@ -498,10 +497,7 @@
   }
   .bar[data-squeeze='1'] .long,
   .bar[data-squeeze='2'] .long,
-  .bar[data-squeeze='3'] .long,
-  .bar[data-squeeze='2'] .put.quiet .what,
-  .bar[data-squeeze='3'] .put.quiet .what,
-  .bar[data-squeeze='3'] .put .what {
+  .bar[data-squeeze='2'] .put.quiet .what {
     display: none;
   }
   :global(.look[data-size='phone-sideways']) .put {
@@ -540,13 +536,14 @@
     padding: 0;
     border-radius: 0;
   }
+  /* As tall as the room under its button, less a margin: the menu in it scrolls (see `Menu`). */
   .pop {
     position: fixed;
     z-index: 51;
+    display: flex;
+    flex-direction: column;
     width: 300px;
     max-width: calc(100vw - 16px);
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
   }
   .notes {
     position: fixed;

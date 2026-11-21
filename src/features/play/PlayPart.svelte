@@ -246,6 +246,15 @@
         onback={back}
         {onbig}
       />
+      <!-- Waiting for the tap: said at the top, under the play bar, clear of the game's own buttons at its foot. -->
+      {#if picking}
+        <div class="pick glass-2" role="status" data-play="pick-strip">
+          <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
+          <button type="button" data-play="pick-cancel" onclick={endPick}>
+            {text(wordsIn(lang).play.cancel)}
+          </button>
+        </div>
+      {/if}
       {#if playing.doorsShut}
         <div class="note glass-2" role="status">
           <Icon name="door" size={22} /><span>{text(wordsIn(lang).play.noDoors)}</span>
@@ -253,12 +262,6 @@
       {/if}
     </div>
     {#if picking}
-      <div class="pick glass-2" role="status" data-play="pick-strip">
-        <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
-        <button type="button" data-play="pick-cancel" onclick={endPick}>
-          {text(wordsIn(lang).play.cancel)}
-        </button>
-      </div>
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div class="tap" data-play="tap" onpointerdown={tapped}></div>
     {/if}
@@ -301,13 +304,8 @@
     color: var(--words);
   }
   .pick {
-    position: absolute;
-    z-index: 31;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
     padding: 4px 4px 4px 16px;
-    max-width: calc(100% - 16px);
+    max-width: min(560px, calc(100vw - 32px));
   }
   .pick button {
     min-width: 44px;

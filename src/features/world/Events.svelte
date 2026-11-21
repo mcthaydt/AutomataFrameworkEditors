@@ -31,6 +31,9 @@
             <button type="button" class="main" onclick={() => onanswer(event, 'stay')}>{WORDS.leaveNo}</button>
             <button type="button" onclick={() => onanswer(event, 'leave')}>{WORDS.leaveYes}</button>
           {/if}
+          {#if event.show !== undefined}
+            <button type="button" class="main" onclick={() => onanswer(event, 'show')}>{event.show}</button>
+          {/if}
           {#if event.dismiss === true}
             <button type="button" onclick={() => onanswer(event, 'dismiss')}>{WORDS.tipGotIt}</button>
           {/if}

@@ -250,7 +250,7 @@ import { listen, measure } from './listen.ts'
   /** The level could not be played: what is wrong, said where the person is looking. */
   function noPlay(lines: readonly string[]): void {
     stopPlay()
-    events = say(events, cantPlay(words.play, lines))
+    events = say(events, cantPlay(words.play, lines, text(words.changes.showMe)))
   }
   // Playing ends when the level in view changes or a sheet takes the screen: it would play a level no one is looking at.
   $effect(() => {
@@ -328,6 +328,7 @@ import { listen, measure } from './listen.ts'
     if (answer === 'leave') dropDrafts(drafts, held)
     if (answer === 'dismiss' && (event.id === 'tip-share' || event.id === 'tip-approve')) tipKept(remembered, event.id === 'tip-share' ? 'share' : 'approve')
     events = unsay(events, event.id)
+    if (answer === 'show') changes?.open('problems')
     then?.()
   }
 

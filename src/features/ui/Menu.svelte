@@ -15,11 +15,20 @@
   let { items, head, onpick, onclose }: Props = $props()
 
   let list: HTMLElement | undefined
+  /** Rows wait below the fold: the foot fades, so a person sees there is more to scroll to. */
+  let more = $state(false)
+  const measure = (): void => {
+    if (list !== undefined) more = list.scrollTop + list.clientHeight < list.scrollHeight - 1
+  }
   const rows = (): HTMLElement[] => [...(list?.querySelectorAll<HTMLElement>('[role=menuitem]') ?? [])]
 
   onMount(() => {
+    measure()
+    const watch = new ResizeObserver(measure)
+    if (list !== undefined) watch.observe(list)
     const all = rows()
     ;(all.find((row) => row.getAttribute('aria-disabled') !== 'true') ?? all[0])?.focus()
+    return () => watch.disconnect()
   })
 
   function keys(event: KeyboardEvent): void {
@@ -42,7 +51,7 @@
   }
 </script>
 
-<div class="menu glass-2" role="menu" tabindex="-1" bind:this={list} onkeydown={keys}>
+<div class="menu glass-2" class:more role="menu" tabindex="-1" bind:this={list} onkeydown={keys} onscroll={measure}>
   {#if head}<div class="head">{@render head()}</div>{/if}
   {#each items as item (item.id)}
     {#if item.kind === 'heading'}
@@ -70,15 +79,24 @@
 </div>
 
 <style>
+  /* Never taller than the room it opens into (its holder sets that): the rows scroll, and a fade says there are more. */
   .menu {
     display: flex;
     flex-direction: column;
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     min-width: 220px;
     padding: 6px;
     border-radius: 14px;
     color: var(--words);
   }
+  .more {
+    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent); /* a mask: only its opacity counts */
+  }
   .item {
+    flex: none;
     display: flex;
     align-items: center;
     gap: 10px;
