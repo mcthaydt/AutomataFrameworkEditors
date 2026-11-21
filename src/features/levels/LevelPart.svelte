@@ -467,7 +467,7 @@ import { tagFacts } from './tags.ts'
   role="group"
   aria-label={nameOf(levelId)}
   bind:this={holder}
-  data-scale={camera.scale} data-drawn={[toScreen(camera, size, { x: 0, y: 0 }), toScreen(camera, size, { x: levelSize(level).w, y: levelSize(level).h })].flatMap((p) => [Math.round(p.x), Math.round(p.y)]).join(' ')}
+  style:--aside-left="{aside.left}px" style:--aside-right="{aside.right}px" data-scale={camera.scale} data-drawn={[toScreen(camera, size, { x: 0, y: 0 }), toScreen(camera, size, { x: levelSize(level).w, y: levelSize(level).h })].flatMap((p) => [Math.round(p.x), Math.round(p.y)]).join(' ')}
   onpointerdown={(e) => feed('down', e)}
   onpointermove={(e) => feed('move', e)}
   onpointerup={(e) => feed('up', e)}
@@ -522,7 +522,7 @@ import { tagFacts } from './tags.ts'
     {lang}
     {characters}
     {counts}
-    size={size}
+    size={{ w: size.w - aside.left - aside.right, h: size.h }} from={aside.left}
     {tool}
     {readOnly}
     {paused}

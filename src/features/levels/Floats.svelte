@@ -18,7 +18,9 @@
     lang: Lang
     characters: GameContent['characters']
     counts: Readonly<Record<string, number>>
+    /** The free part of the stage, beside any panel over it, and where it begins (px from the stage's left). */
     size: { w: number; h: number }
+    from?: number
     tool: string
     readOnly: boolean
     paused: boolean
@@ -41,22 +43,23 @@
     onnote: () => void
   }
   let {
-    lang, characters, counts, size, tool, readOnly, paused, pickedBox, picked, placing, pad, note,
+    lang, characters, counts, size, from = 0, tool, readOnly, paused, pickedBox, picked, placing, pad, note,
     onpad, oncopy, ondelete, onmore, onnudge, onchoose, onnote, kinds, letter, onkind,
   }: Props = $props()
 
   let barWidth = $state(0)
-  const barAt = $derived(pickedBox === undefined ? undefined : barPlace(pickedBox, size, barWidth))
-  const padAt = $derived(padPlace(pickedBox, size))
+  const local = $derived(pickedBox === undefined ? undefined : { ...pickedBox, x: pickedBox.x - from })
+  const barAt = $derived(local === undefined ? undefined : barPlace(local, size, barWidth))
+  const padAt = $derived(padPlace(local, size))
 </script>
 
 {#if !readOnly && !paused && pickedBox !== undefined && barAt !== undefined && tool === 'pick'}
-  <div class="float" data-ui bind:clientWidth={barWidth} style:left="{barAt.x}px" style:top="{barAt.y}px">
+  <div class="float" data-ui bind:clientWidth={barWidth} style:left="{barAt.x + from}px" style:top="{barAt.y}px">
     <ActBar {lang} moving={pad} onmove={onpad} {oncopy} {ondelete} {onmore} />
   </div>
 {/if}
 {#if pad && !readOnly && !paused && picked.length > 0}
-  <div class="float" data-ui style:left="{padAt.x}px" style:top="{padAt.y}px">
+  <div class="float" data-ui style:left="{padAt.x + from}px" style:top="{padAt.y}px">
     <MovePad {lang} {onnudge} ondone={onpad} />
   </div>
 {/if}
@@ -84,8 +87,8 @@
   }
   .strip {
     position: absolute;
-    left: 8px;
-    right: 8px;
+    left: calc(8px + var(--aside-left, 0px));
+    right: calc(8px + var(--aside-right, 0px));
     bottom: 8px;
     z-index: 25;
     border-radius: 14px;

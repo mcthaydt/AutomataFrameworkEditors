@@ -364,7 +364,7 @@ import { listen, measure } from './listen.ts'
     else if (id === 'sign-out') onsignout()
   }
   const onmain = (what: 'put' | 'send' | 'keep' | 'waiting'): void => changes?.open(what)
-  const insets = afterFinger(() => insetsOf(lay, lay.settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
+  const insets = afterFinger(() => insetsOf(lay, playing ? layout(device, size, docks, true, me.leftHand).settings : lay.settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
 <div
@@ -378,8 +378,8 @@ import { listen, measure } from './listen.ts'
     <div
       class="level"
       class:hidden={playing}
-      style:left="{insets.value.left}px"
-      style:right="{insets.value.right}px"
+      style:left="{insets.value.left + (playing ? insets.value.aside.left : 0)}px"
+      style:right="{insets.value.right + (playing ? insets.value.aside.right : 0)}px"
       style:bottom={bottomOf(insets.value)}
     >
       {#if onMap}

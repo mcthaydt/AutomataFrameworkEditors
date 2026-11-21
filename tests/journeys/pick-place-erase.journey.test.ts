@@ -36,13 +36,6 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     await signIn(page)
     await openLevel(page)
 
-    const first = await thingNamed(page, 'crate-1').boundingBox()
-    const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
-    if (first === null || !(scale > 0)) throw new Error('the level is not on screen')
-    const tile = (dx: number) => ({
-      x: first.x + first.width / 2 + dx * scale,
-      y: first.y + first.height / 2,
-    })
     const things = () => page.locator('[data-thing^="crate-"]')
     const undo = () => page.locator('[aria-label="Undo"]:visible').first().tap()
     expect(await things().count()).toBe(1)
@@ -50,6 +43,15 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     // Put a crate down: the Place tool, the crate in the tray, then the level.
     await page.getByRole('button', { name: /^Place/ }).tap()
     await page.locator('[data-character="crate"]').first().tap()
+    // Measured with the tray out: the level is fitted clear of it, so it can be smaller than with the Pick tool.
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))))
+    const first = await thingNamed(page, 'crate-1').boundingBox()
+    const scale = Number(await page.locator('[data-scale]').first().getAttribute('data-scale'))
+    if (first === null || !(scale > 0)) throw new Error('the level is not on screen')
+    const tile = (dx: number) => ({
+      x: first.x + first.width / 2 + dx * scale,
+      y: first.y + first.height / 2,
+    })
     await page.touchscreen.tap(tile(4).x, tile(4).y)
     await thingNamed(page, 'crate-2').waitFor()
     expect(await things().count()).toBe(2)
