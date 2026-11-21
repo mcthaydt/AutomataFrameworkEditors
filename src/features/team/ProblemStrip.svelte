@@ -1,6 +1,7 @@
 <script lang="ts">
   // The problem being looked at, over the level or the map: which one of how many, what it says, and the way on and the
   // way back. It sits at the bottom, above the tools, so it covers neither the top bar nor the card the map draws by a wall.
+  import { wallFold } from '../map/map.ts'
   import { Action } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
 
@@ -26,6 +27,8 @@
   <b>{text(w.kept.problemOf, at, of)}</b>
   <p>{said}</p>
   <div class="buttons">
+    <!-- On a short screen the wall's fix card waits folded: this opens it from the foot (design round 2, A1). -->
+    {#if wallFold.ready && !wallFold.open}<Action label={text(w.kept.waysToFix)} icon="wrench" onpress={() => (wallFold.open = true)} />{/if}
     {#if of > 1}<Action label={text(w.kept.nextProblem)} onpress={onnext} />{/if}
     <!-- A plain button: the main action on the screen stays the top bar's own (one main action per screen). -->
     <Action
@@ -73,11 +76,6 @@
     }
     .strip p {
       flex: 1 1 240px;
-    }
-    /* With the wall's fix card up over the map, which says the same in plain words, the strip keeps only which one and
-       its way back: both fit above and below each other on the short screen. */
-    :global(.look:has([data-way])) .strip p {
-      display: none;
     }
   }
   .buttons {

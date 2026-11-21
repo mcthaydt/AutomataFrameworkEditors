@@ -1170,9 +1170,7 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
       if (bar !== null && seen(bar)) {
         for (const name of bar.querySelectorAll<HTMLElement>('.name')) {
           if (seen(name) && name.scrollWidth > name.clientWidth + 1)
-            found.push(
-              `the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}"`,
-            )
+            found.push(`the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}"`)
         }
         for (const line of bar.querySelectorAll<HTMLElement>('b, small, .full, .wordy')) {
           if (!seen(line)) continue

@@ -74,6 +74,7 @@ import stop from '@phosphor-icons/core/regular/stop.svg?raw'
 import trash from '@phosphor-icons/core/regular/trash.svg?raw'
 import usersThree from '@phosphor-icons/core/regular/users-three.svg?raw'
 import warning from '@phosphor-icons/core/regular/warning.svg?raw'
+import wrench from '@phosphor-icons/core/regular/wrench.svg?raw'
 import x from '@phosphor-icons/core/regular/x.svg?raw'
 import xCircle from '@phosphor-icons/core/regular/x-circle.svg?raw'
 
@@ -141,6 +142,7 @@ export type IconName =
   | 'squares-four'
   | 'stack-plus'
   | 'skip-back'
+  | 'wrench'
   | 'stop'
   | 'users-three'
   | 'chat-circle-text'
@@ -224,6 +226,7 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   'squares-four': inner(squaresFour),
   'stack-plus': inner(stackPlus),
   'skip-back': inner(skipBack),
+  wrench: inner(wrench),
   stop: inner(stop),
   'users-three': inner(usersThree),
   'chat-circle-text': inner(chatCircleText),

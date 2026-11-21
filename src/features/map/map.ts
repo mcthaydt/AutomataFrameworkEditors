@@ -15,4 +15,5 @@ export {
   wholeWorld,
 } from './arrange.ts'
 export { edgesOf } from './edges.ts'
+export { wallFold } from './fold.svelte.ts'
 export { default as MapPart } from './MapPart.svelte'
