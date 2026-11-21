@@ -6,7 +6,7 @@
   import { onMount, untrack } from 'svelte'
   import type { Frames } from '@automataframework/framework'
   import { type Arrive, type Way } from '@automataframework/framework/headless'
-  import type { Edits, OpenGame } from '../game/game.ts'
+  import { type Edits, type OpenGame, withNames } from '../game/game.ts'
   import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { CannotPlay, play, type Playing } from './run.ts'
@@ -37,6 +37,8 @@
     frames?: Frames
   }
   let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, arrive, ondoor, frames, speed: first = 1, onspeed }: Props = $props()
+  /** What the framework says, with each level by the name the map gives it (design round 2, A10). */
+  const named = (lines: readonly string[]): string[] => lines.map((line) => withNames(line, Object.keys(edits.now.levels)))
 
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   let holder: HTMLDivElement | undefined = $state()
@@ -74,7 +76,7 @@
         onstarted()
       },
       (error: unknown) => {
-        if (!gone) onproblem(error instanceof CannotPlay ? error.lines : [])
+        if (!gone) onproblem(error instanceof CannotPlay ? named(error.lines) : [])
       },
     )
     let looking = 0
@@ -173,7 +175,7 @@
       paused = playing?.paused() ?? false
       sync()
     } catch (error) {
-      onproblem(error instanceof CannotPlay ? error.lines : [])
+      onproblem(error instanceof CannotPlay ? named(error.lines) : [])
     }
   }
   const again = (): Promise<void> => restart(() => playing?.again())

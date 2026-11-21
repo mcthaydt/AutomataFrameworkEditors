@@ -20,6 +20,7 @@
     type Problem,
     problemsOf,
     put,
+    sayProblem,
     takeBack,
   } from '../game/game.ts'
   import { type ClashSet, KeepCopy, type Failure, type Phase, ProblemStrip, Problems, PutSheet, WaitingSheet } from '../team/team.ts'
@@ -291,7 +292,10 @@
     {lang}
     at={strip.at + 1}
     of={problems.length}
-    words={looked.words}
+    words={sayProblem(looked, (a, b) => {
+      const said = wordsIn(lang).arrange.wallBody
+      return typeof said === 'function' ? said(a, b) : said
+    })}
     back={strip.back}
     onnext={() => show((strip?.at ?? 0) + 1 >= problems.length ? 0 : (strip?.at ?? 0) + 1)}
     {onback}

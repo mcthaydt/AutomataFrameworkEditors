@@ -2,7 +2,7 @@
   // Putting changes in the game, or sending them to be checked. It lists what changed, the game's problems first, and
   // has one main button. When it could not go it says what happened and that nothing is lost; when it went it says so.
   import type { GameContent } from '@automataframework/framework/headless'
-  import type { ChangeLine, Problem } from '../game/game.ts'
+  import { type ChangeLine, type Problem, sayProblem } from '../game/game.ts'
   import { Action, Sheet } from '../ui/ui.ts'
   import type { OpenPicture } from '../wire/wire.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
@@ -171,7 +171,7 @@
       {#if nothingLeft}<p role="status">{text(wordsIn(lang).whose.nothingLeft)}</p>{/if}
       {#if first !== undefined}
         <div class="problem" role="alert">
-          <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {first.words}</b>
+          <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {sayProblem(first, (a, b) => text(words.arrange.wallBody, a, b))}</b>
           <small>{blocked ? `${text(c.stopsAbout)} ${text(c.stopsSafe)}` : text(kind === 'put' ? c.warnPut : c.warnSend)}</small>
           <Action label={text(c.showMe)} icon="eye" onpress={() => onshow(first)} />
         </div>

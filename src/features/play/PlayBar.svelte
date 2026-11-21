@@ -186,4 +186,11 @@
     min-width: 200px;
     padding: 0 8px;
   }
+  /* Folded, the row keeps the slider and the time: the rewind button beside it says what it is (design round 2, N2). */
+  .folded .strip :global(.name) {
+    display: none;
+  }
+  .folded .strip :global(.line) {
+    justify-content: flex-end;
+  }
 </style>

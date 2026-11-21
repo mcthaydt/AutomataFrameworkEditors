@@ -6,7 +6,7 @@
   import { onMount } from 'svelte'
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
-  import { approverOf, type Edits, type Opened, openGame, type Problem, problemsOf, startEdits } from '../game/game.ts'
+  import { approverOf, type Edits, type Opened, openGame, type Problem, problemsOf, sayProblem, startEdits } from '../game/game.ts'
   import { Stage } from '../levels/levels.ts'
   import { PlayPart } from '../play/play.ts'
   import { Action, Sheet } from '../ui/ui.ts'
@@ -251,7 +251,7 @@
       {/if}
       {#if problems[0] !== undefined}
         <div class="problem" role="alert">
-          <b>{text(words.bar.problems, problems.length)}: {problems[0].words}</b>
+          <b>{text(words.bar.problems, problems.length)}: {sayProblem(problems[0], (a, b) => text(words.arrange.wallBody, a, b))}</b>
           {#if role === 'approver'}<small>{text(c.problemNote)}</small>{/if}
         </div>
       {/if}

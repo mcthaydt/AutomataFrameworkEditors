@@ -2,7 +2,7 @@
   // What the game's own check found, under the top bar's "N problems": the framework's sentence for each, and "Show me",
   // which opens the level or the map at it. It closes on Escape and on a press outside it.
   import { onMount } from 'svelte'
-  import type { Problem } from '../game/game.ts'
+  import { type Problem, sayProblem } from '../game/game.ts'
   import { Action } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
 
@@ -34,7 +34,7 @@
   <ul>
     {#each problems as problem, at (`${problem.file}:${problem.words}`)}
       <li>
-        <span>{problem.words}</span>
+        <span>{sayProblem(problem, (a, b) => text(words.arrange.wallBody, a, b))}</span>
         <Action label={text(words.changes.showMe)} onpress={() => onshow(at)} />
       </li>
     {/each}
