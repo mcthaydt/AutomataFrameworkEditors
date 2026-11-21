@@ -22,7 +22,7 @@
     typeof row === 'function' ? row(...parts) : row
 </script>
 
-<div class="strip glass-1" role="status">
+<div class="strip glass-1" role="status" data-strip>
   <b>{text(w.kept.problemOf, at, of)}</b>
   <p>{said}</p>
   <div class="buttons">
@@ -73,6 +73,11 @@
     }
     .strip p {
       flex: 1 1 240px;
+    }
+    /* With the wall's fix card up over the map, which says the same in plain words, the strip keeps only which one and
+       its way back: both fit above and below each other on the short screen. */
+    :global(.look:has([data-way])) .strip p {
+      display: none;
     }
   }
   .buttons {

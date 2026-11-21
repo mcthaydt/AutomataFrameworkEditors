@@ -191,12 +191,17 @@
 
   // The names come first. Where the bar has no room for every word, it lets go of words in this order before any name is
   // cut: the second line under the main button, then the status's words (it keeps its icon, and its words stay in its
-  // spoken name and its tooltip). The main button keeps its words: it is the one thing the screen most wants pressed.
+  // spoken name and its tooltip). The main button keeps its words longest, as it is the one thing the screen most wants
+  // pressed: only when the bar still runs off the screen with the names cut does it keep just its icon, with its words in its spoken name and
+  // its tooltip.
   let barEl = $state<HTMLDivElement | undefined>(undefined)
   let squeeze = $state(0)
-  const MOST = 2
-  const cut = (bar: HTMLElement): boolean =>
-    [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
+  const MOST = 3
+  /** The bar still runs off the screen, or, before the status has let go of its words, a name is cut. */
+  const cut = (bar: HTMLElement, step: number): boolean =>
+    bar.scrollWidth > bar.clientWidth + 1 ||
+    bar.getBoundingClientRect().right > window.innerWidth + 1 ||
+    (step < 2 && [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1))
   let fitting = 0
   async function fit(): Promise<void> {
     const bar = barEl
@@ -205,7 +210,7 @@
     for (let next = 0; next <= MOST; next += 1) {
       squeeze = next
       await tick()
-      if (run !== fitting || !cut(bar)) return
+      if (run !== fitting || !cut(bar, next)) return
     }
   }
   $effect(() => {
@@ -343,7 +348,8 @@
         data-tour="main"
         class:waiting={mine?.kind === 'more'}
         aria-disabled={held ? 'true' : undefined}
-        title={held ? text(w.heldWhy) : undefined}
+        aria-label={squeeze >= 3 ? mainWords : undefined}
+        title={held ? text(w.heldWhy) : squeeze >= 3 ? mainWords : undefined}
         onclick={() => held || onmain(main)}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
@@ -496,9 +502,9 @@
   .put small {
     white-space: nowrap;
   }
-  .bar[data-squeeze='1'] .long,
-  .bar[data-squeeze='2'] .long,
-  .bar[data-squeeze='2'] .put.quiet .what {
+  .bar:not([data-squeeze='0']) .long,
+  .bar[data-squeeze='2'] .put.quiet .what,
+  .bar[data-squeeze='3'] .put .what {
     display: none;
   }
   :global(.look[data-size='phone-sideways']) .put {

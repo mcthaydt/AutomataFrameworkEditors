@@ -41,10 +41,12 @@
     rectFor: (id: string) => Rect | undefined
     /** A level is being dragged: its bar waits. */
     dragging: boolean
-    /** A problem is being shown: the room's bar and the fix card give way to it. */
-    quiet?: boolean
+    /** A problem is being shown: the room's bar gives way to it, and the cards too while the list is open. */
+    quiet?: 'strip' | 'list' | undefined
+    /** Where the problem strip stands: a card keeps off it. */
+    stripAt?: Rect | undefined
   }
-  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging, quiet = false }: Props =
+  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging, quiet, stripAt }: Props =
     $props()
 
   const everything = $derived(wordsIn(lang))
@@ -113,7 +115,10 @@
     if (anchor === undefined) return undefined
     const others = open.kind === 'wall' ? [open.a, open.b].filter((id) => id !== mine) : touching
     const clear = others.flatMap((id) => rectFor(id) ?? [])
-    return placeCard(whole(cardSize), anchor, [keyRect, topRect, ...(barAt === undefined ? [] : [barAt]), ...clear], screen)
+    // While a problem is shown the key, the top strip's buttons and the room's bar are put away: the card needs only keep
+    // off the problem strip.
+    const off = quiet === undefined ? [keyRect, topRect, ...(barAt === undefined ? [] : [barAt])] : stripAt === undefined ? [] : [stripAt]
+    return placeCard(whole(cardSize), anchor, [...off, ...clear], screen)
   })
 
   /** A level moved: one step, and a card for the wall when it now meets one and joins nothing. */
@@ -223,7 +228,7 @@
     />
   </div>
 {/if}
-{#if open !== undefined && cardAt !== undefined && !quiet && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
+{#if open !== undefined && cardAt !== undefined && quiet !== 'list' && (quiet === undefined || open.kind === 'wall') && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
   <div class="float" data-ui bind:clientWidth={cardSize.w} bind:clientHeight={cardSize.h} style:left="{cardAt.x}px" style:top="{cardAt.y}px">
     {#if open.kind === 'pad'}
       <PadCard {lang} level={open.level} hint={padNote} onnudge={nudge} ondone={() => (card = undefined)} />
