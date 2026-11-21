@@ -69,8 +69,11 @@
       padding-inline: 8px;
     }
   }
-  .event {
+  /* What it holds takes presses again: its own cards and the notes put in it. */
+  .events > :global(*) {
     pointer-events: auto;
+  }
+  .event {
     display: flex;
     flex-direction: column;
     gap: 8px;
