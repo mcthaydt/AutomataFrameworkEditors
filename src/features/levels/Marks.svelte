@@ -172,6 +172,9 @@
   }
   .faint .mark {
     pointer-events: none;
+  }
+  /* A faint thing's marks fade, but its tag keeps full-strength words: faded words on glass are too faint to read. */
+  .faint .mark > :not(.tag) {
     opacity: 0.45;
   }
   .mark:focus-visible {
@@ -184,6 +187,10 @@
     border: 2px dashed var(--agent);
     border-radius: 3px;
     background: color-mix(in srgb, var(--agent) 25%, transparent);
+    /* Two tones, dark under light, as the picked ring has: the edge shows on any colour the level has (sky included). */
+    box-shadow:
+      0 0 0 2px var(--ground),
+      inset 0 0 0 2px var(--ground);
     pointer-events: none;
   }
   .pin {
