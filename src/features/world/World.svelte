@@ -14,6 +14,7 @@
     isChanged,
     keepDrafts,
     type OpenGame,
+    openGame,
     type Problem,
     redo,
     undo,
@@ -186,8 +187,16 @@ import { listen, measure } from './listen.ts'
       : events,
   )
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  /** Someone's waiting change is open over the level: the level it draws takes this one's place. */
-  const checking = $derived(sheet?.kind === 'change')
+  /** The waiting change open over the level that turned out not to be waiting any more. */
+  let goneChange = $state<number | undefined>(undefined)
+  /** Someone's waiting change is open over the level: the level it draws takes this one's place, until it is gone. */
+  const checking = $derived(sheet?.kind === 'change' && sheet.number !== goneChange)
+  /** A change open over the level is not waiting any more: the person's own level is drawn again, and the bar's count is read afresh. */
+  async function changeGone(number: number): Promise<void> {
+    goneChange = number
+    const fresh = await openGame(api, held.ref)
+    if (fresh.ok) held = { ...held, waiting: fresh.game.waiting, mine: fresh.game.mine }
+  }
 
   $effect(() => showGlass(me))
 
@@ -520,7 +529,7 @@ import { listen, measure } from './listen.ts'
   </Events>
 
   {#if sheet !== undefined}
-    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
+    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} ongone={() => sheet?.kind === 'change' && void changeGone(sheet.number)} />
   {/if}
 
   <Changes

@@ -57,6 +57,21 @@ test('a moved crate is the level with the crate moved, and one line that says so
   expect(made?.other).toBe(0)
 })
 
+test("the author's own game already holds the change: its lines still say what it does (design round 1, R5)", async () => {
+  const game = await opened()
+  const level = game.content.levels['level-1'] as Level
+  const moved = { ...level, things: level.things.map((t) => (t.id === 'crate-1' ? { ...t, x: 9.5 } : t)) }
+  // Read from the author's waiting change: the crate is already where they moved it.
+  const theirs: OpenGame = {
+    ...game,
+    content: { ...game.content, levels: { ...game.content.levels, 'level-1': moved } },
+  }
+  const after = writeContent('level', moved as never)
+  const made = changeAsWorking(theirs, waiting([{ path: LEVEL, before, after }]))
+  expect(made?.lines).toEqual([{ kind: 'moved', level: 'level-1', thing: 'crate-1' }])
+  expect(made?.other).toBe(0)
+})
+
 test('a new level is the game with a level more, and the project file that lists it', async () => {
   const game = await opened()
   const level = game.content.levels['level-1'] as Level

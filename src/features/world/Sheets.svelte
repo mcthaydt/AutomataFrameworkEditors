@@ -20,15 +20,17 @@
     onshow: (opening: { level: string } | { map: true }) => void
     /** Ask someone, by name; undefined when the person is not signed in. */
     onask: ((who: string) => void) | undefined
+    /** The open waiting change is not waiting any more: the person's own level comes back under the sheet. */
+    ongone?: () => void
   }
-  let { sheet, api, game, lang, onsignedout, onclose, onwaiting, onshow, onask }: Props = $props()
+  let { sheet, api, game, lang, onsignedout, onclose, onwaiting, onshow, onask, ongone }: Props = $props()
 </script>
 
 {#if sheet.kind === 'waiting'}
   <Waiting {api} game={game.ref} {lang} {onsignedout} onback={onclose} />
 {:else if sheet.kind === 'change'}
   {#key sheet.number}
-    <Check {api} game={game.ref} number={sheet.number} {lang} {onsignedout} onback={onwaiting} onhome={onclose} />
+    <Check {api} game={game.ref} number={sheet.number} {lang} {onsignedout} onback={onwaiting} onhome={onclose} {ongone} />
   {/key}
 {:else}
   <Team {sheet} {lang} {api} {game} {onsignedout} {onclose} {onshow} {onask} />

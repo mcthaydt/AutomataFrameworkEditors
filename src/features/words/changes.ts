@@ -98,8 +98,8 @@ export const changes = {
     failBusy: (n) =>
       `Things are busy right now. Your ${n} ${many(n) ? 'changes are' : 'change is'} safe: nothing is lost. Wait a minute and try again.`,
     failBroken: 'The game would not read with these changes. Here is what needs mending:',
-    failBlocked:
-      'GitHub is set to stop the editor changing this game. The game’s owner needs to let Automata Editors past that rule. Your changes are safe here.',
+    failBlocked: (owner) =>
+      `GitHub is set to stop the editor changing this game. Ask ${owner}, who owns the game, to let the editor change it. Your changes are safe here.`,
     failLook:
       'You can look at this game, but you can’t change it any more. Your changes are safe here: keep a copy instead.',
     failElse: 'Something went wrong, and your changes were not put in. They are safe here: nothing is lost.',
@@ -158,8 +158,8 @@ export const changes = {
     failBusy: (n) =>
       `Hay mucho trabajo ahora. ${many(n) ? `Tus ${n} cambios están a salvo` : 'Tu cambio está a salvo'}: no se pierde nada. Espera un minuto e inténtalo otra vez.`,
     failBroken: 'El juego no se podría leer con estos cambios. Esto es lo que hay que arreglar:',
-    failBlocked:
-      'GitHub está configurado para impedir que el editor cambie este juego. El dueño del juego debe dejar pasar a Automata Editors. Tus cambios están a salvo aquí.',
+    failBlocked: (owner) =>
+      `GitHub está configurado para impedir que el editor cambie este juego. Pide a ${owner}, que es dueño del juego, que deje al editor cambiarlo. Tus cambios están a salvo aquí.`,
     failLook:
       'Puedes ver este juego, pero ya no puedes cambiarlo. Tus cambios están a salvo aquí: guarda una copia.',
     failElse: 'Algo salió mal y tus cambios no se pusieron. Están a salvo aquí: no se pierde nada.',
@@ -212,8 +212,8 @@ export const changes = {
     failOffline: (n) => `지금 인터넷이 없어요. 변경 ${n}개는 이 기기에 안전하게 있어요. 잃은 건 없어요.`,
     failBusy: (n) => `지금 많이 바빠요. 변경 ${n}개는 안전해요. 잃은 건 없어요. 잠시 뒤에 다시 해 보세요.`,
     failBroken: '이 변경으로는 게임을 읽을 수 없어요. 고칠 곳은 다음과 같아요:',
-    failBlocked:
-      'GitHub가 편집기가 이 게임을 바꾸지 못하게 막고 있어요. 게임 소유자가 Automata Editors를 허용해야 해요. 변경은 여기에 안전하게 있어요.',
+    failBlocked: (owner) =>
+      `GitHub가 편집기가 이 게임을 바꾸지 못하게 막고 있어요. 게임 주인인 ${owner}님에게 편집기가 바꿀 수 있게 해 달라고 부탁하세요. 변경은 여기에 안전하게 있어요.`,
     failLook: '이 게임은 볼 수만 있고 더는 바꿀 수 없어요. 변경은 여기에 안전해요. 대신 사본을 남기세요.',
     failElse: '문제가 생겨서 변경을 넣지 못했어요. 변경은 여기에 안전해요. 잃은 건 없어요.',
     again: '다시 해 보기',
@@ -267,8 +267,8 @@ export const changes = {
     failBusy: (n) =>
       `今は混み合っています。${n}件の変更は無事です。何もなくなっていません。少し待って、もう一度試してください。`,
     failBroken: 'この変更のままでは、ゲームを読めません。直すところはこちらです。',
-    failBlocked:
-      'GitHubの設定で、エディターがこのゲームを変えられません。ゲームのオーナーが、Automata Editorsを通すようにしてください。変更はここで無事です。',
+    failBlocked: (owner) =>
+      `GitHubの設定で、エディターがこのゲームを変えられません。ゲームの持ち主の${owner}さんに、エディターで変えられるようにしてもらってください。変更はここで無事です。`,
     failLook:
       'このゲームは見るだけで、もう変えられません。変更はここで無事です。代わりにコピーを残してください。',
     failElse: 'うまくいかず、変更は入りませんでした。変更はここで無事です。何もなくなっていません。',
@@ -317,8 +317,8 @@ export const changes = {
     failOffline: (n) => `现在没有网络。你的 ${n} 处改动安全地留在这台设备上，什么都没丢。`,
     failBusy: (n) => `现在很忙。你的 ${n} 处改动是安全的，什么都没丢。请等一分钟再试。`,
     failBroken: '带着这些改动，游戏读不出来。需要修的地方在这里：',
-    failBlocked:
-      'GitHub 设置了不让编辑器改这个游戏。游戏所有者需要让 Automata Editors 通过这条规则。你的改动安全地留在这里。',
+    failBlocked: (owner) =>
+      `GitHub 设置了不让编辑器改这个游戏。请游戏的主人 ${owner} 让编辑器可以改它。你的改动安全地留在这里。`,
     failLook: '你可以看这个游戏，但不能再改了。你的改动安全地留在这里，请改为保留一份副本。',
     failElse: '出了点问题，改动没有放进去。它们安全地留在这里，什么都没丢。',
     again: '再试一次',
@@ -374,8 +374,8 @@ export const changes = {
     failBusy: (n) =>
       `Está tudo ocupado agora. ${many(n) ? `Suas ${n} mudanças estão seguras` : 'Sua mudança está segura'}: nada se perdeu. Espere um minuto e tente de novo.`,
     failBroken: 'O jogo não seria lido com estas mudanças. Isto precisa de conserto:',
-    failBlocked:
-      'O GitHub está configurado para impedir que o editor mude este jogo. O dono do jogo precisa deixar o Automata Editors passar. Suas mudanças estão seguras aqui.',
+    failBlocked: (owner) =>
+      `O GitHub está configurado para impedir que o editor mude este jogo. Peça a ${owner}, que é dono do jogo, para deixar o editor mudá-lo. Suas mudanças estão seguras aqui.`,
     failLook:
       'Você pode ver este jogo, mas não pode mais mudá-lo. Suas mudanças estão seguras aqui: guarde uma cópia.',
     failElse: 'Algo deu errado e suas mudanças não foram colocadas. Estão seguras aqui: nada se perdeu.',
@@ -436,8 +436,8 @@ export const changes = {
     failBusy: (n) =>
       `C’est très occupé en ce moment. ${many(n) ? `Tes ${n} changements sont en sécurité` : 'Ton changement est en sécurité'} : rien n’est perdu. Attends une minute et réessaie.`,
     failBroken: 'Le jeu ne se lirait pas avec ces changements. Voici ce qu’il faut réparer :',
-    failBlocked:
-      'GitHub est réglé pour empêcher l’éditeur de changer ce jeu. Le propriétaire du jeu doit laisser passer Automata Editors. Tes changements sont en sécurité ici.',
+    failBlocked: (owner) =>
+      `GitHub est réglé pour empêcher l’éditeur de changer ce jeu. Demande à ${owner}, à qui est le jeu, de laisser l’éditeur le changer. Tes changements sont en sécurité ici.`,
     failLook:
       'Tu peux regarder ce jeu, mais tu ne peux plus le changer. Tes changements sont en sécurité ici : garde plutôt une copie.',
     failElse:
@@ -498,8 +498,8 @@ export const changes = {
     failBusy: (n) =>
       `Сейчас очень занято. Изменения (${n}) в безопасности: ничего не потеряно. Подожди минуту и попробуй снова.`,
     failBroken: 'С этими изменениями игра не прочитается. Вот что нужно поправить:',
-    failBlocked:
-      'GitHub настроен так, что редактор не может менять эту игру. Владельцу игры нужно пропустить Automata Editors. Твои изменения в безопасности здесь.',
+    failBlocked: (owner) =>
+      `GitHub настроен так, что редактор не может менять эту игру. Попроси владельца игры, ${owner}, разрешить редактору её менять. Твои изменения в безопасности здесь.`,
     failLook:
       'Эту игру можно смотреть, но больше нельзя менять. Твои изменения в безопасности здесь: лучше сохрани копию.',
     failElse: 'Что-то пошло не так, и изменения не внесены. Они в безопасности здесь: ничего не потеряно.',
@@ -559,8 +559,8 @@ export const changes = {
     failBusy: (n) =>
       `Gerade ist viel los. ${many(n) ? `Deine ${n} Änderungen sind` : 'Deine Änderung ist'} sicher: nichts geht verloren. Warte eine Minute und versuch es noch mal.`,
     failBroken: 'Mit diesen Änderungen ließe sich das Spiel nicht lesen. Das muss repariert werden:',
-    failBlocked:
-      'GitHub ist so eingestellt, dass der Editor dieses Spiel nicht ändern darf. Der Besitzer des Spiels muss Automata Editors durchlassen. Deine Änderungen sind hier sicher.',
+    failBlocked: (owner) =>
+      `GitHub ist so eingestellt, dass der Editor dieses Spiel nicht ändern darf. Bitte ${owner}, dem das Spiel gehört, den Editor es ändern zu lassen. Deine Änderungen sind hier sicher.`,
     failLook:
       'Du kannst dieses Spiel ansehen, aber nicht mehr ändern. Deine Änderungen sind hier sicher: behalte stattdessen eine Kopie.',
     failElse:

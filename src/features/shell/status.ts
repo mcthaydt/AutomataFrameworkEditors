@@ -7,6 +7,8 @@ export type Status =
   | { readonly kind: 'up-to-date' }
   | { readonly kind: 'changes'; readonly count: number }
   | { readonly kind: 'waiting'; readonly by: string }
+  /** Someone who checks it asked for a change to it: nobody is waiting now, the person is. */
+  | { readonly kind: 'asked'; readonly by: string }
   | { readonly kind: 'more'; readonly count: number; readonly by: string }
   | { readonly kind: 'to-check'; readonly count: number }
   | { readonly kind: 'offline' }
@@ -30,9 +32,16 @@ export function statusOf(facts: StatusFacts): readonly Status[] {
   const said: Status[] = []
   if (!facts.online) said.push({ kind: 'offline' })
   if (facts.problems > 0) said.push({ kind: 'problems', count: facts.problems })
-  const by = facts.approver ?? ''
+  const asked = facts.mine?.asked?.by
+  const by = asked ?? facts.approver ?? ''
   if (facts.mine !== undefined) {
-    said.push(facts.changes > 0 ? { kind: 'more', count: facts.changes, by } : { kind: 'waiting', by })
+    said.push(
+      facts.changes > 0
+        ? { kind: 'more', count: facts.changes, by }
+        : asked !== undefined
+          ? { kind: 'asked', by: asked }
+          : { kind: 'waiting', by },
+    )
   } else {
     said.push(facts.changes > 0 ? { kind: 'changes', count: facts.changes } : { kind: 'up-to-date' })
   }

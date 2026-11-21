@@ -181,7 +181,7 @@
   const offline = $derived(statuses.some((s) => s.kind === 'offline'))
   const problems = $derived(statuses.find((s) => s.kind === 'problems'))
   const toCheck = $derived(statuses.find((s) => s.kind === 'to-check'))
-  const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more'))
+  const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more' || s.kind === 'asked'))
 
   function pickGame(id: string): void {
     close()
@@ -308,6 +308,11 @@
       <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
         <Icon name="paper-plane-tilt" />
         <span class="what"><b>{text(w.waitingFor, mine.by)}</b></span>
+      </button>
+    {:else if mine?.kind === 'asked'}
+      <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
+        <Icon name="chat-circle-text" />
+        <span class="what"><b>{text(words.check.askedTitle, mine.by)}</b></span>
       </button>
     {:else}
       <button type="button" class="put quiet" data-tour="main" aria-disabled="true">

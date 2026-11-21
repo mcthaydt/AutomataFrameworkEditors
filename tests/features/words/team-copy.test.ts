@@ -152,8 +152,12 @@ const PINNED: Readonly<Record<string, string>> = {
   'changes.failBusy(2,b)':
     'Things are busy right now. Your 2 changes are safe: nothing is lost. Wait a minute and try again.',
   'changes.failBroken': 'The game would not read with these changes. Here is what needs mending:',
-  'changes.failBlocked':
-    'GitHub is set to stop the editor changing this game. The game’s owner needs to let Automata Editors past that rule. Your changes are safe here.',
+  'changes.failBlocked(a,b)':
+    'GitHub is set to stop the editor changing this game. Ask {a}, who owns the game, to let the editor change it. Your changes are safe here.',
+  'changes.failBlocked(1,b)':
+    'GitHub is set to stop the editor changing this game. Ask 1, who owns the game, to let the editor change it. Your changes are safe here.',
+  'changes.failBlocked(2,b)':
+    'GitHub is set to stop the editor changing this game. Ask 2, who owns the game, to let the editor change it. Your changes are safe here.',
   'changes.failLook':
     'You can look at this game, but you can’t change it any more. Your changes are safe here: keep a copy instead.',
   'changes.failElse':

@@ -238,6 +238,7 @@
     {by}
     waiting={game.mine !== undefined}
     gameName={game.content.project.name}
+    owner={game.ref.owner}
     {failure}
     {came}
     {clash}
@@ -251,6 +252,7 @@
       onhistory()
     }}
     ontakeback={() => void takeItBack()}
+    onkeep={() => open('keep')}
     onclose={close}
   />
 {:else if shown === 'waiting'}
