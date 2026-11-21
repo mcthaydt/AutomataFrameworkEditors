@@ -196,3 +196,49 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     expect(await page.locator('[data-level]').count()).toBe(3)
   })
 })
+
+// The blind judge's pair 6: on a phone held sideways, a room's three dots opened a menu over "New level" with the short
+// bar still showing behind it. One menu at a time: the bar steps aside, and the menu keeps off the top strip's buttons
+// and inside the screen, scrolling in itself when it is taller than the room.
+describe.each(['phoneSideways', 'phone', 'computer'] as const)('the room menu at %s', (size) => {
+  test('opens alone, clear of "New level" and "Whole world", and fits or scrolls inside the screen', async () => {
+    journey = await openPage(size)
+    const { page } = journey
+    await openMap(page, size)
+    await page.locator('[data-level="room-3"]').click()
+    await page.getByRole('toolbar').waitFor()
+    await page.getByRole('button', { name: 'More' }).click()
+    const menu = page.getByRole('menu')
+    await menu.waitFor()
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))))
+    expect(await page.getByRole('toolbar').isVisible()).toBe(false)
+    const box = await menu.boundingBox()
+    if (box === null) throw new Error('no menu')
+    const view = page.viewportSize() ?? { width: 0, height: 0 }
+    expect(box.y).toBeGreaterThanOrEqual(0)
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.y + box.height).toBeLessThanOrEqual(view.height)
+    expect(box.x + box.width).toBeLessThanOrEqual(view.width)
+    for (const name of ['New level', 'Whole world']) {
+      const other = await page.getByRole('button', { name, exact: true }).boundingBox()
+      if (other === null) throw new Error(`no ${name}`)
+      const meet =
+        box.x < other.x + other.width &&
+        other.x < box.x + box.width &&
+        box.y < other.y + other.height &&
+        other.y < box.y + box.height
+      expect(meet, `the menu covers ${name}`).toBe(false)
+    }
+    // Every row can be reached: the last one scrolls into sight inside the menu and is pressable there.
+    const last = page.getByRole('menuitem', { name: /^Delete/ })
+    await last.scrollIntoViewIfNeeded()
+    const row = await last.boundingBox()
+    if (row === null) throw new Error('no Delete row')
+    expect(row.y + row.height).toBeLessThanOrEqual(Math.min(view.height, box.y + box.height) + 1)
+    await picture(page, `map-menu-${size}`)
+    // Escape puts it away, and the bar comes back.
+    await page.keyboard.press('Escape')
+    await menu.waitFor({ state: 'detached' })
+    expect(await page.getByRole('toolbar').isVisible()).toBe(true)
+  })
+})
