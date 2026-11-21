@@ -86,7 +86,6 @@ import { listen, measure } from './listen.ts'
   }: Props = $props()
 
   const first = measure()
-
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
   const started = untrack(() => begin(given, drafts, remembered, savedBefore, me.tips))
 
@@ -179,11 +178,12 @@ import { listen, measure } from './listen.ts'
     toCheck,
     approver: approverOf(held),
   })
-  /** What the screen says: on a phone held sideways a tip gives way to a picked thing's own bar, which has no other room. The Play tip stays: the game waits for it. */
+  /** What the screen says: on a phone held sideways a tip gives way to a picked thing's own bar, which has no other room (the Play tip stays: the game waits for it); the tip about a waiting change goes once none waits (N1). */
   const tips = $derived(
-    size === 'phone-sideways' && picked.length > 0
+    (size === 'phone-sideways' && picked.length > 0
       ? events.filter((one) => one.id === 'tip-play-code' || !(one.dismiss === true && one.ask === undefined))
-      : events,
+      : events
+    ).filter((one) => one.id !== 'tip-approve' || toCheck > 0),
   )
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
   let gone = $state<number | undefined>(undefined) // the open change turned out not to be waiting any more
