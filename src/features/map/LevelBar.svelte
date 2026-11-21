@@ -4,6 +4,7 @@
   // each saying what it does, so a finger reads it too, and Rename, Make a copy and Delete. The caller places it.
   import { Icon } from '../ui/ui.ts'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
+  import { TOP_ROOM } from './shapes.ts'
 
   interface Props {
     lang: Lang
@@ -25,21 +26,44 @@
   let { lang, level, moving, touching, more, ongo, onmove, onapart, onmore, onrename, oncopy, onremove }: Props = $props()
 
   const words = $derived(wordsIn(lang).arrange)
-  // The menu hangs from the bar, beside it and not inside it: glass inside glass would blur only the bar's own
-  // pane, not the map behind. Where that would take it past the sheet's edge it slides in, opens upward, or sits over the bar.
+  // One menu at a time: while the three dots are open the bar steps aside and the menu takes its place, so no second
+  // "Go in" shows behind it. It stays inside the sheet and under the top strip ("Whole world", "New level"), and when it
+  // is taller than the room left it scrolls inside itself, its foot fading while there are more rows (blind judge, pair 6).
   let menuEl: HTMLElement | undefined = $state()
+  let fades = $state(false)
+  const measure = (): void => {
+    if (menuEl) fades = menuEl.scrollTop + menuEl.clientHeight < menuEl.scrollHeight - 1
+  }
   // It is set straight on the element, which is new at every opening, so nothing earlier is left to measure around.
   $effect(() => {
     const room = menuEl?.closest('[role="region"]')?.getBoundingClientRect()
     if (menuEl === undefined || room === undefined) return
     const at = menuEl.getBoundingClientRect()
-    const bar = (menuEl.previousElementSibling as HTMLElement).getBoundingClientRect()
-    const dx = at.left < room.left ? room.left - at.left : at.right > room.right ? room.right - at.right : 0
-    const up = at.bottom > room.bottom && bar.top - at.height - 6 >= room.top
-    // With room neither below nor above the bar, it covers the bar rather than leave the sheet.
-    const dy = at.bottom > room.bottom && !up ? room.bottom - at.bottom : 0
-    menuEl.classList.toggle('up', up)
-    menuEl.style.translate = `${dx}px ${dy}px`
+    const top = room.top + TOP_ROOM
+    const foot = room.bottom - 8
+    const tall = Math.min(at.height, Math.max(foot - top, 0))
+    const dx = at.left < room.left + 8 ? room.left + 8 - at.left : at.right > room.right - 8 ? room.right - 8 - at.right : 0
+    const y = Math.min(Math.max(at.top, top), foot - tall)
+    menuEl.style.maxHeight = `${tall}px`
+    menuEl.style.translate = `${dx}px ${y - at.top}px`
+    measure()
+    menuEl.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+    // A tap anywhere else, or Escape, puts it away.
+    const away = (e: PointerEvent): void => {
+      if (!menuEl?.contains(e.target as Node)) onmore()
+    }
+    const off = (e: KeyboardEvent): void => {
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      onmore()
+    }
+    const el = menuEl
+    window.addEventListener('pointerdown', away, true)
+    el.addEventListener('keydown', off)
+    return () => {
+      window.removeEventListener('pointerdown', away, true)
+      el.removeEventListener('keydown', off)
+    }
   })
   /** A choice in the menu closes it first. */
   const choose = (what: () => void) => () => {
@@ -49,7 +73,7 @@
   const text = (row: Row, ...parts: string[]): string => (typeof row === 'function' ? row(...parts) : row)
 </script>
 
-<div class="bar glass-1" role="toolbar" aria-label={text(words.levelBar, nameOf(level))}>
+<div class="bar glass-1" class:aside={more} role="toolbar" aria-label={text(words.levelBar, nameOf(level))}>
   <button type="button" class="act" onclick={ongo}><Icon name="arrow-right" /><span>{text(words.goIn)}</span></button>
   <button type="button" class="act" aria-pressed={moving} onclick={onmove}>
     <Icon name="arrows-out-cardinal" /><span>{text(words.move)}</span>
@@ -64,7 +88,7 @@
   </button>
 </div>
 {#if more}
-    <div class="menu glass-2" role="menu" bind:this={menuEl}>
+    <div class="menu glass-2" class:fades role="menu" tabindex="-1" bind:this={menuEl} onscroll={measure}>
       <button type="button" role="menuitem" class="item" onclick={choose(ongo)}>
         <Icon name="arrow-right" /><span class="label">{text(words.goIn)}</span>
       </button>
@@ -122,20 +146,28 @@
     background: var(--picked);
     box-shadow: inset 0 0 0 2px var(--accent);
   }
+  /* The bar keeps its place, so the menu opens where it was, but it is not seen or pressed while the menu is open. */
+  .aside {
+    visibility: hidden;
+  }
   .menu {
     position: absolute;
-    top: calc(100% + 6px);
+    top: 0;
     right: 0;
     display: flex;
     flex-direction: column;
     width: 280px;
     max-width: calc(100vw - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 4px;
     border-radius: 14px;
   }
-  .menu:global(.up) {
-    top: auto;
-    bottom: calc(100% + 6px);
+  .fades {
+    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent); /* a mask: only its opacity counts */
+  }
+  .menu > .item {
+    flex: none;
   }
   .item {
     justify-content: flex-start;
