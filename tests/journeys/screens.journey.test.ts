@@ -1163,15 +1163,15 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
       }
 
-      // The top bar: nothing in it wraps, and a name is cut only once everything that can let go of its words has (the
-      // second line, then the status's words), so the names come first (design round 1, A2 and R1).
+      // The top bar: nothing in it wraps, and its names are whole: every word beside an icon lets go first (the second
+      // line, the main button's words, the status's, "1 to check", "1 problem"), then "Levels · " (design round 1, A2
+      // and R1; round 2 for every status and every size).
       const bar = document.querySelector<HTMLElement>('[data-bar]')
       if (bar !== null && seen(bar)) {
-        const squeezed = Number(bar.dataset.squeeze ?? '0')
         for (const name of bar.querySelectorAll<HTMLElement>('.name')) {
-          if (seen(name) && name.scrollWidth > name.clientWidth + 1 && squeezed < 2)
+          if (seen(name) && name.scrollWidth > name.clientWidth + 1)
             found.push(
-              `the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}" while it still shows other words`,
+              `the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}"`,
             )
         }
         for (const line of bar.querySelectorAll<HTMLElement>('b, small, .full, .wordy')) {

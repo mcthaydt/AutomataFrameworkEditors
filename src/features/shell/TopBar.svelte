@@ -166,15 +166,18 @@
 
   const current = $derived(workspace.parts.find((one) => one.id === part))
   const partWords = $derived(text(current === undefined ? m.partLevels : m[current.words]))
-  // An upright phone has room for the level's name only: the part is said in its menu.
+  /** How far the bar has let go of its words to keep the names whole (see `fit`). */
+  let squeeze = $state(0)
+  // An upright phone has room for the level's name only: the part is said in its menu. So does any bar that, with no
+  // words left beside its icons, would still cut a name (see `fit`).
   const partName = $derived(
     mapOn
-      ? compact
+      ? compact || squeeze >= 3
         ? text(words.map.mapWord)
         : `${partWords} · ${text(words.map.mapWord)}`
       : place === undefined
         ? partWords
-        : compact
+        : compact || squeeze >= 3
           ? nameOf(place)
           : `${partWords} · ${nameOf(place)}`,
   )
@@ -189,19 +192,18 @@
   const toCheck = $derived(statuses.find((s) => s.kind === 'to-check'))
   const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more' || s.kind === 'asked'))
 
-  // The names come first. Where the bar has no room for every word, it lets go of words in this order before any name is
-  // cut: the second line under the main button, then the status's words (it keeps its icon, and its words stay in its
-  // spoken name and its tooltip). The main button keeps its words longest, as it is the one thing the screen most wants
-  // pressed: only when the bar still runs off the screen with the names cut does it keep just its icon, with its words in its spoken name and
-  // its tooltip.
+  // The names come first (design round 2, A2 and R1). Where the bar has no room for every word, it lets go of words in
+  // this order before any name is cut: the second line under the main button, then every other word beside an icon (the
+  // main button's, the status's, "1 to check", "1 problem"). Each keeps its icon, and its words stay in its spoken name
+  // and its tooltip. Then the part's name drops its "Levels · " (the level's name stays, as on a phone). Only then, with
+  // nothing left to let go, is a name cut.
   let barEl = $state<HTMLDivElement | undefined>(undefined)
-  let squeeze = $state(0)
   const MOST = 3
-  /** The bar still runs off the screen, or, before the status has let go of its words, a name is cut. */
-  const cut = (bar: HTMLElement, step: number): boolean =>
+  /** The bar runs off the screen, or a name is cut. */
+  const cut = (bar: HTMLElement): boolean =>
     bar.scrollWidth > bar.clientWidth + 1 ||
     bar.getBoundingClientRect().right > window.innerWidth + 1 ||
-    (step < 2 && [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1))
+    [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
   let fitting = 0
   async function fit(): Promise<void> {
     const bar = barEl
@@ -210,11 +212,11 @@
     for (let next = 0; next <= MOST; next += 1) {
       squeeze = next
       await tick()
-      if (run !== fitting || !cut(bar, next)) return
+      if (run !== fitting || !cut(bar)) return
     }
   }
   $effect(() => {
-    void [gameName, partName, statuses, main, people.length, size, onplay, onfind, onmap]
+    void [gameName, partWords, place, mapOn, statuses, main, people.length, size, onplay, onfind, onmap]
     void fit()
   })
   $effect(() => {
@@ -348,8 +350,8 @@
         data-tour="main"
         class:waiting={mine?.kind === 'more'}
         aria-disabled={held ? 'true' : undefined}
-        aria-label={squeeze >= 3 ? mainWords : undefined}
-        title={held ? text(w.heldWhy) : squeeze >= 3 ? mainWords : undefined}
+        aria-label={squeeze >= 2 ? mainWords : undefined}
+        title={held ? text(w.heldWhy) : squeeze >= 2 ? mainWords : undefined}
         onclick={() => held || onmain(main)}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
@@ -503,9 +505,15 @@
     white-space: nowrap;
   }
   .bar:not([data-squeeze='0']) .long,
-  .bar[data-squeeze='2'] .put.quiet .what,
-  .bar[data-squeeze='3'] .put .what {
+  .bar[data-squeeze='2'] .put .what,
+  .bar[data-squeeze='3'] .put .what,
+  .bar[data-squeeze='2'] .chip .full,
+  .bar[data-squeeze='3'] .chip .full {
     display: none;
+  }
+  .bar[data-squeeze='2'] .chip .short,
+  .bar[data-squeeze='3'] .chip .short {
+    display: inline;
   }
   :global(.look[data-size='phone-sideways']) .put {
     min-height: 44px;
