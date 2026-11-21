@@ -53,12 +53,24 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    width: min(520px, calc(100% - 16px));
-    max-height: calc(100% - var(--bar) - 32px);
+    width: min(568px, 100%);
+    max-height: calc(100% - var(--bar));
+    /* The rows scroll, and the box is the cards' width plus the room their shadows take: a scroller cuts what lies
+       outside it, and a shadow cut square shows beside the round corners (design round 1, A17). The room lets presses
+       through to the level. */
+    padding: 0 24px 32px;
+    box-sizing: border-box;
     overflow-y: auto;
+    pointer-events: none;
     transform: translateX(-50%);
   }
+  @media (max-width: 552px) {
+    .events {
+      padding-inline: 8px;
+    }
+  }
   .event {
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
