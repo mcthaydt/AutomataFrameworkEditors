@@ -432,6 +432,8 @@ test('someone else was quicker: Approve says the change is not waiting any more,
         .count(),
     )
     .toBe(0)
+  // Nothing is waiting now: the tip that says to open a waiting change is gone with it (design round 2, N1).
+  expect(await slow.page.getByText(WORDS.tipApprove).count()).toBe(0)
   // The game is fine and is not blamed; the one button goes back to it.
   expect(await slow.page.getByText(C.cantFind).count()).toBe(0)
   await button(slow, C.close).first().click()
@@ -489,6 +491,8 @@ test('grandpa plays the changes, asks kid for a change in words; kid sees the wo
     .first()
     .waitFor()
   await text(kid, wordsFor)
+  // One note, the asked one: "waiting for approval" would not be true now (design round 2, R3).
+  expect(await kid.page.getByText(WORDS.mineWaiting).count()).toBe(0)
   // The bar tells the truth: nobody is waiting now, grandpa asked for a change (design round 1, R4).
   const bar = kid.page.locator('[data-bar]')
   // Said in words or, where the bar is short of room, by its icon with the words as its name.
