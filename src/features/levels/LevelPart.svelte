@@ -95,8 +95,8 @@ import { tagFacts } from './tags.ts'
     show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor, extras = [], onextra = () => {}, onnote,
   }: Props = $props()
 
-  /** The tray's room (px) at the level's foot, kept clear on a stage shorter than STAGE_TOO_SHORT. */
-  const [TRAY_ROOM, STAGE_TOO_SHORT] = [100, 400]
+  /** The tray's room (px) at the level's foot, kept clear whenever it is out; and a frame's room (px) round the level. */
+  const [TRAY_ROOM, EDGE] = [100, 12]
   const words = $derived(wordsIn(lang).levels)
   const text = (row: Row, ...parts: (string | number)[]): string => (typeof row === 'function' ? row(...parts) : row)
   const characters = $derived(content.characters)
@@ -106,8 +106,8 @@ import { tagFacts } from './tags.ts'
   let engine = $state.raw<Stage | undefined>()
   /** Where a person slid or zoomed to; undefined while the whole level is shown. */
   let custom = $state.raw<Camera | undefined>()
-  const trayOver = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 && size.h < STAGE_TOO_SHORT)
-  const room = $derived({ top: 0, left: aside.left, right: aside.right, bottom: trayOver ? TRAY_ROOM : 0 })
+  const trayOver = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0)
+  const room = $derived({ top: EDGE, left: aside.left + EDGE, right: aside.right + EDGE, bottom: EDGE + (trayOver ? TRAY_ROOM : 0) })
   const camera = $derived(custom ?? wholeLevel(level, size, room))
   $effect(() => {
     levelId
