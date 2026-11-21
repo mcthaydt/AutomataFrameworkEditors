@@ -72,19 +72,22 @@
         {/each}
       </div>
     {/if}
+    <!-- A choice of two, never a main button: the picked one is marked and carries the tick; the sheet's own button goes on. -->
     <div class="choose">
-      <Action
-        label={text(c.keepMine)}
-        icon="check"
-        kind={answers[at] === 'mine' ? 'main' : 'plain'}
-        onpress={() => onchoose(at, 'mine')}
-      />
-      <Action
-        label={text(c.keepTheirs, by)}
-        icon="check"
-        kind={answers[at] === 'theirs' ? 'main' : 'plain'}
-        onpress={() => onchoose(at, 'theirs')}
-      />
+      <span class="pick" class:on={answers[at] === 'mine'}>
+        <Action
+          label={text(c.keepMine)}
+          {...answers[at] === 'mine' ? { icon: 'check' as const } : {}}
+          onpress={() => onchoose(at, 'mine')}
+        />
+      </span>
+      <span class="pick" class:on={answers[at] === 'theirs'}>
+        <Action
+          label={text(c.keepTheirs, by)}
+          {...answers[at] === 'theirs' ? { icon: 'check' as const } : {}}
+          onpress={() => onchoose(at, 'theirs')}
+        />
+      </span>
     </div>
   </section>
 {/each}
@@ -92,6 +95,13 @@
 <style>
   p {
     margin: 0 0 12px;
+  }
+  .pick {
+    display: contents;
+  }
+  .pick.on :global(.action) {
+    background: var(--picked);
+    box-shadow: inset 0 0 0 2px var(--words);
   }
   .clash {
     margin-bottom: 12px;

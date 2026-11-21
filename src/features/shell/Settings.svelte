@@ -215,6 +215,14 @@
   .row > :global(.segment) {
     flex: none;
   }
+  /* A phone has no room beside a choice: the name and its helper line go above it, the full width. */
+  @media (max-width: 500px) {
+    .row:has(> :global(.segment)) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+  }
   select {
     min-height: 44px;
     padding: 0 12px;

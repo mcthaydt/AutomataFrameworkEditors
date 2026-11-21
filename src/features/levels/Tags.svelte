@@ -68,11 +68,14 @@
     color: var(--words);
     font: 500 12px var(--label);
     white-space: nowrap;
-    opacity: 0.45;
     pointer-events: none;
   }
+  /* An unpicked thing's tag is quieter by its words' grey, never by fading: faded words on glass are too faint to read
+     (design round 2, A18). */
+  .tag:not(.on) {
+    color: var(--quiet);
+  }
   .tag.on {
-    opacity: 1;
     box-shadow: inset 0 0 0 1px var(--accent);
   }
 </style>

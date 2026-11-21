@@ -25,3 +25,9 @@ test('a level that cannot be played says the first sentence and every line, or s
   })
   expect(cantPlay(words, []).text).toBe('Not now.')
 })
+
+test('a level that cannot be played offers a way to the problem, only when there is one (design round 1, A10)', () => {
+  const words = { cantPlay: 'Cannot play.', cantPlayNothing: 'Not now.' }
+  expect(cantPlay(words, ['one'], 'Show me').show).toBe('Show me')
+  expect(cantPlay(words, [], 'Show me').show).toBeUndefined()
+})

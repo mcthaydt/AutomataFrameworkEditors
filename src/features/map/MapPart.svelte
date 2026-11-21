@@ -43,8 +43,11 @@
     /** What the game is now: one step of the history. */
     onchange: (next: Working) => void
     onundo: () => void
+    /** A problem of the game is being shown over the map, one at a time ('strip') or in the list: the key and the room's
+     *  bar wait, and the wall's fix card stays beside the strip, off it, as the way to mend the problem. */
+    quiet?: 'strip' | 'list' | undefined
   }
-  let { content, pictures, working, lang, picked, onpick, ongo, onchange, onundo }: Props = $props()
+  let { content, pictures, working, lang, picked, onpick, ongo, onchange, onundo, quiet }: Props = $props()
 
   const everything = $derived(wordsIn(lang))
   const words = $derived(everything.map)
@@ -96,6 +99,35 @@
     return at === undefined ? undefined : { level: at.id, rect: at.rect }
   })
   const rectFor = (id: string): Rect | undefined => placed.find((one) => one.id === id)?.rect
+
+  /** Where the problem strip stands over the map, so the fix card keeps off it. */
+  let stripAt = $state.raw<Rect | undefined>(undefined)
+  $effect(() => {
+    void size
+    if (quiet !== 'strip' || holder === undefined) return void (stripAt = undefined)
+    const box = holder
+    let frame = 0
+    let strip: Element | null = null
+    const read = (): void => {
+      if (strip === null) return
+      const r = strip.getBoundingClientRect()
+      const at = box.getBoundingClientRect()
+      stripAt = { x: r.x - at.x, y: r.y - at.y, w: r.width, h: r.height }
+    }
+    // The strip comes up with the same press that made the map quiet: look for it frame by frame until it is there,
+    // then read it again whenever its size changes.
+    const watch = new ResizeObserver(read)
+    const look = (): void => {
+      strip = document.querySelector('[data-strip]')
+      if (strip === null) frame = requestAnimationFrame(look)
+      else watch.observe(strip)
+    }
+    look()
+    return () => {
+      cancelAnimationFrame(frame)
+      watch.disconnect()
+    }
+  })
 
   onMount(() => {
     let alive = true
@@ -334,11 +366,14 @@
     {soon}
     onwall={(one) => floats?.wall(one.a, one.b)}
   />
-  <MapKey {lang} walls={walls.length > 0} />
-  <button type="button" class="new glass-1" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
-  <button type="button" class="whole glass-1" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
-    {text(words.wholeWorld)}
-  </button>
+  <!-- The key waits for a problem shown over the map, and for a room's bar, which it would touch on a short screen. -->
+  {#if !quiet && picked === undefined}<MapKey {lang} walls={walls.length > 0} />{/if}
+  {#if !quiet}
+    <button type="button" class="new glass-1" onclick={() => floats?.make(undefined)}>{text(ways.newLevel)}</button>
+    <button type="button" class="whole glass-1" aria-pressed={custom === undefined} onclick={() => (custom = undefined)}>
+      {text(words.wholeWorld)}
+    </button>
+  {/if}
 
   {#if drag !== undefined && dropping !== undefined}
     <p class="landing glass-2" class:over={dropping.kind === 'overlap'} role="status">{landingWords(dropping, everything)}</p>
@@ -359,6 +394,8 @@
     {size}
     {rectFor}
     dragging={drag !== undefined}
+    {quiet}
+    {stripAt}
   />
 </div>
 

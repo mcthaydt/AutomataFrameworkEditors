@@ -1092,6 +1092,28 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             found.push(`${named(shown[a]!)} overlaps ${named(shown[b]!)}`)
         }
       }
+      // Floating glass (a bar, a tip, a note, a card, a sheet) sits beside the other glass, never on it: one card over another hides
+      // words the person needs (design round 1: A1, A3, A5, A9, R2, R3).
+      // The page's own furniture is not a card: the top bar, the docks and side panels, a sheet or menu opening over everything,
+      // the tags on the things in the level and the rooms' names (they are drawn under the cards on purpose).
+      const furniture = '.dim, .sheet[role=dialog], [role=menu], .tag, .name, .dock, .panel, [data-bar]'
+      const floating = [...document.querySelectorAll('.glass-1, .glass-2, .glass-3')].filter(
+        (el) => seen(el) && el.closest(furniture) === null,
+      )
+      for (let a = 0; a < floating.length; a += 1) {
+        for (let b = a + 1; b < floating.length; b += 1) {
+          if (floating[a]!.contains(floating[b]!) || floating[b]!.contains(floating[a]!)) continue
+          if (!mine(floating[a]!) && !mine(floating[b]!)) continue
+          const first = floating[a]!.getBoundingClientRect()
+          const second = floating[b]!.getBoundingClientRect()
+          const across = Math.min(first.right, second.right) - Math.max(first.left, second.left)
+          const down = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top)
+          if (across > 4 && down > 4)
+            found.push(
+              `card ${floating[a]!.className}|${named(floating[a]!)} lies on card ${floating[b]!.className}|${named(floating[b]!)} by ${Math.round(across)}x${Math.round(down)}`,
+            )
+        }
+      }
       // One way back, never two: a grandma asks which one.
       const backs = [...document.querySelectorAll('button')].filter(
         (el) => seen(el) && (el.textContent ?? '').trim() === backWord,
@@ -1139,6 +1161,29 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           parent.closest('[data-bar]') === null
         )
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
+      }
+
+      // The top bar: nothing in it wraps, and its names are whole: every word beside an icon lets go first (the second
+      // line, the main button's words, the status's, "1 to check", "1 problem"), then "Levels · " (design round 1, A2
+      // and R1; round 2 for every status and every size).
+      const bar = document.querySelector<HTMLElement>('[data-bar]')
+      if (bar !== null && seen(bar)) {
+        for (const name of bar.querySelectorAll<HTMLElement>('.name')) {
+          if (seen(name) && name.scrollWidth > name.clientWidth + 1)
+            found.push(`the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}"`)
+        }
+        for (const line of bar.querySelectorAll<HTMLElement>('b, small, .full, .wordy')) {
+          if (!seen(line)) continue
+          const range = document.createRange()
+          range.selectNodeContents(line)
+          const tops = new Set(
+            [...range.getClientRects()].filter((box) => box.width > 0).map((box) => Math.round(box.top)),
+          )
+          if (tops.size > 1)
+            found.push(
+              `"${(line.textContent ?? '').trim().slice(0, 30)}" wraps onto ${tops.size} lines in the bar`,
+            )
+        }
       }
 
       // A page that is one card (the welcome, Pick a game, a game that cannot open) has it in the middle of the window

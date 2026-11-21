@@ -49,7 +49,7 @@ async function openLinksMap(page: Page): Promise<void> {
 }
 
 describe('the pictures the owner showed', () => {
-  test('issue 1: the Move card covers neither room it moves, on iPad sideways', async () => {
+  test('issue 1: the Move card covers none of the three rooms, on iPad sideways', async () => {
     journey = await openPage('ipadSideways')
     const { page } = journey
     await openLinksMap(page)
@@ -57,7 +57,7 @@ describe('the pictures the owner showed', () => {
     await page.getByRole('button', { name: 'Move', exact: true }).click()
     await page.locator('.pad.glass-2').waitFor()
     const card = await boxOf(page.locator('.pad.glass-2'))
-    for (const id of ['room-2', 'room-3']) {
+    for (const id of ['room-1', 'room-2', 'room-3']) {
       expect(overlap(card, await boxOf(page.locator(`[data-level="${id}"]`))), `the card covers ${id}`).toBe(
         false,
       )

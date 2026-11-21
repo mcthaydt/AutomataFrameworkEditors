@@ -86,7 +86,6 @@ import { listen, measure } from './listen.ts'
   }: Props = $props()
 
   const first = measure()
-
   /** What the screen says when it opens: a change brought back or let go, who I am here, and the tips. */
   const started = untrack(() => begin(given, drafts, remembered, savedBefore, me.tips))
 
@@ -118,6 +117,10 @@ import { listen, measure } from './listen.ts'
   let arrival = $state.raw<Arrive | undefined>(undefined)
   /** How fast the game plays, kept across a door (each room is its own mount) and put back to normal by Stop. */
   let playSpeed = $state(1)
+  /** The welcome or the tour is up: the tips wait for it to end. */
+  let touring = $state(false)
+  /** A problem of the game is shown over the map. */
+  let looking = $state<'strip' | 'list' | undefined>(undefined)
   let following = false // a door opened the level in view: the play goes on in it
   let viewport = $state(first)
   let docks = $state<Docks>({
@@ -175,9 +178,17 @@ import { listen, measure } from './listen.ts'
     toCheck,
     approver: approverOf(held),
   })
+  /** What the screen says: on a phone held sideways a tip gives way to a picked thing's own bar, which has no other room (the Play tip stays: the game waits for it); the tip about a waiting change goes once none waits (N1). */
+  const tips = $derived(
+    (size === 'phone-sideways' && picked.length > 0
+      ? events.filter((one) => one.id === 'tip-play-code' || !(one.dismiss === true && one.ask === undefined))
+      : events
+    ).filter((one) => one.id !== 'tip-approve' || toCheck > 0),
+  )
   const sheet = $derived(route.screen === 'level' ? route.sheet : undefined)
-  /** Someone's waiting change is open over the level: the level it draws takes this one's place. */
-  const checking = $derived(sheet?.kind === 'change')
+  let gone = $state<number | undefined>(undefined) // the open change turned out not to be waiting any more
+  /** Someone's waiting change is open over the level: the level it draws takes this one's place, until it is gone. */
+  const checking = $derived(sheet?.kind === 'change' && sheet.number !== gone)
 
   $effect(() => showGlass(me))
 
@@ -239,7 +250,7 @@ import { listen, measure } from './listen.ts'
   /** The level could not be played: what is wrong, said where the person is looking. */
   function noPlay(lines: readonly string[]): void {
     stopPlay()
-    events = say(events, cantPlay(words.play, lines))
+    events = say(events, cantPlay(words.play, lines, text(words.changes.showMe)))
   }
   // Playing ends when the level in view changes or a sheet takes the screen: it would play a level no one is looking at.
   $effect(() => {
@@ -317,6 +328,7 @@ import { listen, measure } from './listen.ts'
     if (answer === 'leave') dropDrafts(drafts, held)
     if (answer === 'dismiss' && (event.id === 'tip-share' || event.id === 'tip-approve')) tipKept(remembered, event.id === 'tip-share' ? 'share' : 'approve')
     events = unsay(events, event.id)
+    if (answer === 'show') changes?.open('problems')
     then?.()
   }
 
@@ -381,6 +393,7 @@ import { listen, measure } from './listen.ts'
           ongo={goLevel}
           onchange={(next) => keep(change(edits, next))}
           onundo={() => step('undo')}
+          quiet={looking}
         />
       {:else if level !== undefined}
       <LevelPart
@@ -504,15 +517,17 @@ import { listen, measure } from './listen.ts'
     onnear={(near) => part?.command(near)}
   />
 
-  <Events events={checking ? [] : events} low={playing} onanswer={answered} />
-  <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+  <Events events={checking || touring ? [] : tips} onanswer={answered}>
+    <AuthorNote {lang} game={held} {api} back={started.back} {onsignedout} />
+  </Events>
 
   {#if sheet !== undefined}
-    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} />
+    <Sheets {sheet} {api} game={held} {lang} {onsignedout} onclose={closeSheet} onwaiting={() => (held.waiting > 1 ? asSheet({ kind: 'waiting' }) : closeSheet())} onshow={showChange} onask={signedIn ? (who) => (closeSheet(), notes?.ask(who)) : undefined} ongone={(number, fresh) => ((gone = number), (held = { ...held, ...fresh }))} />
   {/if}
 
   <Changes
     bind:this={changes}
+    onlooking={(on) => (looking = on)}
     bind:problems
     {lang}
     {device}
@@ -550,6 +565,7 @@ import { listen, measure } from './listen.ts'
     {onsignedout}
     onkeep={level === undefined ? undefined : () => changes?.open('keep')}
     onpaste={level === undefined || onMap ? undefined : () => helper?.paste()}
+    ontour={(on) => (touring = on)}
   />
 
   {#if level !== undefined}

@@ -94,7 +94,7 @@ test('Play puts the game in the level box, the marks hide, and Stop brings them 
   expect(marksHidden()).toBe(true)
   expect(has('Stop')).toBe(true)
   expect(has('Pause')).toBe(true)
-  expect(has('Start again')).toBe(true)
+  expect(has('From the start')).toBe(true)
 
   await press('Stop')
   expect(playBox()).toBeNull()
@@ -235,7 +235,8 @@ test('a door into a level that is gone is not played: the sentence names the mis
   await open(links)
   await press('Play')
   await vi.waitFor(() => expect(box.textContent).toContain("This level can't be played yet"))
-  expect(box.textContent).toContain('There is no level called "room-2"')
+  // Each level by the name the map gives it, not its id (design round 2, A10).
+  expect(box.textContent).toContain('There is no level called "Room 2"')
   expect(box.textContent).not.toContain('.json')
   expect(playBox()).toBeNull()
   expect(has('Play')).toBe(true)

@@ -19,7 +19,7 @@
 {#snippet body()}
   <header>
     <h1 tabindex="-1" bind:this={heading}>{title}</h1>
-    {#if back}<Button label={back.label} onpress={back.onpress} />{/if}
+    {#if back}<Button label={back.label} icon="arrow-left" onpress={back.onpress} />{/if}
   </header>
   {@render children()}
 {/snippet}

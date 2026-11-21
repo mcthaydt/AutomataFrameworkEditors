@@ -98,7 +98,8 @@ test('a game with a door into a level that is not there opens, counts one proble
   await j.page.locator('[data-bar]').waitFor()
   await j.page.getByRole('button', { name: '1 problem' }).waitFor()
   await j.page.getByRole('button', { name: 'Play', exact: true }).click()
-  await j.page.getByText(`There is no level called "room-9"`, { exact: false }).first().waitFor()
+  // Each level by the name the map gives it, not its id (design round 2, A10).
+  await j.page.getByText(`There is no level called "Room 9"`, { exact: false }).first().waitFor()
   expect(await j.page.locator('[data-play="box"]').count()).toBe(0)
 })
 

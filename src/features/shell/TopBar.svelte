@@ -2,6 +2,7 @@
   // The top bar every editor has: the game's menu, the editor and the part, Undo and Redo, what is wrong, Find, Play,
   // and the one button that puts changes in. A control with nothing to do yet is not drawn; one that cannot act now says
   // so (`aria-disabled`), so a person is never left guessing. Menus open under the button that opened them.
+  import { tick } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { SizeClass } from '../device/device.ts'
   import { Dock, Icon, Note } from '../ui/ui.ts'
@@ -165,12 +166,20 @@
 
   const current = $derived(workspace.parts.find((one) => one.id === part))
   const partWords = $derived(text(current === undefined ? m.partLevels : m[current.words]))
+  /** How far the bar has let go of its words to keep the names whole (see `fit`). */
+  let squeeze = $state(0)
+  // An upright phone has room for the level's name only: the part is said in its menu. So does any bar that, with no
+  // words left beside its icons, would still cut a name (see `fit`).
   const partName = $derived(
     mapOn
-      ? `${partWords} · ${text(words.map.mapWord)}`
+      ? compact || squeeze >= 3
+        ? text(words.map.mapWord)
+        : `${partWords} · ${text(words.map.mapWord)}`
       : place === undefined
         ? partWords
-        : `${partWords} · ${nameOf(place)}`,
+        : compact || squeeze >= 3
+          ? nameOf(place)
+          : `${partWords} · ${nameOf(place)}`,
   )
 
   const statuses = $derived(statusOf(facts))
@@ -181,7 +190,62 @@
   const offline = $derived(statuses.some((s) => s.kind === 'offline'))
   const problems = $derived(statuses.find((s) => s.kind === 'problems'))
   const toCheck = $derived(statuses.find((s) => s.kind === 'to-check'))
-  const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more'))
+  const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more' || s.kind === 'asked'))
+
+  // The names come first (design round 2, A2 and R1). Where the bar has no room for every word, it lets go of words in
+  // this order before any name is cut: the second line under the main button, then every other word beside an icon (the
+  // main button's, the status's, "1 to check", "1 problem"). Each keeps its icon, and its words stay in its spoken name
+  // and its tooltip. Then the part's name drops its "Levels · " (the level's name stays, as on a phone). Only then, with
+  // nothing left to let go, is a name cut.
+  let barEl = $state<HTMLDivElement | undefined>(undefined)
+  const MOST = 3
+  /** The bar runs off the screen, or a name is cut. */
+  const cut = (bar: HTMLElement): boolean =>
+    bar.scrollWidth > bar.clientWidth + 1 ||
+    bar.getBoundingClientRect().right > (bar.closest('.look')?.getBoundingClientRect().right ?? window.innerWidth) + 1 ||
+    [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
+  let fitting = 0
+  async function fit(): Promise<void> {
+    const bar = barEl
+    if (bar === undefined) return
+    const run = ++fitting
+    for (let next = 0; next <= MOST; next += 1) {
+      squeeze = next
+      await tick()
+      if (run !== fitting || !cut(bar)) return
+    }
+  }
+  $effect(() => {
+    void [gameName, partWords, place, mapOn, statuses, main, people.length, size, onplay, onfind, onmap]
+    void fit()
+  })
+  $effect(() => {
+    const bar = barEl
+    if (bar === undefined) return
+    let width = bar.clientWidth
+    const watch = new ResizeObserver(() => {
+      if (bar.clientWidth === width) return
+      width = bar.clientWidth
+      void fit()
+    })
+    watch.observe(bar)
+    return () => watch.disconnect()
+  })
+  const mainWords = $derived(
+    main === undefined
+      ? ''
+      : text(
+          mine?.kind === 'more' ? w.sendMore : main === 'put' ? w.putInGame : main === 'send' ? w.sendToCheck : w.keepCopy,
+          ...(mine?.kind === 'more' ? [mine.count, mine.by] : []),
+        ),
+  )
+  const quietWords = $derived(
+    mine?.kind === 'waiting'
+      ? text(w.waitingFor, mine.by)
+      : mine?.kind === 'asked'
+        ? text(words.check.askedTitle, mine.by)
+        : text(w.upToDate),
+  )
 
   function pickGame(id: string): void {
     close()
@@ -205,7 +269,7 @@
 </script>
 
 <Dock label={text(w.topBar)} side="top" tight>
-  <div class="bar" data-bar>
+  <div class="bar" data-bar data-squeeze={squeeze} bind:this={barEl}>
     {#if !compact}
       <button type="button" class="game" bind:this={anchors.game} aria-haspopup="menu" aria-expanded={open === 'game'} onclick={() => show('game')}>
         <i class="logo" aria-hidden="true"></i>
@@ -286,33 +350,28 @@
         data-tour="main"
         class:waiting={mine?.kind === 'more'}
         aria-disabled={held ? 'true' : undefined}
-        title={held ? text(w.heldWhy) : undefined}
+        aria-label={squeeze >= 2 ? mainWords : undefined}
+        title={held ? text(w.heldWhy) : squeeze >= 2 ? mainWords : undefined}
         onclick={() => held || onmain(main)}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
         <span class="what">
-          <b>{text(
-            mine?.kind === 'more'
-              ? w.sendMore
-              : main === 'put'
-                ? w.putInGame
-                : main === 'send'
-                  ? w.sendToCheck
-                  : w.keepCopy,
-            ...(mine?.kind === 'more' ? [mine.count, mine.by] : []),
-          )}</b>
+          <b>{mainWords}</b>
           {#if mine?.kind !== 'more'}<small class="long">{text(w.changesHere, facts.changes, where)}</small>{/if}
         </span>
       </button>
-    {:else if mine?.kind === 'waiting'}
-      <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
-        <Icon name="paper-plane-tilt" />
-        <span class="what"><b>{text(w.waitingFor, mine.by)}</b></span>
-      </button>
     {:else}
-      <button type="button" class="put quiet" data-tour="main" aria-disabled="true">
-        <Icon name="check" />
-        <span class="what"><b>{text(w.upToDate)}</b></span>
+      <button
+        type="button"
+        class="put quiet"
+        data-tour="main"
+        aria-disabled={mine === undefined ? 'true' : undefined}
+        aria-label={squeeze >= 2 ? quietWords : undefined}
+        title={squeeze >= 2 ? quietWords : undefined}
+        onclick={() => mine === undefined || onmain('waiting')}
+      >
+        <Icon name={mine?.kind === 'waiting' ? 'paper-plane-tilt' : mine?.kind === 'asked' ? 'chat-circle-text' : 'check'} />
+        <span class="what"><b>{quietWords}</b></span>
       </button>
     {/if}
   </div>
@@ -320,7 +379,7 @@
 
 {#if open !== undefined}
   <button type="button" class="dim dim-2" tabindex="-1" aria-label={text(words.shell.close)} onclick={close}></button>
-  <div class="pop" style:left="{left}px" style:top="{top}px">
+  <div class="pop" style:left="{left}px" style:top="{top}px" style:max-height="calc(100dvh - {top}px - 8px)">
     {#if open === 'game'}
       <GameMenu name={gameName} {who} items={gameRows} onpick={pickGame} onclose={close} />
     {:else if open === 'editors'}
@@ -333,7 +392,7 @@
 
 {#if note !== undefined}
   <div class="notes">
-    <Note words={note} button={text(words.shell.gotIt)} onpress={() => (note = undefined)} />
+    <Note floats words={note} button={text(words.shell.gotIt)} onpress={() => (note = undefined)} />
   </div>
 {/if}
 
@@ -366,7 +425,7 @@
     cursor: pointer;
   }
   /* A button is as wide as its words; the bar squeezes the names that have dots for it (the game's and the part's). */
-  button:not(.game, .part, .put) {
+  button:not(.game, .part) {
     flex: none;
   }
   button:not(.dim):hover,
@@ -386,8 +445,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* The part's name may be cut, but its button never goes below a finger's width with a few letters showing. */
   .part {
-    min-width: 0;
+    min-width: 88px;
     flex: 0 1 auto;
   }
   .logo {
@@ -436,8 +496,24 @@
     line-height: 1.15;
   }
   .put small {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
+  }
+  /* Nothing in the bar wraps: what has no room lets go of its words instead (see `fit`). */
+  .put b,
+  .put small {
+    white-space: nowrap;
+  }
+  .bar:not([data-squeeze='0']) .long,
+  .bar[data-squeeze='2'] .put .what,
+  .bar[data-squeeze='3'] .put .what,
+  .bar[data-squeeze='2'] .chip .full,
+  .bar[data-squeeze='3'] .chip .full {
+    display: none;
+  }
+  .bar[data-squeeze='2'] .chip .short,
+  .bar[data-squeeze='3'] .chip .short {
+    display: inline;
   }
   :global(.look[data-size='phone-sideways']) .put {
     min-height: 44px;
@@ -475,13 +551,14 @@
     padding: 0;
     border-radius: 0;
   }
+  /* As tall as the room under its button, less a margin: the menu in it scrolls (see `Menu`). */
   .pop {
     position: fixed;
     z-index: 51;
+    display: flex;
+    flex-direction: column;
     width: 300px;
     max-width: calc(100vw - 16px);
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
   }
   .notes {
     position: fixed;

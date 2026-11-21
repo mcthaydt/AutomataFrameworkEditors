@@ -1,6 +1,7 @@
 <script lang="ts">
   // The problem being looked at, over the level or the map: which one of how many, what it says, and the way on and the
   // way back. It sits at the bottom, above the tools, so it covers neither the top bar nor the card the map draws by a wall.
+  import { wallFold } from '../map/map.ts'
   import { Action } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
 
@@ -10,8 +11,8 @@
     at: number
     of: number
     words: string
-    /** Where "Back" goes: the sheet that was open, or nowhere in particular. */
-    back: 'put' | 'send' | undefined
+    /** Where "Back" goes: the sheet that was open (the list of problems too), or nowhere in particular. */
+    back: 'put' | 'send' | 'problems' | undefined
     onnext: () => void
     onback: () => void
   }
@@ -22,14 +23,23 @@
     typeof row === 'function' ? row(...parts) : row
 </script>
 
-<div class="strip glass-1" role="status">
+<div class="strip glass-1" role="status" data-strip>
   <b>{text(w.kept.problemOf, at, of)}</b>
   <p>{said}</p>
   <div class="buttons">
+    <!-- On a short screen the wall's fix card waits folded: this opens it from the foot (design round 2, A1). -->
+    {#if wallFold.ready && !wallFold.open}<Action label={text(w.kept.waysToFix)} icon="wrench" onpress={() => (wallFold.open = true)} />{/if}
     {#if of > 1}<Action label={text(w.kept.nextProblem)} onpress={onnext} />{/if}
+    <!-- A plain button: the main action on the screen stays the top bar's own (one main action per screen). -->
     <Action
-      label={back === 'put' ? text(w.kept.backToPut) : back === 'send' ? text(w.kept.backToSend) : text(w.kept.back)}
-      kind="main"
+      label={back === 'put'
+        ? text(w.kept.backToPut)
+        : back === 'send'
+          ? text(w.kept.backToSend)
+          : back === 'problems'
+            ? text(w.kept.backToList)
+            : text(w.kept.back)}
+      icon="arrow-left"
       onpress={onback}
     />
   </div>

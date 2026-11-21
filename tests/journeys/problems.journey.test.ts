@@ -79,3 +79,22 @@ test('on a phone the strip and its Back are on show beside the wall card, and Ba
   await strip.getByRole('button', { name: 'Back' }).click()
   await strip.waitFor({ state: 'detached' })
 })
+
+test('on a phone held sideways the rooms and the wall stay in sight, and "Ways to fix it" opens the fix card from the foot (design round 2, A1)', async () => {
+  journey = await openPage('phoneSideways')
+  const { page } = journey
+  await signIn(page)
+  await openMapOf(page)
+  await makeWall(page)
+  const count = page.getByRole('button', { name: '1 problem' })
+  await count.click()
+  await page.getByRole('button', { name: putWords.showMe }).first().click()
+  const strip = page.getByRole('status').filter({ hasText: /^Problem 1 of 1/ })
+  await strip.waitFor()
+  // The card waits folded: nothing lies on the rooms or on the red mark where they meet.
+  expect(await page.locator('[data-way="clear"]').count()).toBe(0)
+  await page.locator('[data-wall]').waitFor()
+  await strip.getByRole('button', { name: 'Ways to fix it' }).click()
+  await page.locator('[data-way="clear"]').click()
+  await count.waitFor({ state: 'detached' })
+})

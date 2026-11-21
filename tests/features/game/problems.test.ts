@@ -11,7 +11,7 @@ test('a clean game has no problems', async () => {
   expect(await problemsOf(game, startEdits(game))).toEqual([])
 })
 
-test("a door into a level that is gone is one problem, at that door, in the framework's own words", async () => {
+test("a door into a level that is gone is one problem, at that door, in the framework's words with the levels' names", async () => {
   const game = await links()
   const edits = startEdits(game)
   // What taking a level away on the map does: its file and its place on the map go together.
@@ -23,7 +23,8 @@ test("a door into a level that is gone is one problem, at that door, in the fram
   const problems = await problemsOf(game, change(edits, { ...edits.now, levels, world }))
   expect(problems).toHaveLength(1)
   const [one] = problems
-  expect(one?.words).toBe('There is no level called "room-2". This game has: room-1, room-3.')
+  // Each level by the name the map gives it, not its id (design round 2, A10 and R14).
+  expect(one?.words).toBe('There is no level called "Room 2". This game has: Room 1, Room 3.')
   expect(one?.file).toBe('content/levels/room-1.json')
   const door = levels['room-1']?.things.find(
     (thing) => (thing.values?.to as { level?: string } | undefined)?.level === 'room-2',
@@ -32,7 +33,7 @@ test("a door into a level that is gone is one problem, at that door, in the fram
   expect(one?.where).toEqual({ level: 'room-1', thing: door?.id })
 })
 
-test('a wall on the map is one problem that is about the map', async () => {
+test('a wall on the map is one problem that is about the map, and says which two levels meet there', async () => {
   const game = await links()
   const edits = startEdits(game)
   const world = edits.now.world && {
@@ -45,9 +46,10 @@ test('a wall on the map is one problem that is about the map', async () => {
   expect(problems).toEqual([
     {
       words:
-        "room-1's right edge is open at rows 5 to 7, but room-2, which touches it, is solid there. Open room-2's left edge at those rows, or move it.",
+        "Room 1's right edge is open at rows 5 to 7, but Room 2, which touches it, is solid there. Open Room 2's left edge at those rows, or move it.",
       file: 'content/worlds/world.json',
       where: { map: true },
+      wall: { open: 'room-1', solid: 'room-2' },
     },
   ])
 })

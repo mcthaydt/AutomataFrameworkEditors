@@ -6,7 +6,7 @@
   import { onMount, untrack } from 'svelte'
   import type { Frames } from '@automataframework/framework'
   import { type Arrive, type Way } from '@automataframework/framework/headless'
-  import type { Edits, OpenGame } from '../game/game.ts'
+  import { type Edits, type OpenGame, withNames } from '../game/game.ts'
   import { Icon } from '../ui/ui.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
   import { CannotPlay, play, type Playing } from './run.ts'
@@ -37,6 +37,8 @@
     frames?: Frames
   }
   let { game, edits, level, lang, big, onbig, waiting, onstarted, onproblem, arrive, ondoor, frames, speed: first = 1, onspeed }: Props = $props()
+  /** What the framework says, with each level by the name the map gives it (design round 2, A10). */
+  const named = (lines: readonly string[]): string[] => lines.map((line) => withNames(line, Object.keys(edits.now.levels)))
 
   const text = (row: Row): string => (typeof row === 'string' ? row : row())
   let holder: HTMLDivElement | undefined = $state()
@@ -74,7 +76,7 @@
         onstarted()
       },
       (error: unknown) => {
-        if (!gone) onproblem(error instanceof CannotPlay ? error.lines : [])
+        if (!gone) onproblem(error instanceof CannotPlay ? named(error.lines) : [])
       },
     )
     let looking = 0
@@ -173,7 +175,7 @@
       paused = playing?.paused() ?? false
       sync()
     } catch (error) {
-      onproblem(error instanceof CannotPlay ? error.lines : [])
+      onproblem(error instanceof CannotPlay ? named(error.lines) : [])
     }
   }
   const again = (): Promise<void> => restart(() => playing?.again())
@@ -246,6 +248,15 @@
         onback={back}
         {onbig}
       />
+      <!-- Waiting for the tap: said at the top, under the play bar, clear of the game's own buttons at its foot. -->
+      {#if picking}
+        <div class="pick glass-2" role="status" data-play="pick-strip">
+          <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
+          <button type="button" data-play="pick-cancel" onclick={endPick}>
+            {text(wordsIn(lang).play.cancel)}
+          </button>
+        </div>
+      {/if}
       {#if playing.doorsShut}
         <div class="note glass-2" role="status">
           <Icon name="door" size={22} /><span>{text(wordsIn(lang).play.noDoors)}</span>
@@ -253,12 +264,6 @@
       {/if}
     </div>
     {#if picking}
-      <div class="pick glass-2" role="status" data-play="pick-strip">
-        <Icon name="map-pin" size={22} /><span>{text(wordsIn(lang).play.hereAbout)}</span>
-        <button type="button" data-play="pick-cancel" onclick={endPick}>
-          {text(wordsIn(lang).play.cancel)}
-        </button>
-      </div>
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div class="tap" data-play="tap" onpointerdown={tapped}></div>
     {/if}
@@ -301,13 +306,8 @@
     color: var(--words);
   }
   .pick {
-    position: absolute;
-    z-index: 31;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
     padding: 4px 4px 4px 16px;
-    max-width: calc(100% - 16px);
+    max-width: min(560px, calc(100vw - 32px));
   }
   .pick button {
     min-width: 44px;

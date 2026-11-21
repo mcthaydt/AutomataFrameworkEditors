@@ -15,8 +15,10 @@
     onslide: () => void
     onapart: () => void
     onleave: () => void
+    /** The card says what is wrong; false while the problem strip says it already (design round 2, A1). */
+    said?: boolean
   }
-  let { lang, open, solid, tiles, slide, onclear, onslide, onapart, onleave }: Props = $props()
+  let { lang, open, solid, tiles, slide, onclear, onslide, onapart, onleave, said = true }: Props = $props()
 
   const words = $derived(wordsIn(lang).arrange)
   const text = (row: Row, ...parts: (string | number)[]): string =>
@@ -28,7 +30,7 @@
 
 <section class="card glass-2" aria-label={text(words.wallTitle)}>
   <h2>{text(words.wallTitle)}</h2>
-  <p>{text(words.wallBody, nameOf(open), nameOf(solid))}</p>
+  {#if said}<p>{text(words.wallBody, nameOf(open), nameOf(solid))}</p>{/if}
   <div class="ways">
   <button type="button" data-way="clear" onclick={onclear}>
     <span>{text(words.wallClear, nameOf(solid))}</span><small>{text(words.wallClearAbout, tiles)}</small>

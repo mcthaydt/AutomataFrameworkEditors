@@ -63,15 +63,18 @@ import plusCircle from '@phosphor-icons/core/regular/plus-circle.svg?raw'
 import plusSquare from '@phosphor-icons/core/regular/plus-square.svg?raw'
 import pushPin from '@phosphor-icons/core/regular/push-pin.svg?raw'
 import question from '@phosphor-icons/core/regular/question.svg?raw'
+import skipBack from '@phosphor-icons/core/regular/skip-back.svg?raw'
 import skipForward from '@phosphor-icons/core/regular/skip-forward.svg?raw'
 import slidersHorizontal from '@phosphor-icons/core/regular/sliders-horizontal.svg?raw'
 import sparkle from '@phosphor-icons/core/regular/sparkle.svg?raw'
 import square from '@phosphor-icons/core/regular/square.svg?raw'
 import squaresFour from '@phosphor-icons/core/regular/squares-four.svg?raw'
+import stackPlus from '@phosphor-icons/core/regular/stack-plus.svg?raw'
 import stop from '@phosphor-icons/core/regular/stop.svg?raw'
 import trash from '@phosphor-icons/core/regular/trash.svg?raw'
 import usersThree from '@phosphor-icons/core/regular/users-three.svg?raw'
 import warning from '@phosphor-icons/core/regular/warning.svg?raw'
+import wrench from '@phosphor-icons/core/regular/wrench.svg?raw'
 import x from '@phosphor-icons/core/regular/x.svg?raw'
 import xCircle from '@phosphor-icons/core/regular/x-circle.svg?raw'
 
@@ -137,6 +140,9 @@ export type IconName =
   | 'person'
   | 'sliders-horizontal'
   | 'squares-four'
+  | 'stack-plus'
+  | 'skip-back'
+  | 'wrench'
   | 'stop'
   | 'users-three'
   | 'chat-circle-text'
@@ -218,6 +224,9 @@ export const ICONS: Readonly<Record<IconName, string>> = {
   person: inner(person),
   'sliders-horizontal': inner(slidersHorizontal),
   'squares-four': inner(squaresFour),
+  'stack-plus': inner(stackPlus),
+  'skip-back': inner(skipBack),
+  wrench: inner(wrench),
   stop: inner(stop),
   'users-three': inner(usersThree),
   'chat-circle-text': inner(chatCircleText),

@@ -14,10 +14,12 @@ export interface Saying {
   readonly ask?: 'leave'
   /** A "Got it" button that takes it away. */
   readonly dismiss?: boolean
+  /** The words of a "Show me" button that opens the game's list of problems. */
+  readonly show?: string
 }
 
 /** What a person pressed on an event: the choice's name. */
-export type Answer = 'stay' | 'leave' | 'dismiss'
+export type Answer = 'stay' | 'leave' | 'dismiss' | 'show'
 
 /** The same list with `event` in it once: it replaces the one with its id, or goes last. */
 export function say(events: readonly Saying[], event: Saying): readonly Saying[] {
@@ -30,7 +32,12 @@ export const unsay = (events: readonly Saying[], id: string): readonly Saying[] 
   events.filter((one) => one.id !== id)
 
 /** What a level that cannot be played says: the first sentence of what is wrong (the framework's own), and the rest. */
-export function cantPlay(words: { cantPlay: Row; cantPlayNothing: Row }, lines: readonly string[]): Saying {
+export function cantPlay(
+  words: { cantPlay: Row; cantPlayNothing: Row },
+  lines: readonly string[],
+  /** The words of "Show me": a way to the problem, offered when there is one. */
+  show?: string,
+): Saying {
   const said = lines.length > 0 ? words.cantPlay : words.cantPlayNothing
   return {
     id: 'play',
@@ -38,5 +45,6 @@ export function cantPlay(words: { cantPlay: Row; cantPlayNothing: Row }, lines: 
     text: typeof said === 'string' ? said : said(),
     details: lines,
     dismiss: true,
+    ...(lines.length > 0 && show !== undefined ? { show } : {}),
   }
 }

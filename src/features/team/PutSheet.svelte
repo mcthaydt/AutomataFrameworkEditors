@@ -2,7 +2,7 @@
   // Putting changes in the game, or sending them to be checked. It lists what changed, the game's problems first, and
   // has one main button. When it could not go it says what happened and that nothing is lost; when it went it says so.
   import type { GameContent } from '@automataframework/framework/headless'
-  import type { ChangeLine, Problem } from '../game/game.ts'
+  import { type ChangeLine, type Problem, sayProblem } from '../game/game.ts'
   import { Action, Sheet } from '../ui/ui.ts'
   import type { OpenPicture } from '../wire/wire.ts'
   import { type Lang, type Row, wordsIn } from '../words/words.ts'
@@ -25,6 +25,8 @@
     /** Someone already has the person's first changes, and these are more. */
     waiting: boolean
     gameName: string
+    /** Who owns the game, said by name: the one to ask when a rule stops the editor. */
+    owner: string
     failure: Failure | undefined
     /** What came in from the game while the person worked. */
     came: number
@@ -38,6 +40,8 @@
     /** Look at the game's list of what changed. */
     onhistory: () => void
     ontakeback: () => void
+    /** Keep a copy of the changes instead, when the game no longer takes them from this person. */
+    onkeep: () => void
     onclose: () => void
   }
   let {
@@ -51,6 +55,7 @@
     by,
     waiting,
     gameName,
+    owner,
     failure,
     came,
     clash,
@@ -61,6 +66,7 @@
     onshow,
     onhistory,
     ontakeback,
+    onkeep,
     onclose,
   }: Props = $props()
 
@@ -78,6 +84,8 @@
   const nothingLeft = $derived(phase === 'ask' && clash !== undefined && !asking && n === 0)
   /** The game no longer lets them change it: trying again cannot work. */
   const lookOnly = $derived(failure?.problem === 'not-allowed')
+  /** A rule stops the editor: trying again cannot work until the owner changes it. */
+  const stopped = $derived(failure?.problem === 'blocked')
 
   const title = $derived(
     asking && clash !== undefined
@@ -107,7 +115,7 @@
       case 'broken':
         return text(c.failBroken)
       case 'blocked':
-        return text(c.failBlocked)
+        return text(c.failBlocked, owner)
       case 'not-allowed':
         return text(c.failLook)
       default:
@@ -163,9 +171,9 @@
       {#if nothingLeft}<p role="status">{text(wordsIn(lang).whose.nothingLeft)}</p>{/if}
       {#if first !== undefined}
         <div class="problem" role="alert">
-          <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {first.words}</b>
+          <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {sayProblem(first, (a, b) => text(words.arrange.wallBody, a, b))}</b>
           <small>{blocked ? `${text(c.stopsAbout)} ${text(c.stopsSafe)}` : text(kind === 'put' ? c.warnPut : c.warnSend)}</small>
-          <Action label={text(c.showMe)} onpress={() => onshow(first)} />
+          <Action label={text(c.showMe)} icon="eye" onpress={() => onshow(first)} />
         </div>
       {/if}
       <Lines {words} {lines} />
@@ -173,21 +181,24 @@
     {/if}
     {#snippet foot()}
       {#if nothingLeft}
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'ask'}
         <Action label={mainWords} icon="check" kind="main" disabled={blocked || asking} onpress={onput} />
         <Action label={text(c.notYet)} onpress={onclose} />
       {:else if phase === 'failed' && lookOnly}
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.bar.keepCopy)} icon="download-simple" kind="main" onpress={onkeep} />
+        <Action label={text(words.shell.close)} icon="check" onpress={onclose} />
+      {:else if phase === 'failed' && stopped}
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'failed'}
-        <Action label={text(c.again)} kind="main" onpress={onput} />
+        <Action label={text(c.again)} icon="arrow-clockwise" kind="main" onpress={onput} />
         <Action label={text(c.notNow)} onpress={onclose} />
       {:else if phase === 'sent'}
-        <Action label={text(c.takeBack)} onpress={ontakeback} />
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(c.takeBack)} icon="arrow-counter-clockwise" onpress={ontakeback} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'done'}
         <Action label={text(t.seeWhatChanged)} icon="clock-counter-clockwise" onpress={onhistory} />
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {/if}
     {/snippet}
   </Sheet>

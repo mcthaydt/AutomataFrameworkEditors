@@ -46,8 +46,10 @@
     onkeep: (() => void) | undefined
     /** "Paste what your helper gave you" in Help. */
     onpaste?: (() => void) | undefined
+    /** Told whether the welcome or the tour is up: nothing else speaks over it. */
+    ontour?: (on: boolean) => void
   }
-  let { lang, me, game, api, owner, remembered, things, picked, onme, onsettings, onsignedout, onkeep, onpaste }: Props =
+  let { lang, me, game, api, owner, remembered, things, picked, onme, onsettings, onsignedout, onkeep, onpaste, ontour }: Props =
     $props()
 
   // All four steps of the first run: the level, the tools, a value, and Play then Put in game.
@@ -55,6 +57,7 @@
   let intro = $state<'welcome' | 'tour' | undefined>(
     untrack(() => (guideWanted(remembered) ? 'welcome' : undefined)),
   )
+  $effect(() => ontour?.(intro !== undefined))
   let tour = $state<TourState>(tourFrom(steps))
   let ticks = $state<ReadonlySet<Step>>(untrack(() => readTicks(remembered)))
   let panel = $state<'settings' | 'help' | 'keys' | undefined>(undefined)

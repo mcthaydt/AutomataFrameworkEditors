@@ -38,8 +38,9 @@ const TABLE: readonly Row[] = [
   ['phone', 'phone-sideways', 'closed', 'hidden', false, 'left', 'hidden', 'none'],
   ['phone', 'phone-sideways', 'list', 'hidden', false, 'left', 'over', 'none'],
   ['phone', 'phone-sideways', 'closed', 'hidden', true, 'left', 'hidden', 'bar'],
-  ['phone', 'phone-sideways', 'closed', 'shown', true, 'left', 'hidden', 'sheet'],
-  ['phone', 'phone-sideways', 'list', 'shown', true, 'left', 'over', 'sheet'],
+  // Pulled up on a phone on its side, the settings are the side panel: a sheet would leave no level (design round 1, A6).
+  ['phone', 'phone-sideways', 'closed', 'shown', true, 'left', 'hidden', 'side'],
+  ['phone', 'phone-sideways', 'list', 'shown', true, 'left', 'over', 'side'],
 ]
 
 test.each(TABLE)('%s at %s, list %s, settings %s, picked %s', (...row) => {

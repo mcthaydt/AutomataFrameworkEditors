@@ -22,8 +22,9 @@
   import NewLevelCard from './NewLevelCard.svelte'
   import PadCard from './PadCard.svelte'
   import { fits, freeSpot, placeCard, type Rect } from './placing.ts'
-  import { KEY_ROOM, TOP_ROOM } from './shapes.ts'
+  import { KEY_ROOM, KEY_WIDTH, TOP_ROOM } from './shapes.ts'
   import { clearWalls, meetOpenings, tilesToClear } from './walls.ts'
+  import { wallFold } from './fold.svelte.ts'
   import WallCard from './WallCard.svelte'
 
   interface Props {
@@ -41,8 +42,12 @@
     rectFor: (id: string) => Rect | undefined
     /** A level is being dragged: its bar waits. */
     dragging: boolean
+    /** A problem is being shown: the room's bar gives way to it, and the cards too while the list is open. */
+    quiet?: 'strip' | 'list' | undefined
+    /** Where the problem strip stands: a card keeps off it. */
+    stripAt?: Rect | undefined
   }
-  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging }: Props =
+  let { content, working, lang, picked, onpick, ongo, onchange, onundo, all, marks, size, rectFor, dragging, quiet, stripAt }: Props =
     $props()
 
   const everything = $derived(wordsIn(lang))
@@ -96,7 +101,8 @@
   })
   let cardSize = $state({ w: 0, h: 0 })
   const screen = $derived({ x: 0, y: 0, w: size.w, h: size.h })
-  const keyRect = $derived({ x: 0, y: size.h - KEY_ROOM, w: size.w, h: KEY_ROOM })
+  // The key's own place: centred at the foot, as wide as its words, so a card may sit in the band beside it.
+  const keyRect = $derived({ x: Math.max(0, size.w / 2 - KEY_WIDTH / 2), y: size.h - KEY_ROOM, w: Math.min(size.w, KEY_WIDTH), h: KEY_ROOM })
   /** The top strip holds "Whole world" and "New level": nothing floats over them. */
   const topRect = $derived({ x: 0, y: 0, w: size.w, h: TOP_ROOM })
   const pickedRect = $derived(picked === undefined ? undefined : rectFor(picked))
@@ -110,7 +116,26 @@
     if (anchor === undefined) return undefined
     const others = open.kind === 'wall' ? [open.a, open.b].filter((id) => id !== mine) : touching
     const clear = others.flatMap((id) => rectFor(id) ?? [])
-    return placeCard(whole(cardSize), anchor, [keyRect, topRect, ...(barAt === undefined ? [] : [barAt]), ...clear], screen)
+    // While a problem is shown the key, the top strip's buttons and the room's bar are put away: the card keeps off the
+    // problem strip and off every room, so the meeting it speaks of stays in sight (design round 2, A1).
+    const rooms = all.flatMap((one) => rectFor(one.level) ?? [])
+    const off =
+      quiet === undefined
+        ? [keyRect, topRect, ...(barAt === undefined ? [] : [barAt])]
+        : [...(stripAt === undefined ? [] : [stripAt]), ...rooms]
+    return placeCard(whole(cardSize), anchor, [...off, ...clear], screen)
+  })
+
+  /** A short screen (a phone held sideways) has no room for the fix card beside the rooms while a problem is shown: the
+   *  card folds, and the problem strip opens it (design round 2, A1). */
+  const short = $derived(size.h > 0 && window.matchMedia('(max-height: 500px)').matches)
+  const folded = $derived(quiet === 'strip' && short && open?.kind === 'wall' && pairWalls[0] !== undefined)
+  $effect(() => {
+    wallFold.ready = folded
+    if (!folded) wallFold.open = false
+    return () => {
+      wallFold.ready = false
+    }
   })
 
   /** A level moved: one step, and a card for the wall when it now meets one and joins nothing. */
@@ -199,7 +224,7 @@
   export const menuOf = (level: string): void => void (menu = level)
 </script>
 
-{#if picked !== undefined && barAt !== undefined}
+{#if picked !== undefined && barAt !== undefined && !quiet}
   <div class="float" data-ui bind:this={barEl} bind:clientWidth={barSize.w} bind:clientHeight={barSize.h} style:left="{barAt.x}px" style:top="{barAt.y}px">
     <LevelBar
       {lang}
@@ -220,8 +245,8 @@
     />
   </div>
 {/if}
-{#if open !== undefined && cardAt !== undefined && (open.kind !== 'wall' || pairWalls[0] !== undefined)}
-  <div class="float" data-ui bind:clientWidth={cardSize.w} bind:clientHeight={cardSize.h} style:left="{cardAt.x}px" style:top="{cardAt.y}px">
+{#if open !== undefined && cardAt !== undefined && quiet !== 'list' && (quiet === undefined || open.kind === 'wall') && (open.kind !== 'wall' || pairWalls[0] !== undefined) && (!folded || wallFold.open)}
+  <div class="float" class:folded data-ui bind:clientWidth={cardSize.w} bind:clientHeight={cardSize.h} style:left={folded ? undefined : `${cardAt.x}px`} style:top={folded ? undefined : `${cardAt.y}px`}>
     {#if open.kind === 'pad'}
       <PadCard {lang} level={open.level} hint={padNote} onnudge={nudge} ondone={() => (card = undefined)} />
     {:else if open.kind === 'wall' && pairWalls[0] !== undefined}
@@ -240,6 +265,7 @@
         }}
         onapart={wallApart}
         onleave={() => (card = undefined)}
+        said={quiet === undefined}
       />
     {:else if open.kind === 'new'}
       <NewLevelCard {lang} ongo={() => ongo(open.level)} ondone={() => (card = undefined)} />
@@ -250,7 +276,7 @@
 {/if}
 {#if note !== undefined}
   <div class="notes" data-ui>
-    <Note words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={() => { note?.press?.(); note = undefined }} />
+    <Note floats words={note.words} {...(note.button === undefined ? {} : { button: note.button })} onpress={() => { note?.press?.(); note = undefined }} />
   </div>
 {/if}
 
@@ -259,6 +285,17 @@
     position: absolute;
     z-index: 30;
     width: max-content;
+  }
+  /* Opened from the problem strip on a short screen: a sheet from the foot, over the strip, until a way out is pressed. */
+  .float.folded {
+    position: fixed;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    z-index: 45;
+    display: flex;
+    justify-content: center;
+    width: auto;
   }
   .notes {
     position: absolute;

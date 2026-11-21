@@ -46,3 +46,11 @@ test('a change that was sent says who has it, and "send more" only when there ar
   ])
   expect(statusOf({ ...calm, mine })).toEqual([{ kind: 'waiting', by: '' }])
 })
+
+test('a change someone asked to be changed is not waiting: the bar says who asked, and sending names them (design round 1, R4)', () => {
+  const asked = { ...mine, asked: { by: 'grandpa', words: 'Nearer the gate', at: 1 } }
+  expect(statusOf({ ...calm, mine: asked, approver: 'grandma' })).toEqual([{ kind: 'asked', by: 'grandpa' }])
+  expect(statusOf({ ...calm, mine: asked, approver: 'grandma', changes: 1 })).toEqual([
+    { kind: 'more', count: 1, by: 'grandpa' },
+  ])
+})

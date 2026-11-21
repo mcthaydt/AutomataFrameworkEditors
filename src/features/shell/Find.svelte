@@ -112,6 +112,14 @@
     inset: 0;
     z-index: 30;
   }
+  /* A glass sheet at the top at every size (its sketch): on a phone the typing keyboard comes up from the foot. */
+  .scrim :global(.sheet[role='dialog']) {
+    inset: calc(var(--bar) + 20px) 0 auto;
+    margin: 0 auto;
+    width: min(560px, calc(100% - 16px));
+    max-height: calc(100% - var(--bar) - 28px);
+    border-radius: 16px;
+  }
   .field {
     display: flex;
     align-items: center;

@@ -41,7 +41,8 @@ export function begin(
     said = say(said, { id: 'standing', kind: 'info', text: WORDS.visitorCan, dismiss: true })
   } else if (!can(given.level, 'save')) {
     said = say(said, { id: 'standing', kind: 'info', text: WORDS.lookOnly, dismiss: true })
-  } else if (given.mine !== undefined) {
+  } else if (given.mine !== undefined && given.mine.asked === undefined) {
+    // Asked for a change, the change is not waiting for approval any more: the asked note says so (design round 2, R3).
     said = say(said, { id: 'standing', kind: 'info', text: WORDS.mineWaiting, dismiss: true })
   }
   const toCheck = given.waiting - (given.mine === undefined ? 0 : 1)

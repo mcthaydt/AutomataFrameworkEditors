@@ -136,17 +136,17 @@
     padding: var(--space-2) var(--space-3);
     border-top: 1px solid var(--g-edge);
   }
-  /* A sheet pulled up on a short screen (a phone on its side) has no room to hold the foot still: the settings and
-     the foot scroll together, so the settings keep their room and scrolling reaches the arrows. */
+  /* A short screen (a phone on its side, where the settings are the side panel) has no room to hold the foot still:
+     the settings and the foot scroll together, so the settings keep their room and scrolling reaches the arrows. */
   @media (max-height: 666px) {
-    .sheet .scroll {
+    .scroll {
       overflow-y: auto;
     }
-    .sheet .body {
+    .body {
       flex: none;
       overflow: visible;
     }
-    .sheet .foot {
+    .foot {
       padding-top: 0;
       padding-bottom: var(--space-3);
       border-top: 0;

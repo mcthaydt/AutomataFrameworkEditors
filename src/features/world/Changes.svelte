@@ -20,6 +20,7 @@
     type Problem,
     problemsOf,
     put,
+    sayProblem,
     takeBack,
   } from '../game/game.ts'
   import { type ClashSet, KeepCopy, type Failure, type Phase, ProblemStrip, Problems, PutSheet, WaitingSheet } from '../team/team.ts'
@@ -52,6 +53,8 @@
     onshow: (where: Problem['where']) => void
     /** Open the list of what changed in the game. */
     onhistory: () => void
+    /** Told which problem view is up (the list, or the strip over the map): the map's own cards wait for the list. */
+    onlooking?: (on: 'strip' | 'list' | undefined) => void
   }
   let {
     lang,
@@ -70,6 +73,7 @@
     onsignedout,
     onshow,
     onhistory,
+    onlooking,
   }: Props = $props()
 
   type Sheet = 'put' | 'send' | 'keep' | 'waiting' | 'problems'
@@ -85,7 +89,8 @@
   let sent = $state.raw<readonly ChangeLine[]>([])
   let backing = $state<'idle' | 'working' | 'taken' | 'failed'>('idle')
   /** The problem being looked at, from 0, and the sheet to go back to. */
-  let strip = $state<{ at: number; back: 'put' | 'send' | undefined } | undefined>(undefined)
+  let strip = $state<{ at: number; back: 'put' | 'send' | 'problems' | undefined } | undefined>(undefined)
+  $effect(() => onlooking?.(shown === 'problems' ? 'list' : strip !== undefined ? 'strip' : undefined))
 
   const lines = $derived(describe(edits.base, edits.now))
   const by = $derived(approverOf(game))
@@ -205,7 +210,8 @@
     const found = problems[at]
     if (found === undefined) return
     // Going on to the next problem keeps the way back to the sheet this began in.
-    const back = strip !== undefined ? strip.back : shown === 'put' || shown === 'send' ? shown : undefined
+    const back =
+      strip !== undefined ? strip.back : shown === 'put' || shown === 'send' || shown === 'problems' ? shown : undefined
     strip = { at, back }
     shown = undefined
     onshow(found.where)
@@ -234,6 +240,7 @@
     {by}
     waiting={game.mine !== undefined}
     gameName={game.content.project.name}
+    owner={game.ref.owner}
     {failure}
     {came}
     {clash}
@@ -247,6 +254,7 @@
       onhistory()
     }}
     ontakeback={() => void takeItBack()}
+    onkeep={() => open('keep')}
     onclose={close}
   />
 {:else if shown === 'waiting'}
@@ -284,7 +292,10 @@
     {lang}
     at={strip.at + 1}
     of={problems.length}
-    words={looked.words}
+    words={sayProblem(looked, (a, b) => {
+      const said = wordsIn(lang).arrange.wallBody
+      return typeof said === 'function' ? said(a, b) : said
+    })}
     back={strip.back}
     onnext={() => show((strip?.at ?? 0) + 1 >= problems.length ? 0 : (strip?.at ?? 0) + 1)}
     {onback}

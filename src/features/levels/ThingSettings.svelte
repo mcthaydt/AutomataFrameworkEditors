@@ -173,6 +173,8 @@
       {#if one !== undefined}
         <p class="line"><span>{text(words.thing.looksLike)}</span> <b>{nameOf(one.character)}</b></p>
       {/if}
+      <!-- Its name over the choices, as sketched: three bare words would say nothing of what they choose. -->
+      <span class="label">{text(words.thing.drawn)}</span>
       <div class="draw">
         <Segment
           label={text(words.thing.drawn)}
@@ -254,9 +256,14 @@
     margin: 0;
     font-size: 0.9em;
   }
-  /* Close under its choices, so the settings below it keep their place above the pinned arrows. */
+  .label {
+    margin-bottom: 0;
+    color: var(--quiet);
+    font-size: 0.9em;
+  }
+  /* Under its choices with a clear gap, so it reads as their helper and not as part of the row. */
   .about {
-    margin-top: -4px;
+    margin-top: 4px;
     line-height: 1.2;
   }
   .said {

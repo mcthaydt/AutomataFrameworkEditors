@@ -264,6 +264,9 @@ test('my level was lowered while I worked: the sheet says so, keeps my crate, an
     .waitFor()
   await crateX(j).toBe('8.5')
   expect(repoOf(j).commits).toEqual([])
+  // The words say "keep a copy instead": the sheet offers it, and it opens (design round 1, R17).
+  await putSheet(j.page).getByRole('button', { name: KEEP, exact: true }).click()
+  await j.page.getByRole('heading', { name: String(wordsIn('en').kept.keepTitle), exact: true }).waitFor()
 })
 
 test('a rule on GitHub blocks the editor: the sheet says so, and my crate stays on screen', async () => {
@@ -274,4 +277,13 @@ test('a rule on GitHub blocks the editor: the sheet says so, and my crate stays 
     .getByText(/GitHub is set to stop the editor/)
     .waitFor()
   await crateX(j).toBe('8.5')
+  // Trying again cannot work until the owner changes the rule: Close is the main button, and the words say who to ask
+  // (design round 1, R17).
+  const sheet = putSheet(j.page)
+  expect(await sheet.getByRole('button', { name: String(wordsIn('en').changes.again) }).count()).toBe(0)
+  await sheet.locator('.action.main', { hasText: String(wordsIn('en').shell.close) }).waitFor()
+  await sheet
+    .getByText(/grandma/)
+    .first()
+    .waitFor()
 })

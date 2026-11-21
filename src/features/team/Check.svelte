@@ -6,7 +6,7 @@
   import { onMount } from 'svelte'
   import { can } from '../access/access.ts'
   import type { Api } from '../api/api.ts'
-  import { type Edits, type Opened, openGame, type Problem, problemsOf, startEdits } from '../game/game.ts'
+  import { approverOf, type Edits, type Opened, openGame, type Problem, problemsOf, sayProblem, startEdits } from '../game/game.ts'
   import { Stage } from '../levels/levels.ts'
   import { PlayPart } from '../play/play.ts'
   import { Action, Sheet } from '../ui/ui.ts'
@@ -26,8 +26,10 @@
     onback: () => void
     /** Back to the level. */
     onhome: () => void
+    /** Told once the change is found not to be waiting any more: there is nothing of it left to draw. */
+    ongone?: (() => void) | undefined
   }
-  let { api, game: ref, number, lang, onsignedout, onback, onhome }: Props = $props()
+  let { api, game: ref, number, lang, onsignedout, onback, onhome, ongone }: Props = $props()
 
   type Step = 'look' | 'ask' | 'put' | 'asked' | 'down' | 'taken' | 'gone'
   let opened = $state.raw<Opened | undefined>(undefined)
@@ -67,6 +69,8 @@
       : { base: startEdits(game).base, now: checked.working, past: [], future: [] },
   )
   const by = $derived(change?.by ?? '')
+  /** Who checks the person's own change: the waiting sheet's name for them, never the author's own. */
+  const checker = $derived(game === undefined ? '' : approverOf(game))
   const count = $derived(Math.max(1, checked?.lines.length ?? 0))
   /** The level the change is about: the first one it touches, else the game's start. */
   const levelId = $derived.by(() => {
@@ -112,7 +116,7 @@
       case 'not-allowed':
         return text(c.cantApprove)
       case 'blocked':
-        return text(words.changes.failBlocked)
+        return text(words.changes.failBlocked, ref.owner)
       default:
         return text(c.failNow)
     }
@@ -158,6 +162,9 @@
     return { text: text(c.cantReach), again: true }
   })
   const gone = $derived(step === 'gone' || (failed === 'not-found' && opened?.ok === true))
+  $effect(() => {
+    if (gone) ongone?.()
+  })
 </script>
 
 <div class="check" {lang}>
@@ -230,12 +237,12 @@
   {:else}
     {@const waiting = change}
     <Sheet
-      title={role === 'own' ? text(words.changes.waitTitle, by) : text(c.checkTitle, by, count)}
+      title={role === 'own' ? text(words.changes.waitTitle, checker) : text(c.checkTitle, by, count)}
       close={text(c.notNow)}
       onclose={onback}
       side
     >
-      <p>{role === 'own' ? text(words.changes.waitAbout, by) : text(c.checkAbout)}</p>
+      <p>{role === 'own' ? text(words.changes.waitAbout, checker) : text(c.checkAbout)}</p>
       {#if cantPlay !== undefined}
         <div class="problem" role="alert">
           <b>{text(words.play.cantPlay)}</b>
@@ -244,7 +251,7 @@
       {/if}
       {#if problems[0] !== undefined}
         <div class="problem" role="alert">
-          <b>{text(words.bar.problems, problems.length)}: {problems[0].words}</b>
+          <b>{text(words.bar.problems, problems.length)}: {sayProblem(problems[0], (a, b) => text(words.arrange.wallBody, a, b))}</b>
           {#if role === 'approver'}<small>{text(c.problemNote)}</small>{/if}
         </div>
       {/if}
@@ -324,6 +331,33 @@
       inset: calc(var(--bar) + 20px) 8px 8px auto;
       margin: 0;
       width: min(400px, 36%);
+    }
+  }
+  /* An iPad held upright: the level has the room above, and the sheet comes from the foot (the check sheet's sketch). */
+  @media (min-width: 700px) and (orientation: portrait) {
+    .level {
+      right: 0;
+      bottom: calc(45% + 16px);
+    }
+    .check :global(.sheet.side[role='dialog']) {
+      inset: auto 8px 8px 8px;
+      margin: 0 auto;
+      width: min(720px, calc(100% - 16px));
+      max-height: 45%;
+    }
+  }
+  /* A phone held sideways has little height: the buttons go two to a row, so what the change is about stays in sight. */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .check :global(.sheet.side[role='dialog']) {
+      width: min(440px, 52%);
+    }
+    .level {
+      right: calc(min(440px, 52%) + 16px);
+    }
+    .check :global(.sheet footer) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 12px 10px;
     }
   }
   /* A side sheet starts below the top bar, so it is cut to the room under it: one that is taller would be scrolled into
