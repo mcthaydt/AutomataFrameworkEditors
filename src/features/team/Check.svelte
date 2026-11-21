@@ -333,6 +333,33 @@
       width: min(400px, 36%);
     }
   }
+  /* An iPad held upright: the level has the room above, and the sheet comes from the foot (the check sheet's sketch). */
+  @media (min-width: 700px) and (orientation: portrait) {
+    .level {
+      right: 0;
+      bottom: calc(45% + 16px);
+    }
+    .check :global(.sheet.side[role='dialog']) {
+      inset: auto 8px 8px 8px;
+      margin: 0 auto;
+      width: min(720px, calc(100% - 16px));
+      max-height: 45%;
+    }
+  }
+  /* A phone held sideways has little height: the buttons go two to a row, so what the change is about stays in sight. */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .check :global(.sheet.side[role='dialog']) {
+      width: min(440px, 52%);
+    }
+    .level {
+      right: calc(min(440px, 52%) + 16px);
+    }
+    .check :global(.sheet footer) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 12px 10px;
+    }
+  }
   /* A side sheet starts below the top bar, so it is cut to the room under it: one that is taller would be scrolled into
      view, and the whole page with it. */
   @media (min-width: 501px) {

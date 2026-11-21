@@ -37,7 +37,7 @@
     </button>
     {#if add}
       <button type="button" aria-label={text(words.panels.addLabel)} title={text(words.panels.addLabel)} onclick={() => onopen('add')}>
-        <Icon name="plus-circle" size={24} />
+        <Icon name="stack-plus" size={24} />
       </button>
     {/if}
   </nav>

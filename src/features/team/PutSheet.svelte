@@ -173,7 +173,7 @@
         <div class="problem" role="alert">
           <b>{blocked ? text(c.fixFirst, problems.length) : text(words.bar.problems, problems.length)}: {first.words}</b>
           <small>{blocked ? `${text(c.stopsAbout)} ${text(c.stopsSafe)}` : text(kind === 'put' ? c.warnPut : c.warnSend)}</small>
-          <Action label={text(c.showMe)} onpress={() => onshow(first)} />
+          <Action label={text(c.showMe)} icon="eye" onpress={() => onshow(first)} />
         </div>
       {/if}
       <Lines {words} {lines} />
@@ -181,7 +181,7 @@
     {/if}
     {#snippet foot()}
       {#if nothingLeft}
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'ask'}
         <Action label={mainWords} icon="check" kind="main" disabled={blocked || asking} onpress={onput} />
         <Action label={text(c.notYet)} onpress={onclose} />
@@ -191,14 +191,14 @@
       {:else if phase === 'failed' && stopped}
         <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'failed'}
-        <Action label={text(c.again)} kind="main" onpress={onput} />
+        <Action label={text(c.again)} icon="arrow-clockwise" kind="main" onpress={onput} />
         <Action label={text(c.notNow)} onpress={onclose} />
       {:else if phase === 'sent'}
-        <Action label={text(c.takeBack)} onpress={ontakeback} />
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(c.takeBack)} icon="arrow-counter-clockwise" onpress={ontakeback} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else if phase === 'done'}
         <Action label={text(t.seeWhatChanged)} icon="clock-counter-clockwise" onpress={onhistory} />
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {/if}
     {/snippet}
   </Sheet>

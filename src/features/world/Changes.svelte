@@ -88,7 +88,7 @@
   let sent = $state.raw<readonly ChangeLine[]>([])
   let backing = $state<'idle' | 'working' | 'taken' | 'failed'>('idle')
   /** The problem being looked at, from 0, and the sheet to go back to. */
-  let strip = $state<{ at: number; back: 'put' | 'send' | undefined } | undefined>(undefined)
+  let strip = $state<{ at: number; back: 'put' | 'send' | 'problems' | undefined } | undefined>(undefined)
   $effect(() => onlooking?.(strip !== undefined || shown === 'problems'))
 
   const lines = $derived(describe(edits.base, edits.now))
@@ -209,7 +209,8 @@
     const found = problems[at]
     if (found === undefined) return
     // Going on to the next problem keeps the way back to the sheet this began in.
-    const back = strip !== undefined ? strip.back : shown === 'put' || shown === 'send' ? shown : undefined
+    const back =
+      strip !== undefined ? strip.back : shown === 'put' || shown === 'send' || shown === 'problems' ? shown : undefined
     strip = { at, back }
     shown = undefined
     onshow(found.where)

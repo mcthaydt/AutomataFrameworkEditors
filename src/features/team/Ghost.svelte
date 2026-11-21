@@ -33,7 +33,7 @@
     {#if lines.length > MOST}<li class="more">{text(h.ghostMore, lines.length - MOST)}</li>{/if}
   </ul>
   <div class="buttons">
-    <Action label={text(h.ghostKeep)} icon="check" kind="main" onpress={onkeep} />
+    <Action label={text(h.ghostKeep)} icon="check" onpress={onkeep} />
     <Action label={text(h.ghostUndo)} icon="arrow-counter-clockwise" onpress={onundo} />
   </div>
 </div>

@@ -1163,6 +1163,31 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
           found.push(`text is cut with an ellipsis: "${words.slice(0, 30)}"`)
       }
 
+      // The top bar: nothing in it wraps, and a name is cut only once everything that can let go of its words has (the
+      // second line, the status's words, the main button's), so the names come first (design round 1, A2 and R1).
+      const bar = document.querySelector<HTMLElement>('[data-bar]')
+      if (bar !== null && seen(bar)) {
+        const squeezed = Number(bar.dataset.squeeze ?? '0')
+        for (const name of bar.querySelectorAll<HTMLElement>('.name')) {
+          if (seen(name) && name.scrollWidth > name.clientWidth + 1 && squeezed < 3)
+            found.push(
+              `the bar cuts "${(name.textContent ?? '').trim().slice(0, 30)}" while it still shows other words`,
+            )
+        }
+        for (const line of bar.querySelectorAll<HTMLElement>('b, small, .full, .wordy')) {
+          if (!seen(line)) continue
+          const range = document.createRange()
+          range.selectNodeContents(line)
+          const tops = new Set(
+            [...range.getClientRects()].filter((box) => box.width > 0).map((box) => Math.round(box.top)),
+          )
+          if (tops.size > 1)
+            found.push(
+              `"${(line.textContent ?? '').trim().slice(0, 30)}" wraps onto ${tops.size} lines in the bar`,
+            )
+        }
+      }
+
       // A page that is one card (the welcome, Pick a game, a game that cannot open) has it in the middle of the window
       // both ways (the Owner, 2026-11-20). One taller than the window starts at its top and the page scrolls.
       const page = document.querySelector<HTMLElement>('.plain, .games, .cover')

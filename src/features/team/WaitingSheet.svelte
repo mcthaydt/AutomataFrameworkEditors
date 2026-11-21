@@ -45,13 +45,13 @@
     {/if}
     {#snippet foot()}
       {#if taken}
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {:else}
         {#if first !== undefined}
           <Action label={text(t.showOnLevel)} icon="eye" onpress={() => onshow(whereOfLine(first))} />
         {/if}
-        <Action label={text(c.takeBack)} disabled={working} onpress={ontakeback} />
-        <Action label={text(words.shell.close)} kind="main" onpress={onclose} />
+        <Action label={text(c.takeBack)} icon="arrow-counter-clockwise" disabled={working} onpress={ontakeback} />
+        <Action label={text(words.shell.close)} icon="check" kind="main" onpress={onclose} />
       {/if}
     {/snippet}
   </Sheet>

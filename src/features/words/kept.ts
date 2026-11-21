@@ -20,6 +20,7 @@ type Key =
   | 'back'
   | 'backToPut'
   | 'backToSend'
+  | 'backToList'
   | 'lineMoved'
   | 'lineAdded'
   | 'lineDeleted'
@@ -56,6 +57,7 @@ export const kept = {
     back: 'Back',
     backToPut: 'Back to Put in game',
     backToSend: 'Back to Send to check',
+    backToList: 'Back to the list',
     lineMoved: (thing) => `Moved ${thing}`,
     lineAdded: (thing) => `Added ${thing}`,
     lineDeleted: (thing) => `Took away ${thing}`,
@@ -91,6 +93,7 @@ export const kept = {
     back: 'Volver',
     backToPut: 'Volver a Poner en el juego',
     backToSend: 'Volver a Enviar para revisar',
+    backToList: 'Volver a la lista',
     lineMoved: (thing) => `Moviste ${thing}`,
     lineAdded: (thing) => `Añadiste ${thing}`,
     lineDeleted: (thing) => `Quitaste ${thing}`,
@@ -126,6 +129,7 @@ export const kept = {
     back: '돌아가기',
     backToPut: '게임에 넣기로 돌아가기',
     backToSend: '확인하도록 보내기로 돌아가기',
+    backToList: '목록으로 돌아가기',
     lineMoved: (thing) => `${thing} 옮김`,
     lineAdded: (thing) => `${thing} 추가`,
     lineDeleted: (thing) => `${thing} 치움`,
@@ -161,6 +165,7 @@ export const kept = {
     back: '戻る',
     backToPut: '「ゲームに入れる」に戻る',
     backToSend: '「確認のために送る」に戻る',
+    backToList: '一覧に戻る',
     lineMoved: (thing) => `${thing}を動かした`,
     lineAdded: (thing) => `${thing}を足した`,
     lineDeleted: (thing) => `${thing}を取り除いた`,
@@ -196,6 +201,7 @@ export const kept = {
     back: '返回',
     backToPut: '回到“放进游戏”',
     backToSend: '回到“发出去检查”',
+    backToList: '返回列表',
     lineMoved: (thing) => `移动了${thing}`,
     lineAdded: (thing) => `添加了${thing}`,
     lineDeleted: (thing) => `拿走了${thing}`,
@@ -231,6 +237,7 @@ export const kept = {
     back: 'Voltar',
     backToPut: 'Voltar para Colocar no jogo',
     backToSend: 'Voltar para Enviar para conferir',
+    backToList: 'Voltar à lista',
     lineMoved: (thing) => `Moveu ${thing}`,
     lineAdded: (thing) => `Adicionou ${thing}`,
     lineDeleted: (thing) => `Tirou ${thing}`,
@@ -266,6 +273,7 @@ export const kept = {
     back: 'Retour',
     backToPut: 'Retour à Mettre dans le jeu',
     backToSend: 'Retour à Envoyer à vérifier',
+    backToList: 'Retour à la liste',
     lineMoved: (thing) => `${thing} déplacé`,
     lineAdded: (thing) => `${thing} ajouté`,
     lineDeleted: (thing) => `${thing} enlevé`,
@@ -301,6 +309,7 @@ export const kept = {
     back: 'Назад',
     backToPut: 'Назад к «Внести в игру»',
     backToSend: 'Назад к «Отправить на проверку»',
+    backToList: 'Назад к списку',
     lineMoved: (thing) => `Передвинуто: ${thing}`,
     lineAdded: (thing) => `Добавлено: ${thing}`,
     lineDeleted: (thing) => `Убрано: ${thing}`,
@@ -336,6 +345,7 @@ export const kept = {
     back: 'Zurück',
     backToPut: 'Zurück zu Ins Spiel bringen',
     backToSend: 'Zurück zu Zum Prüfen senden',
+    backToList: 'Zurück zur Liste',
     lineMoved: (thing) => `${thing} verschoben`,
     lineAdded: (thing) => `${thing} hinzugefügt`,
     lineDeleted: (thing) => `${thing} weggenommen`,

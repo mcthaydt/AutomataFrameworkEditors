@@ -98,8 +98,11 @@
     <Notice kind="problem" text={WORDS.cantFindGame} />
   </Screen>
 {:else if opened.problem === 'broken'}
-  <Screen glass {title} {back}>
+  <!-- Plain words first and one big way back; the file's own line is small print for whoever mends it. -->
+  <Screen glass title={WORDS.brokenTitle}>
     <Notice kind="problem" text={WORDS.brokenGame} />
+    <div><Button label={WORDS.backToGames} icon="arrow-left" kind="primary" onpress={toGames} /></div>
+    <p class="for">{WORDS.brokenFor}</p>
     <ul class="problems">
       {#each opened.diagnostics as diagnostic (formatDiagnostic(diagnostic))}
         <li>{formatDiagnostic(diagnostic)}</li>
@@ -112,11 +115,14 @@
     {#if !signedIn}<div><Button label={WORDS.signIn} kind="primary" onpress={onsignin} /></div>{/if}
   </Screen>
 {:else if opened.problem === 'not-a-game'}
-  <Screen glass {title} {back}><Notice kind="problem" text={WORDS.notAGame} /></Screen>
+  <Screen glass title={WORDS.notAGameTitle}>
+    <Notice kind="problem" text={WORDS.notAGame} />
+    <div><Button label={WORDS.backToGames} icon="arrow-left" kind="primary" onpress={toGames} /></div>
+  </Screen>
 {:else}
   <Screen glass {title} {back}>
     <Notice kind="problem" text={WORDS.cantReach} />
-    <div><Button label={WORDS.tryAgain} kind="primary" onpress={() => void load()} /></div>
+    <div><Button label={WORDS.tryAgain} icon="arrow-clockwise" kind="primary" onpress={() => void load()} /></div>
   </Screen>
 {/if}
 
@@ -125,5 +131,12 @@
     margin: 0;
     padding-left: var(--space-3);
     overflow-wrap: anywhere;
+    color: var(--g-quiet);
+    font-size: 13px;
+  }
+  .for {
+    margin: 0;
+    color: var(--g-quiet);
+    font-size: 13px;
   }
 </style>

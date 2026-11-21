@@ -32,7 +32,8 @@ export interface Layout {
 /**
  * An iPad sideways and a computer are both `wide`; what tells them apart is `device`. The design language gives them
  * different defaults: the tools down the left edge and the list shut to a rail on the iPad, the tools along the bottom
- * and the list open on a computer. A phone, a phone on its side and an upright iPad keep the list shut until asked.
+ * and the list open on a computer. A phone, a phone on its side and an upright iPad keep the list shut until asked. A
+ * phone on its side pulls its settings up as the side panel, not a sheet.
  */
 export function layout(
   device: 'ipad' | 'phone' | 'computer',
@@ -49,6 +50,9 @@ export function layout(
   let settings: Layout['settings']
   if (!picked) settings = 'none'
   else if (wide) settings = docks.settings === 'shown' ? 'side' : 'tab'
+  // A phone on its side has no height for a sheet over the level: pulled up, the settings stand at the side instead, so
+  // the thing stays in sight while they change.
+  else if (size === 'phone-sideways') settings = docks.settings === 'shown' ? 'side' : 'bar'
   else settings = docks.settings === 'shown' ? 'sheet' : 'bar'
   return { toolbar, list, settings, mirror: leftHand }
 }

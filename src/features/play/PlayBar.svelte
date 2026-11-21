@@ -38,7 +38,8 @@
   const speedWord = $derived(text(speed === 1 ? words.speedNormal : speed === 0.5 ? words.speedSlow : words.speedSlower))
 </script>
 
-<div class="bar glass-1" role="toolbar" aria-label={text(words.playBar)} use:stack>
+<!-- In a short box the strip, once unfolded, takes the buttons' row: the buttons fold away so the game stays in sight. -->
+<div class="bar glass-1" class:folded={short && rewinding} role="toolbar" aria-label={text(words.playBar)} use:stack>
   <div class="row">
     <button type="button" class="act" data-play="pause" aria-label={text(paused ? words.goOn : words.pause)} title={text(paused ? words.goOn : words.pause)} onclick={onpause}>
       <Icon name={paused ? 'play' : 'pause'} size={22} />
@@ -66,7 +67,7 @@
       <Icon name="gauge" size={22} /><span class="word" class:state={speed !== 1}>{speedWord}</span>
     </button>
     <button type="button" class="act" data-play="again" aria-label={text(words.again)} title={text(words.again)} onclick={onagain}>
-      <Icon name="arrow-counter-clockwise" size={22} />
+      <Icon name="skip-back" size={22} />
     </button>
     {#if canPick}
       <button
@@ -172,5 +173,17 @@
   }
   .strip {
     padding: 0 12px 4px;
+  }
+  .folded {
+    flex-direction: row;
+    align-items: center;
+  }
+  .folded .act:not([data-play='rewind']) {
+    display: none;
+  }
+  .folded .strip {
+    flex: 1;
+    min-width: 200px;
+    padding: 0 8px;
   }
 </style>

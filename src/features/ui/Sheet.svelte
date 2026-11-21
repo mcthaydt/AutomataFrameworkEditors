@@ -112,6 +112,8 @@
       inset: calc(var(--bar) + 20px) 8px 8px auto;
       margin: 0;
       width: min(400px, 36%);
+      /* Cut to the room under the top bar: its rows scroll and its foot stays in sight. */
+      max-height: calc(100% - var(--bar) - 28px);
     }
   }
   /* A phone: the sheet comes up from the bottom edge. */

@@ -94,7 +94,7 @@ test('Play puts the game in the level box, the marks hide, and Stop brings them 
   expect(marksHidden()).toBe(true)
   expect(has('Stop')).toBe(true)
   expect(has('Pause')).toBe(true)
-  expect(has('Start again')).toBe(true)
+  expect(has('From the start')).toBe(true)
 
   await press('Stop')
   expect(playBox()).toBeNull()

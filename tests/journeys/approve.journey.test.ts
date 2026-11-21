@@ -482,11 +482,17 @@ test('grandpa plays the changes, asks kid for a change in words; kid sees the wo
   expect(repoOf(g).pulls[0]?.state).toBe('open')
 
   const kid = await gameAs('ipadUpright', 'kid')
-  await text(kid, askedBy('grandpa'))
+  // The note says it (the bar says the same words, by its icon alone where it is short of room).
+  await kid.page
+    .getByRole('status')
+    .filter({ hasText: askedBy('grandpa') })
+    .first()
+    .waitFor()
   await text(kid, wordsFor)
   // The bar tells the truth: nobody is waiting now, grandpa asked for a change (design round 1, R4).
   const bar = kid.page.locator('[data-bar]')
-  await bar.getByText(askedBy('grandpa')).waitFor()
+  // Said in words or, where the bar is short of room, by its icon with the words as its name.
+  await bar.getByRole('button', { name: askedBy('grandpa'), exact: true }).waitFor()
   expect(await bar.getByText(/^Waiting/).count()).toBe(0)
   await dragByTouch(kid.page, 'crate-1', { dx: 1, dy: 0 })
   await putThemIn(kid.page, 'suggestion')

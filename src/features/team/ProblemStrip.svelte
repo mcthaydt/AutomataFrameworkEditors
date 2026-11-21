@@ -10,8 +10,8 @@
     at: number
     of: number
     words: string
-    /** Where "Back" goes: the sheet that was open, or nowhere in particular. */
-    back: 'put' | 'send' | undefined
+    /** Where "Back" goes: the sheet that was open (the list of problems too), or nowhere in particular. */
+    back: 'put' | 'send' | 'problems' | undefined
     onnext: () => void
     onback: () => void
   }
@@ -27,9 +27,16 @@
   <p>{said}</p>
   <div class="buttons">
     {#if of > 1}<Action label={text(w.kept.nextProblem)} onpress={onnext} />{/if}
+    <!-- A plain button: the main action on the screen stays the top bar's own (one main action per screen). -->
     <Action
-      label={back === 'put' ? text(w.kept.backToPut) : back === 'send' ? text(w.kept.backToSend) : text(w.kept.back)}
-      kind="main"
+      label={back === 'put'
+        ? text(w.kept.backToPut)
+        : back === 'send'
+          ? text(w.kept.backToSend)
+          : back === 'problems'
+            ? text(w.kept.backToList)
+            : text(w.kept.back)}
+      icon="arrow-left"
       onpress={onback}
     />
   </div>

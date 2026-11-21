@@ -2,6 +2,7 @@
   // The top bar every editor has: the game's menu, the editor and the part, Undo and Redo, what is wrong, Find, Play,
   // and the one button that puts changes in. A control with nothing to do yet is not drawn; one that cannot act now says
   // so (`aria-disabled`), so a person is never left guessing. Menus open under the button that opened them.
+  import { tick } from 'svelte'
   import { type AccessLevel, can } from '../access/access.ts'
   import type { SizeClass } from '../device/device.ts'
   import { Dock, Icon, Note } from '../ui/ui.ts'
@@ -165,12 +166,17 @@
 
   const current = $derived(workspace.parts.find((one) => one.id === part))
   const partWords = $derived(text(current === undefined ? m.partLevels : m[current.words]))
+  // An upright phone has room for the level's name only: the part is said in its menu.
   const partName = $derived(
     mapOn
-      ? `${partWords} · ${text(words.map.mapWord)}`
+      ? compact
+        ? text(words.map.mapWord)
+        : `${partWords} · ${text(words.map.mapWord)}`
       : place === undefined
         ? partWords
-        : `${partWords} · ${nameOf(place)}`,
+        : compact
+          ? nameOf(place)
+          : `${partWords} · ${nameOf(place)}`,
   )
 
   const statuses = $derived(statusOf(facts))
@@ -182,6 +188,57 @@
   const problems = $derived(statuses.find((s) => s.kind === 'problems'))
   const toCheck = $derived(statuses.find((s) => s.kind === 'to-check'))
   const mine = $derived(statuses.find((s) => s.kind === 'waiting' || s.kind === 'more' || s.kind === 'asked'))
+
+  // The names come first. Where the bar has no room for every word, it lets go of words in this order before any name is
+  // cut: the second line under the main button, then the status's words, then the main button's; each keeps its icon,
+  // and its words stay in its spoken name.
+  let barEl = $state<HTMLDivElement | undefined>(undefined)
+  let squeeze = $state(0)
+  const MOST = 3
+  const cut = (bar: HTMLElement): boolean =>
+    [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
+  let fitting = 0
+  async function fit(): Promise<void> {
+    const bar = barEl
+    if (bar === undefined) return
+    const run = ++fitting
+    for (let next = 0; next <= MOST; next += 1) {
+      squeeze = next
+      await tick()
+      if (run !== fitting || !cut(bar)) return
+    }
+  }
+  $effect(() => {
+    void [gameName, partName, statuses, main, people.length, size, onplay, onfind, onmap]
+    void fit()
+  })
+  $effect(() => {
+    const bar = barEl
+    if (bar === undefined) return
+    let width = bar.clientWidth
+    const watch = new ResizeObserver(() => {
+      if (bar.clientWidth === width) return
+      width = bar.clientWidth
+      void fit()
+    })
+    watch.observe(bar)
+    return () => watch.disconnect()
+  })
+  const mainWords = $derived(
+    main === undefined
+      ? ''
+      : text(
+          mine?.kind === 'more' ? w.sendMore : main === 'put' ? w.putInGame : main === 'send' ? w.sendToCheck : w.keepCopy,
+          ...(mine?.kind === 'more' ? [mine.count, mine.by] : []),
+        ),
+  )
+  const quietWords = $derived(
+    mine?.kind === 'waiting'
+      ? text(w.waitingFor, mine.by)
+      : mine?.kind === 'asked'
+        ? text(words.check.askedTitle, mine.by)
+        : text(w.upToDate),
+  )
 
   function pickGame(id: string): void {
     close()
@@ -205,7 +262,7 @@
 </script>
 
 <Dock label={text(w.topBar)} side="top" tight>
-  <div class="bar" data-bar>
+  <div class="bar" data-bar data-squeeze={squeeze} bind:this={barEl}>
     {#if !compact}
       <button type="button" class="game" bind:this={anchors.game} aria-haspopup="menu" aria-expanded={open === 'game'} onclick={() => show('game')}>
         <i class="logo" aria-hidden="true"></i>
@@ -288,36 +345,26 @@
         aria-disabled={held ? 'true' : undefined}
         title={held ? text(w.heldWhy) : undefined}
         onclick={() => held || onmain(main)}
+        aria-label={squeeze >= 3 ? mainWords : undefined}
       >
         <Icon name={main === 'keep' ? 'download-simple' : main === 'send' ? 'paper-plane-tilt' : 'arrow-circle-up'} />
         <span class="what">
-          <b>{text(
-            mine?.kind === 'more'
-              ? w.sendMore
-              : main === 'put'
-                ? w.putInGame
-                : main === 'send'
-                  ? w.sendToCheck
-                  : w.keepCopy,
-            ...(mine?.kind === 'more' ? [mine.count, mine.by] : []),
-          )}</b>
+          <b>{mainWords}</b>
           {#if mine?.kind !== 'more'}<small class="long">{text(w.changesHere, facts.changes, where)}</small>{/if}
         </span>
       </button>
-    {:else if mine?.kind === 'waiting'}
-      <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
-        <Icon name="paper-plane-tilt" />
-        <span class="what"><b>{text(w.waitingFor, mine.by)}</b></span>
-      </button>
-    {:else if mine?.kind === 'asked'}
-      <button type="button" class="put quiet" data-tour="main" onclick={() => onmain('waiting')}>
-        <Icon name="chat-circle-text" />
-        <span class="what"><b>{text(words.check.askedTitle, mine.by)}</b></span>
-      </button>
     {:else}
-      <button type="button" class="put quiet" data-tour="main" aria-disabled="true">
-        <Icon name="check" />
-        <span class="what"><b>{text(w.upToDate)}</b></span>
+      <button
+        type="button"
+        class="put quiet"
+        data-tour="main"
+        aria-disabled={mine === undefined ? 'true' : undefined}
+        aria-label={squeeze >= 2 ? quietWords : undefined}
+        title={squeeze >= 2 ? quietWords : undefined}
+        onclick={() => mine === undefined || onmain('waiting')}
+      >
+        <Icon name={mine?.kind === 'waiting' ? 'paper-plane-tilt' : mine?.kind === 'asked' ? 'chat-circle-text' : 'check'} />
+        <span class="what"><b>{quietWords}</b></span>
       </button>
     {/if}
   </div>
@@ -371,7 +418,7 @@
     cursor: pointer;
   }
   /* A button is as wide as its words; the bar squeezes the names that have dots for it (the game's and the part's). */
-  button:not(.game, .part, .put) {
+  button:not(.game, .part) {
     flex: none;
   }
   button:not(.dim):hover,
@@ -441,8 +488,21 @@
     line-height: 1.15;
   }
   .put small {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
+  }
+  /* Nothing in the bar wraps: what has no room lets go of its words instead (see `fit`). */
+  .put b,
+  .put small {
+    white-space: nowrap;
+  }
+  .bar[data-squeeze='1'] .long,
+  .bar[data-squeeze='2'] .long,
+  .bar[data-squeeze='3'] .long,
+  .bar[data-squeeze='2'] .put.quiet .what,
+  .bar[data-squeeze='3'] .put.quiet .what,
+  .bar[data-squeeze='3'] .put .what {
+    display: none;
   }
   :global(.look[data-size='phone-sideways']) .put {
     min-height: 44px;

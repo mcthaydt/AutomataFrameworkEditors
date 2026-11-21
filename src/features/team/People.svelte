@@ -106,6 +106,9 @@
     }
   }
 
+  /** An error is scrolled into sight as it appears: on a short screen it would be under the sheet's foot. */
+  const seen = (node: HTMLElement): void => node.scrollIntoView({ block: 'nearest' })
+
   function add(): void {
     const who = newName.trim()
     nameProblem = undefined
@@ -256,7 +259,7 @@
           <button type="submit" class="icon" aria-label={text(t.addPerson)} title={text(t.addPerson)}><Icon name="plus" /></button>
         </div>
         <small class="quiet">{text(t.addAbout)}</small>
-        {#if nameProblem !== undefined}<small class="bad" role="alert">{nameProblem}</small>{/if}
+        {#if nameProblem !== undefined}<small class="bad" role="alert" {@attach seen}>{nameProblem}</small>{/if}
       </form>
     {:else if !mayChange}
       <div class="block">
@@ -419,9 +422,10 @@
   .good {
     color: var(--words);
   }
+  /* Problem words on glass take the kit's colour for words, which keeps their contrast; the mark's red is for marks. */
   .bad,
   p.problem {
-    color: var(--problem);
+    color: var(--problem-words);
   }
   .ask {
     margin: 0;
