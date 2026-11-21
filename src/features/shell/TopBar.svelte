@@ -202,7 +202,7 @@
   /** The bar runs off the screen, or a name is cut. */
   const cut = (bar: HTMLElement): boolean =>
     bar.scrollWidth > bar.clientWidth + 1 ||
-    bar.getBoundingClientRect().right > window.innerWidth + 1 ||
+    bar.getBoundingClientRect().right > (bar.closest('.look')?.getBoundingClientRect().right ?? window.innerWidth) + 1 ||
     [...bar.querySelectorAll<HTMLElement>('.name')].some((one) => one.scrollWidth > one.clientWidth + 1)
   let fitting = 0
   async function fit(): Promise<void> {
