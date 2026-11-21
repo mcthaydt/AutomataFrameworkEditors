@@ -35,7 +35,7 @@
     {#each problems as problem, at (`${problem.file}:${problem.words}`)}
       <li>
         <span>{problem.words}</span>
-        <Action label={text(words.changes.showMe)} icon="eye" onpress={() => onshow(at)} />
+        <Action label={text(words.changes.showMe)} onpress={() => onshow(at)} />
       </li>
     {/each}
   </ul>

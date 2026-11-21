@@ -18,7 +18,8 @@
   /** Rows wait below the fold: the foot fades, so a person sees there is more to scroll to. */
   let more = $state(false)
   const measure = (): void => {
-    if (list !== undefined) more = list.scrollTop + list.clientHeight < list.scrollHeight - 1
+    // Bound to null once the menu is gone; a last resize can still arrive then.
+    if (list) more = list.scrollTop + list.clientHeight < list.scrollHeight - 1
   }
   const rows = (): HTMLElement[] => [...(list?.querySelectorAll<HTMLElement>('[role=menuitem]') ?? [])]
 

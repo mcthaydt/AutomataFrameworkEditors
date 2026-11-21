@@ -437,8 +437,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* The part's name may be cut, but its button never goes below a finger's width with a few letters showing. */
   .part {
-    min-width: 0;
+    min-width: 88px;
     flex: 0 1 auto;
   }
   .logo {
