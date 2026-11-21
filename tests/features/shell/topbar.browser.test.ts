@@ -216,7 +216,8 @@ test("on a phone the part's name opens one menu with the parts, the editors and 
   await put({ size: 'phone', device: 'phone', level: 'owner' })
   expect(box.querySelector('.game')).toBeNull()
   expect(box.querySelector('.editors')).toBeNull()
-  await userEvent.click(named('Levels · Level 1') as HTMLElement)
+  // A phone has no room for "Levels · ": the part's button says only the level (design round 1, A2).
+  await userEvent.click(named('Level 1') as HTMLElement)
   const menus = box.querySelectorAll('[role=menu]')
   expect(menus.length).toBe(1)
   const words = [...(menus[0]?.querySelectorAll('[role=menuitem]') ?? [])].map((row) => row.textContent ?? '')
