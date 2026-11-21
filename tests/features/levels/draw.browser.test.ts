@@ -199,6 +199,27 @@ test('with the hero, a coloured box is under the ground in the level view and in
   expect(await inPlay(level, FLOOR, figureGame)).toBe(picture)
 })
 
+// The blind judge's verdict, item 6: a thing with no picture is a block (a light band at its top, a shade at its foot,
+// its own colour between), and a thing with a picture is drawn as the picture, unchanged.
+test('a coloured box has a light top and a shaded foot round its own colour; a picture is drawn as it is', async () => {
+  const sum = (hex: string): number =>
+    [1, 3, 5].reduce((all, i) => all + Number.parseInt(hex.slice(i, i + 2), 16), 0)
+  const level = crateAt(START, 'in-front')
+  const [top, middle, foot] = [START.y - 0.42, START.y, START.y + 0.42]
+  const box = []
+  for (const y of [top, middle, foot]) {
+    box.push(await levelView(level, { x: START.x, y }))
+    dropStage()
+  }
+  expect(box[1]).toBe(CRATE)
+  expect(sum(box[0] ?? '')).toBeGreaterThan(sum(CRATE))
+  expect(sum(box[2] ?? '')).toBeLessThan(sum(CRATE))
+  for (const y of [top, middle, foot]) {
+    expect(await levelView(level, { x: START.x, y }, figureGame.content)).toBe(FIGURE_COLOUR)
+    dropStage()
+  }
+})
+
 test('the level view and Play paint the same colour where a crate is in front and where it is behind', async () => {
   for (const [where, how, tile] of [
     [START, 'in-front', START],

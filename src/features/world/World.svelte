@@ -364,7 +364,7 @@ import { listen, measure } from './listen.ts'
     else if (id === 'sign-out') onsignout()
   }
   const onmain = (what: 'put' | 'send' | 'keep' | 'waiting'): void => changes?.open(what)
-  const insets = afterFinger(() => insetsOf(lay, layout(device, size, docks, true, me.leftHand).settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
+  const insets = afterFinger(() => insetsOf(lay, lay.settings, playing && big, onMap, size === 'phone', size === 'phone-sideways'))
 </script>
 
 <div
@@ -397,7 +397,7 @@ import { listen, measure } from './listen.ts'
         />
       {:else if level !== undefined}
       <LevelPart
-        bind:this={part}
+        bind:this={part} aside={insets.value.aside}
         content={held.content}
         pictures={held.pictures}
         {level}

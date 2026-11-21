@@ -2,6 +2,8 @@
 // is a choice a helper needs or the device keeps.
 
 export interface Show {
+  /** Tiles: a faint grid under the things and the ground, there from the start so the empty parts read as a place to
+   *  build. Finer: half tiles, over everything. Off: none. */
   readonly grid: 'off' | 'tiles' | 'finer'
   /** Things move by whole tiles (on), or by half tiles (off). */
   readonly lineUp: boolean
@@ -15,7 +17,7 @@ export interface Show {
   readonly doneNotes: boolean
 }
 export const SHOW: Show = {
-  grid: 'off',
+  grid: 'tiles',
   lineUp: true,
   whatItIs: false,
   frames: false,

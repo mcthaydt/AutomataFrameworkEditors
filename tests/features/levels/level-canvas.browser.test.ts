@@ -192,3 +192,35 @@ test('the pictures of a game with a figure and a tileset are ones loadArt accept
   art.destroy()
   vi.restoreAllMocks()
 })
+
+// The blind judge's verdict on the level view (items 3 and 4): beyond the level is the page's ground, so the level
+// reads as a framed stage, and the faint tile grid shows over the empty parts only, never over the ground.
+test('beyond the level is the page ground, not more sky', async () => {
+  const stage = await drawn()
+  const far: Camera = { x: 8, y: 4.5, scale: 15 }
+  show(stage, far)
+  expect(colourAt(stage, 10, 10)).toBe('#1e1e1e')
+  expect(colourAt(stage, ...at(far, 3.5, 2.5))).toBe('#9fd3f0')
+})
+
+test('the tile grid is faint over the sky and under the ground', async () => {
+  const stage = await drawn()
+  const grid: Look = { ...plain, grid: 'tiles' }
+  await vi.waitFor(() => {
+    stage.levels.show(content, pictures, level, WHOLE, grid)
+    expect(colourAt(stage, ...at(WHOLE, 8.5, 8.6))).toBe('#6b4f2a')
+  })
+  // The middle of an empty tile is the sky; its edge is a shade off it, close enough to stay quiet.
+  expect(colourAt(stage, ...at(WHOLE, 3.5, 2.5))).toBe('#9fd3f0')
+  const line = colourAt(stage, ...at(WHOLE, 3, 2.5))
+  expect(line).not.toBe('#9fd3f0')
+  const off = (a: string, b: string): number =>
+    Math.max(
+      ...[1, 3, 5].map((i) =>
+        Math.abs(Number.parseInt(a.slice(i, i + 2), 16) - Number.parseInt(b.slice(i, i + 2), 16)),
+      ),
+    )
+  expect(off(line, '#9fd3f0')).toBeLessThan(40)
+  // Over the ground the tile's picture is whole.
+  expect(colourAt(stage, ...at(WHOLE, 3, 8.6))).toBe('#6b4f2a')
+})

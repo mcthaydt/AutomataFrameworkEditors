@@ -86,15 +86,15 @@ import { tagFacts } from './tags.ts'
     extras?: readonly Extra[]
     onextra?: (id: string) => void
     onnote?: ((where: { thing?: string; at: Point }) => void) | undefined
+    aside?: Readonly<Record<'left' | 'right', number>> /** A panel's room over a side: the whole level fits in the rest. */
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
-    fingerDraws = false, readOnly = false, paused = false,
+    fingerDraws = false, readOnly = false, paused = false, aside = { left: 0, right: 0 },
     onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap, edges = [], ongo,
     show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor, extras = [], onextra = () => {}, onnote,
   }: Props = $props()
 
-  const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
   /** The tray's room (px) at the level's foot, kept clear on a stage shorter than STAGE_TOO_SHORT. */
   const [TRAY_ROOM, STAGE_TOO_SHORT] = [100, 400]
   const words = $derived(wordsIn(lang).levels)
@@ -107,7 +107,7 @@ import { tagFacts } from './tags.ts'
   /** Where a person slid or zoomed to; undefined while the whole level is shown. */
   let custom = $state.raw<Camera | undefined>()
   const trayOver = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 && size.h < STAGE_TOO_SHORT)
-  const room = $derived(trayOver ? { ...NONE, bottom: TRAY_ROOM } : NONE)
+  const room = $derived({ top: 0, left: aside.left, right: aside.right, bottom: trayOver ? TRAY_ROOM : 0 })
   const camera = $derived(custom ?? wholeLevel(level, size, room))
   $effect(() => {
     levelId

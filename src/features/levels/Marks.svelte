@@ -237,12 +237,12 @@
     position: absolute;
     top: 100%;
     left: 50%;
-    padding: 1px 6px;
-    border-radius: 6px;
+    padding: 2px 8px;
+    border-radius: 8px;
     font-family: var(--label);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    line-height: 16px;
+    line-height: 18px;
     white-space: nowrap;
     transform: translateX(-50%);
   }

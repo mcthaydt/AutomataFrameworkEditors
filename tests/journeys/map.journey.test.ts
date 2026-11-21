@@ -23,7 +23,7 @@ afterEach(async () => {
   expect(found).toEqual([])
 })
 
-async function openMap(page: Page, size: (typeof SIZES_TO_TRY)[number]): Promise<void> {
+async function openMap(page: Page, size: keyof typeof SIZES): Promise<void> {
   await signIn(page)
   await openGame(page, 'links-game')
   await page.locator('[data-thing="exit"]').waitFor()
