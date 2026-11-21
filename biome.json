@@ -6,7 +6,15 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/dist-plain", "!pnpm-lock.yaml", "!**/*.svelte", "!docs/mockups"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/dist-plain",
+      "!pnpm-lock.yaml",
+      "!**/*.svelte",
+      "!docs/mockups",
+      "!.claude/hooks/rules.mjs"
+    ]
   },
   "formatter": {
     "indentStyle": "space",
@@ -28,7 +36,9 @@
   "overrides": [
     {
       "includes": ["tests/fixtures/game/content/**"],
-      "formatter": { "enabled": false }
+      "formatter": {
+        "enabled": false
+      }
     },
     {
       "includes": ["tests/**"],

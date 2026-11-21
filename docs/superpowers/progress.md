@@ -1,5 +1,9 @@
 # Progress
 
+> 2026-11-21 09:21 UTC: the Owner restarted the workflow from a fresh kit; the project's goal is now "the 2D product, shipped"
+> (2026-11-21). The coordinator's record is AutomataFramework `docs/superpowers/progress.md`. What follows is this
+> repo's record as it stood before the restart.
+
 Last updated: 2026-11-20 16:44 UTC (from `date`).
 
 ## Active milestone: the World slice (roadmap slice 3)

@@ -4,6 +4,9 @@ Finished milestones and their decision records, setup, rule changes, standing pe
 
 ## Setup
 
+- 2026-11-21 09:21 UTC: restart from the Owner's fresh kit (CLAUDE.md, the shared skills, the compaction hook and the new rule hooks
+  `.claude/hooks/rules.mjs` and `rules.json`). The CI, the repo's own skills and records restored first from `14ffe1c^`.
+  Superpowers still **7.0.2**. Graphify: no repository indexed. Merge queue: not available (personal account).
 - 2026-11-18: superpowers **7.0.2**'s `test-driven-development`, `verification-before-completion`, `executing-plans` and
   `subagent-driven-development` read against the new verification rules (AutomataFramework
   `docs/superpowers/specs/2026-11-18-verification-design.md`, section 7). Where they differ, these rules win, and the
