@@ -1308,7 +1308,20 @@ async function broken(page: Page, stage: boolean, only = ''): Promise<string[]> 
             `the buttons of "${group.getAttribute('aria-label') ?? ''}" are uneven: ${[...sizes].join(', ')}`,
           )
       }
-      const level = document.querySelector('[data-scale]')?.getBoundingClientRect()
+      // The level as it is drawn: its stage runs under the panels (the blind judge's fix, item 2), and the level is fitted
+      // beside them, so the drawn level is what keeps its distance.
+      const stageAt = document.querySelector('[data-drawn]')
+      const corners = stageAt?.getAttribute('data-drawn')?.split(' ').map(Number)
+      const from = stageAt?.getBoundingClientRect()
+      const level =
+        from === undefined || corners === undefined || corners.length !== 4
+          ? document.querySelector('[data-scale]')?.getBoundingClientRect()
+          : {
+              left: from.left + (corners[0] ?? 0),
+              top: from.top + (corners[1] ?? 0),
+              right: from.left + (corners[2] ?? 0),
+              bottom: from.top + (corners[3] ?? 0),
+            }
       if (level !== undefined) {
         for (const panel of document.querySelectorAll('aside[data-tour="settings"], aside.panel, nav.rail')) {
           if (!seen(panel)) continue
