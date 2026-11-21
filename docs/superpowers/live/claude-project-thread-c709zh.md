@@ -1,13 +1,13 @@
-# Design round 1 fixes: resumed 2026-11-21 (new project), in progress
+# Design round 1 fixes: resumed 2026-11-21 (new project), in progress (2026-11-21 11:08 UTC)
 
-- Current task: design round 1 reds, groups 2 to 5, then journeys, pictures and one draft pull request (lane 2).
-- Last commit: 4e88efd (groups 4 and 5 in code); main merged in at 2785a01.
-- Next step: the screens journey and the other journeys on this head; A17 (glass corners) by picture; open the draft.
-- Open decisions: none for the owner. Agent-selected: A10/R14 keep the framework's own sentence (said in the PR);
-  the top bar's main button keeps its words (only the status goes to its icon); R7 follows the sketch (foot at iPad
-  upright) for the check sheet only, while other side sheets stay at the side there (A13).
-- Behaviour reds R4, R5, R8, R17: journeys in `approve` and `save-problems` went red on 042ce0d (code before the fix)
-  and green after it.
+- Current task: every red of design round 1 fixed; verify like a person, then one draft pull request (lane 2).
+- Last commit: abb2ea2 (main a29a83a merged in at a3e2ff6).
+- Next step: the verify skill from a clean clone, then delete this file, push and open the draft.
+- Open decisions: none for the owner. Agent-selected: A10/R14 keep the framework's own sentence; the main button keeps
+  its words longest (icon only on a phone when the bar still runs off with the names cut); R7 check sheet at the foot at
+  iPad upright, other side sheets at the side (A13); A1 keeps the wall's fix card beside the problem strip.
+- Ran on abb2ea2 less the last Events press fix: every journey 590 of 591 (the one failure fixed in abb2ea2, its file re-run
+  31 of 31); node 1196 of 1196; typecheck, lint, knip clean. Pictures in /mnt/project-files/screens/design-round-1-fixes/.
 
 ---
 
