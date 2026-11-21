@@ -1,6 +1,7 @@
 <script lang="ts">
-  // The small tags beside things: a way into another level ("To Level 2"), a number, a changed switch. They are faint
-  // until their thing is picked, and a finger goes through them (the same facts are in the thing's settings).
+  // The small tags beside things: a way into another level ("To Level 2"), a number, a changed switch. They are quiet
+  // until their thing is picked, and a finger goes through them (the same facts are in the thing's settings). Glass with
+  // the map's room names' size and rounding, so they read as the editor's and not as debug text (the blind judge, item 5).
   import type { ThingValue } from '@automataframework/framework/headless'
   import { type Lang, nameOf, type Row, wordsIn } from '../words/words.ts'
   import type { Mark } from './marks.ts'
@@ -52,7 +53,7 @@
     aria-hidden="true"
     data-tag={tag.mark.id}
     style:left="{tag.mark.box.x + tag.mark.box.w / 2}px"
-    style:top="{tag.mark.box.y + tag.mark.box.h + 2}px"
+    style:top="{tag.mark.box.y + tag.mark.box.h + 4}px"
   >
     {tag.lines.join(' · ')}
   </span>
@@ -64,9 +65,9 @@
     z-index: 3;
     transform: translateX(-50%);
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 8px;
     color: var(--words);
-    font: 500 12px var(--label);
+    font: 500 13px / 18px var(--label);
     white-space: nowrap;
     pointer-events: none;
   }

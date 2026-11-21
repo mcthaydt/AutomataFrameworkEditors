@@ -130,7 +130,7 @@
   .mini {
     position: absolute;
     top: 8px;
-    left: 8px;
+    left: calc(8px + var(--aside-left, 0px));
     padding: 4px;
     border-radius: 10px;
   }

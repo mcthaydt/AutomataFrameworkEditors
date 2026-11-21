@@ -231,7 +231,15 @@ describe.each(SIZES_TO_TRY)('at %s', (size) => {
     for (const f of [0.3, 0.6, 1]) await send('pointermove', 'touch', { x: a.x + 120 * f, y: a.y }, 1)
     await send('pointerup', 'touch', { x: a.x + 120, y: a.y }, 0)
     await expect.poll(async () => (await boxOf(crate)).x).toBeGreaterThan(was.x + 60)
-    expect(await colourOf(page, 7, 4)).toBe(cell)
+    // The view slid, so the same screen spot is another part of the sky, maybe on a line of the faint tile grid: it is
+    // still sky within a shade, not painted ground.
+    const near = (a: string, b: string): number =>
+      Math.max(
+        ...[1, 3, 5].map((i) =>
+          Math.abs(Number.parseInt(a.slice(i, i + 2), 16) - Number.parseInt(b.slice(i, i + 2), 16)),
+        ),
+      )
+    expect(near(await colourOf(page, 7, 4), cell)).toBeLessThan(12)
     await settled(page)
     await picture(page, `paint-pencil-${size}`)
   })

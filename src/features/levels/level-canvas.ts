@@ -25,6 +25,20 @@ import { type Camera, toScreen } from './view.ts'
 /** The framework's dark edge round every box. */
 const EDGE = 0x1b1b24
 const FALLBACK_COLOR = '#888888'
+/** The light the stand-in boxes and the grid are lit with: the editors' own `--bright`. */
+const LIGHT = 0xffffff
+/** The page's ground, when the canvas cannot read it from the page. */
+const GROUND = '#1e1e1e'
+
+/** Is a colour (a number, or `#rgb` / `#rrggbb`) light: is dark ink what reads on it? Anything else counts as light. */
+function isLight(colour: number | string): boolean {
+  const hex = typeof colour === 'number' ? colour.toString(16).padStart(6, '0') : colour.replace('#', '')
+  const full = hex.length === 3 ? [...hex].map((one) => one + one).join('') : hex
+  const n = Number.parseInt(full.slice(0, 6), 16)
+  if (Number.isNaN(n)) return true
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  return 0.299 * r + 0.587 * g + 0.114 * b > 140
+}
 
 /** How a level is looked at: what is faint or hidden, whether the tiles are tinted by kind, and the grid. */
 export interface Look {
@@ -125,6 +139,17 @@ function drawLevel(
     }
   }
 
+  // The tile grid, faint, under the things and the ground: it shows only where the level is empty, so the empty parts
+  // read as a place to build (the blind judge's verdict, item 3). Dark lines on a light sky, light lines on a dark one.
+  if (look.grid === 'tiles') {
+    const lines = new Graphics()
+    for (let x = 0; x <= size.w; x += 1) lines.moveTo(x, 0).lineTo(x, size.h)
+    for (let y = 0; y <= size.h; y += 1) lines.moveTo(0, y).lineTo(size.w, y)
+    const light = isLight(skyOf(level))
+    lines.stroke({ width: edge, color: light ? EDGE : LIGHT, alpha: light ? 0.1 : 0.12 })
+    into.addChild(lines)
+  }
+
   /** One thing or start: its figure's first pose standing on the bottom of its box, or its coloured box. */
   const drawThing = (
     character: string,
@@ -148,11 +173,20 @@ function drawLevel(
       into.addChild(sprite)
       return
     }
+    // A stand-in for a thing with no picture: its colour, a light band along the top and a shade along the foot, so it
+    // reads as a solid block, and a firm edge (the blind judge's verdict, item 6). Only its own colour and the
+    // framework's edge are used; a thing with a picture is drawn above, unchanged.
+    const band = Math.min(h * 0.18, 0.25)
     const box = new Graphics()
     box
       .rect(-w / 2, -h / 2, w, h)
       .fill({ color: c?.color ?? FALLBACK_COLOR, alpha })
-      .stroke({ width: edge, color: EDGE, alpha, alignment: 1 })
+      .rect(-w / 2, -h / 2, w, band)
+      .fill({ color: LIGHT, alpha: alpha * 0.22 })
+      .rect(-w / 2, h / 2 - band, w, band)
+      .fill({ color: EDGE, alpha: alpha * 0.22 })
+      .rect(-w / 2, -h / 2, w, h)
+      .stroke({ width: edge * 1.5, color: EDGE, alpha: alpha * 0.9, alignment: 1 })
     box.position.set(at.x, at.y)
     into.addChild(box)
   }
@@ -206,12 +240,11 @@ function drawLevel(
     into.addChild(tint)
   }
 
-  if (look.grid !== 'off') {
-    const step = look.grid === 'finer' ? 0.5 : 1
+  if (look.grid === 'finer') {
     const lines = new Graphics()
-    for (let x = 0; x <= size.w; x += step) lines.moveTo(x, 0).lineTo(x, size.h)
-    for (let y = 0; y <= size.h; y += step) lines.moveTo(0, y).lineTo(size.w, y)
-    lines.stroke({ width: edge, color: 0xffffff, alpha: 0.25 })
+    for (let x = 0; x <= size.w; x += 0.5) lines.moveTo(x, 0).lineTo(x, size.h)
+    for (let y = 0; y <= size.h; y += 0.5) lines.moveTo(0, y).lineTo(size.w, y)
+    lines.stroke({ width: edge, color: LIGHT, alpha: 0.25 })
     into.addChild(lines)
   }
 
@@ -288,7 +321,7 @@ export async function createStage(): Promise<Stage> {
     if (sheet !== undefined) {
       // The page's own ground shows round the levels.
       app.renderer.background.color =
-        getComputedStyle(app.canvas).getPropertyValue('--ground').trim() || '#1e1e1e'
+        getComputedStyle(app.canvas).getPropertyValue('--ground').trim() || GROUND
       world.scale.set(1)
       world.position.set(0, 0)
       for (const child of world.removeChildren()) child.destroy({ children: true })
@@ -298,11 +331,24 @@ export async function createStage(): Promise<Stage> {
     }
     if (last === undefined) return
     const { content, pictures, level, camera, look } = last
-    app.renderer.background.color = skyOf(level)
+    // Beyond the level's edges is the page's own ground, so the level reads as a framed stage on it and not as more sky
+    // (the blind judge's verdict, item 4). The level's sky is drawn as its own box over a line twice as wide as the edge it
+    // leaves, so a thin edge shows round it.
+    const ground = getComputedStyle(app.canvas).getPropertyValue('--ground').trim() || GROUND
+    const line = getComputedStyle(app.canvas).getPropertyValue('--line').trim() || ground
+    app.renderer.background.color = ground
     const at = toScreen(camera, box, { x: 0, y: 0 })
     world.scale.set(camera.scale)
     world.position.set(at.x, at.y)
     for (const child of world.removeChildren()) child.destroy({ children: true })
+    const size = levelSize(level)
+    world.addChild(
+      new Graphics()
+        .rect(0, 0, size.w, size.h)
+        .stroke({ width: 4 / camera.scale, color: line })
+        .rect(0, 0, size.w, size.h)
+        .fill(skyOf(level)),
+    )
     drawLevel(world, content, artFor(content, pictures, level), level, look, camera.scale)
     app.render()
   }

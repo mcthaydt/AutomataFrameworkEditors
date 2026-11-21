@@ -2,7 +2,7 @@
   // The level on screen: the picture, the marks a hand touches, the tool in hand and its floating parts. It decides nothing
   // about the game: every hand movement becomes one of the pure edits (`things.ts`, `ground.ts`, `clipboard.ts`) and the
   // new level goes up through `onedit`.
-  import type { GameContent, Level } from '@automataframework/framework/headless'
+  import { type GameContent, type Level, levelSize } from '@automataframework/framework/headless'
   import { onMount, untrack } from 'svelte'
   import type { Pointers } from '../device/device.ts'
   import type { Tool } from '../shell/shell.ts'
@@ -86,17 +86,17 @@ import { tagFacts } from './tags.ts'
     extras?: readonly Extra[]
     onextra?: (id: string) => void
     onnote?: ((where: { thing?: string; at: Point }) => void) | undefined
+    aside?: Readonly<Record<'left' | 'right', number>> /** A panel's room over a side: the whole level fits in the rest. */
   }
   let {
     content, pictures, level, levelId, lang, tool, picked, locked, hidden, placing, clip, pointers,
-    fingerDraws = false, readOnly = false, paused = false,
+    fingerDraws = false, readOnly = false, paused = false, aside = { left: 0, right: 0 },
     onpick, onplacing, ongrab, onedit, ondrop, onlock, onhide, onclip, onundo, onmap, edges = [], ongo,
     show = SHOW, brush = NO_BRUSH, onbrush = () => {}, onnear = () => {}, edgesFor, extras = [], onextra = () => {}, onnote,
   }: Props = $props()
 
-  const NONE = { top: 0, right: 0, bottom: 0, left: 0 }
-  /** The tray's room (px) at the level's foot, kept clear on a stage shorter than STAGE_TOO_SHORT. */
-  const [TRAY_ROOM, STAGE_TOO_SHORT] = [100, 400]
+  /** The tray's room (px), kept at both ends while it is out so the level stays centred; a frame's room (px) round it. */
+  const [TRAY_ROOM, EDGE] = [100, 12]
   const words = $derived(wordsIn(lang).levels)
   const text = (row: Row, ...parts: (string | number)[]): string => (typeof row === 'function' ? row(...parts) : row)
   const characters = $derived(content.characters)
@@ -106,8 +106,8 @@ import { tagFacts } from './tags.ts'
   let engine = $state.raw<Stage | undefined>()
   /** Where a person slid or zoomed to; undefined while the whole level is shown. */
   let custom = $state.raw<Camera | undefined>()
-  const trayOver = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 && size.h < STAGE_TOO_SHORT)
-  const room = $derived(trayOver ? { ...NONE, bottom: TRAY_ROOM } : NONE)
+  const trayRoom = $derived((tool === 'place' || tool === 'paint') && !readOnly && size.h > 0 ? TRAY_ROOM : 0)
+  const room = $derived({ top: EDGE + trayRoom, left: aside.left + EDGE, right: aside.right + EDGE, bottom: EDGE + trayRoom })
   const camera = $derived(custom ?? wholeLevel(level, size, room))
   $effect(() => {
     levelId
@@ -467,7 +467,7 @@ import { tagFacts } from './tags.ts'
   role="group"
   aria-label={nameOf(levelId)}
   bind:this={holder}
-  data-scale={camera.scale}
+  style:--aside-left="{aside.left}px" style:--aside-right="{aside.right}px" data-scale={camera.scale} data-drawn={[toScreen(camera, size, { x: 0, y: 0 }), toScreen(camera, size, { x: levelSize(level).w, y: levelSize(level).h })].flatMap((p) => [Math.round(p.x), Math.round(p.y)]).join(' ')}
   onpointerdown={(e) => feed('down', e)}
   onpointermove={(e) => feed('move', e)}
   onpointerup={(e) => feed('up', e)}
@@ -522,7 +522,7 @@ import { tagFacts } from './tags.ts'
     {lang}
     {characters}
     {counts}
-    size={size}
+    size={{ w: size.w - aside.left - aside.right, h: size.h }} from={aside.left}
     {tool}
     {readOnly}
     {paused}
