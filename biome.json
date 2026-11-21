@@ -36,9 +36,7 @@
   "overrides": [
     {
       "includes": ["tests/fixtures/game/content/**"],
-      "formatter": {
-        "enabled": false
-      }
+      "formatter": { "enabled": false }
     },
     {
       "includes": ["tests/**"],
